@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.journal.client.widget;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
@@ -87,7 +86,7 @@ public class JournalDataPanel extends FormPanel {
     
     private List<JournalGridModel> currentDataList;
     
-    private Map<String, Boolean> keyExistences;
+    private Set<String> deletedKeys;
     
     private boolean turnPage = false;
     
@@ -254,43 +253,43 @@ public class JournalDataPanel extends FormPanel {
                     @Override
                     public void loaderLoad(LoadEvent le) {
                         currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
-                        List<JournalGridModel> journalListWithUniqueRecords = extractSubJournalList(currentDataList);
 
-                        service.getDataRecordExistence(journalListWithUniqueRecords, new SessionAwareAsyncCallback<Map<String, Boolean>>() {
-                            @Override
-                            public void onSuccess(Map<String, Boolean> existenceMap) {
-                                JournalDataPanel.this.keyExistences = existenceMap;
-                                
-                                if (turnPage) {
-                                    JournalGridModel targetGridModel;
-                                    //here need to check current journal(iso prev/next one) has its data record exists(then open the journal), thus
-                                    //need to use adjusted index value
-                                    if (naviToPrevious) {
-                                        targetGridModel = getPrevJournalWithExistentRecord(currentDataList.size());
-                                    } else {
-                                        targetGridModel = getNextJournalWithExistentRecord(-1);
+                        if (turnPage) {
+                            JournalGridModel targetGridModel;
+                            //here need to check current journal(iso prev/next one) has its data record exists(then open the journal), thus
+                            //need to use adjusted index value
+                            if (naviToPrevious) {
+                                targetGridModel = getPrevJournalWithExistentRecord(currentDataList.size());
+                            } else {
+                                targetGridModel = getNextJournalWithExistentRecord(-1);
+                            }
+                            JournalDataPanel.this.updateTabPanel(targetGridModel);
+                            turnPage = false; 
+                        } else {//updateJournalNavigationList only called from here when the JournalDataPanel opened from gridPanel, 
+                            //other calls to this fuction is issued from update()
+                            JournalSearchCriteria criteriaForPhysicalDeleted = new JournalSearchCriteria();
+                            criteriaForPhysicalDeleted.setOperationType(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
+                            PagingLoadConfig loadConfig = new BasePagingLoadConfig();
+                            loadConfig.setOffset(0);
+                            loadConfig.setLimit(0);
+                            service.getJournalList(criteriaForPhysicalDeleted, BasePagingLoadConfigImpl.copyPagingLoad(loadConfig),
+                                    new SessionAwareAsyncCallback<ItemBasePageLoadResult<JournalGridModel>>() {
+
+                                @Override
+                                public void onSuccess(ItemBasePageLoadResult<JournalGridModel> result) {
+                                    if (JournalDataPanel.this.deletedKeys == null) {
+                                        JournalDataPanel.this.deletedKeys = new HashSet<String>();
+                                        for (JournalGridModel model : result.getData()) {
+                                            deletedKeys.add(model.getKey());
+                                        }
                                     }
-                                    JournalDataPanel.this.updateTabPanel(targetGridModel);
-                                    turnPage = false; 
-                                } else {//updateJournalNavigationList only called from here when the JournalDataPanel opened from gridPanel, 
-                                    //other calls to this fuction is issued from update()
-                                    updateJournalNavigationList();  
+                                    updateJournalNavigationList();
                                 }
 
-                            }
-                        });                           
-                    }
+                            }); 
 
-                    private List<JournalGridModel> extractSubJournalList(List<JournalGridModel> journalDataList) {
-                        Set<String> uniqueKeys = new HashSet<String>();
-                        List<JournalGridModel> tempList = new ArrayList<JournalGridModel>();
-                        for (JournalGridModel journal : journalDataList) {
-                            if (uniqueKeys.add(journal.getKey())) {
-                                tempList.add(journal);
-                            }
                         }
-                        return tempList;
-                    }
+                    }                   
                 });
         
         localLoader.load(localPagingLoadConfig);
@@ -504,7 +503,7 @@ public class JournalDataPanel extends FormPanel {
         boolean exists = false;
         while (++start < limit) {
             key = currentDataList.get(start).getKey();
-            if (keyExistences.get(key)) {
+            if (! deletedKeys.contains(key)) {
                 exists = true;
                 break;
             }
@@ -518,7 +517,7 @@ public class JournalDataPanel extends FormPanel {
         boolean exists = false;
         while (--start >= 0) {
             key = currentDataList.get(start).getKey();
-            if (keyExistences.get(key)) {
+            if (! deletedKeys.contains(key)) {
                 exists = true;
                 break;
             }
