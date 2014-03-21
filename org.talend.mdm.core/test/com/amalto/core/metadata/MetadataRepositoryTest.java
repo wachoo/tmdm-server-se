@@ -206,9 +206,8 @@ public class MetadataRepositoryTest extends TestCase {
     public void test19() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream stream = getClass().getResourceAsStream("schema19.xsd");
-        repository.load(stream);
         try {
-            MetadataUtils.sortTypes(repository);
+            repository.load(stream);
             fail("Expected exception (cycles in model).");
         } catch (Exception e) {
             // Expected
