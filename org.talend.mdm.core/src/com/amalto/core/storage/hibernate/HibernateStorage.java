@@ -852,148 +852,150 @@ public class HibernateStorage implements Storage {
                 }
             }
         }
-        if (typesToDrop.isEmpty()) { // If no type to drop, exit method
-            LOGGER.info("Schema changes do no require to drop any database schema element.");
-            return;
-        }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(typesToDrop.size() + " type(s) scheduled for deletion: " + Arrays.toString(typesToDrop.toArray()) + ".");
-        }
-        // Find dependent types to delete
-        Set<ComplexTypeMetadata> additionalTypes = new HashSet<ComplexTypeMetadata>();
-        for (ComplexTypeMetadata typeToDrop : typesToDrop) {
-            Set<ReferenceFieldMetadata> inboundReferences = previousRepository.accept(new InboundReferences(typeToDrop));
-            for (ReferenceFieldMetadata inboundReference : inboundReferences) {
-                additionalTypes.add(inboundReference.getContainingType().getEntity());
+        if (!typesToDrop.isEmpty()) { // If types to drop, drop them
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(typesToDrop.size() + " type(s) scheduled for deletion: " + Arrays.toString(typesToDrop.toArray())
+                        + ".");
             }
-        }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(additionalTypes.size() + " additional type(s) scheduled for deletion (inbound references): "
-                    + Arrays.toString(additionalTypes.toArray()) + ".");
-        }
-        typesToDrop.addAll(additionalTypes);
-        // Sort in dependency order
-        ArrayList<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(typesToDrop);
-        List<ComplexTypeMetadata> sortedTypesToDrop = MetadataUtils.sortTypes(previousRepository, types);
-        // Get table names to drop
-        List<String> tablesToDrop = new LinkedList<String>();
-        TableClosureVisitor visitor = new TableClosureVisitor();
-        for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
-            PersistentClass metadata = configuration.getClassMapping(ClassCreator.PACKAGE_PREFIX
-                    + tableResolver.get(typeMetadata));
-            if (metadata != null) {
-                tablesToDrop.addAll((Collection<String>) metadata.accept(visitor));
-            } else {
-                LOGGER.warn("Could not find table names for type '" + typeMetadata.getName() + "'.");
-            }
-        }
-        if (LOGGER.isTraceEnabled()) {
-            StringBuilder aggregatedTableNames = new StringBuilder();
-            for (String table : tablesToDrop) {
-                aggregatedTableNames.append(table).append(' ');
-            }
-            LOGGER.trace("Table(s) scheduled for drop: " + aggregatedTableNames);
-        }
-        // Full text index clean up
-        org.hibernate.classic.Session currentSession = null;
-        try {
-            currentSession = factory.getCurrentSession();
-            FullTextSession s = Search.getFullTextSession(currentSession);
-            for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
-                try {
-                    Class<?> clazz = storageClassLoader.loadClass(ClassCreator.PACKAGE_PREFIX + tableResolver.get(typeMetadata));
-                    DirectoryProvider[] directoryProviders = s.getSearchFactory().getDirectoryProviders(clazz);
-                    for (DirectoryProvider directoryProvider : directoryProviders) {
-                        final Directory directory = directoryProvider.getDirectory();
-                        final String lockName = "delete." + typeMetadata.getName(); //$NON-NLS-1$
-                        // Default 5 sec timeout for lock
-                        Lock.With lock = new Lock.With(directory.makeLock(lockName), 5000) {
-
-                            @Override
-                            protected Object doBody() throws IOException {
-                                String[] files = directory.listAll();
-                                for (String file : files) {
-                                    if (!file.endsWith(lockName)) { // Don't delete our own lock
-                                        directory.deleteFile(file);
-                                    }
-                                }
-                                return null;
-                            }
-                        };
-                        lock.run();
-                        directoryProvider.stop(); // Prevent operations on full text index after clean
-                    }
-                } catch (Exception e) {
-                    LOGGER.warn("Could not remove full text directory for '" + typeMetadata.getName() + "'.", e);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Could not correctly clean full text directory.", e);
-        } finally {
-            if (currentSession != null) {
-                currentSession.close();
-            }
-        }
-        // Clean update reports
-        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage storage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER, null);
-        try {
-            if (storage == null) {
-                LOGGER.warn("No update report storage available.");
-            } else {
-                ComplexTypeMetadata update = storage.getMetadataRepository().getComplexType("Update"); //$NON-NLS-1$
-                storage.begin();
-                for (ComplexTypeMetadata type : sortedTypesToDrop) {
-                    try {
-                        UserQueryBuilder qb = from(update)
-                                .where(and(
-                                        eq(update.getField("Concept"), type.getName()), eq(update.getField("DataCluster"), getName()))); //$NON-NLS-1$ //$NON-NLS-2$
-                        storage.delete(qb.getExpression());
-                    } catch (Exception e) {
-                        LOGGER.warn("Could not remove update reports for '" + type.getName() + "'.", e);
-                    }
-                }
-                storage.commit();
-            }
-        } catch (Exception e) {
-            if (storage != null) {
-                storage.rollback();
-            }
-            LOGGER.warn("Could not correctly clean update reports", e);
-        }
-        // Execute drop table
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(),
-                    dataSource.getPassword());
-            int successCount = 0;
-            for (String table : tablesToDrop) {
-                Statement statement = connection.createStatement();
-                try {
-                    statement.executeUpdate("DROP TABLE " + table); //$NON-NLS-1$
-                    successCount++;
-                } catch (SQLException e) {
-                    LOGGER.warn("Could not delete '" + table + "'.");
-                } finally {
-                    statement.close();
+            // Find dependent types to delete
+            Set<ComplexTypeMetadata> additionalTypes = new HashSet<ComplexTypeMetadata>();
+            for (ComplexTypeMetadata typeToDrop : typesToDrop) {
+                Set<ReferenceFieldMetadata> inboundReferences = previousRepository.accept(new InboundReferences(typeToDrop));
+                for (ReferenceFieldMetadata inboundReference : inboundReferences) {
+                    additionalTypes.add(inboundReference.getContainingType().getEntity());
                 }
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Successfully deleted " + successCount + " tables (out of " + tablesToDrop.size() + " tables).");
+                LOGGER.debug(additionalTypes.size() + " additional type(s) scheduled for deletion (inbound references): "
+                        + Arrays.toString(additionalTypes.toArray()) + ".");
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Could not acquire connection to database.", e);
-        } finally {
+            typesToDrop.addAll(additionalTypes);
+            // Sort in dependency order
+            ArrayList<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(typesToDrop);
+            List<ComplexTypeMetadata> sortedTypesToDrop = MetadataUtils.sortTypes(previousRepository, types);
+            // Get table names to drop
+            List<String> tablesToDrop = new LinkedList<String>();
+            TableClosureVisitor visitor = new TableClosureVisitor();
+            for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
+                PersistentClass metadata = configuration.getClassMapping(ClassCreator.PACKAGE_PREFIX
+                        + tableResolver.get(typeMetadata));
+                if (metadata != null) {
+                    tablesToDrop.addAll((Collection<String>) metadata.accept(visitor));
+                } else {
+                    LOGGER.warn("Could not find table names for type '" + typeMetadata.getName() + "'.");
+                }
+            }
+            if (LOGGER.isTraceEnabled()) {
+                StringBuilder aggregatedTableNames = new StringBuilder();
+                for (String table : tablesToDrop) {
+                    aggregatedTableNames.append(table).append(' ');
+                }
+                LOGGER.trace("Table(s) scheduled for drop: " + aggregatedTableNames);
+            }
+            // Full text index clean up
+            org.hibernate.classic.Session currentSession = null;
             try {
-                if (connection != null) {
-                    connection.close();
+                currentSession = factory.getCurrentSession();
+                FullTextSession s = Search.getFullTextSession(currentSession);
+                for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
+                    try {
+                        Class<?> clazz = storageClassLoader.loadClass(ClassCreator.PACKAGE_PREFIX
+                                + tableResolver.get(typeMetadata));
+                        DirectoryProvider[] directoryProviders = s.getSearchFactory().getDirectoryProviders(clazz);
+                        for (DirectoryProvider directoryProvider : directoryProviders) {
+                            final Directory directory = directoryProvider.getDirectory();
+                            final String lockName = "delete." + typeMetadata.getName(); //$NON-NLS-1$
+                            // Default 5 sec timeout for lock
+                            Lock.With lock = new Lock.With(directory.makeLock(lockName), 5000) {
+
+                                @Override
+                                protected Object doBody() throws IOException {
+                                    String[] files = directory.listAll();
+                                    for (String file : files) {
+                                        if (!file.endsWith(lockName)) { // Don't delete our own lock
+                                            directory.deleteFile(file);
+                                        }
+                                    }
+                                    return null;
+                                }
+                            };
+                            lock.run();
+                            directoryProvider.stop(); // Prevent operations on full text index after clean
+                        }
+                    } catch (Exception e) {
+                        LOGGER.warn("Could not remove full text directory for '" + typeMetadata.getName() + "'.", e);
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Could not correctly clean full text directory.", e);
+            } finally {
+                if (currentSession != null) {
+                    currentSession.close();
+                }
+            }
+            // Clean update reports
+            StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+            Storage storage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER, null);
+            try {
+                if (storage == null) {
+                    LOGGER.warn("No update report storage available.");
+                } else {
+                    ComplexTypeMetadata update = storage.getMetadataRepository().getComplexType("Update"); //$NON-NLS-1$
+                    storage.begin();
+                    for (ComplexTypeMetadata type : sortedTypesToDrop) {
+                        try {
+                            UserQueryBuilder qb = from(update)
+                                    .where(and(
+                                            eq(update.getField("Concept"), type.getName()), eq(update.getField("DataCluster"), getName()))); //$NON-NLS-1$ //$NON-NLS-2$
+                            storage.delete(qb.getExpression());
+                        } catch (Exception e) {
+                            LOGGER.warn("Could not remove update reports for '" + type.getName() + "'.", e);
+                        }
+                    }
+                    storage.commit();
+                }
+            } catch (Exception e) {
+                if (storage != null) {
+                    storage.rollback();
+                }
+                LOGGER.warn("Could not correctly clean update reports", e);
+            }
+            // Execute drop table
+            Connection connection = null;
+            try {
+                connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(),
+                        dataSource.getPassword());
+                int successCount = 0;
+                for (String table : tablesToDrop) {
+                    Statement statement = connection.createStatement();
+                    try {
+                        statement.executeUpdate("DROP TABLE " + table); //$NON-NLS-1$
+                        successCount++;
+                    } catch (SQLException e) {
+                        LOGGER.warn("Could not delete '" + table + "'.");
+                    } finally {
+                        statement.close();
+                    }
+                }
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Successfully deleted " + successCount + " tables (out of " + tablesToDrop.size() + " tables).");
                 }
             } catch (SQLException e) {
-                LOGGER.error("Unexpected error on connection close.", e);
+                throw new RuntimeException("Could not acquire connection to database.", e);
+            } finally {
+                try {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    LOGGER.error("Unexpected error on connection close.", e);
+                }
             }
+        } else {
+            LOGGER.info("Schema changes do no require to drop any database schema element.");
         }
         // Reinitialize Hibernate
-        LOGGER.info("Completing database schema update.");
+        LOGGER.info("Completing database schema update...");
         try {
             close(false);
             internalInit();
