@@ -839,6 +839,8 @@ public class HibernateStorage implements Storage {
                             }
                         }
                     }
+                } else {
+                    throw new IllegalArgumentException("Some changes require force parameter.");
                 }
                 break;
             case LOW:
