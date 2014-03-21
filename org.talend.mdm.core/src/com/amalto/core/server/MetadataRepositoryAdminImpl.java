@@ -50,7 +50,11 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
                 String id = dataModelName.getUniqueId();
                 // XML Schema's schema is not aimed to be parsed.
                 if (!"XMLSCHEMA---".equals(id) && !xDataClustersMap.containsKey(id)) { //$NON-NLS-1$
-                    get(id);
+                    try {
+                        get(id);
+                    } catch (Exception e) {
+                        LOGGER.error("Initialization error occurred during initialization of '" + id + "'. Storage might not be available.");
+                    }
                 }
             }
         } catch (Exception e) {

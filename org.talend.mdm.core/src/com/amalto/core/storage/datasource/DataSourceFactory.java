@@ -72,11 +72,12 @@ public class DataSourceFactory {
                 // TMDM-6559: MySQL doesn't like '-' in database name
                 processedConnectionURL = connectionURL.replace(placeholderName, value);
                 if (processedConnectionURL.indexOf('-') > 0) {
-                    URI uri = URI.create(processedConnectionURL.substring(5)); // Uses URI-based parsing to prevent
-                                                                               // replace of '-' in host name.
+                    // Uses URI-based parsing to prevent replace of '-' in host name.
+                    URI uri = URI.create(processedConnectionURL.substring(5));
                     if (uri.getPath().indexOf('-') > 0) {
-                        LOGGER.warn("JDBC URL '" + processedConnectionURL + "' contains character(s) not supported by MySQL.");
+                        String previousURL = processedConnectionURL;
                         processedConnectionURL = processedConnectionURL.replace(uri.getPath(), uri.getPath().replace('-', '_'));
+                        LOGGER.warn("JDBC URL '" + previousURL + "' contains character(s) not supported by MySQL (replaced with '" + processedConnectionURL + "' by MDM).");
                     }
                 }
                 break;
