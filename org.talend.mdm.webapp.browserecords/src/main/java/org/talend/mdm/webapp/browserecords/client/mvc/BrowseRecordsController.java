@@ -37,7 +37,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
-import org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.LineageListPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
@@ -68,6 +68,7 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.SaveItem);
         registerEventTypes(BrowseRecordsEvents.UpdatePolymorphism);
         registerEventTypes(BrowseRecordsEvents.ExecuteVisibleRule);
+        registerEventTypes(BrowseRecordsEvents.ViewLineageItem);
     }
 
     @Override
@@ -112,6 +113,9 @@ public class BrowseRecordsController extends Controller {
             break;
         case BrowseRecordsEvents.ExecuteVisibleRuleCode:
             onExecuteVisibleRule(event);
+            break;
+        case BrowseRecordsEvents.ViewLineageItemCode:
+            onViewLineageItem(event);
             break;
         default:
             break;
@@ -196,7 +200,7 @@ public class BrowseRecordsController extends Controller {
                             }
                         }
                         if (isStaging) {
-                            StagingGridPanel.getInstance().refresh();
+                            LineageListPanel.getInstance().refresh();
                         }
                         // TMDM-3349 button 'save and close' function
                         if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {
@@ -266,11 +270,12 @@ public class BrowseRecordsController extends Controller {
 
     private void onViewItem(final AppEvent event) {
         ItemBean item = (ItemBean) event.getData();
+        Boolean isStaging = event.getData("isStaging"); //$NON-NLS-1$
         if (item != null) {
             UserSession userSession = BrowseRecords.getSession();
             EntityModel entityModel = (EntityModel) userSession.get(UserSession.CURRENT_ENTITY_MODEL);
             ViewBean viewbean = (ViewBean) userSession.get(UserSession.CURRENT_VIEW);
-            service.getItem(item, viewbean.getViewPK(), entityModel, Locale.getLanguage(),
+            service.getItem(item, viewbean.getViewPK(), entityModel, isStaging, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemBean>() {
 
                         @Override
@@ -356,6 +361,28 @@ public class BrowseRecordsController extends Controller {
                             app.setData("viewBean", viewBean); //$NON-NLS-1$
                             app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
                             forwardToView(view, app);
+                        }
+                    });
+        }
+    }
+
+    private void onViewLineageItem(final AppEvent event) {
+        ItemBean item = (ItemBean) event.getData();
+        if (item != null) {
+            UserSession userSession = BrowseRecords.getSession();
+            EntityModel entityModel = (EntityModel) userSession.get(UserSession.CURRENT_ENTITY_MODEL);
+            ViewBean viewbean = (ViewBean) userSession.get(UserSession.CURRENT_VIEW);
+            service.getItem(item, viewbean.getViewPK(), entityModel, true, Locale.getLanguage(),
+                    new SessionAwareAsyncCallback<ItemBean>() {
+
+                        @Override
+                        public void onSuccess(ItemBean result) {
+                            event.setData(result);
+                            String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
+                            if (itemsFormTarget != null) {
+                                event.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
+                            }
+                            forwardToView(view, event);
                         }
                     });
         }

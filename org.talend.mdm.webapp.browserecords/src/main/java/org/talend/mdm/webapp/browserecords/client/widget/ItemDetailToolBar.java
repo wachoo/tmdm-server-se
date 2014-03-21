@@ -660,13 +660,14 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    StagingGridPanel panel = StagingGridPanel.getInstance();
-                    panel.initPanel(itemBean.getIds());
+                    LineageListPanel listPanel = LineageListPanel.getInstance();
+                    listPanel.initPanel(itemBean.getIds());
                     if (GWT.isScript()) {
-                        ItemDetailToolBar.this.openBrowseStagingRecordsPanel(itemBean.getIds(), panel);
+                        ItemDetailToolBar.this.openLineagePanel(itemBean.getIds(), LineagePanel.getInstance());
                     } else {
-                        ItemDetailToolBar.this.openDebugBrowseStagingRecordsPanel(itemBean.getIds(), panel);
+                        ItemDetailToolBar.this.openDebugLineagePanel(itemBean.getIds(), LineagePanel.getInstance());
                     }
+
                 }
             });
         }
@@ -1535,55 +1536,55 @@ public class ItemDetailToolBar extends ToolBar {
 		window.open(url);
     }-*/;
 
-    protected void openDebugBrowseStagingRecordsPanel(String ids, StagingGridPanel source) {
+    protected void openDebugLineagePanel(String ids, LineagePanel panel) {
         Window window = new Window();
         window.setLayout(new FitLayout());
-        window.add(source);
+        window.add(panel);
         window.setSize(1100, 700);
         window.setMaximizable(true);
         window.setModal(false);
         window.show();
     }
 
-    protected native void openBrowseStagingRecordsPanel(String ids, StagingGridPanel source)/*-{
+    protected native void openLineagePanel(String ids, LineagePanel lineagePanel)/*-{
 		var tabPanel = $wnd.amalto.core.getTabPanel();
 		var browseStagingRecordsPanel = tabPanel.getItem(ids);
 		if (browseStagingRecordsPanel == undefined) {
-			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::convertBrowseStagingRecordsPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/StagingGridPanel;)(source);
+			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::convertLineagePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/LineagePanel;)(lineagePanel);
 			tabPanel.add(panel);
 		}
 		tabPanel.setSelection(ids);
     }-*/;
 
-    private native static JavaScriptObject convertBrowseStagingRecordsPanel(StagingGridPanel browseStagingRecordsPanel)/*-{
+    private native static JavaScriptObject convertLineagePanel(LineagePanel lineagePanel)/*-{
 
 		var panel = {
 			// imitate extjs's render method, really call gxt code.
 			render : function(el) {
 				var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
-				rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(browseStagingRecordsPanel);
+				rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(lineagePanel);
 			},
 			// imitate extjs's setSize method, really call gxt code.
 			setSize : function(width, height) {
-				browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::setSize(II)(width, height);
+				lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::setSize(II)(width, height);
 			},
 			// imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
 			getItemId : function() {
-				return browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::getItemId()();
+				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getItemId()();
 			},
 			// imitate El object of extjs
 			getEl : function() {
-				var el = browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::getElement()();
+				var el = lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getElement()();
 				return {
 					dom : el
 				};
 			},
 			// imitate extjs's doLayout method, really call gxt code.
 			doLayout : function() {
-				return browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::doLayout()();
+				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::doLayout()();
 			},
 			title : function() {
-				return browseStagingRecordsPanel.@org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel::getHeading()();
+				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getHeading()();
 			}
 		};
 		return panel;

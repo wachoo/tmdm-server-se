@@ -33,6 +33,7 @@ import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseStagingRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
 import org.talend.mdm.webapp.browserecords.client.creator.CellEditorCreator;
@@ -51,7 +52,6 @@ import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.filter.BooleanFilter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -69,9 +69,11 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.LoadListener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -90,11 +92,13 @@ import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 
-public class StagingGridPanel extends ContentPanel {
+public class LineageListPanel extends ContentPanel {
 
     private Map<Integer, String> errorTitles;
 
@@ -112,7 +116,7 @@ public class StagingGridPanel extends ContentPanel {
 
     private GridFilters filters;
 
-    private static StagingGridPanel instance;
+    private static LineageListPanel instance;
 
     private BrowseStagingRecordsServiceAsync browseStagingRecordService = ServiceFactory.getInstance().getStagingService();
 
@@ -156,7 +160,7 @@ public class StagingGridPanel extends ContentPanel {
                             callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                                     .getTotalLength()));
                             if (result.getTotalLength() == 0) {
-                                ItemsMainTabPanel.getInstance().removeAll();
+                                LineagePanel.getInstance().clearDetailPanel();
                             }
                             currentQueryModel = qm;
                         }
@@ -171,14 +175,14 @@ public class StagingGridPanel extends ContentPanel {
         }
     };
 
-    public static StagingGridPanel getInstance() {
+    public static LineageListPanel getInstance() {
         if (instance == null) {
-            instance = new StagingGridPanel();
+            instance = new LineageListPanel();
         }
         return instance;
     }
 
-    private StagingGridPanel() {
+    private LineageListPanel() {
         this.cluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.cluster = this.cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? this.cluster : this.cluster
                 + StorageAdmin.STAGING_SUFFIX;
@@ -187,7 +191,6 @@ public class StagingGridPanel extends ContentPanel {
 
         setLayout(new FitLayout());
         setHeaderVisible(false);
-        setHeading(MessagesFactory.getMessages().staging_data_viewer_title());
         this.layout();
         initErrorTitles();
         ContentPanel gridPanel = generateGrid();
@@ -212,12 +215,12 @@ public class StagingGridPanel extends ContentPanel {
     }
 
     private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
-                                                                              return stagingAreaConfig.dataContainer;
-                                                                              }-*/;
+		return stagingAreaConfig.dataContainer;
+    }-*/;
 
     private native String getCriteria(JavaScriptObject stagingAreaConfig)/*-{
-                                                                         return stagingAreaConfig.criteria;
-                                                                         }-*/;
+		return stagingAreaConfig.criteria;
+    }-*/;
 
     private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
         RecordsPagingConfig rpConfig = new RecordsPagingConfig();
@@ -419,6 +422,16 @@ public class StagingGridPanel extends ContentPanel {
         store = new ListStore<ItemBean>(loader);
         store.setKeyProvider(keyProvidernew);
 
+        loader.addLoadListener(new LoadListener() {
+
+            @Override
+            public void loaderLoad(LoadEvent le) {
+                if (store.getModels().size() > 0) {
+                    grid.getSelectionModel().select(0, false);
+                }
+            }
+        });
+
         int usePageSize = PAGE_SIZE;
         if (Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE) != null) {
             usePageSize = Integer.parseInt(Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE));
@@ -454,16 +467,11 @@ public class StagingGridPanel extends ContentPanel {
             grid.setAutoExpandColumn(cm.getColumn(0).getHeader());
         }
 
-        grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<ItemBean>>() {
+        grid.getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ItemBean>() {
 
             @Override
-            public void handleEvent(GridEvent<ItemBean> ge) {
-                int rowIndex = ge.getRowIndex();
-                if (rowIndex != -1) {
-                    ItemBean item = grid.getStore().getAt(rowIndex);
-                    TreeDetailUtil.initItemsDetailPanelById(MessagesFactory.getMessages().browse_staging_records(),
-                            item.getIds(), entityModel.getConceptName(), false, false, true);
-                }
+            public void selectionChanged(SelectionChangedEvent<ItemBean> se) {
+                selectRow(se.getSelectedItem());
             }
         });
 
@@ -516,6 +524,19 @@ public class StagingGridPanel extends ContentPanel {
         ModelData model = new BaseModelData();
         model.set(xpath, value);
         return model;
+    }
+
+    private void selectRow(final ItemBean item) {
+        if (item != null) {
+            DeferredCommand.addCommand(new Command() {
+
+                @Override
+                public void execute() {
+                    AppEvent event = new AppEvent(BrowseRecordsEvents.ViewLineageItem, item);
+                    Dispatcher.forwardEvent(event);
+                }
+            });
+        }
     }
 
     private native void selectStagingGridPanel()/*-{

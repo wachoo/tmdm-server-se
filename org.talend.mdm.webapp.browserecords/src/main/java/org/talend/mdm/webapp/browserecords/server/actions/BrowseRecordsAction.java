@@ -383,12 +383,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, String language) throws ServiceException {
+    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean isStaging, String language)
+            throws ServiceException {
         try {
             String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
             String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
 
-            String dataCluster = getCurrentDataCluster();
+            String dataCluster = getCurrentDataCluster(isStaging);
             String dataModel = getCurrentDataModel();
             String concept = itemBean.getConcept();
             // get item
@@ -1431,7 +1432,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throws ServiceException {
         try {
             if (item.get("isRefresh") != null && (!"".equals(item.getIds()) && item.getIds() != null)) { //$NON-NLS-1$ //$NON-NLS-2$ 
-                item = getItem(item, "Browse_items_" + item.getConcept(), entity, language); // itemBean need to be get from server when refresh tree. //$NON-NLS-1$
+                item = getItem(item, "Browse_items_" + item.getConcept(), entity, isStaging, language); // itemBean need to be get from server when refresh tree. //$NON-NLS-1$
             }
             String xml = item.getItemXml();
 
@@ -1896,7 +1897,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             ViewBean viewBean = getView(viewPk, language);
 
             ItemBean itemBean = new ItemBean(concept, ids, null);
-            itemBean = getItem(itemBean, viewPk, viewBean.getBindingEntityModel(), language);
+            itemBean = getItem(itemBean, viewPk, viewBean.getBindingEntityModel(), isStaging, language);
             if (checkSmartViewExistsByLang(concept, language)) {
                 itemBean.setSmartViewMode(ItemBean.SMARTMODE);
             } else if (checkSmartViewExistsByOpt(concept, language)) {

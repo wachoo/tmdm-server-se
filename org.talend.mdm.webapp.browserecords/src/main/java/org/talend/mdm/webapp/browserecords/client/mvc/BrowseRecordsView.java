@@ -42,6 +42,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
+import org.talend.mdm.webapp.browserecords.client.widget.LineagePanel;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
@@ -75,6 +76,8 @@ public class BrowseRecordsView extends View {
     public static final String TARGET_IN_NEW_TAB = "target_in_new_tab";//$NON-NLS-1$
 
     public static final String DEFAULT_ITEMVIEW = "itemView"; //$NON-NLS-1$
+
+    public static final String LINEAGE_ITEMVIEW = "lineageItemView"; //$NON-NLS-1$
 
     public static final String ITEMS_DETAIL_PANEL = "itemsDetailPanel"; //$NON-NLS-1$
 
@@ -117,6 +120,9 @@ public class BrowseRecordsView extends View {
             break;
         case BrowseRecordsEvents.ExecuteVisibleRuleCode:
             onExecuteVisibleRule(event);
+            break;
+        case BrowseRecordsEvents.ViewLineageItemCode:
+            onViewLineageItem(event);
             break;
         default:
             break;
@@ -180,7 +186,6 @@ public class BrowseRecordsView extends View {
     }
 
     private void onViewItem(AppEvent event) {
-
         ItemBean item = (ItemBean) event.getData();
         Boolean isStaging = event.getData("isStaging"); //$NON-NLS-1$
         String itemConcept = null;
@@ -417,4 +422,29 @@ public class BrowseRecordsView extends View {
 
     }
 
+    private void onViewLineageItem(AppEvent event) {
+        ItemBean item = (ItemBean) event.getData();
+        String operation = getOperation(item);
+        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+
+        ItemsDetailPanel lineageDetailPanel = ItemsDetailPanel.newInstance();
+        ItemPanel itemPanel = new ItemPanel(true, viewBean, item, operation, lineageDetailPanel);
+
+        itemPanel.getToolBar().setOutMost(true);
+        itemPanel.getToolBar().setFkToolBar(false);
+        itemPanel.getToolBar().setHierarchyCall(false);
+
+        List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
+        if (item != null) {
+            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
+            breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), item.getDisplayPKInfo().equals(
+                    item.getLabel()) ? null : item.getDisplayPKInfo(), true));
+        }
+
+        lineageDetailPanel.setId(item.getIds());
+        lineageDetailPanel.initBanner(item.getPkInfoList(), item.getDescription());
+        lineageDetailPanel.addTabItem(item.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
+        lineageDetailPanel.initBreadCrumb(new BreadCrumb(breads, lineageDetailPanel));
+        LineagePanel.getInstance().updateDetailPanel(lineageDetailPanel);
+    }
 }

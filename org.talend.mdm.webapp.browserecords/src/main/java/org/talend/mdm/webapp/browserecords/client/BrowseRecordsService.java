@@ -51,7 +51,8 @@ public interface BrowseRecordsService extends RemoteService {
     ItemBean queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id, String language)
             throws ServiceException;
 
-    ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, String language) throws ServiceException;
+    ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean isStaging, String language)
+            throws ServiceException;
 
     String saveItemBean(ItemBean item, String language) throws ServiceException;
 

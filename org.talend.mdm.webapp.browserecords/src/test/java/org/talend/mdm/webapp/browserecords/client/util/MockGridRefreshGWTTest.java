@@ -414,7 +414,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, String language,
+        public void getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean isStaging, String language,
                 AsyncCallback<ItemBean> callback) {
         }
 

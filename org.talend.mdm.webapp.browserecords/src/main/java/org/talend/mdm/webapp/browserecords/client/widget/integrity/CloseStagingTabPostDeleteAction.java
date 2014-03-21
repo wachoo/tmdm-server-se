@@ -13,7 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.integrity;
 
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
-import org.talend.mdm.webapp.browserecords.client.widget.StagingGridPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.LineageListPanel;
 
 /**
  * created by yjli on 2014-2-11 Detailled comment
@@ -33,7 +33,7 @@ public class CloseStagingTabPostDeleteAction implements PostDeleteAction {
     @Override
     public void doAction() {
         bar.closeOutTabPanel();
-        StagingGridPanel.getInstance().refresh();
+        LineageListPanel.getInstance().refresh();
         next.doAction();
     }
 
