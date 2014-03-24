@@ -719,7 +719,7 @@
                     <xsd:appinfo source="X_Deny_Create">RAP_SRC</xsd:appinfo>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element maxOccurs="1" minOccurs="1" name="typeInterlocuteur" type="xsd:string">
+            <xsd:element maxOccurs="1" minOccurs="0" name="typeInterlocuteur" type="xsd:string">
                 <xsd:annotation>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
