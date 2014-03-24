@@ -3,7 +3,7 @@
  <inherits name="org.talend.mdm.webapp.base.BASE" />
  <inherits name="org.talend.mdm.webapp.base.REST" />
  <!-- gwt module for chart library flot -->
- <inherits name='com.googlecode.gflot.GFlot'/>
+ <inherits name='com.googlecode.gflot.GFlotJQueryNoConflict'/>
  <!-- enable a flot plugin when needed
  <set-property name="gflot.load.flot.canvas" value="ENABLED" />
  -->
