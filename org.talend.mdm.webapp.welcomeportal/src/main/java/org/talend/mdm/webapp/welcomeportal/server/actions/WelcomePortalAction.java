@@ -66,8 +66,8 @@ public class WelcomePortalAction implements WelcomePortalService {
      * @return
      */
     @Override
-    public boolean isHiddenTask() throws ServiceException {
-        return isHiddenMenu(WelcomePortal.TASKAPP);
+    public boolean isHiddenWorkFlowTask() throws ServiceException {
+        return isHiddenMenu(WelcomePortal.WORKFLOW_TASKAPP);
     }
 
     /**

@@ -67,7 +67,7 @@ public interface WelcomePortalMessages extends Messages {
 
     String waiting_task_prefix();
 
-    String waiting_task_suffix();
+    String waiting_workflowtask_suffix();
 
     String tasks_desc();
 

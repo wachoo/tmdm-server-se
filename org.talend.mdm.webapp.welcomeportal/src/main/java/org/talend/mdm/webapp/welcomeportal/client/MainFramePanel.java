@@ -293,12 +293,12 @@ public class MainFramePanel extends Portal {
     }
 
     private void initTaskPortlet() {
-        service.isHiddenTask(new SessionAwareAsyncCallback<Boolean>() {
+        service.isHiddenWorkFlowTask(new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean hidden) {
                 if (!hidden) {
-                    String name = WelcomePortal.TASK;
+                    String name = WelcomePortal.WORKFLOW_TASK;
                     Portlet task = configPortlet(name);
                     task.setHeading(MessagesFactory.getMessages().tasks_title());
                     task.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.task()));
@@ -312,10 +312,10 @@ public class MainFramePanel extends Portal {
 
     private void applyTaskPortlet(Portlet task) {
 
-        final Label label = (Label) task.getItemByItemId(WelcomePortal.TASK + "Label"); //$NON-NLS-1$
+        final Label label = (Label) task.getItemByItemId(WelcomePortal.WORKFLOW_TASK + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
-        final FieldSet set = (FieldSet) task.getItemByItemId(WelcomePortal.TASK + "Set"); //$NON-NLS-1$        
+        final FieldSet set = (FieldSet) task.getItemByItemId(WelcomePortal.WORKFLOW_TASK + "Set"); //$NON-NLS-1$        
         set.removeAll();
         final HTML taskHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
@@ -334,7 +334,7 @@ public class MainFramePanel extends Portal {
                             "<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$                                
                     sbNum.append(MessagesFactory.getMessages().waiting_task_prefix());
                     sbNum.append("&nbsp;<b style=\"color: red;\">" + num + "</b>&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
-                    sbNum.append(MessagesFactory.getMessages().waiting_task_suffix());
+                    sbNum.append(MessagesFactory.getMessages().waiting_workflowtask_suffix());
                     sb.append(sbNum.toString());
                     label.setText(MessagesFactory.getMessages().tasks_desc());
                     set.setVisible(true);
@@ -349,7 +349,7 @@ public class MainFramePanel extends Portal {
 
             @Override
             public void onClick(ClickEvent event) {
-                itemClick(WelcomePortal.TASKCONTEXT, WelcomePortal.TASKAPP);
+                itemClick(WelcomePortal.WORKFLOW_TASKCONTEXT, WelcomePortal.WORKFLOW_TASKAPP);
             }
 
         });
@@ -593,7 +593,7 @@ public class MainFramePanel extends Portal {
                                 applyStartPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.ALERT)) {
                                 applyAlertPortlet(selectedPortlet);
-                            } else if (name.equals(WelcomePortal.TASK)) {
+                            } else if (name.equals(WelcomePortal.WORKFLOW_TASK)) {
                                 applyTaskPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.PROCESS)) {
                                 applyProcessPortlet(selectedPortlet);

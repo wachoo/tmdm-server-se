@@ -35,7 +35,7 @@ public interface WelcomePortalServiceAsync {
 
     void isHiddenLicense(AsyncCallback<Boolean> callback);
 
-    void isHiddenTask(AsyncCallback<Boolean> callback);
+    void isHiddenWorkFlowTask(AsyncCallback<Boolean> callback);
 
     void getAlertMsg(String language, AsyncCallback<String> callback);
 

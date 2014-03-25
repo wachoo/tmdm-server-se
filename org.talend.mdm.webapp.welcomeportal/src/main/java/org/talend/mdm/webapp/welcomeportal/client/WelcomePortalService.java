@@ -27,7 +27,7 @@ public interface WelcomePortalService extends RemoteService {
 
     public boolean isHiddenLicense() throws ServiceException;
 
-    public boolean isHiddenTask() throws ServiceException;
+    public boolean isHiddenWorkFlowTask() throws ServiceException;
 
     public String getAlertMsg(String language) throws ServiceException;
 
