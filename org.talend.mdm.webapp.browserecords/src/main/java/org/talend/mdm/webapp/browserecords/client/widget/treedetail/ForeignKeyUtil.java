@@ -45,14 +45,16 @@ public class ForeignKeyUtil {
 
         Widget widget = itemsDetailPanel.getFirstTabWidget();
         final ItemNodeModel root;
-        if (widget instanceof ItemPanel)
-            root = (ItemNodeModel) ((ItemPanel) widget).getTree().getRootModel();
-        else
+        if (widget instanceof ItemPanel) {
+            root = ((ItemPanel) widget).getTree().getRootModel();
+        } else {
             root = ((ForeignKeyTreeDetail) widget).getRootModel();
+        }
         if (isChangeValue(root)) {
             MessageBox msgBox = MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), MessagesFactory.getMessages()
                     .msg_confirm_save_tree_detail(root.getLabel()), new Listener<MessageBoxEvent>() {
 
+                @Override
                 public void handleEvent(MessageBoxEvent be) {
                     if (Dialog.YES.equals(be.getButtonClicked().getItemId())) {
                         saveItem(root, isCreateForeignKey, foreignKeyName, ids, itemsDetailPanel);
@@ -78,7 +80,7 @@ public class ForeignKeyUtil {
         boolean validateSuccess = false;
         if (widget instanceof ItemPanel) {// save primary key
             viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
-            ItemPanel itemPanel = (ItemPanel) widget;            
+            ItemPanel itemPanel = (ItemPanel) widget;
             validateSuccess = true;
             itemBean = itemPanel.getItem();
             isCreate = itemPanel.getOperation().equals(ItemDetailToolBar.CREATE_OPERATION) ? true : false;
@@ -96,19 +98,20 @@ public class ForeignKeyUtil {
             BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
             service.saveItem(viewBean, itemBean.getIds(),
                     (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate,
-                    Locale.getLanguage(),
-                    new SessionAwareAsyncCallback<ItemResult>() {
+                    Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                         @Override
                         protected void doOnFailure(Throwable caught) {
                             String err = caught.getMessage();
-                            if (err != null) {                                
+                            if (err != null) {
                                 MessageBox.alert(MessagesFactory.getMessages().error_title(),
                                         MultilanguageMessageParser.pickOutISOMessage(err), null);
-                            } else
+                            } else {
                                 super.doOnFailure(caught);
+                            }
                         }
 
+                        @Override
                         public void onSuccess(ItemResult result) {
                             MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
@@ -131,18 +134,21 @@ public class ForeignKeyUtil {
         if (!isCreateForeignKey) {
             event = new AppEvent(BrowseRecordsEvents.ViewForeignKey);
             event.setData("ids", ids); //$NON-NLS-1$ 
-            event.setData("concept", foreignKeyName); //$NON-NLS-1$        
+            event.setData("concept", foreignKeyName); //$NON-NLS-1$
+            event.setData(BrowseRecordsView.IS_STAGING, itemsDetailPanel.isStaging());
             event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
         }
         dispatch.dispatch(event);
     }
 
     private static boolean isChangeValue(ItemNodeModel model) {
-        if (model.isChangeValue())
+        if (model.isChangeValue()) {
             return true;
+        }
         for (ModelData node : model.getChildren()) {
-            if (isChangeValue((ItemNodeModel) node))
+            if (isChangeValue((ItemNodeModel) node)) {
                 return true;
+            }
         }
         return false;
     }
@@ -150,8 +156,8 @@ public class ForeignKeyUtil {
     public static Set<ItemNodeModel> getAllForeignKeyModelParent(ViewBean viewBean, ItemNodeModel node) {
         Set<ItemNodeModel> set = new HashSet<ItemNodeModel>();
         TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
-        if (tm.getForeignkey() != null){
-        	set.add((ItemNodeModel) node.getParent());
+        if (tm.getForeignkey() != null) {
+            set.add((ItemNodeModel) node.getParent());
         }
         for (ModelData child : node.getChildren()) {
             ItemNodeModel childModel = (ItemNodeModel) child;
@@ -168,18 +174,20 @@ public class ForeignKeyUtil {
         do {
 
             TypeModel tm = pkViewBean.getBindingEntityModel().getMetaDataTypes().get(xp);
-            if (tm != null)
+            if (tm != null) {
                 stack.push(tm.getLabel(Locale.getLanguage()));
+            }
             xp = xp.substring(0, xp.lastIndexOf("/")); //$NON-NLS-1$
 
         } while (xp.indexOf("/") != -1); //$NON-NLS-1$
         boolean flag = true;
 
         while (!stack.isEmpty()) {
-            if (flag)
+            if (flag) {
                 flag = false;
-            else
+            } else {
                 sb.append("/"); //$NON-NLS-1$
+            }
             sb.append(stack.pop());
         }
         return sb.toString();

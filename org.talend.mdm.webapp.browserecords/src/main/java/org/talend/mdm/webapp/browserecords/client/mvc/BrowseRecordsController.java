@@ -237,7 +237,8 @@ public class BrowseRecordsController extends Controller {
 
         String concept = event.getData("concept"); //$NON-NLS-1$
         String ids = event.getData("ids"); //$NON-NLS-1$
-        Boolean isStaging = event.getData("isStaging"); //$NON-NLS-1$
+
+        Boolean isStaging = (Boolean) event.getData("isStaging"); //$NON-NLS-1$
         final ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         service.getForeignKeyModel(concept, ids, isStaging, Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ForeignKeyModel>() {
