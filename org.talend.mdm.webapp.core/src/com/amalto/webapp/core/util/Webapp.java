@@ -22,7 +22,7 @@ public interface Webapp {
 
     public Map<String, String> getProductInfo();
 
-    public int getTaskMsg();
+    public int getWorkflowTaskMsg();
 
     public boolean isExpired() throws Exception;
 

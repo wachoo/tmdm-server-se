@@ -29,7 +29,7 @@ public class WebappImpl implements Webapp {
     }
 
     @Override
-    public int getTaskMsg() {
+    public int getWorkflowTaskMsg() {
         return 0;
     }
 

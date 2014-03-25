@@ -150,8 +150,8 @@ public class WelcomePortalAction implements WelcomePortalService {
      * @return
      */
     @Override
-    public int getTaskMsg() {
-        return Webapp.INSTANCE.getTaskMsg();
+    public int getWorkflowTaskMsg() {
+        return Webapp.INSTANCE.getWorkflowTaskMsg();
     }
 
     @Override

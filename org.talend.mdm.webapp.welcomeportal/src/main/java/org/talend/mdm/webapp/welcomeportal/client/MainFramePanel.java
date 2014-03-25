@@ -298,7 +298,7 @@ public class MainFramePanel extends Portal {
             @Override
             public void onSuccess(Boolean hidden) {
                 if (!hidden) {
-                    String name = WelcomePortal.WORKFLOW_TASK;
+                    String name = WelcomePortal.TASKS;
                     Portlet task = configPortlet(name);
                     task.setHeading(MessagesFactory.getMessages().tasks_title());
                     task.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.task()));
@@ -312,15 +312,15 @@ public class MainFramePanel extends Portal {
 
     private void applyTaskPortlet(Portlet task) {
 
-        final Label label = (Label) task.getItemByItemId(WelcomePortal.WORKFLOW_TASK + "Label"); //$NON-NLS-1$
+        final Label label = (Label) task.getItemByItemId(WelcomePortal.TASKS + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
-        final FieldSet set = (FieldSet) task.getItemByItemId(WelcomePortal.WORKFLOW_TASK + "Set"); //$NON-NLS-1$        
+        final FieldSet set = (FieldSet) task.getItemByItemId(WelcomePortal.TASKS + "Set"); //$NON-NLS-1$        
         set.removeAll();
-        final HTML taskHtml = new HTML();
+        final HTML taskHtml_workflow = new HTML();
         final StringBuilder sb = new StringBuilder(
                 "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-        service.getTaskMsg(new SessionAwareAsyncCallback<Integer>() {
+        service.getWorkflowTaskMsg(new SessionAwareAsyncCallback<Integer>() {
 
             @Override
             public void onSuccess(Integer num) {
@@ -341,11 +341,11 @@ public class MainFramePanel extends Portal {
                 }
                 sb.append("</span>"); //$NON-NLS-1$
 
-                taskHtml.setHTML(sb.toString());
+                taskHtml_workflow.setHTML(sb.toString());
             }
 
         });
-        taskHtml.addClickHandler(new ClickHandler() {
+        taskHtml_workflow.addClickHandler(new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -353,7 +353,7 @@ public class MainFramePanel extends Portal {
             }
 
         });
-        set.add(taskHtml);
+        set.add(taskHtml_workflow);
         set.layout(true);
     }
 
@@ -593,7 +593,7 @@ public class MainFramePanel extends Portal {
                                 applyStartPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.ALERT)) {
                                 applyAlertPortlet(selectedPortlet);
-                            } else if (name.equals(WelcomePortal.WORKFLOW_TASK)) {
+                            } else if (name.equals(WelcomePortal.TASKS)) {
                                 applyTaskPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.PROCESS)) {
                                 applyProcessPortlet(selectedPortlet);

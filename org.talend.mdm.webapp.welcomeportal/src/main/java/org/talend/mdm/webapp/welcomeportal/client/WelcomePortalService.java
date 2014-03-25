@@ -31,7 +31,7 @@ public interface WelcomePortalService extends RemoteService {
 
     public String getAlertMsg(String language) throws ServiceException;
 
-    public int getTaskMsg() throws ServiceException;
+    public int getWorkflowTaskMsg() throws ServiceException;
 
     public List<String> getStandaloneProcess(String language) throws ServiceException;
 

@@ -39,7 +39,7 @@ public interface WelcomePortalServiceAsync {
 
     void getAlertMsg(String language, AsyncCallback<String> callback);
 
-    void getTaskMsg(AsyncCallback<Integer> callback);
+    void getWorkflowTaskMsg(AsyncCallback<Integer> callback);
 
     void getStandaloneProcess(String language, AsyncCallback<List<String>> callback);
 
