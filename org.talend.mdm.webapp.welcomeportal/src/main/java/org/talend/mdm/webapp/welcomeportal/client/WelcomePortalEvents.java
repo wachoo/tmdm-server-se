@@ -15,9 +15,11 @@ package org.talend.mdm.webapp.welcomeportal.client;
 import com.extjs.gxt.ui.client.event.EventType;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class WelcomePortalEvents {
 
     public static final EventType InitFrame = new EventType();
+
+    public static final EventType RefreshPortlet = new EventType();
 }

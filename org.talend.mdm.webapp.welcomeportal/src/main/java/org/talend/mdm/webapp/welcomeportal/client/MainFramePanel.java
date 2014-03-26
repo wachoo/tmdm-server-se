@@ -35,8 +35,6 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
-import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -51,20 +49,14 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
-import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.PieDataPoint;
 import com.googlecode.gflot.client.PlotModel;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
 import com.googlecode.gflot.client.SimplePlot;
-import com.googlecode.gflot.client.Tick;
-import com.googlecode.gflot.client.options.AxesOptions;
-import com.googlecode.gflot.client.options.BarSeriesOptions;
-import com.googlecode.gflot.client.options.CategoriesAxisOptions;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
-import com.googlecode.gflot.client.options.LineSeriesOptions;
 import com.googlecode.gflot.client.options.PieSeriesOptions;
 import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Background;
 import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Formatter;
@@ -76,8 +68,6 @@ import com.googlecode.gflot.client.options.PlotOptions;
 public class MainFramePanel extends Portal {
 
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
-
-    Portlet chart;
 
     public MainFramePanel(int numColumns) {
         super(numColumns);
@@ -92,6 +82,14 @@ public class MainFramePanel extends Portal {
         initProcessPortlet();
         initSearchPortlet();
         initChartPortlet();
+
+    }
+
+    public void refreshPortlets() {
+        this.applyChartPortlet(this.getPortletById(WelcomePortal.CHART + "Portlet")); //$NON-NLS-1$
+        applyAlertPortlet(this.getPortletById(WelcomePortal.ALERT + "Portlet")); //$NON-NLS-1$
+        applyTaskPortlet(this.getPortletById(WelcomePortal.WORKFLOW_TASK + "Portlet")); //$NON-NLS-1$
+        applyProcessPortlet(this.getPortletById(WelcomePortal.PROCESS + "Portlet")); //$NON-NLS-1$
     }
 
     private void itemClick(final String context, final String application) {
@@ -452,7 +450,17 @@ public class MainFramePanel extends Portal {
     }
 
     private void initChartPortlet() {
+        String name = WelcomePortal.CHART;
+        Portlet chart = configPortlet(name);
+        chart.setHeading(MessagesFactory.getMessages().chart_title());
+        chart.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
+        applyChartPortlet(chart);
+        this.add(chart, 0);
+    }
 
+    private void applyChartPortlet(Portlet chart) {
+        final FieldSet set = (FieldSet) chart.getItemByItemId(WelcomePortal.CHART + "Set"); //$NON-NLS-1$        
+        set.removeAll();
         service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
 
             @Override
@@ -463,26 +471,14 @@ public class MainFramePanel extends Portal {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                String name = WelcomePortal.CHART;
-                                chart = configPortlet(name);
-                                chart.setHeading(MessagesFactory.getMessages().chart_title());
-                                chart.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
-
-                                applyChartPortlet(jsonArray);
-                                MainFramePanel.this.add(chart, 0);
+                                set.add(createEntityPlot(jsonArray));
+                                set.layout(true);
                             }
                         });
 
             }
         });
 
-    }
-
-    private void applyChartPortlet(JSONArray jsonArray) {
-
-        chart.add(createEntityPlot(jsonArray), new FlowData(10));
-        // A dummy stack bar chart
-        // chart.add(createJournalPlot(), new FlowData(10));
     }
 
     private SimplePlot createEntityPlot(JSONArray jsonArray) {
@@ -529,52 +525,6 @@ public class MainFramePanel extends Portal {
         return plot;
     }
 
-    // A dummy Stack Bar chart
-    private SimplePlot createJournalPlot() {
-        PlotModel model = new PlotModel();
-        PlotOptions plotOptions = PlotOptions.create();
-        JsArray categories = (JsArray) JsArray.createArray();
-        categories.push(Tick.of(1, "Product"));
-        categories.push(Tick.of(2, "ProductFamily"));
-        categories.push(Tick.of(3, "Store"));
-        plotOptions.setGlobalSeriesOptions(
-                GlobalSeriesOptions.create().setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
-                        .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6)).setStack(true))
-                .setXAxesOptions(
-                        AxesOptions.create().addAxisOptions(
-                                CategoriesAxisOptions.create().setCategories("Product", "ProductFamily", "Store")));
-        plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
-
-        // create series
-        SeriesHandler series1 = model.addSeries(Series.of("Creation"));
-        SeriesHandler series2 = model.addSeries(Series.of("Update"));
-        SeriesHandler series3 = model.addSeries(Series.of("Logic Delete"));
-        SeriesHandler series4 = model.addSeries(Series.of("Physic Delete"));
-
-        // add data
-        series1.add(DataPoint.of("Product", 100));
-        series2.add(DataPoint.of("Product", 200));
-        series3.add(DataPoint.of("Product", 20));
-        series4.add(DataPoint.of("Product", 10));
-
-        series1.add(DataPoint.of("ProductFamily", 300));
-        series2.add(DataPoint.of("ProductFamily", 100));
-        series3.add(DataPoint.of("ProductFamily", 50));
-        series4.add(DataPoint.of("ProductFamily", 40));
-
-        series1.add(DataPoint.of("Store", 30));
-        series2.add(DataPoint.of("Store", 60));
-        series3.add(DataPoint.of("Store", 2));
-        series4.add(DataPoint.of("Store", 2));
-
-        // create the plot
-        SimplePlot plot = new SimplePlot(model, plotOptions);
-        plot.setWidth(400);
-        plot.setHeight(300);
-        return plot;
-
-    }
-
     private Portlet configPortlet(final String name) {
         final Portlet port = new Portlet();
         port.setLayout(new FitLayout());
@@ -597,6 +547,8 @@ public class MainFramePanel extends Portal {
                                 applyTaskPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.PROCESS)) {
                                 applyProcessPortlet(selectedPortlet);
+                            } else if (name.equals(WelcomePortal.CHART)) {
+                                applyChartPortlet(selectedPortlet);
                             }
                         }
 

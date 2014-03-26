@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 /**
- * DOC Administrator  class global comment. Detailled comment
+ * DOC Administrator class global comment. Detailled comment
  */
 public class WelcomePortalView extends View {
 
@@ -36,12 +36,20 @@ public class WelcomePortalView extends View {
     protected void handleEvent(AppEvent event) {
         if (event.getType() == WelcomePortalEvents.InitFrame) {
             onInitFrame(event);
+        } else if (event.getType() == WelcomePortalEvents.RefreshPortlet) {
+            onRefreshPortlet();
         }
     }
 
+    private void onRefreshPortlet() {
+        ContentPanel container = GenerateContainer.getContentPanel();
+        ((MainFramePanel) (container.getItems().get(0))).refreshPortlets();
+    }
+
     private void onInitFrame(AppEvent event) {
-        if (Log.isInfoEnabled())
+        if (Log.isInfoEnabled()) {
             Log.info("Init frame... ");//$NON-NLS-1$
+        }
 
         ContentPanel container = GenerateContainer.getContentPanel();
         container.setHeaderVisible(false);

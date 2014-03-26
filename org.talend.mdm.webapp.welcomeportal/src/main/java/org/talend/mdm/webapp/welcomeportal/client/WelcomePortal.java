@@ -18,6 +18,7 @@ import org.talend.mdm.webapp.welcomeportal.client.mvc.WelcomePortalController;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.XDOM;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.EntryPoint;
@@ -100,6 +101,8 @@ public class WelcomePortal implements EntryPoint {
 			@org.talend.mdm.webapp.welcomeportal.client.GenerateContainer::generateContentPanel()();
 			panel = this.@org.talend.mdm.webapp.welcomeportal.client.WelcomePortal::createPanel()();
 			tabPanel.add(panel);
+		} else {
+			this.@org.talend.mdm.webapp.welcomeportal.client.WelcomePortal::refresh()();
 		}
 		tabPanel.setSelection(panel.getItemId());
     }-*/;
@@ -163,6 +166,12 @@ public class WelcomePortal implements EntryPoint {
 
     public void initUI() {
         _initUI();
+    }
+
+    public void refresh() {
+        Dispatcher dispatcher = Dispatcher.get();
+        AppEvent event = new AppEvent(WelcomePortalEvents.RefreshPortlet);
+        dispatcher.getControllers().get(0).handleEvent(event);
     }
 
     private void onModuleRender() {

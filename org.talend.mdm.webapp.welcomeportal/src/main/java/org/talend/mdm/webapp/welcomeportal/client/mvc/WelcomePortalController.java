@@ -51,6 +51,8 @@ public class WelcomePortalController extends Controller {
         EventType type = event.getType();
         if (type == WelcomePortalEvents.InitFrame) {
             forwardToView(view, event);
+        } else if (type == WelcomePortalEvents.RefreshPortlet) {
+            forwardToView(view, event);
         }
     }
 }
