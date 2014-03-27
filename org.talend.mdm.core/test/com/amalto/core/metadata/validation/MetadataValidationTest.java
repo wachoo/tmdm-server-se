@@ -348,8 +348,8 @@ public class MetadataValidationTest extends TestCase {
         } catch (Exception e) {
             // Expected
         }
-        assertEquals(1, handler.getErrorCount());
-        assertTrue(handler.getMessages().contains(ValidationError.FIELD_KEY_CANNOT_BE_FOREIGN_KEY));
+        assertEquals(2, handler.getErrorCount());
+        assertTrue(handler.getMessages().contains(ValidationError.FIELD_KEY_MUST_BE_MANDATORY));
         assertTrue(handler.getLineNumbers().contains(28));
         assertFalse(handler.getLineNumbers().contains(null));
     }

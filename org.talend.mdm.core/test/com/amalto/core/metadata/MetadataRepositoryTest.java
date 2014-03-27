@@ -257,4 +257,28 @@ public class MetadataRepositoryTest extends TestCase {
         assertNotNull(field);
         assertEquals("Box/FieldCTFK/Name", field.getEntityTypeName() + "/" + field.getPath());
     }
+    
+    public void test23() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema23.xsd");
+        try {
+            repository.load(stream);
+            fail("Expected a cycle in model.");
+        } catch (Exception e) {
+            // Expected
+        }
+        // repository.accept(visitor);
+    }
+    
+    public void test24() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema24.xsd");
+        try {
+            repository.load(stream);
+            fail("Expected a cycle in model.");
+        } catch (Exception e) {
+            // Expected
+        }
+        // repository.accept(visitor);
+    }
 }
