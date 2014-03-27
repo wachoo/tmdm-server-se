@@ -88,12 +88,16 @@ public class ConfigurableContainsOptimizer implements Optimizer {
                 case FULL_TEXT:
                     if (!dataSource.supportFullText()) {
                         // Don't do any optimization if full text is disabled on datasource.
-                        LOGGER.error("Cannot use '" + containsOptimization + "': datasource '" + dataSource.getName()
+                        LOGGER.warn("Cannot use '" + containsOptimization + "': datasource '" + dataSource.getName()
                                 + "' does not support full text search.");
                     } else if (!select.getJoins().isEmpty()) {
-                        LOGGER.warn("Cannot use '" + containsOptimization + "': query uses join clause.");
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Cannot use '" + containsOptimization + "': query uses join clause.");
+                        }
                     } else if (hasForbiddenFullTextPredicates(condition)) {
-                        LOGGER.warn("Cannot use '" + containsOptimization + "': query uses full text forbidden predicates.");
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Cannot use '" + containsOptimization + "': query uses full text forbidden predicates.");
+                        }
                     } else {
                         condition = select.getCondition().accept(FULL_TEXT_CONTAINS_OPTIMIZATION);
                     }
