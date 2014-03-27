@@ -35,8 +35,6 @@ import com.amalto.core.jobox.JobInfo;
 
 public class JoboxUtil {
 
-    private static final String LOG4J_LIB_NAME = "log4j-"; //$NON-NLS-1$
-
     private static final Logger LOGGER = Logger.getLogger(JoboxUtil.class);
 
     private JoboxUtil() {
@@ -227,6 +225,10 @@ public class JoboxUtil {
         }
     }
 
+    private static boolean ignoreLibrary(String name) {
+        return false;
+    }
+
     public static URL[] getClasspathURLs(String paths, JobInfo info) {
         List<URL> urls = new ArrayList<URL>();
         if (paths == null || paths.length() <= 0) {
@@ -238,7 +240,7 @@ public class JoboxUtil {
             if (pathToAdd != null && pathToAdd.length() > 0) {
                 try {
                     File fileToAdd = new File(pathToAdd).getCanonicalFile();
-                    if (fileToAdd.getName().startsWith(LOG4J_LIB_NAME)) {
+                    if (ignoreLibrary(fileToAdd.getName())) {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Ignoring " + fileToAdd.toURI().toURL() + " from job '" + info.getName() + "'. "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         }
