@@ -14,36 +14,36 @@ package com.amalto.webapp.core.util;
 
 import java.io.ByteArrayInputStream;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.ServerContext;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import com.amalto.webapp.util.webservices.WSDataModel;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 
-
 public class DataModelAccessor {
-    
+
     private static final Logger LOG = Logger.getLogger(DataModelAccessor.class);
-    
-    private static DataModelAccessor accessor;    
-    
-    public static synchronized DataModelAccessor getInstance(){    
+
+    private static DataModelAccessor accessor;
+
+    public static synchronized DataModelAccessor getInstance() {
         if (accessor == null) {
             accessor = new DataModelAccessor();
-        }             
-        return accessor;           
+        }
+        return accessor;
     }
-    
+
     public String getDataModelXSD(String dataModelName) throws RemoteException, XtentisWebappException {
         if (dataModelName != null && !dataModelName.isEmpty()) {
-            WSDataModel dataModel = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelName)));            
+            WSDataModel dataModel = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelName)));
             if (dataModel != null) {
                 return dataModel.getXsdSchema();
             } else {
@@ -64,7 +64,7 @@ public class DataModelAccessor {
                 return _checkReadAccess(repository, conceptName, roleList);
             } else {
                 return false;
-            }   
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return false;
@@ -80,7 +80,7 @@ public class DataModelAccessor {
     private boolean _checkReadAccess(MetadataRepository repository, String conceptName, List<String> roleList) {
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type != null) {
-            List<String> noAccessRoles = type.getHideUsers();
+            List<String> noAccessRoles = new ArrayList<String>(type.getHideUsers());
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Roles without access " + noAccessRoles); //$NON-NLS-1$
             }
@@ -121,11 +121,11 @@ public class DataModelAccessor {
     private boolean _checkRestoreAccess(MetadataRepository repository, String conceptName, List<String> roleList) {
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type != null) {
-            List<String> noAccessRoles = type.getHideUsers();
+            List<String> noAccessRoles = new ArrayList<String>(type.getHideUsers());
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Roles without access " + noAccessRoles); //$NON-NLS-1$
             }
-            List<String> writeAccessRoles = type.getWriteUsers();
+            List<String> writeAccessRoles = new ArrayList<String>(type.getWriteUsers());
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Roles with write permission " + writeAccessRoles); //$NON-NLS-1$
             }
