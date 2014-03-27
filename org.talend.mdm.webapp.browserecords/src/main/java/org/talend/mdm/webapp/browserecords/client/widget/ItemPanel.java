@@ -243,11 +243,12 @@ public class ItemPanel extends ContentPanel {
         this.toolBar = ToolBarFactory.getInstance().createItemDetailToolBar(isStaging, item, operation, viewBean,
                 tree.getItemsDetailPanel());
         this.operation = operation;
+        this.isStaging = isStaging;
         this.initUI(null);
     }
 
-    public void initTreeDetail(ViewBean viewBean, ItemBean item, Map<String, List<String>> initDataMap,
-            String operation,boolean isStaging) {
+    public void initTreeDetail(ViewBean viewBean, ItemBean item, Map<String, List<String>> initDataMap, String operation,
+            boolean isStaging) {
         this.initDataMap = initDataMap;
         initTreeDetail(viewBean, item, operation, isStaging);
 
