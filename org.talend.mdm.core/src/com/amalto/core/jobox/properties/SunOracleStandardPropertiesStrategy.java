@@ -24,31 +24,31 @@ import java.util.StringTokenizer;
  */
 class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy {
 
-    private static final String SUN_PROPERTIES = "sun.conf";
+    private static final String SUN_PROPERTIES = "sun.conf"; //$NON-NLS-1$
 
-    public static final String SUN_BOOT_CLASS_PATH = "sun.boot.class.path";
+    private static final String SUN_BOOT_CLASS_PATH = "sun.boot.class.path"; //$NON-NLS-1$
 
-    public static final String JAVA_CLASS_PATH = "java.class.path";
+    private static final String JAVA_CLASS_PATH = "java.class.path"; //$NON-NLS-1$
 
+    @Override
     public Properties getStandardProperties() {
         Properties properties = new Properties();
         try {
             InputStream resource = this.getClass().getResourceAsStream(SUN_PROPERTIES);
             if (resource == null) {
-                throw new RuntimeException("Expected file '" + SUN_PROPERTIES + "' but wasn't found.");
+                throw new RuntimeException("Expected file '" + SUN_PROPERTIES + "' but wasn't found."); //$NON-NLS-1$ //$NON-NLS-2$
             }
-
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resource));
             {
                 String line = bufferedReader.readLine();
                 while (line != null) {
-                    if (!line.startsWith("#")) { // Ignore comments in file
+                    if (!line.startsWith("#")) { //$NON-NLS-1$ // Ignore comments in file
                         String systemProperty = System.getProperty(line);
                         if (systemProperty != null) { // java.util.Properties throws NPE when calling put with null
                             if (SUN_BOOT_CLASS_PATH.equals(line)) {
                                 StringBuilder filteredValue = filterJBoss(systemProperty);
                                 properties.put(line, filteredValue.toString());
-                            } else if ("java.endorsed.dirs".equals(line)) {
+                            } else if ("java.endorsed.dirs".equals(line)) { //$NON-NLS-1$
                                 // Skip it!
                             } else if (JAVA_CLASS_PATH.equals(line)) {
                                 StringBuilder filteredValue = filterJBoss(System.getProperty(SUN_BOOT_CLASS_PATH));
@@ -61,15 +61,23 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
                     line = bufferedReader.readLine();
                 }
             }
-
             // Ensure jobs takes the default Sun JDK implementations
-            properties.put("javax.xml.soap.MessageFactory", "com.sun.xml.internal.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl");
-            properties.put("javax.xml.soap.MetaFactory", "com.sun.xml.internal.messaging.saaj.soap.SAAJMetaFactoryImpl");
-            properties.put("javax.xml.soap.SOAPFactory", "");
-            properties.put("javax.xml.soap.SOAPConnectionFactory", "com.sun.xml.internal.messaging.saaj.client.p2p.HttpSOAPConnectionFactory");
-
+            properties.put(
+                    "javax.xml.soap.MessageFactory", "com.sun.xml.internal.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl"); //$NON-NLS-1$  //$NON-NLS-2$
+            properties.put("javax.xml.soap.MetaFactory", "com.sun.xml.internal.messaging.saaj.soap.SAAJMetaFactoryImpl"); //$NON-NLS-1$  //$NON-NLS-2$
+            properties.put("javax.xml.soap.SOAPFactory", ""); //$NON-NLS-1$  //$NON-NLS-2$
+            properties
+                    .put("javax.xml.soap.SOAPConnectionFactory", "com.sun.xml.internal.messaging.saaj.client.p2p.HttpSOAPConnectionFactory"); //$NON-NLS-1$  //$NON-NLS-2$
             bufferedReader.close();
 
+            // Log4J configuration for Jobs
+            String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
+            if (jbossServerDir != null) {
+                properties.put("jboss.server.home.dir", jbossServerDir); //$NON-NLS-1$
+                properties.put("log4j.configuration", System.getProperty("jboss.server.config.url") + "/log4j-jobox.properties"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            } else {
+                throw new RuntimeException("Wrong server environment"); //$NON-NLS-1$
+            }
             return properties;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -78,18 +86,17 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
 
     private StringBuilder filterJBoss(String systemProperty) {
         StringBuilder filteredValue = new StringBuilder();
-        StringTokenizer tokenizer = new StringTokenizer(systemProperty, ":");
+        StringTokenizer tokenizer = new StringTokenizer(systemProperty, ":"); //$NON-NLS-1$
         while (tokenizer.hasMoreElements()) {
             String current = tokenizer.nextToken();
-            if (!current.contains("jboss")) {
+            if (!current.contains("jboss")) { //$NON-NLS-1$
                 filteredValue.append(current);
                 if (tokenizer.hasMoreElements()) {
-                    filteredValue.append(":");
+                    filteredValue.append(':');
                 }
             }
 
         }
         return filteredValue;
     }
-
 }
