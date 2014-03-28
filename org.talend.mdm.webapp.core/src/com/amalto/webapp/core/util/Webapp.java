@@ -24,6 +24,8 @@ public interface Webapp {
 
     public int getWorkflowTaskMsg();
 
+    public Map<String, Integer> getDSCTaskMsg();
+
     public boolean isExpired() throws Exception;
 
     public boolean isExpired(String language) throws Exception;
@@ -37,6 +39,10 @@ public interface Webapp {
     public String getLicenseWarning(String language) throws Exception;
 
     public static final Webapp INSTANCE = WebappFactory.createWebapp();
+
+    public static final String DSCTASK_STATUS_NEW = "new"; //$NON-NLS-1$
+
+    public static final String DSCTASK_STATUS_PENDING = "pending"; //$NON-NLS-1$
 
     public static final class WebappFactory {
 

@@ -12,6 +12,7 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.amalto.webapp.core.util.dwr.WebappInfo;
@@ -31,6 +32,14 @@ public class WebappImpl implements Webapp {
     @Override
     public int getWorkflowTaskMsg() {
         return 0;
+    }
+
+    @Override
+    public Map<String, Integer> getDSCTaskMsg() {
+        Map<String, Integer> taskStatus = new HashMap<String, Integer>();
+        taskStatus.put(DSCTASK_STATUS_NEW, 0);
+        taskStatus.put(DSCTASK_STATUS_PENDING, 0);
+        return taskStatus;
     }
 
     @Override
