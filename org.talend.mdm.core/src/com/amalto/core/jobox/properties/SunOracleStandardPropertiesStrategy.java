@@ -30,12 +30,13 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
 
     private static final String JAVA_CLASS_PATH = "java.class.path"; //$NON-NLS-1$
 
+    @Override
     public Properties getStandardProperties() {
         Properties properties = new Properties();
         try {
             InputStream resource = this.getClass().getResourceAsStream(SUN_PROPERTIES);
             if (resource == null) {
-                throw new RuntimeException("Expected file '" + SUN_PROPERTIES + "' but wasn't found.");
+                throw new RuntimeException("Expected file '" + SUN_PROPERTIES + "' but wasn't found."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resource));
             {
@@ -61,11 +62,22 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
                 }
             }
             // Ensure jobs takes the default Sun JDK implementations
-            properties.put("javax.xml.soap.MessageFactory", "com.sun.xml.internal.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl"); //$NON-NLS-1$  //$NON-NLS-2$
-            properties.put("javax.xml.soap.MetaFactory", "com.sun.xml.internal.messaging.saaj.soap.SAAJMetaFactoryImpl");  //$NON-NLS-1$  //$NON-NLS-2$
-            properties.put("javax.xml.soap.SOAPFactory", "");  //$NON-NLS-1$  //$NON-NLS-2$
-            properties.put("javax.xml.soap.SOAPConnectionFactory", "com.sun.xml.internal.messaging.saaj.client.p2p.HttpSOAPConnectionFactory");  //$NON-NLS-1$  //$NON-NLS-2$
+            properties.put(
+                    "javax.xml.soap.MessageFactory", "com.sun.xml.internal.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl"); //$NON-NLS-1$  //$NON-NLS-2$
+            properties.put("javax.xml.soap.MetaFactory", "com.sun.xml.internal.messaging.saaj.soap.SAAJMetaFactoryImpl"); //$NON-NLS-1$  //$NON-NLS-2$
+            properties.put("javax.xml.soap.SOAPFactory", ""); //$NON-NLS-1$  //$NON-NLS-2$
+            properties
+                    .put("javax.xml.soap.SOAPConnectionFactory", "com.sun.xml.internal.messaging.saaj.client.p2p.HttpSOAPConnectionFactory"); //$NON-NLS-1$  //$NON-NLS-2$
             bufferedReader.close();
+
+            // Log4J configuration for Jobs
+            String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
+            if (jbossServerDir != null) {
+                properties.put("jboss.server.home.dir", jbossServerDir); //$NON-NLS-1$
+                properties.put("log4j.configuration", System.getProperty("jboss.server.config.url") + "/log4j-jobox.properties"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            } else {
+                throw new RuntimeException("Wrong server environment"); //$NON-NLS-1$
+            }
             return properties;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -77,7 +89,7 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
         StringTokenizer tokenizer = new StringTokenizer(systemProperty, ":"); //$NON-NLS-1$
         while (tokenizer.hasMoreElements()) {
             String current = tokenizer.nextToken();
-            if (!current.contains("jboss")) {  //$NON-NLS-1$
+            if (!current.contains("jboss")) { //$NON-NLS-1$
                 filteredValue.append(current);
                 if (tokenizer.hasMoreElements()) {
                     filteredValue.append(':');
@@ -87,5 +99,4 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
         }
         return filteredValue;
     }
-
 }
