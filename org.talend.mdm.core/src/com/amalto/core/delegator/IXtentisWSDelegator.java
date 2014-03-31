@@ -4225,7 +4225,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     return null;
                 }
             } finally {
-                systemStorage.rollback();
+                systemStorage.commit();
             }
         } else {
             return null;
