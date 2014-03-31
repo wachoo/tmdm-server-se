@@ -19,6 +19,8 @@ import java.io.InputStreamReader;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import org.apache.log4j.Logger;
+
 /**
  * Implementation of {@link StandardPropertiesStrategy} for Sun/Oracle JVM (tested on 1.6)
  */
@@ -29,6 +31,8 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
     private static final String SUN_BOOT_CLASS_PATH = "sun.boot.class.path"; //$NON-NLS-1$
 
     private static final String JAVA_CLASS_PATH = "java.class.path"; //$NON-NLS-1$
+
+    private static final Logger LOGGER = Logger.getLogger(SunOracleStandardPropertiesStrategy.class);
 
     @Override
     public Properties getStandardProperties() {
@@ -76,7 +80,7 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
                 properties.put("jboss.server.home.dir", jbossServerDir); //$NON-NLS-1$
                 properties.put("log4j.configuration", System.getProperty("jboss.server.config.url") + "/log4j-jobox.properties"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             } else {
-                throw new RuntimeException("Wrong server environment"); //$NON-NLS-1$
+                LOGGER.error("Jobox Log4J environment not set"); //$NON-NLS-1$
             }
             return properties;
         } catch (Exception e) {
