@@ -34,14 +34,36 @@ class StagingTypeMappingRepository extends InternalRepository {
             TypeMetadata stringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING);
             TypeMetadata limitedStringType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING);
             limitedStringType.setData(MetadataRepository.DATA_MAX_LENGTH, UUID.randomUUID().toString().length());
-            database.addField(new SimpleTypeFieldMetadata(database, false, false, true, Storage.METADATA_TIMESTAMP, longType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList()));
-            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_TASK_ID, limitedStringType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList()));
-            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_STATUS, intType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList()));
-            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_SOURCE, limitedStringType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList()));
-            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_BLOCK_KEY, limitedStringType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList()));
-            SimpleTypeFieldMetadata errorField = new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_ERROR, stringType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList());
+            // Time stamp
+            database.addField(new SimpleTypeFieldMetadata(database, false, false, true, Storage.METADATA_TIMESTAMP, longType,
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList()));
+            // Task id
+            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_TASK_ID,
+                    limitedStringType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections
+                            .<String> emptyList()));
+            // Staging status
+            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_STATUS,
+                    intType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList()));
+            // Staging source
+            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_SOURCE,
+                    limitedStringType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections
+                            .<String> emptyList()));
+            // Staging block key
+            database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_BLOCK_KEY,
+                    limitedStringType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections
+                            .<String> emptyList()));
+            // Staging error field
+            SimpleTypeFieldMetadata errorField = new SimpleTypeFieldMetadata(database, false, false, false,
+                    Storage.METADATA_STAGING_ERROR, stringType, Collections.<String> emptyList(),
+                    Collections.<String> emptyList(), Collections.<String> emptyList());
             errorField.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
             database.addField(errorField);
+            // Staging previous values field (useful for rematching)
+            SimpleTypeFieldMetadata previousValuesField = new SimpleTypeFieldMetadata(database, false, false, false,
+                    Storage.METADATA_STAGING_VALUES, stringType, Collections.<String> emptyList(),
+                    Collections.<String> emptyList(), Collections.<String> emptyList());
+            previousValuesField.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
+            database.addField(previousValuesField);
         }
 
         // Register mapping

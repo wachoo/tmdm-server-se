@@ -64,7 +64,7 @@ public class InstanceScrollOptimization extends StandardQueryHandler {
                 criteria.scroll(), callbacks);
         Predicate isUniqueFilter = new UniquePredicate(); // Unique filter returns only different instances
         Iterator filteredIterator = IteratorUtils.filteredIterator(nonFilteredIterator, isUniqueFilter);
-        FilteredIteratorWrapper uniqueIterator = new FilteredIteratorWrapper(nonFilteredIterator, filteredIterator);
+        FilteredIteratorWrapper uniqueIterator = new FilteredIteratorWrapper(nonFilteredIterator, filteredIterator, select);
         return new HibernateStorageResults(storage, select, uniqueIterator);
     }
 
@@ -89,11 +89,14 @@ public class InstanceScrollOptimization extends StandardQueryHandler {
 
         private final Iterator filteredIterator;
 
+        private final Select select;
+
         private boolean isClosed;
 
-        public FilteredIteratorWrapper(CloseableIterator<DataRecord> nonFilteredIterator, Iterator filteredIterator) {
+        public FilteredIteratorWrapper(CloseableIterator<DataRecord> nonFilteredIterator, Iterator filteredIterator, Select select) {
             this.nonFilteredIterator = nonFilteredIterator;
             this.filteredIterator = filteredIterator;
+            this.select = select;
         }
 
         @Override
@@ -118,6 +121,32 @@ public class InstanceScrollOptimization extends StandardQueryHandler {
                 throw new IllegalStateException("Can not remove: iterator is closed.");
             }
             filteredIterator.remove();
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder conditionToString = new StringBuilder();
+            UserQueryDumpConsole.DumpPrinter dumpPrinter = new UserQueryDumpConsole.DumpPrinter() {
+
+                @Override
+                public void increaseIndent() {
+                }
+
+                @Override
+                public void print(String message) {
+                    conditionToString.append(message).append(' ');
+                }
+
+                @Override
+                public void decreaseIndent() {
+                }
+            };
+            Condition condition = select.getCondition();
+            if (condition != null) {
+                condition.accept(new UserQueryDumpConsole(dumpPrinter));
+            }
+            return "FilteredIteratorWrapper{" + "type=" + select.getTypes().get(0).getName() + ", condition="
+                    + conditionToString.toString() + '}';
         }
     }
 }

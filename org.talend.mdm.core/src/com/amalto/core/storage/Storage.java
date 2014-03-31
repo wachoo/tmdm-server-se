@@ -10,15 +10,16 @@
 
 package com.amalto.core.storage;
 
+import java.util.Set;
+
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
+
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
-
-import java.util.Set;
 
 /**
  *
@@ -57,7 +58,7 @@ public interface Storage {
 
     /**
      * Name of the column where MDM status (validated...) is stored (for STAGING databases only).
-     *
+     * 
      * @see com.amalto.core.storage.task.StagingConstants
      */
     String METADATA_STAGING_STATUS = "x_talend_staging_status"; //$NON-NLS-1$
@@ -71,6 +72,25 @@ public interface Storage {
      * Name of the column where a block key can be stored (for STAGING databases only).
      */
     String METADATA_STAGING_BLOCK_KEY = "x_talend_staging_blockkey"; //$NON-NLS-1$
+
+    /**
+     * <p>
+     * Name of the column where previous values that built a golden record can be stored (for STAGING databases and
+     * golden records only).
+     * </p>
+     * <p>
+     * This columns contains a Base64-encoded ZIP content. To read the value, you first to decode the Base64 content
+     * <b>then</b> unzip it:
+     * <pre>
+     * String value; // Value from database
+     * ZipInputStream in = new ZipInputStream(new Base64InputStream(new ByteArrayInputStream(value.getBytes())));
+     * in.getNextEntry();
+     * ObjectInputStream inputStream = new ObjectInputStream(in);
+     * Map o = (Map) inputStream.readObject();
+     * </pre>
+     * </p>
+     */
+    String METADATA_STAGING_VALUES = "x_talend_staging_values"; //$NON-NLS-1$
 
     /**
      * Name of type for explicit projection (i.e. selection of a field within MDM entity). Declared fields in this type
@@ -92,15 +112,15 @@ public interface Storage {
     int getCapabilities();
 
     /**
-     * @return An implementation of {@link StorageTransaction} ready for usage. Implementations are always expected
-     * to return a new transaction instance.
+     * @return An implementation of {@link StorageTransaction} ready for usage. Implementations are always expected to
+     * return a new transaction instance.
      */
     StorageTransaction newStorageTransaction();
 
     /**
      * Early initialization (i.e. might create pools): performs all actions that do not need to know what kind of types
      * this storage should take care of (usually stateless components).
-     *
+     * 
      * @param dataSource Represents the underlying data storage (e.g. RDBMS, XML DB...)
      * @see com.amalto.core.server.Server#getDefinition(String, String)
      */
@@ -108,16 +128,17 @@ public interface Storage {
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.
-     *
-     * @param repository           A initialized {@link org.talend.mdm.commmon.metadata.MetadataRepository} instance.
-     * @param optimizedExpressions A {@link java.util.Set} of {@link Expression} that need to be optimized. It is up to the
-     *                             implementation to decide whether this information should be used or not. Callers of this method expects
-     *                             implementation to take all necessary actions to allow quick execution on the queries in <code>optimizedExpressions</code>.
-     * @param force                <code>true</code> will force the storage to prepare event if
-     *                             {@link #prepare(org.talend.mdm.commmon.metadata.MetadataRepository, boolean)} has already been called.
-     *                             <code>false</code> will be a "no op" operation if storage is already prepared.
-     * @param dropExistingData     if <code>true</code>, storage preparation will drop all data that may previously exist.
-     *                             Use this parameter with caution since recovery is not supported.
+     * 
+     * @param repository A initialized {@link org.talend.mdm.commmon.metadata.MetadataRepository} instance.
+     * @param optimizedExpressions A {@link java.util.Set} of {@link Expression} that need to be optimized. It is up to
+     * the implementation to decide whether this information should be used or not. Callers of this method expects
+     * implementation to take all necessary actions to allow quick execution on the queries in
+     * <code>optimizedExpressions</code>.
+     * @param force <code>true</code> will force the storage to prepare event if
+     * {@link #prepare(org.talend.mdm.commmon.metadata.MetadataRepository, boolean)} has already been called.
+     * <code>false</code> will be a "no op" operation if storage is already prepared.
+     * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
+     * Use this parameter with caution since recovery is not supported.
      * @see MetadataRepository#load(java.io.InputStream)
      * @see #prepare(MetadataRepository, boolean)
      */
@@ -125,10 +146,10 @@ public interface Storage {
 
     /**
      * Prepare storage to handle types located in {@link MetadataRepository}.
-     *
-     * @param repository       A initialized {@link MetadataRepository} instance.
+     * 
+     * @param repository A initialized {@link MetadataRepository} instance.
      * @param dropExistingData if <code>true</code>, storage preparation will drop all data that may previously exist.
-     *                         Use this parameter with caution since recovery is not supported.
+     * Use this parameter with caution since recovery is not supported.
      * @see MetadataRepository#load(java.io.InputStream)
      */
     void prepare(MetadataRepository repository, boolean dropExistingData);
@@ -143,7 +164,7 @@ public interface Storage {
     /**
      * Returns all records that match the {@link Expression}. The <code>expression</code> should be a valid
      * {@link com.amalto.core.query.user.Select}.
-     *
+     * 
      * @param userQuery A {@link com.amalto.core.query.user.Select} instance.
      * @return A {@link Iterable} instance to navigate through query results. This iterable class also provides ways to
      * get how many records are returned and how many matched query in database.
@@ -154,7 +175,7 @@ public interface Storage {
     /**
      * Updates storage with a new or existing record. Record might already exist, storage implementation (or underlying
      * storage framework) will decide whether this is new record or old one.
-     *
+     * 
      * @param record Record to be created or updated.
      */
     void update(DataRecord record);
@@ -162,7 +183,7 @@ public interface Storage {
     /**
      * Updates storage with new or existing records. Records might already exist, storage implementation (or underlying
      * storage framework) will decide whether this is all new records or old ones.
-     *
+     * 
      * @param records Records to be created or updated.
      */
     void update(Iterable<DataRecord> records);
@@ -176,7 +197,7 @@ public interface Storage {
      * Implementations are expected to throw {@link IllegalArgumentException} if <code>userQuery</code> does not match
      * any record.
      * </p>
-     *
+     * 
      * @param userQuery A {@link com.amalto.core.query.user.Select} instance.
      * @throws IllegalArgumentException If <code>userQuery</code> does not match any document in storage.
      * @see com.amalto.core.query.user.UserQueryBuilder
@@ -187,6 +208,7 @@ public interface Storage {
     /**
      * Deletes a {@link DataRecord} record using the record instance (no need for a query as in
      * {@link #delete(com.amalto.core.query.user.Expression)}.
+     * 
      * @param record The record to be deleted.
      * @see #delete(com.amalto.core.query.user.Expression)
      */
@@ -209,7 +231,7 @@ public interface Storage {
      * Starts a transaction for current thread. If a previous call to this method has been made without calling any end
      * of transaction method (e.g. {@link #commit()}), calling this method has no effect.
      * </p>
-     *
+     * 
      * @throws IllegalStateException If a transaction was already started for the current thread.
      * @see #commit()
      * @see #rollback()
@@ -242,16 +264,17 @@ public interface Storage {
     /**
      * Returns suggested keywords (words that match result in full text index) for the <code>keyword</code>. Returned
      * results depend on {@link FullTextSuggestion}.
-     *
-     * @param keyword        A word to be used as input for this method (only one word).
-     * @param mode           {@link FullTextSuggestion} suggestion mode.
+     * 
+     * @param keyword A word to be used as input for this method (only one word).
+     * @param mode {@link FullTextSuggestion} suggestion mode.
      * @param suggestionSize Number of suggestions this method should return.
      * @return A {@link Set} of <code>suggestionSize</code> keywords that matches results in full text index.
      */
     Set<String> getFullTextSuggestion(String keyword, FullTextSuggestion mode, int suggestionSize);
 
     /**
-     * @return Name of this storage instance. This is the name used for creation in {@link com.amalto.core.server.StorageAdmin#create(String, String, StorageType, String, String)}.
+     * @return Name of this storage instance. This is the name used for creation in
+     * {@link com.amalto.core.server.StorageAdmin#create(String, String, StorageType, String, String)}.
      */
     String getName();
 
@@ -266,8 +289,8 @@ public interface Storage {
     StorageType getType();
 
     /**
-     * @return An implementation of {@link org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer} that can analyze impacts
-     * of data model changes.
+     * @return An implementation of {@link org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer} that can analyze
+     * impacts of data model changes.
      */
     ImpactAnalyzer getImpactAnalyzer();
 
