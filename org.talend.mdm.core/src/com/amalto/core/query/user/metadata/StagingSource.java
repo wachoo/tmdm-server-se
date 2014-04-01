@@ -48,6 +48,11 @@ public class StagingSource implements TypedExpression, MetadataField {
     }
 
     @Override
+    public String getFieldName() {
+        return STAGING_SOURCE_FIELD[1];
+    }
+
+    @Override
     public boolean matches(String path) {
         for (String possibleSourceId : STAGING_SOURCE_FIELD) {
             if (possibleSourceId.equals(path)) {

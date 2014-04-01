@@ -48,6 +48,11 @@ public class GroupSize implements TypedExpression, MetadataField {
     }
 
     @Override
+    public String getFieldName() {
+        return GROUP_SIZE_FIELD[0];
+    }
+
+    @Override
     public boolean matches(String path) {
         for (String possibleStatus : GROUP_SIZE_FIELD) {
             if (possibleStatus.equals(path)) {

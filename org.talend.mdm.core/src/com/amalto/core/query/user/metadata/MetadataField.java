@@ -35,6 +35,12 @@ public interface MetadataField {
     };
 
     /**
+     * @return A non-null name that represents the metadata field. Each serialization format may alter or reuse as-is
+     * this name.
+     */
+    String getFieldName();
+    
+    /**
      * @param path A XPath-like string.
      * @return <code>true</code> if path is used with this metadata field.
      */

@@ -48,6 +48,11 @@ public class Timestamp implements TypedExpression, MetadataField {
     }
 
     @Override
+    public String getFieldName() {
+        return TIMESTAMP_FIELD[1];
+    }
+
+    @Override
     public boolean matches(String path) {
         for (String possibleTaskId : TIMESTAMP_FIELD) {
             if (possibleTaskId.equals(path)) {

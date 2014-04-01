@@ -14,8 +14,12 @@ package com.amalto.core.storage.record;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.query.user.metadata.MetadataField;
+import com.amalto.core.query.user.metadata.TaskId;
+import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.metadata.*;
 
@@ -28,19 +32,29 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
     private final String rootElementName;
 
+    private final boolean includeMetadata;
+
     private ComplexTypeMetadata type;
 
     public DataRecordXmlWriter() {
         rootElementName = null;
+        includeMetadata = false;
+    }
+
+    public DataRecordXmlWriter(boolean includeMetadata) {
+        rootElementName = null;
+        this.includeMetadata = includeMetadata;
     }
 
     public DataRecordXmlWriter(String rootElementName) {
         this.rootElementName = rootElementName;
+        includeMetadata = false;
     }
 
     public DataRecordXmlWriter(ComplexTypeMetadata type) {
         this.type = type;
         this.rootElementName = type.getName();
+        includeMetadata = false;
     }
 
     public void write(DataRecord record, OutputStream output) throws IOException {
@@ -51,12 +65,28 @@ public class DataRecordXmlWriter implements DataRecordWriter {
     public void write(DataRecord record, Writer writer) throws IOException {
         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer);
         Collection<FieldMetadata> fields = type == null ? record.getType().getFields() : type.getFields();
-        writer.write("<" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+        if (includeMetadata) {
+            writer.write("<" + getRootElementName(record) + " xmlns:metadata=\"" + DataRecordReader.METADATA_NAMESPACE + "\">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } else {
+            writer.write("<" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        // Includes metadata in serialized XML (if requested).
+        if (includeMetadata) {
+            DataRecordMetadata recordMetadata = record.getRecordMetadata();
+            writeMetadataField(writer, Timestamp.INSTANCE, recordMetadata.getLastModificationTime());
+            writeMetadataField(writer, TaskId.INSTANCE, recordMetadata.getTaskId());
+        }
+        // Print record fields
         for (FieldMetadata field : fields) {
             field.accept(fieldPrinter);
         }
         writer.write("</" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         writer.flush();
+    }
+
+    private static void writeMetadataField(Writer writer, MetadataField metadataField, Object value) throws IOException {
+        String fieldName = metadataField.getFieldName();
+        writer.write("<" + fieldName + ">" + String.valueOf(value) + "</" + fieldName + ">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     }
 
     private String getRootElementName(DataRecord record) {
@@ -114,7 +144,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             try {
                 if (!containedField.isMany()) {
                     DataRecord containedRecord = (DataRecord) record.get(containedField);
-                    // TMDM-6232 Unable to save reusable type value (remove --> && !containedRecord.isEmpty())
+                    // TMDM-6232 Unable to save reusable type value
                     if (containedRecord != null) {
                         // TODO Limit new field printer instances
                         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(containedRecord, out);

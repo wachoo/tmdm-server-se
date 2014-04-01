@@ -48,6 +48,11 @@ public class TaskId implements TypedExpression, MetadataField {
     }
 
     @Override
+    public String getFieldName() {
+        return TASK_ID_FIELD[1];
+    }
+
+    @Override
     public boolean matches(String path) {
         for (String possibleTaskId : TASK_ID_FIELD) {
             if (possibleTaskId.equals(path)) {

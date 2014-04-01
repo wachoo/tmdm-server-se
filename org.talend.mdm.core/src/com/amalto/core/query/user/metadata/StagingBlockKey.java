@@ -48,6 +48,11 @@ public class StagingBlockKey implements TypedExpression, MetadataField {
     }
 
     @Override
+    public String getFieldName() {
+        return STAGING_BLOCK_FIELD[0];
+    }
+
+    @Override
     public boolean matches(String path) {
         for (String possibleStatus : STAGING_BLOCK_FIELD) {
             if (possibleStatus.equals(path)) {

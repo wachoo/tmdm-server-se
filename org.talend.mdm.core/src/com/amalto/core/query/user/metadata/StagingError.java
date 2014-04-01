@@ -48,6 +48,11 @@ public class StagingError implements TypedExpression, MetadataField {
     }
 
     @Override
+    public String getFieldName() {
+        return STAGING_ERROR_FIELD[1];
+    }
+
+    @Override
     public boolean matches(String path) {
         for (String possibleError : STAGING_ERROR_FIELD) {
             if (possibleError.equals(path)) {

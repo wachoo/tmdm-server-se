@@ -48,6 +48,11 @@ public class StagingStatus implements TypedExpression, MetadataField {
     }
 
     @Override
+    public String getFieldName() {
+        return STAGING_STATUS_FIELD[1];
+    }
+
+    @Override
     public boolean matches(String path) {
         for (String possibleStatus : STAGING_STATUS_FIELD) {
             if (possibleStatus.equals(path)) {
