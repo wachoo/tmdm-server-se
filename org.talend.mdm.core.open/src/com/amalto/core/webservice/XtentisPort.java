@@ -100,6 +100,8 @@ public interface XtentisPort extends java.rmi.Remote {
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSItemPK putItem(com.amalto.core.webservice.WSPutItem wsPutItem) throws 
          java.rmi.RemoteException;
+    public com.amalto.core.webservice.WSItemPK updateItemMetadata(com.amalto.core.webservice.WSUpdateMetadataItem wsUpdateMetadataItem) throws 
+         java.rmi.RemoteException;
     public com.amalto.core.webservice.WSItemPK partialPutItem(com.amalto.core.webservice.WSPartialPutItem wsPartialPutItem) throws 
          java.rmi.RemoteException;
     public com.amalto.core.webservice.WSItemPKArray putItemArray(com.amalto.core.webservice.WSPutItemArray wsPutItemArray) throws 

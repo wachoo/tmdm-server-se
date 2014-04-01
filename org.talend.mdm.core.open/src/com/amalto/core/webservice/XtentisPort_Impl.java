@@ -283,6 +283,12 @@ public class XtentisPort_Impl implements com.amalto.core.webservice.XtentisPort,
         com.amalto.core.webservice.WSItemPK _retVal = null;
         return _retVal;
     }
+    public com.amalto.core.webservice.WSItemPK updateItemMetadata(com.amalto.core.webservice.WSUpdateMetadataItem wsUpdateMetadataItem) throws 
+        java.rmi.RemoteException {
+       
+        com.amalto.core.webservice.WSItemPK _retVal = null;
+        return _retVal;
+    }
     public com.amalto.core.webservice.WSItemPK partialPutItem(com.amalto.core.webservice.WSPartialPutItem wsPartialPutItem) throws 
          java.rmi.RemoteException {
         
