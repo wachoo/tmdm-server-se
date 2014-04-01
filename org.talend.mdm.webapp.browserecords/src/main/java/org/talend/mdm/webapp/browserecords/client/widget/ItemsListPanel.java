@@ -29,6 +29,7 @@ import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
+import org.talend.mdm.webapp.base.shared.Constants;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
@@ -235,8 +236,6 @@ public class ItemsListPanel extends ContentPanel {
 
     private ContentPanel panel;
 
-    private final static int PAGE_SIZE = 20;
-
     private PagingToolBarEx pagingBar = null;
 
     private Boolean gridUpdateLock = Boolean.FALSE;
@@ -336,7 +335,7 @@ public class ItemsListPanel extends ContentPanel {
             }
         });
 
-        int usePageSize = PAGE_SIZE;
+        int usePageSize = Constants.PAGE_SIZE;
         if (Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE) != null) {
             usePageSize = Integer.parseInt(Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE));
         }
