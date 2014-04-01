@@ -29,6 +29,7 @@ import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
+import org.talend.mdm.webapp.base.shared.Constants;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -251,8 +252,6 @@ public class LineageListPanel extends ContentPanel {
 
     private ContentPanel panel;
 
-    private final static int PAGE_SIZE = 20;
-
     private PagingToolBarEx pagingBar = null;
 
     public void initPanel(String stagingTaskId) {
@@ -432,7 +431,7 @@ public class LineageListPanel extends ContentPanel {
             }
         });
 
-        int usePageSize = PAGE_SIZE;
+        int usePageSize = Constants.PAGE_SIZE;
         if (Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE) != null) {
             usePageSize = Integer.parseInt(Cookies.getCookie(PagingToolBarEx.BROWSERECORD_PAGESIZE));
         }

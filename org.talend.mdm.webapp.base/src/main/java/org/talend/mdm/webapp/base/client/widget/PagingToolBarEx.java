@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.base.client.widget;
 
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
+import org.talend.mdm.webapp.base.shared.Constants;
 
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -59,6 +60,9 @@ public class PagingToolBarEx extends PagingToolBar {
 
     public PagingToolBarEx(int pageSize) {
         super(pageSize);
+        if (!validatePageSize(pageSize)) {
+            setPageSize(Constants.PAGE_SIZE);
+        }
         setLayout(new PagingToolBarExLayout());
         LabelToolItem sizeLabel = new LabelToolItem(BaseMessagesFactory.getMessages().page_size_label());
 
@@ -81,7 +85,7 @@ public class PagingToolBarEx extends PagingToolBar {
                     isFireKeyEnter = true;
                     blur(inputEl.dom);
                     if (!sizeField.isFireChangeEventOnSetValue()) {
-                        if (isBrowseRecordsGridCall) {
+                        if (isBrowseRecordsGridCall && sizeField.isValid()) {
                             Cookies.setCookie(BROWSERECORD_PAGESIZE, String.valueOf(sizeField.getValue().intValue()));
                         }
                         refreshData();
@@ -116,12 +120,9 @@ public class PagingToolBarEx extends PagingToolBar {
         @Override
         public String validate(Field<?> field, String value) {
             String valueStr = value == null ? "" : value.toString(); //$NON-NLS-1$
-            boolean success = true;
+            boolean success = false;
             try {
-                int num = Integer.parseInt(valueStr);
-                if (num <= 0) {
-                    success = false;
-                }
+                success = validatePageSize(Integer.parseInt(valueStr));
             } catch (NumberFormatException e) {
                 success = false;
             }
@@ -131,6 +132,14 @@ public class PagingToolBarEx extends PagingToolBar {
             return null;
         }
     };
+
+    private boolean validatePageSize(int pageSizeNumber) {
+        if (pageSizeNumber <= 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     public void lastAfterCreate() {
         if (totalLength == 0) {
@@ -163,7 +172,7 @@ public class PagingToolBarEx extends PagingToolBar {
         this.next.removeToolTip();
         this.last.removeToolTip();
         this.refresh.removeToolTip();
-    }   
+    }
 
     class PagingToolBarExLayout extends ToolBarLayout {
 
