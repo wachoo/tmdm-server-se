@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -68,7 +69,10 @@ import com.googlecode.gflot.client.options.PlotOptions;
 public class MainFramePanel extends Portal {
 
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
-
+    private boolean isHiddenWorkFlowTask = true;
+    private boolean isHiddenDSCTask = true;
+    private static String DSCTASKTYPE_NEW = "new"; //$NON-NLS-1$
+    private static String DSCTASKTYPE_PENDING = "pending"; //$NON-NLS-1$
     public MainFramePanel(int numColumns) {
         super(numColumns);
         setBorders(true);
@@ -295,17 +299,28 @@ public class MainFramePanel extends Portal {
 
             @Override
             public void onSuccess(Boolean hidden) {
-                if (!hidden) {
-                    String name = WelcomePortal.TASKS;
-                    Portlet task = configPortlet(name);
-                    task.setHeading(MessagesFactory.getMessages().tasks_title());
-                    task.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.task()));
+                isHiddenWorkFlowTask = hidden;
+                
+                service.isHiddenDSCTask(new SessionAwareAsyncCallback<Boolean>() {
 
-                    applyTaskPortlet(task);
-                    MainFramePanel.this.add(task, 1);
-                }
+                    @Override
+                    public void onSuccess(Boolean hidden) {
+                        isHiddenDSCTask = hidden;
+                        
+                        if (!isHiddenWorkFlowTask || !isHiddenDSCTask) {
+                            String name = WelcomePortal.TASKS;
+                            Portlet task = configPortlet(name);
+                            task.setHeading(MessagesFactory.getMessages().tasks_title());
+                            task.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.task()));
+                            
+                            applyTaskPortlet(task);
+                            MainFramePanel.this.add(task, 1);
+                        }
+                    }
+                });                
             }
         });
+                
     }
 
     private void applyTaskPortlet(Portlet task) {
@@ -315,46 +330,176 @@ public class MainFramePanel extends Portal {
 
         final FieldSet set = (FieldSet) task.getItemByItemId(WelcomePortal.TASKS + "Set"); //$NON-NLS-1$        
         set.removeAll();
-        final HTML taskHtml_workflow = new HTML();
-        final StringBuilder sb = new StringBuilder(
+        
+        final HTML taskHtml_workflow = new HTML();        
+
+        final StringBuilder sbForWorkflowtasks = new StringBuilder(
                 "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-        service.getWorkflowTaskMsg(new SessionAwareAsyncCallback<Integer>() {
-
-            @Override
-            public void onSuccess(Integer num) {
-
-                if (num.equals(0)) {
-
-                    label.setText(MessagesFactory.getMessages().no_tasks());
-                    set.setVisible(false);
-                } else {
-                    StringBuilder sbNum = new StringBuilder(
-                            "<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$                                
-                    sbNum.append(MessagesFactory.getMessages().waiting_task_prefix());
-                    sbNum.append("&nbsp;<b style=\"color: red;\">" + num + "</b>&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
-                    sbNum.append(MessagesFactory.getMessages().waiting_workflowtask_suffix());
-                    sb.append(sbNum.toString());
-                    label.setText(MessagesFactory.getMessages().tasks_desc());
-                    set.setVisible(true);
-                }
-                sb.append("</span>"); //$NON-NLS-1$
-
-                taskHtml_workflow.setHTML(sb.toString());
-            }
-
-        });
-        taskHtml_workflow.addClickHandler(new ClickHandler() {
+        final StringBuilder sbForDsctasks = new StringBuilder(
+                "<span id=\"dsctasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+        final ClickHandler workflowClikcHanlder = new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
                 itemClick(WelcomePortal.WORKFLOW_TASKCONTEXT, WelcomePortal.WORKFLOW_TASKAPP);
             }
 
-        });
-        set.add(taskHtml_workflow);
-        set.layout(true);
+        };
+        
+        final ClickHandler dscClikcHanlder = new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                itemClick(WelcomePortal.DSC_TASKCONTEXT, WelcomePortal.DSC_TASKAPP);
+            }
+
+        };
+        
+        if (!isHiddenWorkFlowTask && isHiddenDSCTask) {
+            service.getWorkflowTaskMsg(new SessionAwareAsyncCallback<Integer>() {
+
+                @Override
+                public void onSuccess(Integer num) {
+
+                    if (num.equals(0)) {
+
+                        label.setText(MessagesFactory.getMessages().no_tasks());
+                        set.setVisible(false);
+                    } else {
+                        String sbNum = buildMessageForWorkflowTasks(num);
+                        sbForWorkflowtasks.append(sbNum);
+                        label.setText(MessagesFactory.getMessages().tasks_desc());
+                        set.setVisible(true);
+                    }
+                    sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
+
+                    taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
+                }
+
+            });
+            taskHtml_workflow.addClickHandler(workflowClikcHanlder);
+            set.add(taskHtml_workflow);
+            set.layout(true);
+        }
+
+        final HTML taskHtml_dsc = new HTML();
+        if (!isHiddenDSCTask && isHiddenWorkFlowTask) {
+            service.getDSCTaskMsg(new SessionAwareAsyncCallback<Map<String, Integer>>() {
+
+                @Override
+                public void onSuccess(Map<String, Integer> dscTasks) {
+                    int total = dscTasks.get(DSCTASKTYPE_NEW) + dscTasks.get(DSCTASKTYPE_PENDING);
+                    if (total <= 0 ) {
+
+                        label.setText(MessagesFactory.getMessages().no_tasks());
+                        set.setVisible(false);
+                    } else {
+                        String sbNum = buildMessageForDSCTasks(dscTasks);
+                        sbForDsctasks.append(sbNum);
+                        label.setText(MessagesFactory.getMessages().tasks_desc());
+                        set.setVisible(true);
+                    }
+                    sbForDsctasks.append("</span>"); //$NON-NLS-1$
+
+                    taskHtml_dsc.setHTML(sbForDsctasks.toString());
+                }
+
+            });
+            taskHtml_dsc.addClickHandler(dscClikcHanlder);
+            
+            set.add(taskHtml_dsc);
+            set.layout(true);
+        }
+        
+        if (!isHiddenWorkFlowTask && !isHiddenDSCTask) {
+            service.getWorkflowTaskMsg(new SessionAwareAsyncCallback<Integer>() {
+
+                @Override
+                public void onSuccess(final Integer workflowNum) {
+                    service.getDSCTaskMsg(new SessionAwareAsyncCallback<Map<String, Integer>>() {
+
+                        @Override
+                        public void onSuccess(Map<String, Integer> dscTasks) {
+                            int dscNum = dscTasks.get(DSCTASKTYPE_NEW) + dscTasks.get(DSCTASKTYPE_PENDING);
+                            if (workflowNum + dscNum <= 0 ) {
+                                label.setText(MessagesFactory.getMessages().no_tasks());
+                                set.setVisible(false);
+                            } else if (workflowNum > 0 && dscNum == 0){
+                                String sbNum = buildMessageForWorkflowTasks(workflowNum);
+                                sbForWorkflowtasks.append(sbNum);
+                                sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
+                                label.setText(MessagesFactory.getMessages().tasks_desc());
+                                set.setVisible(true);
+                                
+                                taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
+                                
+                                taskHtml_workflow.addClickHandler(workflowClikcHanlder);
+                                
+                                set.add(taskHtml_workflow);
+                            } else if (workflowNum == 0 && dscNum > 0){
+                                String sbNum = buildMessageForDSCTasks(dscTasks);
+                                sbForDsctasks.append(sbNum);
+                                sbForDsctasks.append("</span>"); //$NON-NLS-1$
+                                label.setText(MessagesFactory.getMessages().tasks_desc());
+                                set.setVisible(true);
+                                
+                                taskHtml_dsc.setHTML(sbForDsctasks.toString());
+                                
+                                taskHtml_dsc.addClickHandler(dscClikcHanlder);
+                                
+                                set.add(taskHtml_dsc);
+                            } else {
+                                String sbNumWFT = buildMessageForWorkflowTasks(workflowNum);
+                                sbForWorkflowtasks.append(sbNumWFT);
+                                sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
+                                
+                                String sbNumDSC = buildMessageForDSCTasks(dscTasks);
+                                sbForDsctasks.append(sbNumDSC);
+                                sbForDsctasks.append("</span>"); //$NON-NLS-1$
+                                
+                                taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
+                                taskHtml_dsc.setHTML(sbForDsctasks.toString());
+                                
+                                taskHtml_workflow.addClickHandler(workflowClikcHanlder);
+                                
+                                taskHtml_dsc.addClickHandler(dscClikcHanlder);
+
+                                set.add(taskHtml_workflow);
+                                set.add(taskHtml_dsc);
+
+                                label.setText(MessagesFactory.getMessages().tasks_desc());
+                                set.setVisible(true);
+                            }
+                            set.layout(true);   
+                        }
+                    });
+                }
+            });
+        }
+                                                                        
     }
 
+    private String buildMessageForWorkflowTasks(int num) {
+        StringBuilder mseeage = new StringBuilder(
+                "<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$                                
+        mseeage.append(MessagesFactory.getMessages().waiting_task_prefix());
+        mseeage.append("&nbsp;<b style=\"color: red;\">" + num + "</b>&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+        mseeage.append(MessagesFactory.getMessages().waiting_workflowtask_suffix());
+        
+        return mseeage.toString();
+    }
+    
+    private String buildMessageForDSCTasks(Map<String, Integer> dscTasks) {
+        StringBuilder message = new StringBuilder(
+                "<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$                                
+        message.append(MessagesFactory.getMessages().waiting_task_prefix());
+        message.append("&nbsp;<b style=\"color: red;\">" + dscTasks.get(DSCTASKTYPE_NEW) + "&nbsp;new</b>&nbsp;and"); //$NON-NLS-1$ //$NON-NLS-2$
+        message.append("&nbsp;<b style=\"color: red;\">" + dscTasks.get(DSCTASKTYPE_PENDING) + "&nbsp;pending</b>&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+        message.append(MessagesFactory.getMessages().waiting_dsctask_suffix());
+
+        return message.toString();
+    }
+    
     private void initProcessPortlet() {
         String name = WelcomePortal.PROCESS;
         Portlet process = configPortlet(name);

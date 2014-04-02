@@ -25,6 +25,7 @@ package org.talend.mdm.webapp.welcomeportal.client;
 //
 // ============================================================================
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -36,10 +37,14 @@ public interface WelcomePortalServiceAsync {
     void isHiddenLicense(AsyncCallback<Boolean> callback);
 
     void isHiddenWorkFlowTask(AsyncCallback<Boolean> callback);
+    
+    void isHiddenDSCTask(AsyncCallback<Boolean> callback);
 
     void getAlertMsg(String language, AsyncCallback<String> callback);
 
     void getWorkflowTaskMsg(AsyncCallback<Integer> callback);
+    
+    void getDSCTaskMsg(AsyncCallback<Map<String, Integer>> callback);
 
     void getStandaloneProcess(String language, AsyncCallback<List<String>> callback);
 

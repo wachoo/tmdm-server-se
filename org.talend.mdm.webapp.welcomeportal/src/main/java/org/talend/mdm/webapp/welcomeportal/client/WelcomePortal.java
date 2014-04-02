@@ -47,8 +47,10 @@ public class WelcomePortal implements EntryPoint {
     public final static String JOURNALCONTEXT = "journal", JOURNALAPP = "Journal"; //$NON-NLS-1$ //$NON-NLS-2$
 
     public final static String WORKFLOW_TASKCONTEXT = "workflowtasks", WORKFLOW_TASKAPP = "BonitaWorkflowTasks";//$NON-NLS-1$ //$NON-NLS-2$
-
-    public final static String START = "start", ALERT = "alert", TASKS = "tasks", WORKFLOW_TASK = "workflow_task", PROCESS = "process", SEARCH = "search", CHART = "chart"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+    
+    public final static String DSC_TASKCONTEXT = "datastewardship", DSC_TASKAPP = "Datastewardship"; //$NON-NLS-1$ //$NON-NLS-2$
+    
+    public final static String START = "start", ALERT = "alert", TASKS = "tasks", WORKFLOW_TASK = "workflow_task", PROCESS = "process", SEARCH = "search", CHART = "chart"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 
     public final static String WELCOMEPORTAL_ID = "Welcome"; //$NON-NLS-1$
 

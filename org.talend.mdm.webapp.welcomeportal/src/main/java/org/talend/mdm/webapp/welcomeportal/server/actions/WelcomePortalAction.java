@@ -61,7 +61,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     /**
-     * check if is show task link.
+     * check if is show workflow task link.
      * 
      * @return
      */
@@ -69,6 +69,16 @@ public class WelcomePortalAction implements WelcomePortalService {
     public boolean isHiddenWorkFlowTask() throws ServiceException {
         return isHiddenMenu(WelcomePortal.WORKFLOW_TASKAPP);
     }
+    
+    /**
+     * check if is show dsc task link.
+     * 
+     * @return
+     */
+    @Override
+    public boolean isHiddenDSCTask() throws ServiceException {
+        return isHiddenMenu(WelcomePortal.DSC_TASKAPP);
+    }    
 
     /**
      * check if is it standalong process.
@@ -152,6 +162,11 @@ public class WelcomePortalAction implements WelcomePortalService {
     @Override
     public int getWorkflowTaskMsg() {
         return Webapp.INSTANCE.getWorkflowTaskMsg();
+    }
+
+    @Override
+    public Map<String, Integer> getDSCTaskMsg() {
+        return Webapp.INSTANCE.getDSCTaskMsg();
     }
 
     @Override

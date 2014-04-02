@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 
@@ -28,10 +29,14 @@ public interface WelcomePortalService extends RemoteService {
     public boolean isHiddenLicense() throws ServiceException;
 
     public boolean isHiddenWorkFlowTask() throws ServiceException;
+    
+    public boolean isHiddenDSCTask() throws ServiceException;    
 
     public String getAlertMsg(String language) throws ServiceException;
 
     public int getWorkflowTaskMsg() throws ServiceException;
+    
+    public Map<String, Integer> getDSCTaskMsg() throws ServiceException;
 
     public List<String> getStandaloneProcess(String language) throws ServiceException;
 
