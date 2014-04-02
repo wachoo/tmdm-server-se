@@ -452,6 +452,90 @@ public class SystemStorageTest extends TestCase {
         Element element = (Element) document.getElementsByTagName("User").item(0);
         reader.read(null, repository, repository.getComplexType("User"), element);
     }
+    
+    public void testUserInformationWithRoles() throws Exception {
+        LOG.info("Setting up MDM server environment...");
+        ServerContext.INSTANCE.get(new MockServerLifecycle());
+        LOG.info("MDM server environment set.");
+        LOG.info("Preparing storage for tests...");
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
+
+            @Override
+            public boolean hide(FieldMetadata field) {
+                return false;
+            }
+
+            @Override
+            public boolean hide(ComplexTypeMetadata type) {
+                return false;
+            }
+        });
+        ClassRepository repository = buildRepository();
+        // Additional setup to get User type in repository
+        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
+        };
+        for (String model : models) {
+            InputStream builtInStream = this.getClass().getResourceAsStream(model);
+            if (builtInStream == null) {
+                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
+            }
+            try {
+                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
+                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
+            } catch (Exception e) {
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
+            } finally {
+                try {
+                    builtInStream.close();
+                } catch (IOException e) {
+                    // Ignored
+                }
+            }
+        }
+        storage.init(getDatasource("H2-Default"));
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
+        LOG.info("Storage prepared.");
+        // Create users
+        DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("user1.xml")); //$NON-NLS-1$
+        Element element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
+        records.add(dataRecordReader.read("1", repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
+        document = builder.parse(SystemStorageTest.class.getResourceAsStream("user2.xml")); //$NON-NLS-1$
+        element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
+        records.add(dataRecordReader.read("1", repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
+        // Commit users
+        storage.begin();
+        storage.update(records);
+        storage.commit();
+        // Query test
+        storage.begin();
+        try {
+            ComplexTypeMetadata user = repository.getComplexType("User"); //$NON-NLS-1$
+            UserQueryBuilder qb = from(user);
+            qb.start(0);
+            qb.limit(2);
+            StorageResults results = storage.fetch(qb.getSelect());
+            assertEquals(2, results.getCount());
+            try {
+                java.util.Iterator<DataRecord> it = results.iterator();
+                int count = 0;
+                while (it.hasNext()) {
+                    count++;
+                    it.next();
+                }
+                assertEquals(2, count);
+            } finally {
+                results.close();
+            }
+
+        } finally {
+            storage.commit();
+        }
+    }
 
     private static Collection<File> getConfigFiles() throws URISyntaxException {
         URL data = InitDBUtil.class.getResource("data");
