@@ -34,6 +34,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.Lock;
 import org.hibernate.*;
 import org.hibernate.Session;
@@ -894,44 +895,44 @@ public class HibernateStorage implements Storage {
                 LOGGER.trace("Table(s) scheduled for drop: " + aggregatedTableNames);
             }
             // Full text index clean up
-            org.hibernate.classic.Session currentSession = null;
-            try {
-                currentSession = factory.getCurrentSession();
-                FullTextSession s = Search.getFullTextSession(currentSession);
-                for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
-                    try {
-                        Class<?> clazz = storageClassLoader.loadClass(ClassCreator.PACKAGE_PREFIX
-                                + tableResolver.get(typeMetadata));
-                        DirectoryProvider[] directoryProviders = s.getSearchFactory().getDirectoryProviders(clazz);
-                        for (DirectoryProvider directoryProvider : directoryProviders) {
-                            final Directory directory = directoryProvider.getDirectory();
-                            final String lockName = "delete." + typeMetadata.getName(); //$NON-NLS-1$
-                            // Default 5 sec timeout for lock
-                            Lock.With lock = new Lock.With(directory.makeLock(lockName), 5000) {
+            if (dataSource.supportFullText()) {
+                try {
+                    for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
+                        try {
+                            Class<?> clazz = storageClassLoader.loadClass(ClassCreator.PACKAGE_PREFIX + tableResolver.get(typeMetadata));
+                            File directoryFile = new File(dataSource.getIndexDirectory() + '/' + getName() + '/' + clazz.getName());
+                            if (directoryFile.exists()) {
+                                final Directory directory = FSDirectory.open(directoryFile);
+                                final String lockName = "delete." + typeMetadata.getName(); //$NON-NLS-1$
+                                // Default 5 sec timeout for lock
+                                Lock.With lock = new Lock.With(directory.makeLock(lockName), 5000) {
 
-                                @Override
-                                protected Object doBody() throws IOException {
-                                    String[] files = directory.listAll();
-                                    for (String file : files) {
-                                        if (!file.endsWith(lockName)) { // Don't delete our own lock
-                                            directory.deleteFile(file);
+                                    @Override
+                                    protected Object doBody() throws IOException {
+                                        String[] files = directory.listAll();
+                                        for (String file : files) {
+                                            if (!file.endsWith(lockName)) { // Don't delete our own lock
+                                                directory.deleteFile(file);
+                                            }
                                         }
+                                        return null;
                                     }
-                                    return null;
+                                };
+                                lock.run();
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Removed full text directory for entity '" + typeMetadata.getName() + "' at '"
+                                            + directoryFile.getAbsolutePath() + "'");
                                 }
-                            };
-                            lock.run();
-                            directoryProvider.stop(); // Prevent operations on full text index after clean
+                            } else {
+                                LOGGER.warn("Full text index directory for entity '" + typeMetadata.getName()
+                                        + "' no longer exists. No need to delete it.");
+                            }
+                        } catch (Exception e) {
+                            LOGGER.warn("Could not remove full text directory for '" + typeMetadata.getName() + "'.", e);
                         }
-                    } catch (Exception e) {
-                        LOGGER.warn("Could not remove full text directory for '" + typeMetadata.getName() + "'.", e);
                     }
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Could not correctly clean full text directory.", e);
-            } finally {
-                if (currentSession != null) {
-                    currentSession.close();
+                } catch (Exception e) {
+                    LOGGER.warn("Could not correctly clean full text directory.", e);
                 }
             }
             // Clean update reports

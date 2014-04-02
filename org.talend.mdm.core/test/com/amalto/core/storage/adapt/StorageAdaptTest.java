@@ -10,6 +10,7 @@
 
 package com.amalto.core.storage.adapt;
 
+import java.io.File;
 import java.sql.*;
 
 import junit.framework.TestCase;
@@ -29,13 +30,15 @@ import com.amalto.core.storage.hibernate.HibernateStorage;
 
 public class StorageAdaptTest extends TestCase {
 
+    protected static final String STORAGE_NAME = "Test";
+
     @Override
     public void setUp() throws Exception {
         ServerContext.INSTANCE.get(new MockServerLifecycle());
     }
 
     public void testParameter() throws Exception {
-        DataSourceDefinition dataSource = ServerContext.INSTANCE.get().getDefinition("H2-DS3", "Test");
+        DataSourceDefinition dataSource = ServerContext.INSTANCE.get().getDefinition("H2-DS3", STORAGE_NAME);
         Storage storage = new HibernateStorage("Test", StorageType.MASTER);
         storage.init(dataSource);
         MetadataRepository repository = new MetadataRepository();
@@ -52,7 +55,7 @@ public class StorageAdaptTest extends TestCase {
     }
 
     public void testNoUpdate() throws Exception {
-        DataSourceDefinition dataSource = ServerContext.INSTANCE.get().getDefinition("H2-DS3", "Test");
+        DataSourceDefinition dataSource = ServerContext.INSTANCE.get().getDefinition("H2-DS3", STORAGE_NAME);
         Storage storage = new HibernateStorage("Test", StorageType.MASTER);
         storage.init(dataSource);
         MetadataRepository repository = new MetadataRepository();
@@ -66,7 +69,7 @@ public class StorageAdaptTest extends TestCase {
 
     public void test1() throws Exception {
         // Test preparation
-        DataSourceDefinition dataSource = ServerContext.INSTANCE.get().getDefinition("H2-DS3", "Test");
+        DataSourceDefinition dataSource = ServerContext.INSTANCE.get().getDefinition("H2-DS3", STORAGE_NAME);
         Storage storage = new HibernateStorage("Test", StorageType.MASTER);
         storage.init(dataSource);
         MetadataRepository repository = new MetadataRepository();
@@ -112,7 +115,12 @@ public class StorageAdaptTest extends TestCase {
                     fail("Expected statement to succeed (table exist).");
                 }
             }
-
+            File ftDirectory = new File(rdbmsDataSource.getIndexDirectory() + '/' + STORAGE_NAME + "/org.talend.mdm.storage.hibernate.Supplier");
+            if (!expectSupplierTable) {
+                assertFalse(ftDirectory.exists());
+            } else {
+                assertTrue(ftDirectory.exists());
+            }
         } finally {
             statement.close();
         }
