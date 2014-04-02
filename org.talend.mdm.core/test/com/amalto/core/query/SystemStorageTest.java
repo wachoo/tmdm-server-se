@@ -10,31 +10,34 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.initdb.InitDBUtil;
-import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.hibernate.TypeMappingStrategy;
-import org.apache.commons.io.IOUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
-import com.amalto.core.objects.menu.ejb.MenuPOJO;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.MockServerLifecycle;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.SecuredStorage;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.*;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import junit.framework.TestCase;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,18 +45,64 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.initdb.InitDBUtil;
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
+import com.amalto.core.objects.menu.ejb.MenuPOJO;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.server.MockServerLifecycle;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.SecuredStorage;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.hibernate.TypeMappingStrategy;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
 public class SystemStorageTest extends TestCase {
 
     private static Logger LOG = Logger.getLogger(StorageTestCase.class);
+
+    private static Collection<File> getConfigFiles() throws URISyntaxException {
+        URL data = InitDBUtil.class.getResource("data");
+        return FileUtils.listFiles(new File(data.toURI()), new IOFileFilter() {
+
+            @Override
+            public boolean accept(File file) {
+                return true;
+            }
+
+            @Override
+            public boolean accept(File file, String s) {
+                return true;
+            }
+        }, new IOFileFilter() {
+
+            @Override
+            public boolean accept(File file) {
+                return !".svn".equals(file.getName());
+            }
+
+            @Override
+            public boolean accept(File file, String s) {
+                return !".svn".equals(file.getName());
+            }
+        });
+    }
+
+    protected static DataSourceDefinition getDatasource(String dataSourceName) {
+        return ServerContext.INSTANCE.get().getDefinition(dataSourceName, "MDM");
+    }
 
     public void testSystemRepository() throws Exception {
         ClassRepository repository = buildRepository();
@@ -356,7 +405,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
         LOG.info("Storage prepared.");
 
         Collection<File> files = getConfigFiles();
@@ -468,35 +517,88 @@ public class SystemStorageTest extends TestCase {
         reader.read(null, repository, repository.getComplexType("User"), element);
     }
 
-    private static Collection<File> getConfigFiles() throws URISyntaxException {
-        URL data = InitDBUtil.class.getResource("data");
-        return FileUtils.listFiles(new File(data.toURI()), new IOFileFilter() {
+    public void testUserInformationWithRoles() throws Exception {
+        LOG.info("Setting up MDM server environment...");
+        ServerContext.INSTANCE.get(new MockServerLifecycle());
+        LOG.info("MDM server environment set.");
+        LOG.info("Preparing storage for tests...");
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
 
             @Override
-            public boolean accept(File file) {
-                return true;
+            public boolean hide(FieldMetadata field) {
+                return false;
             }
 
             @Override
-            public boolean accept(File file, String s) {
-                return true;
-            }
-        }, new IOFileFilter() {
-
-            @Override
-            public boolean accept(File file) {
-                return !".svn".equals(file.getName());
-            }
-
-            @Override
-            public boolean accept(File file, String s) {
-                return !".svn".equals(file.getName());
+            public boolean hide(ComplexTypeMetadata type) {
+                return false;
             }
         });
-    }
+        ClassRepository repository = buildRepository();
+        // Additional setup to get User type in repository
+        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
+        };
+        for (String model : models) {
+            InputStream builtInStream = this.getClass().getResourceAsStream(model);
+            if (builtInStream == null) {
+                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
+            }
+            try {
+                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
+                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
+            } catch (Exception e) {
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
+            } finally {
+                try {
+                    builtInStream.close();
+                } catch (IOException e) {
+                    // Ignored
+                }
+            }
+        }
+        storage.init(getDatasource("H2-Default"));
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
+        LOG.info("Storage prepared.");
+        // Create users
+        DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("user1.xml")); //$NON-NLS-1$
+        Element element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
+        records.add(dataRecordReader.read("1", repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
+        document = builder.parse(SystemStorageTest.class.getResourceAsStream("user2.xml")); //$NON-NLS-1$
+        element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
+        records.add(dataRecordReader.read("1", repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
+        // Commit users
+        storage.begin();
+        storage.update(records);
+        storage.commit();
+        // Query test
+        storage.begin();
+        try {
+            ComplexTypeMetadata user = repository.getComplexType("User"); //$NON-NLS-1$
+            UserQueryBuilder qb = from(user);
+            qb.start(0);
+            qb.limit(2);
+            StorageResults results = storage.fetch(qb.getSelect());
+            assertEquals(2, results.getCount());
+            try {
+                java.util.Iterator<DataRecord> it = results.iterator();
+                int count = 0;
+                while (it.hasNext()) {
+                    count++;
+                    it.next();
+                }
+                assertEquals(2, count);
+            } finally {
+                results.close();
+            }
 
-    protected static DataSourceDefinition getDatasource(String dataSourceName) {
-        return ServerContext.INSTANCE.get().getDefinition(dataSourceName, "MDM");
+        } finally {
+            storage.commit();
+        }
     }
 
 }

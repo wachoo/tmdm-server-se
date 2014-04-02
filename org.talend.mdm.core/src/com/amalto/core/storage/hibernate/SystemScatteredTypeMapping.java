@@ -30,7 +30,7 @@ import java.util.*;
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
  */
-class SystemScatteredTypeMapping extends TypeMapping {
+class SystemScatteredTypeMapping extends ScatteredTypeMapping {
 
     private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
 
@@ -416,7 +416,7 @@ class SystemScatteredTypeMapping extends TypeMapping {
 
     @Override
     public String toString() {
-        return "SCATTERED (" + user.getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+        return "SYSTEM SCATTERED (" + user.getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     protected void map(FieldMetadata user, FieldMetadata database) {
