@@ -127,10 +127,20 @@ public class StorageQueryTest extends StorageTestCase {
                                 repository,
                                 person,
                                 "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
+        allRecords.add(factory.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
+        allRecords.add(factory.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
         allRecords.add(factory.read("1", repository, a,
                 "<A><id>1</id><textA>TextA</textA><nestedB><text>Text1</text></nestedB></A>"));
         allRecords.add(factory.read("1", repository, a,
                 "<A><id>2</id><textA>TextA</textA><nestedB><text>Text2</text></nestedB><refA>[1]</refA></A>"));
+        allRecords.add(factory.read("1", repository, a,
+                "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
+        allRecords.add(factory.read("1", repository, a,
+                "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>4</id><refB tmdm:type=\"D\">[2]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));        
+        allRecords.add(factory.read("1", repository, a,
+                "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>5</id><refB tmdm:type=\"B\">[2]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));                                
+
+        
         allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
@@ -272,6 +282,74 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
 
+    }
+
+    public void testXmlSerializationDefaultFKType() {
+        UserQueryBuilder qb = from(a).where(eq(a.getField("id"), "3"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        try {
+            String expectedXml = "<A><id>3</id><textA>TextA</textA><refB>[1]</refB><nestedB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"Nested\"><text>Text</text></nestedB></A>";
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                try {
+                    writer.write(result, output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            String actual = new String(output.toByteArray());
+            assertEquals(expectedXml, actual);
+        } finally {
+            results.close();
+        }
+
+    }
+
+    public void testXmlSerializationSubtypeFKType() {
+        // link through child D: <id>4</id><refB tmdm:type=\"D\">[2]</refB>
+        UserQueryBuilder qb = from(a).where(eq(a.getField("id"), "4"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        try {
+            String expectedXml = "<A><id>4</id><textA>TextA</textA><refB xmlns:tmdm=\"http://www.talend.com/mdm\" tmdm:type=\"D\">[2]</refB><nestedB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"Nested\"><text>Text</text></nestedB></A>";
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                try {
+                    writer.write(result, output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            String actual = new String(output.toByteArray());
+            assertEquals(expectedXml, actual);
+        } finally {
+            results.close();
+        }
+        // link through parent B: <id>4</id><refB tmdm:type=\"B\">[2]</refB>
+        qb = from(a).where(eq(a.getField("id"), "5"));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        writer = new DataRecordXmlWriter();
+        try {
+            String expectedXml = "<A><id>5</id><textA>TextA</textA><refB xmlns:tmdm=\"http://www.talend.com/mdm\" tmdm:type=\"D\">[2]</refB><nestedB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"Nested\"><text>Text</text></nestedB></A>";
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                try {
+                    writer.write(result, output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            String actual = new String(output.toByteArray());
+            assertEquals(expectedXml, actual);
+        } finally {
+            results.close();
+        }
     }
 
     public void testSelectWithUselessIsa() throws Exception {
@@ -1515,12 +1593,16 @@ public class StorageQueryTest extends StorageTestCase {
             Set<Object> expectedValues = new HashSet<Object>();
             expectedValues.add(null);
             expectedValues.add("1");
-            assertEquals(2, results.getCount());
+            assertEquals(5, results.getCount());
             for (DataRecord result : results) {
                 Object value = result.get("refA");
-                boolean wasRemoved = expectedValues.remove(value);
+                boolean wasRemoved = expectedValues.remove(value);                
                 assertTrue(wasRemoved);
+                if (value == null) {
+                    expectedValues.add(null);
+                }
             }
+            expectedValues.remove(null);
             assertEquals(0, expectedValues.size());
         } finally {
             results.close();

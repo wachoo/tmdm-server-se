@@ -47,6 +47,12 @@ public class InheritanceTest extends StorageTestCase {
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
         allRecords
+        .add(factory
+                .read("1",
+                        repository,
+                        a,
+                        "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><refB tmdm:type=\"D\">[2]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));        
+        allRecords
                 .add(factory
                         .read("1",
                                 repository,
@@ -204,7 +210,7 @@ public class InheritanceTest extends StorageTestCase {
         qb = UserQueryBuilder.from(a);
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
+            assertEquals(3, results.getCount());
         } finally {
             results.close();
         }
@@ -224,14 +230,24 @@ public class InheritanceTest extends StorageTestCase {
         UserQueryBuilder qb = UserQueryBuilder.from(a);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
+            assertEquals(3, results.getCount());
             for (DataRecord result : results) {
                 Object value = result.get("refB");
                 assertTrue(value instanceof DataRecord);
+                DataRecord dataValue = (DataRecord) value;
+                String refType;
                 if ("A".equals(result.getType().getName())) {
-                    assertEquals("B", ((DataRecord) value).getType().getName());
+                    refType = dataValue.getType().getName();
+                    assertTrue(result.get("refB") instanceof DataRecord);
+                    if ("B".equals(refType)) {
+                        assertEquals("1", ((DataRecord) result.get("refB")).get("id"));
+                    } else if ("D".equals(refType)) {
+                        assertEquals("2", ((DataRecord) result.get("refB")).get("id"));
+                    }
                 } else if ("C".equals(result.getType().getName())) {
-                    assertEquals("D", ((DataRecord) value).getType().getName());
+                    assertEquals("D", dataValue.getType().getName());
+                    assertTrue(result.get("refB") instanceof DataRecord);
+                    assertEquals("2", ((DataRecord) result.get("refB")).get("id"));
                 }
             }
         } finally {
@@ -258,7 +274,7 @@ public class InheritanceTest extends StorageTestCase {
         UserQueryBuilder qb = UserQueryBuilder.from(a);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
+            assertEquals(3, results.getCount());
             for (DataRecord result : results) {
                 Object value = result.get("nestedB");
                 assertTrue(value instanceof DataRecord);
@@ -308,7 +324,7 @@ public class InheritanceTest extends StorageTestCase {
                 .join(a.getField("refB"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
+            assertEquals(3, results.getCount());
             for (DataRecord result : results) {
                 assertTrue("TextA".equals(result.get("textA")) || "TextAC".equals(result.get("textA")));
                 assertTrue("TextB".equals(result.get("textB")) || "TextBD".equals(result.get("textB")));
@@ -338,7 +354,7 @@ public class InheritanceTest extends StorageTestCase {
         qb = UserQueryBuilder.from(a).where(or(isa(a.getField("nestedB"), nested), isa(a.getField("nestedB"), subNested)));
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
+            assertEquals(3, results.getCount());
         } finally {
             results.close();
         }
@@ -346,7 +362,7 @@ public class InheritanceTest extends StorageTestCase {
         qb = UserQueryBuilder.from(a).where(isa(a.getField("nestedB"), nested));
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
+            assertEquals(3, results.getCount());
         } finally {
             results.close();
         }
@@ -412,8 +428,8 @@ public class InheritanceTest extends StorageTestCase {
                 .orderBy(type(a.getField("nestedB")), OrderBy.Direction.ASC);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
-            String[] expected = new String[]{"Nested", "SubNested"};
+            assertEquals(3, results.getCount());
+            String[] expected = new String[]{"Nested", "Nested","SubNested"};
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
@@ -426,8 +442,8 @@ public class InheritanceTest extends StorageTestCase {
                 .orderBy(type(a.getField("nestedB")), OrderBy.Direction.DESC);
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
-            String[] expected = new String[]{"SubNested", "Nested"};
+            assertEquals(3, results.getCount());
+            String[] expected = new String[]{"SubNested", "Nested", "Nested"};
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
@@ -443,8 +459,8 @@ public class InheritanceTest extends StorageTestCase {
         }
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount());
-            String[] expected = new String[]{"Nested", "SubNested"};
+            assertEquals(3, results.getCount());
+            String[] expected = new String[]{"Nested", "Nested", "SubNested"};
             int i = 0;
             for (DataRecord result : results) {
                 assertEquals(expected[i++], result.get("type"));
