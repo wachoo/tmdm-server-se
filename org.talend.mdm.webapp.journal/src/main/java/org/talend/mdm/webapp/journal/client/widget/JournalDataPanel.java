@@ -124,6 +124,8 @@ public class JournalDataPanel extends FormPanel {
     
     private SelectionListener<ButtonEvent> updateReportListener;
     
+    private SelectionListener<ButtonEvent> openRecordListener;
+    
     public JournalDataPanel(final JournalTreeModel root, final JournalGridModel journalGridModel) {
         this.setFrame(false);
         this.setItemId(journalGridModel.getIds());
@@ -139,29 +141,8 @@ public class JournalDataPanel extends FormPanel {
             openRecordButton.disable();
         }
         openRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.browse()));
-        openRecordButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-            
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                service.checkDCAndDM(journalGridModel.getDataContainer(), journalGridModel.getDataModel(), new SessionAwareAsyncCallback<Boolean>() {
-                    
-                    public void onSuccess(Boolean result) {
-                        if(result) {
-                            if (journalGridModel.getDataContainer().endsWith("#STAGING")) { //$NON-NLS-1$
-                                JournalDataPanel.this.openBrowseRecordPanel4Staging(MessagesFactory.getMessages().journal_label(),
-                                        journalGridModel.getKey(), journalGridModel.getEntity());
-                            } else {
-                                JournalDataPanel.this.openBrowseRecordPanel(MessagesFactory.getMessages().journal_label(),
-                                        journalGridModel.getKey(), journalGridModel.getEntity());
-                            }
-                        } else {
-                            MessageBox.alert(MessagesFactory.getMessages().error_level(), MessagesFactory.getMessages()
-                                    .select_contain_model_msg(), null);
-                        }
-                    }
-                });
-            }
-        });
+        this.openRecordListener = createOpenRecordListener();
+        openRecordButton.addSelectionListener(this.openRecordListener);
         
         viewUpdateReportButton = new Button(MessagesFactory.getMessages().view_updatereport_button());
         viewUpdateReportButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.view()));
@@ -306,6 +287,32 @@ public class JournalDataPanel extends FormPanel {
         };
     }
 
+    private SelectionListener<ButtonEvent> createOpenRecordListener() {
+        return new SelectionListener<ButtonEvent>() {
+            
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                service.checkDCAndDM(journalGridModel.getDataContainer(), journalGridModel.getDataModel(), new SessionAwareAsyncCallback<Boolean>() {
+                    
+                    public void onSuccess(Boolean result) {
+                        if(result) {
+                            if (journalGridModel.getDataContainer().endsWith("#STAGING")) { //$NON-NLS-1$
+                                JournalDataPanel.this.openBrowseRecordPanel4Staging(MessagesFactory.getMessages().journal_label(),
+                                        journalGridModel.getKey(), journalGridModel.getEntity());
+                            } else {
+                                JournalDataPanel.this.openBrowseRecordPanel(MessagesFactory.getMessages().journal_label(),
+                                        journalGridModel.getKey(), journalGridModel.getEntity());
+                            }
+                        } else {
+                            MessageBox.alert(MessagesFactory.getMessages().error_level(), MessagesFactory.getMessages()
+                                    .select_contain_model_msg(), null);
+                        }
+                    }
+                });
+            }
+        };
+    }
+    
     private void initializeMain() {
         main = new LayoutContainer();
         main.setLayout(new ColumnLayout());
@@ -555,6 +562,8 @@ public class JournalDataPanel extends FormPanel {
 
         updateMainFieldValues(gridModel);
         
+        updateOpenRecord();
+        
         updateJournalNavigationList();
         
         this.layout();
@@ -564,6 +573,12 @@ public class JournalDataPanel extends FormPanel {
         treeStore.removeAll();
         treeStore.add(this.root, true);
         updateUpdateReportListener();               
+    }
+    
+    private void updateOpenRecord() {
+        this.openRecordButton.removeSelectionListener(updateReportListener);
+        this.openRecordListener = createOpenRecordListener();
+        this.openRecordButton.addSelectionListener(openRecordListener);
     }
     
     private void updateUpdateReportListener() {
