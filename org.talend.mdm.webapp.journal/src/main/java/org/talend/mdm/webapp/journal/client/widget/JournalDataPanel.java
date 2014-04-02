@@ -508,7 +508,7 @@ public class JournalDataPanel extends FormPanel {
         int start = startFrom;
         String key;
         boolean exists = false;
-        while (++start < limit) {
+        while (++start < limit && start < total) {
             key = currentDataList.get(start).getKey();
             if (! deletedKeys.contains(key)) {
                 exists = true;
