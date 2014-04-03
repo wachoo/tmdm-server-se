@@ -17,20 +17,21 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.ws.rs.*;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.util.XtentisException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadataImpl;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
@@ -56,14 +57,22 @@ public class SystemModels {
     public SystemModels() {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-        MetadataRepository repository = systemStorage.getMetadataRepository();
-        dataModelType = repository.getComplexType("data-model-pOJO"); //$NON-NLS-1$
+        if (systemStorage != null) {
+            MetadataRepository repository = systemStorage.getMetadataRepository();
+            dataModelType = repository.getComplexType("data-model-pOJO"); //$NON-NLS-1$
+        } else {
+            LOGGER.warn("No system storage available.");
+            dataModelType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, StringUtils.EMPTY, true);
+        }
     }
 
     @GET
     @Path("{model}")//$NON-NLS-1$
     public String getSchema(@PathParam("model")//$NON-NLS-1$
             String modelName) {
+        if (!isSystemStorageAvailable()) {
+            return StringUtils.EMPTY;
+        }
         UserQueryBuilder qb = from(dataModelType).where(eq(dataModelType.getField("name"), modelName)); //$NON-NLS-1$
         systemStorage.begin();
         try {
@@ -91,6 +100,18 @@ public class SystemModels {
     public void updateModel(@PathParam("model")//$NON-NLS-1$
             String modelName, @QueryParam("force")//$NON-NLS-1$
             boolean force, InputStream dataModel) {
+        if (!isSystemStorageAvailable()) { // If no system storage is available, store new schema version.
+            try {
+                DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
+                dataModelPOJO.setSchema(IOUtils.toString(dataModel));
+                dataModelPOJO.store();
+                return;
+            } catch (IOException e) {
+                throw new RuntimeException("Could not fully read new data model.", e);
+            } catch (XtentisException e) {
+                throw new RuntimeException("Could not store new data model.", e);
+            }
+        }
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
@@ -137,23 +158,35 @@ public class SystemModels {
         }
     }
 
+    private boolean isSystemStorageAvailable() {
+        return !dataModelType.getName().isEmpty();
+    }
+
     @POST
     @Path("{model}")//$NON-NLS-1$
     public String analyzeModelChange(@PathParam("model")//$NON-NLS-1$
             String modelName, InputStream dataModel) {
-        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
-        if (storage == null) {
-            LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change.");
-            return StringUtils.EMPTY;
+        Map<ImpactAnalyzer.Impact, List<Change>> impacts;
+        if (!isSystemStorageAvailable()) {
+            impacts = new EnumMap<ImpactAnalyzer.Impact, List<Change>>(ImpactAnalyzer.Impact.class);
+            for (ImpactAnalyzer.Impact impact : impacts.keySet()) {
+                impacts.put(impact, Collections.<Change>emptyList());
+            }
+        } else {
+            StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+            Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
+            if (storage == null) {
+                LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change.");
+                return StringUtils.EMPTY;
+            }
+            // Compare new data model with existing data model
+            MetadataRepository previousRepository = storage.getMetadataRepository();
+            MetadataRepository newRepository = new MetadataRepository();
+            newRepository.load(dataModel);
+            Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
+            // Analyzes impacts on the select storage
+            impacts = storage.getImpactAnalyzer().analyzeImpacts(diffResults);
         }
-        // Compare new data model with existing data model
-        MetadataRepository previousRepository = storage.getMetadataRepository();
-        MetadataRepository newRepository = new MetadataRepository();
-        newRepository.load(dataModel);
-        Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
-        // Analyzes impacts on the select storage
-        Map<ImpactAnalyzer.Impact, List<Change>> impacts = storage.getImpactAnalyzer().analyzeImpacts(diffResults);
         // Serialize results to XML
         StringWriter resultAsXml = new StringWriter();
         XMLStreamWriter writer = null;
