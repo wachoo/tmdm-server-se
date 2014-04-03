@@ -17,6 +17,7 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.talend.mdm.commmon.metadata.*;
 
@@ -25,6 +26,8 @@ import java.lang.reflect.Constructor;
 import java.util.*;
 
 class FlatTypeMapping extends TypeMapping {
+
+    protected static final Logger LOGGER = Logger.getLogger(FlatTypeMapping.class);
 
     private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
 
@@ -39,15 +42,21 @@ class FlatTypeMapping extends TypeMapping {
     }
 
     protected void map(FieldMetadata user, FieldMetadata database) {
-        // TODO Investigate why map gets called after mapping is frozen.
-        String userKey = user.getDeclaringType().getName() + '_' + user.getName();
-        String databaseKey = database.getDeclaringType().getName() + '_' + database.getName();
-        userToDatabase.put(userKey, database);
-        databaseToUser.put(databaseKey, user);
+        if (isFrozen) { // Not really expected, but as long as calling code knows what it's doing...
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Mapping for '" + user.getName() + "' is frozen");
+            }
+        }
+        userToDatabase.put(getKey(user), database);
+        databaseToUser.put(getKey(database), user);
+    }
+
+    private static String getKey(FieldMetadata field) {
+        return field.getDeclaringType().getName() + '_' + field.getName();
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {
-        FieldMetadata field = userToDatabase.get(from.getDeclaringType().getName() + '_' + from.getName());
+        FieldMetadata field = userToDatabase.get(getKey(from));
         // TMDM-6802: Look for field by name (declaring type might be wrong).
         if (field == null) {
             for (FieldMetadata fieldMetadata : userToDatabase.values()) {
@@ -60,7 +69,7 @@ class FlatTypeMapping extends TypeMapping {
     }
 
     public FieldMetadata getUser(FieldMetadata to) {
-        return databaseToUser.get(to.getDeclaringType().getName() + '_' + to.getName());
+        return databaseToUser.get(getKey(to));
     }
 
     public void freeze() {
@@ -77,18 +86,20 @@ class FlatTypeMapping extends TypeMapping {
                 throw new RuntimeException("Could not process user type '" + user.getName() + "'.", e);
             }
             // Freeze field mappings.
-            Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
-            for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
-                frozen.put(entry.getKey(), entry.getValue().freeze());
-            }
-            userToDatabase = frozen;
-            frozen = new HashMap<String, FieldMetadata>();
-            for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
-                frozen.put(entry.getKey(), entry.getValue().freeze());
-            }
-            databaseToUser = frozen;
+            userToDatabase = freezeFields(userToDatabase);
+            databaseToUser = freezeFields(databaseToUser);
             isFrozen = true;
         }
+    }
+
+    private static Map<String, FieldMetadata> freezeFields(Map<String, FieldMetadata> fieldMap) {
+        Map<String, FieldMetadata> frozen;
+        frozen = new HashMap<String, FieldMetadata>();
+        for (Map.Entry<String, FieldMetadata> entry : fieldMap.entrySet()) {
+            FieldMetadata frozenField = entry.getValue().freeze();
+            frozen.put(entry.getKey(), frozenField);
+        }
+        return frozen;
     }
 
     @Override
