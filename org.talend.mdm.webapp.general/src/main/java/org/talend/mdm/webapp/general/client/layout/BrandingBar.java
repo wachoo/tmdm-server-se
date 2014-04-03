@@ -57,6 +57,8 @@ public class BrandingBar extends ContentPanel {
 
     Button logout = new Button(MessageFactory.getMessages().logout());
 
+    GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
+
     private BrandingBar() {
         super();
         setHeaderVisible(false);
@@ -72,42 +74,57 @@ public class BrandingBar extends ContentPanel {
         return instance;
     }
 
+    private void changeLanguage() {
+        service.setDefaultLanguage(languageBox.getValue(languageBox.getSelectedIndex()), new SessionAwareAsyncCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                String path = Location.getPath();
+                String query = Location.getQueryString();
+                String lang = Location.getParameter("language"); //$NON-NLS-1$
+
+                if (lang == null || lang.trim().length() == 0) {
+                    if (query == null || query.length() == 0) {
+                        setHref(path + "?language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                    } else {
+                        setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
+                    }
+                } else {
+
+                    if (query.indexOf("&language=" + lang + "&") != -1) { //$NON-NLS-1$ //$NON-NLS-2$
+                        query = query.replace("&language=" + lang + "&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    } else if (query.endsWith("&language=" + lang)) { //$NON-NLS-1$
+                        query = query.replace("&language=" + lang, ""); //$NON-NLS-1$ //$NON-NLS-2$
+                    } else if (query.startsWith("?language=" + lang)) { //$NON-NLS-1$
+                        query = query.replaceAll("language=" + lang + "&?", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    }
+                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$     
+                }
+            }
+        });
+    }
+
     private void initEvent() {
         languageBox.addChangeHandler(new ChangeHandler() {
 
             @Override
             public void onChange(ChangeEvent event) {
+                String languageSelected = languageBox.getValue(languageBox.getSelectedIndex());
+                if (languageSelected == null || "".equals(languageSelected.trim())) { //$NON-NLS-1$
+                    languageSelected = UrlUtil.getLanguage();
+                }
+                service.isExpired(languageSelected, new SessionAwareAsyncCallback<Boolean>() {
 
-                GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
-                service.setDefaultLanguage(languageBox.getValue(languageBox.getSelectedIndex()),
-                        new SessionAwareAsyncCallback<Void>() {
+                    @Override
+                    public void onSuccess(Boolean result) {
+                        changeLanguage();
+                    }
 
-                            @Override
-                            public void onSuccess(Void result) {
-                                String path = Location.getPath();
-                                String query = Location.getQueryString();
-                                String lang = Location.getParameter("language"); //$NON-NLS-1$
-
-                                if (lang == null || lang.trim().length() == 0) {
-                                    if (query == null || query.length() == 0) {
-                                        setHref(path + "?language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
-                                    } else {
-                                        setHref(path + query
-                                                + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$
-                                    }
-                                } else {
-
-                                    if (query.indexOf("&language=" + lang + "&") != -1) { //$NON-NLS-1$ //$NON-NLS-2$
-                                        query = query.replace("&language=" + lang + "&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                                    } else if (query.endsWith("&language=" + lang)) { //$NON-NLS-1$
-                                        query = query.replace("&language=" + lang, ""); //$NON-NLS-1$ //$NON-NLS-2$
-                                    } else if (query.startsWith("?language=" + lang)) { //$NON-NLS-1$
-                                        query = query.replaceAll("language=" + lang + "&?", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                                    }
-                                    setHref(path + query + "&language=" + languageBox.getValue(languageBox.getSelectedIndex())); //$NON-NLS-1$     
-                                }
-                            }
-                        });
+                    @Override
+                    protected void doOnFailure(final Throwable caught) {
+                        super.doOnFailure(caught);
+                    }
+                });
             }
         });
 
