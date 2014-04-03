@@ -11,6 +11,7 @@
 package com.amalto.core.metadata;
 
 import java.io.InputStream;
+import java.util.Locale;
 
 import junit.framework.TestCase;
 
@@ -34,10 +35,18 @@ public class MetadataRepositoryTest extends TestCase {
 
         ComplexTypeMetadata product = repository.getComplexType("Product");
         assertNotNull(product);
+        assertEquals("Product", product.getName(new Locale("en")));
+        assertEquals("Product", product.getName(new Locale("zn")));
+        assertEquals("Produit", product.getName(new Locale("fr")));
         FieldMetadata field = product.getField("Features/Sizes/Size");
         assertNotNull(field);
         assertEquals("Features/Sizes/Size", field.getPath());
         assertEquals("Product", field.getEntityTypeName());
+        FieldMetadata name = product.getField("Name");
+        assertNotNull(name);
+        assertEquals("Name", name.getName(new Locale("en")));
+        assertEquals("Name", name.getName(new Locale("zn")));
+        assertEquals("Nom", name.getName(new Locale("fr")));
     }
 
     public void test2() {
