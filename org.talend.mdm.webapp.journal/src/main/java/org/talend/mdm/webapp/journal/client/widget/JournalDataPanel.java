@@ -90,6 +90,8 @@ public class JournalDataPanel extends FormPanel {
     
     private boolean turnPage = false;
     
+    private boolean backupPage = false;
+    
     private Button prevUpdateReportButton;
 
     private Button nextUpdateReportButton;
@@ -234,7 +236,11 @@ public class JournalDataPanel extends FormPanel {
                     @Override
                     public void loaderLoad(LoadEvent le) {
                         currentDataList = ((BasePagingLoadResult<JournalGridModel>) le.getData()).getData();
-
+                        
+                        if (backupPage) {
+                            backupPage = false;
+                            return;
+                        }
                         if (turnPage) {
                             JournalGridModel targetGridModel;
                             //here need to check current journal(iso prev/next one) has its data record exists(then open the journal), thus
@@ -247,6 +253,8 @@ public class JournalDataPanel extends FormPanel {
                             
                             if (targetGridModel != null) {
                                 JournalDataPanel.this.updateTabPanel(targetGridModel);
+                            } else {
+                                backupToPreviousPage();
                             }
                             turnPage = false; 
                         } else {//updateJournalNavigationList only called from here when the JournalDataPanel opened from gridPanel, 
@@ -474,6 +482,21 @@ public class JournalDataPanel extends FormPanel {
         localPagingLoadConfig.setLimit(pagingLoadConfig.getLimit());
     }    
 
+    private void backupToPreviousPage() {
+        turnPage = false;
+        backupPage = true;
+        int curOffset = localPagingLoadConfig.getOffset();
+        int limit = localPagingLoadConfig.getLimit();
+        
+        int nextOffSet = 0;
+        if (naviToPrevious) {
+            nextOffSet = curOffset + limit;
+        } else {
+            nextOffSet = curOffset - limit;
+        }
+        localPagingLoadConfig.setOffset(nextOffSet);
+        localLoader.load(localPagingLoadConfig);
+    }
     protected void updateJournalNavigationList() {
         this.turnPage = false;
         
@@ -512,7 +535,7 @@ public class JournalDataPanel extends FormPanel {
         int start = startFrom;
         String key;
         boolean exists = false;
-        while (++start < limit && start < total) {
+        while (++start < limit && start < currentDataList.size() && start < total) {
             key = currentDataList.get(start).getKey();
             if (! deletedKeys.contains(key)) {
                 exists = true;
@@ -557,7 +580,7 @@ public class JournalDataPanel extends FormPanel {
                 return;
             }
         } else {
-            nextOffSet = ((curOffset + limit) < total) ? (curOffset + limit) : curOffset;
+            nextOffSet = ((curOffset + limit) <= total) ? (curOffset + limit) : curOffset;
             if (nextOffSet == curOffset) {
                 nextUpdateReportButton.setEnabled(false);
                 return;
