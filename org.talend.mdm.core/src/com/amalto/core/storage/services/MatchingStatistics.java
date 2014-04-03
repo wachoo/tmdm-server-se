@@ -14,11 +14,9 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 import static com.amalto.core.query.user.UserStagingQueryBuilder.groupSize;
 
 import java.io.StringWriter;
+import java.util.Locale;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -43,7 +41,7 @@ public class MatchingStatistics {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{container}") //$NON-NLS-1$
     public Response getMatchingStatistics(@PathParam("container") //$NON-NLS-1$
-    String containerName) {
+    String containerName, @QueryParam("lang") String language) { //$NON-NLS-1$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.STAGING, null);
         if (dataStorage == null) {
@@ -76,7 +74,13 @@ public class MatchingStatistics {
                                 countValue = (Long) record.get("count"); //$NON-NLS-1$
                             }
                             // Starts stats for type
-                            writer.key(type.getName()).value(countValue);
+                            String name;
+                            if (language != null) {
+                                name = type.getName(new Locale(language));
+                            } else {
+                                name = type.getName();
+                            }
+                            writer.key(name).value(countValue);
                         }
                         writer.endObject();
                     }

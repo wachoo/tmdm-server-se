@@ -13,11 +13,9 @@ package com.amalto.core.storage.services;
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.StringWriter;
+import java.util.Locale;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -39,9 +37,9 @@ public class DataStatistics {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{container}")
-    public Response getDataStatistics(@PathParam("container")
-    String containerName) {
+    @Path("{container}")//$NON-NLS-1$
+    public Response getDataStatistics(@PathParam("container") //$NON-NLS-1$
+            String containerName, @QueryParam("lang") String language) { //$NON-NLS-1$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
@@ -65,7 +63,13 @@ public class DataStatistics {
                             countValue = (Long) record.get("count"); //$NON-NLS-1$
                         }
                         // Starts stats for type
-                        writer.object().key(type.getName()).value(countValue).endObject();
+                        String name;
+                        if (language != null) {
+                            name = type.getName(new Locale(language));
+                        } else {
+                            name = type.getName();
+                        }
+                        writer.object().key(name).value(countValue).endObject();
                     }
                 }
                 writer.endArray();
