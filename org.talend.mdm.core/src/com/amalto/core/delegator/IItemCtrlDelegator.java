@@ -18,6 +18,9 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
+import com.amalto.core.delegator.IBeanDelegator;
+import com.amalto.core.delegator.IItemCtrlDelegatorService;
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
@@ -209,8 +212,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 // Build query (from 'main' type)
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 if (type == null) {
-                    throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '"
-                            + dataClusterPOJOPK.getUniqueId() + "'.");
+                    throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" //$NON-NLS-1$//$NON-NLS-2$
+                            + dataClusterPOJOPK.getUniqueId() + "'."); //$NON-NLS-1$
                 }
                 UserQueryBuilder qb = UserQueryBuilder.from(type);
                 // Select fields
@@ -443,6 +446,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
         if (storage != null) {
             MetadataRepository repository = storage.getMetadataRepository();
             ComplexTypeMetadata type = repository.getComplexType(conceptName);
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + conceptName + "' does not exist in data cluster '"
+                        + dataClusterPOJOPK.getUniqueId() + "'.");
+            }
             UserQueryBuilder qb = UserQueryBuilder.from(type);
             // Condition and paging
             qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
