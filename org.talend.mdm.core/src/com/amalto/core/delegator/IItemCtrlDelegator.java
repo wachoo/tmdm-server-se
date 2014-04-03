@@ -449,11 +449,15 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
         Server server = ServerContext.INSTANCE.get();
         String revisionId = universe.getConceptRevisionID(conceptName);
         StorageAdmin storageAdmin = server.getStorageAdmin();
-        String dataModelName = dataClusterPOJOPK.getUniqueId();
-        Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
+        String dataContainerName = dataClusterPOJOPK.getUniqueId();
+        Storage storage = storageAdmin.get(dataContainerName, storageAdmin.getType(dataContainerName), revisionId);
         if (storage != null) {
             MetadataRepository repository = storage.getMetadataRepository();
             ComplexTypeMetadata type = repository.getComplexType(conceptName);
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + conceptName + "' does not exist in data cluster '" //$NON-NLS-1$ //$NON-NLS-2$
+                        + dataContainerName + "'."); //$NON-NLS-1$
+            }
             UserQueryBuilder qb = UserQueryBuilder.from(type);
             // Condition and paging
             qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
@@ -523,7 +527,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
 
             // build the patterns to cluster map - only one cluster at this stage
             LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-            conceptPatternsToClusterName.put(".*", dataModelName); //$NON-NLS-1$
+            conceptPatternsToClusterName.put(".*", dataContainerName); //$NON-NLS-1$
 
             try {
                 ArrayList<String> elements = new ArrayList<String>();
