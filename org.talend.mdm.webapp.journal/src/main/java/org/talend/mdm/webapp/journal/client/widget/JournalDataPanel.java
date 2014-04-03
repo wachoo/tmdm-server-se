@@ -244,7 +244,10 @@ public class JournalDataPanel extends FormPanel {
                             } else {
                                 targetGridModel = getNextJournalWithExistentRecord(-1);
                             }
-                            JournalDataPanel.this.updateTabPanel(targetGridModel);
+                            
+                            if (targetGridModel != null) {
+                                JournalDataPanel.this.updateTabPanel(targetGridModel);
+                            }
                             turnPage = false; 
                         } else {//updateJournalNavigationList only called from here when the JournalDataPanel opened from gridPanel, 
                             //other calls to this fuction is issued from update()
@@ -504,6 +507,7 @@ public class JournalDataPanel extends FormPanel {
     
 
     private JournalGridModel getNextJournalWithExistentRecord(int startFrom) {
+        int curOffset = localPagingLoadConfig.getOffset();
         int limit = localPagingLoadConfig.getLimit();
         int start = startFrom;
         String key;
@@ -515,10 +519,15 @@ public class JournalDataPanel extends FormPanel {
                 break;
             }
         }
+        
+        if (!exists && (curOffset + limit) >= total) {
+            nextUpdateReportButton.setEnabled(false);
+        }        
         return !exists ? null : currentDataList.get(start);
     }
 
     private JournalGridModel getPrevJournalWithExistentRecord(int startFrom) {
+        int curOffset = localPagingLoadConfig.getOffset();
         int start = startFrom;
         String key;
         boolean exists = false;
@@ -528,6 +537,10 @@ public class JournalDataPanel extends FormPanel {
                 exists = true;
                 break;
             }
+        }
+        
+        if (!exists && curOffset == 0) {
+            prevUpdateReportButton.setEnabled(false);
         }
         return !exists ? null : currentDataList.get(start);
     }
