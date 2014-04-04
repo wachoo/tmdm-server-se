@@ -117,7 +117,7 @@ public class StorageAdaptTest extends TestCase {
             }
             File ftDirectory = new File(rdbmsDataSource.getIndexDirectory() + '/' + STORAGE_NAME + "/org.talend.mdm.storage.hibernate.Supplier");
             if (!expectSupplierTable) {
-                assertFalse(ftDirectory.exists());
+                assertEquals(0, ftDirectory.list().length);
             } else {
                 assertTrue(ftDirectory.exists());
             }
