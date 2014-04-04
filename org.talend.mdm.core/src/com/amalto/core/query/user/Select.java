@@ -181,7 +181,7 @@ public class Select implements Expression {
         if (!joins.equals(select.joins)) {
             return false;
         }
-        if (orderBy != null ? !orderBy.equals(select.orderBy) : select.orderBy != null) {
+        if (!orderBy.equals(select.orderBy)) {
             return false;
         }
         if (!paging.equals(select.paging)) {
@@ -207,7 +207,7 @@ public class Select implements Expression {
         result = 31 * result + paging.hashCode();
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         result = 31 * result + (revisionId != null ? revisionId.hashCode() : 0);
-        result = 31 * result + (orderBy != null ? orderBy.hashCode() : 0);
+        result = 31 * result + (orderBy.hashCode());
         result = 31 * result + (isProjection ? 1 : 0);
         return result;
     }
