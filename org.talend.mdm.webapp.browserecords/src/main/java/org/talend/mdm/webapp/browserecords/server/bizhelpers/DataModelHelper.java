@@ -103,13 +103,15 @@ public class DataModelHelper {
         entityModel.setConceptName(concept);
 
         // set pk
-        if (ids == null)
+        if (ids == null) {
             ids = getBusinessConceptKeys(model, concept);
+        }
         entityModel.setKeys(ids);
 
         // analyst model
-        if (elDecl == null)
+        if (elDecl == null) {
             elDecl = getBusinessConcept(model, concept);
+        }
         eleDecl = elDecl;
 
         if (eleDecl != null) {
@@ -203,15 +205,18 @@ public class DataModelHelper {
             }
 
             // set parent typeModel
-            if (parentTypeModel != null)
+            if (parentTypeModel != null) {
                 parentTypeModel.addSubType(typeModel);
+            }
 
-            if (typeModel instanceof ComplexTypeModel)
+            if (typeModel instanceof ComplexTypeModel) {
                 parentTypeModel = (ComplexTypeModel) typeModel;
+            }
 
             // add to entityModel
-            if (typeModel != null)
+            if (typeModel != null) {
                 entityModel.getMetaDataTypes().put(currentXPath, typeModel);
+            }
 
             // recursion travel
             if (e.getType().isComplexType()) {
@@ -219,8 +224,7 @@ public class DataModelHelper {
                 if (group != null) {
                     XSParticle[] subParticles = group.getChildren();
                     if (subParticles != null) {
-                        for (int i = 0; i < subParticles.length; i++) {
-                            XSParticle xsParticle = subParticles[i];
+                        for (XSParticle xsParticle : subParticles) {
                             travelParticle(xsParticle, currentXPath, entityModel, parentTypeModel, roles);
                         }
                     }
@@ -249,7 +253,7 @@ public class DataModelHelper {
             }
 
             if (subTypes != null && subTypes.size() > 0) {
-                ReusableType parentReusableType=new ReusableType(e.getType());
+                ReusableType parentReusableType = new ReusableType(e.getType());
                 parentReusableType.load();
                 typeModel.setAbstract(parentReusableType.isAbstract());
                 ComplexTypeModel parentType = (ComplexTypeModel) typeModel;
@@ -260,7 +264,7 @@ public class DataModelHelper {
                 parentType.addComplexReusableTypes(abstractReusableComplexType);
                 if (typeModel.isAbstract()) {
                     parentType.addComplexReusableTypes(new ComplexTypeModel(StringUtils.EMPTY, DataTypeCreator.getDataType(
-                        typeName, baseTypeName)));
+                            typeName, baseTypeName)));
                 }
                 ReusableType abstractReusable = null;
                 try {
@@ -273,8 +277,7 @@ public class DataModelHelper {
                 if (abstractGroup != null) {
                     XSParticle[] subParticles = abstractGroup.getChildren();
                     if (subParticles != null) {
-                        for (int i = 0; i < subParticles.length; i++) {
-                            XSParticle xsParticle = subParticles[i];
+                        for (XSParticle xsParticle : subParticles) {
                             List<String> currentXPathAlias = aliasXpathMap.get(currentXPath);
                             if (currentXPathAlias == null) {
                                 currentXPathAlias = new ArrayList<String>();
@@ -292,8 +295,9 @@ public class DataModelHelper {
                         reusableComplexType.setPolymorphism(true);
                         reusableComplexType.setLabelMap(reusableType.getLabelMap());
                         int orderValue;
-                        if (reusableType.getOrderValue() == null)
+                        if (reusableType.getOrderValue() == null) {
                             orderValue = 0;
+                        }
                         try {
                             orderValue = Integer.parseInt(reusableType.getOrderValue());
                         } catch (NumberFormatException nfe) {
@@ -304,8 +308,7 @@ public class DataModelHelper {
                         if (group != null) {
                             XSParticle[] subParticles = group.getChildren();
                             if (subParticles != null) {
-                                for (int i = 0; i < subParticles.length; i++) {
-                                    XSParticle xsParticle = subParticles[i];
+                                for (XSParticle xsParticle : subParticles) {
                                     travelParticle(xsParticle,
                                             currentXPath + ":" + reusableType.getName(), entityModel, reusableComplexType, roles); //$NON-NLS-1$ 
                                 }
@@ -343,34 +346,38 @@ public class DataModelHelper {
             // return null
         }
         if (typeModel != null) {
-            typeModel.setXpath(convertTypePath2Xpath(currentXPath)); //$NON-NLS-1$//$NON-NLS-2$
+            typeModel.setXpath(convertTypePath2Xpath(currentXPath));
             typeModel.setTypePath(currentXPath);
             typeModel.setTypePathObject(new TypePath(currentXPath, aliasXpathMap));
             typeModel.setNillable(e.isNillable());
         }
         return typeModel;
     }
-    
-    private static String convertTypePath2Xpath(String typePath) {
-    	
-    	if(typePath==null||typePath.trim().length()==0)
-    		return "";
-    	StringBuilder resultPath=new StringBuilder();
-    	String[] paths=typePath.split("/");
-    	for (String path : paths) {
-    		if(path==null||path.trim().length()==0)
-    			continue;
-    		int pos=path.indexOf(":");
-			if(pos!=-1){
-				path=path.substring(0,pos);
-			}
-			if(resultPath.toString().length()>0)resultPath.append("/");
-			resultPath.append(path);
-		}
-    	
-    	return resultPath.toString();
 
-	}
+    private static String convertTypePath2Xpath(String typePath) {
+
+        if (typePath == null || typePath.trim().length() == 0) {
+            return ""; //$NON-NLS-1$
+        }
+        StringBuilder resultPath = new StringBuilder();
+        String[] paths = typePath.split("/"); //$NON-NLS-1$
+        for (String path : paths) {
+            if (path == null || path.trim().length() == 0) {
+                continue;
+            }
+            int pos = path.indexOf(":"); //$NON-NLS-1$
+            if (pos != -1) {
+                path = path.substring(0, pos);
+            }
+            if (resultPath.toString().length() > 0) {
+                resultPath.append("/"); //$NON-NLS-1$
+            }
+            resultPath.append(path);
+        }
+
+        return resultPath.toString();
+
+    }
 
     private static XSType getBuiltinPrimitiveType(XSType type) {
         // See http://www.w3.org/TR/xmlschema-2/#built-in-primitive-datatypes
@@ -378,8 +385,9 @@ public class DataModelHelper {
         assert type.isSimpleType();
 
         // Special handling for non-primitive type integer
-        if (SCHEMA_NAMESPACE.equals(type.getTargetNamespace()) && "integer".equals(type.getName())) //$NON-NLS-1$
+        if (SCHEMA_NAMESPACE.equals(type.getTargetNamespace()) && "integer".equals(type.getName())) { //$NON-NLS-1$
             return type;
+        }
 
         XSType baseType = type.getBaseType();
         assert baseType != null;
@@ -395,8 +403,8 @@ public class DataModelHelper {
             ComplexTypeModel parentTypeModel, List<String> roles) {
         if (xsParticle.getTerm().asModelGroup() != null) {
             XSParticle[] xsps = xsParticle.getTerm().asModelGroup().getChildren();
-            for (int j = 0; j < xsps.length; j++) {
-                travelParticle(xsps[j], currentXPath, entityModel, parentTypeModel, roles);
+            for (XSParticle xsp : xsps) {
+                travelParticle(xsp, currentXPath, entityModel, parentTypeModel, roles);
             }
         } else if (xsParticle.getTerm().asElementDecl() != null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
@@ -416,11 +424,12 @@ public class DataModelHelper {
             for (int k = 0; k < annotList.getLength(); k++) {
                 if ("appinfo".equals(annotList.item(k).getLocalName())) {//$NON-NLS-1$
                     Node source = annotList.item(k).getAttributes().getNamedItem("source");//$NON-NLS-1$
-                    if (source == null)
+                    if (source == null) {
                         continue;
+                    }
                     String appinfoSource = source.getNodeValue();
                     if (annotList.item(k) != null && annotList.item(k).getFirstChild() != null) {
-                        String appinfoSourceValue = annotList.item(k).getFirstChild().getNodeValue();
+                        String appinfoSourceValue = annotList.item(k).getFirstChild().getNodeValue().trim();
                         if (appinfoSource.contains("X_Label")) {//$NON-NLS-1$
                             typeModel.addLabel(getLangFromLabelAnnotation(appinfoSource), appinfoSourceValue);
                         } else if (appinfoSource.contains("X_Description")) {//$NON-NLS-1$
@@ -447,7 +456,7 @@ public class DataModelHelper {
                         } else if ("X_ForeignKey_Filter".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setFkFilter(appinfoSourceValue);
                         } else if ("X_PrimaryKeyInfo".equals(appinfoSource)) {//$NON-NLS-1$
-                            pkInfoList.add(appinfoSourceValue.trim());
+                            pkInfoList.add(appinfoSourceValue);
                         } else if (appinfoSource.indexOf("X_Facet_") != -1) {//$NON-NLS-1$
                             typeModel.addFacetErrorMsg(getLangFromFacetAnnotation(appinfoSource), appinfoSourceValue);
                         } else if (appinfoSource.indexOf("X_Display_Format_") != -1) {//$NON-NLS-1$
@@ -480,14 +489,14 @@ public class DataModelHelper {
                 }
             }// end for
         }
-        if (!Util.isEnterprise())
+        if (!Util.isEnterprise()) {
             typeModel.setReadOnly(false);
-        else
+        } else {
             typeModel.setReadOnly(!writable);
+        }
         typeModel.setForeignKeyInfo(fkInfoList);
         typeModel.setPrimaryKeyInfo(pkInfoList);
     }
-
 
     /**
      * DOC HSHU Comment method "getLangFromLabelAnnotation".
@@ -523,8 +532,9 @@ public class DataModelHelper {
         while (matcher.find()) {
             lang = matcher.group(1);
         }
-        if (lang != null)
+        if (lang != null) {
             lang = lang.toLowerCase();
+        }
         return lang;
     }
 
@@ -547,10 +557,11 @@ public class DataModelHelper {
 
             keys = copyKey.getFields();
             for (int i = 0; i < keys.length; i++) {
-                if (".".equals(key.getSelector())) //$NON-NLS-1$
+                if (".".equals(key.getSelector())) { //$NON-NLS-1$
                     keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
-                else
+                } else {
                     keys[i] = key.getSelector() + keys[i];
+                }
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -568,15 +579,15 @@ public class DataModelHelper {
     public static TypeModel findTypeModelByTypePath(Map<String, TypeModel> metaDataTypes, String typePath)
             throws TypeModelNotFoundException {
 
-        if (metaDataTypes == null || typePath == null)
+        if (metaDataTypes == null || typePath == null) {
             throw new IllegalArgumentException();
+        }
 
         TypeModel model = null;
 
         model = metaDataTypes.get(typePath);
         if (model == null) {
-            for (Iterator<String> iterator = metaDataTypes.keySet().iterator(); iterator.hasNext();) {
-                String keyTypePath = iterator.next();
+            for (String keyTypePath : metaDataTypes.keySet()) {
                 TypeModel myTypeModel = metaDataTypes.get(keyTypePath);
                 if (myTypeModel.getTypePathObject() != null && myTypeModel.getTypePathObject().hasVariantion()) {
                     List<String> allPossibleTypepath = myTypeModel.getTypePathObject().getAllAliasXpaths();
@@ -588,9 +599,10 @@ public class DataModelHelper {
             }
         }
 
-        if (model == null)
+        if (model == null) {
             throw new TypeModelNotFoundException(typePath);
-        else
+        } else {
             return model;
+        }
     }
 }
