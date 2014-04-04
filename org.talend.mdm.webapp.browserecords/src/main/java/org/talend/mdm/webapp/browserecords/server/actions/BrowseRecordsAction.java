@@ -571,7 +571,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
         List<String> viewableXpaths = new ArrayList<String>(viewBean.getViewableXpaths());
-        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_TASKID);
         org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpaths,
                 entityModel, map, language, isStaging());
     }
