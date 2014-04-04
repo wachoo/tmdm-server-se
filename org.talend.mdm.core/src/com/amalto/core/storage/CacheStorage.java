@@ -10,17 +10,19 @@
 
 package com.amalto.core.storage;
 
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.collections.map.LRUMap;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
+
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.transaction.StorageTransaction;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
@@ -36,11 +38,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </ul>
  * When at least one of the condition is met, a new result is computed.
  * </p>
- * TODO Evict from cache on update/delete query.
  */
 public class CacheStorage implements Storage {
 
-    private static final int MAX_CACHE_LIFETIME = 60 * 1000;
+    private static final int DEFAULT_MAX_CACHE_LIFETIME = 60 * 1000;
+
+    private int maxCacheEntryLifetime = DEFAULT_MAX_CACHE_LIFETIME;
+
+    private static final int DEFAULT_MAX_CAPACITY = 30;
+
+    private final Map<Expression, CacheValue> cache = Collections.synchronizedMap(new LRUMap(DEFAULT_MAX_CAPACITY));
 
     private static final Logger LOGGER = Logger.getLogger(CacheStorage.class);
 
@@ -48,19 +55,39 @@ public class CacheStorage implements Storage {
 
     private final Storage delegate;
 
-    private final Map<Expression, CacheValue> cache = new HashMap<Expression, CacheValue>();
-
     public CacheStorage(Storage delegate) {
         this.delegate = delegate;
     }
 
-    static class CacheValue {
+    public boolean hasCache(Expression expression) {
+        CacheValue cacheValue = cache.get(expression);
+        boolean timeValid = cacheValue != null && cacheValue.lastAccessTime + maxCacheEntryLifetime > System.currentTimeMillis();
+        boolean usageValid = cacheValue != null && cacheValue.tokenCount.get() > 0;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Cache: has entry -> " + (cacheValue != null) + " / time valid -> " + timeValid + " / usage valid -> "
+                    + usageValid);
+        }
+        return cacheValue != null && timeValid && usageValid;
+    }
 
-        AtomicInteger tokenCount = new AtomicInteger(MAX_TOKEN);
+    public int getCacheEntryUsage(Expression expression) {
+        return cache.get(expression).tokenCount.get();
+    }
 
-        long lastAccessTime = System.currentTimeMillis();
+    public int getMaxCacheEntryUsage() {
+        return MAX_TOKEN;
+    }
 
-        List<DataRecord> results = Collections.emptyList();
+    public int getMaxCacheEntryLifetime() {
+        return maxCacheEntryLifetime;
+    }
+
+    public void setMaxCacheEntryLifetime(int maxCacheEntryLifetime) {
+        this.maxCacheEntryLifetime = maxCacheEntryLifetime;
+    }
+
+    public int getMaxCacheCapacity() {
+        return cache.size();
     }
 
     @Override
@@ -106,7 +133,7 @@ public class CacheStorage implements Storage {
             if (cacheValue != null) {
                 cacheValue.tokenCount.decrementAndGet();
                 long timeSpentInCache = System.currentTimeMillis() - cacheValue.lastAccessTime;
-                if (cacheValue.tokenCount.get() > 0 || timeSpentInCache < MAX_CACHE_LIFETIME) {
+                if (cacheValue.tokenCount.get() > 0 && timeSpentInCache < maxCacheEntryLifetime) {
                     // Cache hit!
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Cache hit! Using value for '" + userQuery + "' (token left: " + cacheValue.tokenCount.get()
@@ -160,6 +187,7 @@ public class CacheStorage implements Storage {
 
     @Override
     public void delete(Expression userQuery) {
+        cache.remove(userQuery);
         delegate.delete(userQuery);
     }
 
@@ -231,6 +259,16 @@ public class CacheStorage implements Storage {
     @Override
     public void adapt(MetadataRepository newRepository, boolean force) {
         delegate.adapt(newRepository, force);
+    }
+
+    static class CacheValue {
+
+        long lastAccessTime = System.currentTimeMillis();
+
+        AtomicInteger tokenCount = new AtomicInteger(MAX_TOKEN);
+
+        List<DataRecord> results = Collections.emptyList();
+
     }
 
     private static class CacheResults implements StorageResults {
