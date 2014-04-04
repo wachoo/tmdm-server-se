@@ -447,7 +447,7 @@ public class DataModelHelper {
                         } else if ("X_ForeignKey_Filter".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setFkFilter(appinfoSourceValue);
                         } else if ("X_PrimaryKeyInfo".equals(appinfoSource)) {//$NON-NLS-1$
-                            pkInfoList.add(appinfoSourceValue);
+                            pkInfoList.add(appinfoSourceValue.trim());
                         } else if (appinfoSource.indexOf("X_Facet_") != -1) {//$NON-NLS-1$
                             typeModel.addFacetErrorMsg(getLangFromFacetAnnotation(appinfoSource), appinfoSourceValue);
                         } else if (appinfoSource.indexOf("X_Display_Format_") != -1) {//$NON-NLS-1$
