@@ -17,15 +17,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import com.amalto.core.storage.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
-import com.amalto.core.storage.SecuredStorage;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageLogger;
-import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.dispatch.CompositeStorage;
 import com.amalto.core.storage.hibernate.HibernateStorage;
@@ -77,7 +74,7 @@ public class ServerContext {
         protected static final Logger LOGGER = Logger.getLogger(DefaultServerLifecycle.class);
 
         private static Storage defaultWrap(Storage storage) {
-            storage = new SecuredStorage(storage, new SecuredStorage.UserDelegator() {
+            storage = new CacheStorage(new SecuredStorage(storage, new SecuredStorage.UserDelegator() {
 
                 public boolean hide(FieldMetadata field) {
                     return false;
@@ -86,7 +83,7 @@ public class ServerContext {
                 public boolean hide(ComplexTypeMetadata type) {
                     return false;
                 }
-            });
+            }));
             storage = new StorageLogger(storage);
             return storage;
         }
