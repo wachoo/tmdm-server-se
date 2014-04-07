@@ -434,6 +434,7 @@ public class HibernateStorage implements Storage {
                 }
                 configuration.configure(StorageClassLoader.HIBERNATE_CONFIG);
                 batchSize = Integer.parseInt(configuration.getProperty(Environment.STATEMENT_BATCH_SIZE));
+                // Sets default schema for Oracle
                 Properties properties = configuration.getProperties();
                 if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
                     properties.setProperty(Environment.DEFAULT_SCHEMA, dataSource.getUserName());

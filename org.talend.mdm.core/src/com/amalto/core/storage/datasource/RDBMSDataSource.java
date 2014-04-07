@@ -20,7 +20,7 @@ public class RDBMSDataSource implements DataSource {
     }
 
     public static enum DataSourceDialect {
-        H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER
+        H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER, DB2
     }
 
     public static enum SchemaGeneration {
@@ -120,6 +120,8 @@ public class RDBMSDataSource implements DataSource {
             dialect = DataSourceDialect.SQL_SERVER;
         } else if ("Postgres".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.POSTGRES;
+        } else if ("DB2".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
+            dialect = DataSourceDialect.DB2;
         } else {
             throw new IllegalArgumentException("No support for database '" + dialectName + "'.");
         }

@@ -78,6 +78,9 @@ public class JDBCStorageInitializer implements StorageInitializer {
             case POSTGRES:
                 jdbcStorageInitializer = new PostgresStorageInitializer();
                 break;
+            case DB2:
+                jdbcStorageInitializer = new DB2StorageInitializer();
+                break;
             default:
                 throw new NotImplementedException("Can not initialize storages based on dialect '" + dialect + "'");
         }

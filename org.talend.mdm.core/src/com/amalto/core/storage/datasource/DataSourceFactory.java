@@ -107,6 +107,7 @@ public class DataSourceFactory {
             case H2:
             case ORACLE_10G:
             case SQL_SERVER:
+            case DB2:
             default:
                 // Nothing to do for other databases
                 break;
