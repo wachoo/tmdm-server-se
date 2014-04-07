@@ -36,6 +36,12 @@ public abstract class TypeMapping {
 
     public static final String SQL_TYPE = "SQL_TYPE"; //$NON-NLS-1$
 
+    /**
+     * Used to hold how many times a reusable type is reused within data model (may help to decide whether constrains
+     * should be generated).
+     */
+    public static final String USAGE_NUMBER = "USAGES"; //$NON-NLS-1$
+
     protected final ComplexTypeMetadata user;
 
     protected final ComplexTypeMetadata database;

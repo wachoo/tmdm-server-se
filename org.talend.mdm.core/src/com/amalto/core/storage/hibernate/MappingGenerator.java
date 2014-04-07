@@ -164,12 +164,21 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 classElement.appendChild(discriminator);
             }
             // Process this type fields
-            for (FieldMetadata currentField : allFields) {
-                Element child = currentField.accept(this);
-                if (child == null) {
-                    throw new IllegalArgumentException("Field type " + currentField.getClass().getName() + " is not supported.");
+            boolean wasGeneratingConstraints = generateConstrains;
+            try {
+                if (complexType.getName().startsWith("X_")) { //$NON-NLS-1$
+                    Integer usageNumber = complexType.<Integer>getData(TypeMapping.USAGE_NUMBER);
+                    generateConstrains = usageNumber == null || usageNumber <= 1;
                 }
-                classElement.appendChild(child);
+                for (FieldMetadata currentField : allFields) {
+                    Element child = currentField.accept(this);
+                    if (child == null) {
+                        throw new IllegalArgumentException("Field type " + currentField.getClass().getName() + " is not supported.");
+                    }
+                    classElement.appendChild(child);
+                }
+            } finally {
+                generateConstrains = wasGeneratingConstraints;
             }
             // Sub types
             if (!complexType.getSubTypes().isEmpty()) {
@@ -205,7 +214,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                             ...
                         </subclass>
                      */
-                    boolean wasGeneratingConstraints = generateConstrains;
+                    wasGeneratingConstraints = generateConstrains;
                     generateConstrains = false;
                     try {
                         for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
