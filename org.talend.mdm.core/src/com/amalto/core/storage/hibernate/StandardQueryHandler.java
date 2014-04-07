@@ -367,7 +367,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         String previousAlias = type.getName();
         String alias = null;
         Set<List<FieldMetadata>> paths ;
-        if (fieldMetadata instanceof ReferenceFieldMetadata && !fieldMetadata.getContainingType().isInstantiable()) {
+        if (fieldMetadata instanceof ReferenceFieldMetadata || !fieldMetadata.getContainingType().isInstantiable()) {
             paths = MetadataUtils.paths(type, fieldMetadata);
         } else {
             paths = Collections.singleton(field.getPath());
