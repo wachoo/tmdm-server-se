@@ -181,6 +181,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
         Collection<FieldMetadata> keyFields = complexType.getKeyFields();
         ComplexTypeMetadata database = typeMapping.getDatabase();
+        database.setData(TypeMapping.USAGE_NUMBER, complexType.getUsages().size());
         Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
         for (TypeMetadata superType : superTypes) {
             database.addSuperType(new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName(), true));

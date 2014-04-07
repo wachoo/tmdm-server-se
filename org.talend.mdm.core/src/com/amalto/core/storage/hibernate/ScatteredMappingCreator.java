@@ -21,7 +21,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     public static final String GENERATED_ID = "x_talend_id"; //$NON-NLS-1$
 
-    protected static final int UUID_LENGTH = UUID.randomUUID().toString().length() + 10;
+    public static final int UUID_LENGTH = UUID.randomUUID().toString().length() + 10;
 
     private final MetadataRepository internalRepository;
 
@@ -200,6 +200,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     originalContainedType.getLookupFields(),
                     false,
                     originalContainedType.getWorkflowAccessRights());
+            internalContainedType.setData(TypeMapping.USAGE_NUMBER, originalContainedType.getUsages().size());
             internalRepository.addTypeMetadata(internalContainedType);
             if (superTypeName == null) {
                 // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
