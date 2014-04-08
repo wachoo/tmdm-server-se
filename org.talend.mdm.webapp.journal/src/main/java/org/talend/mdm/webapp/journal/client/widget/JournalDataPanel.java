@@ -612,7 +612,7 @@ public class JournalDataPanel extends FormPanel {
     }
     
     private void updateOpenRecord() {
-        this.openRecordButton.removeSelectionListener(updateReportListener);
+        this.openRecordButton.removeSelectionListener(openRecordListener);
         this.openRecordListener = createOpenRecordListener();
         this.openRecordButton.addSelectionListener(openRecordListener);
     }
