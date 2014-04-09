@@ -52,17 +52,21 @@ class DB2StorageInitializer implements StorageInitializer {
             Driver driver = (Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
             Connection connection = driver.connect(dataSource.getInitConnectionURL() + "?user=" + dataSource.getInitUserName() + "&password=" + dataSource.getInitPassword(), new Properties());  //$NON-NLS-1$ //$NON-NLS-2$
             try {
-                Statement statement = connection.createStatement();
-                try {
-                    statement.execute("CREATE DATABASE " + dataSource.getDatabaseName() + ";"); //$NON-NLS-1$ //$NON-NLS-2$
-                } catch (SQLException e) {
-                    // Assumes database is already created.
-                    LOGGER.debug("Exception occurred during CREATE DATABASE statement.", e);
-                } finally {
-                    statement.close();
+                if (connection != null) {
+                    Statement statement = connection.createStatement();
+                    try {
+                        statement.execute("CREATE DATABASE " + dataSource.getDatabaseName() + ";"); //$NON-NLS-1$ //$NON-NLS-2$
+                    } catch (SQLException e) {
+                        // Assumes database is already created.
+                        LOGGER.debug("Exception occurred during CREATE DATABASE statement.", e);
+                    } finally {
+                        statement.close();
+                    }
                 }
             } finally {
-                connection.close();
+                if (connection != null) { // DB2 may return null if not reachable (not very compliant with Javadoc).
+                    connection.close();
+                }
             }
             LOGGER.info("DB2 database " + dataSource.getDatabaseName() + " has been prepared.");
         } catch (Exception e) {
@@ -75,11 +79,6 @@ class DB2StorageInitializer implements StorageInitializer {
         if (!(storageDataSource instanceof RDBMSDataSource)) {
             throw new IllegalArgumentException("Storage to initialize does not seem to be a RDBMS storage.");
         }
-
-        RDBMSDataSource dataSource = (RDBMSDataSource) storageDataSource;
-        if (!dataSource.hasInit()) {
-            throw new IllegalArgumentException("Data source '" + dataSource.getName() + "' does not define initialization information.");
-        }
-        return dataSource;
+        return (RDBMSDataSource) storageDataSource;
     }
 }

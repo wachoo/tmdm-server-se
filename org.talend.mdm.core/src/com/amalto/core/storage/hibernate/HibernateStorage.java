@@ -403,12 +403,20 @@ public class HibernateStorage implements Storage {
                 }
                 tableResolver = new StorageTableResolver(databaseIndexedFields, 63);
                 break;
+            case DB2:
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("DB2 database is being used. Limit table name length to 30.");
+                }
+                tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
+                break;
             case H2:
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("No limitation for table name length.");
                 }
                 tableResolver = new StorageTableResolver(databaseIndexedFields);
                 break;
+            default:
+                throw new IllegalArgumentException("Not supported: " + dataSource.getDialectName());
             }
             storageClassLoader.setTableResolver(tableResolver);
             // Master, Staging and System share same class creator.
