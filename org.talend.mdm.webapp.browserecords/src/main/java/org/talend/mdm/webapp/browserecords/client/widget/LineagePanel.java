@@ -16,7 +16,6 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -24,8 +23,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 public class LineagePanel extends ContentPanel {
 
     private static LineagePanel instance;
-
-    LayoutContainer lineageLayoutContainer;
 
     private ContentPanel detailPanel;
 
@@ -39,22 +36,17 @@ public class LineagePanel extends ContentPanel {
     private LineagePanel() {
         setHeading(MessagesFactory.getMessages().staging_data_viewer_title());
         setHeaderVisible(false);
-        lineageLayoutContainer = new LayoutContainer();
-        lineageLayoutContainer.setLayout(new BorderLayout());
-        lineageLayoutContainer.setBorders(false);
-
+        setLayout(new BorderLayout());
+        setBorders(false);
         BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 325);
-        lineageLayoutContainer.add(LineageListPanel.getInstance(), northData);
-
-        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+        add(LineageListPanel.getInstance(), northData);
+        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER, 325);
         detailPanel = new ContentPanel();
         detailPanel.setFrame(false);
         detailPanel.setHeaderVisible(false);
         detailPanel.setLayout(new FitLayout());
         detailPanel.setBodyBorder(false);
-        detailPanel.setSize(300, 360);
-        lineageLayoutContainer.add(detailPanel, centerData);
-        add(lineageLayoutContainer);
+        add(detailPanel, centerData);
     }
 
     public void updateDetailPanel(ItemsDetailPanel itemsDetailPanel) {

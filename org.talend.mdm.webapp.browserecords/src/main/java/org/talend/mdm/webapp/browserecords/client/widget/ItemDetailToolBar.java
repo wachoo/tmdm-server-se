@@ -37,6 +37,7 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
+import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseLineageTabPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseTabPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.ContainerUpdate;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.DeleteAction;
@@ -168,6 +169,8 @@ public class ItemDetailToolBar extends ToolBar {
     protected boolean openTab;
 
     private boolean isStaging;
+
+    private boolean lineage = false;
 
     public ItemDetailToolBar() {
         this.setBorders(false);
@@ -1615,11 +1618,22 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected PostDeleteAction buildPostDeleteAction() {
-        return new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this, new ContainerUpdate(
-                ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
+        if (lineage) {
+            return new CloseLineageTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this,
+                    new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
+        } else {
+            return new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this,
+                    new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
+        }
+
     }
 
     public boolean isStaging() {
         return isStaging;
     }
+
+    public void setLineage(boolean lineage) {
+        this.lineage = lineage;
+    }
+
 }

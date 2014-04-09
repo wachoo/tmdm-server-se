@@ -433,6 +433,7 @@ public class BrowseRecordsView extends View {
         itemPanel.getToolBar().setOutMost(true);
         itemPanel.getToolBar().setFkToolBar(false);
         itemPanel.getToolBar().setHierarchyCall(false);
+        itemPanel.getToolBar().setLineage(true);
 
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (item != null) {
