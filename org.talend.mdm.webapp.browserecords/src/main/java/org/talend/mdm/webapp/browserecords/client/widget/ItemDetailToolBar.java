@@ -617,38 +617,38 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private void addMasterRecordButton() {
-        if (masterRecordButton == null) {
-            masterRecordButton = new Button(MessagesFactory.getMessages().masterRecords_btn());
-            masterRecordButton.setId("masterRecordButton"); //$NON-NLS-1$
-            masterRecordButton.setItemId("masterRecordButton"); //$NON-NLS-1$
-            masterRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.masterRecords()));
-            masterRecordButton.setToolTip(MessagesFactory.getMessages().masterRecords_tip());
-            masterRecordButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+        getBrowseRecordsService().getGoldenRecordIdByGroupId(BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
+                BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
+                BrowseRecords.getSession().getCurrentEntityModel().getKeys(), itemBean.getTaskId(),
+                new SessionAwareAsyncCallback<String>() {
 
-                @Override
-                public void componentSelected(ButtonEvent ce) {
+                    @Override
+                    public void onSuccess(final String ids) {
+                        if (!ids.isEmpty()) {
+                            if (masterRecordButton == null) {
+                                masterRecordButton = new Button(MessagesFactory.getMessages().masterRecords_btn());
+                                masterRecordButton.setId("masterRecordButton"); //$NON-NLS-1$
+                                masterRecordButton.setItemId("masterRecordButton"); //$NON-NLS-1$
+                                masterRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.masterRecords()));
+                                masterRecordButton.setToolTip(MessagesFactory.getMessages().masterRecords_tip());
+                                masterRecordButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-                    getBrowseRecordsService().getGoldenRecordIdByGroupId(
-                            BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
-                            BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
-                            BrowseRecords.getSession().getCurrentEntityModel().getKeys(), itemBean.getTaskId(),
-                            new SessionAwareAsyncCallback<String>() {
-
-                                @Override
-                                public void onSuccess(String ids) {
-                                    if (!ids.isEmpty()) {
-                                        TreeDetailUtil.initItemsDetailPanelById("", ids, itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
-                                                isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION, false);
-                                    } else {
-                                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory
-                                                .getMessages().no_golden_record_in_group(itemBean.getTaskId()), null);
+                                    @Override
+                                    public void componentSelected(ButtonEvent ce) {
+                                        if (!ids.isEmpty()) {
+                                            TreeDetailUtil.initItemsDetailPanelById("", ids, itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
+                                                    isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION, false);
+                                        } else {
+                                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory
+                                                    .getMessages().no_golden_record_in_group(itemBean.getTaskId()), null);
+                                        }
                                     }
-                                }
-                            });
-                }
-            });
-        }
-        add(masterRecordButton);
+                                });
+                            }
+                            ItemDetailToolBar.this.add(masterRecordButton);
+                        }
+                    }
+                });
     }
 
     protected void addStagingRecordsButton() {

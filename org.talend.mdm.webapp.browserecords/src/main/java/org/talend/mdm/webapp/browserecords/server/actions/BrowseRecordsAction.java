@@ -2354,22 +2354,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public String getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId)
             throws ServiceException {
 
-        WSWhereCondition whereCondition_Status_SUCCESS_MERGED = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
-                WSWhereOperator.EQUALS, StagingConstants.SUCCESS_MERGED_RECORD_TO_RESOLVE, WSStringPredicate.NONE, false);
         WSWhereCondition whereCondition_Status_SUCCESS_VALIDATE = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
                 WSWhereOperator.EQUALS, StagingConstants.SUCCESS_VALIDATE, WSStringPredicate.NONE, false);
-
-        WSWhereItem whereItem_Status_SUCCESS_MERGED = new WSWhereItem(whereCondition_Status_SUCCESS_MERGED, null, null);
         WSWhereItem whereItem_Status_SUCCESS_VALIDATE = new WSWhereItem(whereCondition_Status_SUCCESS_VALIDATE, null, null);
-        WSWhereItem[] whereItem_Status_Array = { whereItem_Status_SUCCESS_MERGED, whereItem_Status_SUCCESS_VALIDATE };
-        WSWhereOr whereOr = new WSWhereOr(whereItem_Status_Array);
-        WSWhereItem whereItem_Status = new WSWhereItem(null, null, whereOr);
 
         WSWhereCondition whereCondition_TaskID = new WSWhereCondition(StagingConstant.STAGING_TASKID.substring(1),
                 WSWhereOperator.EQUALS, groupId, WSStringPredicate.NONE, false);
         WSWhereItem whereItem_TaskID = new WSWhereItem(whereCondition_TaskID, null, null);
 
-        WSWhereItem[] whereItem_Array = { whereItem_TaskID, whereItem_Status };
+        WSWhereItem[] whereItem_Array = { whereItem_TaskID, whereItem_Status_SUCCESS_VALIDATE };
         WSWhereAnd whereAnd = new WSWhereAnd(whereItem_Array);
 
         WSWhereItem whereItem = new WSWhereItem(null, whereAnd, null);
