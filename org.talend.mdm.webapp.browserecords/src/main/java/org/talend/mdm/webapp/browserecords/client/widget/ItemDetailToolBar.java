@@ -1619,8 +1619,7 @@ public class ItemDetailToolBar extends ToolBar {
 
     protected PostDeleteAction buildPostDeleteAction() {
         if (lineage) {
-            return new CloseLineageTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this,
-                    new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
+            return new CloseLineageTabPostDeleteAction(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE);
         } else {
             return new CloseTabPostDeleteAction(ItemDetailToolBar.this, new ListRefresh(ItemDetailToolBar.this,
                     new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
