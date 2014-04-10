@@ -124,9 +124,15 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Join join) {
-        FieldMetadata fieldMetadata = join.getRightField().getFieldMetadata();
+        FieldMetadata rightField = join.getRightField().getFieldMetadata();
+        FieldMetadata leftField = join.getLeftField().getFieldMetadata();
+        // Choose the right join alias
+        String rightAlias = rightField.getContainingType().getName();
+        if (rightField.getEntityTypeName().equals(leftField.getEntityTypeName())) {
+            // TMDM-7170: use a new alias for recursive relations
+            rightAlias = createNewAlias();
+        }
         // Choose the right join type
-        String rightTableName = fieldMetadata.getContainingType().getName();
         int joinType;
         switch (join.getJoinType()) {
         case INNER:
@@ -147,20 +153,20 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (path.isEmpty()) {
             String destinationFieldName;
             try {
-                destinationFieldName = fieldMetadata.getName();
+                destinationFieldName = rightField.getName();
             } catch (Exception e) {
                 // Ignored
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Exception occurred during exception creation", e);
                 }
-                destinationFieldName = String.valueOf(fieldMetadata);
+                destinationFieldName = String.valueOf(rightField);
             }
             throw new IllegalArgumentException("Join to '" + destinationFieldName + "' (in type '"
-                    + fieldMetadata.getContainingType().getName() + "') is invalid since there is no path from '"
+                    + rightField.getContainingType().getName() + "') is invalid since there is no path from '"
                     + mainType.getName() + "' to this field.");
         }
         // Generate all necessary joins to go from main type to join right table.
-        generateJoinPath(Collections.singleton(rightTableName), joinType, path);
+        generateJoinPath(Collections.singleton(rightAlias), joinType, path);
         return null;
     }
 
@@ -169,7 +175,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         String previousAlias = mainType.getName();
         while (pathIterator.hasNext()) {
             FieldMetadata nextField = pathIterator.next();
-            String newAlias = "a" + aliasCount++; //$NON-NLS-1$
+            String newAlias = createNewAlias();
             // TODO One interesting improvement here: can add conditions on rightTable when defining join.
             if (pathIterator.hasNext()) {
                 if (!joinFieldsToAlias.containsKey(nextField)) {
@@ -196,6 +202,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             }
         }
+    }
+
+    private String createNewAlias() {
+        return "a" + aliasCount++; //$NON-NLS-1$
     }
 
     @Override
@@ -379,7 +389,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (next instanceof ReferenceFieldMetadata) {
                     aliases = joinFieldsToAlias.get(next);
                     if (aliases == null || newPath) {
-                        alias = "a" + aliasCount++; //$NON-NLS-1$
+                        alias = createNewAlias(); //$NON-NLS-1$
                         if (aliases == null) {
                             aliases = new HashSet<String>(Arrays.asList(alias));
                             joinFieldsToAlias.put(next, aliases);
