@@ -112,7 +112,7 @@ public class JournalStatistics {
                                 writer.object().key("creations"); //$NON-NLS-1$
                                 {
                                     UserQueryBuilder createQuery = from(updateType).select(count()) //$NON-NLS-1$
-                                            .where(and(eq(updateType.getField("Concept"), name), //$NON-NLS-1$
+                                            .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
                                                     eq(updateType.getField("OperationType"), "CREATE") //$NON-NLS-1$ //$NON-NLS-2$
                                             )).limit(1).cache();
                                     writeStatsTo(updateReportStorage, createQuery, "create", writer); //$NON-NLS-1$
@@ -122,7 +122,7 @@ public class JournalStatistics {
                                 writer.object().key("updates"); //$NON-NLS-1$
                                 {
                                     UserQueryBuilder updateQuery = from(updateType).select(alias(count(), "count")) //$NON-NLS-1$
-                                            .where(and(eq(updateType.getField("Concept"), name), //$NON-NLS-1$
+                                            .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
                                                     eq(updateType.getField("OperationType"), "UPDATE") //$NON-NLS-1$ //$NON-NLS-2$
                                             )).limit(1).cache();
                                     writeStatsTo(updateReportStorage, updateQuery, "update", writer); //$NON-NLS-1$
