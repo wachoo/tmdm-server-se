@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
@@ -22,11 +22,16 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.shared.ReusableType;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
@@ -167,6 +172,7 @@ public class CommonUtil {
 
     /**
      * getDefaultTreeModel
+     * 
      * @param model
      * @param language
      * @param defaultValue it is used when client side call the method
@@ -174,7 +180,8 @@ public class CommonUtil {
      * @param isCallByServerSide it is true when server side call the method, otherwise it is false
      * @return
      */
-    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language, boolean defaultValue, boolean isCreate, boolean isCallByServerSide) {
+    public static List<ItemNodeModel> getDefaultTreeModel(TypeModel model, String language, boolean defaultValue,
+            boolean isCreate, boolean isCallByServerSide) {
         List<ItemNodeModel> itemNodes = new ArrayList<ItemNodeModel>();
 
         if (model.getMinOccurs() > 1) {
@@ -201,7 +208,7 @@ public class CommonUtil {
                 } else if (isCreate && isCallByServerSide) {
                     node.setChangeValue(true);
                 } else if (model.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())) {
-                	setDefaultValue(model, node);
+                    setDefaultValue(model, node);
                 }
             } else {
                 ComplexTypeModel complexModel = (ComplexTypeModel) model;
@@ -220,7 +227,7 @@ public class CommonUtil {
             node.setName(model.getName());
             node.setTypePath(model.getTypePath());
             if (isCallByServerSide) {
-                node.setHasVisiblueRule(model.isHasVisibleRule());    
+                node.setHasVisiblueRule(model.isHasVisibleRule());
             }
             node.setDescription(model.getDescriptionMap().get(language));
             node.setLabel(model.getLabel(language));
@@ -411,14 +418,14 @@ public class CommonUtil {
         return isReadOnly;
     }
 
-    public static String[] extractIDs(ItemNodeModel model,ViewBean viewBean) {
+    public static String[] extractIDs(ItemNodeModel model, ViewBean viewBean) {
 
         List<String> keys = new Vector<String>();
 
         if (model != null) {
-            
-            Map<String,String> keyMap = new HashMap<String,String>();
-            
+
+            Map<String, String> keyMap = new HashMap<String, String>();
+
             List<ModelData> modelChildren = model.getChildren();
 
             if (modelChildren != null) {
@@ -442,14 +449,14 @@ public class CommonUtil {
                     }
                 }
             }
-            
-            if (viewBean != null){
-                EntityModel entityModel = viewBean.getBindingEntityModel();                
-                String[] keyArray = entityModel.getKeys();                
-                for (int i=0;i<keyArray.length;i++){
-                    if (keyMap.get(keyArray[i]) != null){
-                        keys.add(keyMap.get(keyArray[i])); 
-                    }                                             
+
+            if (viewBean != null) {
+                EntityModel entityModel = viewBean.getBindingEntityModel();
+                String[] keyArray = entityModel.getKeys();
+                for (String element : keyArray) {
+                    if (keyMap.get(element) != null) {
+                        keys.add(keyMap.get(element));
+                    }
                 }
             }
         }
@@ -462,58 +469,68 @@ public class CommonUtil {
     public static String getDownloadFileHeadName(TypeModel typeModel) {
         return typeModel.getName();
     }
-    
+
     public static void setCurrentCachedEntity(String key, ItemPanel itemPanel) {
-        HashMap<String, ItemPanel> map = (HashMap<String, ItemPanel>) BrowseRecords.getSession().getCurrentCachedEntity();
-        if (map == null)
+        HashMap<String, ItemPanel> map = BrowseRecords.getSession().getCurrentCachedEntity();
+        if (map == null) {
             map = new HashMap<String, ItemPanel>();
+        }
         map.put(key, itemPanel);
         BrowseRecords.getSession().put(UserSession.CURRENT_CACHED_ENTITY, map);
     }
-    
+
     public static CriteriaAndC parseMultipleSearchExpression(char[] s, int c) throws Exception {
         MultipleCriteria cr = new MultipleCriteria("AND"); //$NON-NLS-1$
         CriteriaAndC ccr = null;
         String op = null;
         while (true) {
-            ccr = (s[++c+1] == '(') ? parseMultipleSearchExpression(s, c) : parseSimpleSearchExpression(s, c);                     
+            ccr = (s[++c + 1] == '(') ? parseMultipleSearchExpression(s, c) : parseSimpleSearchExpression(s, c);
             cr.add(ccr.cr);
-            if (s[(c = ccr.c + 1)] == ')')
+            if (s[(c = ccr.c + 1)] == ')') {
                 return new CriteriaAndC((op == null && !(ccr.cr instanceof SimpleCriterion)) ? ccr.cr : cr, c);
-            else {
+            } else {
                 int ce = ++c;
-                while (s[++ce] != ' ');
-                if (op == null)
+                while (s[++ce] != ' ') {
+                    ;
+                }
+                if (op == null) {
                     cr.setOperator(op = new String(s, c, ce - c));
+                }
                 c = ce;
-            }            
+            }
         }
     }
-    
+
     public static CriteriaAndC parseSimpleSearchExpression(char[] s, int c) throws Exception {
         int ce = ++c;
-        while (s[++ce] != ')');
+        while (s[++ce] != ')') {
+            ;
+        }
         String[] ts = new String(s, c, ce - c).split(" "); //$NON-NLS-1$
-        
+
         int index = 2;
-        
-        String value=ts[index++];
-        while ( index < ts.length) {
+
+        String value = ts[index++];
+        while (index < ts.length) {
             value = value.concat(" " + ts[index++]); //$NON-NLS-1$
         }
         return new CriteriaAndC(new SimpleCriterion(ts[0], ts[1], value), ce);
     }
-    
+
     public static class CriteriaAndC {
+
         public Criteria cr;
+
         public int c;
+
         public CriteriaAndC(Criteria cr, int c) {
             this.cr = cr;
             this.c = c;
         }
     }
-    
-    public static ForeignKeyDrawer switchForeignKeyEntityType(String targetEntity, String xpathForeignKey, String xpathInfoForeignKey) {
+
+    public static ForeignKeyDrawer switchForeignKeyEntityType(String targetEntity, String xpathForeignKey,
+            String xpathInfoForeignKey) {
         ForeignKeyDrawer fkDrawer = new ForeignKeyDrawer();
 
         if (xpathForeignKey != null && xpathForeignKey.length() > 0) {
@@ -537,50 +554,50 @@ public class CommonUtil {
         fkDrawer.setXpathInfoForeignKey(xpathInfoForeignKey);
         return fkDrawer;
     }
-    
+
     private static String replaceXpathRoot(String targetEntity, String xpath) {
         if (xpath.indexOf("/") != -1) { //$NON-NLS-1$
             return targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
         }
         return targetEntity;
     }
-    
-    public static String convertList2Xml(List<String> list,String rootName) { 
+
+    public static String convertList2Xml(List<String> list, String rootName) {
         Document doc = XMLParser.createDocument();
         Element rootElement = doc.createElement(rootName);
         doc.appendChild(rootElement);
-        for (int i=0;i<list.size();i++) {
+        for (int i = 0; i < list.size(); i++) {
             Element item = doc.createElement("item"); //$NON-NLS-1$  
             item.appendChild(doc.createTextNode(list.get(i)));
             rootElement.appendChild(item);
-        }        
+        }
         return doc.toString();
     }
-    
-    public static String convertListToXml(List<String> itemList,String rootName) { 
+
+    public static String convertListToXml(List<String> itemList, String rootName) {
         Document docuemnt = XMLParser.createDocument();
         Element rootElement = docuemnt.createElement(rootName);
         for (int i = 0; i < itemList.size(); i++) {
             Element itemElement = docuemnt.createElement("Item"); //$NON-NLS-1$
             itemElement.appendChild(docuemnt.createTextNode(itemList.get(i)));
-            rootElement.appendChild(itemElement);            
+            rootElement.appendChild(itemElement);
         }
         docuemnt.appendChild(rootElement);
         return docuemnt.toString();
     }
-    
-    public static String convertListToXmlString(List<String> itemList,String rootName,String itemName) { 
+
+    public static String convertListToXmlString(List<String> itemList, String rootName, String itemName) {
         Document docuemnt = XMLParser.createDocument();
         Element rootElement = docuemnt.createElement(rootName);
         for (int i = 0; i < itemList.size(); i++) {
             Element itemElement = docuemnt.createElement("Item"); //$NON-NLS-1$
             itemElement.appendChild(docuemnt.createTextNode(itemList.get(i)));
-            rootElement.appendChild(itemElement);            
+            rootElement.appendChild(itemElement);
         }
         docuemnt.appendChild(rootElement);
         return docuemnt.toString();
     }
-    
+
     public static List<String> findInheritanceNodePath(EntityModel entityModel) {
         Map<String, TypeModel> dataTypes = entityModel.getMetaDataTypes();
         List<String> xpathList = new LinkedList<String>();
@@ -588,12 +605,21 @@ public class CommonUtil {
         while (iterator.hasNext()) {
             Entry<String, TypeModel> entry = iterator.next();
             if (entry.getValue() instanceof ComplexTypeModel) {
-                ComplexTypeModel typeModel = (ComplexTypeModel)entry.getValue();
+                ComplexTypeModel typeModel = (ComplexTypeModel) entry.getValue();
                 if (typeModel.getReusableComplexTypes() != null && typeModel.getReusableComplexTypes().size() > 1) {
-                    xpathList.add(typeModel.getXpath()); 
+                    xpathList.add(typeModel.getXpath());
                 }
             }
-        }    
+        }
         return xpathList;
+    }
+
+    public static TreePanel<BaseTreeModel> getExplainResultPanel(BaseTreeModel root) {
+        TreeStore<BaseTreeModel> store = new TreeStore<BaseTreeModel>();
+        store.add(root, true);
+        TreePanel<BaseTreeModel> tree = new TreePanel<BaseTreeModel>(store);
+        tree.setDisplayProperty("name"); //$NON-NLS-1$
+        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
+        return tree;
     }
 }
