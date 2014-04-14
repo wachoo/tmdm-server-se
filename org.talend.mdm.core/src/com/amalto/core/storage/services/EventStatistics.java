@@ -12,12 +12,10 @@ package com.amalto.core.storage.services;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -31,7 +29,10 @@ import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.xml.sax.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -44,7 +45,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 
-@Path("/system/stats/events")//$NON-NLS-1$
+@Path("/system/stats/events")
 public class EventStatistics {
 
     protected static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
@@ -57,7 +58,8 @@ public class EventStatistics {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage system = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
         if (system == null) {
-            throw new IllegalStateException("Could not find system storage.");
+            LOGGER.debug("Could not find system storage. Statistics is not supported for XMLDB"); //$NON-NLS-1$
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
         // Build statistics
         StringWriter stringWriter = new StringWriter();
@@ -119,8 +121,7 @@ public class EventStatistics {
                         StorageResults failedCountResult = system.fetch(routingNameCount);
                         try {
                             // ... and write count to result
-                            writer.object().key(formattedUrl)
-                                    .value(failedCountResult.iterator().next().get("count")).endObject(); //$NON-NLS-1$
+                            writer.object().key(formattedUrl).value(failedCountResult.iterator().next().get("count")).endObject(); //$NON-NLS-1$
                         } finally {
                             failedCountResult.close();
                         }

@@ -15,10 +15,15 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 import java.io.StringWriter;
 import java.util.Locale;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -32,17 +37,25 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 
-@Path("/system/stats/data")//$NON-NLS-1$
+@Path("/system/stats/data")
 public class DataStatistics {
+
+    protected static final Logger LOGGER = Logger.getLogger(DataStatistics.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{container}")//$NON-NLS-1$
-    public Response getDataStatistics(@PathParam("container") //$NON-NLS-1$
-            String containerName, @QueryParam("lang") String language) { //$NON-NLS-1$
+    @Path("{container}")
+    public Response getDataStatistics(@PathParam("container")
+    String containerName, @QueryParam("lang")
+    String language) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
+            Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+            if (systemStorage == null) { // is xmldb, not supported/implemented
+                LOGGER.debug("Could not find system storage. Statistics is not supported for XMLDB"); //$NON-NLS-1$
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
             throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
         }
         // Build statistics

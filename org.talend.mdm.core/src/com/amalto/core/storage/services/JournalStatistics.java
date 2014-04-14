@@ -17,10 +17,15 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -37,8 +42,10 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 
-@Path("/system/stats/journal")//$NON-NLS-1$
+@Path("/system/stats/journal")
 public class JournalStatistics {
+
+    protected static final Logger LOGGER = Logger.getLogger(JournalStatistics.class);
 
     private static final int DEFAULT_SLICE_STEP = 1;
 
@@ -59,7 +66,7 @@ public class JournalStatistics {
                     if (count > 0) {
                         writer.object();
                         {
-                            writer.key(statName).value(count); //$NON-NLS-1$
+                            writer.key(statName).value(count);
                             writer.key("from").value(slice.getLowerBound()); //$NON-NLS-1$
                             writer.key("to").value(slice.getUpperBound()); //$NON-NLS-1$
                         }
@@ -75,12 +82,18 @@ public class JournalStatistics {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{container}") //$NON-NLS-1$
-    public Response getJournalStatistics(@PathParam("container") //$NON-NLS-1$
-    String containerName, @QueryParam("lang") String language) { //$NON-NLS-1$
+    @Path("{container}")
+    public Response getJournalStatistics(@PathParam("container")
+    String containerName, @QueryParam("lang")
+    String language) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
+            Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+            if (systemStorage == null) { // is xmldb, not supported/implemented
+                LOGGER.debug("Could not find system storage. Statistics is not supported for XMLDB"); //$NON-NLS-1$
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
             throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
         }
         Storage updateReportStorage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER, null);
@@ -111,7 +124,7 @@ public class JournalStatistics {
                                 // Write create stats
                                 writer.object().key("creations"); //$NON-NLS-1$
                                 {
-                                    UserQueryBuilder createQuery = from(updateType).select(count()) //$NON-NLS-1$
+                                    UserQueryBuilder createQuery = from(updateType).select(count())
                                             .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
                                                     eq(updateType.getField("OperationType"), "CREATE") //$NON-NLS-1$ //$NON-NLS-2$
                                             )).limit(1).cache();
