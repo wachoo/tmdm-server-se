@@ -95,23 +95,11 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         String fieldName = context.getFieldColumn(field);
         ComplexTypeMetadata containingType = field.getContainingType();
         if (containingType.getSubTypes().isEmpty() && containingType.getSuperTypes().isEmpty()) {
-            for (int i = 1; !field.isKey() && needUniqueFieldName(fieldName, currentType.peek()); i++) {
+            for (int i = 1; !field.isKey() && currentType.peek().hasField(fieldName); i++) {
                 fieldName += i;
             }
         }
         return fieldName;
-    }
-
-    private boolean needUniqueFieldName(String fieldName, ComplexTypeMetadata type) {
-        boolean needUniqueFieldName = type.hasField(fieldName);
-        for (TypeMetadata superType : type.getSuperTypes()) {
-            if (superType instanceof ComplexTypeMetadata) {
-                if (((ComplexTypeMetadata) superType).hasField(fieldName)) {
-                    return true;
-                }
-            }
-        }
-        return needUniqueFieldName;
     }
 
     private static String newNonInstantiableTypeName(ComplexTypeMetadata fieldReferencedType) {
