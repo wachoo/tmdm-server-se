@@ -149,6 +149,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             ArrayList<IWhereItem> conditions = view.getWhereConditions().getList();
             // fix conditions: value of condition do not generate xquery.
             Util.fixConditions(conditions);
+            // Set User Property conditions.
+            if (Util.isContainUserProperty(conditions)) {
+                Util.updateUserPropertyCondition(conditions, getLocalUser().getUserXML());
+            }
             IWhereItem fullWhere = getFullWhereCondition(whereItem, conditions);
             // Add Filters from the Roles
             ILocalUser user = getLocalUser();
@@ -188,6 +192,10 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             }
             // add collected additional conditions
             if (roleWhereConditions.size() > 0) {
+                // Set User Property conditions.
+                if (Util.isContainUserProperty(roleWhereConditions)) {
+                    Util.updateUserPropertyCondition(roleWhereConditions, getLocalUser().getUserXML());
+                }
                 IWhereItem normalizedRolesConditions = normalizeConditions(roleWhereConditions);
                 if (fullWhere == null) {
                     fullWhere = normalizedRolesConditions;

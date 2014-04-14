@@ -563,6 +563,10 @@
             <groupId>jboss.jbossws</groupId>
             <artifactId>jboss-jaxrpc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -61,6 +61,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.xml.XMLConstants;
@@ -188,6 +190,8 @@ public class Util {
     private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
 
     private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource"; //$NON-NLS-1$
+
+    private static final String USER_PROPERTY_START_WITH = "${user_context"; //$NON-NLS-1$
 
     private static DocumentBuilderFactory nonValidatingDocumentBuilderFactory;
 
@@ -2084,6 +2088,47 @@ public class Util {
                         || (condition.getRightValueOrPath().length() == 0 && !condition.getOperator().equals(
                                 WhereCondition.EMPTY_NULL))) {
                     conditions.remove(i);
+                }
+            }
+        }
+    }
+
+    public static Boolean isContainUserProperty(ArrayList conditions) {
+        for (int i = conditions.size() - 1; i >= 0; i--) {
+            if (conditions.get(i) instanceof WhereCondition) {
+                WhereCondition condition = (WhereCondition) conditions.get(i);
+
+                if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
+                        && condition.getRightValueOrPath().indexOf(USER_PROPERTY_START_WITH) >= 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void updateUserPropertyCondition(ArrayList conditions, String userXML) throws Exception {
+        User user = User.parse(userXML);
+
+        ScriptEngineManager factory = new ScriptEngineManager();
+        ScriptEngine engine = factory.getEngineByName("groovy");
+        engine.put("user_context", user);
+
+        for (int i = 0; i < conditions.size(); i++) {
+            if (conditions.get(i) instanceof WhereCondition) {
+                WhereCondition condition = (WhereCondition) conditions.get(i);
+                if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
+                        && condition.getRightValueOrPath().indexOf(USER_PROPERTY_START_WITH) >= 0) {
+
+                    String rightCondition = condition.getRightValueOrPath();
+                    String userExpresson = rightCondition.substring(rightCondition.indexOf("{") + 1, rightCondition.indexOf("}"));
+                    String result = (String) engine.eval(userExpresson);
+
+                    if (result != null) {
+                        condition.setRightValueOrPath(result);
+                    } else {
+                        conditions.remove(i);
+                    }
                 }
             }
         }
