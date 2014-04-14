@@ -122,19 +122,27 @@ public class ItemDetailToolBar extends ToolBar {
 
     private Button generatedviewButton;
 
-    private Button duplicateButton;
-
-    private Button journalButton;
-
-    private Button explainButton;
-
-    private Button masterRecordButton;
-
-    private Button stagingRecordsButton;
-
     private Button refreshButton;
 
-    private Button openTabButton;
+    private Button moreActionsButton;
+
+    private Menu subActionsMenu;
+
+    private MenuItem openTabMenuItem;
+
+    private MenuItem duplicateMenuItem;
+
+    private MenuItem journalMenuItem;
+
+    private MenuItem dataLineageMenuItem;
+
+    private MenuItem openMasterRecordMenuItem;
+
+    private MenuItem openTaskMenuItem;
+
+    private MenuItem explainMenuItem;
+
+    private MenuItem relationMenuItem;
 
     private Button launchProcessButton;
 
@@ -151,8 +159,6 @@ public class ItemDetailToolBar extends ToolBar {
     protected boolean isFkToolBar;
 
     private ItemBaseModel selectItem;
-
-    private Button taskButton;
 
     private Menu deleteMenu;
 
@@ -277,45 +283,22 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected void initViewToolBar() {
-        boolean hasTaskId = itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty();
         if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
             addPersonalViewButton();
-            this.addSeparator();
+            addSeparator();
         }
-        this.addSaveButton();
-        this.addSeparator();
-        this.addSaveQuitButton();
-        this.addSeparator();
-        this.addDeleteButton();
-        if (!isFkToolBar && hasTaskId) {
-            this.addSeparator();
-            this.addExplainButton();
-            if (isStaging) {
-                this.addSeparator();
-                addMasterRecordButton();
-            } else {
-                this.addSeparator();
-                this.addStagingRecordsButton();
-            }
-        }
-        this.addSeparator();
-        this.addDuplicateButton();
+        addSaveButton();
+        addSeparator();
+        addSaveQuitButton();
+        addSeparator();
+        addDeleteButton();
+        addSeparator();
+        addFreshButton();
+        addSeparator();
+        addMoreActionsButton(false);
+        addSeparator();
         if (!isStaging) {
-            this.addSeparator();
-            this.addJournalButton();
-        }
-        this.addSeparator();
-        this.addFreshButton();
-        if (this.openTab) {
-            this.addSeparator();
-            this.addOpenTabButton(false);
-        }
-        if (isUseRelations() && !isStaging) {
-            this.addRelationButton();
-        }
-        this.addOpenTaskButton();
-        if (!isStaging) {
-            this.addWorkFlosCombo();
+            addWorkFlosCombo();
         }
         checkEntitlement(viewBean);
     }
@@ -530,153 +513,6 @@ public class ItemDetailToolBar extends ToolBar {
         deleteButton.setMenu(deleteMenu);
     }
 
-    protected void addDuplicateButton() {
-        if (duplicateButton == null) {
-            duplicateButton = new Button(MessagesFactory.getMessages().duplicate_btn());
-            duplicateButton.setId("duplicateButton"); //$NON-NLS-1$
-            duplicateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
-            duplicateButton.setToolTip(MessagesFactory.getMessages().duplicate_tip());
-            duplicateButton.setEnabled(!viewBean.getBindingEntityModel().getMetaDataTypes().get(itemBean.getConcept())
-                    .isDenyCreatable());
-            duplicateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    if (!isFkToolBar) {
-                        ItemsListPanel.getInstance().setCreate(true);
-                    }
-
-                    ItemBean duplicateItemBean = new ItemBean(itemBean.getConcept(), itemBean.getIds(), itemBean.getItemXml(),
-                            itemBean.getDescription(), itemBean.getPkInfoList());
-                    duplicateItemBean.copy(itemBean);
-                    duplicateItemBean.setIds(""); //$NON-NLS-1$
-
-                    TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, duplicateItemBean, isFkToolBar, isHierarchyCall,
-                            isOutMost, isStaging);
-                    if (!isOutMost && !isFkToolBar) {
-                        if (ItemsListPanel.getInstance().getGrid() != null) {
-                            ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
-                        }
-                    }
-                }
-            });
-        }
-        add(duplicateButton);
-    }
-
-    protected void addJournalButton() {
-        if (journalButton == null) {
-            journalButton = new Button(MessagesFactory.getMessages().journal_btn());
-            journalButton.setId("journalButton"); //$NON-NLS-1$
-            journalButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.journal()));
-            journalButton.setToolTip(MessagesFactory.getMessages().journal_tip());
-
-            journalButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    String ids = itemBean.getIds();
-                    initJournal(ids, itemBean.getConcept());
-                }
-
-            });
-        }
-        add(journalButton);
-    }
-
-    protected void addExplainButton() {
-        explainButton = new Button(MessagesFactory.getMessages().explain_button());
-        explainButton.setId("explainButton"); //$NON-NLS-1$
-        explainButton.setToolTip(MessagesFactory.getMessages().explain_tip());
-        explainButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
-        explainButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                final ItemsListPanel list = ItemsListPanel.getInstance();
-                if (list.getGrid() != null) {
-                    String taskId = itemBean.getTaskId();
-                    if (taskId != null && !taskId.isEmpty()) {
-                        ExplainRestServiceHandler.get().explainGroupResult(
-                                BrowseRecords.getSession().getAppHeader().getMasterDataCluster(), itemBean.getConcept(), taskId,
-                                new SessionAwareAsyncCallback<BaseTreeModel>() {
-
-                                    @Override
-                                    public void onSuccess(BaseTreeModel root) {
-                                        showExplainResult(root);
-                                    }
-                                });
-                    } else {
-                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                .no_taskid_warning_message(), null);
-                    }
-                }
-            }
-        });
-        add(explainButton);
-    }
-
-    private void addMasterRecordButton() {
-        getBrowseRecordsService().getGoldenRecordIdByGroupId(BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
-                BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
-                BrowseRecords.getSession().getCurrentEntityModel().getKeys(), itemBean.getTaskId(),
-                new SessionAwareAsyncCallback<String>() {
-
-                    @Override
-                    public void onSuccess(final String ids) {
-                        if (!ids.isEmpty()) {
-                            if (masterRecordButton == null) {
-                                masterRecordButton = new Button(MessagesFactory.getMessages().masterRecords_btn());
-                                masterRecordButton.setId("masterRecordButton"); //$NON-NLS-1$
-                                masterRecordButton.setItemId("masterRecordButton"); //$NON-NLS-1$
-                                masterRecordButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.masterRecords()));
-                                masterRecordButton.setToolTip(MessagesFactory.getMessages().masterRecords_tip());
-                                masterRecordButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                                    @Override
-                                    public void componentSelected(ButtonEvent ce) {
-                                        if (!ids.isEmpty()) {
-                                            TreeDetailUtil.initItemsDetailPanelById("", ids, itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
-                                                    isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION, false);
-                                        } else {
-                                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory
-                                                    .getMessages().no_golden_record_in_group(itemBean.getTaskId()), null);
-                                        }
-                                    }
-                                });
-                            }
-                            ItemDetailToolBar.this.add(masterRecordButton);
-                        }
-                    }
-                });
-    }
-
-    protected void addStagingRecordsButton() {
-        if (stagingRecordsButton == null) {
-            stagingRecordsButton = new Button(MessagesFactory.getMessages().stagingRecords_btn());
-            stagingRecordsButton.setId("stagingRecordsButton"); //$NON-NLS-1$
-            stagingRecordsButton.setItemId("stagingRecordsButton"); //$NON-NLS-1$
-            stagingRecordsButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.stagingRecords()));
-            stagingRecordsButton.setToolTip(MessagesFactory.getMessages().stagingRecords_tip());
-
-            stagingRecordsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    LineageListPanel listPanel = LineageListPanel.getInstance();
-                    listPanel.initPanel(itemBean.getIds());
-                    if (GWT.isScript()) {
-                        ItemDetailToolBar.this.openLineagePanel(itemBean.getIds(), LineagePanel.getInstance());
-                    } else {
-                        ItemDetailToolBar.this.openDebugLineagePanel(itemBean.getIds(), LineagePanel.getInstance());
-                    }
-
-                }
-            });
-        }
-        add(stagingRecordsButton);
-    }
-
     protected void addFreshButton() {
         if (refreshButton == null) {
             refreshButton = new Button();
@@ -692,6 +528,259 @@ public class ItemDetailToolBar extends ToolBar {
             });
         }
         add(refreshButton);
+    }
+
+    protected void addMoreActionsButton(final boolean fromSmartView) {
+        if (moreActionsButton == null) {
+            moreActionsButton = new Button(MessagesFactory.getMessages().moreActions_btn());
+            moreActionsButton.setToolTip(MessagesFactory.getMessages().moreActions_tip());
+            if (subActionsMenu == null) {
+                subActionsMenu = new Menu();
+                boolean notFKAndHasTaskId = !isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty();
+
+                if (openTab && openTabMenuItem == null) {
+                    openTabMenuItem = new MenuItem(MessagesFactory.getMessages().openitem_tab());
+                    openTabMenuItem.setId("openTabMenuItem"); //$NON-NLS-1$
+                    openTabMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
+                    openTabMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                        @Override
+                        public void componentSelected(MenuEvent menuEvent) {
+                            // TMDM-3202 open in a top-level tab
+                            String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : ""; //$NON-NLS-1$
+                            String opt = ItemDetailToolBar.VIEW_OPERATION;
+                            if (fromSmartView) {
+                                opt = ItemDetailToolBar.SMARTVIEW_OPERATION;
+                            } else {
+                                String smartViewMode = itemBean.getSmartViewMode();
+                                if (smartViewMode.equals(ItemBean.PERSOMODE) || smartViewMode.equals(ItemBean.SMARTMODE)) {
+                                    opt = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
+                                }
+                            }
+                            TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(), itemBean.getConcept(),
+                                    isFkToolBar, isHierarchyCall, opt, isStaging);
+                        }
+                    });
+                    subActionsMenu.add(openTabMenuItem);
+                }
+
+                if (duplicateMenuItem == null) {
+                    duplicateMenuItem = new MenuItem(MessagesFactory.getMessages().duplicate_btn());
+                    duplicateMenuItem.setId("duplicateMenuItem"); //$NON-NLS-1$
+                    duplicateMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
+                    duplicateMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                        @Override
+                        public void componentSelected(MenuEvent menuEvent) {
+                            if (!isFkToolBar) {
+                                ItemsListPanel.getInstance().setCreate(true);
+                            }
+
+                            ItemBean duplicateItemBean = new ItemBean(itemBean.getConcept(), itemBean.getIds(), itemBean
+                                    .getItemXml(), itemBean.getDescription(), itemBean.getPkInfoList());
+                            duplicateItemBean.copy(itemBean);
+                            duplicateItemBean.setIds(""); //$NON-NLS-1$
+
+                            TreeDetailUtil.initItemsDetailPanelByItemPanel(viewBean, duplicateItemBean, isFkToolBar,
+                                    isHierarchyCall, isOutMost, isStaging);
+                            if (!isOutMost && !isFkToolBar) {
+                                if (ItemsListPanel.getInstance().getGrid() != null) {
+                                    ItemsListPanel.getInstance().getGrid().getSelectionModel().deselectAll();
+                                }
+                            }
+                        }
+                    });
+                    subActionsMenu.add(duplicateMenuItem);
+                }
+
+                if (!isStaging && journalMenuItem == null) {
+                    journalMenuItem = new MenuItem(MessagesFactory.getMessages().journal_btn());
+                    journalMenuItem.setId("journalMenuItem"); //$NON-NLS-1$
+                    journalMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.journal()));
+                    journalMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                        @Override
+                        public void componentSelected(MenuEvent menuEvent) {
+                            String ids = itemBean.getIds();
+                            initJournal(ids, itemBean.getConcept());
+                        }
+
+                    });
+                    subActionsMenu.add(new SeparatorMenuItem());
+                    subActionsMenu.add(journalMenuItem);
+                }
+
+                if (notFKAndHasTaskId) {
+                    if (isStaging) {
+                        getBrowseRecordsService().getGoldenRecordIdByGroupId(
+                                BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
+                                BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
+                                BrowseRecords.getSession().getCurrentEntityModel().getKeys(), itemBean.getTaskId(),
+                                new SessionAwareAsyncCallback<String>() {
+
+                                    @Override
+                                    public void onSuccess(final String ids) {
+                                        if (!ids.isEmpty()) {
+                                            if (openMasterRecordMenuItem == null) {
+                                                openMasterRecordMenuItem = new MenuItem(MessagesFactory.getMessages()
+                                                        .masterRecords_btn());
+                                                openMasterRecordMenuItem.setId("openMasterRecordMenuItem"); //$NON-NLS-1$
+                                                openMasterRecordMenuItem.setItemId("openMasterRecordMenuItem"); //$NON-NLS-1$
+                                                openMasterRecordMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE
+                                                        .masterRecords()));
+                                                openMasterRecordMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                                                    @Override
+                                                    public void componentSelected(MenuEvent menuEvent) {
+                                                        if (!ids.isEmpty()) {
+                                                            TreeDetailUtil.initItemsDetailPanelById(
+                                                                    "", ids, itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
+                                                                    isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION, false);
+                                                        } else {
+                                                            MessageBox.alert(
+                                                                    MessagesFactory.getMessages().warning_title(),
+                                                                    MessagesFactory.getMessages().no_golden_record_in_group(
+                                                                            itemBean.getTaskId()), null);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            ItemDetailToolBar.this.subActionsMenu.add(openMasterRecordMenuItem);
+                                        }
+                                    }
+                                });
+                    } else {
+                        if (dataLineageMenuItem == null) {
+                            dataLineageMenuItem = new MenuItem(MessagesFactory.getMessages().stagingRecords_btn());
+                            dataLineageMenuItem.setId("dataLineageMenuItem"); //$NON-NLS-1$
+                            dataLineageMenuItem.setItemId("dataLineageMenuItem"); //$NON-NLS-1$
+                            dataLineageMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.stagingRecords()));
+                            dataLineageMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                                @Override
+                                public void componentSelected(MenuEvent menuEvent) {
+                                    LineageListPanel listPanel = LineageListPanel.getInstance();
+                                    listPanel.initPanel(itemBean.getIds());
+                                    if (GWT.isScript()) {
+                                        ItemDetailToolBar.this.openLineagePanel(itemBean.getIds(), LineagePanel.getInstance());
+                                    } else {
+                                        ItemDetailToolBar.this.openDebugLineagePanel(itemBean.getIds(),
+                                                LineagePanel.getInstance());
+                                    }
+
+                                }
+                            });
+                            subActionsMenu.add(dataLineageMenuItem);
+                        }
+                    }
+                }
+
+                if (openTaskMenuItem == null) {
+                    if (openTaskMenuItem == null && itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
+                            && !"null".equalsIgnoreCase(itemBean.getTaskId().trim())) { //$NON-NLS-1$
+                        openTaskMenuItem = new MenuItem(MessagesFactory.getMessages().open_task());
+                        openTaskMenuItem.setId("openTaskMenuItem"); //$NON-NLS-1$
+                        openTaskMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
+
+                        openTaskMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                            @Override
+                            public void componentSelected(MenuEvent menuEvent) {
+                                initDSC(itemBean.getTaskId());
+                            }
+                        });
+                        subActionsMenu.add(openTaskMenuItem);
+                    }
+                }
+
+                if (notFKAndHasTaskId && explainMenuItem == null) {
+                    explainMenuItem = new MenuItem(MessagesFactory.getMessages().explain_button());
+                    explainMenuItem.setId("explainMenuItem"); //$NON-NLS-1$
+                    explainMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+                    explainMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                        @Override
+                        public void componentSelected(MenuEvent menuEvent) {
+                            final ItemsListPanel list = ItemsListPanel.getInstance();
+                            if (list.getGrid() != null) {
+                                String taskId = itemBean.getTaskId();
+                                if (taskId != null && !taskId.isEmpty()) {
+                                    ExplainRestServiceHandler.get().explainGroupResult(
+                                            BrowseRecords.getSession().getAppHeader().getMasterDataCluster(),
+                                            itemBean.getConcept(), taskId, new SessionAwareAsyncCallback<BaseTreeModel>() {
+
+                                                @Override
+                                                public void onSuccess(BaseTreeModel root) {
+                                                    showExplainResult(root);
+                                                }
+                                            });
+                                } else {
+                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                            .no_taskid_warning_message(), null);
+                                }
+                            }
+                        }
+                    });
+                    subActionsMenu.add(explainMenuItem);
+                }
+
+                if (isUseRelations() && !isStaging && relationMenuItem == null) {
+                    final Map<String, List<String>> lineageEntityMap = (Map<String, List<String>>) BrowseRecords.getSession()
+                            .get(UserSession.CURRENT_LINEAGE_ENTITY_LIST);
+                    if (lineageEntityMap != null && lineageEntityMap.containsKey(itemBean.getConcept())) {
+                        addRelationMenuItem(lineageEntityMap.get(itemBean.getConcept()));
+                    } else {
+                        getBrowseRecordsService().getLineageEntity(itemBean.getConcept(),
+                                new SessionAwareAsyncCallback<List<String>>() {
+
+                                    @Override
+                                    public void onSuccess(List<String> list) {
+                                        if (lineageEntityMap != null) {
+                                            lineageEntityMap.put(itemBean.getConcept(), list);
+                                        } else {
+                                            Map<String, List<String>> map = new HashMap<String, List<String>>(1);
+                                            map.put(itemBean.getConcept(), list);
+                                            BrowseRecords.getSession().put(UserSession.CURRENT_LINEAGE_ENTITY_LIST, map);
+                                        }
+                                        addRelationMenuItem(list);
+                                    }
+
+                                });
+                    }
+
+                }
+                moreActionsButton.setMenu(subActionsMenu);
+            }
+        }
+        add(moreActionsButton);
+    }
+
+    private void addRelationMenuItem(List<String> list) {
+        if (list == null || list.size() == 0) {
+            return;
+        }
+        final List<String> lineageList = list;
+        relationMenuItem = new MenuItem(MessagesFactory.getMessages().relations_btn());
+        relationMenuItem.setId("relationMenuItem"); //$NON-NLS-1$
+        relationMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.relations()));
+        relationMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+            @Override
+            public void componentSelected(MenuEvent menuEvent) {
+                StringBuilder entityStr = new StringBuilder();
+                for (String str : lineageList) {
+                    entityStr.append(str).append(","); //$NON-NLS-1$
+                }
+                String arrStr = entityStr.toString().substring(0, entityStr.length() - 1);
+                String ids = itemBean.getIds();
+                if (ids == null || ids.trim().isEmpty()) {
+                    ids = ""; //$NON-NLS-1$
+                }
+                initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
+            }
+        });
+        subActionsMenu.add(new SeparatorMenuItem());
+        subActionsMenu.add(relationMenuItem);
     }
 
     private void refreshTreeDetail() {
@@ -810,34 +899,6 @@ public class ItemDetailToolBar extends ToolBar {
         });
         ItemDetailToolBar.this.addSeparator();
         add(relationButton);
-    }
-
-    protected void addOpenTabButton(final boolean fromSmartView) {
-        openTabButton = new Button();
-        openTabButton.setId("openTabButton"); //$NON-NLS-1$
-        openTabButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
-        openTabButton.setToolTip(MessagesFactory.getMessages().openitem_tab());
-        openTabButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent ce) {
-                // TMDM-3202 open in a top-level tab
-                String fromWhichApp = isHierarchyCall ? MessagesFactory.getMessages().hierarchy_title() : ""; //$NON-NLS-1$
-                String opt = ItemDetailToolBar.VIEW_OPERATION;
-                if (fromSmartView) {
-                    opt = ItemDetailToolBar.SMARTVIEW_OPERATION;
-                } else {
-                    String smartViewMode = itemBean.getSmartViewMode();
-                    if (smartViewMode.equals(ItemBean.PERSOMODE) || smartViewMode.equals(ItemBean.SMARTMODE)) {
-                        opt = ItemDetailToolBar.PERSONALEVIEW_OPERATION;
-                    }
-                }
-                TreeDetailUtil.initItemsDetailPanelById(fromWhichApp, itemBean.getIds(), itemBean.getConcept(), isFkToolBar,
-                        isHierarchyCall, opt, isStaging);
-            }
-        });
-        openTabButton.setWidth(30);
-        add(openTabButton);
     }
 
     protected void addWorkFlosCombo() {
@@ -972,60 +1033,23 @@ public class ItemDetailToolBar extends ToolBar {
         add(generatedviewButton);
     }
 
-    protected void addOpenTaskButton() {
-        if (taskButton == null && itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
-                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim())) { //$NON-NLS-1$
-            ItemDetailToolBar.this.addSeparator();
-            this.taskButton = new Button(MessagesFactory.getMessages().open_task());
-            taskButton.setId("taskButton"); //$NON-NLS-1$
-            taskButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
-
-            taskButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-                @Override
-                public void componentSelected(ButtonEvent ce) {
-                    initDSC(itemBean.getTaskId());
-                }
-            });
-
-            add(taskButton);
-        }
-    }
-
     private native boolean initDSC(String taskId)/*-{
-		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-		return true;
-    }-*/;
+        $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+             return true;
+   }-*/;
 
     protected void initSmartViewToolBar() {
-        boolean hasTaskId = itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty();
         addGeneratedViewButton();
         addSeparator();
         addSmartViewCombo();
         addSeparator();
         addDeleteButton();
         addSeparator();
-        if (!isFkToolBar && hasTaskId) {
-            addSeparator();
-            addExplainButton();
-            if (isStaging) {
-                addSeparator();
-                addMasterRecordButton();
-            } else {
-                addSeparator();
-                addStagingRecordsButton();
-            }
-        }
+        addFreshButton();
+        addSeparator();
+        addMoreActionsButton(true);
         addSeparator();
         addPrintButton();
-        addSeparator();
-        addDuplicateButton();
-        this.addSeparator();
-        this.addFreshButton();
-        if (this.openTab) {
-            this.addSeparator();
-            this.addOpenTabButton(true);
-        }
         if (!isStaging) {
             this.addWorkFlosCombo();
         }
@@ -1147,18 +1171,18 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-		$wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
-				true);
-		return true;
+        $wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
+                true);
+        return true;
     }-*/;
 
     // Please note that this method is duplicated in
     // org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
-		var lineageEntities = arrStr.split(",");
-		$wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
-				dataObject);
-		return true;
+        var lineageEntities = arrStr.split(",");
+        $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
+                dataObject);
+        return true;
     }-*/;
 
     public void saveItemAndClose(final boolean isClose) {
@@ -1344,13 +1368,13 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     public native void closeOutTabPanel()/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		tabPanel.closeCurrentTab();
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        tabPanel.closeCurrentTab();
     }-*/;
 
     public native void updateOutTabPanel(String tabText)/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		tabPanel.updateCurrentTabText(tabText);
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        tabPanel.updateCurrentTabText(tabText);
     }-*/;
 
     class MenuEx extends Menu {
@@ -1412,7 +1436,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         private native El getExtrasTr()/*-{
-			return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
+            return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
         }-*/;
 
         @Override
@@ -1536,7 +1560,7 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native void openWindow(String url)/*-{
-		window.open(url);
+        window.open(url);
     }-*/;
 
     protected void openDebugLineagePanel(String ids, LineagePanel panel) {
@@ -1550,47 +1574,47 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected native void openLineagePanel(String ids, LineagePanel lineagePanel)/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		var browseStagingRecordsPanel = tabPanel.getItem(ids);
-		if (browseStagingRecordsPanel == undefined) {
-			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::convertLineagePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/LineagePanel;)(lineagePanel);
-			tabPanel.add(panel);
-		}
-		tabPanel.setSelection(ids);
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var browseStagingRecordsPanel = tabPanel.getItem(ids);
+        if (browseStagingRecordsPanel == undefined) {
+            var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::convertLineagePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/LineagePanel;)(lineagePanel);
+            tabPanel.add(panel);
+       }
+       tabPanel.setSelection(ids);
     }-*/;
 
     private native static JavaScriptObject convertLineagePanel(LineagePanel lineagePanel)/*-{
 
-		var panel = {
-			// imitate extjs's render method, really call gxt code.
-			render : function(el) {
-				var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
-				rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(lineagePanel);
-			},
-			// imitate extjs's setSize method, really call gxt code.
-			setSize : function(width, height) {
-				lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::setSize(II)(width, height);
-			},
-			// imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
-			getItemId : function() {
-				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getItemId()();
-			},
-			// imitate El object of extjs
-			getEl : function() {
-				var el = lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getElement()();
-				return {
-					dom : el
-				};
-			},
-			// imitate extjs's doLayout method, really call gxt code.
-			doLayout : function() {
-				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::doLayout()();
-			},
-			title : function() {
-				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getHeading()();
-			}
-		};
-		return panel;
+        var panel = {
+            // imitate extjs's render method, really call gxt code.
+            render : function(el) {
+                var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+                rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(lineagePanel);
+            },
+            // imitate extjs's setSize method, really call gxt code.
+            setSize : function(width, height) {
+                lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::setSize(II)(width, height);
+            },
+            // imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+            getItemId : function() {
+                return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getItemId()();
+            },
+            // imitate El object of extjs
+            getEl : function() {
+                var el = lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getElement()();
+                return {
+                    dom : el
+                };
+            },
+            // imitate extjs's doLayout method, really call gxt code.
+            doLayout : function() {
+                return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::doLayout()();
+            },
+            title : function() {
+                return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getHeading()();
+            }
+        };
+        return panel;
     }-*/;
 
     public boolean isFkToolBar() {

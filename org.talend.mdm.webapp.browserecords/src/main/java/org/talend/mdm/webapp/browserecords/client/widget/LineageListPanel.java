@@ -47,6 +47,7 @@ import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordStatus;
 import org.talend.mdm.webapp.browserecords.client.model.RecordStatusWrapper;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
+import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
@@ -70,14 +71,17 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -92,11 +96,13 @@ import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Image;
 
 public class LineageListPanel extends ContentPanel {
@@ -184,6 +190,22 @@ public class LineageListPanel extends ContentPanel {
     }
 
     private LineageListPanel() {
+        Button taskButton = new Button();
+        taskButton = new Button(MessagesFactory.getMessages().open_task());
+        taskButton.setId("openTaskButton"); //$NON-NLS-1$
+        taskButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
+
+        taskButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent buttonEvent) {
+                initDSC(LineageListPanel.this.taskId);
+            }
+        });
+        ToolBar toolBar = new ToolBar();
+        toolBar.add(taskButton);
+        setTopComponent(toolBar);
+
         this.cluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.cluster = this.cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? this.cluster : this.cluster
                 + StorageAdmin.STAGING_SUFFIX;
@@ -539,10 +561,15 @@ public class LineageListPanel extends ContentPanel {
     }
 
     private native void selectStagingGridPanel()/*-{
-                                                var tabPanel = $wnd.amalto.core.getTabPanel();
-                                                var panel = tabPanel.getItem("Staging Data Viewer");
-                                                if (panel != undefined) {
-                                                tabPanel.setSelection(panel.getItemId());
-                                                }
-                                                }-*/;
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = tabPanel.getItem("Staging Data Viewer");
+		if (panel != undefined) {
+			tabPanel.setSelection(panel.getItemId());
+		}
+    }-*/;
+
+    private native boolean initDSC(String taskId)/*-{
+		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+		return true;
+    }-*/;
 }

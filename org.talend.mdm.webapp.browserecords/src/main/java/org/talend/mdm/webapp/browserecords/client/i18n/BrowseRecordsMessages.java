@@ -39,6 +39,10 @@ public interface BrowseRecordsMessages extends Messages {
 
     String delete_btn();
 
+    String moreActions_btn();
+    
+    String moreActions_tip();
+
     String duplicate_btn();
 
     String duplicate_tip();
