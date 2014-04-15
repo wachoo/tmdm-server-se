@@ -28,6 +28,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.history.DeleteType;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -2469,6 +2470,11 @@ public class DocumentSaveTest extends TestCase {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(item.exportToString());
             }
+        }
+
+        @Override
+        public void delete(com.amalto.core.history.Document item, DeleteType type) {
+             // TODO
         }
 
         @Override
