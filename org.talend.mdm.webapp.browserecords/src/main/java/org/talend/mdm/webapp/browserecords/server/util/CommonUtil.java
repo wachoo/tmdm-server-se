@@ -271,6 +271,27 @@ public class CommonUtil {
                         } else {
                             itemBean.set(path, Constants.BOOLEAN_FALSE_VALUE);
                         }
+                    } else if (typeModel != null
+                            && (DataTypeConstants.FLOAT.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.DOUBLE.getTypeName().equals(typeModel.getType().getTypeName()) || DataTypeConstants.DECIMAL
+                                    .getTypeName().equals(typeModel.getType().getTypeName()))) {
+                        itemBean.set(path, Double.parseDouble(el.getText()));
+                    } else if (typeModel != null
+                            && (DataTypeConstants.INTEGER.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.NONPOSITIVEINTEGER.getTypeName().equals(
+                                            typeModel.getType().getTypeName())
+                                    || DataTypeConstants.NEGATIVEINTEGER.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.NONNEGATIVEINTEGER.getTypeName().equals(
+                                            typeModel.getType().getTypeName())
+                                    || DataTypeConstants.INT.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.SHORT.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.UNSIGNEDLONG.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.UNSIGNEDINT.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.UNSIGNEDSHORT.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.POSITIVEINTEGER.getTypeName().equals(typeModel.getType().getTypeName())
+                                    || DataTypeConstants.BYTE.getTypeName().equals(typeModel.getType().getTypeName()) || DataTypeConstants.UNSIGNEDBYTE
+                                    .getTypeName().equals(typeModel.getType().getTypeName()))) {
+                        itemBean.set(path, Integer.parseInt(el.getText()));
                     } else {
                         itemBean.set(path, el.getText());
                     }

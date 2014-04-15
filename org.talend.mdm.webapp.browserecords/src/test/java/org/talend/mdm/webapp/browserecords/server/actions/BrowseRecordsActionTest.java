@@ -281,7 +281,7 @@ public class BrowseRecordsActionTest extends TestCase {
         // First record (property: Name)
         assertEquals("Mug", firstItemBean.get("Product/Name"));
         // First record (property: Price)
-        assertEquals("1.99", firstItemBean.get("Product/Price"));
+        assertEquals(1.99, firstItemBean.get("Product/Price"));
         // First record (property: Availability)
         assertEquals("false", firstItemBean.get("Product/Availability"));
         // Second record
@@ -293,7 +293,7 @@ public class BrowseRecordsActionTest extends TestCase {
         // Second record (property: Name)
         assertEquals("Car", secondItemBean.get("Product/Name"));
         // Second record (property: Price)
-        assertEquals("2.99", secondItemBean.get("Product/Price"));
+        assertEquals(2.99, secondItemBean.get("Product/Price"));
         // Second record (property: Availability)
         assertEquals("false", secondItemBean.get("Product/Availability"));
         // Third record
@@ -305,7 +305,7 @@ public class BrowseRecordsActionTest extends TestCase {
         // Third record (property: Name)
         assertEquals("Talend", thirdItemBean.get("Product/Name"));
         // Third record (property: Price)
-        assertEquals("3.99", thirdItemBean.get("Product/Price"));
+        assertEquals(3.99, thirdItemBean.get("Product/Price"));
         // Third record (property: Availability)
         assertEquals("false", thirdItemBean.get("Product/Availability"));
         // Fourth record
@@ -317,7 +317,7 @@ public class BrowseRecordsActionTest extends TestCase {
         // Fourth record (property: Name)
         assertEquals("Shirts", fourthItemBean.get("Product/Name"));
         // Fourth record (property: Price)
-        assertEquals("4.99", fourthItemBean.get("Product/Price"));
+        assertEquals(4.99, fourthItemBean.get("Product/Price"));
         // Fourth record (property: Availability)
         assertEquals("true", fourthItemBean.get("Product/Availability"));
         // Fifth record
@@ -329,7 +329,7 @@ public class BrowseRecordsActionTest extends TestCase {
         // Fifth record (property: Name)
         assertEquals("Cup", fifthItemBean.get("Product/Name"));
         // Fifth record (property: Price)
-        assertEquals("5.99", fifthItemBean.get("Product/Price"));
+        assertEquals(5.99, fifthItemBean.get("Product/Price"));
         // Fifth record (property: Availability)
         assertEquals("true", fifthItemBean.get("Product/Availability"));
     }
@@ -418,7 +418,7 @@ public class BrowseRecordsActionTest extends TestCase {
 
         assertEquals(formatValue, firstItemBean.get("FormatTest/dt1"));
         // First record (property: num)
-        assertEquals("055", firstItemBean.get("FormatTest/num"));
+        assertEquals(55, firstItemBean.get("FormatTest/num"));
         // Second record
         ItemBean secondItemBean = itemBeans.getData().get(1);
         // Second record (property name list size)
@@ -446,7 +446,7 @@ public class BrowseRecordsActionTest extends TestCase {
 
         assertEquals(formatValue, secondItemBean.get("FormatTest/dt1"));
         // Second record (property: num)
-        assertEquals("087", secondItemBean.get("FormatTest/num"));
+        assertEquals(87, secondItemBean.get("FormatTest/num"));
     }
 
     /**

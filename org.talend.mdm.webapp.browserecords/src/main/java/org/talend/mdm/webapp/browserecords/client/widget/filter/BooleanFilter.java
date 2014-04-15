@@ -15,15 +15,14 @@ package org.talend.mdm.webapp.browserecords.client.widget.filter;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 
-/**
- * created by yjli on 2014-2-8 Detailled comment
- * 
- */
 public class BooleanFilter extends com.extjs.gxt.ui.client.widget.grid.filters.BooleanFilter {
 
     public BooleanFilter(String dataIndex) {
         super(dataIndex);
+        // set FALSE CheckMenuItem checked property
+        ((CheckMenuItem) menu.getItem(1)).setChecked(false);
     }
 
     @Override
@@ -31,7 +30,7 @@ public class BooleanFilter extends com.extjs.gxt.ui.client.widget.grid.filters.B
         BooleanFilterMessages booleanFilterMessages = (BooleanFilterMessages) messages;
         booleanFilterMessages.setYesText(Constants.BOOLEAN_TRUE_DISPLAY_VALUE);
         booleanFilterMessages.setNoText(Constants.BOOLEAN_FALSE_DISPLAY_VALUE);
-        super.setMessages(messages);
+        super.setMessages(booleanFilterMessages);
     }
 
     @Override
