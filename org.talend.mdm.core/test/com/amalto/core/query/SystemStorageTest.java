@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.storage.*;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
@@ -55,10 +56,6 @@ import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.SecuredStorage;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.hibernate.TypeMappingStrategy;
@@ -108,6 +105,40 @@ public class SystemStorageTest extends TestCase {
         ClassRepository repository = buildRepository();
         // The additional loaded type is the sub type of ServiceBean
         assertEquals(ObjectPOJO.OBJECT_TYPES.length + 1, repository.getUserComplexTypes().size());
+    }
+
+    public void testInternalClusterNames() throws Exception {
+        String[] expectedInternalClusters = new String[] { null, "", "JCAAdapters", "Inbox", "SearchTemplate", "MDMDomainObjects",
+                "MDMItemsTrash", "Reporting", "MDMItemImages", "PROVISIONING", "CONF", "amaltoOBJECTSTransformerV2", //$NON-NLS-1$
+                "amaltoOBJECTSFailedRoutingOrderV2", //$NON-NLS-1$
+                "amaltoOBJECTSCompletedRoutingOrderV2", //$NON-NLS-1$
+                "amaltoOBJECTSCustomForm", //$NON-NLS-1$
+                "amaltoOBJECTSjcaadapters", //$NON-NLS-1$
+                "amaltoOBJECTSRoutingEngineV2", //$NON-NLS-1$
+                "amaltoOBJECTSRoutingRule", //$NON-NLS-1$
+                "amaltoOBJECTSSynchronizationItem", //$NON-NLS-1$
+                "amaltoOBJECTSTransformerPluginV2", //$NON-NLS-1$
+                "amaltoOBJECTSroutingorders", //$NON-NLS-1$
+                "amaltoOBJECTSUniverse", //$NON-NLS-1$
+                "amaltoOBJECTSVersioningSystem", //$NON-NLS-1$
+                "amaltoOBJECTSroutingqueues", //$NON-NLS-1$
+                "amaltoOBJECTSroutingservices", //$NON-NLS-1$
+                "amaltoOBJECTSStoredProcedure", //$NON-NLS-1$
+                "amaltoOBJECTSSynchronizationObject", //$NON-NLS-1$
+                "amaltoOBJECTSVersionSystem", //$NON-NLS-1$
+                "amaltoOBJECTSMenu", //$NON-NLS-1$
+                "amaltoOBJECTSActiveRoutingOrderV2", //$NON-NLS-1$
+                "amaltoOBJECTSDataCluster", //$NON-NLS-1$
+                "amaltoOBJECTSLicense", //$NON-NLS-1$
+                "amaltoOBJECTSRole", //$NON-NLS-1$
+                "amaltoOBJECTSDataModel", //$NON-NLS-1$
+                "amaltoOBJECTSBackgroundJob", //$NON-NLS-1$
+                "amaltoOBJECTSConfigurationinfo" //$NON-NLS-1$
+        };
+        Set<String> internalClusterNames = DispatchWrapper.getInternalClusterNames();
+        for (String expectedInternalCluster : expectedInternalClusters) {
+            assertTrue("Expected " + expectedInternalCluster, internalClusterNames.contains(expectedInternalCluster));
+        }
     }
 
     private ClassRepository buildRepository() {

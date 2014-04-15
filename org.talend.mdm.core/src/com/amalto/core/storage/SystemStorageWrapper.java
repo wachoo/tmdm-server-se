@@ -119,7 +119,8 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     @Override
     public String[] getAllClusters(String revisionID) throws XmlServerException {
-        return new String[0];
+        Set<String> internalClusterNames = DispatchWrapper.getInternalClusterNames();
+        return internalClusterNames.toArray(new String[internalClusterNames.size()]);
     }
 
     @Override
