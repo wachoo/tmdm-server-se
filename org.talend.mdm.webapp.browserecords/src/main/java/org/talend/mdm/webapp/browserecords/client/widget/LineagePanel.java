@@ -63,7 +63,7 @@ public class LineagePanel extends ContentPanel {
         lineageListPanel = LineageListPanel.getInstance();
         contentPanel.add(lineageListPanel, northData);
 
-        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 325);
+        BorderLayoutData southData = new BorderLayoutData(LayoutRegion.CENTER);
         detailPanel = new ContentPanel();
         detailPanel.setFrame(false);
         detailPanel.setHeaderVisible(false);
