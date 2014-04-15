@@ -45,6 +45,7 @@ import com.amalto.core.save.SaveException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereLogicOperator;
 
 /**
  * DOC achen class global comment. Detailled comment
@@ -266,17 +267,87 @@ public class UtilTestCase extends TestCase {
 
     @SuppressWarnings("cast")
     public void testUpdateUserPropertyCondition() throws Exception {
-        String userXML = "<User><username>administrator</username><password>200ceb26807d6bf99fd6f4f0d1ca54d4</password><givenname>Default</givenname><familyname>Administrator</familyname><company>Company</company><id>null</id><realemail>admin@company.com</realemail><viewrealemail>no</viewrealemail><registrationdate>1397444277524</registrationdate><lastvisitdate>0</lastvisitdate><enabled>yes</enabled><homepage>Home</homepage><language>en</language><roles><role>System_Admin</role><role>administration</role></roles><properties><property><name>model</name><value>Product</value></property><property><name>location</name><value>bj</value></property><property><name>cluster</name><value>Product</value></property></properties></User>";
+        String userXML = "<User><username>administrator</username><password>200ceb26807d6bf99fd6f4f0d1ca54d4</password><givenname>Default</givenname><familyname>Administrator</familyname><company>Company</company><id>1001</id><realemail>admin@company.com</realemail><viewrealemail>no</viewrealemail><registrationdate>1397444277524</registrationdate><lastvisitdate>0</lastvisitdate><enabled>yes</enabled><homepage>Home</homepage><language>en</language><roles><role>System_Admin</role><role>administration</role></roles><properties><property><name>model</name><value>Product</value></property><property><name>location</name><value>bj</value></property><property><name>cluster</name><value>Product</value></property></properties></User>";//$NON-NLS-1$
+        String conditionDesc1 = "${user_context.properties['location']}";//$NON-NLS-1$
+        String conditionDesc2 = "${user_context.registrationDateAsLong}";//$NON-NLS-1$
+        String conditionDesc3 = "${user_context.enabled}";//$NON-NLS-1$
+        String conditionDesc4 = "${user_context.language}";//$NON-NLS-1$
+        String conditionDesc5 = "${user_context.testProperty}";//$NON-NLS-1$
 
-        WhereCondition condition = new WhereCondition();
+        WhereCondition condition1 = new WhereCondition();
+        WhereCondition condition2 = new WhereCondition();
+        WhereCondition condition3 = new WhereCondition();
+        WhereCondition condition4 = new WhereCondition();
+        WhereCondition condition5 = new WhereCondition();
+
         ArrayList<WhereCondition> conditions = new ArrayList<WhereCondition>();
-        condition.setRightValueOrPath("${user_context.properties['location']}");
-        conditions.add(condition);
+        condition1.setRightValueOrPath(conditionDesc1);
+        conditions.add(condition1);
+        condition2.setRightValueOrPath(conditionDesc2);
+        conditions.add(condition2);
+        condition3.setRightValueOrPath(conditionDesc3);
+        conditions.add(condition3);
+        condition4.setRightValueOrPath(conditionDesc4);
+        conditions.add(condition4);
+        condition5.setRightValueOrPath(conditionDesc5);
+        conditions.add(condition5);
+
         Util.updateUserPropertyCondition(conditions, userXML);
+        assertTrue(conditions.size() == 4);
 
         if (conditions.get(0) instanceof WhereCondition) {
             WhereCondition updateCondition = (WhereCondition) conditions.get(0);
-            assertTrue("bj".equals(updateCondition.getRightValueOrPath()));
+            assertTrue("bj".equals(updateCondition.getRightValueOrPath()));//$NON-NLS-1$
+        }
+        if (conditions.get(1) instanceof WhereCondition) {
+            WhereCondition updateCondition = (WhereCondition) conditions.get(1);
+            assertTrue("1397444277524".equals(updateCondition.getRightValueOrPath()));//$NON-NLS-1$
+        }
+        if (conditions.get(2) instanceof WhereCondition) {
+            WhereCondition updateCondition = (WhereCondition) conditions.get(2);
+            assertTrue("true".equals(updateCondition.getRightValueOrPath()));//$NON-NLS-1$
+        }
+        if (conditions.get(3) instanceof WhereCondition) {
+            WhereCondition updateCondition = (WhereCondition) conditions.get(3);
+            assertTrue("en".equals(updateCondition.getRightValueOrPath()));//$NON-NLS-1$
+        }
+    }
+
+    public void testFixWebConditions() throws Exception {
+        String userXML = "<User><username>administrator</username><password>200ceb26807d6bf99fd6f4f0d1ca54d4</password><givenname>Default</givenname><familyname>Administrator</familyname><company>Company</company><id>1001</id><realemail>admin@company.com</realemail><viewrealemail></viewrealemail><registrationdate>1397444277524</registrationdate><lastvisitdate>0</lastvisitdate><enabled>yes</enabled><homepage>Home</homepage><language>en</language><roles><role>System_Admin</role><role>administration</role></roles><properties><property><name>model</name><value>Product</value></property><property><name>location</name><value>bj</value></property><property><name>cluster</name><value>Product</value></property></properties></User>";//$NON-NLS-1$
+
+        List<IWhereItem> whereItems = new ArrayList<IWhereItem>();
+        IWhereItem whereItem1 = new WhereCondition("Product/Price", "=", "${user_context.registrationDateAsLong}", "NONE");
+        IWhereItem whereItem2 = new WhereCondition("Product/Description", "=", "${user_context.enabled}", "NONE");
+        IWhereItem whereItem3 = new WhereCondition("Product/Description", "=", "${user_context.viewrealemail}", "NONE");
+        IWhereItem whereItem4 = new WhereCondition("Product/Description", "=", "${user_context.nosuchattribute}", "NONE");
+        IWhereItem whereItem5 = new WhereCondition("Product/Description", "=", "${user_context.properties['location']}", "NONE");
+        IWhereItem whereItem6 = new WhereCondition("Product/Description", "=", "${user_context.properties['error']}", "NONE");
+        IWhereItem whereItem7 = new WhereCondition("Product/Description", "=", "${user_context.properties['']}", "NONE");
+
+        whereItems.add(whereItem1);
+        whereItems.add(whereItem2);
+        whereItems.add(whereItem3);
+        whereItems.add(whereItem4);
+        whereItems.add(whereItem5);
+        whereItems.add(whereItem6);
+        whereItems.add(whereItem7);
+        IWhereItem iWhereAnd = new WhereAnd(whereItems);
+
+        Util.fixWebConditions(iWhereAnd, userXML);
+
+        if (iWhereAnd instanceof WhereLogicOperator) {
+            List<IWhereItem> subItems = ((WhereLogicOperator) iWhereAnd).getItems();
+
+            assertTrue(subItems.size() == 3);
+
+            WhereCondition condition1 = (WhereCondition) subItems.get(0);
+            WhereCondition condition2 = (WhereCondition) subItems.get(1);
+            WhereCondition condition3 = (WhereCondition) subItems.get(2);
+
+            assertTrue("1397444277524".equals(condition1.getRightValueOrPath()));
+            assertTrue("true".equals(condition2.getRightValueOrPath()));
+            assertTrue("bj".equals(condition3.getRightValueOrPath()));
         }
     }
 

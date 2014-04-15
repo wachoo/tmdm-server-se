@@ -144,7 +144,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
         }
         try {
             ViewPOJO view = getViewPOJO(viewPOJOPK);
-            whereItem = Util.fixWebConditions(whereItem);
+            whereItem = Util.fixWebConditions(whereItem, getLocalUser().getUserXML());
             // Create an ItemWhere which combines the search and and view wheres
             ArrayList<IWhereItem> conditions = view.getWhereConditions().getList();
             // fix conditions: value of condition do not generate xquery.

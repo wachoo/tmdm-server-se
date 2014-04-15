@@ -44,6 +44,8 @@ public class User implements Cloneable {
 
     String universe;
 
+    String language;
+
     Set<Role> roles;
 
     Map<String, String> properties;
@@ -78,7 +80,8 @@ public class User implements Cloneable {
                 + (registrationDateAsLong == 0 ? System.currentTimeMillis() : registrationDateAsLong) + "</registrationdate>"
                 + "    <lastvisitdate>" + lastVisitDateAsLong + "</lastvisitdate>" + "    <enabled>" + (enabled ? "yes" : "no")
                 + "</enabled>" + "    <homepage>" + homePage + "</homepage>" + "    <universe>"
-                + (universe == null ? "" : universe) + "</universe>";
+                + (universe == null ? "" : universe) + "</universe>" + "    <language>" + (language == null ? "" : language)
+                + "</language>";
         user += "    <roles>";
         Iterator<String> iter = roleNames.iterator();
         while (iter.hasNext()) {
@@ -148,6 +151,7 @@ public class User implements Cloneable {
             user.setEnabled("yes".equals(Util.getFirstTextNode(result, "//enabled")));
             user.setHomePage(Util.getFirstTextNode(result, "//homepage"));
             user.setUniverse(Util.getFirstTextNode(result, "//universe"));
+            user.setLanguage(Util.getFirstTextNode(result, "//language"));
 
             String[] roles = Util.getTextNodes(result, "//roles/role");
             HashSet<String> rs = new HashSet<String>();
@@ -348,6 +352,14 @@ public class User implements Cloneable {
 
     public void setUniverse(String universe) {
         this.universe = universe;
+    }
+
+    public String getLanguage() {
+        return this.language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     @Override

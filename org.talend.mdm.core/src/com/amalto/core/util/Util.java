@@ -195,8 +195,12 @@ public class Util {
 
     private static DocumentBuilderFactory nonValidatingDocumentBuilderFactory;
 
+    private static ScriptEngine SCRIPTENGINE;
+
     static {
         LoginModuleDelegator.setDelegateClassLoader(Util.class.getClassLoader());
+        ScriptEngineManager scriptFactory = new ScriptEngineManager();
+        SCRIPTENGINE = scriptFactory.getEngineByName("groovy"); //$NON-NLS-1$
     }
 
     /**
@@ -2035,11 +2039,10 @@ public class Util {
         return metaDataTypes;
     }
 
-    /**
-     * fix the web conditions.
-     * 
-     */
-    public static IWhereItem fixWebConditions(IWhereItem whereItem) throws XmlServerException {
+    public static IWhereItem fixWebConditions(IWhereItem whereItem, String userXML) throws Exception {
+        User user = User.parse(userXML);
+        SCRIPTENGINE.put("user_context", user);//$NON-NLS-1$
+
         if (whereItem == null) {
             return null;
         }
@@ -2048,10 +2051,16 @@ public class Util {
 
             for (int i = subItems.size() - 1; i >= 0; i--) {
                 IWhereItem item = subItems.get(i);
-                item = fixWebConditions(item);
+                item = fixWebConditions(item, userXML);
 
                 if (item instanceof WhereLogicOperator) {
                     if (((WhereLogicOperator) item).getItems().size() == 0) {
+                        subItems.remove(i);
+                    }
+                } else if (item instanceof WhereCondition) {
+                    WhereCondition condition = (WhereCondition) item;
+                    if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
+                            && condition.getRightValueOrPath().contains(USER_PROPERTY_START_WITH)) {
                         subItems.remove(i);
                     }
                 } else if (item == null) {
@@ -2060,6 +2069,25 @@ public class Util {
             }
         } else if (whereItem instanceof WhereCondition) {
             WhereCondition condition = (WhereCondition) whereItem;
+
+            if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
+                    && condition.getRightValueOrPath().contains(USER_PROPERTY_START_WITH)) {
+
+                String rightCondition = condition.getRightValueOrPath();
+                String userExpression = rightCondition.substring(rightCondition.indexOf("{") + 1, rightCondition.indexOf("}"));//$NON-NLS-1$ //$NON-NLS-2$
+                try {
+                    Object expressionValue = SCRIPTENGINE.eval(userExpression);
+                    if (expressionValue != null) {
+                        String result = String.valueOf(expressionValue);
+                        if (!"".equals(result.trim())) {
+                            condition.setRightValueOrPath(result);
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.debug("No such property " + userExpression);
+                }
+            }
+
             whereItem = "*".equals(condition.getRightValueOrPath()) || condition.getRightValueOrPath().length() == 0 //$NON-NLS-1$
                     || ".*".equals(condition.getRightValueOrPath()) ? null : whereItem; //$NON-NLS-1$
         } else {
@@ -2093,13 +2121,13 @@ public class Util {
         }
     }
 
-    public static Boolean isContainUserProperty(ArrayList conditions) {
+    public static Boolean isContainUserProperty(List conditions) {
         for (int i = conditions.size() - 1; i >= 0; i--) {
             if (conditions.get(i) instanceof WhereCondition) {
                 WhereCondition condition = (WhereCondition) conditions.get(i);
 
                 if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
-                        && condition.getRightValueOrPath().indexOf(USER_PROPERTY_START_WITH) >= 0) {
+                        && condition.getRightValueOrPath().contains(USER_PROPERTY_START_WITH)) {
                     return true;
                 }
             }
@@ -2107,26 +2135,33 @@ public class Util {
         return false;
     }
 
-    public static void updateUserPropertyCondition(ArrayList conditions, String userXML) throws Exception {
+    public static void updateUserPropertyCondition(List conditions, String userXML) throws Exception {
         User user = User.parse(userXML);
+        SCRIPTENGINE.put("user_context", user);//$NON-NLS-1$
 
-        ScriptEngineManager factory = new ScriptEngineManager();
-        ScriptEngine engine = factory.getEngineByName("groovy");
-        engine.put("user_context", user);
-
-        for (int i = 0; i < conditions.size(); i++) {
+        for (int i = conditions.size() - 1; i >= 0; i--) {
             if (conditions.get(i) instanceof WhereCondition) {
                 WhereCondition condition = (WhereCondition) conditions.get(i);
                 if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
-                        && condition.getRightValueOrPath().indexOf(USER_PROPERTY_START_WITH) >= 0) {
+                        && condition.getRightValueOrPath().contains(USER_PROPERTY_START_WITH)) {
 
                     String rightCondition = condition.getRightValueOrPath();
-                    String userExpresson = rightCondition.substring(rightCondition.indexOf("{") + 1, rightCondition.indexOf("}"));
-                    String result = (String) engine.eval(userExpresson);
-
-                    if (result != null) {
-                        condition.setRightValueOrPath(result);
-                    } else {
+                    String userExpression = rightCondition
+                            .substring(rightCondition.indexOf("{") + 1, rightCondition.indexOf("}"));//$NON-NLS-1$ //$NON-NLS-2$
+                    try {
+                        Object expressionValue = SCRIPTENGINE.eval(userExpression);
+                        if (expressionValue != null) {
+                            String result = String.valueOf(expressionValue);
+                            if (!"".equals(result.trim())) {
+                                condition.setRightValueOrPath(result);
+                            } else {
+                                conditions.remove(i);
+                            }
+                        } else {
+                            conditions.remove(i);
+                        }
+                    } catch (Exception e) {
+                        LOGGER.debug("No such property " + userExpression);
                         conditions.remove(i);
                     }
                 }
