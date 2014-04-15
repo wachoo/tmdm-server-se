@@ -59,6 +59,7 @@ import com.amalto.core.query.user.StringConstant;
 import com.amalto.core.query.user.TimeConstant;
 import com.amalto.core.query.user.UnaryLogicOperator;
 import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.query.user.metadata.MetadataField;
 import com.amalto.core.query.user.metadata.StagingBlockKey;
 import com.amalto.core.query.user.metadata.StagingError;
 import com.amalto.core.query.user.metadata.StagingSource;
@@ -105,9 +106,9 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         } else if (condition.getPredicate() == Predicate.GREATER_THAN
                 || condition.getPredicate() == Predicate.GREATER_THAN_OR_EQUALS
                 || condition.getPredicate() == Predicate.LOWER_THAN || condition.getPredicate() == Predicate.LOWER_THAN_OR_EQUALS) {
-            throw new RuntimeException("Greater than, less than are not supported in full text searches.");
+            throw new RuntimeException("Greater than, less than are not supported in full text searches."); //$NON-NLS-1$
         } else {
-            throw new NotImplementedException("No support for predicate '" + condition.getPredicate() + "'");
+            throw new NotImplementedException("No support for predicate '" + condition.getPredicate() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
@@ -123,7 +124,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
             query.add(left, isNotQuery(left) ? BooleanClause.Occur.SHOULD : BooleanClause.Occur.MUST);
             query.add(right, isNotQuery(right) ? BooleanClause.Occur.SHOULD : BooleanClause.Occur.MUST);
         } else {
-            throw new NotImplementedException("No support for '" + condition.getPredicate() + "'.");
+            throw new NotImplementedException("No support for '" + condition.getPredicate() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return query;
     }
@@ -147,20 +148,32 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
             isBuildingNot = false;
             return query;
         } else {
-            throw new NotImplementedException("No support for predicate '" + condition.getPredicate() + "'.");
+            throw new NotImplementedException("No support for predicate '" + condition.getPredicate() + "'."); //$NON-NLS-1$//$NON-NLS-2$
         }
     }
 
     @Override
     public Query visit(Range range) {
-        if (range.getExpression() instanceof Timestamp) {
-            currentFieldName = Storage.METADATA_TIMESTAMP;
+        if (range.getExpression() instanceof MetadataField) {
+            if (range.getExpression() instanceof Timestamp) {
+                Timestamp field = (Timestamp) range.getExpression();
+                field.accept(this);
+            } else {
+                MetadataField field = (MetadataField) range.getExpression();
+                field.getProjectionExpression().accept(this);
+            }
         }
         range.getStart().accept(this);
         Long currentRangeStart = ((Long) currentValue) == Long.MIN_VALUE ? null : (Long) currentValue;
         range.getEnd().accept(this);
         Long currentRangeEnd = ((Long) currentValue) == Long.MAX_VALUE ? null : (Long) currentValue;
         return NumericRangeQuery.newLongRange(currentFieldName, currentRangeStart, currentRangeEnd, true, true);
+    }
+
+    @Override
+    public Query visit(Timestamp timestamp) {
+        currentFieldName = Storage.METADATA_TIMESTAMP;
+        return null;
     }
 
     @Override
@@ -201,6 +214,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
     @Override
     public Query visit(Alias alias) {
+        currentFieldName = alias.getAliasName();
         return null;
     }
 
@@ -350,7 +364,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         try {
             return parser.parse(fullTextQuery);
         } catch (ParseException e) {
-            throw new RuntimeException("Invalid generated Lucene query", e);
+            throw new RuntimeException("Invalid generated Lucene query", e); //$NON-NLS-1$
         }
     }
 
@@ -381,7 +395,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         for (char remove : removes) {
             value = value.replace(remove, ' ');
         }
-        if (!value.endsWith("*")) {
+        if (!value.endsWith("*")) { //$NON-NLS-1$
             value += '*';
         }
         return value;
