@@ -23,6 +23,8 @@ import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DOMDocument implements DOMMutableDocument {
 

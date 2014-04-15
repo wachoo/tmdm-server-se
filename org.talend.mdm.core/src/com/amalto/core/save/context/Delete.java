@@ -23,7 +23,7 @@ import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 
-class Save implements DocumentSaver {
+class Delete implements DocumentSaver {
 
     private String[] savedId = new String[0];
 
@@ -37,7 +37,7 @@ class Save implements DocumentSaver {
         if (!StringUtils.EMPTY.equals(context.getTaskId())) {
             databaseDocument.setTaskId(context.getTaskId());
         }
-        session.save(context.getDataCluster(), databaseDocument);
+        session.delete(context.getDataCluster(), databaseDocument);
         // Save update report (if any)
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
         if (updateReportDocument != null) {
@@ -70,7 +70,6 @@ class Save implements DocumentSaver {
         // Call session's save to save all items in correct order (one transaction per data cluster for the XML db).
         session.save(UpdateReport.UPDATE_REPORT_DATA_MODEL, updateReportDocument);
     }
-
 
     public String[] getSavedId() {
         return savedId;

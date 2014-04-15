@@ -18,7 +18,7 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.context.DocumentSaver;
 
-public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
+public class PartialUpdateSaverContext implements DocumentSaverContext {
 
     private final DocumentSaverContext delegate;
 
@@ -62,6 +62,11 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
         } else {
             return new PartialUpdateSaverContext(context, pivot, key, index, overwrite, UserAction.UPDATE);
         }
+    }
+
+    @Override
+    public String getChangeSource() {
+        return delegate.getChangeSource();
     }
 
     public DocumentSaver createSaver() {
@@ -113,16 +118,6 @@ public class PartialUpdateSaverContext extends AbstractDocumentSaverContext {
     @Override
     public void setRevisionId(String revisionID) {
         delegate.setRevisionId(revisionID);
-    }
-
-    @Override
-    public boolean hasMetAutoIncrement() {
-        return delegate.hasMetAutoIncrement();
-    }
-
-    @Override
-    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
-        delegate.setHasMetAutoIncrement(hasMetAutoIncrement);
     }
 
     @Override

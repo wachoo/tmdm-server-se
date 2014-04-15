@@ -12,7 +12,7 @@
 package com.amalto.core.history;
 
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.history.accessor.DOMAccessorFactory;
+import com.amalto.core.history.accessor.NoOpAccessor;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
@@ -46,7 +46,7 @@ public class EmptyDocument implements MutableDocument {
     }
 
     public Accessor createAccessor(String path) {
-        return DOMAccessorFactory.createAccessor(path, this);
+        return NoOpAccessor.INSTANCE;
     }
 
     public org.w3c.dom.Document asDOM() {

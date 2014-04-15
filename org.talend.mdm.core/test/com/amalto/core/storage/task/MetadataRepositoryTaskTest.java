@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.history.DeleteType;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import junit.framework.TestCase;
 
@@ -337,6 +338,11 @@ public class MetadataRepositoryTaskTest extends TestCase {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(item.exportToString());
             }
+        }
+
+        @Override
+        public void delete(com.amalto.core.history.Document item, DeleteType type) {
+
         }
 
         @Override

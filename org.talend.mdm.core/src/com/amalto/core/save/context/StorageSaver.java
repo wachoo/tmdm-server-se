@@ -13,7 +13,7 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.save.AbstractDocumentSaverContext;
+import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
@@ -21,22 +21,16 @@ import com.amalto.core.storage.StorageType;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-public class StorageSaver extends AbstractDocumentSaverContext {
+public class StorageSaver implements DocumentSaverContext {
 
     private final Storage storage;
-
-    private final Map<String, String> autoIncrementFieldMap = new HashMap<String, String>();
 
     private List<Action> actions = new LinkedList<Action>();
 
     private String revisionId = "HEAD"; //$NON-NLS-1$
-
-    private boolean hasMetAutoIncrement;
 
     private String taskId = StringUtils.EMPTY;
 
@@ -71,6 +65,11 @@ public class StorageSaver extends AbstractDocumentSaverContext {
         this.updateReport = updateReport;
         this.validate = validate;
         this.preserveOldCollectionValues = false;
+    }
+
+    @Override
+    public String getChangeSource() {
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -168,16 +167,6 @@ public class StorageSaver extends AbstractDocumentSaverContext {
     }
 
     @Override
-    public boolean hasMetAutoIncrement() {
-        return hasMetAutoIncrement;
-    }
-
-    @Override
-    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
-        this.hasMetAutoIncrement = hasMetAutoIncrement;
-    }
-
-    @Override
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
@@ -225,11 +214,6 @@ public class StorageSaver extends AbstractDocumentSaverContext {
     @Override
     public int getPartialUpdateIndex() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, String> getAutoIncrementFieldMap() {
-        return autoIncrementFieldMap;
     }
 
     @Override

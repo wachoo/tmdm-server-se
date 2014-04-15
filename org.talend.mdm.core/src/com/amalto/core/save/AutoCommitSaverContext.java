@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
-public class AutoCommitSaverContext extends AbstractDocumentSaverContext {
+public class AutoCommitSaverContext implements DocumentSaverContext {
 
     private final DocumentSaverContext delegate;
 
@@ -62,8 +62,18 @@ public class AutoCommitSaverContext extends AbstractDocumentSaverContext {
     }
 
     @Override
+    public int getPartialUpdateIndex() {
+        return delegate.getPartialUpdateIndex();
+    }
+
+    @Override
     public boolean generateTouchActions() {
         return delegate.generateTouchActions();
+    }
+
+    @Override
+    public String getChangeSource() {
+        return delegate.getChangeSource();
     }
 
     @Override
@@ -119,16 +129,6 @@ public class AutoCommitSaverContext extends AbstractDocumentSaverContext {
     @Override
     public void setRevisionId(String revisionID) {
         delegate.setRevisionId(revisionID);
-    }
-
-    @Override
-    public boolean hasMetAutoIncrement() {
-        return delegate.hasMetAutoIncrement();
-    }
-
-    @Override
-    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
-        delegate.setHasMetAutoIncrement(hasMetAutoIncrement);
     }
 
     @Override

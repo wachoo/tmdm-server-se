@@ -52,7 +52,7 @@ public class StringActions {
         }
 
         @Override
-        protected String getNewValue() {
+        public String getNewValue() {
             return super.getOldValue() + super.getNewValue();
         }
     }
@@ -69,7 +69,7 @@ public class StringActions {
         }
 
         @Override
-        protected String getNewValue() {
+        public String getNewValue() {
             String newValue = super.getNewValue();
             String oldValue = super.getOldValue();
             if (newValue.length() >= oldValue.length()) {
@@ -92,7 +92,7 @@ public class StringActions {
         }
 
         @Override
-        protected String getNewValue() {
+        public String getNewValue() {
             String newValue = super.getNewValue();
             String oldValue = super.getOldValue();
             if (newValue.length() < oldValue.length()) {

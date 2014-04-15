@@ -1,5 +1,6 @@
 package com.amalto.core.save.context;
 
+import com.amalto.core.history.accessor.NoOpAccessor;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -17,8 +18,6 @@ import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 
 class UpdateReportDocument extends DOMDocument {
-
-    private static final NoOpAccessor NO_OP_ACCESSOR = new NoOpAccessor();
 
     private final Document updateReportDocument;
 
@@ -131,7 +130,7 @@ class UpdateReportDocument extends DOMDocument {
         } else {  // isCreated
             // TODO Don't record changes on created record (but uncomment line below and it will).
             // return new FieldChangeRecorder(path, this);
-            return NO_OP_ACCESSOR;
+            return NoOpAccessor.INSTANCE;
         }
     }
 
@@ -218,57 +217,4 @@ class UpdateReportDocument extends DOMDocument {
         }
     }
 
-    private static class NoOpAccessor implements Accessor {
-        public void set(String value) {
-        }
-
-        public String get() {
-            return StringUtils.EMPTY;
-        }
-
-        public void touch() {
-        }
-
-        public void create() {
-        }
-
-        @Override
-        public void insert() {
-        }
-
-        public void createAndSet(String value) {
-        }
-
-        public void delete() {
-        }
-
-        public boolean exist() {
-            return true;
-        }
-
-        public void markModified(Marker marker) {
-        }
-
-        public void markUnmodified() {
-        }
-
-        public int size() {
-            return 0;
-        }
-
-        public String getActualType() {
-            return StringUtils.EMPTY;
-        }
-
-        @Override
-        public int compareTo(Accessor accessor) {
-            if (exist() != accessor.exist()) {
-                return -1;
-            }
-            if (exist()) {
-                return get().equals(accessor.get()) ? 0 : -1;
-            }
-            return -1;
-        }
-    }
 }

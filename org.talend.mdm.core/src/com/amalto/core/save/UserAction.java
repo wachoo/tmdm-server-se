@@ -34,5 +34,15 @@ public enum UserAction {
      * User has only sent values that should be modified in database. Using {@link com.amalto.core.save.DocumentSaverContext#getPartialUpdatePivot()}
      * and {@link DocumentSaverContext#getPartialUpdateKey()}, user can perform selective changes.
      */
-    PARTIAL_UPDATE
+    PARTIAL_UPDATE,
+    /**
+     * User deletes the record but sends it to the MDM trash.
+     * @see #PHYSICAL_DELETE
+     */
+    LOGICAL_DELETE,
+    /**
+     * User deletes the record from MDM, no recovery is possible.
+     * @see #LOGICAL_DELETE
+     */
+    PHYSICAL_DELETE
 }

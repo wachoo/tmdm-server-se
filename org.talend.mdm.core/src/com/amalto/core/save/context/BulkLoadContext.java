@@ -13,17 +13,17 @@ package com.amalto.core.save.context;
 import java.io.InputStream;
 import java.util.List;
 
+import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.server.XmlServer;
 import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
-import com.amalto.core.save.AbstractDocumentSaverContext;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.util.XSDKey;
 
-class BulkLoadContext extends AbstractDocumentSaverContext {
+class BulkLoadContext implements DocumentSaverContext {
 
     private final String dataCluster;
 
@@ -36,6 +36,11 @@ class BulkLoadContext extends AbstractDocumentSaverContext {
         this.dataCluster = dataCluster;
         this.dataModelName = dataModelName;
         bulkLoadSaver = new BulkLoadSaver(loadAction, documentStream, keyMetadata, server);
+    }
+
+    @Override
+    public String getChangeSource() {
+        return StringUtils.EMPTY;
     }
 
     public DocumentSaver createSaver() {
@@ -90,14 +95,6 @@ class BulkLoadContext extends AbstractDocumentSaverContext {
         throw new UnsupportedOperationException();
     }
 
-    public boolean hasMetAutoIncrement() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
-        throw new UnsupportedOperationException();
-    }
-
     public void setTaskId(String taskId) {
         throw new UnsupportedOperationException();
     }
@@ -132,6 +129,11 @@ class BulkLoadContext extends AbstractDocumentSaverContext {
 
     public String getPartialUpdateKey() {
         return StringUtils.EMPTY;
+    }
+
+    @Override
+    public int getPartialUpdateIndex() {
+        throw new UnsupportedOperationException("No supported in this implementation.");
     }
 
     @Override

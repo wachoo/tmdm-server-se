@@ -13,15 +13,14 @@ package com.amalto.core.save.context;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.amalto.core.save.DocumentSaverContext;
 import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.save.AbstractDocumentSaverContext;
 import com.amalto.core.save.UserAction;
 
-class SystemContext extends AbstractDocumentSaverContext {
+class SystemContext implements DocumentSaverContext {
 
     private final String dataCluster;
 
@@ -44,6 +43,11 @@ class SystemContext extends AbstractDocumentSaverContext {
         this.dataModelName = dataModelName;
         this.userDocument = document;
         this.userAction = userAction;
+    }
+
+    @Override
+    public String getChangeSource() {
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -104,15 +108,6 @@ class SystemContext extends AbstractDocumentSaverContext {
     }
 
     @Override
-    public boolean hasMetAutoIncrement() {
-        return false;
-    }
-
-    @Override
-    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
-    }
-
-    @Override
     public void setTaskId(String taskId) {
         throw new UnsupportedOperationException();
     }
@@ -155,6 +150,11 @@ class SystemContext extends AbstractDocumentSaverContext {
     @Override
     public String getPartialUpdateKey() {
         return StringUtils.EMPTY;
+    }
+
+    @Override
+    public int getPartialUpdateIndex() {
+        return -1;
     }
 
     @Override

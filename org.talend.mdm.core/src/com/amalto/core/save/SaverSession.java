@@ -1,30 +1,27 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.save;
 
+import java.util.*;
+
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
+import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class SaverSession {
 
@@ -32,24 +29,20 @@ public class SaverSession {
 
     private static final Map<String, SaverSource> saverSourcePerUser = new HashMap<String, SaverSource>();
 
+    private static SaverSource defaultSaverSource;
+
+    private static Committer defaultCommitter;
+
     private final SaverContextFactory contextFactory = new SaverContextFactory();
 
     private final Map<String, List<Document>> itemsPerDataCluster = new HashMap<String, List<Document>>();
 
     private final SaverSource dataSource;
 
-    private static SaverSource defaultSaverSource;
-
-    private static Committer defaultCommitter;
-
     private boolean hasMetAutoIncrement = false;
 
     public SaverSession(SaverSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    public static void setDefaultCommitter(Committer committer) {
-        defaultCommitter = committer;
     }
 
     /**
@@ -84,13 +77,23 @@ public class SaverSession {
         return new SaverSession(dataSource);
     }
 
+    /**
+     * To check whether this item's concept model is "AutoIncrement" or not.
+     * 
+     * @param item The item to be checked.
+     * @return <code>true</code> if item is an AutoIncrement document, <code>false</code> otherwise.
+     */
+    private static boolean isAutoIncrementItem(Document item) {
+        return item.getType().getName().equals(AUTO_INCREMENT_TYPE_NAME);
+    }
+
     public SaverContextFactory getContextFactory() {
         return contextFactory;
     }
 
     /**
      * Start a transaction for this session on a given data cluster.
-     *
+     * 
      * @param dataCluster The data cluster where a transaction should be started.
      */
     public void begin(String dataCluster) {
@@ -104,11 +107,15 @@ public class SaverSession {
         return defaultCommitter;
     }
 
+    public static void setDefaultCommitter(Committer committer) {
+        defaultCommitter = committer;
+    }
+
     /**
      * Start a transaction for this session on a given data cluster.
-     *
+     * 
      * @param dataCluster The data cluster where a transaction should be started.
-     * @param committer   A {@link Committer} committer for interaction between save session and underlying storage.
+     * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
      */
     public void begin(String dataCluster, Committer committer) {
         synchronized (itemsPerDataCluster) {
@@ -128,7 +135,7 @@ public class SaverSession {
 
     /**
      * End this session (means commit on all data clusters where a transaction was started).
-     *
+     * 
      * @param committer A {@link Committer} committer to use when committing transactions on underlying storage.
      */
     public void end(Committer committer) {
@@ -165,7 +172,7 @@ public class SaverSession {
                     Collection<FieldMetadata> keyFields = document.getType().getKeyFields();
                     String[] itemsId = new String[keyFields.size()];
                     int i = 0;
-                    for (FieldMetadata keyField : keyFields){
+                    for (FieldMetadata keyField : keyFields) {
                         itemsId[i++] = document.createAccessor(keyField.getName()).get();
                     }
                     saverSource.routeItem(dataCluster, typeName, itemsId);
@@ -193,28 +200,37 @@ public class SaverSession {
     }
 
     /**
-     * To check whether this item's concept model is "AutoIncrement" or not
-     *
-     * @param item The item to be checked.
-     * @return <code>true</code> if item is an AutoIncrement document, <code>false</code> otherwise.
-     */
-    private static boolean isAutoIncrementItem(Document item) {
-        return item.getType().getName().equals(AUTO_INCREMENT_TYPE_NAME);
-    }
-
-    /**
      * Adds a new record to be saved in this session.
-     *
-     * @param dataCluster         Data cluster where the record should be saved.
-     * @param document          The item to save.
-     * @param hasMetAutoIncrement <code>true</code> if AUTO_INCREMENT type has been met during save of <code>item</code>,
-     *                            <code>false</code> otherwise.
+     * @param dataCluster Data cluster where the record should be saved.
+     * @param document The item to save.
      */
-    public void save(String dataCluster, Document document, boolean hasMetAutoIncrement) {
+    public void save(String dataCluster, Document document) {
         synchronized (itemsPerDataCluster) {
             if (!this.hasMetAutoIncrement) {
-                this.hasMetAutoIncrement = hasMetAutoIncrement;
+                Collection<FieldMetadata> keyFields = document.getType().getKeyFields();
+                boolean hasAutoincrementKey = false;
+                for (FieldMetadata keyField : keyFields) {
+                    hasAutoincrementKey = EUUIDCustomType.AUTO_INCREMENT.getName().equals(keyField.getType().getName());
+                }
+                this.hasMetAutoIncrement = hasAutoincrementKey;
             }
+
+            List<Document> documentsToSave = itemsPerDataCluster.get(dataCluster);
+            if (documentsToSave == null) {
+                documentsToSave = new ArrayList<Document>();
+                itemsPerDataCluster.put(dataCluster, documentsToSave);
+            }
+            documentsToSave.add(document);
+        }
+    }
+    
+    /**
+     * Adds a new record to be saved in this session.
+     * @param dataCluster Data cluster where the record should be saved.
+     * @param document The item to save.
+     */
+    public void delete(String dataCluster, Document document) {
+        synchronized (itemsPerDataCluster) {
             List<Document> documentsToSave = itemsPerDataCluster.get(dataCluster);
             if (documentsToSave == null) {
                 documentsToSave = new ArrayList<Document>();
@@ -240,7 +256,7 @@ public class SaverSession {
 
     /**
      * Aborts current transaction (means rollback on all data clusters where a transaction was started).
-     *
+     * 
      * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
      */
     public void abort(Committer committer) {
@@ -254,8 +270,8 @@ public class SaverSession {
     }
 
     /**
-     * Invalidate any type cache for the data model.
-     *
+     * Invalidate any type cache entry for the data model.
+     * 
      * @param dataModelName A data model name.
      */
     public void invalidateTypeCache(String dataModelName) {
@@ -263,31 +279,40 @@ public class SaverSession {
     }
 
     public interface Committer {
+
         /**
          * Begin a transaction on a data cluster
-         *
+         * 
          * @param dataCluster A data cluster name.
          */
         void begin(String dataCluster);
 
         /**
          * Commit a transaction on a data cluster
-         *
+         * 
          * @param dataCluster A data cluster name
          */
         void commit(String dataCluster);
 
         /**
          * Saves a MDM record for a given revision.
-         *
-         * @param item       The item to save.
-         *
+         * 
+         * @param item The item to save.
          */
         void save(Document item);
 
         /**
+         * Deletes a MDM record.
+         * 
+         * @param item The item to delete.
+         * @param type The type of delete to perform (either {@link com.amalto.core.history.DeleteType#LOGICAL logical}
+         * or {@link com.amalto.core.history.DeleteType#PHYSICAL physical}).
+         */
+        void delete(Document item, DeleteType type);
+
+        /**
          * Rollbacks changes done on a data cluster.
-         *
+         * 
          * @param dataCluster Data cluster name.
          */
         void rollback(String dataCluster);

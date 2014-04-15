@@ -10,14 +10,12 @@
 
 package com.amalto.core.save.context;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.amalto.core.history.action.FieldUpdateAction;
+import com.amalto.core.history.action.LogicalDeleteAction;
+import com.amalto.core.history.action.PhysicalDeleteAction;
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -25,11 +23,10 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.save.PartialUpdateSaverContext;
-import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.util.SynchronizedNow;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 
 class GenerateActions implements DocumentSaver {
 
@@ -49,64 +46,49 @@ class GenerateActions implements DocumentSaver {
             throw new IllegalStateException("Database document is expected to be set.");
         }
         // Get source of modification (only if we're in the context of an update report).
-        String source;
-        if (context instanceof ReportDocumentSaverContext) {
-            source = ((ReportDocumentSaverContext) context).getChangeSource();
-        } else if (context instanceof PartialUpdateSaverContext) {
-            DocumentSaverContext delegate = ((PartialUpdateSaverContext) context).getDelegate();
-            if (delegate instanceof ReportDocumentSaverContext){
-                source = ((ReportDocumentSaverContext) delegate).getChangeSource();
-            } else {
-                source = StringUtils.EMPTY;
-            }
-        } else {
-            source = StringUtils.EMPTY;
-        }
+        String source = context.getChangeSource();
         long mdmUpdateTime = now.getTime();
         Date date = new Date(mdmUpdateTime);
         SaverSource saverSource = session.getSaverSource();
         String userName = saverSource.getUserName();
-
         ComplexTypeMetadata type = context.getUserDocument().getType();
         String universe = saverSource.getUniverse();
+        // Generate actions
         List<Action> actions;
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
         // Generate field update actions for UUID and AutoIncrement elements.
-        UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument,
-                userDocument,
-                date,
-                source,
-                userName,
-                context.generateTouchActions(),
-                metadataRepository);
+        UpdateActionCreator updateActions = new UpdateActionCreator(databaseDocument, userDocument, date, source, userName,
+                context.generateTouchActions(), metadataRepository);
         UserAction userAction = context.getUserAction();
         switch (userAction) {
         case CREATE:
-            CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(), context.getDataModelName(),
-                    universe, saverSource, context.getAutoIncrementFieldMap());
+            CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(),
+                    context.getDataModelName(), universe, saverSource);
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, type);
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();
             actions.add(createAction);
             actions.addAll(type.accept(createActions));
             actions.addAll(type.accept(updateActions));
-            context.setHasMetAutoIncrement(createActions.hasMetAutoIncrement());
-            List<String> idValues = new LinkedList<String>();
-            Map<String,String> idValueMap = createActions.getIdValueMap();
-            // TODO This piece of code may have serious issues if key follows: (AUTO_INC, document value, UUID)
+            // Get all actions on the id for the type
             Collection<FieldMetadata> keys = type.getKeyFields();
-            // This guarantees key values are in correct order with key fields (for cases where ID is
-            // composed of mixed AUTO_INCREMENT and user fields).
-            for (FieldMetadata fieldMetadata : keys) {
-                if (idValueMap.get(fieldMetadata.getName()) != null) {
-                    idValues.add(idValueMap.get(fieldMetadata.getName()));
+            List<String> idValues = new ArrayList<String>(keys.size());
+            for (FieldMetadata key : keys) {
+                if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(key.getType().getName())) {
+                    for (Action action : actions) {
+                        if (action instanceof FieldUpdateAction) {
+                            FieldUpdateAction fieldUpdateAction = (FieldUpdateAction) action;
+                            if (key.equals(fieldUpdateAction.getField())) {
+                                idValues.add(fieldUpdateAction.getNewValue());
+                            }
+                        }
+                    }
+                } else {
+                    idValues.add(context.getUserDocument().createAccessor(key.getPath()).get());
                 }
             }
             // Join ids read from XML document and generated ID values.
-            String[] joinIds = new String[context.getId().length + idValues.size()];
-            System.arraycopy(context.getId(), 0, joinIds, 0, context.getId().length);
-            System.arraycopy(idValues.toArray(new String[idValues.size()]), 0, joinIds, context.getId().length, idValues.size());
-            context.setId(joinIds);
+            context.setId(idValues.toArray(new String[idValues.size()]));
             break;
         case UPDATE:
             // get updated paths
@@ -122,25 +104,57 @@ class GenerateActions implements DocumentSaver {
             break;
         case PARTIAL_UPDATE:
             PartialUpdateActionCreator partialUpdateActionCreator = new PartialUpdateActionCreator(databaseDocument,
-                    userDocument,
-                    date,
-                    context.preserveOldCollectionValues(),
-                    context.getPartialUpdateIndex(),
-                    context.getPartialUpdatePivot(),
-                    context.getPartialUpdateKey(),
-                    source,
-                    userName,
-                    context.generateTouchActions(),
-                    metadataRepository);
+                    userDocument, date, context.preserveOldCollectionValues(), context.getPartialUpdateIndex(),
+                    context.getPartialUpdatePivot(), context.getPartialUpdateKey(), source, userName,
+                    context.generateTouchActions(), metadataRepository);
             actions = type.accept(partialUpdateActionCreator);
+            break;
+        case LOGICAL_DELETE:
+            actions = Collections.<Action> singletonList(new LogicalDeleteAction(date, source, userName, type));
+            break;
+        case PHYSICAL_DELETE:
+            actions = Collections.<Action> singletonList(new PhysicalDeleteAction(date, source, userName, type));
             break;
         default:
             throw new NotImplementedException("Support for '" + userAction + "'.");
         }
-        context.setActions(actions);
-
+        // Handle generated actions
+        if (!context.getActions().isEmpty()) {
+            // Actions were previously generated, now check if there was previously generated ones (keep everything on id then).
+            List<Action> mergedActions = new LinkedList<Action>();
+            // Get all actions on id fields
+            Map<FieldMetadata, Action> keyActions = new HashMap<FieldMetadata, Action>();
+            for (Action action : context.getActions()) {
+                if (action instanceof FieldUpdateAction) {
+                    FieldUpdateAction fieldUpdateAction = (FieldUpdateAction) action;
+                    FieldMetadata field = fieldUpdateAction.getField();
+                    if (field.isKey()) {
+                        keyActions.put(field, action);
+                    }
+                }
+            }
+            // Now merge the actions
+            for (Action action : actions) {
+                if (action instanceof FieldUpdateAction) {
+                    FieldUpdateAction fieldUpdateAction = (FieldUpdateAction) action;
+                    FieldMetadata field = fieldUpdateAction.getField();
+                    if (field.isKey()) {
+                        mergedActions.add(keyActions.get(field));
+                    } else {
+                        mergedActions.add(action);
+                    }
+                } else {
+                    mergedActions.add(action);
+                }
+            }
+            context.setActions(mergedActions);
+        } else {
+            // No previously generated actions, replace actions in context.
+            context.setActions(actions);
+        }
+        // Ignore rest of save chain if there's no change to perform.
         boolean hasModificationActions = hasModificationActions(actions);
-        if (hasModificationActions) { // Ignore rest of save chain if there's no change to perform.
+        if (hasModificationActions) {
             next.save(session, context);
         }
     }

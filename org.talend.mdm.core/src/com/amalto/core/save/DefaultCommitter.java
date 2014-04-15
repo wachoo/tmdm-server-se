@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.amalto.core.history.DeleteType;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
@@ -94,5 +95,10 @@ public class DefaultCommitter implements SaverSession.Committer {
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void delete(Document item, DeleteType type) {
+
     }
 }

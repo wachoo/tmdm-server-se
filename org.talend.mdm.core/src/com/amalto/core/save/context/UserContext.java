@@ -13,15 +13,15 @@ package com.amalto.core.save.context;
 import java.util.Collections;
 import java.util.List;
 
+import com.amalto.core.save.DocumentSaverContext;
 import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.save.AbstractDocumentSaverContext;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.server.StorageAdmin;
 
-class UserContext extends AbstractDocumentSaverContext {
+class UserContext implements DocumentSaverContext {
 
     private final String dataCluster;
 
@@ -45,8 +45,6 @@ class UserContext extends AbstractDocumentSaverContext {
 
     private MutableDocument dataBaseDocument;
 
-    private boolean hasMetAutoIncrement;
-
     private String taskId = StringUtils.EMPTY;
 
     UserContext(String dataCluster, String dataModel, MutableDocument userDocument, UserAction userAction, boolean validate,
@@ -58,6 +56,11 @@ class UserContext extends AbstractDocumentSaverContext {
         this.validate = validate;
         this.invokeBeforeSaving = invokeBeforeSaving;
         this.updateReport = updateReport;
+    }
+
+    @Override
+    public String getChangeSource() {
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -129,16 +132,6 @@ class UserContext extends AbstractDocumentSaverContext {
     }
 
     @Override
-    public boolean hasMetAutoIncrement() {
-        return hasMetAutoIncrement;
-    }
-
-    @Override
-    public void setHasMetAutoIncrement(boolean hasMetAutoIncrement) {
-        this.hasMetAutoIncrement = hasMetAutoIncrement;
-    }
-
-    @Override
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
@@ -183,6 +176,11 @@ class UserContext extends AbstractDocumentSaverContext {
     @Override
     public String getPartialUpdateKey() {
         return StringUtils.EMPTY;
+    }
+
+    @Override
+    public int getPartialUpdateIndex() {
+        return -1;
     }
 
     @Override

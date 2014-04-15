@@ -11,11 +11,9 @@
 package com.amalto.core.save.context;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
 
@@ -62,15 +60,9 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     
     private final String dataModel;
 
-    private final Map<String, String> idValueMap = new HashMap<String, String>();
-
     private final MutableDocument document;
 
-    private boolean hasMetAutoIncrement;
-
     private String rootTypeName = null;
-
-    private final Map<String, String> autoIncrementFieldMap;
 
     private static class PathElement {
 
@@ -85,14 +77,13 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     }
 
     CreateActions(MutableDocument document,
-                  Date date,
-                  String source,
-                  String userName,
-                  String dataCluster,
-                  String dataModel,
-                  String universe,
-                  SaverSource saverSource,
-                  Map<String, String> autoIncrementFieldMap) {
+            Date date,
+            String source,
+            String userName,
+            String dataCluster,
+            String dataModel,
+            String universe,
+            SaverSource saverSource) {
         this.document = document;
         this.date = date;
         this.source = source;
@@ -101,7 +92,6 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         this.dataModel = dataModel;
         this.universe = universe;
         this.saverSource = saverSource;
-        this.autoIncrementFieldMap = autoIncrementFieldMap;
     }
 
     private String getRealPath() {
@@ -179,15 +169,16 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         String xpath = getRealPath();
         int size = document.createAccessor(xpath).size();
         path.pop();
+        boolean doCreate = doCreate(enumField);
         if (enumField.isMany() && size > 1) {
             for (int i = 1; i <= size; i++) {
                 path.push(new PathElement(enumField, i));
-                super.visit(enumField);
+                handleField(enumField, doCreate, xpath);
                 path.pop();
             }
         } else {
             path.push(new PathElement(enumField, null));
-            super.visit(enumField);
+            handleField(enumField, doCreate, xpath);
             path.pop();
         }
         return actions;
@@ -199,28 +190,29 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         String xpath = getRealPath();
         int size = document.createAccessor(xpath).size();
         path.pop();
-        boolean doCreate = isDoCreate(simpleField);
+        boolean doCreate = doCreate(simpleField);
         if (simpleField.isMany() && size > 1) {
             for (int i = 1; i <= size; i++) {
                 path.push(new PathElement(simpleField, i));
-                handleSimpleTypeFieldMetadata(simpleField, doCreate);
+                handleField(simpleField, doCreate, xpath);
                 path.pop();
             }
         } else {
             path.push(new PathElement(simpleField, null));
-            handleSimpleTypeFieldMetadata(simpleField, doCreate);
+            handleField(simpleField, doCreate, xpath);
             path.pop();
         }
         return super.visit(simpleField);
     }
 
-    private boolean isDoCreate(SimpleTypeFieldMetadata simpleField) {
-        // Under some circumstances, do not generate action(s) for UUID/AUTOINCREMENT(see TMDM-4473)
+    private boolean doCreate(FieldMetadata simpleField) {
+        // Under some circumstances, do not generate action(s) for UUID/AUTOINCREMENT (see TMDM-4473)
         boolean doCreate = true;
         if (!path.isEmpty()) {
             // Only apply the do-create-check for UUID/AUTO_INCREMENT field to improve the performance
-            if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName())
-                    || EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName())) {
+            String typeName = simpleField.getType().getName();
+            if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(typeName)
+                    || EUUIDCustomType.UUID.getName().equalsIgnoreCase(typeName)) {
                 FieldMetadata parentField = path.peek().fieldMetadata;
                 if (parentField != null) {
                     boolean isParentOptional = !parentField.isMandatory();
@@ -235,7 +227,6 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
                     } else if (parentNode.getTextContent() == null || parentNode.getTextContent().isEmpty()) {
                         isEmpty = true;
                     }
-
                     if (isParentOptional && isEmpty) {
                         doCreate = false;
                     }
@@ -245,52 +236,25 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         return doCreate;
     }
 
-    private void handleSimpleTypeFieldMetadata(SimpleTypeFieldMetadata simpleField, boolean doCreate) {
+    private void handleField(FieldMetadata field, boolean doCreate, String currentPath) {
         // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see
         // TMDM-3900).
         // Note #2: This code generate values even for non-mandatory fields (but this is expected behavior).
-        String currentPath = getRealPath();
-        String currentPathWithoutLastIndex = currentPath;
-        if (currentPath.indexOf('[') > 0) {
-            currentPathWithoutLastIndex = currentPath.substring(0, currentPath.indexOf('['));
-        }
-        if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(simpleField.getType().getName()) && doCreate) {
-            String conceptName = rootTypeName + "." + simpleField.getName().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            String autoIncrementValue;
-            if (autoIncrementFieldMap.containsKey(currentPath)) {
-                autoIncrementValue = autoIncrementFieldMap.get(currentPath);
-            } else {
-                autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, dataModel, conceptName);
-                autoIncrementFieldMap.put(currentPath, autoIncrementValue);
-            }
+        if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(field.getType().getName()) && doCreate) {
+            String conceptName = rootTypeName + "." + field.getName().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            String autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, dataModel, conceptName);
             actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, autoIncrementValue,
-                    simpleField));
-            if (simpleField.isKey()) {
-                idValueMap.put(currentPathWithoutLastIndex, autoIncrementValue);
-            }
-            hasMetAutoIncrement = true; // Remembers we've just met an auto increment value
-        } else if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(simpleField.getType().getName()) && doCreate) {
+                    field));
+        } else if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(field.getType().getName()) && doCreate) {
             String uuidValue = UUID.randomUUID().toString();
-            if (simpleField.isKey()) {
-                idValueMap.put(currentPathWithoutLastIndex, uuidValue);
-            }
-            actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, uuidValue, simpleField));
+            actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, uuidValue, field));
         } else {
-            if (simpleField.isKey()) {
+            if (field.isKey()) {
                 Accessor accessor = document.createAccessor(currentPath);
                 if (!accessor.exist()) {
                     throw new IllegalStateException("Document was expected to contain id information at '" + currentPath + "'");
                 }
-                idValueMap.put(currentPathWithoutLastIndex, accessor.get());
             }
         }
-    }
-
-    public boolean hasMetAutoIncrement() {
-        return hasMetAutoIncrement;
-    }
-
-    public Map<String, String> getIdValueMap() {
-        return idValueMap;
     }
 }

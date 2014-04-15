@@ -23,6 +23,11 @@ import com.amalto.core.save.context.DocumentSaver;
 public interface DocumentSaverContext {
 
     /**
+     * @return The source of the change or empty string if not available.
+     */
+    String getChangeSource();
+
+    /**
      * @return Creates a {@link DocumentSaver} chain able to store the record.
      */
     DocumentSaver createSaver();
@@ -88,10 +93,6 @@ public interface DocumentSaverContext {
 
     void setRevisionId(String revisionID);
 
-    boolean hasMetAutoIncrement();
-
-    void setHasMetAutoIncrement(boolean hasMetAutoIncrement);
-
     void setTaskId(String taskId);
 
     String getTaskId();
@@ -121,8 +122,6 @@ public interface DocumentSaverContext {
     String getPartialUpdateKey();
 
     int getPartialUpdateIndex();
-
-    Map<String, String> getAutoIncrementFieldMap();
 
     boolean generateTouchActions();
 }

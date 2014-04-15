@@ -74,7 +74,7 @@ public class FieldUpdateAction extends AbstractFieldAction {
         return oldValue;
     }
 
-    protected String getNewValue() {
+    public String getNewValue() {
         return newValue;
     }
 
