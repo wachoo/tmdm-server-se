@@ -11,6 +11,42 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import com.amalto.core.storage.*;
+import junit.framework.TestCase;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.metadata.ClassRepository;
@@ -25,10 +61,6 @@ import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.SecuredStorage;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.*;
@@ -61,6 +93,40 @@ public class SystemStorageTest extends TestCase {
         assertEquals(ObjectPOJO.OBJECT_TYPES.length + 1, repository.getUserComplexTypes().size());
     }
 
+    public void testInternalClusterNames() throws Exception {
+        String[] expectedInternalClusters = new String[] { null, "", "JCAAdapters", "Inbox", "SearchTemplate", "MDMDomainObjects",
+                "MDMItemsTrash", "Reporting", "MDMItemImages", "PROVISIONING", "CONF", "amaltoOBJECTSTransformerV2", //$NON-NLS-1$
+                "amaltoOBJECTSFailedRoutingOrderV2", //$NON-NLS-1$
+                "amaltoOBJECTSCompletedRoutingOrderV2", //$NON-NLS-1$
+                "amaltoOBJECTSCustomForm", //$NON-NLS-1$
+                "amaltoOBJECTSjcaadapters", //$NON-NLS-1$
+                "amaltoOBJECTSRoutingEngineV2", //$NON-NLS-1$
+                "amaltoOBJECTSRoutingRule", //$NON-NLS-1$
+                "amaltoOBJECTSSynchronizationItem", //$NON-NLS-1$
+                "amaltoOBJECTSTransformerPluginV2", //$NON-NLS-1$
+                "amaltoOBJECTSroutingorders", //$NON-NLS-1$
+                "amaltoOBJECTSUniverse", //$NON-NLS-1$
+                "amaltoOBJECTSVersioningSystem", //$NON-NLS-1$
+                "amaltoOBJECTSroutingqueues", //$NON-NLS-1$
+                "amaltoOBJECTSroutingservices", //$NON-NLS-1$
+                "amaltoOBJECTSStoredProcedure", //$NON-NLS-1$
+                "amaltoOBJECTSSynchronizationObject", //$NON-NLS-1$
+                "amaltoOBJECTSVersionSystem", //$NON-NLS-1$
+                "amaltoOBJECTSMenu", //$NON-NLS-1$
+                "amaltoOBJECTSActiveRoutingOrderV2", //$NON-NLS-1$
+                "amaltoOBJECTSDataCluster", //$NON-NLS-1$
+                "amaltoOBJECTSLicense", //$NON-NLS-1$
+                "amaltoOBJECTSRole", //$NON-NLS-1$
+                "amaltoOBJECTSDataModel", //$NON-NLS-1$
+                "amaltoOBJECTSBackgroundJob", //$NON-NLS-1$
+                "amaltoOBJECTSConfigurationinfo" //$NON-NLS-1$
+        };
+        Set<String> internalClusterNames = DispatchWrapper.getInternalClusterNames();
+        for (String expectedInternalCluster : expectedInternalClusters) {
+            assertTrue("Expected " + expectedInternalCluster, internalClusterNames.contains(expectedInternalCluster));
+        }
+    }
+
     private ClassRepository buildRepository() {
         ClassRepository repository = new ClassRepository();
         Class[] objectsToParse = new Class[ObjectPOJO.OBJECT_TYPES.length];
@@ -91,7 +157,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
     }
 
@@ -158,7 +224,8 @@ public class SystemStorageTest extends TestCase {
             }
             FileInputStream fis2 = new FileInputStream(file);
             try {
-                dataRecordReader.read("1", repository, complexType, new XmlSAXDataRecordReader.Input(reader, new InputSource(fis2)));
+                dataRecordReader.read("1", repository, complexType, new XmlSAXDataRecordReader.Input(reader,
+                        new InputSource(fis2)));
             } catch (Exception e) {
                 System.out.println("Error: " + file);
                 error++;
@@ -227,7 +294,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("RDBMS-1-NO-FT"));
-        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
         // Test CONTAINS
         ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO");
@@ -287,7 +354,7 @@ public class SystemStorageTest extends TestCase {
         });
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
         // Test CONTAINS
         ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO");
@@ -393,7 +460,8 @@ public class SystemStorageTest extends TestCase {
                 StorageResults results = storage.fetch(qb.getSelect());
                 try {
                     total += results.getCount();
-                    SystemDataRecordXmlWriter writer = new SystemDataRecordXmlWriter((ClassRepository) storage.getMetadataRepository(), presentType);
+                    SystemDataRecordXmlWriter writer = new SystemDataRecordXmlWriter(
+                            (ClassRepository) storage.getMetadataRepository(), presentType);
                     for (DataRecord result : results) {
                         StringWriter stringWriter = new StringWriter();
                         if ("menu-pOJO".equals(presentType.getName())) {
@@ -424,8 +492,7 @@ public class SystemStorageTest extends TestCase {
     public void test50UserParse() throws Exception {
         ClassRepository repository = buildRepository();
         // Additional setup to get User type in repository
-        String[] models = new String[]{
-                "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
+        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
         };
         for (String model : models) {
             InputStream builtInStream = this.getClass().getResourceAsStream(model);
@@ -437,12 +504,12 @@ public class SystemStorageTest extends TestCase {
                 repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
             } catch (Exception e) {
                 throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
-        } finally {
+            } finally {
                 try {
                     builtInStream.close();
                 } catch (IOException e) {
                     // Ignored
-        }
+                }
             }
         }
         // Parse a user XML from a 5.0 install
@@ -452,7 +519,7 @@ public class SystemStorageTest extends TestCase {
         Element element = (Element) document.getElementsByTagName("User").item(0);
         reader.read(null, repository, repository.getComplexType("User"), element);
     }
-    
+
     public void testUserInformationWithRoles() throws Exception {
         LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
