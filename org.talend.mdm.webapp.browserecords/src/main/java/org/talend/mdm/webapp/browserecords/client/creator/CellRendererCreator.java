@@ -111,7 +111,7 @@ public class CellRendererCreator {
                 @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
-                    String value = model.get(property);
+                    String value = String.valueOf(model.get(property));
                     if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(value) || Constants.BOOLEAN_TRUE_VALUE.equals(value)) {
                         return Constants.BOOLEAN_TRUE_DISPLAY_VALUE;
                     } else {
