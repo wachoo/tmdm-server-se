@@ -23,6 +23,7 @@ import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import com.amalto.core.storage.DispatchWrapper;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -1068,7 +1069,7 @@ public class ItemCtrl2Bean implements SessionBean {
             }
             if (storage == null) {
                 // Check the threshold number (but only for XML DB)
-                if (!Util.isSystemDC(dataClusterPOJOPK)) {
+                if (!DispatchWrapper.isMDMInternal(dataClusterPOJOPK.getUniqueId())) {
                     long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
                     int threshold = MDMConfiguration.getAutoEntityFindThreshold();
                     if (totalItemsInDataContainer > threshold) {
@@ -1122,7 +1123,7 @@ public class ItemCtrl2Bean implements SessionBean {
             } else {
                 MetadataRepository repository = storage.getMetadataRepository();
                 Collection<ComplexTypeMetadata> types;
-                if (Util.isSystemDC(dataClusterPOJOPK)) {
+                if (DispatchWrapper.isMDMInternal(dataClusterPOJOPK.getUniqueId())) {
                     types = SystemStorageWrapper.filter(repository, dataModelName);
                 } else {
                     types = MetadataUtils.sortTypes(repository);
