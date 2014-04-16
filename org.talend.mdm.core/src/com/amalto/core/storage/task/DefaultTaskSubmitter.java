@@ -11,14 +11,19 @@
 
 package com.amalto.core.storage.task;
 
-public class TaskSubmitterFactory {
-
-    private final static TaskSubmitter submitter = new DefaultTaskSubmitter();
-
-    private TaskSubmitterFactory() {
+public class DefaultTaskSubmitter implements TaskSubmitter {
+    @Override
+    public void submit(Task task) {
+        task.run();
     }
 
-    public static TaskSubmitter getSubmitter() {
-        return submitter;
+    @Override
+    public void submitAndWait(Task task) {
+        task.run();
+        try {
+            task.waitForCompletion();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Task did not successfully completed.", e);
+        }
     }
 }

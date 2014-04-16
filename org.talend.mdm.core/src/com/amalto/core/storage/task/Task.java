@@ -11,14 +11,12 @@
 
 package com.amalto.core.storage.task;
 
-import org.quartz.Job;
-
 import java.util.Date;
 
 /**
  *
  */
-public interface Task extends Job, Runnable, Filterable {
+public interface Task extends Runnable, Filterable {
 
     /**
      * @return Returns a unique ID for this task.

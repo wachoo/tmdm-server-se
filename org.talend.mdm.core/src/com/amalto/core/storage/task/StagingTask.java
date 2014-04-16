@@ -7,8 +7,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
@@ -149,15 +147,6 @@ public class StagingTask implements Task {
     @Override
     public int getProcessedRecords() {
         return stats.getErrorCount() + stats.getSuccessCount();
-    }
-
-    @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        try {
-            run();
-        } catch (Exception e) {
-            throw new JobExecutionException(e);
-        }
     }
 
     @Override

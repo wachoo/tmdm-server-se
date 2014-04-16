@@ -3,8 +3,6 @@ package com.amalto.core.storage.task;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import org.apache.log4j.Logger;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
@@ -48,8 +46,6 @@ abstract class MetadataRepositoryTask implements Task {
 
     final Storage storage;
 
-    private boolean hasFailed;
-
     MetadataRepositoryTask(Storage storage,
                            MetadataRepository repository,
                            ClosureExecutionStats stats,
@@ -61,15 +57,6 @@ abstract class MetadataRepositoryTask implements Task {
     }
 
     protected abstract Task createTypeTask(ComplexTypeMetadata type);
-
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        try {
-            run();
-        } catch (Exception e) {
-            hasFailed = true;
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public void run() {
@@ -174,6 +161,6 @@ abstract class MetadataRepositoryTask implements Task {
 
     @Override
     public boolean hasFailed() {
-        return hasFailed;
+        return false;
     }
 }

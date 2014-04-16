@@ -13,16 +13,12 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.log4j.Logger;
-import org.quartz.SchedulerConfigException;
-import org.quartz.simpl.SimpleThreadPool;
-import org.quartz.spi.ThreadPool;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import javax.resource.spi.work.*;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 class ThreadDispatcher implements Closure {
 
@@ -131,41 +127,33 @@ class ThreadDispatcher implements Closure {
     }
 
     private static class SimpleWorkManager implements WorkManager {
-        
-        private final ThreadPool pool = new SimpleThreadPool(Runtime.getRuntime().availableProcessors() * 2, Thread.MAX_PRIORITY - 1);
 
-        private SimpleWorkManager() {
-            try {
-                pool.initialize();
-            } catch (SchedulerConfigException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        private final ExecutorService pool = new ThreadPoolExecutor(4, 4, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(10));
 
         public void doWork(Work work) throws WorkException {
-            pool.runInThread(work);
+            pool.submit(work);
         }
 
         public void doWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException {
-            pool.runInThread(work);
+            pool.submit(work);
         }
 
         public long startWork(Work work) throws WorkException {
-            pool.runInThread(work);
+            pool.submit(work);
             return 0;
         }
 
         public long startWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException {
-            pool.runInThread(work);
+            pool.submit(work);
             return 0;
         }
 
         public void scheduleWork(Work work) throws WorkException {
-            pool.runInThread(work);
+            pool.submit(work);
         }
 
         public void scheduleWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException {
-            pool.runInThread(work);
+            pool.submit(work);
         }
     }
 }

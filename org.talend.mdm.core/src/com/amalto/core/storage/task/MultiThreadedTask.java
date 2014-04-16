@@ -17,8 +17,6 @@ import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -65,14 +63,6 @@ public class MultiThreadedTask implements Task {
         this.expression = expression;
         this.stats = stats;
         this.closure = new ThreadDispatcher(threadNumber, closure, stats);
-    }
-
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        try {
-            run();
-        } catch (Exception e) {
-            throw new JobExecutionException(e);
-        }
     }
 
     @Override
