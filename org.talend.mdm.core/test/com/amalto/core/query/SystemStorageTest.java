@@ -72,7 +72,7 @@ public class SystemStorageTest extends TestCase {
     }
 
     public void testInternalClusterNames() throws Exception {
-        String[] expectedInternalClusters = new String[] { null, "", "JCAAdapters", "Inbox", "SearchTemplate", "MDMDomainObjects",
+        String[] expectedInternalClusters = new String[] { "", "JCAAdapters", "Inbox", "SearchTemplate", "MDMDomainObjects",
                 "MDMItemsTrash", "Reporting", "MDMItemImages", "PROVISIONING", "CONF", "amaltoOBJECTSTransformerV2", //$NON-NLS-1$
                 "amaltoOBJECTSFailedRoutingOrderV2", //$NON-NLS-1$
                 "amaltoOBJECTSCompletedRoutingOrderV2", //$NON-NLS-1$
@@ -81,6 +81,8 @@ public class SystemStorageTest extends TestCase {
                 "amaltoOBJECTSRoutingEngineV2", //$NON-NLS-1$
                 "amaltoOBJECTSRoutingRule", //$NON-NLS-1$
                 "amaltoOBJECTSSynchronizationItem", //$NON-NLS-1$
+                "amaltoOBJECTSSynchronizationPlan", //$NON-NLS-1$
+                "amaltoOBJECTSservices", //$NON-NLS-1$
                 "amaltoOBJECTSTransformerPluginV2", //$NON-NLS-1$
                 "amaltoOBJECTSroutingorders", //$NON-NLS-1$
                 "amaltoOBJECTSUniverse", //$NON-NLS-1$
@@ -97,11 +99,12 @@ public class SystemStorageTest extends TestCase {
                 "amaltoOBJECTSRole", //$NON-NLS-1$
                 "amaltoOBJECTSDataModel", //$NON-NLS-1$
                 "amaltoOBJECTSBackgroundJob", //$NON-NLS-1$
+                "amaltoOBJECTSView", //$NON-NLS-1$
                 "amaltoOBJECTSConfigurationinfo" //$NON-NLS-1$
         };
         Set<String> internalClusterNames = DispatchWrapper.getInternalClusterNames();
         for (String expectedInternalCluster : expectedInternalClusters) {
-            assertTrue("Expected " + expectedInternalCluster, internalClusterNames.contains(expectedInternalCluster));
+            assertTrue("Expected " + expectedInternalCluster, internalClusterNames.contains(expectedInternalCluster.toLowerCase()));
         }
     }
 

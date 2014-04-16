@@ -17,6 +17,7 @@ import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Expression;
+import com.amalto.core.storage.DispatchWrapper;
 import com.amalto.core.storage.StagingStorage;
 import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -99,7 +100,7 @@ public class StorageAdminImpl implements StorageAdmin {
             LOGGER.warn("Configuration does not allow creation of SQL storage for '" + dataModelName + "'.");
             return null;
         }
-        if (SYSTEM_STORAGE.equals(storageName)) {
+        if (DispatchWrapper.isMDMInternal(storageName)) {
             return internalCreateSystemStorage(dataSourceName);
         }
         String actualStorageName = StringUtils.substringBefore(storageName, STAGING_SUFFIX);
