@@ -195,12 +195,11 @@ public class Util {
 
     private static DocumentBuilderFactory nonValidatingDocumentBuilderFactory;
 
-    private static ScriptEngine SCRIPTENGINE;
+    private static ScriptEngineManager SCRIPTFACTORY;
 
     static {
         LoginModuleDelegator.setDelegateClassLoader(Util.class.getClassLoader());
-        ScriptEngineManager scriptFactory = new ScriptEngineManager();
-        SCRIPTENGINE = scriptFactory.getEngineByName("groovy"); //$NON-NLS-1$
+        SCRIPTFACTORY = new ScriptEngineManager();
     }
 
     /**
@@ -2041,7 +2040,8 @@ public class Util {
 
     public static IWhereItem fixWebConditions(IWhereItem whereItem, String userXML) throws Exception {
         User user = User.parse(userXML);
-        SCRIPTENGINE.put("user_context", user);//$NON-NLS-1$
+        ScriptEngine scriptEngine = SCRIPTFACTORY.getEngineByName("groovy"); //$NON-NLS-1$
+        scriptEngine.put("user_context", user);//$NON-NLS-1$
 
         if (whereItem == null) {
             return null;
@@ -2076,7 +2076,7 @@ public class Util {
                 String rightCondition = condition.getRightValueOrPath();
                 String userExpression = rightCondition.substring(rightCondition.indexOf("{") + 1, rightCondition.indexOf("}"));//$NON-NLS-1$ //$NON-NLS-2$
                 try {
-                    Object expressionValue = SCRIPTENGINE.eval(userExpression);
+                    Object expressionValue = scriptEngine.eval(userExpression);
                     if (expressionValue != null) {
                         String result = String.valueOf(expressionValue);
                         if (!"".equals(result.trim())) {
@@ -2137,7 +2137,8 @@ public class Util {
 
     public static void updateUserPropertyCondition(List conditions, String userXML) throws Exception {
         User user = User.parse(userXML);
-        SCRIPTENGINE.put("user_context", user);//$NON-NLS-1$
+        ScriptEngine scriptEngine = SCRIPTFACTORY.getEngineByName("groovy"); //$NON-NLS-1$
+        scriptEngine.put("user_context", user);//$NON-NLS-1$
 
         for (int i = conditions.size() - 1; i >= 0; i--) {
             if (conditions.get(i) instanceof WhereCondition) {
@@ -2149,7 +2150,7 @@ public class Util {
                     String userExpression = rightCondition
                             .substring(rightCondition.indexOf("{") + 1, rightCondition.indexOf("}"));//$NON-NLS-1$ //$NON-NLS-2$
                     try {
-                        Object expressionValue = SCRIPTENGINE.eval(userExpression);
+                        Object expressionValue = scriptEngine.eval(userExpression);
                         if (expressionValue != null) {
                             String result = String.valueOf(expressionValue);
                             if (!"".equals(result.trim())) {
