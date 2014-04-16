@@ -91,14 +91,13 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         return joinedArray;
     }
 
-    private boolean isMDMInternal(String clusterName) {
-        return getInternalClusterNames().contains(clusterName);
+    public static boolean isMDMInternal(String clusterName) {
+        return getInternalClusterNames().contains(clusterName.toLowerCase());
     }
 
     public static synchronized Set<String> getInternalClusterNames() {
         if (internalClusterNames == null) {
             internalClusterNames = new HashSet<String>();
-            internalClusterNames.add(null);
             internalClusterNames.add(StringUtils.EMPTY); // Consider an empty cluster name as internal
             internalClusterNames.add(StorageAdmin.SYSTEM_STORAGE);
             Map<String, XSystemObjects> systemObjects = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
@@ -120,6 +119,8 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
                     "amaltoOBJECTSRoutingEngineV2", //$NON-NLS-1$
                     "amaltoOBJECTSRoutingRule", //$NON-NLS-1$
                     "amaltoOBJECTSSynchronizationItem", //$NON-NLS-1$
+                    "amaltoOBJECTSSynchronizationPlan", //$NON-NLS-1$
+                    "amaltoOBJECTSservices", //$NON-NLS-1$
                     "amaltoOBJECTSTransformerPluginV2", //$NON-NLS-1$
                     "amaltoOBJECTSroutingorders", //$NON-NLS-1$
                     "amaltoOBJECTSUniverse", //$NON-NLS-1$
@@ -136,8 +137,15 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
                     "amaltoOBJECTSRole", //$NON-NLS-1$
                     "amaltoOBJECTSDataModel", //$NON-NLS-1$
                     "amaltoOBJECTSBackgroundJob", //$NON-NLS-1$
+                    "amaltoOBJECTSView", //$NON-NLS-1$
                     "amaltoOBJECTSConfigurationinfo" }; //$NON-NLS-1$
             internalClusterNames.addAll(Arrays.asList(amaltoContainers));
+            // Store them as lower case
+            Set<String> processedInternalClusterNames = new HashSet<String>();
+            for (String internalClusterName : internalClusterNames) {
+                processedInternalClusterNames.add(internalClusterName.toLowerCase());
+            }
+            internalClusterNames = processedInternalClusterNames;
         }
         return internalClusterNames;
     }
