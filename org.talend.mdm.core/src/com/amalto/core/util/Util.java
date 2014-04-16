@@ -2398,20 +2398,4 @@ public class Util {
     public static String getDefaultSystemLocale() {
         return MDMConfiguration.getConfiguration().getProperty("system.locale.default");//$NON-NLS-1$
     }
-
-    public static boolean isSystemDC(DataClusterPOJOPK dataClusterPOJOPK) {
-        if (dataClusterPOJOPK != null && dataClusterPOJOPK.getUniqueId() != null) {
-            String dcName = dataClusterPOJOPK.getUniqueId();
-            Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-            if (XSystemObjects.isXSystemObject(xDataClustersMap, dcName) || dcName.startsWith("amalto") //$NON-NLS-1$
-                    || "MDMDomainObjects".equals(dcName) //$NON-NLS-1$
-                    || "FailedAutoCommitSvnMessage".equals(dcName)//$NON-NLS-1$
-                    || "twitter".equals(dcName) //$NON-NLS-1$
-                    || "system".equals(dcName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }

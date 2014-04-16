@@ -23,6 +23,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.storage.DispatchWrapper;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -231,38 +232,11 @@ public class UtilTestCase extends TestCase {
         assertNull(ve);
     }
 
-    public void __testGetMetaDataTypesgetMetaDataTypes() throws Exception {
-        List<IWhereItem> whereItems = new ArrayList<IWhereItem>();
-        IWhereItem whereItem = new WhereCondition("BusinessType/ZthesId", "=", "11111d", "NONE");
-        IWhereItem whereItem2 = new WhereCondition("BusinessRef/Id", "=", "5", "NONE");
-        whereItems.add(whereItem);
-        whereItems.add(whereItem2);
-        IWhereItem whereAnd = new WhereAnd(whereItems);
-        Map<String, ArrayList<String>> metaDataTypes = Util.getMetaDataTypes(whereAnd, new SchemaTestAgent());
-
-        assertNull(metaDataTypes.get("BusinessRef/Id"));
-        assertEquals("xsd:string", metaDataTypes.get("BusinessType/ZthesId").get(0));
-    }
-
-    public void __testGetUserDataModel() throws Exception {
-        String userXml = "<User><username>user</username><password>ee11cbb19052e40b07aac0ca060c23ee</password><givenname>Default</givenname><familyname>User</familyname><company>Company</company><id>null</id><realemail>user@company.com</realemail><viewrealemail>no</viewrealemail><registrationdate>1342699860823</registrationdate><lastvisitdate>0</lastvisitdate><enabled>yes</enabled><homepage>Home</homepage><roles><role>OM5_Admin</role><role>System_Interactive</role></roles><properties><property><name>cluster</name><value>OM5Container</value></property><property><name>model</name><value>OM5</value></property></properties></User>";
-        Element userEl = Util.parse(userXml).getDocumentElement();
-        String dataModel = Util.getUserDataModel(userEl);
-
-        assertEquals("OM5", dataModel);
-
-        userXml = "<User><username>user</username><password>ee11cbb19052e40b07aac0ca060c23ee</password><givenname>Default</givenname><familyname>User</familyname><company>Company</company><id>null</id><realemail>user@company.com</realemail><viewrealemail>no</viewrealemail><registrationdate>1342699860823</registrationdate><lastvisitdate>0</lastvisitdate><enabled>yes</enabled><homepage>Home</homepage><roles><role>OM5_Admin</role><role>System_Interactive</role></roles></User>";
-        userEl = Util.parse(userXml).getDocumentElement();
-        dataModel = Util.getUserDataModel(userEl);
-
-        assertNull(dataModel);
-    }
-
     public void testIsSystemDC() throws Exception {
-        assertFalse(Util.isSystemDC(null));
-        assertTrue(Util.isSystemDC(new DataClusterPOJOPK("PROVISIONING")));
-        assertTrue(Util.isSystemDC(new DataClusterPOJOPK("MDMDomainObjects")));
-        assertFalse(Util.isSystemDC(new DataClusterPOJOPK("Product")));
+        assertFalse(DispatchWrapper.isMDMInternal(null));
+        assertTrue(DispatchWrapper.isMDMInternal("PROVISIONING"));
+        assertTrue(DispatchWrapper.isMDMInternal("MDMDomainObjects"));
+        assertFalse(DispatchWrapper.isMDMInternal("Product"));
     }
 
     @SuppressWarnings("cast")
