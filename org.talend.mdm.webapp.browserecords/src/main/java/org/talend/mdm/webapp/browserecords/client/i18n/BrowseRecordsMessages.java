@@ -40,7 +40,7 @@ public interface BrowseRecordsMessages extends Messages {
     String delete_btn();
 
     String moreActions_btn();
-    
+
     String moreActions_tip();
 
     String duplicate_btn();
@@ -469,11 +469,7 @@ public interface BrowseRecordsMessages extends Messages {
 
     String masterRecords_btn();
 
-    String masterRecords_tip();
-
     String stagingRecords_btn();
-
-    String stagingRecords_tip();
 
     String staging_data_viewer_title();
 
