@@ -92,7 +92,12 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     }
 
     public static boolean isMDMInternal(String clusterName) {
-        return getInternalClusterNames().contains(clusterName.toLowerCase());
+        for (String internalClusterName : getInternalClusterNames()) {
+            if (StringUtils.equalsIgnoreCase(internalClusterName, clusterName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static synchronized Set<String> getInternalClusterNames() {
@@ -141,12 +146,6 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
                     "amaltoOBJECTSView", //$NON-NLS-1$
                     "amaltoOBJECTSConfigurationinfo" }; //$NON-NLS-1$
             internalClusterNames.addAll(Arrays.asList(amaltoContainers));
-            // Store them as lower case
-            Set<String> processedInternalClusterNames = new HashSet<String>();
-            for (String internalClusterName : internalClusterNames) {
-                processedInternalClusterNames.add(internalClusterName.toLowerCase());
-            }
-            internalClusterNames = processedInternalClusterNames;
         }
         return internalClusterNames;
     }

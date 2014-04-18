@@ -68,13 +68,31 @@ public class StorageAdminImpl implements StorageAdmin {
     private final Map<String, MultiKeyMap> storages = new StorageMap();
 
     public String[] getAll(String revisionID) {
-        Set<String> allStorageNames = new HashSet<String>();
-        for (Map.Entry<String, MultiKeyMap> currentStorage : storages.entrySet()) {
-            if (currentStorage.getValue().containsKey(revisionID)) {
-                allStorageNames.add(currentStorage.getKey());
+        if (isHead(revisionID)) {
+            Set<String> allStorageNames = new HashSet<String>();
+            for (Map.Entry<String, MultiKeyMap> currentStorage : storages.entrySet()) {
+                MultiKeyMap value = currentStorage.getValue();
+                if (value.containsKey(StringUtils.EMPTY, StorageType.MASTER)) {
+                    allStorageNames.add(currentStorage.getKey());
+                }
+                if (value.containsKey(StringUtils.EMPTY, StorageType.STAGING)) {
+                    allStorageNames.add(currentStorage.getKey());
+                }
             }
+            return allStorageNames.toArray(new String[allStorageNames.size()]);
+        } else {
+            Set<String> allStorageNames = new HashSet<String>();
+            for (Map.Entry<String, MultiKeyMap> currentStorage : storages.entrySet()) {
+                MultiKeyMap value = currentStorage.getValue();
+                if (value.containsKey(revisionID, StorageType.MASTER)) {
+                    allStorageNames.add(currentStorage.getKey());
+                }
+                if (value.containsKey(revisionID, StorageType.STAGING)) {
+                    allStorageNames.add(currentStorage.getKey());
+                }
+            }
+            return allStorageNames.toArray(new String[allStorageNames.size()]);
         }
-        return allStorageNames.toArray(new String[allStorageNames.size()]);
     }
 
     public void delete(String storageName, StorageType type, String revisionID, boolean dropExistingData) {
