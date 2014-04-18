@@ -74,6 +74,11 @@ public class StorageWrapperTest extends TestCase {
         assertTrue(item.contains("<i>&quot;555&lt;666&gt;444&quot;</i>")); //$NON-NLS-1$
     }
 
+    public void testDateTimeAsBaseType() {
+        final MetadataRepository repository = prepareMetadata("CustomDateTime.xsd"); //$NON-NLS-1$
+        final Storage storage = prepareStorage(repository);
+    }
+
     private MetadataRepository prepareMetadata(String dataModelFile) {
         MetadataRepository repository = new MetadataRepository();
         repository.load(StorageWrapperTest.class.getResourceAsStream(dataModelFile));
