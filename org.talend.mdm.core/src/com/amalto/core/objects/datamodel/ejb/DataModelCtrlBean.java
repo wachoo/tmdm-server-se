@@ -18,14 +18,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.server.DataModel;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.util.Util;
-
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -33,24 +25,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.server.DataModel;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
+
 /**
- * @ejb.bean name="DataModelCtrl"
- *			display-name="Name for DataModelCtrl"
- *			description="Description for DataModelCtrl"
- *          jndi-name="amalto/remote/core/datamodelctrl"
- * 		  	local-jndi-name = "amalto/local/core/datamodelctrl"
- *          type="Stateless"
- *          view-type="both"
+ * @ejb.bean name="DataModelCtrl" display-name="Name for DataModelCtrl" description="Description for DataModelCtrl"
+ * jndi-name="amalto/remote/core/datamodelctrl" local-jndi-name = "amalto/local/core/datamodelctrl" type="Stateless"
+ * view-type="both"
  * 
  * @ejb.remote-facade
  * 
- * @ejb.permission
- * 	view-type = "remote"
- * 	role-name = "administration"
- * @ejb.permission
- * 	view-type = "local"
- * 	unchecked = "true"
- *  
+ * @ejb.permission view-type = "remote" role-name = "administration"
+ * @ejb.permission view-type = "local" unchecked = "true"
+ * 
  */
 public class DataModelCtrlBean implements SessionBean, DataModel {
 
@@ -77,15 +70,19 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
     public DataModelCtrlBean() {
     }
 
+    @Override
     public void setSessionContext(SessionContext ctx) throws EJBException, RemoteException {
     }
 
+    @Override
     public void ejbRemove() throws EJBException, RemoteException {
     }
 
+    @Override
     public void ejbActivate() throws EJBException, RemoteException {
     }
 
+    @Override
     public void ejbPassivate() throws EJBException, RemoteException {
     }
 
@@ -97,11 +94,12 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
 
     /**
      * Creates or updates a DataModel
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public DataModelPOJOPK putDataModel(DataModelPOJO dataModel) throws XtentisException {
         try {
             if (dataModel.getSchema() == null || dataModel.getSchema().isEmpty()) {
@@ -124,11 +122,12 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
 
     /**
      * Get Data Model
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public DataModelPOJO getDataModel(DataModelPOJOPK pk) throws XtentisException {
         if (pk == null || pk.getUniqueId() == null) {
             throw new XtentisException("The Data Model can't be empty!");
@@ -152,11 +151,12 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
 
     /**
      * Get a DataModel - no exception is thrown: returns null if not found
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public DataModelPOJO existsDataModel(DataModelPOJOPK pk) throws XtentisException {
         try {
             return ObjectPOJO.load(DataModelPOJO.class, pk);
@@ -171,11 +171,12 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
 
     /**
      * Remove a Data Model
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public DataModelPOJOPK removeDataModel(DataModelPOJOPK pk) throws XtentisException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Removing " + pk.getUniqueId());
@@ -193,11 +194,12 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
 
     /**
      * Retrieve all DataModel PKs
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public Collection<DataModelPOJOPK> getDataModelPKs(String regex) throws XtentisException {
         Collection<ObjectPOJOPK> dataModelPKs = ObjectPOJO.findAllPKs(DataModelPOJO.class, regex);
         ArrayList<DataModelPOJOPK> l = new ArrayList<DataModelPOJOPK>();
@@ -209,23 +211,25 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
 
     /**
      * Checks the data model - returns the "corrected schema"
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public String checkSchema(String schema) throws XtentisException {
         return schema;
     }
 
     /**
      * Put a Business Concept Schema
-     *
+     * 
      * @return its name
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public String putBusinessConceptSchema(DataModelPOJOPK pk, String conceptSchemaString) throws XtentisException {
         try {
             DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
@@ -240,7 +244,8 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
             Node existingNode;
             synchronized (X_PATH) {
                 conceptName = (String) X_PATH.evaluate("/xsd:element/@name", newConceptAsDOM, XPathConstants.STRING); //$NON-NLS-1$
-                existingNode = (Node) X_PATH.evaluate("/xsd:schema/xsd:element[@name='" + conceptName + "']", schemaAsDOM, XPathConstants.NODE); //$NON-NLS-1$ //$NON-NLS-2$
+                existingNode = (Node) X_PATH.evaluate(
+                        "/xsd:schema/xsd:element[@name='" + conceptName + "']", schemaAsDOM, XPathConstants.NODE); //$NON-NLS-1$ //$NON-NLS-2$
             }
             if (existingNode != null) {
                 existingNode.getParentNode().removeChild(existingNode);
@@ -248,6 +253,7 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
             schemaAsDOM.getDocumentElement().appendChild(schemaAsDOM.importNode(newConceptAsDOM.getDocumentElement(), true));
             dataModel.setSchema(Util.nodeToString(schemaAsDOM, true));
             dataModel.store();
+            invalidateConceptSession(dataModel.getName());
             return conceptName;
         } catch (Exception e) {
             throw new XtentisException(e);
@@ -256,12 +262,13 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
 
     /**
      * Delete a Business Concept
-     *
+     * 
      * @return its name
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public String deleteBusinessConcept(DataModelPOJOPK pk, String businessConceptName) throws XtentisException {
         try {
             DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
@@ -273,26 +280,34 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
             Document schemaAsDOM = builder.parse(new InputSource(new StringReader(schema)));
             Node existingNode;
             synchronized (X_PATH) {
-                existingNode = (Node) X_PATH.evaluate("/xsd:schema/xsd:element[@name='" + businessConceptName + "']", schemaAsDOM, XPathConstants.NODE); //$NON-NLS-1$ //$NON-NLS-2$
+                existingNode = (Node) X_PATH.evaluate(
+                        "/xsd:schema/xsd:element[@name='" + businessConceptName + "']", schemaAsDOM, XPathConstants.NODE); //$NON-NLS-1$ //$NON-NLS-2$
             }
             if (existingNode != null) {
                 existingNode.getParentNode().removeChild(existingNode);
             }
             dataModel.setSchema(Util.nodeToString(schemaAsDOM, true));
             dataModel.store();
+            invalidateConceptSession(dataModel.getName());
             return businessConceptName;
         } catch (Exception e) {
             throw new XtentisException(e);
         }
     }
 
+    private void invalidateConceptSession(String businessConceptName) {
+        SaverSession session = SaverSession.newSession();
+        session.getSaverSource().invalidateTypeCache(businessConceptName);
+    }
+
     /**
      * Find all Business Concepts names
-     *
+     * 
      * @throws XtentisException
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method
      */
+    @Override
     public String[] getAllBusinessConceptsNames(DataModelPOJOPK pk) throws XtentisException {
         MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
         MetadataRepository repository = metadataRepositoryAdmin.get(pk.getUniqueId());

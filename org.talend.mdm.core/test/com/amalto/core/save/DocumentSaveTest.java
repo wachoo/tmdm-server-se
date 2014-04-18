@@ -32,7 +32,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.history.DeleteType;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -47,6 +46,7 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.DocumentSaver;
@@ -120,6 +120,12 @@ public class DocumentSaveTest extends TestCase {
         session.invalidateTypeCache("DStar");
         session.end(committer);
         assertEquals("DStar", source.getLastInvalidatedTypeCache());
+
+        String conceptName = "crossreferencing";
+        session.invalidateTypeCache(conceptName);
+        assertNull(source.getSchemasAsString().get(conceptName));
+        session.getSaverSource().getSchema(conceptName);
+        assertEquals("testdata", source.getSchemasAsString().get(conceptName));
     }
 
     public void testValidationWithXSINamespace() throws Exception {
@@ -2523,7 +2529,7 @@ public class DocumentSaveTest extends TestCase {
 
         @Override
         public void delete(com.amalto.core.history.Document item, DeleteType type) {
-             // TODO
+            // TODO
         }
 
         @Override
@@ -2561,6 +2567,8 @@ public class DocumentSaveTest extends TestCase {
         private boolean hasSavedAutoIncrement;
 
         private boolean hasCalledInitAutoIncrement;
+
+        private final Map<String, String> schemasAsString = new HashMap<String, String>();
 
         private int currentId = 0;
 
@@ -2627,6 +2635,10 @@ public class DocumentSaveTest extends TestCase {
 
         @Override
         public InputStream getSchema(String dataModelName) {
+            if (schemasAsString.get(dataModelName) == null) {
+                String schemaAsString = "testdata";
+                schemasAsString.put(dataModelName, schemaAsString);
+            }
             return DocumentSaveTest.class.getResourceAsStream(schemaFileName);
         }
 
@@ -2688,6 +2700,7 @@ public class DocumentSaveTest extends TestCase {
         @Override
         public void invalidateTypeCache(String dataModelName) {
             lastInvalidatedTypeCache = dataModelName;
+            schemasAsString.remove(dataModelName);
         }
 
         @Override
@@ -2706,6 +2719,10 @@ public class DocumentSaveTest extends TestCase {
 
         public String getLastInvalidatedTypeCache() {
             return lastInvalidatedTypeCache;
+        }
+
+        public Map<String, String> getSchemasAsString() {
+            return schemasAsString;
         }
 
         public void setUserName(String userName) {
