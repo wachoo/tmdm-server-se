@@ -1,33 +1,62 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.MetadataUtils;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
-import org.apache.log4j.Logger;
-import org.apache.lucene.document.NumericField;
-import org.talend.mdm.commmon.metadata.*;
-import com.amalto.core.storage.Storage;
-import javassist.*;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewConstructor;
+import javassist.CtNewMethod;
+import javassist.LoaderClassPath;
+import javassist.Modifier;
+import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.AnnotationMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
-import org.hibernate.search.annotations.*;
 
-import java.io.Serializable;
-import java.util.*;
+import org.apache.lucene.document.NumericField;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.ProvidedId;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
+
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.Storage;
 
 class ClassCreator extends DefaultMetadataVisitor<Void> {
 
@@ -93,14 +122,15 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             CtClass newClass = classPool.makeClass(getClassName(typeName));
             CtClass hibernateClassWrapper = classPool.get(Wrapper.class.getName());
             CtClass serializable = classPool.get(Serializable.class.getName());
-            newClass.setInterfaces(new CtClass[]{hibernateClassWrapper, serializable});
+            newClass.setInterfaces(new CtClass[] { hibernateClassWrapper, serializable });
             ClassFile classFile = newClass.getClassFile();
             newClass.setModifiers(Modifier.PUBLIC);
 
             // Adds super type
             Collection<TypeMetadata> superTypes = complexType.getSuperTypes();
             if (superTypes.size() > 1) {
-                throw new IllegalArgumentException("Cannot handle multiple inheritance (type '" + complexType.getName() + "' has " + superTypes.size() + " super types).");
+                throw new IllegalArgumentException("Cannot handle multiple inheritance (type '" + complexType.getName()
+                        + "' has " + superTypes.size() + " super types).");
             }
             Iterator<TypeMetadata> superTypesIterator = superTypes.iterator();
             if (superTypesIterator.hasNext()) {
@@ -121,13 +151,13 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             analyzerAnnotation.addMemberValue("impl", new ClassMemberValue(MDMStandardAnalyzer.class.getName(), cp)); //$NON-NLS-1$
             annotationsAttribute.addAnnotation(analyzerAnnotation);
             classFile.addAttribute(annotationsAttribute);
-            
+
             Collection<FieldMetadata> keyFields = complexType.getKeyFields();
             // Composite id class.
             if (keyFields.size() > 1) {
                 String idClassName = getClassName(typeName) + "_ID"; //$NON-NLS-1$
                 CtClass newIdClass = classPool.makeClass(idClassName);
-                newIdClass.setInterfaces(new CtClass[]{serializable});
+                newIdClass.setInterfaces(new CtClass[] { serializable });
 
                 classCreationStack.push(newIdClass);
                 {
@@ -141,7 +171,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 Iterator<FieldMetadata> keyFieldIterator = keyFields.iterator();
                 while (keyFieldIterator.hasNext()) {
                     FieldMetadata currentKeyField = keyFieldIterator.next();
-                    initConstructorBody.append(MetadataUtils.getJavaType(currentKeyField.getType())).append(' ').append(currentKeyField.getName());
+                    initConstructorBody.append(MetadataUtils.getJavaType(currentKeyField.getType())).append(' ')
+                            .append(currentKeyField.getName());
                     if (keyFieldIterator.hasNext()) {
                         initConstructorBody.append(", "); //$NON-NLS-1$
                     }
@@ -149,7 +180,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 initConstructorBody.append(')');
                 initConstructorBody.append('{');
                 for (FieldMetadata keyField : keyFields) {
-                    initConstructorBody.append("this.").append(keyField.getName()).append('=').append(keyField.getName()).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$
+                    initConstructorBody
+                            .append("this.").append(keyField.getName()).append('=').append(keyField.getName()).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 initConstructorBody.append('}');
                 CtConstructor initConstructor = CtNewConstructor.make(initConstructorBody.toString(), newIdClass);
@@ -212,7 +244,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 setFieldsMethodBody.append("if(\"").append(fieldName).append("\".equals(name)) {\n"); //$NON-NLS-1$ //$NON-NLS-2$
                 String setterName = "set" + fieldName; //$NON-NLS-1$
                 CtMethod setterMethod = newClass.getDeclaredMethod(setterName);
-                setFieldsMethodBody.append("\t").append(setterName).append("((").append(setterMethod.getParameterTypes()[0].getName()).append(") value);\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                setFieldsMethodBody
+                        .append("\t").append(setterName).append("((").append(setterMethod.getParameterTypes()[0].getName()).append(") value);\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 setFieldsMethodBody.append("}\n"); //$NON-NLS-1$
 
                 if (fields.hasNext()) {
@@ -279,7 +312,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             equalsMethodBody.append("public boolean equals(Object o) {"); //$NON-NLS-1$
             equalsMethodBody.append("if(o == null) return false;");
             equalsMethodBody.append("if(!o.getClass().equals(this.getClass())) return false;");
-            equalsMethodBody.append(Wrapper.class.getName()).append(" wrapper = (").append(Wrapper.class.getName()).append(") o;");
+            equalsMethodBody.append(Wrapper.class.getName()).append(" wrapper = (").append(Wrapper.class.getName())
+                    .append(") o;");
             equalsMethodBody.append("Object value;");
             for (FieldMetadata keyField : keyFields) {
                 equalsMethodBody.append("value = wrapper.get(\"").append(keyField.getName()).append("\");");
@@ -308,7 +342,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     public static String getClassName(String typeName) {
         if (typeName.charAt(0) >= 'a') {
-            typeName = (char)( typeName.charAt(0) + ('A' - 'a')) + typeName.substring(1);
+            typeName = (char) (typeName.charAt(0) + ('A' - 'a')) + typeName.substring(1);
         }
         return PACKAGE_PREFIX + typeName;
     }
@@ -328,7 +362,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         return CtNewMethod.make(setTimeStampMethodBody.toString(), newClass);
     }
 
-    private CtMethod createFixedFieldGetter(CtClass newClass, String fixedFieldName, String methodName) throws CannotCompileException {
+    private CtMethod createFixedFieldGetter(CtClass newClass, String fixedFieldName, String methodName)
+            throws CannotCompileException {
         StringBuilder getTimeStampMethodBody = new StringBuilder();
         getTimeStampMethodBody.append("public long ").append(methodName).append("() {"); //$NON-NLS-1$ //$NON-NLS-2$
         getTimeStampMethodBody.append("Long longObject = get").append(fixedFieldName).append("();"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -354,7 +389,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             addNewField(referenceField.getName(), referenceField.isMany(), fieldType, currentClass);
             return super.visit(referenceField);
         } catch (Exception e) {
-            throw new RuntimeException("Error during processing of reference field '" + referenceField.getName() + "' of type '" + referenceField.getContainingType().getName() + "'", e);
+            throw new RuntimeException("Error during processing of reference field '" + referenceField.getName() + "' of type '"
+                    + referenceField.getContainingType().getName() + "'", e);
         }
     }
 
@@ -399,13 +435,16 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             CtField field = addNewField(metadata.getName(), metadata.isMany(), fieldType, currentClass);
             if (!currentClass.getName().endsWith("_ID")) { //$NON-NLS-1$
                 ConstPool cp = currentClassFile.getConstPool();
-                AnnotationsAttribute annotations = (AnnotationsAttribute) field.getFieldInfo().getAttribute(AnnotationsAttribute.visibleTag);
+                AnnotationsAttribute annotations = (AnnotationsAttribute) field.getFieldInfo().getAttribute(
+                        AnnotationsAttribute.visibleTag);
                 if (annotations == null) {
                     annotations = new AnnotationsAttribute(cp, AnnotationsAttribute.visibleTag);
                     field.getFieldInfo().addAttribute(annotations);
                 }
                 // Adds "DocumentId" annotation for Hibernate search
-                if (metadata.getContainingType().getSuperTypes().isEmpty()) { // Do this if key field is declared in containing type (DocumentId annotation is inherited).
+                if (metadata.getContainingType().getSuperTypes().isEmpty()) { // Do this if key field is declared in
+                                                                              // containing type (DocumentId annotation
+                                                                              // is inherited).
                     if (metadata.getContainingType().getKeyFields().size() == 1) {
                         if (metadata.isKey()) {
                             Annotation docIdAnnotation = new Annotation(DocumentId.class.getName(), cp);
@@ -418,7 +457,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                             Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
                             fieldBridge.addMemberValue("impl", new ClassMemberValue(CompositeIdBridge.class.getName(), cp)); //$NON-NLS-1$
                             providedId.addMemberValue("bridge", new AnnotationMemberValue(fieldBridge, cp)); //$NON-NLS-1$
-                            AnnotationsAttribute attribute = (AnnotationsAttribute) currentClassFile.getAttribute(AnnotationsAttribute.visibleTag);
+                            AnnotationsAttribute attribute = (AnnotationsAttribute) currentClassFile
+                                    .getAttribute(AnnotationsAttribute.visibleTag);
                             attribute.addAnnotation(providedId);
                             classIndexed.add(currentClass);
                         }
@@ -434,19 +474,17 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     }
 
     private SearchIndexHandler getHandler(FieldMetadata metadata) {
-        if (metadata.getType().getData(TypeMapping.SQL_TYPE) != null) {
+        TypeMetadata type = metadata.getType();
+        if (type.getData(TypeMapping.SQL_TYPE) != null) {
             // Don't index fields where SQL type was forced.
             return new NotIndexedHandler();
         }
-        boolean validType = !(Types.DATE.equals(metadata.getType().getName())
-                || Types.DATETIME.equals(metadata.getType().getName())
-                || Types.TIME.equals(metadata.getType().getName())
-                || Types.DURATION.equals(metadata.getType().getName())
-                || Types.BYTE.equals(metadata.getType().getName())
-                || Types.UNSIGNED_BYTE.equals(metadata.getType().getName()));
+        type = MetadataUtils.getSuperConcreteType(type);
+        boolean validType = !(Types.DATE.equals(type.getName()) || Types.DATETIME.equals(type.getName())
+                || Types.TIME.equals(type.getName()) || Types.DURATION.equals(type.getName())
+                || Types.BYTE.equals(type.getName()) || Types.UNSIGNED_BYTE.equals(type.getName()));
         if (!metadata.isMany() && validType) {
-            if (Types.INTEGER.equals(metadata.getType().getName())
-                    || Types.DOUBLE.equals(metadata.getType().getName())) {
+            if (Types.INTEGER.equals(metadata.getType().getName()) || Types.DOUBLE.equals(metadata.getType().getName())) {
                 return new NumericSearchIndexHandler();
             } else {
                 return new BasicSearchIndexHandler();
@@ -459,10 +497,13 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     }
 
     private interface SearchIndexHandler {
+
         void handle(AnnotationsAttribute annotations, ConstPool pool);
     }
 
     private static class NumericSearchIndexHandler implements SearchIndexHandler {
+
+        @Override
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
             Annotation fieldAnnotation = new Annotation(NumericField.class.getName(), pool);
             annotations.addAnnotation(fieldAnnotation);
@@ -470,6 +511,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     }
 
     private static class BasicSearchIndexHandler implements SearchIndexHandler {
+
+        @Override
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
             annotations.addAnnotation(fieldAnnotation);
@@ -477,6 +520,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     }
 
     private static class ToStringIndexHandler implements SearchIndexHandler {
+
+        @Override
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
             Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
@@ -487,6 +532,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     }
 
     private static class ListFieldIndexHandler implements SearchIndexHandler {
+
+        @Override
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
             Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
@@ -497,6 +544,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     }
 
     private static class NotIndexedHandler implements SearchIndexHandler {
+
         @Override
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
