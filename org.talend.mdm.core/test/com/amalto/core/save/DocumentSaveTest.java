@@ -10,12 +10,16 @@
 
 package com.amalto.core.save;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +48,7 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
@@ -54,6 +59,10 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.server.MockMetadataRepositoryAdmin;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
@@ -1140,7 +1149,8 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
 
         String lineSeparator = System.getProperty("line.separator");
-        StringBuilder expectedUserXmlBuilder = new StringBuilder("<Agency xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
+        StringBuilder expectedUserXmlBuilder = new StringBuilder(
+                "<Agency xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">");
         expectedUserXmlBuilder.append(lineSeparator);
         expectedUserXmlBuilder.append("<Id>5258f292-5670-473b-bc01-8b63434682f3</Id>");
         expectedUserXmlBuilder.append(lineSeparator);
@@ -2440,6 +2450,45 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("[40]", evaluate(committedElement, "/Contrat/detailContrat/Perimetre/entitesPresentes/EDAs/EDA/eda"));
+    }
+
+    public void testDateTypeInKey() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata16.xsd"));
+
+        Storage storage = new HibernateStorage("H2-Default"); //$NON-NLS-1$
+        storage.init(ServerContext.INSTANCE.get().getDefinition("H2-Default", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
+        storage.prepare(repository, true);
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        records.add(factory.read("1", repository, repository.getComplexType("DateInKey"),
+                "<DateInKey><id>22</id><name>22</name><date1>2014-04-17</date1></DateInKey>"));
+        records.add(factory.read("1", repository, repository.getComplexType("DateTimeInKey"),
+                "<DateTimeInKey><code>22</code><db1>2014-04-17T12:00:00</db1><aaa>aaa</aaa></DateTimeInKey>"));
+        storage.begin();
+        storage.update(records);
+        storage.commit();
+
+        // Query saved data
+        storage.begin();
+        ComplexTypeMetadata dateInKey = repository.getComplexType("DateInKey"); //$NON-NLS-1$
+        UserQueryBuilder qb = from(dateInKey);
+        qb.start(0);
+        qb.limit(1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        DataRecord result = results.iterator().next();
+        assertEquals("2014-04-17", StorageMetadataUtils.toString(result.get("date1"), result.getType().getField("date1")));
+
+        dateInKey = repository.getComplexType("DateTimeInKey"); //$NON-NLS-1$
+        qb = from(dateInKey);
+        qb.start(0);
+        qb.limit(1);
+        results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        result = results.iterator().next();
+        assertEquals("2014-04-17T12:00:00", StorageMetadataUtils.toString(result.get("db1"), result.getType().getField("db1")));
     }
 
     private static class MockCommitter implements SaverSession.Committer {

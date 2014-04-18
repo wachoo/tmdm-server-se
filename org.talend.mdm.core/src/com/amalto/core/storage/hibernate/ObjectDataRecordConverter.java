@@ -1,22 +1,14 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
-
-import com.amalto.core.storage.StorageMetadataUtils;
-import org.talend.mdm.commmon.metadata.*;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordConverter;
-import org.hibernate.ObjectNotFoundException;
-import org.hibernate.Session;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -25,6 +17,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.Session;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordConverter;
 
 public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
 
@@ -39,6 +38,7 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
         this.session = session;
     }
 
+    @Override
     public Object convert(DataRecord dataRecord, TypeMapping mapping) {
         if (dataRecord == null) {
             throw new IllegalArgumentException("Data record can not be null");
@@ -54,18 +54,23 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             try {
                 Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
                 if (keyFields.size() == 0) {
-                    throw new IllegalArgumentException("Type '" + dataRecord.getType().getName() + "' does not define any key field.");
+                    throw new IllegalArgumentException("Type '" + dataRecord.getType().getName()
+                            + "' does not define any key field.");
                 } else if (keyFields.size() == 1) {
                     String keyFieldName = keyFields.iterator().next().getName();
                     id = (Serializable) dataRecord.get(keyFieldName);
                     if (id == null) {
-                        throw new IllegalArgumentException("Instance of type '" + dataRecord.getType().getName() + "' does not have value for '" + keyFieldName + "'.");
+                        throw new IllegalArgumentException("Instance of type '" + dataRecord.getType().getName()
+                                + "' does not have value for '" + keyFieldName + "'.");
                     }
                     mainInstance = (Wrapper) session.get(mainInstanceClass, id);
                 } else {
                     List<Object> compositeIdValues = new ArrayList<Object>(keyFields.size());
                     for (FieldMetadata keyField : keyFields) {
-                        compositeIdValues.add(StorageMetadataUtils.convert(String.valueOf(dataRecord.get(keyField)), mapping.getDatabase(keyField)));
+                        compositeIdValues
+                                .add(StorageMetadataUtils.convert(
+                                        StorageMetadataUtils.toString(dataRecord.get(keyField), keyField),
+                                        mapping.getDatabase(keyField)));
                     }
                     id = createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues);
                     mainInstance = (Wrapper) session.get(mainInstanceClass, id);
@@ -78,7 +83,7 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             }
             boolean needNewInstance = mainInstance == null;
             // Instance does not exist, so create it.
-            if(needNewInstance) {
+            if (needNewInstance) {
                 mainInstance = (Wrapper) mainInstanceClass.newInstance();
             }
             mapping.setValues(session, dataRecord, mainInstance);
@@ -88,7 +93,8 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             }
             return mainInstance;
         } catch (Exception e) {
-            throw new RuntimeException("Exception occurred while creating internal object for type '" + dataRecord.getType().getName() + "'", e);
+            throw new RuntimeException("Exception occurred while creating internal object for type '"
+                    + dataRecord.getType().getName() + "'", e);
         }
     }
 
