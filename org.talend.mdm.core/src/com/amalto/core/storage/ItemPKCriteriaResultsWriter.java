@@ -1,28 +1,27 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
-
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordWriter;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Collection;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordWriter;
 
 class ItemPKCriteriaResultsWriter implements DataRecordWriter {
 
@@ -35,10 +34,12 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
         this.itemType = itemType;
     }
 
+    @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
         doWrite(record, new OutputStreamWriter(output));
     }
 
+    @Override
     public void write(DataRecord record, Writer writer) throws IOException {
         doWrite(record, writer);
     }
@@ -64,7 +65,7 @@ class ItemPKCriteriaResultsWriter implements DataRecordWriter {
             writer.write("<ids>"); //$NON-NLS-1$
             Collection<FieldMetadata> keyFields = itemType.getKeyFields();
             for (FieldMetadata keyField : keyFields) {
-                writer.write("<i>" + StringEscapeUtils.escapeXml(String.valueOf(record.get(keyField))) + "</i>"); //$NON-NLS-1$ //$NON-NLS-2$
+                writer.write("<i>" + StringEscapeUtils.escapeXml(StorageMetadataUtils.toString(record.get(keyField), keyField)) + "</i>"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             writer.write("</ids>"); //$NON-NLS-1$
         }
