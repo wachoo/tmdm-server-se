@@ -13,7 +13,10 @@ package com.amalto.core.save;
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,11 +46,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
@@ -59,16 +64,19 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.server.MockMetadataRepositoryAdmin;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.ItemPKCriteriaResultsWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.ValidateException;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -2487,6 +2495,26 @@ public class DocumentSaveTest extends TestCase {
         DataRecord result = results.iterator().next();
         assertEquals("2014-04-17", StorageMetadataUtils.toString(result.get("date1"), result.getType().getField("date1")));
 
+        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(dateInKey.getName(), dateInKey);
+        ResettableStringWriter stringWriter = new ResettableStringWriter();
+        try {
+            writer.write(result, stringWriter);
+        } catch (IOException e) {
+            throw new XmlServerException(e);
+        }
+        String recordStringValue = stringWriter.toString();
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Element r = documentBuilder.parse(new InputSource(new StringReader(recordStringValue))).getDocumentElement();
+        NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET); //$NON-NLS-1$
+        List<String> keyStrValues = new ArrayList<String>();
+        for (int j = 0; j < idsList.getLength(); j++) {
+            keyStrValues.add(idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue()); //$NON-NLS-1$
+        }
+        assertTrue(keyStrValues.contains("2014-04-17"));
+        assertTrue(keyStrValues.contains("22"));
+        stringWriter.reset();
+
         dateInKey = repository.getComplexType("DateTimeInKey"); //$NON-NLS-1$
         qb = from(dateInKey);
         qb.start(0);
@@ -2495,6 +2523,22 @@ public class DocumentSaveTest extends TestCase {
         assertEquals(1, results.getCount());
         result = results.iterator().next();
         assertEquals("2014-04-17T12:00:00", StorageMetadataUtils.toString(result.get("db1"), result.getType().getField("db1")));
+        writer = new ItemPKCriteriaResultsWriter(dateInKey.getName(), dateInKey);
+        try {
+            writer.write(result, stringWriter);
+        } catch (IOException e) {
+            throw new XmlServerException(e);
+        }
+        recordStringValue = stringWriter.toString();
+        r = documentBuilder.parse(new InputSource(new StringReader(recordStringValue))).getDocumentElement();
+        idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET); //$NON-NLS-1$
+        keyStrValues.clear();
+        for (int j = 0; j < idsList.getLength(); j++) {
+            keyStrValues.add(idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue()); //$NON-NLS-1$
+        }
+        assertTrue(keyStrValues.contains("2014-04-17T12:00:00"));
+        assertTrue(keyStrValues.contains("22"));
+        stringWriter.reset();
     }
 
     private static class MockCommitter implements SaverSession.Committer {

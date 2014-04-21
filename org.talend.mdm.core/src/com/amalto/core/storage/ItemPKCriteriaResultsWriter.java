@@ -23,7 +23,7 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 
-class ItemPKCriteriaResultsWriter implements DataRecordWriter {
+public class ItemPKCriteriaResultsWriter implements DataRecordWriter {
 
     private final String typeName;
 
