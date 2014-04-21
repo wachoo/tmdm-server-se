@@ -22,12 +22,12 @@ import com.extjs.gxt.ui.client.widget.Window;
 public class DefaultWidgetFactoryImpl extends WidgetFactory {
 
     @Override
-    public UploadFileFormPanel createUploadFileFormPanel(String dataCluster, ViewBean viewBean, Window window) {
-        return new UploadFileFormPanel(dataCluster, viewBean, window);
+    public UploadFileFormPanel createUploadFileFormPanel(ViewBean viewBean, Window window) {
+        return new UploadFileFormPanel(viewBean, window);
     }
 
     @Override
-    public DownloadFilePanel createDownloadFilePanel(ViewBean viewBean,QueryModel queryModel, Window window) {
-        return new DownloadFilePanel(viewBean,queryModel, window);
+    public DownloadFilePanel createDownloadFilePanel(ViewBean viewBean, QueryModel queryModel, Window window) {
+        return new DownloadFilePanel(viewBean, queryModel, window);
     }
 }

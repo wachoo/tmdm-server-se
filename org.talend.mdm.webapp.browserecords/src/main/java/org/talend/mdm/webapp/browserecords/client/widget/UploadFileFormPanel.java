@@ -62,8 +62,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     private CheckBox headerLine;
 
-    private HiddenField<String> clusterField;
-
     private HiddenField<String> conceptField;
 
     private HiddenField<String> headerField;
@@ -84,10 +82,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     private Window window;
 
-    private String dataCluster;
-
-    public UploadFileFormPanel(String dataCluster, ViewBean viewBean, Window window) {
-        this.dataCluster = dataCluster;
+    public UploadFileFormPanel(ViewBean viewBean, Window window) {
         this.viewBean = viewBean;
         this.window = window;
         this.setFrame(false);
@@ -146,12 +141,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     private void renderForm() {
-
-        clusterField = new HiddenField<String>();
-        clusterField.setName("cluster"); //$NON-NLS-1$
-        clusterField.setValue(dataCluster);
-        this.add(clusterField);
-
         conceptField = new HiddenField<String>();
         conceptField.setName("concept");//$NON-NLS-1$
         conceptField.setValue(viewBean.getBindingEntityModel().getConceptName());

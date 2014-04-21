@@ -479,8 +479,7 @@ public class ItemsToolBar extends ToolBar {
                 window.setClosable(true);
 
                 ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
-                UploadFileFormPanel formPanel = WidgetFactory.getInstance().createUploadFileFormPanel(userCluster, viewBean,
-                        window);
+                UploadFileFormPanel formPanel = WidgetFactory.getInstance().createUploadFileFormPanel(viewBean, window);
                 window.add(formPanel);
                 window.show();
             }

@@ -45,55 +45,53 @@ public class DownloadData extends HttpServlet {
     private static final Logger LOG = Logger.getLogger(DownloadData.class);
 
     private static final long serialVersionUID = 1L;
-    
+
     protected final Integer maxCount = 1000;
-    
+
     private final String SHEET_LABEL = "Talend MDM"; //$NON-NLS-1$
-    
+
     protected final String DOWNLOADFILE_EXTEND_NAME = ".xls"; //$NON-NLS-1$
-    
+
     protected String fileName = ""; //$NON-NLS-1$
-    
+
     private String multipleValueSeparator = null;
-    
-    protected String dataCluster = ""; //$NON-NLS-1$
-    
+
     protected String concept = ""; //$NON-NLS-1$
-    
+
     private boolean fkResovled = false;
-    
+
     private String criteria = ""; //$NON-NLS-1$
-    
+
     private String language = "en"; //$NON-NLS-1$
-    
+
     private String fkDisplay = ""; //$NON-NLS-1$
-    
+
     protected EntityModel entity = null;
-    
+
     private String[] headerArray = null;
-    
+
     protected String[] xpathArray = null;
-    
+
     private List<String> idsList = null;
-    
+
     private Map<String, String> colFkMap = null;
-    
+
     private Map<String, List<String>> fkMap = null;
-    
+
     protected int columnIndex = 0;
-    
+
     protected HSSFCellStyle cs = null;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
+
         HSSFWorkbook workbook = new HSSFWorkbook();
         cs = workbook.createCellStyle();
         HSSFFont f = workbook.createFont();
         f.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
         cs.setFont(f);
         HSSFSheet sheet = workbook.createSheet(SHEET_LABEL);
-        sheet.setDefaultColumnWidth((short) 20);        
+        sheet.setDefaultColumnWidth((short) 20);
         HSSFRow row = sheet.createRow((short) 0);
         try {
             setParameter(request);
@@ -114,7 +112,7 @@ public class DownloadData extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         this.doGet(request, response);
     }
-    
+
     private void setParameter(HttpServletRequest request) throws Exception {
         String tableName = request.getParameter("tableName"); //$NON-NLS-1$
         generateFileName(new String(request.getParameter("fileName").getBytes("iso-8859-1"), "UTF-8")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -128,22 +126,24 @@ public class DownloadData extends HttpServlet {
             String fkInfo = request.getParameter("fkInfo"); //$NON-NLS-1$
             DownloadUtil.assembleFkMap(colFkMap, fkMap, fkColXPath, fkInfo);
         }
-        dataCluster = request.getParameter("dataCluster"); //$NON-NLS-1$
         concept = ViewHelper.getConceptFromDefaultViewName(tableName);
         headerArray = DownloadUtil.convertXml2Array(header, "header"); //$NON-NLS-1$
-        xpathArray = DownloadUtil.convertXml2Array(xpath, "xpath");  //$NON-NLS-1$
+        xpathArray = DownloadUtil.convertXml2Array(xpath, "xpath"); //$NON-NLS-1$
         criteria = request.getParameter("criteria"); //$NON-NLS-1$
         language = request.getParameter("language"); //$NON-NLS-1$
         fkDisplay = request.getParameter("fkDisplay"); //$NON-NLS-1$
         multipleValueSeparator = request.getParameter("multipleValueSeparator"); //$NON-NLS-1$
-        
+
         if (request.getParameter("itemIdsListString") != null && !request.getParameter("itemIdsListString").isEmpty()) { //$NON-NLS-1$ //$NON-NLS-2$
-            idsList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(request.getParameter("itemIdsListString"), Constants.FILE_EXPORT_IMPORT_SEPARATOR); //$NON-NLS-1$
+            idsList = org.talend.mdm.webapp.base.shared.util.CommonUtil.convertStrigToList(
+                    request.getParameter("itemIdsListString"), Constants.FILE_EXPORT_IMPORT_SEPARATOR); //$NON-NLS-1$
+        } else {
+            idsList = null;
         }
     }
-    
+
     protected void fillHeader(HSSFRow row) {
-        
+
         for (int i = 0; i < headerArray.length; i++) {
             HSSFCell cell = row.createCell((short) i);
             cell.setCellValue(headerArray[i]);
@@ -158,10 +158,18 @@ public class DownloadData extends HttpServlet {
         results.add(""); //$NON-NLS-1$ 
         if (idsList != null) {
             for (String ids : idsList) {
-                results.add(CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataCluster),concept,CommonUtil.extractIdWithDots(entity.getKeys(),ids)))).getContent());
+                results.add(CommonUtil
+                        .getPort()
+                        .getItem(
+                                new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, CommonUtil
+                                        .extractIdWithDots(entity.getKeys(), ids)))).getContent());
             }
         } else {
-            results = Arrays.asList(CommonUtil.getPort().getItems(new WSGetItems(new WSDataClusterPK(dataCluster),concept,(criteria != null ? CommonUtil.buildWhereItem(criteria) : null), -1, new Integer(0),maxCount,false)).getStrings());
+            results = Arrays.asList(CommonUtil
+                    .getPort()
+                    .getItems(
+                            new WSGetItems(new WSDataClusterPK(getCurrentDataCluster()), concept, (criteria != null ? CommonUtil
+                                    .buildWhereItem(criteria) : null), -1, new Integer(0), maxCount, false)).getStrings());
         }
         for (int i = 1; i < results.size(); i++) {
             Document document = XmlUtil.parseText(results.get(i));
@@ -169,8 +177,8 @@ public class DownloadData extends HttpServlet {
             fillRow(row, document);
         }
     }
-    
-    protected void fillRow(HSSFRow row,Document document) throws Exception {
+
+    protected void fillRow(HSSFRow row, Document document) throws Exception {
         columnIndex = 0;
         for (String xpath : xpathArray) {
             String tmp = null;
@@ -203,11 +211,11 @@ public class DownloadData extends HttpServlet {
             columnIndex++;
         }
     }
-    
-    protected String getNodeValue(Document document,String xpath) {
+
+    protected String getNodeValue(Document document, String xpath) {
         List<?> selectNodes = null;
-        Map<String,String> namespaceMap = new HashMap<String,String>();
-        namespaceMap.put(Constants.XSI_PREFIX,Constants.XSI_URI);
+        Map<String, String> namespaceMap = new HashMap<String, String>();
+        namespaceMap.put(Constants.XSI_PREFIX, Constants.XSI_URI);
         List<String> valueList = null;
         boolean isAttribute = xpath.endsWith(Constants.XSI_TYPE_QUALIFIED_NAME) ? true : false;
         if (isAttribute) {
@@ -219,12 +227,12 @@ public class DownloadData extends HttpServlet {
         }
         if (selectNodes != null) {
             valueList = new LinkedList<String>();
-            for (Object object : selectNodes) {         
+            for (Object object : selectNodes) {
                 if (isAttribute) {
-                    Attribute attribute = (Attribute)object;
+                    Attribute attribute = (Attribute) object;
                     valueList.add(attribute.getValue());
                 } else {
-                    Element element = (Element)object;
+                    Element element = (Element) object;
                     if (element.elements().size() > 0) {
                         valueList.add(element.asXML());
                     } else {
@@ -237,27 +245,32 @@ public class DownloadData extends HttpServlet {
             return ""; //$NON-NLS-1$
         } else {
             if (valueList.size() > 1) {
-                return CommonUtil.joinStrings(valueList,multipleValueSeparator);
+                return CommonUtil.joinStrings(valueList, multipleValueSeparator);
             } else {
                 return valueList.get(0);
             }
         }
     }
-    
+
     private List<String> getFKInfo(String fk, List<String> fkInfoList, String fkValue) throws Exception {
         List<String> infoList = new ArrayList<String>();
         String conceptName = fk.substring(0, fk.indexOf("/")); //$NON-NLS-1$
         String value = LabelUtil.removeBrackets(fkValue);
         String ids[] = { value };
-        WSItem wsItem = Util.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(dataCluster), conceptName, ids)));
+        WSItem wsItem = Util.getPort().getItem(
+                new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), conceptName, ids)));
         Document doc = XmlUtil.parseText(wsItem.getContent());
         for (String xpath : fkInfoList) {
             infoList.add(XmlUtil.queryNodeText(doc, xpath));
         }
         return infoList;
     }
-    
+
     protected void generateFileName(String name) {
         fileName = name + DOWNLOADFILE_EXTEND_NAME;
+    }
+
+    protected String getCurrentDataCluster() throws Exception {
+        return org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataCluster(false);
     }
 }

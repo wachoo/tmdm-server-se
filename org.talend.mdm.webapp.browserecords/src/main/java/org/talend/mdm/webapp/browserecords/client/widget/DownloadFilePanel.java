@@ -269,7 +269,6 @@ public class DownloadFilePanel extends FormPanel {
         } else {
             param.put("itemIdsListString", ""); //$NON-NLS-1$//$NON-NLS-2$
         }
-        param.put("dataCluster", queryModel.getDataClusterPK()); //$NON-NLS-1$
         param.put("criteria", queryModel.getCriteria()); //$NON-NLS-1$
         param.put("language", queryModel.getLanguage()); //$NON-NLS-1$
 

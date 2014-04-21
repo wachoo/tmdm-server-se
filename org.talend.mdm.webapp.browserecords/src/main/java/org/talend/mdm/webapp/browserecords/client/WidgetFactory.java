@@ -19,16 +19,10 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.widget.Window;
 
-
-/**
- * created by yjli on 2013-10-18
- * Detailled comment
- *
- */
 public abstract class WidgetFactory {
-    
+
     private static WidgetFactory instance;
-    
+
     public static void initialize(WidgetFactory factoryImpl) {
         WidgetFactory.instance = factoryImpl;
     }
@@ -39,8 +33,8 @@ public abstract class WidgetFactory {
         }
         return instance;
     }
-    
-    public abstract UploadFileFormPanel createUploadFileFormPanel(String dataCluster,ViewBean viewBean, Window window);
-    
-    public abstract DownloadFilePanel createDownloadFilePanel(ViewBean viewBean,QueryModel queryModel, Window window);
+
+    public abstract UploadFileFormPanel createUploadFileFormPanel(ViewBean viewBean, Window window);
+
+    public abstract DownloadFilePanel createDownloadFilePanel(ViewBean viewBean, QueryModel queryModel, Window window);
 }
