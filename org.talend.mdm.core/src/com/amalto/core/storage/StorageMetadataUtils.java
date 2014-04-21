@@ -1,15 +1,41 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
@@ -17,21 +43,10 @@ import com.amalto.core.query.user.TimeConstant;
 import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
-
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.*;
 
 /**
- * Similar to {@link org.talend.mdm.commmon.metadata.MetadataUtils} but with utility methods for use of metadata information
- * in {@link com.amalto.core.storage.Storage} API.
+ * Similar to {@link org.talend.mdm.commmon.metadata.MetadataUtils} but with utility methods for use of metadata
+ * information in {@link com.amalto.core.storage.Storage} API.
  */
 public class StorageMetadataUtils {
 
@@ -41,12 +56,14 @@ public class StorageMetadataUtils {
     }
 
     /**
-     * Similar to {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata, boolean)}
+     * Similar to
+     * {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata, boolean)}
      * but will remain in entity boundaries (won't follow FK to other MDM entities).
-     *
+     * 
      * @param origin Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
-     * @return A path <b>within</b> type <code>origin</code> to field <code>target</code>. Returns empty stack if no path could be found.
+     * @return A path <b>within</b> type <code>origin</code> to field <code>target</code>. Returns empty stack if no
+     * path could be found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      */
     public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target) {
@@ -55,7 +72,8 @@ public class StorageMetadataUtils {
 
     /**
      * <p>
-     * Find <b>a</b> path (<b>not necessarily the shortest</b>) from type <code>origin</code> to field <code>target</code>.
+     * Find <b>a</b> path (<b>not necessarily the shortest</b>) from type <code>origin</code> to field
+     * <code>target</code>.
      * </p>
      * <p>
      * Method is expected to run in linear time, depending on:
@@ -64,10 +82,11 @@ public class StorageMetadataUtils {
      * <li>Number of references fields accessible from <code>origin</code>.</li>
      * </ul>
      * </p>
-     *
-     * @param type   Point of entry in the metadata graph.
+     * 
+     * @param type Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
-     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be found.
+     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be
+     * found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      */
     public static List<FieldMetadata> path(ComplexTypeMetadata type, FieldMetadata target, boolean includeReferences) {
@@ -76,11 +95,8 @@ public class StorageMetadataUtils {
         return path;
     }
 
-    private static void _path(ComplexTypeMetadata type,
-                              FieldMetadata target,
-                              Stack<FieldMetadata> path,
-                              Set<ComplexTypeMetadata> processedTypes,
-                              boolean includeReferences) {
+    private static void _path(ComplexTypeMetadata type, FieldMetadata target, Stack<FieldMetadata> path,
+            Set<ComplexTypeMetadata> processedTypes, boolean includeReferences) {
         // Various optimizations for very simple cases
         if (type == null) {
             throw new IllegalArgumentException("Origin can not be null");
@@ -159,15 +175,19 @@ public class StorageMetadataUtils {
      * </p>
      * <p>
      * This is a rather expensive operation, so use this method only when needed. When you need only <b>a</b> path to
-     * field <code>target</code>, prefer usage of {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata)}.
+     * field <code>target</code>, prefer usage of
+     * {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata)}
+     * .
      * </p>
      * <p>
-     * This method follows references to other type <b>only</b> when type is not instantiable (see {@link org.talend.mdm.commmon.metadata.TypeMetadata#isInstantiable()}).
+     * This method follows references to other type <b>only</b> when type is not instantiable (see
+     * {@link org.talend.mdm.commmon.metadata.TypeMetadata#isInstantiable()}).
      * </p>
-     *
-     * @param type   Point of entry in the metadata graph.
+     * 
+     * @param type Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
-     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be found.
+     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be
+     * found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      * @see #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata)
      */
@@ -178,10 +198,8 @@ public class StorageMetadataUtils {
         return foundPaths;
     }
 
-    private static void _paths(ComplexTypeMetadata type,
-                               FieldMetadata target,
-                               Stack<FieldMetadata> currentPath,
-                               Set<List<FieldMetadata>> foundPaths) {
+    private static void _paths(ComplexTypeMetadata type, FieldMetadata target, Stack<FieldMetadata> currentPath,
+            Set<List<FieldMetadata>> foundPaths) {
         // Various optimizations for very simple cases
         if (type == null) {
             throw new IllegalArgumentException("Origin can not be null");
@@ -228,8 +246,8 @@ public class StorageMetadataUtils {
 
     /**
      * Checks whether <code>value</code> is valid for <code>typeName</code>.
-     *
-     * @param value    The value to check.
+     * 
+     * @param value The value to check.
      * @param typeName The type name of the value (should be one of {@link org.talend.mdm.commmon.metadata.Types}).
      * @return <code>true</code> if correct, <code>false</code> otherwise.
      */
@@ -243,18 +261,18 @@ public class StorageMetadataUtils {
     }
 
     /**
-     * Creates a value from <code>dataAsString</code>. Type and/or format of the returned value depends on <code>field</code>.
-     * For instance, calling this method with {@link String} with value "0" and a field typed as integer returns {@link Integer}
-     * instance with value 0.
-     *
+     * Creates a value from <code>dataAsString</code>. Type and/or format of the returned value depends on
+     * <code>field</code>. For instance, calling this method with {@link String} with value "0" and a field typed as
+     * integer returns {@link Integer} instance with value 0.
+     * 
      * @param dataAsString A {@link String} containing content to initialize a value.
-     * @param field        A {@link FieldMetadata} that describes type information about the field.
-     * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code> if
-     * field is instance of {@link org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata} (this type of field isn't expected to have values).
-     * Also returns <code>null</code> is parameter <code>dataAsString</code> is null <b>OR</b> if <code>dataAsString</code>
-     * is empty string.
-     * @throws RuntimeException Throws sub classes of {@link RuntimeException} if <code>dataAsString</code>  format does
-     *                          not match field's type.
+     * @param field A {@link FieldMetadata} that describes type information about the field.
+     * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code>
+     * if field is instance of {@link org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata} (this type of field
+     * isn't expected to have values). Also returns <code>null</code> is parameter <code>dataAsString</code> is null
+     * <b>OR</b> if <code>dataAsString</code> is empty string.
+     * @throws RuntimeException Throws sub classes of {@link RuntimeException} if <code>dataAsString</code> format does
+     * not match field's type.
      */
     public static Object convert(String dataAsString, FieldMetadata field) {
         return convert(dataAsString, field.getType());
@@ -281,19 +299,19 @@ public class StorageMetadataUtils {
                 StringBuilder builder = null;
                 for (char currentChar : chars) {
                     switch (currentChar) {
-                        case '[':
-                            builder = new StringBuilder();
-                            break;
-                        case ']':
-                            if (builder != null) {
-                                ids.add(builder.toString());
-                            }
-                            break;
-                        default:
-                            if (builder != null) {
-                                builder.append(currentChar);
-                            }
-                            break;
+                    case '[':
+                        builder = new StringBuilder();
+                        break;
+                    case ']':
+                        if (builder != null) {
+                            ids.add(builder.toString());
+                        }
+                        break;
+                    default:
+                        if (builder != null) {
+                            builder.append(currentChar);
+                        }
+                        break;
                     }
                 }
             } else {
@@ -309,7 +327,8 @@ public class StorageMetadataUtils {
             DataRecord referencedRecord = new DataRecord(actualComplexType, UnsupportedDataRecordMetadata.INSTANCE);
             Collection<FieldMetadata> keyFields = actualComplexType.getKeyFields();
             if (ids.size() != keyFields.size()) {
-                throw new IllegalStateException("Type '" + actualType.getName() + "' expects " + keyFields.size() + " keys values, but got " + ids.size() + ".");
+                throw new IllegalStateException("Type '" + actualType.getName() + "' expects " + keyFields.size()
+                        + " keys values, but got " + ids.size() + ".");
             }
             Iterator<FieldMetadata> keyIterator = keyFields.iterator();
             for (String id : ids) {
@@ -325,7 +344,8 @@ public class StorageMetadataUtils {
                 return null;
             }
             TypeMetadata type = field.getType();
-            if (!(field instanceof ContainedTypeFieldMetadata)) {  // Contained (anonymous types) values can't have values
+            if (!(field instanceof ContainedTypeFieldMetadata)) { // Contained (anonymous types) values can't have
+                                                                  // values
                 try {
                     return convert(dataAsString, type);
                 } catch (Exception e) {
@@ -339,8 +359,8 @@ public class StorageMetadataUtils {
 
     public static Object convert(String dataAsString, TypeMetadata type) {
         String typeName = type.getName();
-        if (dataAsString == null ||
-                (dataAsString.isEmpty() && !Types.STRING.equals(typeName) && !typeName.contains("limitedString"))) { //$NON-NLS-1$
+        if (dataAsString == null
+                || (dataAsString.isEmpty() && !Types.STRING.equals(typeName) && !typeName.contains("limitedString"))) { //$NON-NLS-1$
             return null;
         } else {
             TypeMetadata superType = org.talend.mdm.commmon.metadata.MetadataUtils.getSuperConcreteType(type);
@@ -351,12 +371,8 @@ public class StorageMetadataUtils {
     public static Object convert(String dataAsString, String type) {
         if (Types.STRING.equals(type)) {
             return dataAsString;
-        } else if (Types.INTEGER.equals(type)
-                || Types.POSITIVE_INTEGER.equals(type)
-                || Types.NEGATIVE_INTEGER.equals(type)
-                || Types.NON_NEGATIVE_INTEGER.equals(type)
-                || Types.NON_POSITIVE_INTEGER.equals(type)
-                || Types.INT.equals(type)
+        } else if (Types.INTEGER.equals(type) || Types.POSITIVE_INTEGER.equals(type) || Types.NEGATIVE_INTEGER.equals(type)
+                || Types.NON_NEGATIVE_INTEGER.equals(type) || Types.NON_POSITIVE_INTEGER.equals(type) || Types.INT.equals(type)
                 || Types.UNSIGNED_INT.equals(type)) {
             return Integer.parseInt(dataAsString);
         } else if (Types.DATE.equals(type)) {
@@ -435,7 +451,7 @@ public class StorageMetadataUtils {
 
     /**
      * Returns the corresponding Java type for the {@link TypeMetadata} type.
-     *
+     * 
      * @param metadata A {@link TypeMetadata} instance.
      * @return The name of Java class for the <code>metadata</code> argument. Returned string might directly be used for
      * a {@link Class#forName(String)} call.
@@ -452,21 +468,15 @@ public class StorageMetadataUtils {
             return "java.lang.String"; //$NON-NLS-1$
         } else if (Types.ANY_URI.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
-        } else if (Types.INT.equals(type)
-                || Types.INTEGER.equals(type)
-                || Types.POSITIVE_INTEGER.equals(type)
-                || Types.NON_POSITIVE_INTEGER.equals(type)
-                || Types.NON_NEGATIVE_INTEGER.equals(type)
-                || Types.NEGATIVE_INTEGER.equals(type)
-                || Types.UNSIGNED_INT.equals(type)) {
+        } else if (Types.INT.equals(type) || Types.INTEGER.equals(type) || Types.POSITIVE_INTEGER.equals(type)
+                || Types.NON_POSITIVE_INTEGER.equals(type) || Types.NON_NEGATIVE_INTEGER.equals(type)
+                || Types.NEGATIVE_INTEGER.equals(type) || Types.UNSIGNED_INT.equals(type)) {
             return "java.lang.Integer"; //$NON-NLS-1$
         } else if (Types.BOOLEAN.equals(type)) {
             return "java.lang.Boolean"; //$NON-NLS-1$
         } else if (Types.DECIMAL.equals(type)) {
             return "java.math.BigDecimal"; //$NON-NLS-1$
-        } else if (Types.DATE.equals(type)
-                || Types.DATETIME.equals(type)
-                || Types.TIME.equals(type)
+        } else if (Types.DATE.equals(type) || Types.DATETIME.equals(type) || Types.TIME.equals(type)
                 || Types.DURATION.equals(type)) {
             return "java.sql.Timestamp"; //$NON-NLS-1$
         } else if (Types.UNSIGNED_SHORT.equals(type) || Types.SHORT.equals(type)) {
@@ -497,7 +507,7 @@ public class StorageMetadataUtils {
             StringBuilder builder = new StringBuilder();
             Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
             for (FieldMetadata keyField : keyFields) {
-                String keyFieldValue = String.valueOf(record.get(keyField));
+                String keyFieldValue = StorageMetadataUtils.toString(record.get(keyField), keyField);
                 TypeMetadata type = org.talend.mdm.commmon.metadata.MetadataUtils.getSuperConcreteType(keyField.getType());
                 if (Types.STRING.equals(type.getName())) {
                     keyFieldValue = StringEscapeUtils.escapeXml(keyFieldValue);
