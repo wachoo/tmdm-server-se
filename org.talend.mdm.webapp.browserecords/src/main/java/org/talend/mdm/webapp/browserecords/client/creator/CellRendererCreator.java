@@ -107,7 +107,14 @@ public class CellRendererCreator {
 
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
-                    return Format.htmlEncode((String)model.get(property));
+                    String value = String.valueOf(model.get(property));
+                    if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(value) || Constants.BOOLEAN_TRUE_VALUE.equals(value)) {
+                        return Constants.BOOLEAN_TRUE_DISPLAY_VALUE;
+                    } else if (Constants.BOOLEAN_FALSE_DISPLAY_VALUE.equals(value) || Constants.BOOLEAN_FALSE_VALUE.equals(value)) {
+                        return Constants.BOOLEAN_FALSE_DISPLAY_VALUE;
+                    } else {
+                        return ""; //$NON-NLS-1$
+                    }
                 }
             };
             return renderer;

@@ -262,7 +262,17 @@ public class CommonUtil {
                         itemBean.setForeignkeyDesc(
                                 path + "-" + el.getText(), //$NON-NLS-1$
                                 org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel,
-                                        el.getText(), false, modelType, map.get(typeModel.getXpath()), language, isStaging));
+                        }
+                    } else if (typeModel != null && DataTypeConstants.BOOLEAN.equals(typeModel.getType())) {
+                        if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(el.getText())
+                                || Constants.BOOLEAN_TRUE_VALUE.equals(el.getText())) {
+                            itemBean.set(path, Constants.BOOLEAN_TRUE_VALUE);
+                        } else if (Constants.BOOLEAN_FALSE_DISPLAY_VALUE.equals(el.getText())
+                                || Constants.BOOLEAN_FALSE_VALUE.equals(el.getText())) {
+                            itemBean.set(path, Constants.BOOLEAN_FALSE_VALUE);
+                        } else {
+                            itemBean.set(path, el.getText());
+                        }
                     } else {
                         itemBean.set(path, el.getText());
                     }

@@ -18,16 +18,10 @@ import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.widget.Window;
 
-
-/**
- * created by yjli on 2013-10-18
- * Detailled comment
- *
- */
 public class DownloadFilePanel4Staging extends DownloadFilePanel {
 
-    public DownloadFilePanel4Staging(ViewBean viewBean,QueryModel queryModel, Window window) {
-        super(viewBean,queryModel, window);
+    public DownloadFilePanel4Staging(ViewBean viewBean, QueryModel queryModel, Window window) {
+        super(viewBean, queryModel, window);
     }
 
     @Override
