@@ -268,8 +268,11 @@ public class CommonUtil {
                         if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(el.getText())
                                 || Constants.BOOLEAN_TRUE_VALUE.equals(el.getText())) {
                             itemBean.set(path, Constants.BOOLEAN_TRUE_VALUE);
-                        } else {
+                        } else if (Constants.BOOLEAN_FALSE_DISPLAY_VALUE.equals(el.getText())
+                                || Constants.BOOLEAN_FALSE_VALUE.equals(el.getText())) {
                             itemBean.set(path, Constants.BOOLEAN_FALSE_VALUE);
+                        } else {
+                            itemBean.set(path, el.getText());
                         }
                     } else {
                         itemBean.set(path, el.getText());

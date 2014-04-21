@@ -19,10 +19,6 @@ import org.talend.mdm.webapp.browserecords.server.service.UploadService;
 import org.talend.mdm.webapp.browserecords.server.servlet.UploadData;
 import org.talend.mdm.webapp.browserecordsinstaging.server.service.UploadService4Staging;
 
-/**
- * created by yjli on 2013-10-24 Detailled comment
- * 
- */
 public class UploadData4Staging extends UploadData {
 
     private static final long serialVersionUID = -4815767737453028749L;
@@ -30,11 +26,9 @@ public class UploadData4Staging extends UploadData {
     @Override
     protected UploadService generateUploadService(String concept, String fileType, boolean headersOnFirstLine,
             Map<String, Boolean> headerVisibleMap, List<String> inheritanceNodePathList, String multipleValueSeparator,
-            String seperator, String encoding, char textDelimiter, String clusterName, String dataModelName, String language)
-            throws Exception {
+            String seperator, String encoding, char textDelimiter, String language) throws Exception {
         return new UploadService4Staging(getEntityModel(concept), fileType, headersOnFirstLine, headerVisibleMap,
-                inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, clusterName, dataModelName,
-                language);
+                inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, language);
     }
 
 }

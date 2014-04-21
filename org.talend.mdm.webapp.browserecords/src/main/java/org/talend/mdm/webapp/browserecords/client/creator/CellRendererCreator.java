@@ -114,8 +114,10 @@ public class CellRendererCreator {
                     String value = String.valueOf(model.get(property));
                     if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(value) || Constants.BOOLEAN_TRUE_VALUE.equals(value)) {
                         return Constants.BOOLEAN_TRUE_DISPLAY_VALUE;
-                    } else {
+                    } else if (Constants.BOOLEAN_FALSE_DISPLAY_VALUE.equals(value) || Constants.BOOLEAN_FALSE_VALUE.equals(value)) {
                         return Constants.BOOLEAN_FALSE_DISPLAY_VALUE;
+                    } else {
+                        return ""; //$NON-NLS-1$
                     }
                 }
             };
