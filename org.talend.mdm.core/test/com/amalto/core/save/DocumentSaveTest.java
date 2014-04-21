@@ -2527,7 +2527,7 @@ public class DocumentSaveTest extends TestCase {
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata16.xsd"));
 
         Storage storage = new HibernateStorage("H2-Default"); //$NON-NLS-1$
-        storage.init(ServerContext.INSTANCE.get().getDataSource("H2-Default", "MDM", StorageType.MASTER)); //$NON-NLS-1$//$NON-NLS-2$
+        storage.init(ServerContext.INSTANCE.get().getDataSource("H2-Default", "MDM", "1", StorageType.MASTER)); //$NON-NLS-1$//$NON-NLS-2$
         storage.prepare(repository, true);
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
@@ -2597,6 +2597,39 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(keyStrValues.contains("22"));
         stringWriter.reset();
 
+    }
+
+    public void testDateTypeInForeignKey() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata16_1.xsd"));
+
+        Storage storage = new HibernateStorage("H2-Default"); //$NON-NLS-1$
+        storage.init(ServerContext.INSTANCE.get().getDataSource("H2-Default", "MDM", "1", StorageType.MASTER)); //$NON-NLS-1$//$NON-NLS-2$
+        storage.prepare(repository, true);
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        records.add(factory.read(
+                "1",
+                repository,
+                repository.getComplexType("EOR"),
+                "<EOR>  <UG_EOR>1</UG_EOR>  <TYP_EOR>1</TYP_EOR>  <L_TYP_EOR>1</L_TYP_EOR>  <CAT_TYP_EOR>1</CAT_TYP_EOR>  <D_DEB_EOR>2014-04-21</D_DEB_EOR>  <UG_EOR_FILLES/>  <UG_EOR_MERES/>  <GARES>    <GARE>[1][2]</GARE>  </GARES> </EOR>"));
+        records.add(factory.read("1", repository, repository.getComplexType("GARE"),
+                "<GARE>  <IFE>1</IFE>  <ETFE>2</ETFE>  <UG_EOR>[1][2014-04-21][1]</UG_EOR> </GARE>"));
+        storage.begin();
+        storage.update(records);
+        storage.commit();
+
+        // Query saved data
+        storage.begin();
+        ComplexTypeMetadata dateInKey = repository.getComplexType("GARE"); //$NON-NLS-1$
+        UserQueryBuilder qb = from(dateInKey);
+        qb.start(0);
+        qb.limit(1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        DataRecord result = results.iterator().next();
+        assertEquals("[1][2014-04-21][1]", MetadataUtils.toString(result.get("UG_EOR"), result.getType().getField("UG_EOR")));
     }
 
     private static class MockCommitter implements SaverSession.Committer {
