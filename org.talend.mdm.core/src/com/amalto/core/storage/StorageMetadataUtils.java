@@ -521,7 +521,7 @@ public class StorageMetadataUtils {
 
     public static String toString(Object o, FieldMetadata field) {
         if (o == null) {
-            return null;
+            return StringUtils.EMPTY;
         }
         if (field instanceof ReferenceFieldMetadata) {
             return toString(o);
