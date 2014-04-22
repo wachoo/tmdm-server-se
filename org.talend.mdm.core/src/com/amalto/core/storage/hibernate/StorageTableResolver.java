@@ -40,7 +40,7 @@ class StorageTableResolver implements TableResolver {
     }
 
     public String get(ComplexTypeMetadata type) {
-        return type.getName().toUpperCase();
+        return MappingGenerator.formatSQLName(type.getName().toUpperCase(), maxLength);
     }
 
     public String get(FieldMetadata field) {
