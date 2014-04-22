@@ -90,8 +90,6 @@ import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
-import org.talend.mdm.commmon.util.webapp.XObjectType;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -2039,10 +2037,12 @@ public class Util {
     }
 
     public static IWhereItem fixWebConditions(IWhereItem whereItem, String userXML) throws Exception {
-        User user = User.parse(userXML);
+        User user;
         ScriptEngine scriptEngine = SCRIPTFACTORY.getEngineByName("groovy"); //$NON-NLS-1$
-        scriptEngine.put("user_context", user);//$NON-NLS-1$
-
+        if (userXML != null) {
+            user = User.parse(userXML);
+            scriptEngine.put("user_context", user);//$NON-NLS-1$
+        }
         if (whereItem == null) {
             return null;
         }
