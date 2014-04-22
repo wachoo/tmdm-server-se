@@ -426,13 +426,17 @@ public class MetadataUtils {
     }
 
     public static Object convert(String dataAsString, TypeMetadata type) {
-        return convert(dataAsString, getSuperConcreteType(type).getName());
+        String typeName = type.getName();
+        if (dataAsString == null
+                || (dataAsString.isEmpty() && !Types.STRING.equals(typeName) && !typeName.contains("limitedString"))) { //$NON-NLS-1$
+            return null;
+        } else {
+            TypeMetadata superType = getSuperConcreteType(type);
+            return convert(dataAsString, superType.getName());
+        }
     }
 
     public static Object convert(String dataAsString, String type) {
-        if (dataAsString == null || dataAsString.isEmpty()) {
-            return null;
-        }
         if (Types.STRING.equals(type)) {
             return dataAsString;
         } else if (Types.INTEGER.equals(type) || Types.POSITIVE_INTEGER.equals(type) || Types.NEGATIVE_INTEGER.equals(type)
@@ -926,7 +930,7 @@ public class MetadataUtils {
 
     public static String toString(Object o, FieldMetadata field) {
         if (o == null) {
-            return null;
+            return StringUtils.EMPTY;
         }
         if (field instanceof ReferenceFieldMetadata) {
             return toString(o);
