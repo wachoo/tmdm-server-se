@@ -126,6 +126,24 @@ public class MetadataValidationTest extends TestCase {
         assertFalse(handler.getLineNumbers().contains(null));
     }
 
+    public void testFK8() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("FK8_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getErrorCount());
+        assertEquals(2, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.FOREIGN_KEY_USES_MAX_LENGTH));
+
+        ComplexTypeMetadata type = repository.getComplexType("REF_CD_SET_VAL");
+        assertNotNull(type);
+        assertTrue(type.hasField("REF_VAL_CD"));
+        FieldMetadata field = type.getField("REF_VAL_CD");
+        assertTrue(field.getType().getName().startsWith("X_ANONYMOUS"));
+        assertEquals(1, field.getType().getSuperTypes().size());
+        assertEquals(Types.STRING, field.getType().getSuperTypes().iterator().next().getName());
+    }
+
     public void testFKPointToNonPK() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("FKCheck.xsd");
