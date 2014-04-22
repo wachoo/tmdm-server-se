@@ -485,7 +485,7 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 || Types.TIME.equals(type.getName()) || Types.DURATION.equals(type.getName())
                 || Types.BYTE.equals(type.getName()) || Types.UNSIGNED_BYTE.equals(type.getName()));
         if (!metadata.isMany() && validType) {
-            if (Types.INTEGER.equals(metadata.getType().getName()) || Types.DOUBLE.equals(metadata.getType().getName())) {
+            if (Types.INTEGER.equals(type.getName()) || Types.DOUBLE.equals(type.getName())) {
                 return new NumericSearchIndexHandler();
             } else {
                 return new BasicSearchIndexHandler();
