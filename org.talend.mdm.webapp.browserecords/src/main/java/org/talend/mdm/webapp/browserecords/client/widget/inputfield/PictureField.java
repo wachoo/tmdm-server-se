@@ -17,6 +17,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.ImagePreviewWindow;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.core.El;
@@ -46,6 +47,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ErrorEvent;
 import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
@@ -79,6 +82,8 @@ public class PictureField extends TextField<String> {
     private boolean readOnly;
 
     private boolean isMandatory;
+
+    private String imagePath;
 
     private Dialog dialog = new Dialog() {
 
@@ -131,10 +136,12 @@ public class PictureField extends TextField<String> {
 
         propertyEditor = new PropertyEditor<String>() {
 
+            @Override
             public String getStringValue(String value) {
                 return value;
             }
 
+            @Override
             public String convertStringValue(String value) {
                 return PictureField.this.value;
             }
@@ -142,12 +149,15 @@ public class PictureField extends TextField<String> {
 
         image.addErrorHandler(new ErrorHandler() {
 
+            @Override
             public void onError(ErrorEvent event) {
                 image.setUrl(DefaultImage);
             }
         });
 
         image.addLoadHandler(new LoadHandler() {
+
+            @Override
             public void onLoad(LoadEvent event) {
                 com.google.gwt.dom.client.Element element = event.getRelativeElement();
                 if (element == image.getElement() && !isInternalImageURL(image.getUrl())) {
@@ -165,6 +175,17 @@ public class PictureField extends TextField<String> {
             }
         });
 
+        image.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent arg0) {
+                if (imagePath != null) {
+                    new ImagePreviewWindow(imagePath);
+                }
+            }
+        });
+
+        this.setStyleAttribute("cursor", "pointer"); //$NON-NLS-1$ //$NON-NLS-2$
         this.isMandatory = isMandatory;
     }
 
@@ -238,6 +259,7 @@ public class PictureField extends TextField<String> {
                 this.value = "/imageserver" + value; //$NON-NLS-1$
             }
             image.setUrl(scaleInternalUrl(this.value, DEFAULT_IMAGE_SCALE_SIZE));
+            imagePath = this.value;
 
         } else {
             image.setUrl(DefaultImage);
@@ -361,6 +383,7 @@ public class PictureField extends TextField<String> {
             file.setFireChangeEventOnSetValue(true);
             file.addListener(Events.Change, new Listener<FieldEvent>() {
 
+                @Override
                 public void handleEvent(FieldEvent be) {
                     // reset imgId
                     catalog.setValue(""); //$NON-NLS-1$
@@ -382,6 +405,7 @@ public class PictureField extends TextField<String> {
             editForm.add(imgIdRow, formData);
             editForm.addListener(Events.Submit, new Listener<FormEvent>() {
 
+                @Override
                 public void handleEvent(FormEvent be) {
                     String json = be.getResultHtml();
                     JSONObject jsObject = JSONParser.parse(json).isObject();
@@ -419,6 +443,7 @@ public class PictureField extends TextField<String> {
             remoteTabItem.add(pictureSelector);
             remoteTabItem.addListener(Events.Show, new Listener() {
 
+                @Override
                 public void handleEvent(BaseEvent be) {
                     pictureSelector.refresh();
                 }
