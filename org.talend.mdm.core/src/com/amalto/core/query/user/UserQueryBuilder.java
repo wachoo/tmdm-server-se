@@ -145,6 +145,19 @@ public class UserQueryBuilder {
         return new Compare(new Field(left), Predicate.LOWER_THAN_OR_EQUALS, new Field(right));
     }
 
+    public static Compare eq(FieldMetadata left, String... values) {
+        if (values == null) {
+            throw new IllegalArgumentException("Values can not be null.");
+        }
+        Field leftExpression = new Field(left);
+        TypedExpression[] constants = new TypedExpression[values.length];
+        int i = 0;
+        for (String value : values) {
+            constants[i++] = createConstant(leftExpression, value);
+        }
+        return new Compare(leftExpression, Predicate.EQUALS, new ConstantCollection(constants));
+    }
+
     public static Compare eq(FieldMetadata left, FieldMetadata right) {
         return new Compare(new Field(left), Predicate.EQUALS, new Field(right));
     }
@@ -222,7 +235,7 @@ public class UserQueryBuilder {
         }
     }
 
-    public static Expression createConstant(TypedExpression expression, String constant) {
+    public static TypedExpression createConstant(TypedExpression expression, String constant) {
         String fieldTypeName = expression.getTypeName();
         if (Types.INTEGER.equals(fieldTypeName)
                 || Types.POSITIVE_INTEGER.equals(fieldTypeName)
@@ -700,5 +713,9 @@ public class UserQueryBuilder {
         } else {
             return new Type(new Field(field));
         }
+    }
+
+    public static TypedExpression distinct(FieldMetadata field) {
+        return new Distinct(new Field(field));
     }
 }

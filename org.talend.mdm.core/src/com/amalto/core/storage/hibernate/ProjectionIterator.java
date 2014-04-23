@@ -258,6 +258,13 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return currentElement;
         }
 
+        @Override
+        public ProjectionElement visit(Distinct distinct) {
+            Object value = values[currentIndex++];
+            currentElement.value = value;
+            return currentElement;
+        }
+
         public ProjectionElement visit(Type type) {
             Object value = values[currentIndex++];
             if (value != null) {

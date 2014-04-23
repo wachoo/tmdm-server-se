@@ -133,9 +133,9 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
         allRecords.add(factory.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
         allRecords.add(factory.read("1", repository, a,
-                "<A><id>1</id><textA>TextA</textA><nestedB><text>Text</text></nestedB></A>"));
+                "<A><id>1</id><textA>TextA</textA><nestedB><text>Text1</text></nestedB></A>"));
         allRecords.add(factory.read("1", repository, a,
-                "<A><id>2</id><textA>TextA</textA><nestedB><text>Text</text></nestedB><refA>[1]</refA></A>"));
+                "<A><id>2</id><textA>TextA</textA><nestedB><text>Text2</text></nestedB><refA>[1]</refA></A>"));
         allRecords.add(factory.read("1", repository, a,
                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
         allRecords.add(factory.read("1", repository, a,
@@ -365,6 +365,65 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testSelectByGroupOfValues() throws Exception {
+        UserQueryBuilder qb = from(person).where(eq(person.getField("lastname"), "Dupond", "Dupont"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result);
+                assertTrue("Dupond".equals(result.get("lastname")) || "Dupont".equals(result.get("lastname")));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectByGroupOfEmptyValues() throws Exception {
+        try {
+            from(a).where(eq(a.getField("nestedB/text"), new String[0]));
+            fail("Expects an exception: 'no value' is not accepted");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+        try {
+            from(a).where(eq(a.getField("nestedB/text")));
+            fail("Expects an exception: 'no value' is not accepted");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+        try {
+            from(a).where(eq(a.getField("nestedB/text"), (String[]) null));
+            fail("Expects an exception: null value is not accepted");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
+
+    public void testSelectByGroupOfValuesOnCollection() throws Exception {
+        UserQueryBuilder qb = from(product).where(eq(product.getField("Features/Sizes/Size"), "Medium", "Large"));
+        try {
+            storage.fetch(qb.getSelect());
+            fail("Expected an exception (not supported operation).");
+        } catch (Exception e) {
+            // Expected: Do not support collection search criteria with multiple values.
+        }
+    }
+
+    public void testSelectByGroupOfValuesOnNested() throws Exception {
+        UserQueryBuilder qb = from(a).where(eq(a.getField("nestedB/text"), "Text1", "Text2"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result);
+                assertTrue("Text1".equals(result.get("nestedB/text")) || "Text2".equals(result.get("nestedB/text")));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     public void testSelectId() throws Exception {
         Collection<FieldMetadata> keyFields = person.getKeyFields();
         assertEquals(1, keyFields.size());
@@ -376,6 +435,23 @@ public class StorageQueryTest extends StorageTestCase {
         try {
             assertEquals(3, results.getSize());
             assertEquals(3, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectByGroupOfIds() throws Exception {
+        Collection<FieldMetadata> keyFields = person.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.iterator().next();
+        UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1", "2"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
             for (DataRecord result : results) {
                 assertNotNull(result.get(keyField));
             }

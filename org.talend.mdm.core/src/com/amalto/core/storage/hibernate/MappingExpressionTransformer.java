@@ -284,8 +284,23 @@ public class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(Distinct distinct) {
+        return new Distinct((Field) distinct.getField().accept(this));
+    }
+
+    @Override
     public Expression visit(Id id) {
         return new Id(getMapping(id.getType()), id.getId());
+    }
+
+    @Override
+    public Expression visit(ConstantCollection collection) {
+        TypedExpression[] constantExpressions = new TypedExpression[collection.getValues().length];
+        int i = 0;
+        for (Expression expression : collection.getValues()) {
+            constantExpressions[i++] = (TypedExpression) expression.accept(this);
+        }
+        return new ConstantCollection(constantExpressions);
     }
 
     @Override

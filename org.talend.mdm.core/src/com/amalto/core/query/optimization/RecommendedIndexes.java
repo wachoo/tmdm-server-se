@@ -130,6 +130,10 @@ public class RecommendedIndexes {
             return Collections.emptySet();
         }
 
+        public Collection<FieldMetadata> visit(Distinct distinct) {
+            return distinct.getField().accept(this);
+        }
+
         public Collection<FieldMetadata> visit(StagingStatus stagingStatus) {
             // TODO Should indicate that staging status needs index
             return Collections.emptySet();
@@ -203,6 +207,11 @@ public class RecommendedIndexes {
 
         public Collection<FieldMetadata> visit(Id id) {
             return id.getType().getKeyFields();
+        }
+
+        @Override
+        public Collection<FieldMetadata> visit(ConstantCollection collection) {
+            return Collections.emptySet();
         }
 
         public Collection<FieldMetadata> visit(StringConstant constant) {

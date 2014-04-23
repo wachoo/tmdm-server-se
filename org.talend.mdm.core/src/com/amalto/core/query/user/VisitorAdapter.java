@@ -56,6 +56,11 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
+    @Override
+    public T visit(Distinct distinct) {
+        throw new NotImplementedException();
+    }
+
     public T visit(StagingStatus stagingStatus) {
         throw new NotImplementedException();
     }
@@ -101,6 +106,11 @@ public class VisitorAdapter<T> implements Visitor<T> {
     }
 
     public T visit(Id id) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public T visit(ConstantCollection collection) {
         throw new NotImplementedException();
     }
 
