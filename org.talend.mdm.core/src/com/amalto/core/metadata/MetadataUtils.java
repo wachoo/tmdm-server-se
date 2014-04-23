@@ -935,7 +935,8 @@ public class MetadataUtils {
         if (field instanceof ReferenceFieldMetadata) {
             return toString(o);
         }
-        String typeName = field.getType().getName();
+        TypeMetadata type = MetadataUtils.getSuperConcreteType(field.getType());
+        String typeName = type.getName();
         if (Types.DATE.equals(typeName)) {
             synchronized (DateConstant.DATE_FORMAT) {
                 try {
