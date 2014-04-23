@@ -1,15 +1,36 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.record;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.List;
+
+import javax.xml.XMLConstants;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
@@ -20,13 +41,6 @@ import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.talend.mdm.commmon.metadata.*;
-
-import javax.xml.XMLConstants;
-import java.io.*;
-import java.util.Collection;
-import java.util.List;
 
 public class DataRecordXmlWriter implements DataRecordWriter {
 
@@ -57,11 +71,13 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         includeMetadata = false;
     }
 
+    @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
         write(record, out);
     }
 
+    @Override
     public void write(DataRecord record, Writer writer) throws IOException {
         DefaultMetadataVisitor<Void> fieldPrinter = new FieldPrinter(record, writer);
         Collection<FieldMetadata> fields = type == null ? record.getType().getFields() : type.getFields();
@@ -127,7 +143,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for reference field '" + referenceField.getName() + "' of type '" + referenceField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for reference field '" + referenceField.getName()
+                        + "' of type '" + referenceField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -174,7 +191,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for contained field '" + containedField.getName() + "' of type '" + containedField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for contained field '" + containedField.getName()
+                        + "' of type '" + containedField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -208,7 +226,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for simple field '" + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for simple field '" + simpleField.getName() + "' of type '"
+                        + simpleField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -234,7 +253,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
                 }
                 return null;
             } catch (IOException e) {
-                throw new RuntimeException("Could not serialize XML for enumeration field '" + enumField.getName() + "' of type '" + enumField.getContainingType().getName() + "'.", e);
+                throw new RuntimeException("Could not serialize XML for enumeration field '" + enumField.getName()
+                        + "' of type '" + enumField.getContainingType().getName() + "'.", e);
             }
         }
 
@@ -242,16 +262,17 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             if (value == null) {
                 throw new IllegalArgumentException("Not supposed to write null values to XML.");
             }
+            TypeMetadata type = MetadataUtils.getSuperConcreteType(simpleField.getType());
             if (!(value instanceof String)) {
-                if (Types.DATE.equals(simpleField.getType().getName())) {
+                if (Types.DATE.equals(type.getName())) {
                     synchronized (DateConstant.DATE_FORMAT) {
                         out.write((DateConstant.DATE_FORMAT).format(value));
                     }
-                } else if (Types.DATETIME.equals(simpleField.getType().getName())) {
+                } else if (Types.DATETIME.equals(type.getName())) {
                     synchronized (DateTimeConstant.DATE_FORMAT) {
                         out.write((DateTimeConstant.DATE_FORMAT).format(value));
                     }
-                } else if (Types.TIME.equals(simpleField.getType().getName())) {
+                } else if (Types.TIME.equals(type.getName())) {
                     synchronized (TimeConstant.TIME_FORMAT) {
                         out.write((TimeConstant.TIME_FORMAT).format(value));
                     }

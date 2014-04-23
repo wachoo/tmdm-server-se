@@ -33,6 +33,7 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.metadata.Types;
@@ -526,7 +527,8 @@ public class StorageMetadataUtils {
         if (field instanceof ReferenceFieldMetadata) {
             return toString(o);
         }
-        String typeName = field.getType().getName();
+        TypeMetadata type = MetadataUtils.getSuperConcreteType(field.getType());
+        String typeName = type.getName();
         if (Types.DATE.equals(typeName)) {
             synchronized (DateConstant.DATE_FORMAT) {
                 try {
