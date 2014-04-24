@@ -14,8 +14,10 @@ package com.amalto.core.storage;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,7 +47,9 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 
@@ -110,7 +114,7 @@ public class StorageWrapperTest extends TestCase {
 
         List<DataRecord> records = new LinkedList<DataRecord>();
         records.add(factory.read("1", repository, repository.getComplexType("Employee"),
-                "<Employee><Id>22</Id><Holiday>2014-04-17T12:00:00</Holiday></Employee>"));
+                "<Employee><Id>22</Id><Holiday>2014-04-17T12:00:00</Holiday><birthday>2014-04-16T12:00:00</birthday></Employee>"));
         storage.begin();
         storage.update(records);
         storage.commit();
@@ -124,6 +128,7 @@ public class StorageWrapperTest extends TestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(1, results.getCount());
         DataRecord result = results.iterator().next();
+
         DataRecordXmlWriter writer = new DataRecordXmlWriter(employee);
         ResettableStringWriter stringWriter = new ResettableStringWriter();
         try {
@@ -142,6 +147,26 @@ public class StorageWrapperTest extends TestCase {
         }
         assertTrue(datetimeStrValues.contains("2014-04-17T12:00:00"));
         stringWriter.reset();
+
+        DataRecordWriter viewWriter = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            viewWriter.write(result, output);
+        } catch (IOException e) {
+            throw new XmlServerException(e);
+        }
+        String resultsAsString = new String(output.toByteArray(), Charset.forName("UTF-8"));
+        output.reset();
+
+        xpath = XPathFactory.newInstance().newXPath();
+        r = documentBuilder.parse(new InputSource(new StringReader(resultsAsString))).getDocumentElement();
+        NodeList birthday = (NodeList) xpath.evaluate("./birthday", r, XPathConstants.NODESET); //$NON-NLS-1$
+        datetimeStrValues = new ArrayList<String>();
+        for (int j = 0; j < birthday.getLength(); j++) {
+            datetimeStrValues
+                    .add(birthday.item(j).getFirstChild() == null ? "" : birthday.item(j).getFirstChild().getNodeValue()); //$NON-NLS-1$
+        }
+        assertTrue(datetimeStrValues.contains("2014-04-16T12:00:00"));
 
         storage.commit();
 

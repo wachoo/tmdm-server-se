@@ -19,18 +19,20 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.apache.commons.lang.StringEscapeUtils;
-
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
+import com.amalto.core.metadata.MetadataUtils;
 
 public class DataRecordDefaultWriter implements DataRecordWriter {
 
+    @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
         write(record, out);
     }
 
+    @Override
     public void write(DataRecord record, Writer writer) throws IOException {
         boolean isReferenceField;
         writer.write("<result>\n"); //$NON-NLS-1$
@@ -44,16 +46,16 @@ public class DataRecordDefaultWriter implements DataRecordWriter {
                     Object[] values = (Object[]) value;
                     for (Object currentValue : values) {
                         if (isReferenceField) {
-                            writer.append("[").append(StringEscapeUtils.escapeXml(String.valueOf(currentValue))).append("]");  //$NON-NLS-1$ //$NON-NLS-2$
+                            writer.append("[").append(StringEscapeUtils.escapeXml(String.valueOf(currentValue))).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
                         } else {
                             writer.append(StringEscapeUtils.escapeXml(String.valueOf(currentValue)));
                         }
                     }
                 } else {
                     if (isReferenceField) {
-                        writer.append("[").append(StringEscapeUtils.escapeXml(String.valueOf(value))).append("]");  //$NON-NLS-1$ //$NON-NLS-2$
+                        writer.append("[").append(StringEscapeUtils.escapeXml(String.valueOf(value))).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
-                        writer.append(StringEscapeUtils.escapeXml(String.valueOf(value)));
+                        writer.append(StringEscapeUtils.escapeXml(MetadataUtils.toString(value, fieldMetadata)));
                     }
                 }
                 writer.append("</").append(name).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$

@@ -4,15 +4,20 @@
 <xsd:complexType>
 <xsd:all>
 <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="Holiday" type="DateTimeType"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="Holiday" type="DateTimeType"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="birthday" type="MyDateTimeType"/>
 </xsd:all>
 </xsd:complexType>
 <xsd:unique name="Employee">
 <xsd:selector xpath="."/>
+<xsd:field xpath="Holiday"/>
 <xsd:field xpath="Id"/>
 </xsd:unique>
 </xsd:element>
 <xsd:simpleType name="DateTimeType">
+<xsd:restriction base="xsd:dateTime"/>
+</xsd:simpleType>
+<xsd:simpleType name="MyDateTimeType">
 <xsd:restriction base="xsd:dateTime"/>
 </xsd:simpleType>
 </xsd:schema>
