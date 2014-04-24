@@ -197,11 +197,11 @@ public class ItemsListPanel extends ContentPanel {
     };
 
     private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
-		return stagingAreaConfig.dataContainer;
+        return stagingAreaConfig.dataContainer;
     }-*/;
 
     private native String getCriteria(JavaScriptObject stagingAreaConfig)/*-{
-		return stagingAreaConfig.criteria;
+        return stagingAreaConfig.criteria;
     }-*/;
 
     private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
@@ -315,8 +315,9 @@ public class ItemsListPanel extends ContentPanel {
                     if (selectedItems == null) {
                         // search and create
                         if (isCreate && createItemBean != null) {
-                            if (grid.getStore().findModel(createItemBean) != null) {
-                                grid.getSelectionModel().select(createItemBean, true);
+                            ItemBean findModel = grid.getStore().findModel(createItemBean.getIds());
+                            if (findModel != null) {
+                                grid.getSelectionModel().select(findModel, true);
                             } else {
                                 grid.getSelectionModel().select(-1, false);
                             }
