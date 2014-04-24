@@ -19,9 +19,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.apache.commons.lang.StringEscapeUtils;
-
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+
+import com.amalto.core.storage.StorageMetadataUtils;
 
 
 public class DataRecordDefaultWriter implements DataRecordWriter {
@@ -53,7 +54,7 @@ public class DataRecordDefaultWriter implements DataRecordWriter {
                     if (isReferenceField) {
                         writer.append("[").append(StringEscapeUtils.escapeXml(String.valueOf(value))).append("]");  //$NON-NLS-1$ //$NON-NLS-2$
                     } else {
-                        writer.append(StringEscapeUtils.escapeXml(String.valueOf(value)));
+                        writer.append(StringEscapeUtils.escapeXml(StorageMetadataUtils.toString(value, fieldMetadata)));
                     }
                 }
                 writer.append("</").append(name).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$

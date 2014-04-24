@@ -1,29 +1,58 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.metadata.*;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.XMLConstants;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.AliasedFieldMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadataImpl;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
-import javax.xml.XMLConstants;
-import java.io.IOException;
-import java.util.*;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.Count;
+import com.amalto.core.query.user.Distinct;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.Max;
+import com.amalto.core.query.user.Min;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.Type;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.query.user.metadata.GroupSize;
+import com.amalto.core.query.user.metadata.StagingBlockKey;
+import com.amalto.core.query.user.metadata.StagingError;
+import com.amalto.core.query.user.metadata.StagingSource;
+import com.amalto.core.query.user.metadata.StagingStatus;
+import com.amalto.core.query.user.metadata.TaskId;
+import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 class ProjectionIterator implements CloseableIterator<DataRecord> {
 
@@ -41,31 +70,31 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
     private boolean isClosed;
 
-    public ProjectionIterator(MappingRepository mappingMetadataRepository,
-                              CloseableIterator<Object> iterator,
-                              List<TypedExpression> selectedFields,
-                              Set<ResultsCallback> callbacks) {
+    public ProjectionIterator(MappingRepository mappingMetadataRepository, CloseableIterator<Object> iterator,
+            List<TypedExpression> selectedFields, Set<ResultsCallback> callbacks) {
         this.iterator = iterator;
         this.selectedFields = selectedFields;
         this.callbacks = callbacks;
         this.mappingMetadataRepository = mappingMetadataRepository;
     }
 
-    public ProjectionIterator(MappingRepository mappingMetadataRepository,
-                              final ScrollableResults results,
-                              List<TypedExpression> selectedFields,
-                              final Set<ResultsCallback> callbacks) {
+    public ProjectionIterator(MappingRepository mappingMetadataRepository, final ScrollableResults results,
+            List<TypedExpression> selectedFields, final Set<ResultsCallback> callbacks) {
         this(mappingMetadataRepository, new CloseableIterator<Object>() {
+
             private boolean isClosed = false;
 
+            @Override
             public boolean hasNext() {
                 return results.next();
             }
 
+            @Override
             public Object next() {
                 return results.get();
             }
 
+            @Override
             public void remove() {
             }
 
@@ -82,6 +111,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
         }, selectedFields, callbacks);
     }
 
+    @Override
     public boolean hasNext() {
         boolean hasNext = iterator.hasNext();
         if (!hasNext) {
@@ -109,6 +139,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
         }
     }
 
+    @Override
     public DataRecord next() {
         if (firstNextCall) {
             for (ResultsCallback callback : callbacks) {
@@ -118,14 +149,15 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
         }
         DataRecord record;
         try {
-            final ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
+            final ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY,
+                    Storage.PROJECTION_TYPE, false);
             record = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
             Object[] values;
             Object next = iterator.next();
             if (next instanceof Object[]) {
                 values = (Object[]) next;
             } else {
-                values = new Object[]{next};
+                values = new Object[] { next };
             }
             ProjectionElementCreator projectionElementCreator = new ProjectionElementCreator(explicitProjectionType, values);
             List<ProjectionElement> elements = new LinkedList<ProjectionElement>();
@@ -144,14 +176,17 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
         return record;
     }
 
+    @Override
     public void remove() {
     }
 
+    @Override
     public void close() throws IOException {
         notifyCallbacks();
     }
 
     private static class ProjectionElement {
+
         FieldMetadata field;
 
         Object value;
@@ -177,53 +212,31 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
         private void createElement(String typeName, String fieldName) {
             SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
-            FieldMetadata field = new SimpleTypeFieldMetadata(explicitProjectionType,
-                    false,
-                    false,
-                    false,
-                    fieldName,
-                    fieldType,
-                    Collections.<String>emptyList(),
-                    Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
+            FieldMetadata field = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, fieldName, fieldType,
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList());
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
 
         private void createElement(String typeName, String aliasName, FieldMetadata aliasedField) {
             SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
-            FieldMetadata field = new AliasedFieldMetadata(explicitProjectionType,
-                    false,
-                    false,
-                    false,
-                    aliasName,
-                    fieldType,
-                    Collections.<String>emptyList(),
-                    Collections.<String>emptyList(),
-                    aliasedField);
+            FieldMetadata field = new AliasedFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType,
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), aliasedField);
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
 
         private void createReferenceElement(ReferenceFieldMetadata fieldMetadata) {
-            FieldMetadata field = new ReferenceFieldMetadata(explicitProjectionType,
-                    false,
-                    false,
-                    false,
-                    fieldMetadata.getName(),
-                    fieldMetadata.getReferencedType(),
-                    fieldMetadata.getReferencedField(),
-                    fieldMetadata.getForeignKeyInfoFields(),
-                    false,
-                    false,
-                    new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
-                    Collections.<String>emptyList(),
-                    Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
+            FieldMetadata field = new ReferenceFieldMetadata(explicitProjectionType, false, false, false,
+                    fieldMetadata.getName(), fieldMetadata.getReferencedType(), fieldMetadata.getReferencedField(),
+                    fieldMetadata.getForeignKeyInfoFields(), false, false, new SimpleTypeMetadata(
+                            XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING), Collections.<String> emptyList(),
+                    Collections.<String> emptyList(), Collections.<String> emptyList());
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
 
+        @Override
         public ProjectionElement visit(Count count) {
             // Do nothing on field creation, count is expected to be nested in a com.amalto.core.query.user.Alias.
             currentElement.value = values[currentIndex++];
@@ -244,6 +257,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return null;
         }
 
+        @Override
         public ProjectionElement visit(Alias alias) {
             isAlias = true;
             if (alias.getTypedExpression() instanceof Field) {
@@ -263,13 +277,15 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return currentElement;
         }
 
+        @Override
         public ProjectionElement visit(Type type) {
             Object value = values[currentIndex++];
             if (value != null) {
                 String typeName = value.toString();
                 ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
                 if (!(contextClassLoader instanceof StorageClassLoader)) {
-                    throw new IllegalStateException("Expected a instance of " + StorageClassLoader.class.getName() + " as current class loader.");
+                    throw new IllegalStateException("Expected a instance of " + StorageClassLoader.class.getName()
+                            + " as current class loader.");
                 }
                 try {
                     Class<?> aClass = contextClassLoader.loadClass(ClassCreator.getClassName(typeName));
@@ -283,11 +299,13 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return currentElement;
         }
 
+        @Override
         public ProjectionElement visit(StringConstant constant) {
             currentElement.value = values[currentIndex++];
             return currentElement;
         }
 
+        @Override
         public ProjectionElement visit(Timestamp timestamp) {
             if (!isAlias) {
                 createElement(timestamp.getTypeName(), "metadata:" + Timestamp.TIMESTAMP_ALIAS); //$NON-NLS-1$
@@ -296,6 +314,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return currentElement;
         }
 
+        @Override
         public ProjectionElement visit(TaskId taskId) {
             if (!isAlias) {
                 createElement(taskId.getTypeName(), "metadata:" + TaskId.TASK_ID_ALIAS); //$NON-NLS-1$
@@ -313,16 +332,22 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return currentElement;
         }
 
+        @Override
         public ProjectionElement visit(Field field) {
             FieldMetadata fieldMetadata = field.getFieldMetadata();
             if (!isAlias) {
                 if (fieldMetadata instanceof ReferenceFieldMetadata) {
                     createReferenceElement(((ReferenceFieldMetadata) fieldMetadata));
                 } else {
-                    createElement(fieldMetadata.getType().getName(), fieldMetadata.getName());
+                    TypeMetadata type = fieldMetadata.getType();
+                    if (fieldMetadata instanceof SimpleTypeFieldMetadata) {
+                        type = MetadataUtils.getSuperConcreteType(type);
+                    }
+                    createElement(type.getName(), fieldMetadata.getName());
                 }
             }
-            if (fieldMetadata instanceof ReferenceFieldMetadata && ((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata) {
+            if (fieldMetadata instanceof ReferenceFieldMetadata
+                    && ((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata) {
                 FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
                 int length = ((CompoundFieldMetadata) referencedField).getFields().length;
                 Object[] fieldValues = new Object[length];
@@ -348,6 +373,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return true;
         }
 
+        @Override
         public ProjectionElement visit(StagingStatus stagingStatus) {
             if (!isAlias) {
                 createElement(stagingStatus.getTypeName(), "metadata:" + StagingStatus.STAGING_STATUS_ALIAS); //$NON-NLS-1$
@@ -356,6 +382,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return currentElement;
         }
 
+        @Override
         public ProjectionElement visit(StagingError stagingError) {
             if (!isAlias) {
                 createElement(stagingError.getTypeName(), "metadata:" + StagingError.STAGING_ERROR_ALIAS); //$NON-NLS-1$
@@ -364,6 +391,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             return currentElement;
         }
 
+        @Override
         public ProjectionElement visit(StagingSource stagingSource) {
             if (!isAlias) {
                 createElement(stagingSource.getTypeName(), "metadata:" + StagingSource.STAGING_SOURCE_ALIAS); //$NON-NLS-1$

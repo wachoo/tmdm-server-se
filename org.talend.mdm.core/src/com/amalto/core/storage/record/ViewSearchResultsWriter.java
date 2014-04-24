@@ -19,9 +19,12 @@ import java.io.Writer;
 import javax.xml.XMLConstants;
 
 import org.apache.commons.lang.StringEscapeUtils;
-
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
@@ -58,15 +61,19 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
             throw new IllegalArgumentException("Not supposed to write null values to XML."); //$NON-NLS-1$
         }
         String stringValue;
-        if ("date".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
+        TypeMetadata type = fieldMetadata.getType();
+        if (fieldMetadata instanceof SimpleTypeFieldMetadata) {
+            type = MetadataUtils.getSuperConcreteType(type);
+        }
+        if ("date".equals(type.getName())) { //$NON-NLS-1$
             synchronized (DateConstant.DATE_FORMAT) {
                 stringValue = (DateConstant.DATE_FORMAT).format(value);
             }
-        } else if ("dateTime".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
+        } else if ("dateTime".equals(type.getName())) { //$NON-NLS-1$
             synchronized (DateTimeConstant.DATE_FORMAT) {
                 stringValue = (DateTimeConstant.DATE_FORMAT).format(value);
             }
-        } else if ("time".equals(fieldMetadata.getType().getName())) { //$NON-NLS-1$
+        } else if ("time".equals(type.getName())) { //$NON-NLS-1$
             synchronized (TimeConstant.TIME_FORMAT) {
                 stringValue = (TimeConstant.TIME_FORMAT).format(value);
             }
