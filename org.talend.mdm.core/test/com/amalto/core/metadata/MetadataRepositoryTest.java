@@ -11,6 +11,8 @@
 package com.amalto.core.metadata;
 
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import junit.framework.TestCase;
@@ -289,5 +291,15 @@ public class MetadataRepositoryTest extends TestCase {
             // Expected
         }
         // repository.accept(visitor);
+    }
+    
+    public void test25() throws Exception { // See TMDM-7235
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema25.xsd");
+        repository.load(stream);
+        ComplexTypeMetadata test = repository.getComplexType("Test");
+        ComplexTypeMetadata containedType = (ComplexTypeMetadata) test.getField("documents").getType();
+        List<ComplexTypeMetadata> sort = MetadataUtils.sortTypes(repository, Arrays.asList(test, containedType));
+        assertEquals("Test", sort.get(0).getName());
     }
 }
