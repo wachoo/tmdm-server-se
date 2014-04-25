@@ -32,6 +32,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -54,6 +56,10 @@ public class BrandingBar extends ContentPanel {
     private Image logoMdm = new Image("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
 
     private ListBox languageBox = new ListBox();
+
+    private Boolean languageBoxEnable = true;
+
+    private int languageSeleted = 1;
 
     Button logout = new Button(MessageFactory.getMessages().logout());
 
@@ -105,23 +111,42 @@ public class BrandingBar extends ContentPanel {
     }
 
     private void initEvent() {
+
         languageBox.addChangeHandler(new ChangeHandler() {
 
             @Override
             public void onChange(ChangeEvent event) {
+
+                if (languageBoxEnable) {
+                    changeLanguage();
+                }
+            }
+        });
+
+        languageBox.addFocusHandler(new FocusHandler() {
+
+            @Override
+            public void onFocus(FocusEvent event) {
+                if (languageBox != null) {
+                    languageSeleted = languageBox.getSelectedIndex();
+                }
+
                 String languageSelected = languageBox.getValue(languageBox.getSelectedIndex());
                 if (languageSelected == null || "".equals(languageSelected.trim())) { //$NON-NLS-1$
                     languageSelected = UrlUtil.getLanguage();
                 }
+
                 service.isExpired(languageSelected, new SessionAwareAsyncCallback<Boolean>() {
 
                     @Override
                     public void onSuccess(Boolean result) {
-                        changeLanguage();
+                        languageBoxEnable = true;
                     }
 
                     @Override
                     protected void doOnFailure(final Throwable caught) {
+                        languageBoxEnable = false;
+                        languageBox.setSelectedIndex(languageSeleted);
                         super.doOnFailure(caught);
                     }
                 });
