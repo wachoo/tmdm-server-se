@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.WindowEvent;
+import com.extjs.gxt.ui.client.event.WindowListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.AbsoluteLayout;
@@ -34,7 +36,7 @@ public class ImagePreviewWindow extends Window {
 
     private final int WIDTH_OFFSET = 16;
 
-    private final int HEIGHT_OFFSET = 22;
+    private final int HEIGHT_OFFSET = 26;
 
     public ImagePreviewWindow(String imagePath) {
         initWindow(imagePath);
@@ -48,9 +50,8 @@ public class ImagePreviewWindow extends Window {
         setBlinkModal(true);
         setHeading(getImageName(imagePath));
         setScrollMode(Scroll.AUTO);
-        setResizable(false);
         setBorders(false);
-        setDraggable(false);
+        setMaximizable(true);
 
         buildWindow(imagePath);
 
@@ -63,7 +64,7 @@ public class ImagePreviewWindow extends Window {
 
             @Override
             public void onLoad(LoadEvent event) {
-                resetImageContainer();
+                setImageContainer();
                 image.getElement().getStyle().setVisibility(Style.Visibility.VISIBLE);
             }
 
@@ -74,10 +75,22 @@ public class ImagePreviewWindow extends Window {
         imageContainer.add(image);
         imageContainer.setLayout(new AbsoluteLayout());
 
+        addWindowListener(new WindowListener() {
+
+            @Override
+            public void windowMaximize(WindowEvent we) {
+                setImageContainer();
+            }
+
+            @Override
+            public void windowRestore(WindowEvent we) {
+                setImageContainer();
+            }
+        });
         add(imageContainer);
     }
 
-    private void resetImageContainer() {
+    private void setImageContainer() {
         if (image != null) {
             if (image.getWidth() > 0 && image.getHeight() > 0) {
                 int posTempLeft = 0;
@@ -86,11 +99,11 @@ public class ImagePreviewWindow extends Window {
                 imageContainer.setWidth(image.getWidth());
                 imageContainer.setHeight(image.getHeight());
 
-                if (image.getWidth() < MAX_WINDOW_WIDTH) {
-                    posTempLeft = (MAX_WINDOW_WIDTH - image.getWidth() - WIDTH_OFFSET) / 2;
+                if (image.getWidth() < getWidth()) {
+                    posTempLeft = (getWidth() - image.getWidth() - WIDTH_OFFSET) / 2;
                 }
-                if (image.getHeight() < MAX_WINDOW_HEIGHT) {
-                    posTempTop = (MAX_WINDOW_HEIGHT - image.getHeight() - HEIGHT_OFFSET) / 2;
+                if (image.getHeight() < getHeight()) {
+                    posTempTop = (getHeight() - image.getHeight() - HEIGHT_OFFSET) / 2;
                 }
 
                 imageContainer.setPosition(posTempLeft, posTempTop);

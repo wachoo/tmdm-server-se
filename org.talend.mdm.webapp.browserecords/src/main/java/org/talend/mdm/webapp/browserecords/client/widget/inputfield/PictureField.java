@@ -219,11 +219,11 @@ public class PictureField extends TextField<String> {
     }
 
     private native void regJs(Element el)/*-{
-                                         var instance = this;
-                                         el.onclick = function() {
-                                         instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
-                                         };
-                                         }-*/;
+		var instance = this;
+		el.onclick = function() {
+			instance.@org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField::handlerClick(Lcom/google/gwt/user/client/Element;)(this);
+		};
+    }-*/;
 
     @Override
     public void setValue(String value) {
