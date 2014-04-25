@@ -127,6 +127,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     private Menu subActionsMenu;
 
+    private int separatorIndex;
+
     private MenuItem openTabMenuItem;
 
     private MenuItem duplicateMenuItem;
@@ -609,6 +611,10 @@ public class ItemDetailToolBar extends ToolBar {
                     subActionsMenu.add(journalMenuItem);
                 }
 
+                separatorIndex = subActionsMenu.indexOf(duplicateMenuItem) + 1;
+                if (journalMenuItem != null) {
+                    separatorIndex = subActionsMenu.indexOf(journalMenuItem) + 1;
+                }
                 if (notFKAndHasTaskId) {
                     if (isStaging) {
                         getBrowseRecordsService().getGoldenRecordIdByGroupId(
@@ -644,14 +650,11 @@ public class ItemDetailToolBar extends ToolBar {
                                                     }
                                                 });
                                             }
-                                            int masterMenuItemIndex = 0;
-                                            if (journalMenuItem != null) {
-                                                masterMenuItemIndex = subActionsMenu.indexOf(journalMenuItem);
-                                            } else {
-                                                masterMenuItemIndex = subActionsMenu.indexOf(duplicateMenuItem);
+                                            if (!(subActionsMenu.getItem(separatorIndex) instanceof SeparatorMenuItem)) {
+                                                subActionsMenu.insert(new SeparatorMenuItem(), separatorIndex);
                                             }
-                                            subActionsMenu.insert(new SeparatorMenuItem(), masterMenuItemIndex + 1);
-                                            subActionsMenu.insert(openMasterRecordMenuItem, masterMenuItemIndex + 2);
+                                            subActionsMenu.insert(openMasterRecordMenuItem,
+                                                    ItemDetailToolBar.this.separatorIndex + 1);
                                         }
                                     }
                                 });
@@ -675,7 +678,6 @@ public class ItemDetailToolBar extends ToolBar {
 
                                 }
                             });
-                            subActionsMenu.add(new SeparatorMenuItem());
                             subActionsMenu.add(dataLineageMenuItem);
                         }
                     }
@@ -728,6 +730,10 @@ public class ItemDetailToolBar extends ToolBar {
                         }
                     });
                     subActionsMenu.add(explainMenuItem);
+                }
+                if (subActionsMenu.indexOf(dataLineageMenuItem) != -1 || subActionsMenu.indexOf(openTaskMenuItem) != -1
+                        || subActionsMenu.indexOf(explainMenuItem) != -1) {
+                    subActionsMenu.insert(new SeparatorMenuItem(), separatorIndex);
                 }
 
                 if (isUseRelations() && !isStaging && relationMenuItem == null) {
@@ -1192,7 +1198,7 @@ public class ItemDetailToolBar extends ToolBar {
     }-*/;
 
     public void saveItemAndClose(final boolean isClose) {
-        if (itemBean.getIds().trim().equals("")) {
+        if (itemBean.getIds().trim().equals("")) { //$NON-NLS-1$
             saveItemWithIdCheck(isClose);
             return;
         }
