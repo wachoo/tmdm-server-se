@@ -30,7 +30,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
-    
+
     private final BrowseRecordsInStagingMessages msg = org.talend.mdm.webapp.browserecordsinstaging.client.i18n.MessagesFactory
             .getMessages();
 
@@ -76,22 +76,25 @@ public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
     protected void initViewToolBar() {
         if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
             addPersonalViewButton();
-            this.addSeparator();
         }
-        this.addSaveButton();
-        this.addSeparator();
-        this.addSaveQuitButton();
-        this.addSeparator();
-        this.addDeleteButton();
-        this.addSeparator();
-        this.addDuplicateButton();
-        this.addSeparator();
-        this.addFreshButton();
+        addSeparator();
+        addSaveButton();
+        addSeparator();
+        addSaveQuitButton();
+        addSeparator();
+        addDeleteButton();
+        addSeparator();
+        addFreshButton();
         if (this.openTab) {
-            this.addSeparator();
-            this.addOpenTabButton(false);
+            addSeparator();
+            addOpenTabButton(false);
         }
-        this.addOpenTaskButton();
+        addSeparator();
+        addDuplicateButton();
+        if (itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+            addSeparator();
+            addOpenTaskButton();
+        }
         checkEntitlement(viewBean);
     }
 
@@ -101,16 +104,18 @@ public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
         addSeparator();
         addSmartViewCombo();
         addDeleteButton();
+        if (this.openTab) {
+            addSeparator();
+            addOpenTabButton(true);
+        }
+        addSeparator();
+        addDuplicateButton();
+        if (itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+            addSeparator();
+            addOpenTaskButton();
+        }
         addSeparator();
         addPrintButton();
-        addSeparator();
-        this.addDuplicateButton();
-        this.addSeparator();
-        this.addFreshButton();
-        if (this.openTab) {
-            this.addSeparator();
-            this.addOpenTabButton(true);
-        }
     }
 
     @Override
@@ -126,22 +131,24 @@ public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
             deleteButton = new Button(msg.mark_as_deleted());
             deleteButton.setId("deleteButton"); //$NON-NLS-1$
             deleteButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
-            
+
             deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     MessageBox.confirm(MessagesFactory.getMessages().confirm_title(), msg.mark_deleted_confirm(),
                             new Listener<MessageBoxEvent>() {
 
-                        public void handleEvent(MessageBoxEvent be) {
-                            if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
-                                deleteRecord();
-                            }
-                        }
-                    });
+                                @Override
+                                public void handleEvent(MessageBoxEvent be) {
+                                    if (be.getButtonClicked().getItemId().equals(Dialog.YES)) {
+                                        deleteRecord();
+                                    }
+                                }
+                            });
                 }
             });
         }
         add(deleteButton);
-    }      
+    }
 }

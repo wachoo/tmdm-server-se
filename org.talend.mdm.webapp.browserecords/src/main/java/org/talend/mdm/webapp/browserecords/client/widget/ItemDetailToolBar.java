@@ -234,28 +234,31 @@ public class ItemDetailToolBar extends ToolBar {
     protected void initViewToolBar() {
         if (!operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)) {
             addPersonalViewButton();
-            this.addSeparator();
         }
-        this.addSaveButton();
-        this.addSeparator();
-        this.addSaveQuitButton();
-        this.addSeparator();
-        this.addDeleteButton();
-        this.addSeparator();
-        this.addDuplicateButton();
-        this.addSeparator();
-        this.addJournalButton();
-        this.addSeparator();
-        this.addFreshButton();
+        addSeparator();
+        addSaveButton();
+        addSeparator();
+        addSaveQuitButton();
+        addSeparator();
+        addDeleteButton();
+        addSeparator();
+        addFreshButton();
         if (this.openTab) {
-            this.addSeparator();
-            this.addOpenTabButton(false);
+            addSeparator();
+            addOpenTabButton(false);
+        }
+        addSeparator();
+        addDuplicateButton();
+        addSeparator();
+        addJournalButton();
+        if (itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+            addSeparator();
+            addOpenTaskButton();
         }
         if (isUseRelations()) {
-            this.addRelationButton();
+            addRelationButton();
         }
-        this.addOpenTaskButton();
-        this.addWorkFlosCombo();
+        addWorkFlosCombo();
         checkEntitlement(viewBean);
     }
 
@@ -629,7 +632,7 @@ public class ItemDetailToolBar extends ToolBar {
                 initSearchEntityPanel(arrStr, ids, itemBean.getConcept());
             }
         });
-        ItemDetailToolBar.this.addSeparator();
+        addSeparator();
         add(relationButton);
     }
 
@@ -794,9 +797,7 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected void addOpenTaskButton() {
-        if (taskButton == null && itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
-                && !"null".equalsIgnoreCase(itemBean.getTaskId().trim())) { //$NON-NLS-1$
-            ItemDetailToolBar.this.addSeparator();
+        if (taskButton == null) {
             this.taskButton = new Button(MessagesFactory.getMessages().open_task());
             taskButton.setId("taskButton"); //$NON-NLS-1$
             taskButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
@@ -808,14 +809,13 @@ public class ItemDetailToolBar extends ToolBar {
                     initDSC(itemBean.getTaskId());
                 }
             });
-
-            add(taskButton);
         }
+        add(taskButton);
     }
 
     private native boolean initDSC(String taskId)/*-{
-        $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-        return true;
+		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+		return true;
     }-*/;
 
     protected void initSmartViewToolBar() {
@@ -824,18 +824,25 @@ public class ItemDetailToolBar extends ToolBar {
         addSmartViewCombo();
         addDeleteButton();
         addSeparator();
-        addPrintButton();
-        addSeparator();
-        this.addDuplicateButton();
-        this.addSeparator();
-        this.addJournalButton();
-        this.addSeparator();
-        this.addFreshButton();
+        addFreshButton();
         if (this.openTab) {
-            this.addSeparator();
-            this.addOpenTabButton(true);
+            addSeparator();
+            addOpenTabButton(true);
         }
-        this.addWorkFlosCombo();
+        addSeparator();
+        addDuplicateButton();
+        addSeparator();
+        addJournalButton();
+        if (itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()) {
+            addSeparator();
+            addOpenTaskButton();
+        }
+        addSeparator();
+        addPrintButton();
+        if (isUseRelations()) {
+            addRelationButton();
+        }
+        addWorkFlosCombo();
     }
 
     private void updateSmartViewToolBar() {
@@ -954,18 +961,18 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-        $wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
-                true);
-        return true;
+		$wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
+				true);
+		return true;
     }-*/;
 
     // Please note that this method is duplicated in
     // org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
-        var lineageEntities = arrStr.split(",");
-        $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
-                dataObject);
-        return true;
+		var lineageEntities = arrStr.split(",");
+		$wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
+				dataObject);
+		return true;
     }-*/;
 
     public void saveItemAndClose(final boolean isClose) {
@@ -1128,13 +1135,13 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     public native void closeOutTabPanel()/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.closeCurrentTab();
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.closeCurrentTab();
     }-*/;
 
     public native void updateOutTabPanel(String tabText)/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        tabPanel.updateCurrentTabText(tabText);
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.updateCurrentTabText(tabText);
     }-*/;
 
     class MenuEx extends Menu {
@@ -1196,7 +1203,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         private native El getExtrasTr()/*-{
-            return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
+			return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
         }-*/;
 
         @Override
@@ -1320,7 +1327,7 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native void openWindow(String url)/*-{
-        window.open(url);
+		window.open(url);
     }-*/;
 
     public boolean isFkToolBar() {
