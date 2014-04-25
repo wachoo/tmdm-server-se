@@ -71,11 +71,7 @@ public class LineagePanel extends ContentPanel {
         detailPanel.setBodyBorder(false);
         contentPanel.add(detailPanel, southData);
 
-        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
-        add(contentPanel, centerData);
-
-        BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 250);
-        eastData.setMaxSize(300);
+        BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST);
         eastData.setSplit(true);
         eastData.setCollapsible(true);
         eastData.setFloatable(false);
@@ -85,6 +81,9 @@ public class LineagePanel extends ContentPanel {
         explainTreePanel.setScrollMode(Scroll.AUTO);
         explainTreePanel.setLayout(new FitLayout());
         add(explainTreePanel, eastData);
+
+        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+        add(contentPanel, centerData);
 
     }
 
