@@ -95,8 +95,6 @@ public class SystemStorageWrapper extends StorageWrapper {
         }
         if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
             return repository.getComplexType(DROPPED_ITEM_TYPE);
-        } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
-            return repository.getComplexType("User"); //$NON-NLS-1$
         } else if ("MDMDomainObjects".equals(clusterName) || "MDMItemImages".equals(clusterName) || "FailedAutoCommitSvnMessage".equals(clusterName)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             return null; // Documents for these clusters don't have a predefined structure.
         }
