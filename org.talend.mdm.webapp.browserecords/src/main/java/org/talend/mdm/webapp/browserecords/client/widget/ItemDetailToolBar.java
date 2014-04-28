@@ -543,6 +543,7 @@ public class ItemDetailToolBar extends ToolBar {
                     openTabMenuItem = new MenuItem(MessagesFactory.getMessages().openitem_tab());
                     openTabMenuItem.setId("openTabMenuItem"); //$NON-NLS-1$
                     openTabMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTab()));
+                    openTabMenuItem.setToolTip(MessagesFactory.getMessages().openitem_tab());
                     openTabMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                         @Override
@@ -569,6 +570,7 @@ public class ItemDetailToolBar extends ToolBar {
                     duplicateMenuItem = new MenuItem(MessagesFactory.getMessages().duplicate_btn());
                     duplicateMenuItem.setId("duplicateMenuItem"); //$NON-NLS-1$
                     duplicateMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.duplicate()));
+                    duplicateMenuItem.setToolTip(MessagesFactory.getMessages().duplicate_tip());
                     duplicateMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                         @Override
@@ -598,6 +600,7 @@ public class ItemDetailToolBar extends ToolBar {
                     journalMenuItem = new MenuItem(MessagesFactory.getMessages().journal_btn());
                     journalMenuItem.setId("journalMenuItem"); //$NON-NLS-1$
                     journalMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.journal()));
+                    journalMenuItem.setToolTip(MessagesFactory.getMessages().journal_tip());
                     journalMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                         @Override
@@ -664,6 +667,7 @@ public class ItemDetailToolBar extends ToolBar {
                             dataLineageMenuItem.setId("dataLineageMenuItem"); //$NON-NLS-1$
                             dataLineageMenuItem.setItemId("dataLineageMenuItem"); //$NON-NLS-1$
                             dataLineageMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.stagingRecords()));
+                            dataLineageMenuItem.setToolTip(MessagesFactory.getMessages().stagingRecords_tip());
                             dataLineageMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                                 @Override
@@ -689,7 +693,7 @@ public class ItemDetailToolBar extends ToolBar {
                         openTaskMenuItem = new MenuItem(MessagesFactory.getMessages().open_task());
                         openTaskMenuItem.setId("openTaskMenuItem"); //$NON-NLS-1$
                         openTaskMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
-
+                        openTaskMenuItem.setToolTip(MessagesFactory.getMessages().openitem_tab());
                         openTaskMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                             @Override
@@ -705,6 +709,7 @@ public class ItemDetailToolBar extends ToolBar {
                     explainMenuItem = new MenuItem(MessagesFactory.getMessages().explain_button());
                     explainMenuItem.setId("explainMenuItem"); //$NON-NLS-1$
                     explainMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+                    explainMenuItem.setToolTip(MessagesFactory.getMessages().explain_tip());
                     explainMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                         @Override
@@ -775,6 +780,7 @@ public class ItemDetailToolBar extends ToolBar {
         relationMenuItem = new MenuItem(MessagesFactory.getMessages().relations_btn());
         relationMenuItem.setId("relationMenuItem"); //$NON-NLS-1$
         relationMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.relations()));
+        relationMenuItem.setToolTip(MessagesFactory.getMessages().relations_tooltip());
         relationMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
             @Override

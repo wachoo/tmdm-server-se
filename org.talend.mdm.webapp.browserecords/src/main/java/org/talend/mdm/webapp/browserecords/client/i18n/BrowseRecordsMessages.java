@@ -471,6 +471,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String stagingRecords_btn();
 
+    String stagingRecords_tip();
+
     String staging_data_viewer_title();
 
     String source();
