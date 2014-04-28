@@ -951,10 +951,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             }
                         }
                         if (leftFieldCondition.position >= 0) {
-                            return new ManyFieldCriterion(typeCheckCriteria, resolver, fieldMetadata, condition.getRight().accept(
+                            return new ManyFieldCriterion(datasource, typeCheckCriteria, resolver, fieldMetadata, condition.getRight().accept(
                                     VALUE_ADAPTER), leftFieldCondition.position);
                         } else {
-                            return new ManyFieldCriterion(typeCheckCriteria, resolver, fieldMetadata, condition.getRight().accept(
+                            return new ManyFieldCriterion(datasource, typeCheckCriteria, resolver, fieldMetadata, condition.getRight().accept(
                                     VALUE_ADAPTER));
                         }
                     } else {

@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
@@ -20,6 +21,8 @@ import org.hibernate.criterion.SQLCriterion;
 import org.hibernate.type.Type;
 
 class ManyFieldCriterion extends SQLCriterion {
+
+    private final RDBMSDataSource dataSource;
 
     private final Criteria typeCriteria;
 
@@ -31,12 +34,13 @@ class ManyFieldCriterion extends SQLCriterion {
 
     private final TableResolver resolver;
 
-    ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value) {
-        this(typeSelectionCriteria, resolver, field, value, -1);
+    ManyFieldCriterion(RDBMSDataSource dataSource, Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value) {
+        this(dataSource, typeSelectionCriteria, resolver, field, value, -1);
     }
 
-    ManyFieldCriterion(Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value, int position) {
+    ManyFieldCriterion(RDBMSDataSource dataSource, Criteria typeSelectionCriteria, TableResolver resolver, FieldMetadata field, Object value, int position) {
         super(StringUtils.EMPTY, new Object[0], new Type[0]);
+        this.dataSource = dataSource;
         this.typeCriteria = typeSelectionCriteria;
         this.resolver = resolver;
         this.field = field;
@@ -113,11 +117,20 @@ class ManyFieldCriterion extends SQLCriterion {
         }
 
         private Object getValue() {
+            Object o = value;
             if (value instanceof Object[]) {
-                return ((Object[]) value)[currentIndex++];
-            } else {
-                return value;
+                o = ((Object[]) value)[currentIndex++];
             }
+            // DB2 does not like receiving a Boolean for boolean comparison (Hibernate uses a TINYINT)
+            if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.DB2 && o instanceof Boolean) {
+                Boolean booleanValue = (Boolean) o;
+                if (booleanValue) {
+                    o = 1;
+                } else {
+                    o = 0;
+                }
+            }
+            return o;
         }
 
         @Override
