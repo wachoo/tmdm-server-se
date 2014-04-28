@@ -178,11 +178,6 @@ public class BrowseRecordsController extends Controller {
                         }
                         setTimeout(msgBox, 1000);
 
-                        if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
-                            if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()) {
-                                ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
-                            }
-                        }
                         if (detailToolBar.isOutMost()) {
                             detailToolBar.refreshNodeStatus();
                         }
@@ -206,12 +201,25 @@ public class BrowseRecordsController extends Controller {
                             ItemsListPanel.getInstance().setDefaultSelectionModel(!isClose);
                         }
 
-                        // ItemsListPanel need to refresh when only fkToolBar = false and isOutMost = false and
-                        // isHierarchyCall = false
+                        // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
                         if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
-                            itemBean.setIds(result.getReturnValue());
-                            ItemsListPanel.getInstance().refreshGrid(itemBean);
+                            if (ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
+                                    .equals(ItemsMainTabPanel.getInstance().getSelectedItem().getId())) {
+                                itemBean.setIds(result.getReturnValue());
+                                ItemsListPanel.getInstance().refreshGrid(itemBean);
+                            }
                         }
+
+                        if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
+                            if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()) {
+                                if (ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
+                                        .equals(ItemsMainTabPanel.getInstance().getSelectedItem().getId())
+                                        || isClose) {
+                                    ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                                }
+                            }
+                        }
+
                         // TMDM-4814, TMDM-4815 (reload data to refresh ui)
                         if ((detailToolBar.isFkToolBar() || detailToolBar.isOutMost()) && !isClose) {
                             detailToolBar.refresh(result.getReturnValue());

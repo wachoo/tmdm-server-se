@@ -48,6 +48,7 @@ public class DeleteCallback extends SessionAwareAsyncCallback<Map<ItemBean, FKIn
      * @param result A {@link Map} of items to be deleted with information on what FK integrity policy should be
      * applied.
      */
+    @Override
     public void onSuccess(Map<ItemBean, FKIntegrityResult> result) {
         if (!result.isEmpty()) { // If empty, do nothing
             DeleteStrategy strategy;
@@ -58,7 +59,12 @@ public class DeleteCallback extends SessionAwareAsyncCallback<Map<ItemBean, FKIn
             }
 
             strategy.delete(result, action, postDeleteAction);
+            refresh();
         }
+    }
+
+    public void refresh() {
+        return;
     }
 
 }
