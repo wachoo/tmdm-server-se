@@ -81,11 +81,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         // Removes Joins and joined fields.
         List<Join> joins = select.getJoins();
         if (!joins.isEmpty()) {
-            Set<TypeMetadata> joinedTypes = new HashSet<TypeMetadata>();
+            Set<ComplexTypeMetadata> joinedTypes = new HashSet<ComplexTypeMetadata>();
             for (Join join : joins) {
                 joinedTypes.add(join.getRightField().getFieldMetadata().getContainingType());
             }
-            for (TypeMetadata joinedType : joinedTypes) {
+            for (ComplexTypeMetadata joinedType : joinedTypes) {
                 types.remove(joinedType);
             }
             List<TypedExpression> filteredFields = new LinkedList<TypedExpression>();

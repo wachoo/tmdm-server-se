@@ -50,9 +50,10 @@ public class JDBCStorageCleaner implements StorageCleaner {
                         next = new SQLServerStorageCleaner(next);
                         break;
                     case POSTGRES:
-                        next = new DB2StorageCleaner(next);
+                        next = new PostgresStorageCleaner(next);
                         break;
                     case DB2:
+                        next = new DB2StorageCleaner(next);
                         break;
                     default:
                         throw new NotImplementedException("Can not clean storages based on dialect '" + dialect + "'");

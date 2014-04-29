@@ -27,7 +27,7 @@ import java.util.*;
 
 class FlatTypeMapping extends TypeMapping {
 
-    protected static final Logger LOGGER = Logger.getLogger(FlatTypeMapping.class);
+    private static final Logger LOGGER = Logger.getLogger(FlatTypeMapping.class);
 
     private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
 

@@ -40,7 +40,7 @@ import com.amalto.core.storage.record.DataRecord;
 @Path("/system/stats/data")
 public class DataStatistics {
 
-    protected static final Logger LOGGER = Logger.getLogger(DataStatistics.class);
+    private static final Logger LOGGER = Logger.getLogger(DataStatistics.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

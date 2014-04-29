@@ -42,7 +42,7 @@ import com.amalto.core.storage.record.DataRecord;
 @Path("/system/stats/matching")
 public class MatchingStatistics {
 
-    protected static final Logger LOGGER = Logger.getLogger(MatchingStatistics.class);
+    private static final Logger LOGGER = Logger.getLogger(MatchingStatistics.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

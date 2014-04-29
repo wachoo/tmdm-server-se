@@ -48,7 +48,7 @@ import com.amalto.core.storage.record.DataRecord;
 @Path("/system/stats/events")
 public class EventStatistics {
 
-    protected static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
+    private static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
 
     private final ParameterURLReader handler = new ParameterURLReader();
 

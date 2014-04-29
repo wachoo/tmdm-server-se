@@ -44,9 +44,9 @@ import com.amalto.core.storage.record.DataRecord;
 
 public class InClauseOptimization extends StandardQueryHandler {
 
-    public static final Logger LOGGER = Logger.getLogger(InClauseOptimization.class);
+    private static final Logger LOGGER = Logger.getLogger(InClauseOptimization.class);
 
-    public static final int IN_CLAUSE_MAX = 1000;
+    private static final int IN_CLAUSE_MAX = 1000;
 
     private final Mode mode;
 

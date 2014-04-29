@@ -265,7 +265,7 @@ public class CacheStorage implements Storage {
 
         long lastAccessTime = System.currentTimeMillis();
 
-        AtomicInteger tokenCount = new AtomicInteger(MAX_TOKEN);
+        final AtomicInteger tokenCount = new AtomicInteger(MAX_TOKEN);
 
         List<DataRecord> results = Collections.emptyList();
 

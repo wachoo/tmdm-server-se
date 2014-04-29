@@ -33,9 +33,9 @@ class StorageTableResolver implements TableResolver {
 
     private static final Logger LOGGER = Logger.getLogger(StorageTableResolver.class);
 
-    protected static final String STANDARD_PREFIX = "X_"; //$NON-NLS-1$
+    private static final String STANDARD_PREFIX = "X_"; //$NON-NLS-1$
 
-    protected static final String RESERVED_KEYWORD_PREFIX = "X_"; //$NON-NLS-1$
+    private static final String RESERVED_KEYWORD_PREFIX = "X_"; //$NON-NLS-1$
 
     private static Set<String> reservedKeyWords;
 
@@ -184,7 +184,7 @@ class StorageTableResolver implements TableResolver {
     }
 
     // Internal method for recursion.
-    protected static String __shortString(char[] chars, int threshold) {
+    private static String __shortString(char[] chars, int threshold) {
         if (chars.length < threshold) {
             return new String(chars).replace('-', '_');
         } else {

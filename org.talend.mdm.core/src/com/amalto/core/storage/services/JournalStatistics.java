@@ -45,7 +45,7 @@ import com.amalto.core.storage.StorageType;
 @Path("/system/stats/journal")
 public class JournalStatistics {
 
-    protected static final Logger LOGGER = Logger.getLogger(JournalStatistics.class);
+    private static final Logger LOGGER = Logger.getLogger(JournalStatistics.class);
 
     private static final int DEFAULT_SLICE_STEP = 1;
 

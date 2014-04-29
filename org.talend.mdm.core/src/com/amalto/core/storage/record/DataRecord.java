@@ -272,9 +272,7 @@ public class DataRecord {
                             return false;
                         }
                     } else {
-                        if (entry.getValue() != null) {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }

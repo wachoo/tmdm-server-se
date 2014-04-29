@@ -51,7 +51,7 @@ import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
  */
 public class StorageMetadataUtils {
 
-    protected static final Logger LOGGER = Logger.getLogger(StorageMetadataUtils.class);
+    private static final Logger LOGGER = Logger.getLogger(StorageMetadataUtils.class);
 
     private StorageMetadataUtils() {
     }
@@ -60,7 +60,7 @@ public class StorageMetadataUtils {
      * Similar to
      * {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata, boolean)}
      * but will remain in entity boundaries (won't follow FK to other MDM entities).
-     * 
+     *
      * @param origin Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
      * @return A path <b>within</b> type <code>origin</code> to field <code>target</code>. Returns empty stack if no
@@ -83,7 +83,7 @@ public class StorageMetadataUtils {
      * <li>Number of references fields accessible from <code>origin</code>.</li>
      * </ul>
      * </p>
-     * 
+     *
      * @param type Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
      * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be

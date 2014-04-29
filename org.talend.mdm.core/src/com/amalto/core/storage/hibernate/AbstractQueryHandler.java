@@ -52,14 +52,14 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     final List<TypedExpression> selectedFields;
 
-    Set<ResultsCallback> callbacks;
+    final Set<ResultsCallback> callbacks;
 
     AbstractQueryHandler(Storage storage,
-                         StorageClassLoader storageClassLoader,
-                         Session session,
-                         Select select,
-                         List<TypedExpression> selectedFields,
-                         Set<ResultsCallback> callbacks) {
+            StorageClassLoader storageClassLoader,
+            Session session,
+            Select select,
+            List<TypedExpression> selectedFields,
+            Set<ResultsCallback> callbacks) {
         this.storageClassLoader = storageClassLoader;
         this.session = session;
         this.storage = storage;

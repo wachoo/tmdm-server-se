@@ -47,7 +47,6 @@ import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
 import org.hibernate.search.event.ContextHolder;
 import org.hibernate.search.impl.SearchFactoryImpl;
-import org.hibernate.search.store.DirectoryProvider;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
