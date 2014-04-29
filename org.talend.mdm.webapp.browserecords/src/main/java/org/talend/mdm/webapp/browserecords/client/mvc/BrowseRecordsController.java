@@ -204,7 +204,7 @@ public class BrowseRecordsController extends Controller {
                         // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
                         if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
                             if (ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
-                                    .equals(ItemsMainTabPanel.getInstance().getSelectedItem().getId())) {
+                                    .equals(itemBean.getConcept())) {
                                 itemBean.setIds(result.getReturnValue());
                                 ItemsListPanel.getInstance().refreshGrid(itemBean);
                             }
@@ -213,7 +213,7 @@ public class BrowseRecordsController extends Controller {
                         if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
                             if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()) {
                                 if (ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
-                                        .equals(ItemsMainTabPanel.getInstance().getSelectedItem().getId())
+                                        .equals(itemBean.getConcept())
                                         || isClose) {
                                     ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                                 }
