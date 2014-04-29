@@ -56,4 +56,22 @@ public class CompareTest extends TestCase {
         assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
         assertEquals(1, sort.get(ImpactAnalyzer.Impact.LOW).size());
     }
+
+    public void test4() throws Exception {
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema4_1.xsd"));
+        MetadataRepository updated = new MetadataRepository();
+        updated.load(CompareTest.class.getResourceAsStream("schema4_2.xsd"));
+        Compare.DiffResults diffResults = Compare.compare(original, updated);
+        assertEquals(1, diffResults.getActions().size());
+        assertEquals(1, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(0, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(1, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
 }
