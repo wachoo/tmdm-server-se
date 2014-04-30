@@ -189,7 +189,7 @@ public class Util {
 
     private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource"; //$NON-NLS-1$
 
-    private static final String USER_PROPERTY_START_WITH = "${user_context"; //$NON-NLS-1$
+    private static final String USER_PROPERTY_PREFIX = "${user_context"; //$NON-NLS-1$
 
     private static DocumentBuilderFactory nonValidatingDocumentBuilderFactory;
 
@@ -2042,11 +2042,9 @@ public class Util {
         }
         if (whereItem instanceof WhereLogicOperator) {
             List<IWhereItem> subItems = ((WhereLogicOperator) whereItem).getItems();
-
             for (int i = subItems.size() - 1; i >= 0; i--) {
                 IWhereItem item = subItems.get(i);
                 item = fixWebConditions(item, userXML);
-
                 if (item instanceof WhereLogicOperator) {
                     if (((WhereLogicOperator) item).getItems().size() == 0) {
                         subItems.remove(i);
@@ -2054,7 +2052,7 @@ public class Util {
                 } else if (item instanceof WhereCondition) {
                     WhereCondition condition = (WhereCondition) item;
                     if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
-                            && condition.getRightValueOrPath().contains(USER_PROPERTY_START_WITH)) {
+                            && condition.getRightValueOrPath().contains(USER_PROPERTY_PREFIX)) {
                         subItems.remove(i);
                     }
                 } else if (item == null) {
@@ -2064,7 +2062,7 @@ public class Util {
         } else if (whereItem instanceof WhereCondition) {
             WhereCondition condition = (WhereCondition) whereItem;
             if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
-                    && condition.getRightValueOrPath().contains(USER_PROPERTY_START_WITH)) {
+                    && condition.getRightValueOrPath().contains(USER_PROPERTY_PREFIX)) {
                 // TMDM-7207: Only create the groovy script engine if needed (huge performance issues)
                 // TODO Should there be some pool of ScriptEngine instances? (is reusing ok?)
                 ScriptEngine scriptEngine = SCRIPTFACTORY.getEngineByName("groovy"); //$NON-NLS-1$
@@ -2073,7 +2071,7 @@ public class Util {
                     scriptEngine.put("user_context", user);//$NON-NLS-1$
                 }
                 String rightCondition = condition.getRightValueOrPath();
-                String userExpression = rightCondition.substring(rightCondition.indexOf("{") + 1, rightCondition.indexOf("}"));//$NON-NLS-1$ //$NON-NLS-2$
+                String userExpression = rightCondition.substring(rightCondition.indexOf('{') + 1, rightCondition.indexOf('}'));
                 try {
                     Object expressionValue = scriptEngine.eval(userExpression);
                     if (expressionValue != null) {
@@ -2083,7 +2081,7 @@ public class Util {
                         }
                     }
                 } catch (Exception e) {
-                    LOGGER.debug("No such property " + userExpression);
+                    LOGGER.debug("No such property " + userExpression, e);
                 }
             }
 
@@ -2092,11 +2090,9 @@ public class Util {
         } else {
             throw new XmlServerException("Unknown Where Type : " + whereItem.getClass().getName());
         }
-
         if (whereItem instanceof WhereLogicOperator) {
             return ((WhereLogicOperator) whereItem).getItems().size() == 0 ? null : whereItem;
         }
-
         return whereItem;
     }
 
@@ -2126,7 +2122,7 @@ public class Util {
                 WhereCondition condition = (WhereCondition) conditions.get(i);
 
                 if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
-                        && condition.getRightValueOrPath().contains(USER_PROPERTY_START_WITH)) {
+                        && condition.getRightValueOrPath().contains(USER_PROPERTY_PREFIX)) {
                     return true;
                 }
             }
@@ -2143,7 +2139,7 @@ public class Util {
             if (conditions.get(i) instanceof WhereCondition) {
                 WhereCondition condition = (WhereCondition) conditions.get(i);
                 if (condition.getRightValueOrPath() != null && condition.getRightValueOrPath().length() > 0
-                        && condition.getRightValueOrPath().contains(USER_PROPERTY_START_WITH)) {
+                        && condition.getRightValueOrPath().contains(USER_PROPERTY_PREFIX)) {
 
                     String rightCondition = condition.getRightValueOrPath();
                     String userExpression = rightCondition
