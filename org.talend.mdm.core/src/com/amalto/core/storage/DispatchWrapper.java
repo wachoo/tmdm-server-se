@@ -100,52 +100,56 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         return false;
     }
 
-    public static synchronized Set<String> getInternalClusterNames() {
+    public static Set<String> getInternalClusterNames() {
         if (internalClusterNames == null) {
-            internalClusterNames = new HashSet<String>();
-            internalClusterNames.add(StringUtils.EMPTY); // Consider an empty cluster name as internal
-            internalClusterNames.add(StorageAdmin.SYSTEM_STORAGE);
-            Map<String, XSystemObjects> systemObjects = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-            for (Map.Entry<String, XSystemObjects> entry : systemObjects.entrySet()) {
-                // Note #1: TMDM-4507: Update report now stored in SQL storage (user space).
-                // Note #2: Cross referencing is also user space.
-                if (!XSystemObjects.DC_CROSSREFERENCING.getName().equals(entry.getKey())
-                        && !XSystemObjects.DC_UPDATE_PREPORT.getName().equals(entry.getKey())) {
-                    internalClusterNames.add(entry.getKey());
+            synchronized (DispatchWrapper.class) {
+                if (internalClusterNames == null) { // Re-check in case of concurrent wait/initialization
+                    internalClusterNames = new HashSet<String>();
+                    internalClusterNames.add(StringUtils.EMPTY); // Consider an empty cluster name as internal
+                    internalClusterNames.add(StorageAdmin.SYSTEM_STORAGE);
+                    Map<String, XSystemObjects> systemObjects = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
+                    for (Map.Entry<String, XSystemObjects> entry : systemObjects.entrySet()) {
+                        // Note #1: TMDM-4507: Update report now stored in SQL storage (user space).
+                        // Note #2: Cross referencing is also user space.
+                        if (!XSystemObjects.DC_CROSSREFERENCING.getName().equals(entry.getKey())
+                                && !XSystemObjects.DC_UPDATE_PREPORT.getName().equals(entry.getKey())) {
+                            internalClusterNames.add(entry.getKey());
+                        }
+                    }
+                    internalClusterNames.add("MDMDomainObjects"); //$NON-NLS-1$
+                    // Adds amalto containers
+                    String[] amaltoContainers = new String[] { "amaltoOBJECTSTransformerV2", //$NON-NLS-1$
+                            "amaltoOBJECTSFailedRoutingOrderV2", //$NON-NLS-1$
+                            "amaltoOBJECTSCompletedRoutingOrderV2", //$NON-NLS-1$
+                            "amaltoOBJECTSCustomForm", //$NON-NLS-1$
+                            "amaltoOBJECTSjcaadapters", //$NON-NLS-1$
+                            "amaltoOBJECTSRoutingEngineV2", //$NON-NLS-1$
+                            "amaltoOBJECTSRoutingRule", //$NON-NLS-1$
+                            "amaltoOBJECTSSynchronizationItem", //$NON-NLS-1$
+                            "amaltoOBJECTSSynchronizationPlan", //$NON-NLS-1$
+                            "amaltoOBJECTSservices", //$NON-NLS-1$
+                            "amaltoOBJECTSTransformerPluginV2", //$NON-NLS-1$
+                            "amaltoOBJECTSroutingorders", //$NON-NLS-1$
+                            "amaltoOBJECTSUniverse", //$NON-NLS-1$
+                            "amaltoOBJECTSVersioningSystem", //$NON-NLS-1$
+                            "amaltoOBJECTSroutingqueues", //$NON-NLS-1$
+                            "amaltoOBJECTSroutingservices", //$NON-NLS-1$
+                            "amaltoOBJECTSStoredProcedure", //$NON-NLS-1$
+                            "amaltoOBJECTSSynchronizationObject", //$NON-NLS-1$
+                            "amaltoOBJECTSMatchRule", //$NON-NLS-1$
+                            "amaltoOBJECTSVersionSystem", //$NON-NLS-1$
+                            "amaltoOBJECTSMenu", //$NON-NLS-1$
+                            "amaltoOBJECTSActiveRoutingOrderV2", //$NON-NLS-1$
+                            "amaltoOBJECTSDataCluster", //$NON-NLS-1$
+                            "amaltoOBJECTSLicense", //$NON-NLS-1$
+                            "amaltoOBJECTSRole", //$NON-NLS-1$
+                            "amaltoOBJECTSDataModel", //$NON-NLS-1$
+                            "amaltoOBJECTSBackgroundJob", //$NON-NLS-1$
+                            "amaltoOBJECTSView", //$NON-NLS-1$
+                            "amaltoOBJECTSConfigurationinfo" }; //$NON-NLS-1$
+                    internalClusterNames.addAll(Arrays.asList(amaltoContainers));
                 }
             }
-            internalClusterNames.add("MDMDomainObjects"); //$NON-NLS-1$
-            // Adds amalto containers
-            String[] amaltoContainers = new String[] { "amaltoOBJECTSTransformerV2", //$NON-NLS-1$
-                    "amaltoOBJECTSFailedRoutingOrderV2", //$NON-NLS-1$
-                    "amaltoOBJECTSCompletedRoutingOrderV2", //$NON-NLS-1$
-                    "amaltoOBJECTSCustomForm", //$NON-NLS-1$
-                    "amaltoOBJECTSjcaadapters", //$NON-NLS-1$
-                    "amaltoOBJECTSRoutingEngineV2", //$NON-NLS-1$
-                    "amaltoOBJECTSRoutingRule", //$NON-NLS-1$
-                    "amaltoOBJECTSSynchronizationItem", //$NON-NLS-1$
-                    "amaltoOBJECTSSynchronizationPlan", //$NON-NLS-1$
-                    "amaltoOBJECTSservices", //$NON-NLS-1$
-                    "amaltoOBJECTSTransformerPluginV2", //$NON-NLS-1$
-                    "amaltoOBJECTSroutingorders", //$NON-NLS-1$
-                    "amaltoOBJECTSUniverse", //$NON-NLS-1$
-                    "amaltoOBJECTSVersioningSystem", //$NON-NLS-1$
-                    "amaltoOBJECTSroutingqueues", //$NON-NLS-1$
-                    "amaltoOBJECTSroutingservices", //$NON-NLS-1$
-                    "amaltoOBJECTSStoredProcedure", //$NON-NLS-1$
-                    "amaltoOBJECTSSynchronizationObject", //$NON-NLS-1$
-                    "amaltoOBJECTSMatchRule", //$NON-NLS-1$
-                    "amaltoOBJECTSVersionSystem", //$NON-NLS-1$
-                    "amaltoOBJECTSMenu", //$NON-NLS-1$
-                    "amaltoOBJECTSActiveRoutingOrderV2", //$NON-NLS-1$
-                    "amaltoOBJECTSDataCluster", //$NON-NLS-1$
-                    "amaltoOBJECTSLicense", //$NON-NLS-1$
-                    "amaltoOBJECTSRole", //$NON-NLS-1$
-                    "amaltoOBJECTSDataModel", //$NON-NLS-1$
-                    "amaltoOBJECTSBackgroundJob", //$NON-NLS-1$
-                    "amaltoOBJECTSView", //$NON-NLS-1$
-                    "amaltoOBJECTSConfigurationinfo" }; //$NON-NLS-1$
-            internalClusterNames.addAll(Arrays.asList(amaltoContainers));
         }
         return internalClusterNames;
     }
