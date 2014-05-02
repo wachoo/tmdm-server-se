@@ -526,6 +526,17 @@ public class MetadataValidationTest extends TestCase {
         assertFalse(handler.getLineNumbers().contains(null));
     }
 
+    public void testUnusedType() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("UnusedType_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(1, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.UNUSED_REUSABLE_TYPE));
+        assertTrue(handler.getLineNumbers().contains(50));
+        assertFalse(handler.getLineNumbers().contains(null));
+    }
+
     private static class TestValidationHandler implements ValidationHandler {
 
         private int errorField;
