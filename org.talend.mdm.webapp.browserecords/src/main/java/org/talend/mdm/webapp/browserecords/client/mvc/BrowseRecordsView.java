@@ -428,6 +428,7 @@ public class BrowseRecordsView extends View {
         ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
 
         ItemsDetailPanel lineageDetailPanel = ItemsDetailPanel.newInstance();
+        lineageDetailPanel.setStaging(true);
         ItemPanel itemPanel = new ItemPanel(true, viewBean, item, operation, lineageDetailPanel);
 
         itemPanel.getToolBar().setOutMost(true);
