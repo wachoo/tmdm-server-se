@@ -379,6 +379,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String open_task();
 
+    String open_task_tooltip();
+
     String add_btn();
 
     String remove_btn();

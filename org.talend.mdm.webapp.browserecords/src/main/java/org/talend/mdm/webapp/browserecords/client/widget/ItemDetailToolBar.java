@@ -701,7 +701,7 @@ public class ItemDetailToolBar extends ToolBar {
                         openTaskMenuItem = new MenuItem(MessagesFactory.getMessages().open_task());
                         openTaskMenuItem.setId("openTaskMenuItem"); //$NON-NLS-1$
                         openTaskMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
-                        openTaskMenuItem.setToolTip(MessagesFactory.getMessages().openitem_tab());
+                        openTaskMenuItem.setToolTip(MessagesFactory.getMessages().open_task_tooltip());
                         openTaskMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                             @Override
