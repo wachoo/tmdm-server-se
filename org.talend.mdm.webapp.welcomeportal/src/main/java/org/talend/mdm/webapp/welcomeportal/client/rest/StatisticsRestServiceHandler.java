@@ -57,7 +57,7 @@ public class StatisticsRestServiceHandler {
      * 
      * @param callback
      */
-    public void getContainerStats(String dataContainer, final SessionAwareAsyncCallback<JSONArray> callback) {
+    public void getContainerDataStats(String dataContainer, final SessionAwareAsyncCallback<JSONArray> callback) {
         if (dataContainer == null) {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }

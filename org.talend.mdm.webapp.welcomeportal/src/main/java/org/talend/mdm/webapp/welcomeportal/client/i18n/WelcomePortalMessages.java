@@ -55,7 +55,7 @@ public interface WelcomePortalMessages extends Messages {
 
     String process_title();
 
-    String chart_title();
+    String chart_data_title();
 
     String alerts_title();
 

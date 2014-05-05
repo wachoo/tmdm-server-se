@@ -12,8 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -73,6 +77,8 @@ public class MainFramePanel extends Portal {
     private boolean isHiddenDSCTask = true;
     private static String DSCTASKTYPE_NEW = "new"; //$NON-NLS-1$
     private static String DSCTASKTYPE_PENDING = "pending"; //$NON-NLS-1$
+    private List<Portlet> charts = new ArrayList<Portlet>(4);
+    
     public MainFramePanel(int numColumns) {
         super(numColumns);
         setBorders(true);
@@ -85,12 +91,12 @@ public class MainFramePanel extends Portal {
         initTaskPortlet();
         initProcessPortlet();
         initSearchPortlet();
-        initChartPortlet();
+        initChartPortlets();
 
     }
 
     public void refreshPortlets() {
-        this.applyChartPortlet(this.getPortletById(WelcomePortal.CHART + "Portlet")); //$NON-NLS-1$
+        this.applyChartPortlets(charts); //$NON-NLS-1$
         applyAlertPortlet(this.getPortletById(WelcomePortal.ALERT + "Portlet")); //$NON-NLS-1$
         applyTaskPortlet(this.getPortletById(WelcomePortal.WORKFLOW_TASK + "Portlet")); //$NON-NLS-1$
         applyProcessPortlet(this.getPortletById(WelcomePortal.PROCESS + "Portlet")); //$NON-NLS-1$
@@ -594,24 +600,41 @@ public class MainFramePanel extends Portal {
         });
     }
 
-    private void initChartPortlet() {
-        String name = WelcomePortal.CHART;
-        Portlet chart = configPortlet(name);
-        chart.setHeading(MessagesFactory.getMessages().chart_title());
-        chart.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
-        applyChartPortlet(chart);
-        this.add(chart, 0);
+    private void initChartPortlets() {
+        Map<String, String> chart_titles = new HashMap<String, String>(4);
+        chart_titles.put(WelcomePortal.CHART_DATA, MessagesFactory.getMessages().chart_data_title());
+        
+        Portlet chart;
+        Set<String> chartNames = chart_titles.keySet();
+        for (Iterator<String> iterator= chartNames.iterator(); iterator.hasNext(); ) {
+            String name = iterator.next();
+            chart = configPortlet(name);
+            chart.setHeading(chart_titles.get(name));
+            chart.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
+            if (chart.getItemId().startsWith(WelcomePortal.CHART_DATA) ) {
+                applyChartDATAPortlet(chart);
+            }
+            charts.add(chart);
+            this.add(chart, 0);
+        }
     }
 
-    private void applyChartPortlet(Portlet chart) {
-        final FieldSet set = (FieldSet) chart.getItemByItemId(WelcomePortal.CHART + "Set"); //$NON-NLS-1$        
+    private void applyChartPortlets(List<Portlet> charts) {
+        for (Portlet chart : charts) {
+            if (chart.getItemId().startsWith(WelcomePortal.CHART_DATA) ) {
+                applyChartDATAPortlet(chart);
+            }
+        }
+    }
+    private void applyChartDATAPortlet(Portlet chart) {
+        final FieldSet set = (FieldSet) chart.getItemByItemId(WelcomePortal.CHART_DATA + "Set"); //$NON-NLS-1$        
         set.removeAll();
         service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
 
             @Override
             public void onSuccess(String dataContainer) {
 
-                StatisticsRestServiceHandler.getInstance().getContainerStats(dataContainer,
+                StatisticsRestServiceHandler.getInstance().getContainerDataStats(dataContainer,
                         new SessionAwareAsyncCallback<JSONArray>() {
 
                             @Override
@@ -692,8 +715,8 @@ public class MainFramePanel extends Portal {
                                 applyTaskPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.PROCESS)) {
                                 applyProcessPortlet(selectedPortlet);
-                            } else if (name.equals(WelcomePortal.CHART)) {
-                                applyChartPortlet(selectedPortlet);
+                            } else if (name.equals(WelcomePortal.CHART_DATA)) {
+                                applyChartDATAPortlet(selectedPortlet);
                             }
                         }
 
