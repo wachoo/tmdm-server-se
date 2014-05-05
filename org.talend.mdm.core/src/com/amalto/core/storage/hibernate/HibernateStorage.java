@@ -833,9 +833,9 @@ public class HibernateStorage implements Storage {
             switch (category) {
             case HIGH:
             case MEDIUM:
-                if (force) {
-                    for (List<Change> changes : impacts.values()) {
-                        for (Change change : changes) {
+                if (!impactCategory.getValue().isEmpty()) {
+                    if (force) {
+                        for (Change change : impactCategory.getValue()) {
                             MetadataVisitable element = change.getElement();
                             if (element instanceof FieldMetadata) {
                                 typesToDrop.add(((FieldMetadata) element).getContainingType().getEntity());
@@ -846,17 +846,15 @@ public class HibernateStorage implements Storage {
                                 LOGGER.debug("Change '" + change.getMessage() + "' requires a database schema update.");
                             }
                         }
+                    } else {
+                        throw new IllegalArgumentException("Some changes require force parameter.");
                     }
-                } else {
-                    throw new IllegalArgumentException("Some changes require force parameter.");
                 }
                 break;
             case LOW:
                 if (LOGGER.isTraceEnabled()) {
-                    for (List<Change> changes : impacts.values()) {
-                        for (Change change : changes) {
-                            LOGGER.trace("Change '" + change.getMessage() + "' does NOT require a database schema update.");
-                        }
+                    for (Change change : impactCategory.getValue()) {
+                        LOGGER.trace("Change '" + change.getMessage() + "' does NOT require a database schema update.");
                     }
                     break;
                 }
