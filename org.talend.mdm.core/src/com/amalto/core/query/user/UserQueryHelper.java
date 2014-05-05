@@ -13,18 +13,32 @@
 
 package com.amalto.core.query.user;
 
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.query.user.metadata.MetadataField;
-import com.amalto.core.webservice.WSStringPredicate;
-import com.amalto.xmlserver.interfaces.*;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import com.amalto.core.query.user.metadata.MetadataField;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.util.FieldNotFoundException;
+import com.amalto.core.webservice.WSStringPredicate;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereLogicOperator;
+import com.amalto.xmlserver.interfaces.WhereOr;
 
 public class UserQueryHelper {
 
@@ -61,11 +75,13 @@ public class UserQueryHelper {
             }
             String leftPath = whereCondition.getLeftPath();
             if (leftPath.indexOf('/') == -1) {
-                throw new IllegalArgumentException("Incorrect XPath '" + leftPath + "'. An XPath like 'Entity/element' was expected."); //$NON-NLS-1$ //$NON-NLS-2$
+                throw new IllegalArgumentException(
+                        "Incorrect XPath '" + leftPath + "'. An XPath like 'Entity/element' was expected."); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            String leftTypeName = leftPath.substring(0, leftPath.indexOf('/')); //$NON-NLS-1$
+            String leftTypeName = leftPath.substring(0, leftPath.indexOf('/'));
             if (".".equals(leftTypeName)) { //$NON-NLS-1$
-                leftTypeName = queryBuilder.getSelect().getTypes().get(0).getName(); // When using ".", uses first type in select
+                leftTypeName = queryBuilder.getSelect().getTypes().get(0).getName(); // When using ".", uses first type
+                                                                                     // in select
             }
             String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
             boolean isPerformingTypeCheck = false;
@@ -77,10 +93,11 @@ public class UserQueryHelper {
                 Collection<FieldMetadata> list = leftType.getFields();
                 Condition condition = NO_OP_CONDITION;
                 for (FieldMetadata fieldMetadata : list) {
-                    if (fieldMetadata instanceof SimpleTypeFieldMetadata){
-                        condition = or(condition, buildCondition(queryBuilder, 
-                                new WhereCondition(leftTypeName + '/' + fieldMetadata.getName(), operator, value,
-                                        WSStringPredicate.NONE.getValue()), repository));
+                    if (fieldMetadata instanceof SimpleTypeFieldMetadata) {
+                        condition = or(
+                                condition,
+                                buildCondition(queryBuilder, new WhereCondition(leftTypeName + '/' + fieldMetadata.getName(),
+                                        operator, value, WSStringPredicate.NONE.getValue()), repository));
                     }
                 }
                 if (isNotCondition) {
@@ -104,10 +121,12 @@ public class UserQueryHelper {
                             }
                             Alias alias = (Alias) field;
                             if (!(alias.getTypedExpression() instanceof Type)) {
-                                throw new IllegalArgumentException("Expected alias '" + leftFieldName + "' to be an alias of type.");
+                                throw new IllegalArgumentException("Expected alias '" + leftFieldName
+                                        + "' to be an alias of type.");
                             }
                             Type fieldExpression = (Type) alias.getTypedExpression();
-                            ComplexTypeMetadata typeForCheck = (ComplexTypeMetadata) fieldExpression.getField().getFieldMetadata().getType();
+                            ComplexTypeMetadata typeForCheck = (ComplexTypeMetadata) fieldExpression.getField()
+                                    .getFieldMetadata().getType();
                             if (!typeForCheck.getName().equals(value)) {
                                 for (ComplexTypeMetadata subType : typeForCheck.getSubTypes()) {
                                     if (subType.getName().equals(value)) {
@@ -121,7 +140,8 @@ public class UserQueryHelper {
                             // TMDM-6831: Consider a "emptyOrNull(type)" as a "isa(field, actual_field_type)".
                             Alias alias = (Alias) field;
                             if (!(alias.getTypedExpression() instanceof Type)) {
-                                throw new IllegalArgumentException("Expected alias '" + leftFieldName + "' to be an alias of type.");
+                                throw new IllegalArgumentException("Expected alias '" + leftFieldName
+                                        + "' to be an alias of type.");
                             }
                             Type fieldExpression = (Type) alias.getTypedExpression();
                             condition = emptyOrNull(fieldExpression);
@@ -129,7 +149,8 @@ public class UserQueryHelper {
                     }
                     String fieldTypeName = field.getTypeName();
                     boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
-                    if (!isFk && !StorageMetadataUtils.isValueAssignable(value, fieldTypeName) && !WhereCondition.EMPTY_NULL.equals(operator)) {
+                    if (!isFk && !StorageMetadataUtils.isValueAssignable(value, fieldTypeName)
+                            && !WhereCondition.EMPTY_NULL.equals(operator)) {
                         LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
                         continue;
                     }
@@ -177,10 +198,12 @@ public class UserQueryHelper {
                             }
                             queryBuilder.join(field, ((ReferenceFieldMetadata) fieldMetadata).getReferencedField());
                         } else {
-                            throw new IllegalArgumentException("Can not perform not on '" + leftFieldName + "' because it is not a field.");
+                            throw new IllegalArgumentException("Can not perform not on '" + leftFieldName
+                                    + "' because it is not a field.");
                         }
                     } else {
-                        throw new NotImplementedException("'" + operator + "' support not implemented for field to field comparison.");
+                        throw new NotImplementedException("'" + operator
+                                + "' support not implemented for field to field comparison.");
                     }
                 }
             }
@@ -234,7 +257,7 @@ public class UserQueryHelper {
         MetadataField metadataField = MetadataField.Factory.getMetadataField(fieldName);
         ComplexTypeMetadata type = repository.getComplexType(typeName);
         if (type == null) {
-            throw new IllegalArgumentException("Type '" + typeName + "' does not exist.");
+            throw new IllegalArgumentException("Type '" + typeName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (metadataField != null) {
             return Collections.singletonList(metadataField.getConditionExpression());
@@ -249,7 +272,7 @@ public class UserQueryHelper {
         } else if (UserQueryBuilder.ID_FIELD.equals(fieldName)) {
             Collection<FieldMetadata> keyFields = type.getKeyFields();
             if (keyFields.isEmpty()) {
-                throw new IllegalArgumentException("Can not query id on type '" + typeName + "' because type has no id field.");
+                throw new IllegalArgumentException("Can not query id on type '" + typeName + "' because type has no id field."); //$NON-NLS-1$//$NON-NLS-2$
             }
             List<TypedExpression> expressions = new LinkedList<TypedExpression>();
             for (FieldMetadata keyField : keyFields) {
@@ -265,21 +288,23 @@ public class UserQueryHelper {
         }
         FieldMetadata field = type.getField(fieldName);
         if (field == null) {
-            throw new IllegalArgumentException("Field '" + fieldName + "' does not exist in type '" + typeName + "'.");
+            throw new FieldNotFoundException("Field '" + fieldName + "' does not exist in type '" + typeName + "'."); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
         }
         if (field instanceof ContainedTypeFieldMetadata) {
             // Field does not contain a value, expected behavior is to return empty string.
-            return Collections.<TypedExpression>singletonList(new Alias(new StringConstant(StringUtils.EMPTY), field.getName()));
+            return Collections.<TypedExpression> singletonList(new Alias(new StringConstant(StringUtils.EMPTY), field.getName()));
         } else {
             if (position > -1) {
-                return Collections.<TypedExpression>singletonList(new IndexedField(field, position));
+                return Collections.<TypedExpression> singletonList(new IndexedField(field, position));
             } else {
-                return Collections.<TypedExpression>singletonList(new Field(field));
+                return Collections.<TypedExpression> singletonList(new Field(field));
             }
         }
     }
 
     private static class NoOpCondition implements Condition {
+
+        @Override
         public Expression normalize() {
             return this;
         }
@@ -289,6 +314,7 @@ public class UserQueryHelper {
             return false;
         }
 
+        @Override
         public <T> T accept(Visitor<T> visitor) {
             return visitor.visit(this);
         }

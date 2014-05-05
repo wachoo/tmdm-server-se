@@ -110,6 +110,7 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.FieldNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
@@ -739,6 +740,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             boolean isPagingAccurate = CommonUtil.getPort().isPagingAccurate(new WSInt(totalSize)).is_true();
             return new ItemBasePageLoadResult<ItemBean>(itemBeans, pagingLoad.getOffset(), totalSize, isPagingAccurate);
         } catch (Exception exception) {
+            Throwable cause = exception.getCause();
+            if (cause != null && FieldNotFoundException.class.isInstance(cause.getCause())) {
+                throw new ServiceException(cause.getCause().getLocalizedMessage());
+            }
             String errorMessage;
             if (WebCoreException.class.isInstance(exception.getCause())) {
                 WebCoreException webCoreException = (WebCoreException) exception.getCause();
