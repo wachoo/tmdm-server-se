@@ -10,23 +10,28 @@
 
 package com.amalto.core.storage.services;
 
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.util.XtentisException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -37,15 +42,20 @@ import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
+import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
+import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.util.XtentisException;
 
-@Path("/system/models")//$NON-NLS-1$
+@Path("/system/models")
 public class SystemModels {
 
     private static final Logger LOGGER = Logger.getLogger(SystemModels.class);
@@ -61,15 +71,15 @@ public class SystemModels {
             MetadataRepository repository = systemStorage.getMetadataRepository();
             dataModelType = repository.getComplexType("data-model-pOJO"); //$NON-NLS-1$
         } else {
-            LOGGER.warn("No system storage available.");
+            LOGGER.warn("No system storage available."); //$NON-NLS-1$
             dataModelType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, StringUtils.EMPTY, true);
         }
     }
 
     @GET
-    @Path("{model}")//$NON-NLS-1$
-    public String getSchema(@PathParam("model")//$NON-NLS-1$
-            String modelName) {
+    @Path("{model}")
+    public String getSchema(@PathParam("model")
+    String modelName) {
         if (!isSystemStorageAvailable()) {
             return StringUtils.EMPTY;
         }
@@ -82,7 +92,7 @@ public class SystemModels {
             if (iterator.hasNext()) {
                 DataRecord model = iterator.next();
                 if (iterator.hasNext()) {
-                    throw new IllegalStateException("Found multiple data models for '" + modelName + "'.");
+                    throw new IllegalStateException("Found multiple data models for '" + modelName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 modelContent = String.valueOf(model.get("schema")); //$NON-NLS-1$
                 return modelContent;
@@ -91,15 +101,16 @@ public class SystemModels {
             return modelContent;
         } catch (Exception e) {
             systemStorage.rollback();
-            throw new RuntimeException("Could not update data model.", e);
+            throw new RuntimeException("Could not update data model.", e); //$NON-NLS-1$
         }
     }
 
     @PUT
-    @Path("{model}")//$NON-NLS-1$
-    public void updateModel(@PathParam("model")//$NON-NLS-1$
-            String modelName, @QueryParam("force")//$NON-NLS-1$
-            boolean force, InputStream dataModel) {
+    @Path("{model}")
+    public void updateModel(@PathParam("model")
+    String modelName, @QueryParam("force")
+    boolean force, InputStream dataModel) {
+        String revisionID = null;
         if (!isSystemStorageAvailable()) { // If no system storage is available, store new schema version.
             try {
                 DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
@@ -107,29 +118,47 @@ public class SystemModels {
                 dataModelPOJO.store();
                 return;
             } catch (IOException e) {
-                throw new RuntimeException("Could not fully read new data model.", e);
+                throw new RuntimeException("Could not fully read new data model.", e); //$NON-NLS-1$
             } catch (XtentisException e) {
-                throw new RuntimeException("Could not store new data model.", e);
+                throw new RuntimeException("Could not store new data model.", e); //$NON-NLS-1$
             }
         }
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
-        Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
+        Storage storage = storageAdmin.get(modelName, StorageType.MASTER, revisionID);
         if (storage == null) {
-            throw new IllegalArgumentException("Container '" + modelName + "' does not exist.");
+            throw new IllegalArgumentException("Container '" + modelName + "' does not exist."); //$NON-NLS-1$//$NON-NLS-2$
         }
-        String content;
-        try {
-            content = IOUtils.toString(dataModel, "UTF-8"); //$NON-NLS-1$
-        } catch (IOException e) {
-            throw new RuntimeException("Could not read data model from body.", e);
-        }
+
         // Compare new data model with existing data model
         MetadataRepository previousRepository = storage.getMetadataRepository();
         MetadataRepository newRepository = new MetadataRepository();
-        newRepository.load(new ByteArrayInputStream(content.getBytes()));
+
+        String content;
+        try {
+            content = IOUtils.toString(dataModel, "UTF-8"); //$NON-NLS-1$
+            newRepository.load(new ByteArrayInputStream(content.getBytes("UTF-8"))); //$NON-NLS-1$
+        } catch (IOException e) {
+            throw new RuntimeException("Could not read data model from body.", e); //$NON-NLS-1$
+        }
+
         // Ask the storage to adapt its structure following the changes
         storage.adapt(newRepository, force);
+
+        if (storageAdmin.supportStaging(modelName)) {
+            Storage stagingStorage = storageAdmin.get(modelName, StorageType.STAGING, revisionID);
+            if (stagingStorage != null) {
+                stagingStorage.adapt(newRepository, force);
+            } else {
+                LOGGER.warn("No SQL staging storage defined for data model '" + modelName //$NON-NLS-1$
+                        + "'. No SQL staging storage to update."); //$NON-NLS-1$
+            }
+        } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Storage '" + modelName + "' does not support staging (forbidden by storage admin)."); //$NON-NLS-1$//$NON-NLS-2$
+            }
+        }
+
         // Update the system storage with the new data model (if there was any change).
         Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
         if (!diffResults.getActions().isEmpty()) {
@@ -143,7 +172,7 @@ public class SystemModels {
                     DataRecord model = iterator.next();
                     model.set(dataModelType.getField("schema"), content); //$NON-NLS-1$
                     if (iterator.hasNext()) {
-                        throw new IllegalStateException("Found multiple data models for '" + modelName + "'.");
+                        throw new IllegalStateException("Found multiple data models for '" + modelName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     systemStorage.update(model);
                     // Forces update in metadata repository admin
@@ -153,9 +182,14 @@ public class SystemModels {
                 systemStorage.commit();
             } catch (Exception e) {
                 systemStorage.rollback();
-                throw new RuntimeException("Could not update data model.", e);
+                throw new RuntimeException("Could not update data model.", e); //$NON-NLS-1$
             }
         }
+
+        // synchronize with outer agents
+        DataModelChangeNotifier dmUpdateEventNotifier = new DataModelChangeNotifier();
+        dmUpdateEventNotifier.addUpdateMessage(new DMUpdateEvent(modelName, revisionID));
+        dmUpdateEventNotifier.sendMessages();
     }
 
     private boolean isSystemStorageAvailable() {
@@ -163,20 +197,20 @@ public class SystemModels {
     }
 
     @POST
-    @Path("{model}")//$NON-NLS-1$
-    public String analyzeModelChange(@PathParam("model")//$NON-NLS-1$
-            String modelName, InputStream dataModel) {
+    @Path("{model}")
+    public String analyzeModelChange(@PathParam("model")
+    String modelName, InputStream dataModel) {
         Map<ImpactAnalyzer.Impact, List<Change>> impacts;
         if (!isSystemStorageAvailable()) {
             impacts = new EnumMap<ImpactAnalyzer.Impact, List<Change>>(ImpactAnalyzer.Impact.class);
             for (ImpactAnalyzer.Impact impact : impacts.keySet()) {
-                impacts.put(impact, Collections.<Change>emptyList());
+                impacts.put(impact, Collections.<Change> emptyList());
             }
         } else {
             StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
             Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
             if (storage == null) {
-                LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change.");
+                LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change."); //$NON-NLS-1$//$NON-NLS-2$
                 return StringUtils.EMPTY;
             }
             // Compare new data model with existing data model
@@ -220,7 +254,7 @@ public class SystemModels {
                     writer.flush();
                 } catch (XMLStreamException e) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Could not flush XML content.", e);
+                        LOGGER.debug("Could not flush XML content.", e); //$NON-NLS-1$
                     }
                 }
             }
