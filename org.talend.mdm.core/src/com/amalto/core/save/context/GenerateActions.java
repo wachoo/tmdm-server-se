@@ -74,12 +74,14 @@ class GenerateActions implements DocumentSaver {
             Collection<FieldMetadata> keys = type.getKeyFields();
             List<String> idValues = new ArrayList<String>(keys.size());
             for (FieldMetadata key : keys) {
-                if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(key.getType().getName())) {
+                if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(key.getType().getName())
+                        || EUUIDCustomType.UUID.getName().equalsIgnoreCase(key.getType().getName())) {
                     for (Action action : actions) {
                         if (action instanceof FieldUpdateAction) {
                             FieldUpdateAction fieldUpdateAction = (FieldUpdateAction) action;
                             if (key.equals(fieldUpdateAction.getField())) {
                                 idValues.add(fieldUpdateAction.getNewValue());
+                                break; // Found the action on the key... no need to iterate over all of them.
                             }
                         }
                     }
