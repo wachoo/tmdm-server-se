@@ -54,14 +54,19 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
+import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.PieDataPoint;
 import com.googlecode.gflot.client.PlotModel;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
 import com.googlecode.gflot.client.SimplePlot;
+import com.googlecode.gflot.client.options.AxesOptions;
+import com.googlecode.gflot.client.options.BarSeriesOptions;
+import com.googlecode.gflot.client.options.CategoriesAxisOptions;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
+import com.googlecode.gflot.client.options.LineSeriesOptions;
 import com.googlecode.gflot.client.options.PieSeriesOptions;
 import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Background;
 import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Formatter;
@@ -96,7 +101,7 @@ public class MainFramePanel extends Portal {
     }
 
     public void refreshPortlets() {
-        this.applyChartPortlets(charts); //$NON-NLS-1$
+        this.applyChartPortlets(charts);
         applyAlertPortlet(this.getPortletById(WelcomePortal.ALERT + "Portlet")); //$NON-NLS-1$
         applyTaskPortlet(this.getPortletById(WelcomePortal.WORKFLOW_TASK + "Portlet")); //$NON-NLS-1$
         applyProcessPortlet(this.getPortletById(WelcomePortal.PROCESS + "Portlet")); //$NON-NLS-1$
@@ -603,6 +608,7 @@ public class MainFramePanel extends Portal {
     private void initChartPortlets() {
         Map<String, String> chart_titles = new HashMap<String, String>(4);
         chart_titles.put(WelcomePortal.CHART_DATA, MessagesFactory.getMessages().chart_data_title());
+        chart_titles.put(WelcomePortal.CHART_JOURNAL, MessagesFactory.getMessages().chart_journal_title());
         
         Portlet chart;
         Set<String> chartNames = chart_titles.keySet();
@@ -611,8 +617,10 @@ public class MainFramePanel extends Portal {
             chart = configPortlet(name);
             chart.setHeading(chart_titles.get(name));
             chart.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
-            if (chart.getItemId().startsWith(WelcomePortal.CHART_DATA) ) {
+            if (chart.getItemId().startsWith(WelcomePortal.CHART_DATA)) {
                 applyChartDATAPortlet(chart);
+            } else if (chart.getItemId().startsWith(WelcomePortal.CHART_JOURNAL)) {
+                applyChartJournalPortlet(chart);
             }
             charts.add(chart);
             this.add(chart, 0);
@@ -623,9 +631,12 @@ public class MainFramePanel extends Portal {
         for (Portlet chart : charts) {
             if (chart.getItemId().startsWith(WelcomePortal.CHART_DATA) ) {
                 applyChartDATAPortlet(chart);
+            } else if (chart.getItemId().startsWith(WelcomePortal.CHART_JOURNAL)) {
+                applyChartJournalPortlet(chart);
             }
         }
     }
+    
     private void applyChartDATAPortlet(Portlet chart) {
         final FieldSet set = (FieldSet) chart.getItemByItemId(WelcomePortal.CHART_DATA + "Set"); //$NON-NLS-1$        
         set.removeAll();
@@ -649,6 +660,104 @@ public class MainFramePanel extends Portal {
 
     }
 
+    private void applyChartJournalPortlet(Portlet chart) {
+        final FieldSet set = (FieldSet) chart.getItemByItemId(WelcomePortal.CHART_JOURNAL + "Set"); //$NON-NLS-1$        
+        set.removeAll();
+        service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
+
+            @Override
+            public void onSuccess(String dataContainer) {
+
+                StatisticsRestServiceHandler.getInstance().getContainerJournalStats(dataContainer,
+                        new SessionAwareAsyncCallback<JSONArray>() {
+
+                            @Override
+                            public void onSuccess(JSONArray jsonArray) {
+                                set.add(createJournalPlot(jsonArray));
+                                set.layout(true);
+                            }
+                        });
+
+            }
+        });
+
+    }
+    
+    private SimplePlot createJournalPlot(JSONArray jsonArray) {
+        //prepare data
+        int numOfEntities = jsonArray.size();
+        JSONObject currentJSONObj;
+        JSONArray events;
+        JSONObject creations;
+        int lengthOfCreates;
+        JSONObject updates;
+        int lengthOfUpdates;
+        List<String> entities = new ArrayList<String>(numOfEntities);
+        Map<String, Map<String, Integer>> journalData = new HashMap<String, Map<String, Integer>>();
+        for (int i = 0; i < numOfEntities; i++) {
+            currentJSONObj = (JSONObject) jsonArray.get(i);
+            Set<String> entityNames = currentJSONObj.keySet();
+            String entityName = entityNames.iterator().next();
+            entities.add(entityName);
+            events = currentJSONObj.get(entityName).isArray();
+            creations = events.get(0).isObject();
+            updates = events.get(1).isObject();
+            lengthOfCreates = creations.size();
+            lengthOfUpdates = updates.size();
+
+            Map<String, Integer> eventMap = new HashMap<String, Integer>(2);
+            int numOfUpdates = 0;
+            int numOfCreates = 0;
+            for (int j = 0; j < lengthOfCreates; j++) {
+                JSONArray createArray = creations.get("creations").isArray(); //$NON-NLS-1$
+                JSONObject curCreate;
+                for (int k = 0; k < createArray.size(); k++) {
+                    curCreate = createArray.get(k).isObject();
+                    numOfCreates += (int) curCreate.get("create").isNumber().getValue(); //$NON-NLS-1$
+                }
+            }
+            
+            for (int j = 0; j < lengthOfUpdates; j++) {
+                JSONArray updateArray = updates.get("updates").isArray(); //$NON-NLS-1$
+                JSONObject curUpdate;
+                for (int k = 0; k < updateArray.size(); k++) {
+                    curUpdate = updateArray.get(k).isObject();
+                    numOfCreates += (int) curUpdate.get("update").isNumber().getValue(); //$NON-NLS-1$
+                }
+            }
+
+            eventMap.put("create", numOfCreates); //$NON-NLS-1$
+            eventMap.put("update", numOfUpdates); //$NON-NLS-1$
+            journalData.put(entityName, eventMap);
+        }
+
+        PlotModel model = new PlotModel();
+        PlotOptions plotOptions = PlotOptions.create();
+        plotOptions.setGlobalSeriesOptions(
+                GlobalSeriesOptions.create().setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
+                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6)).setStack(true))
+                .setXAxesOptions(
+                        AxesOptions.create().addAxisOptions(
+                                CategoriesAxisOptions.create().setCategories(entities.toArray(new String[entities.size()]))));
+        plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
+
+        // create series
+        SeriesHandler series1 = model.addSeries(Series.of("Creation")); //$NON-NLS-1$
+        SeriesHandler series2 = model.addSeries(Series.of("Update")); //$NON-NLS-1$
+
+        // add data
+        for (String entityName : entities) {
+            series1.add(DataPoint.of(entityName, journalData.get(entityName).get("create"))); //$NON-NLS-1$
+            series2.add(DataPoint.of(entityName, journalData.get(entityName).get("update"))); //$NON-NLS-1$
+        }
+
+        // create the plot
+        SimplePlot plot = new SimplePlot(model, plotOptions);
+        plot.setWidth(400);
+        plot.setHeight(300);
+        return plot;
+    }
+    
     private SimplePlot createEntityPlot(JSONArray jsonArray) {
 
         SimplePlot plot;
@@ -717,6 +826,8 @@ public class MainFramePanel extends Portal {
                                 applyProcessPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.CHART_DATA)) {
                                 applyChartDATAPortlet(selectedPortlet);
+                            } else if (name.equals(WelcomePortal.CHART_JOURNAL)) {
+                                applyChartJournalPortlet(selectedPortlet);
                             }
                         }
 
