@@ -114,7 +114,14 @@ public class TimeSlicer {
             lowerBoundResult.close();
         }
         // Create the slice iterator
-        return new SliceIterator(lowerBound, upperBound, unit.toMillis(step), select, timestamp);
+        if (upperBound - lowerBound <= step) {
+            // Means there's only one slice of result (no need to iterate over ranges).
+            Slice singleSlice = new Slice(lowerBound, upperBound, select);
+            return Collections.singleton(singleSlice).iterator();
+        } else {
+            // There's at least 2 slices to iterate over.
+            return new SliceIterator(lowerBound, upperBound, unit.toMillis(step), select, timestamp);
+        }
     }
 
     /**
