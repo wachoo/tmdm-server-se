@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +83,8 @@ public class MainFramePanel extends Portal {
     private boolean isHiddenDSCTask = true;
     private static String DSCTASKTYPE_NEW = "new"; //$NON-NLS-1$
     private static String DSCTASKTYPE_PENDING = "pending"; //$NON-NLS-1$
+    private static String ROUTING_STATUS_FAILED = "failed"; //$NON-NLS-1$
+    private static String ROUTING_STATUS_COMPLETED = "completed"; //$NON-NLS-1$
     private List<Portlet> charts = new ArrayList<Portlet>(4);
     
     public MainFramePanel(int numColumns) {
@@ -609,6 +612,7 @@ public class MainFramePanel extends Portal {
         Map<String, String> chart_titles = new HashMap<String, String>(4);
         chart_titles.put(WelcomePortal.CHART_DATA, MessagesFactory.getMessages().chart_data_title());
         chart_titles.put(WelcomePortal.CHART_JOURNAL, MessagesFactory.getMessages().chart_journal_title());
+        chart_titles.put(WelcomePortal.CHART_ROUTING_EVENT, MessagesFactory.getMessages().chart_routing_event_title());
         
         Portlet chart;
         Set<String> chartNames = chart_titles.keySet();
@@ -621,6 +625,8 @@ public class MainFramePanel extends Portal {
                 applyChartDATAPortlet(chart);
             } else if (chart.getItemId().startsWith(WelcomePortal.CHART_JOURNAL)) {
                 applyChartJournalPortlet(chart);
+            } else if (chart.getItemId().startsWith(WelcomePortal.CHART_ROUTING_EVENT)) {
+                applyChartRoutingEventPortlet(chart);
             }
             charts.add(chart);
             this.add(chart, 0);
@@ -633,6 +639,8 @@ public class MainFramePanel extends Portal {
                 applyChartDATAPortlet(chart);
             } else if (chart.getItemId().startsWith(WelcomePortal.CHART_JOURNAL)) {
                 applyChartJournalPortlet(chart);
+            } else if (chart.getItemId().startsWith(WelcomePortal.CHART_ROUTING_EVENT)) {
+                applyChartRoutingEventPortlet(chart);
             }
         }
     }
@@ -654,7 +662,6 @@ public class MainFramePanel extends Portal {
                                 set.layout(true);
                             }
                         });
-
             }
         });
 
@@ -677,9 +684,96 @@ public class MainFramePanel extends Portal {
                                 set.layout(true);
                             }
                         });
-
             }
         });
+    }
+    
+    private void applyChartRoutingEventPortlet(Portlet chart) {
+        final FieldSet set = (FieldSet) chart.getItemByItemId(WelcomePortal.CHART_ROUTING_EVENT + "Set"); //$NON-NLS-1$        
+        set.removeAll();
+        StatisticsRestServiceHandler.getInstance().getRoutingEventStats(
+                new SessionAwareAsyncCallback<JSONArray>() {
+
+                    @Override
+                    public void onSuccess(JSONArray jsonArray) {
+                        set.add(createRoutingEventPlot(jsonArray));
+                        set.layout(true);
+                    }
+                });
+    }
+    
+    private SimplePlot createRoutingEventPlot(JSONArray jsonArray) {
+        
+        //prepare data
+        Map<String, Map<String, Integer>> routingData = new HashMap<String, Map<String, Integer>>();
+        assert (jsonArray.size() == 2);
+        JSONObject failedJSONObj;
+        JSONObject completedJSONObj;
+        JSONArray failures;
+        JSONArray completes;
+        failedJSONObj = (JSONObject) jsonArray.get(0);
+        completedJSONObj = (JSONObject) jsonArray.get(1);
+        String currApp;
+        Set<String> appNames = new HashSet<String>();
+        
+        
+        failures = failedJSONObj.get(ROUTING_STATUS_FAILED).isArray();
+        JSONObject curFailure;
+        Map<String, Integer> failureMap = new HashMap<String, Integer>();
+        int numOfFailed = 0;
+        for (int i = 0; i < failures.size(); i++) {
+            curFailure = failures.get(i).isObject();
+            currApp = curFailure.keySet().iterator().next();
+            numOfFailed = (int) curFailure.get(currApp).isNumber().getValue();
+            failureMap.put(currApp, numOfFailed);
+            appNames.add(currApp);
+        }
+        
+        completes = completedJSONObj.get(ROUTING_STATUS_COMPLETED).isArray();
+        JSONObject curComplete;
+        int numOfCompleted = 0;
+        Map<String, Integer> completesMap = new HashMap<String, Integer>();
+        for (int i = 0; i < completes.size(); i++) {
+            curComplete = completes.get(i).isObject();
+            currApp = curComplete.keySet().iterator().next();
+            numOfCompleted = (int) curComplete.get(currApp).isNumber().getValue();
+            completesMap.put(currApp, numOfCompleted);
+            appNames.add(currApp);
+        }        
+ 
+        Map<String, Integer> status;
+        for (String appName : appNames) {
+            status = new HashMap<String, Integer>(2);
+            status.put(ROUTING_STATUS_FAILED, !failureMap.containsKey(appName)? 0 : failureMap.get(appName));
+            status.put(ROUTING_STATUS_COMPLETED, !completesMap.containsKey(appName)? 0 : completesMap.get(appName));
+            routingData.put(appName, status);
+        }
+        
+        PlotModel model = new PlotModel();
+        PlotOptions plotOptions = PlotOptions.create();
+        plotOptions.setGlobalSeriesOptions(
+                GlobalSeriesOptions.create().setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
+                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6)).setStack(true))
+                .setXAxesOptions(
+                        AxesOptions.create().addAxisOptions(
+                                CategoriesAxisOptions.create().setCategories(appNames.toArray(new String[appNames.size()]))));
+        plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
+
+        // create series
+        SeriesHandler series1 = model.addSeries(Series.of("Completed")); //$NON-NLS-1$
+        SeriesHandler series2 = model.addSeries(Series.of("Failed")); //$NON-NLS-1$
+
+        // add data
+        for (String appName : appNames) {
+            series1.add(DataPoint.of(appName, routingData.get(appName).get(ROUTING_STATUS_COMPLETED)));
+            series2.add(DataPoint.of(appName, routingData.get(appName).get(ROUTING_STATUS_FAILED)));
+        }
+
+        // create the plot
+        SimplePlot plot = new SimplePlot(model, plotOptions);
+        plot.setWidth(400);
+        plot.setHeight(300);
+        return plot;
 
     }
     
@@ -693,7 +787,7 @@ public class MainFramePanel extends Portal {
         JSONObject updates;
         int lengthOfUpdates;
         List<String> entities = new ArrayList<String>(numOfEntities);
-        Map<String, Map<String, Integer>> journalData = new HashMap<String, Map<String, Integer>>();
+        Map<String, Map<String, Integer>> journalData = new HashMap<String, Map<String, Integer>>(numOfEntities);
         for (int i = 0; i < numOfEntities; i++) {
             currentJSONObj = (JSONObject) jsonArray.get(i);
             Set<String> entityNames = currentJSONObj.keySet();
@@ -828,6 +922,8 @@ public class MainFramePanel extends Portal {
                                 applyChartDATAPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.CHART_JOURNAL)) {
                                 applyChartJournalPortlet(selectedPortlet);
+                            } else if (name.equals(WelcomePortal.CHART_ROUTING_EVENT)) {
+                                applyChartRoutingEventPortlet(selectedPortlet);
                             }
                         }
 

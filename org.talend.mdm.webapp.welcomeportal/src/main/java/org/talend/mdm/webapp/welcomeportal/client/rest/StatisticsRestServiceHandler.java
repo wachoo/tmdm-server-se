@@ -107,4 +107,25 @@ public class StatisticsRestServiceHandler {
         client.request(MediaType.APPLICATION_JSON);
 
     }
+
+    public void getRoutingEventStats(final SessionAwareAsyncCallback<JSONArray> callback) {
+        StringBuilder uri = new StringBuilder();
+        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("events"); //$NON-NLS-1$
+        client.init(Method.GET, uri.toString());
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
+
+            @Override
+            public void doProcess(Request request, Response response) throws Exception {
+
+                JsonRepresentation jsonRepresentation = RestServiceHelper.getJsonRepresentationFromResponse(response);
+                if (jsonRepresentation != null) {
+                    JSONValue jsonValue = jsonRepresentation.getJsonObject().get("events"); //$NON-NLS-1$
+                    callback.onSuccess(jsonValue.isArray());
+                }
+
+            }
+        });
+        client.request(MediaType.APPLICATION_JSON);
+        
+    }
 }
