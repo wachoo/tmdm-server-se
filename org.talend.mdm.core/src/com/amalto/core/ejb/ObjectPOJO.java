@@ -850,5 +850,14 @@ public abstract class ObjectPOJO implements Serializable {
     public static Map getCache() {
         return cachedPojo;
     }
+    
+    public static void invalidateCache(String revisionID, Class<? extends ObjectPOJO> objectClass, ObjectPOJOPK objectPOJOPK) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("invalidateCache() " + revisionID + "/" + objectClass + " [" + objectPOJOPK.getUniqueId() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        }
+        String url = objectPOJOPK.getUniqueId();
+        ItemCacheKey key = new ItemCacheKey(revisionID, url, getCluster(objectClass));
+        cachedPojo.remove(key);
+    }
 
 }

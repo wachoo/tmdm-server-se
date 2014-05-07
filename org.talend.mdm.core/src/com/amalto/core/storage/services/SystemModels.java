@@ -44,8 +44,12 @@ import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
+import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -124,7 +128,6 @@ public class SystemModels {
             }
         }
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, revisionID);
         if (storage == null) {
             throw new IllegalArgumentException("Container '" + modelName + "' does not exist."); //$NON-NLS-1$//$NON-NLS-2$
@@ -175,11 +178,11 @@ public class SystemModels {
                         throw new IllegalStateException("Found multiple data models for '" + modelName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     systemStorage.update(model);
-                    // Forces update in metadata repository admin
-                    metadataRepositoryAdmin.remove(modelName);
-                    metadataRepositoryAdmin.get(modelName);
                 }
                 systemStorage.commit();
+                
+                updateModelEnvInformation(modelName, revisionID);
+                
             } catch (Exception e) {
                 systemStorage.rollback();
                 throw new RuntimeException("Could not update data model.", e); //$NON-NLS-1$
@@ -192,6 +195,20 @@ public class SystemModels {
         dmUpdateEventNotifier.sendMessages();
     }
 
+    private void updateModelEnvInformation(String modelName, String revisionID) {
+        
+        // invalidate data model from object cache
+        ObjectPOJO.invalidateCache(revisionID, DataModelPOJO.class, new DataModelPOJOPK(StringUtils.substringBeforeLast(modelName, "#"))); //$NON-NLS-1$
+        
+        // Forces update in metadata repository admin
+        MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+        metadataRepositoryAdmin.update(modelName);
+        
+        //invalidate concept session
+        SaverSession session = SaverSession.newSession();
+        session.getSaverSource().invalidateTypeCache(modelName);
+    }
+    
     private boolean isSystemStorageAvailable() {
         return !dataModelType.getName().isEmpty();
     }
