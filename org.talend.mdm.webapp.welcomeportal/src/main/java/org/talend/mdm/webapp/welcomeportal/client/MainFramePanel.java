@@ -705,7 +705,6 @@ public class MainFramePanel extends Portal {
     private SimplePlot createRoutingEventPlot(JSONArray jsonArray) {
         
         //prepare data
-        Map<String, Map<String, Integer>> routingData = new HashMap<String, Map<String, Integer>>();
         assert (jsonArray.size() == 2);
         JSONObject failedJSONObj;
         JSONObject completedJSONObj;
@@ -715,9 +714,11 @@ public class MainFramePanel extends Portal {
         completedJSONObj = (JSONObject) jsonArray.get(1);
         String currApp;
         Set<String> appNames = new HashSet<String>();
-        
-        
+        Map<String, Map<String, Integer>> routingData = new HashMap<String, Map<String, Integer>>();
         failures = failedJSONObj.get(ROUTING_STATUS_FAILED).isArray();
+        Map<String, Integer> completesMap = new HashMap<String, Integer>();
+        
+        
         JSONObject curFailure;
         Map<String, Integer> failureMap = new HashMap<String, Integer>();
         int numOfFailed = 0;
@@ -732,7 +733,6 @@ public class MainFramePanel extends Portal {
         completes = completedJSONObj.get(ROUTING_STATUS_COMPLETED).isArray();
         JSONObject curComplete;
         int numOfCompleted = 0;
-        Map<String, Integer> completesMap = new HashMap<String, Integer>();
         for (int i = 0; i < completes.size(); i++) {
             curComplete = completes.get(i).isObject();
             currApp = curComplete.keySet().iterator().next();
@@ -794,6 +794,8 @@ public class MainFramePanel extends Portal {
             String entityName = entityNames.iterator().next();
             entities.add(entityName);
             events = currentJSONObj.get(entityName).isArray();
+            assert(events.size() == 2);
+            
             creations = events.get(0).isObject();
             updates = events.get(1).isObject();
 
