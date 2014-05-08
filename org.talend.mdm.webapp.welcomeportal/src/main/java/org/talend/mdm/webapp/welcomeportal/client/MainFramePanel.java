@@ -779,15 +779,15 @@ public class MainFramePanel extends Portal {
     
     private SimplePlot createJournalPlot(JSONArray jsonArray) {
         //prepare data
-        int numOfEntities = jsonArray.size();
         JSONObject currentJSONObj;
         JSONArray events;
         JSONObject creations;
-        int lengthOfCreates;
         JSONObject updates;
-        int lengthOfUpdates;
+        
+        int numOfEntities = jsonArray.size();
         List<String> entities = new ArrayList<String>(numOfEntities);
         Map<String, Map<String, Integer>> journalData = new HashMap<String, Map<String, Integer>>(numOfEntities);
+        
         for (int i = 0; i < numOfEntities; i++) {
             currentJSONObj = (JSONObject) jsonArray.get(i);
             Set<String> entityNames = currentJSONObj.keySet();
@@ -796,28 +796,22 @@ public class MainFramePanel extends Portal {
             events = currentJSONObj.get(entityName).isArray();
             creations = events.get(0).isObject();
             updates = events.get(1).isObject();
-            lengthOfCreates = creations.size();
-            lengthOfUpdates = updates.size();
 
             Map<String, Integer> eventMap = new HashMap<String, Integer>(2);
             int numOfUpdates = 0;
             int numOfCreates = 0;
-            for (int j = 0; j < lengthOfCreates; j++) {
-                JSONArray createArray = creations.get("creations").isArray(); //$NON-NLS-1$
-                JSONObject curCreate;
-                for (int k = 0; k < createArray.size(); k++) {
-                    curCreate = createArray.get(k).isObject();
-                    numOfCreates += (int) curCreate.get("create").isNumber().getValue(); //$NON-NLS-1$
-                }
+            JSONArray createArray = creations.get("creations").isArray(); //$NON-NLS-1$
+            JSONObject curCreate;
+            for (int j = 0; j < createArray.size(); j++) {
+                curCreate = createArray.get(j).isObject();
+                numOfCreates += (int) curCreate.get("create").isNumber().getValue(); //$NON-NLS-1$
             }
-            
-            for (int j = 0; j < lengthOfUpdates; j++) {
-                JSONArray updateArray = updates.get("updates").isArray(); //$NON-NLS-1$
-                JSONObject curUpdate;
-                for (int k = 0; k < updateArray.size(); k++) {
-                    curUpdate = updateArray.get(k).isObject();
-                    numOfCreates += (int) curUpdate.get("update").isNumber().getValue(); //$NON-NLS-1$
-                }
+
+            JSONArray updateArray = updates.get("updates").isArray(); //$NON-NLS-1$
+            JSONObject curUpdate;
+            for (int k = 0; k < updateArray.size(); k++) {
+                curUpdate = updateArray.get(k).isObject();
+                numOfUpdates += (int) curUpdate.get("update").isNumber().getValue(); //$NON-NLS-1$
             }
 
             eventMap.put("create", numOfCreates); //$NON-NLS-1$
