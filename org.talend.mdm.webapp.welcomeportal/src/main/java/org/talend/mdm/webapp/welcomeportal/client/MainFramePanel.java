@@ -62,7 +62,9 @@ import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
 import com.googlecode.gflot.client.SimplePlot;
 import com.googlecode.gflot.client.options.AxesOptions;
+import com.googlecode.gflot.client.options.AxisOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions;
+import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
 import com.googlecode.gflot.client.options.CategoriesAxisOptions;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.GridOptions;
@@ -751,7 +753,8 @@ public class MainFramePanel extends Portal {
         PlotOptions plotOptions = PlotOptions.create();
         plotOptions.setGlobalSeriesOptions(
                 GlobalSeriesOptions.create().setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
-                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6)).setStack(true))
+                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6).setAlignment(BarAlignment.CENTER)).setStack(true))
+                .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
                 .setXAxesOptions(
                         AxesOptions.create().addAxisOptions(
                                 CategoriesAxisOptions.create().setCategories(entityNames.toArray(new String[entityNames.size()]))));
@@ -823,7 +826,8 @@ public class MainFramePanel extends Portal {
         PlotOptions plotOptions = PlotOptions.create();
         plotOptions.setGlobalSeriesOptions(
                 GlobalSeriesOptions.create().setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
-                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6)).setStack(true))
+                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6).setAlignment(BarAlignment.CENTER)).setStack(true))
+                .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
                 .setXAxesOptions(
                         AxesOptions.create().addAxisOptions(
                                 CategoriesAxisOptions.create().setCategories(appNames.toArray(new String[appNames.size()]))));
@@ -895,7 +899,8 @@ public class MainFramePanel extends Portal {
         PlotOptions plotOptions = PlotOptions.create();
         plotOptions.setGlobalSeriesOptions(
                 GlobalSeriesOptions.create().setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
-                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6)).setStack(true))
+                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6).setAlignment(BarAlignment.CENTER)).setStack(true))
+                .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
                 .setXAxesOptions(
                         AxesOptions.create().addAxisOptions(
                                 CategoriesAxisOptions.create().setCategories(entities.toArray(new String[entities.size()]))));
