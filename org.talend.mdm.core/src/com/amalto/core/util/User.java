@@ -201,10 +201,12 @@ public class User implements Cloneable {
                 }
             }
             user.setApplications(apps);
-            LOG.debug("parsing xml complete.");
+            if(LOG.isDebugEnabled()){
+                LOG.debug("parsing xml complete."); //$NON-NLS-1$
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new Exception("Failed to parse user: " + ": " + e.getLocalizedMessage());
+            throw new Exception("Failed to parse user: " + ": " + e.getLocalizedMessage());  //$NON-NLS-1$//$NON-NLS-2$
         }
 
     }
@@ -235,7 +237,7 @@ public class User implements Cloneable {
 
     // for groovy
     public String getFakeemail() {
-        return fakeEmail;
+        return getFakeEmail();
     }
     
     public String getFakeEmail() {
@@ -248,7 +250,7 @@ public class User implements Cloneable {
 
     // for groovy
     public String getFamilyname() {
-        return familyName;
+        return getFamilyName();
     }
     
     public String getFamilyName() {
@@ -261,7 +263,7 @@ public class User implements Cloneable {
 
     // for groovy
     public String getGivenname() {
-        return givenName;
+        return getGivenName();
     }
 
     public String getGivenName() {
@@ -274,7 +276,7 @@ public class User implements Cloneable {
 
     // for groovy
     public String getHomepage() {
-        return homePage;
+        return getHomePage();
     }
     
     public String getHomePage() {
@@ -295,7 +297,7 @@ public class User implements Cloneable {
 
     // for groovy
     public long getLastvisitdate() {
-        return lastVisitDateAsLong;
+        return getLastVisitDateAsLong();
     }
     
     public long getLastVisitDateAsLong() {
@@ -316,7 +318,7 @@ public class User implements Cloneable {
 
     // for groovy
     public String getPhonenumber() {
-        return phoneNumber;
+        return getPhoneNumber();
     }
     
     public String getPhoneNumber() {
@@ -337,7 +339,7 @@ public class User implements Cloneable {
     
     // for groovy
     public String getRealemail() {
-        return realEmail;
+        return getRealEmail();
     }
     
     public String getRealEmail() {
@@ -350,7 +352,7 @@ public class User implements Cloneable {
 
     // for groovy
     public long getRegistrationdate() {
-        return registrationDateAsLong;
+        return getRegistrationDate();
     }
     
     public long getRegistrationDate() {
@@ -363,7 +365,7 @@ public class User implements Cloneable {
 
     // for groovy
     public Set<String> getRolenames() {
-        return roleNames;
+        return getRoleNames();
     }
     
     public Set<String> getRoleNames() {
@@ -392,7 +394,7 @@ public class User implements Cloneable {
 
     // for groovy
     public String getUsername() {
-        return userName;
+        return getUserName();
     }
     
     public String getUserName() {
@@ -405,7 +407,7 @@ public class User implements Cloneable {
     
     // for groovy
     public boolean isViewrealemail() {
-        return viewRealEmail;
+        return isViewRealEmail();
     }
 
     public boolean isViewRealEmail() {

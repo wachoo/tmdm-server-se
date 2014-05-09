@@ -2168,6 +2168,7 @@ public class Util {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("No such property " + userExpression);
                         }
+                        LOGGER.warn("No such property " + userExpression);
                         conditions.remove(i);
                     }
                 }
