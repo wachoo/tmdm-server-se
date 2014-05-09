@@ -2166,7 +2166,7 @@ public class Util {
                         }
                     } catch (Exception e) {
                         if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("No such property " + userExpression);
+                            LOGGER.debug(e.getMessage(), e);
                         }
                         LOGGER.warn("No such property " + userExpression);
                         conditions.remove(i);
