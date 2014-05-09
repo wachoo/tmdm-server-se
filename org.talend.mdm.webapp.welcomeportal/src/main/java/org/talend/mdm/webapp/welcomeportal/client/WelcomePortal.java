@@ -52,7 +52,7 @@ public class WelcomePortal implements EntryPoint {
     
     public final static String START = "start", ALERT = "alert", TASKS = "tasks", WORKFLOW_TASK = "workflow_task", PROCESS = "process", SEARCH = "search"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ 
 
-    public final static String CHART_DATA = "chart_data", CHART_JOURNAL = "chart_journal", CHART_ROUTING_EVENT = "chart_routing_event"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    public final static String CHART_DATA = "chart_data", CHART_JOURNAL = "chart_journal", CHART_ROUTING_EVENT = "chart_routing_event", CHART_MATCHING = "chart_matching"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
     public final static String WELCOMEPORTAL_ID = "Welcome"; //$NON-NLS-1$
 

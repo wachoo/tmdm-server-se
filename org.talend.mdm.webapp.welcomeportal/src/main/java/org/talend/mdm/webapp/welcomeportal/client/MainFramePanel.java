@@ -95,11 +95,10 @@ public class MainFramePanel extends Portal {
         setColumnWidth(1, .5);
 
         initStartPortlet();
-        initAlertPortlet();
-        initTaskPortlet();
         initProcessPortlet();
+        initAlertPortlet();
         initSearchPortlet();
-        initChartPortlets();
+        initTaskPortlet();
 
     }
 
@@ -330,11 +329,12 @@ public class MainFramePanel extends Portal {
                             applyTaskPortlet(task);
                             MainFramePanel.this.add(task, 1);
                         }
+                        
+                        initChartPortlets();
                     }
                 });                
             }
         });
-                
     }
 
     private void applyTaskPortlet(Portlet task) {
@@ -613,39 +613,49 @@ public class MainFramePanel extends Portal {
         chart_titles.put(WelcomePortal.CHART_DATA, MessagesFactory.getMessages().chart_data_title());
         chart_titles.put(WelcomePortal.CHART_JOURNAL, MessagesFactory.getMessages().chart_journal_title());
         chart_titles.put(WelcomePortal.CHART_ROUTING_EVENT, MessagesFactory.getMessages().chart_routing_event_title());
+        chart_titles.put(WelcomePortal.CHART_MATCHING, MessagesFactory.getMessages().chart_mathcing_title());
         
         Portlet chart;
         Set<String> chartNames = chart_titles.keySet();
+        int position = 0;
         for (Iterator<String> iterator= chartNames.iterator(); iterator.hasNext(); ) {
             String name = iterator.next();
             chart = configPortlet(name);
             chart.setHeading(chart_titles.get(name));
             chart.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
             if (chart.getItemId().startsWith(WelcomePortal.CHART_DATA)) {
-                applyChartDATAPortlet(chart);
+                applyChartDataPortlet(chart);
             } else if (chart.getItemId().startsWith(WelcomePortal.CHART_JOURNAL)) {
                 applyChartJournalPortlet(chart);
             } else if (chart.getItemId().startsWith(WelcomePortal.CHART_ROUTING_EVENT)) {
                 applyChartRoutingEventPortlet(chart);
+            } else if (chart.getItemId().startsWith(WelcomePortal.CHART_MATCHING)) {
+                applyChartMatchingPortlet(chart);
+            } else {
+                assert false;
             }
             charts.add(chart);
-            this.add(chart, 0);
+            this.add(chart, position%2);
+            position++;
         }
     }
 
     private void applyChartPortlets(List<Portlet> charts) {
         for (Portlet chart : charts) {
             if (chart.getItemId().startsWith(WelcomePortal.CHART_DATA) ) {
-                applyChartDATAPortlet(chart);
+                applyChartDataPortlet(chart);
             } else if (chart.getItemId().startsWith(WelcomePortal.CHART_JOURNAL)) {
                 applyChartJournalPortlet(chart);
             } else if (chart.getItemId().startsWith(WelcomePortal.CHART_ROUTING_EVENT)) {
                 applyChartRoutingEventPortlet(chart);
+            } else if (chart.getItemId().startsWith(WelcomePortal.CHART_MATCHING)) {
+                applyChartMatchingPortlet(chart);
             }
+            assert false;
         }
     }
     
-    private void applyChartDATAPortlet(Portlet chart) {
+    private void applyChartDataPortlet(Portlet chart) {
         final FieldSet set = (FieldSet) chart.getItemByItemId(WelcomePortal.CHART_DATA + "Set"); //$NON-NLS-1$        
         set.removeAll();
         service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
@@ -700,6 +710,66 @@ public class MainFramePanel extends Portal {
                         set.layout(true);
                     }
                 });
+    }
+    
+    private void applyChartMatchingPortlet(Portlet chart) {
+        final FieldSet set = (FieldSet) chart.getItemByItemId(WelcomePortal.CHART_MATCHING + "Set"); //$NON-NLS-1$        
+        set.removeAll();
+        service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
+
+            @Override
+            public void onSuccess(String dataContainer) {
+
+                StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer,
+                        new SessionAwareAsyncCallback<JSONArray>() {
+
+                            @Override
+                            public void onSuccess(JSONArray jsonArray) {
+                                set.add(createMatchingPlot(jsonArray));
+                                set.layout(true);
+                            }
+                        });
+            }
+        });
+        
+    }
+
+    private SimplePlot createMatchingPlot(JSONArray jsonArray) {
+
+        //prepare data
+        Map<String, Integer> matchingData = new HashMap<String, Integer>(jsonArray.size());
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = jsonArray.get(i).isObject();
+            String name = jsonObject.keySet().iterator().next();
+            int value = new Double(jsonObject.get(name).isNumber().doubleValue()).intValue();
+            matchingData.put(name, value);
+        }
+        
+        Set<String> entityNames = matchingData.keySet();
+        
+        PlotModel model = new PlotModel();
+        PlotOptions plotOptions = PlotOptions.create();
+        plotOptions.setGlobalSeriesOptions(
+                GlobalSeriesOptions.create().setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
+                .setBarsSeriesOptions(BarSeriesOptions.create().setShow(true).setBarWidth(0.6)).setStack(true))
+                .setXAxesOptions(
+                        AxesOptions.create().addAxisOptions(
+                                CategoriesAxisOptions.create().setCategories(entityNames.toArray(new String[entityNames.size()]))));
+        plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
+
+        // create series
+        SeriesHandler series1 = model.addSeries(Series.of("Matched")); //$NON-NLS-1$
+
+        // add data
+        for (String entityName : entityNames) {
+            series1.add(DataPoint.of(entityName, matchingData.get(entityName)));
+        }
+
+        // create the plot
+        SimplePlot plot = new SimplePlot(model, plotOptions);
+        plot.setWidth(400);
+        plot.setHeight(300);
+        return plot;
     }
     
     private SimplePlot createRoutingEventPlot(JSONArray jsonArray) {
@@ -915,12 +985,15 @@ public class MainFramePanel extends Portal {
                             } else if (name.equals(WelcomePortal.PROCESS)) {
                                 applyProcessPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.CHART_DATA)) {
-                                applyChartDATAPortlet(selectedPortlet);
+                                applyChartDataPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.CHART_JOURNAL)) {
                                 applyChartJournalPortlet(selectedPortlet);
                             } else if (name.equals(WelcomePortal.CHART_ROUTING_EVENT)) {
                                 applyChartRoutingEventPortlet(selectedPortlet);
+                            } else if (name.equals(WelcomePortal.CHART_MATCHING)) {
+                                applyChartMatchingPortlet(selectedPortlet);
                             }
+                            assert false;
                         }
 
                     }

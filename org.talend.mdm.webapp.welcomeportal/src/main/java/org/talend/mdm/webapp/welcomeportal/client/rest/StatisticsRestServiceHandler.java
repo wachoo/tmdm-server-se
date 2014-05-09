@@ -107,6 +107,32 @@ public class StatisticsRestServiceHandler {
         client.request(MediaType.APPLICATION_JSON);
 
     }
+    
+    public void getContainerMatchingStats(String dataContainer, final SessionAwareAsyncCallback<JSONArray> callback) {
+        if (dataContainer == null) {
+            throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
+        }
+
+        StringBuilder uri = new StringBuilder();
+        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("matching").append(RestServiceHelper.SEPARATOR) //$NON-NLS-1$
+                .append(dataContainer);
+        client.init(Method.GET, uri.toString());
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
+
+            @Override
+            public void doProcess(Request request, Response response) throws Exception {
+
+                JsonRepresentation jsonRepresentation = RestServiceHelper.getJsonRepresentationFromResponse(response);
+                if (jsonRepresentation != null) {
+                    JSONValue jsonValue = jsonRepresentation.getJsonObject().get("matching"); //$NON-NLS-1$
+                    callback.onSuccess(jsonValue.isArray());
+                }
+
+            }
+        });
+        client.request(MediaType.APPLICATION_JSON);
+
+    }
 
     public void getRoutingEventStats(final SessionAwareAsyncCallback<JSONArray> callback) {
         StringBuilder uri = new StringBuilder();
