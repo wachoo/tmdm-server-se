@@ -2065,19 +2065,16 @@ public class Util {
                     && condition.getRightValueOrPath().contains(USER_PROPERTY_PREFIX)) {
                 // TMDM-7207: Only create the groovy script engine if needed (huge performance issues)
                 // TODO Should there be some pool of ScriptEngine instances? (is reusing ok?)
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Groovy engine started.");
-                }
                 ScriptEngine scriptEngine = SCRIPTFACTORY.getEngineByName("groovy"); //$NON-NLS-1$
                 if (userXML != null && !userXML.isEmpty()) {
-                    GroovyUser user = GroovyUser.parse(userXML);
+                    User user = User.parse(userXML);
                     scriptEngine.put("user_context", user);//$NON-NLS-1$
                 }
                 String rightCondition = condition.getRightValueOrPath();
                 String userExpression = rightCondition.substring(rightCondition.indexOf('{') + 1, rightCondition.indexOf('}'));
                 try {
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("Groovy engine evaluating " + userExpression + ".");//$NON-NLS-1$ //$NON-NLS-2$
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Groovy engine evaluating " + userExpression + ".");//$NON-NLS-1$ //$NON-NLS-2$
                     }
                     Object expressionValue = scriptEngine.eval(userExpression);
                     if (expressionValue != null) {
@@ -2087,7 +2084,9 @@ public class Util {
                         }
                     }
                 } catch (Exception e) {
-                    LOGGER.debug("No such property " + userExpression, e);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("No such property " + userExpression, e);
+                    }
                 }
             }
 
@@ -2137,10 +2136,7 @@ public class Util {
     }
 
     public static void updateUserPropertyCondition(List conditions, String userXML) throws Exception {
-        GroovyUser user = GroovyUser.parse(userXML);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Groovy engine started.");//$NON-NLS-1$
-        }
+        User user = User.parse(userXML);
         ScriptEngine scriptEngine = SCRIPTFACTORY.getEngineByName("groovy"); //$NON-NLS-1$
         scriptEngine.put("user_context", user);//$NON-NLS-1$
 
@@ -2154,8 +2150,8 @@ public class Util {
                     String userExpression = rightCondition
                             .substring(rightCondition.indexOf("{") + 1, rightCondition.indexOf("}"));//$NON-NLS-1$ //$NON-NLS-2$
                     try {
-                        if (LOGGER.isInfoEnabled()) {
-                            LOGGER.info("Groovy engine evaluating " + userExpression + ".");//$NON-NLS-1$ //$NON-NLS-2$
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Groovy engine evaluating " + userExpression + ".");//$NON-NLS-1$ //$NON-NLS-2$
                         }
                         Object expressionValue = scriptEngine.eval(userExpression);
                         if (expressionValue != null) {
@@ -2169,7 +2165,9 @@ public class Util {
                             conditions.remove(i);
                         }
                     } catch (Exception e) {
-                        LOGGER.debug("No such property " + userExpression);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("No such property " + userExpression);
+                        }
                         conditions.remove(i);
                     }
                 }

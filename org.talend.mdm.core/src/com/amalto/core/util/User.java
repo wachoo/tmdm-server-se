@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.util;
 
 import java.util.Date;
@@ -7,10 +19,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class User implements Cloneable {
+    
+    private static final Logger LOG = Logger.getLogger(User.class);
 
     Integer ID;
 
@@ -186,9 +201,9 @@ public class User implements Cloneable {
                 }
             }
             user.setApplications(apps);
-
+            LOG.debug("parsing xml complete.");
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
             throw new Exception("Failed to parse user: " + ": " + e.getLocalizedMessage());
         }
 
@@ -218,14 +233,24 @@ public class User implements Cloneable {
         this.enabled = enabled;
     }
 
+    // for groovy
+    public String getFakeemail() {
+        return fakeEmail;
+    }
+    
     public String getFakeEmail() {
         return fakeEmail;
     }
-
+    
     public void setFakeEmail(String fakeEmail) {
         this.fakeEmail = fakeEmail;
     }
 
+    // for groovy
+    public String getFamilyname() {
+        return familyName;
+    }
+    
     public String getFamilyName() {
         return familyName;
     }
@@ -234,14 +259,24 @@ public class User implements Cloneable {
         this.familyName = familyName;
     }
 
-    public String getGivenName() {
+    // for groovy
+    public String getGivenname() {
         return givenName;
     }
 
+    public String getGivenName() {
+        return givenName;
+    }
+    
     public void setGivenName(String givenName) {
         this.givenName = givenName;
     }
 
+    // for groovy
+    public String getHomepage() {
+        return homePage;
+    }
+    
     public String getHomePage() {
         return homePage;
     }
@@ -258,6 +293,11 @@ public class User implements Cloneable {
         ID = id;
     }
 
+    // for groovy
+    public long getLastvisitdate() {
+        return lastVisitDateAsLong;
+    }
+    
     public long getLastVisitDateAsLong() {
         return lastVisitDateAsLong;
     }
@@ -274,6 +314,11 @@ public class User implements Cloneable {
         this.password = password;
     }
 
+    // for groovy
+    public String getPhonenumber() {
+        return phoneNumber;
+    }
+    
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -289,7 +334,12 @@ public class User implements Cloneable {
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
-
+    
+    // for groovy
+    public String getRealemail() {
+        return realEmail;
+    }
+    
     public String getRealEmail() {
         return realEmail;
     }
@@ -298,6 +348,11 @@ public class User implements Cloneable {
         this.realEmail = realEmail;
     }
 
+    // for groovy
+    public long getRegistrationdate() {
+        return registrationDateAsLong;
+    }
+    
     public long getRegistrationDate() {
         return registrationDateAsLong;
     }
@@ -306,6 +361,11 @@ public class User implements Cloneable {
         this.registrationDateAsLong = (registrationDate == null ? 0 : registrationDate.getTime());
     }
 
+    // for groovy
+    public Set<String> getRolenames() {
+        return roleNames;
+    }
+    
     public Set<String> getRoleNames() {
         return roleNames;
     }
@@ -330,12 +390,22 @@ public class User implements Cloneable {
         this.signature = signature;
     }
 
+    // for groovy
+    public String getUsername() {
+        return userName;
+    }
+    
     public String getUserName() {
         return userName;
     }
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+    
+    // for groovy
+    public boolean isViewrealemail() {
+        return viewRealEmail;
     }
 
     public boolean isViewRealEmail() {
