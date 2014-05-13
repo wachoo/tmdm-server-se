@@ -3344,6 +3344,80 @@ public class StorageQueryTest extends StorageTestCase {
         assertTrue(((BinaryLogicOperator) select.getCondition()).getLeft() instanceof Range);
     }
 
+    public void testTypeSplit() throws Exception {
+        // Build expected results
+        UserQueryBuilder qb = UserQueryBuilder.from(person).and(product).where(fullText("Julien"));
+        List<DataRecord> expected = new LinkedList<DataRecord>();
+        int count;
+        int size;
+        storage.begin();
+        try {
+            StorageResults records = storage.fetch(qb.getSelect());
+            count = records.getCount();
+            size = records.getSize();
+            for (DataRecord record : records) {
+                expected.add(record);
+            }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new RuntimeException(e);
+        }
+        System.out.println("count = " + count);
+        // Ensures split behavior is same as no split
+        storage.begin();
+        try {
+            StorageResults split = TypeSpliter.split(qb.getSelect(), storage);
+            int i = 0;
+            for (DataRecord record : split) {
+                assertEquals(record, expected.get(i++));
+            }
+            assertEquals(count, split.getCount());
+            assertEquals(size, split.getSize());
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public void testTypeSplitWithPaging() throws Exception {
+        // Build expected results
+        UserQueryBuilder qb = UserQueryBuilder.from(person).and(product).where(fullText("Julien")).start(1).limit(20);
+        List<DataRecord> expected = new LinkedList<DataRecord>();
+        int count;
+        int size;
+        storage.begin();
+        try {
+            StorageResults records = storage.fetch(qb.getSelect());
+            count = records.getCount();
+            size = records.getSize();
+            for (DataRecord record : records) {
+                expected.add(record);
+            }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new RuntimeException(e);
+        }
+        System.out.println("count = " + count);
+        // Ensures split behavior is same as no split
+        storage.begin();
+        try {
+            StorageResults split = TypeSpliter.split(qb.getSelect(), storage);
+            int i = 0;
+            for (DataRecord record : split) {
+                assertEquals(record, expected.get(i++));
+            }
+            assertEquals(count, split.getCount());
+            assertEquals(size, split.getSize());
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new RuntimeException(e);
+        }
+    }
+
     private static class TestRDBMSDataSource extends RDBMSDataSource {
 
         private ContainsOptimization optimization;
