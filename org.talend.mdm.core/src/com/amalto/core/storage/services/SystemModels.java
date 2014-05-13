@@ -10,24 +10,16 @@
 
 package com.amalto.core.storage.services;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -79,10 +71,23 @@ public class SystemModels {
         }
     }
 
+    private static void reloadDataModel(String modelName) {
+        // Invalidate data model from object cache
+        ObjectPOJO.invalidateCache(null, DataModelPOJO.class,
+                new DataModelPOJOPK(StringUtils.substringBeforeLast(modelName, "#"))); //$NON-NLS-1$
+        // Force update in metadata repository admin
+        MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+        metadataRepositoryAdmin.update(modelName);
+        // Invalidate concept session
+        SaverSession session = SaverSession.newSession();
+        session.getSaverSource().invalidateTypeCache(modelName);
+        session.end();
+    }
+
     @GET
-    @Path("{model}")
-    public String getSchema(@PathParam("model")
-    String modelName) {
+    @Path("{model}")//$NON-NLS-1$
+    public String getSchema(@PathParam("model")//$NON-NLS-1$
+            String modelName) {
         if (!isSystemStorageAvailable()) {
             return StringUtils.EMPTY;
         }
@@ -109,10 +114,10 @@ public class SystemModels {
     }
 
     @PUT
-    @Path("{model}")
-    public void updateModel(@PathParam("model")
-    String modelName, @QueryParam("force")
-    boolean force, InputStream dataModel) {
+    @Path("{model}")//$NON-NLS-1$
+    public void updateModel(@PathParam("model")//$NON-NLS-1$
+            String modelName, @QueryParam("force")//$NON-NLS-1$
+            boolean force, InputStream dataModel) {
         if (!isSystemStorageAvailable()) { // If no system storage is available, store new schema version.
             try {
                 DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
@@ -128,13 +133,11 @@ public class SystemModels {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
         if (storage == null) {
-            throw new IllegalArgumentException("Container '" + modelName + "' does not exist."); //$NON-NLS-1$//$NON-NLS-2$
+            throw new IllegalArgumentException("Container '" + modelName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
         }
-
-        // Compare new data model with existing data model
+        // Parses new data model version for comparison with existing
         MetadataRepository previousRepository = storage.getMetadataRepository();
         MetadataRepository newRepository = new MetadataRepository();
-
         String content;
         try {
             content = IOUtils.toString(dataModel, "UTF-8"); //$NON-NLS-1$
@@ -142,10 +145,8 @@ public class SystemModels {
         } catch (IOException e) {
             throw new RuntimeException("Could not read data model from body.", e); //$NON-NLS-1$
         }
-
         // Ask the storage to adapt its structure following the changes
         storage.adapt(newRepository, force);
-
         if (storageAdmin.supportStaging(modelName)) {
             Storage stagingStorage = storageAdmin.get(modelName, StorageType.STAGING, null);
             if (stagingStorage != null) {
@@ -156,10 +157,9 @@ public class SystemModels {
             }
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Storage '" + modelName + "' does not support staging (forbidden by storage admin)."); //$NON-NLS-1$//$NON-NLS-2$
+                LOGGER.debug("Storage '" + modelName + "' does not support staging (forbidden by storage admin)."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
-
         // Update the system storage with the new data model (if there was any change).
         Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
         if (!diffResults.getActions().isEmpty()) {
@@ -178,43 +178,26 @@ public class SystemModels {
                     systemStorage.update(model);
                 }
                 systemStorage.commit();
-                
-                updateModelEnvInformation(modelName, null);
-                
+                reloadDataModel(modelName);
             } catch (Exception e) {
                 systemStorage.rollback();
                 throw new RuntimeException("Could not update data model.", e); //$NON-NLS-1$
             }
         }
-
         // synchronize with outer agents
         DataModelChangeNotifier dmUpdateEventNotifier = new DataModelChangeNotifier();
         dmUpdateEventNotifier.addUpdateMessage(new DMUpdateEvent(modelName, null));
         dmUpdateEventNotifier.sendMessages();
     }
 
-    private void updateModelEnvInformation(String modelName, String revisionID) {
-        
-        // invalidate data model from object cache
-        ObjectPOJO.invalidateCache(revisionID, DataModelPOJO.class, new DataModelPOJOPK(StringUtils.substringBeforeLast(modelName, "#"))); //$NON-NLS-1$
-        
-        // Forces update in metadata repository admin
-        MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
-        metadataRepositoryAdmin.update(modelName);
-        
-        //invalidate concept session
-        SaverSession session = SaverSession.newSession();
-        session.getSaverSource().invalidateTypeCache(modelName);
-    }
-    
     private boolean isSystemStorageAvailable() {
         return !dataModelType.getName().isEmpty();
     }
 
     @POST
-    @Path("{model}")
-    public String analyzeModelChange(@PathParam("model")
-    String modelName, InputStream dataModel) {
+    @Path("{model}")//$NON-NLS-1$
+    public String analyzeModelChange(@PathParam("model")//$NON-NLS-1$
+            String modelName, InputStream dataModel) {
         Map<ImpactAnalyzer.Impact, List<Change>> impacts;
         if (!isSystemStorageAvailable()) {
             impacts = new EnumMap<ImpactAnalyzer.Impact, List<Change>>(ImpactAnalyzer.Impact.class);
