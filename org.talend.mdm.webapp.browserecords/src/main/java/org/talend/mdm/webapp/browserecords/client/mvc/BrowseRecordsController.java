@@ -178,6 +178,16 @@ public class BrowseRecordsController extends Controller {
                         }
                         setTimeout(msgBox, 1000);
 
+                        if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
+                            if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()) {
+                                if (ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
+                                        .equals(itemBean.getConcept())
+                                        || isClose) {
+                                    ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
+                                }
+                            }
+                        }
+                        
                         if (detailToolBar.isOutMost()) {
                             detailToolBar.refreshNodeStatus();
                         }
@@ -207,16 +217,6 @@ public class BrowseRecordsController extends Controller {
                                     .equals(itemBean.getConcept())) {
                                 itemBean.setIds(result.getReturnValue());
                                 ItemsListPanel.getInstance().refreshGrid(itemBean);
-                            }
-                        }
-
-                        if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
-                            if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()) {
-                                if (ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
-                                        .equals(itemBean.getConcept())
-                                        || isClose) {
-                                    ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
-                                }
                             }
                         }
 

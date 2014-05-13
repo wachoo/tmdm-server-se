@@ -59,12 +59,7 @@ public class DeleteCallback extends SessionAwareAsyncCallback<Map<ItemBean, FKIn
             }
 
             strategy.delete(result, action, postDeleteAction);
-            refresh();
         }
-    }
-
-    public void refresh() {
-        return;
     }
 
 }

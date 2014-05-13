@@ -484,15 +484,7 @@ public class ItemDetailToolBar extends ToolBar {
                 List<ItemBean> list = new ArrayList<ItemBean>();
                 list.add(itemBean);
                 getBrowseRecordsService().checkFKIntegrity(list,
-                        new DeleteCallback(deleteAction, postDeleteAction, getBrowseRecordsService()) {
-
-                            @Override
-                            public void refresh() {
-                                ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
-                                ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, be);
-                            }
-                        });
-
+                        new DeleteCallback(deleteAction, postDeleteAction, getBrowseRecordsService()));
             }
         });
         delete_SendToTrash.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Send_to_trash()));
@@ -1646,14 +1638,7 @@ public class ItemDetailToolBar extends ToolBar {
         List<ItemBean> list = new ArrayList<ItemBean>();
         list.add(itemBean);
         getBrowseRecordsService().checkFKIntegrity(list,
-                new DeleteCallback(DeleteAction.PHYSICAL, buildPostDeleteAction(), getBrowseRecordsService()) {
-
-                    @Override
-                    public void refresh() {
-                        ButtonEvent be = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
-                        ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, be);
-                    }
-                });
+                new DeleteCallback(DeleteAction.PHYSICAL, buildPostDeleteAction(), getBrowseRecordsService()));
     }
 
     protected BrowseRecordsServiceAsync getBrowseRecordsService() {

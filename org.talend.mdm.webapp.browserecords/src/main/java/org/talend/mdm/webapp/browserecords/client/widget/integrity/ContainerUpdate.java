@@ -59,11 +59,6 @@ public class ContainerUpdate implements PostDeleteAction {
             StatusObserver.getInstance().notifyDeleted(null, null, false);
             return;
         }
-        // TMDM-3556, it didn't need to setup grid when delete FK in separate tab
-        if (bar != null && !bar.isFkToolBar()) {
-            ItemsListPanel itemsListPanel = ItemsListPanel.getInstance();
-            itemsListPanel.getGrid().getSelectionModel().select(-1, false);
-        }
 
         next.doAction();
     }

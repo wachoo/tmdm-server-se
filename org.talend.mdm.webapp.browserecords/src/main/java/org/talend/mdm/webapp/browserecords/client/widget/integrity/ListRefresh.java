@@ -42,13 +42,16 @@ public class ListRefresh implements PostDeleteAction {
     public void doAction() {
         // TMDM-3361, Hierarchy didn't need to reload
         // TMDM-3556, it didn't need to reload when delete FK in separate tab
-        if (bar == null || (!bar.isHierarchyCall() && !bar.isFkToolBar())) {
+        if (bar == null || (!bar.isHierarchyCall() && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
+                .equals(bar.getItemBean().getConcept()))) {
             // Reload
             ItemsListPanel.getInstance().reload(new ReLoadData() {
                 public void onReLoadData() {
                     next.doAction();
                 }
             });
+            
+            ItemsListPanel.getInstance().refreshGrid();
         }
 
     }
