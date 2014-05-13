@@ -54,7 +54,7 @@ public class MatchingStatistics {
         Storage dataStorage = storageAdmin.get(containerName, StorageType.STAGING, null);
         if (dataStorage == null) {
             Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-            if (systemStorage == null) { // is xmldb, not supported/implemented
+            if (systemStorage == null) { // is xmldb, not supported
                 LOGGER.debug("Could not find system storage. Statistics is not supported for XMLDB"); //$NON-NLS-1$
                 return Response.status(Response.Status.NO_CONTENT).build();
             }

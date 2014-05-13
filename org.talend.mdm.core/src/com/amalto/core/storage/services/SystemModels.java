@@ -49,7 +49,6 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.SaverSession;
-import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -114,7 +113,6 @@ public class SystemModels {
     public void updateModel(@PathParam("model")
     String modelName, @QueryParam("force")
     boolean force, InputStream dataModel) {
-        String revisionID = null;
         if (!isSystemStorageAvailable()) { // If no system storage is available, store new schema version.
             try {
                 DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
@@ -128,7 +126,7 @@ public class SystemModels {
             }
         }
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage storage = storageAdmin.get(modelName, StorageType.MASTER, revisionID);
+        Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
         if (storage == null) {
             throw new IllegalArgumentException("Container '" + modelName + "' does not exist."); //$NON-NLS-1$//$NON-NLS-2$
         }
@@ -149,7 +147,7 @@ public class SystemModels {
         storage.adapt(newRepository, force);
 
         if (storageAdmin.supportStaging(modelName)) {
-            Storage stagingStorage = storageAdmin.get(modelName, StorageType.STAGING, revisionID);
+            Storage stagingStorage = storageAdmin.get(modelName, StorageType.STAGING, null);
             if (stagingStorage != null) {
                 stagingStorage.adapt(newRepository, force);
             } else {
@@ -181,7 +179,7 @@ public class SystemModels {
                 }
                 systemStorage.commit();
                 
-                updateModelEnvInformation(modelName, revisionID);
+                updateModelEnvInformation(modelName, null);
                 
             } catch (Exception e) {
                 systemStorage.rollback();
@@ -191,7 +189,7 @@ public class SystemModels {
 
         // synchronize with outer agents
         DataModelChangeNotifier dmUpdateEventNotifier = new DataModelChangeNotifier();
-        dmUpdateEventNotifier.addUpdateMessage(new DMUpdateEvent(modelName, revisionID));
+        dmUpdateEventNotifier.addUpdateMessage(new DMUpdateEvent(modelName, null));
         dmUpdateEventNotifier.sendMessages();
     }
 
