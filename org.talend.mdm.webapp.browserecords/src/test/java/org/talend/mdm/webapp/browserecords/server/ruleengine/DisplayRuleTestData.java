@@ -11,7 +11,6 @@ import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
-
 public class DisplayRuleTestData {
 
     private static final Logger LOG = Logger.getLogger(DisplayRuleTestData.class);
@@ -97,7 +96,8 @@ public class DisplayRuleTestData {
 
         SimpleTypeModel detail_contentType = new SimpleTypeModel(null, DataTypeConstants.STRING);
         detail_contentType.setTypePath("DefaultRuleWithFunctionAndXPath/detail/content"); //$NON-NLS-1$
-        detail_contentType.setDefaultValueExpression("fn:concat('name is [',../name,string,'] title is [', /DefaultRuleWithFunctionAndXPath/title,']')"); //$NON-NLS-1$
+        detail_contentType
+                .setDefaultValueExpression("fn:concat('name is [',../name,string,'] title is [', /DefaultRuleWithFunctionAndXPath/title,']')"); //$NON-NLS-1$
         metaDatas.put(detail_contentType.getTypePath(), detail_contentType);
 
         return metaDatas;
@@ -381,7 +381,35 @@ public class DisplayRuleTestData {
 
         return metaDatas;
     }
-    
+
+    public static Map<String, TypeModel> getVisibleRuleForMultiOccurence() {
+        Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
+
+        SimpleTypeModel subelementType = new SimpleTypeModel();
+        subelementType.setTypePath("Test/id"); //$NON-NLS-1$
+        metaDatas.put(subelementType.getTypePath(), subelementType);
+
+        SimpleTypeModel nameType = new SimpleTypeModel();
+        nameType.setTypePath("Test/name"); //$NON-NLS-1$
+        metaDatas.put(nameType.getTypePath(), nameType);
+
+        SimpleTypeModel documentsType = new SimpleTypeModel();
+        documentsType.setTypePath("Test/documents"); //$NON-NLS-1$
+        documentsType.setVisibleExpression("/Test/name/text()='1'"); //$NON-NLS-1$
+        documentsType.setMinOccurs(0);
+        documentsType.setMaxOccurs(1);
+        metaDatas.put(documentsType.getTypePath(), documentsType);
+
+        SimpleTypeModel documentType = new SimpleTypeModel();
+        documentType.setTypePath("Test/documents/document"); //$NON-NLS-1$
+        documentType.setVisibleExpression("position()>1"); //$NON-NLS-1$
+        documentType.setMinOccurs(0);
+        documentType.setMaxOccurs(-1);
+        metaDatas.put(documentType.getTypePath(), documentType);
+
+        return metaDatas;
+    }
+
     public static Map<String, TypeModel> get_VisibleRuleForComplexTypeNode() {
         Map<String, TypeModel> metaDatas = new LinkedHashMap<String, TypeModel>();
 
@@ -401,17 +429,17 @@ public class DisplayRuleTestData {
         SimpleTypeModel oem_type = new SimpleTypeModel();
         oem_type.setTypePath("Test/oem/oem_type"); //$NON-NLS-1$
         metaDatas.put(oem_type.getTypePath(), oem_type);
-        
+
         SimpleTypeModel oem_a = new SimpleTypeModel();
         oem_a.setTypePath("Test/oem/a"); //$NON-NLS-1$
         oem_a.setVisibleExpression("fn:starts-with(../oem_type,\"a\")"); //$NON-NLS-1$
         metaDatas.put(oem_a.getTypePath(), oem_a);
-        
+
         SimpleTypeModel oem_b = new SimpleTypeModel();
         oem_b.setTypePath("Test/oem/b"); //$NON-NLS-1$
         oem_b.setVisibleExpression("fn:starts-with(../oem_type,\"b\")"); //$NON-NLS-1$
         metaDatas.put(oem_b.getTypePath(), oem_b);
-        
+
         SimpleTypeModel oem_c = new SimpleTypeModel();
         oem_c.setTypePath("Test/oem/c"); //$NON-NLS-1$
         oem_c.setVisibleExpression("fn:starts-with(../oem_type,\"c\")"); //$NON-NLS-1$
