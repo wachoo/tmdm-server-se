@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <menugroup defaultLang="en">
- <groupitem en="Home" fr="Accueil">
+ <groupitem en="Home" fr="Accueil" ru="Домой">
   <item>welcomeportal.WelcomePortal</item>
   <item>browserecords.BrowseRecords</item>
  </groupitem>
  
- <groupitem en="Browse" fr="Consultation">
+ <groupitem en="Browse" fr="Consultation" ru="Просматривать">
   <item>browserecords.BrowseRecords</item>
   <item>browserecords.BrowseRecordsInStaging</item>
   <item>hierarchy.Hierarchy</item>
@@ -14,7 +14,7 @@
   <item>recyclebin.RecycleBin</item>
  </groupitem>
  
- <groupitem en="Govern" fr="Gouvernance">
+ <groupitem en="Govern" fr="Gouvernance" ru="Управлять">
   <item>stagingarea.Stagingarea</item>
   <item>datastewardship.Datastewardship</item>
   <item>workflowtasks.BonitaWorkflowTasks</item>
@@ -22,7 +22,7 @@
   <item>crossreference.CrossReference</item>
  </groupitem>
  
-  <groupitem en="Administration" fr="Administration">
+  <groupitem en="Administration" fr="Administration" ru="Администрация">
   <item>usermanager.UserManager</item>
   <item>licensemanager.LicenseManager</item>
  </groupitem>
