@@ -813,9 +813,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             qb.limit(end);
             List<String> resultsAsXmlStrings = new LinkedList<String>();
             storage.begin();
-            StorageResults results = storage.fetch(qb.getSelect());
-            DataRecordWriter writer = new FullTextResultsWriter(keyword);
+            StorageResults results = null;
             try {
+                results = Split.fetchAndMerge(storage, qb.getSelect()); // TMDM-7290: Split main query into smaller queries.
+                DataRecordWriter writer = new FullTextResultsWriter(keyword);
                 resultsAsXmlStrings.add(String.valueOf(results.getCount()));
                 for (DataRecord result : results) {
                     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -828,6 +829,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             } catch (IOException e) {
                 storage.rollback();
                 throw new XmlServerException(e);
+            } finally {
+                if (results != null) {
+                    results.close();
+                }
             }
         } else {
             return Collections.emptyList();

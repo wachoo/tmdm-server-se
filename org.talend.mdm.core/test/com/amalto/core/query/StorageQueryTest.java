@@ -3367,7 +3367,7 @@ public class StorageQueryTest extends StorageTestCase {
         // Ensures split behavior is same as no split
         storage.begin();
         try {
-            StorageResults split = TypeSpliter.split(qb.getSelect(), storage);
+            StorageResults split = Split.fetchAndMerge(storage, qb.getSelect());
             int i = 0;
             for (DataRecord record : split) {
                 assertEquals(record, expected.get(i++));
@@ -3404,7 +3404,7 @@ public class StorageQueryTest extends StorageTestCase {
         // Ensures split behavior is same as no split
         storage.begin();
         try {
-            StorageResults split = TypeSpliter.split(qb.getSelect(), storage);
+            StorageResults split = Split.fetchAndMerge(storage, qb.getSelect());
             int i = 0;
             for (DataRecord record : split) {
                 assertEquals(record, expected.get(i++));
