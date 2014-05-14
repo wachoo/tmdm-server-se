@@ -900,7 +900,7 @@ public class ItemDetailToolBar extends ToolBar {
                     if (itemsDetailPanel.getFirstTabWidget() instanceof ItemPanel) {
                         ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
                         String frameUrl = "/browserecords/secure/SmartViewServlet?ids=" + URL.encodeQueryString(itemBean.getIds()) + "&concept=" //$NON-NLS-1$ //$NON-NLS-2$
-                                + itemBean.getConcept() + "&language=" + Locale.getLanguage(); //$NON-NLS-1$
+                                + itemBean.getConcept() + "&isStaging=" + isStaging() + "&language=" + Locale.getLanguage(); //$NON-NLS-1$ //$NON-NLS-2$
                         if (se.getSelectedItem().get("key") != null) { //$NON-NLS-1$
                             frameUrl += ("&name=" + se.getSelectedItem().get("key")); //$NON-NLS-1$ //$NON-NLS-2$
                         }
@@ -1344,5 +1344,9 @@ public class ItemDetailToolBar extends ToolBar {
         List<ItemBean> list = new ArrayList<ItemBean>();
         list.add(itemBean);
         service.checkFKIntegrity(list, new DeleteCallback(DeleteAction.PHYSICAL, postDeleteAction, service));
+    }
+
+    protected boolean isStaging() {
+        return false;
     }
 }

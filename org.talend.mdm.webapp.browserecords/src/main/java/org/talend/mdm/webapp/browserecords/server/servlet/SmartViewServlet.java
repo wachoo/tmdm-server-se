@@ -19,13 +19,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 
-import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.bean.Configuration.ConfigurationContext;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSExtractThroughTransformerV2;
@@ -50,16 +47,19 @@ public class SmartViewServlet extends HttpServlet {
 
         String idsString = request.getParameter("ids");//$NON-NLS-1$
         String concept = request.getParameter("concept");//$NON-NLS-1$
-        if (concept == null || idsString == null)
+        if (concept == null || idsString == null) {
             return;
+        }
+        boolean isStaging = request.getParameter("isStaging") != null ? Boolean.parseBoolean(request.getParameter("isStaging")) : false; //$NON-NLS-1$ //$NON-NLS-2$ 
         String[] ids = idsString.split("@");//$NON-NLS-1$
         String language = (request.getParameter("language") != null ? request.getParameter("language").toUpperCase() : "EN");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         String smartViewName = request.getParameter("name");//$NON-NLS-1$
         String optname;
-        if (StringUtils.indexOf(smartViewName, '#') > 0)
+        if (StringUtils.indexOf(smartViewName, '#') > 0) {
             optname = StringUtils.substringAfterLast(smartViewName, "#"); //$NON-NLS-1$
-        else
+        } else {
             optname = null;
+        }
 
         String transformer = null;
         try {
@@ -67,38 +67,32 @@ public class SmartViewServlet extends HttpServlet {
 
             if (transfo_lang) {
                 transformer = "Smart_view_" + concept + "_" + language.toUpperCase();//$NON-NLS-1$ //$NON-NLS-2$
-                if (optname != null && optname.length() > 0)
+                if (optname != null && optname.length() > 0) {
                     transformer += "#" + optname;//$NON-NLS-1$
+                }
             } else {
                 // Fallback to the non-language one
                 boolean transfo_no_lang = SmartViewUtil.checkSmartViewExistsByLangAndOptName(concept, null, optname, false);
                 if (transfo_no_lang) {
                     transformer = "Smart_view_" + concept;//$NON-NLS-1$
-                    if (optname != null && optname.length() > 0)
+                    if (optname != null && optname.length() > 0) {
                         transformer += "#" + optname;//$NON-NLS-1$
-                } else
+                    }
+                } else {
                     transformer = null;
+                }
             }
         } catch (Exception e) {
             org.apache.log4j.Logger.getLogger(this.getClass()).error(e);
             throw new ServletException(e);
         }
-        
+
         String content = "";//$NON-NLS-1$
         String contentType = "text/html";//$NON-NLS-1$
         if (transformer != null) {
             String dataClusterPK;
             try {
-                Configuration conf = (Configuration) (request.getSession().getAttribute("configuration"));//$NON-NLS-1$
-                if (conf == null)
-                    conf = Configuration.getInstance(new ConfigurationContext() {
-
-                        @Override
-                        public HttpSession getSession() {
-                            return request.getSession();
-                        }
-                    });
-                dataClusterPK = conf.getCluster();
+                dataClusterPK = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataCluster(isStaging);
             } catch (Exception e) {
                 String err = "Unable to read the configuration"; //$NON-NLS-1$
                 org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
@@ -115,28 +109,29 @@ public class SmartViewServlet extends HttpServlet {
 
                 // Scan the entries - in priority, taka the content of the 'html' entry,
                 // else take the content of the _DEFAULT_ entry
-                for (int i = 0; i < entries.length; i++) {
-                    if ("_DEFAULT_".equals(entries[i].getVariable())) {//$NON-NLS-1$
-                        content = new String(entries[i].getWsTypedContent().getWsBytes().getBytes(), "UTF-8");//$NON-NLS-1$
-                        contentType = entries[i].getWsTypedContent().getContentType();
+                for (WSTransformerContextPipelinePipelineItem entrie : entries) {
+                    if ("_DEFAULT_".equals(entrie.getVariable())) {//$NON-NLS-1$
+                        content = new String(entrie.getWsTypedContent().getWsBytes().getBytes(), "UTF-8");//$NON-NLS-1$
+                        contentType = entrie.getWsTypedContent().getContentType();
                     }
-                    if ("html".equals(entries[i].getVariable())) {//$NON-NLS-1$
-                        content = new String(entries[i].getWsTypedContent().getWsBytes().getBytes(), "UTF-8");//$NON-NLS-1$
-                        contentType = entries[i].getWsTypedContent().getContentType();
+                    if ("html".equals(entrie.getVariable())) {//$NON-NLS-1$
+                        content = new String(entrie.getWsTypedContent().getWsBytes().getBytes(), "UTF-8");//$NON-NLS-1$
+                        contentType = entrie.getWsTypedContent().getContentType();
                         break;
                     }
                 }
             } catch (Exception e) {
-                String err = "Unable to run the transformer '" + transformer + "'";  //$NON-NLS-1$//$NON-NLS-2$
+                String err = "Unable to run the transformer '" + transformer + "'"; //$NON-NLS-1$//$NON-NLS-2$
                 org.apache.log4j.Logger.getLogger(this.getClass()).error(err, e);
                 throw new ServletException(err, e);
             }
         }
 
-        if (contentType.startsWith("application/xhtml+xml"))//$NON-NLS-1$
+        if (contentType.startsWith("application/xhtml+xml")) {
             response.setContentType("text/html");//$NON-NLS-1$
-        else
+        } else {
             response.setContentType(contentType);
+        }
         PrintWriter out = response.getWriter();
         out.write(content);
         out.close();
