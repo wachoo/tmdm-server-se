@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <menugroup defaultLang="en">
- <groupitem en="Home" fr="Accueil" ru="Меню">
+ <groupitem en="Home" fr="Accueil" ru="Домашняя страница">
   <item>welcomeportal.WelcomePortal</item>
   <item>browserecords.BrowseRecords</item>
  </groupitem>
