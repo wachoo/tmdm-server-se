@@ -322,6 +322,7 @@ public class SystemStorageWrapper extends StorageWrapper {
             }
             // TODO Filter by revision
             // String revisionId = StringUtils.substringBefore(uniqueID, ".");
+            // TODO Code may not correctly handle composite id (but no system objects use this)
             String documentUniqueId;
             if (StringUtils.countMatches(uniqueID, ".") >= 3) { //$NON-NLS-1$
                 documentUniqueId = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
