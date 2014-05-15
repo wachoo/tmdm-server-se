@@ -150,7 +150,10 @@ public class SystemModels {
         if (storageAdmin.supportStaging(modelName)) {
             Storage stagingStorage = storageAdmin.get(modelName, StorageType.STAGING, null);
             if (stagingStorage != null) {
-                stagingStorage.adapt(newRepository, force);
+                // TMDM-7312: Don't forget to add staging types (otherwise, staging storage will complain about removed types).
+                MetadataRepository stagingRepository = newRepository.copy();
+                stagingRepository.load(MetadataRepositoryAdmin.class.getResourceAsStream("stagingInternalTypes.xsd"));
+                stagingStorage.adapt(stagingRepository, force);
             } else {
                 LOGGER.warn("No SQL staging storage defined for data model '" + modelName //$NON-NLS-1$
                         + "'. No SQL staging storage to update."); //$NON-NLS-1$
