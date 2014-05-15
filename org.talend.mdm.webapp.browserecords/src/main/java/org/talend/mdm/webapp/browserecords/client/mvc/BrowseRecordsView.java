@@ -429,7 +429,7 @@ public class BrowseRecordsView extends View {
 
         ItemsDetailPanel lineageDetailPanel = ItemsDetailPanel.newInstance();
         lineageDetailPanel.setStaging(true);
-        ItemPanel itemPanel = new ItemPanel(true, viewBean, item, operation, lineageDetailPanel);
+        ItemPanel itemPanel = new ItemPanel(true, viewBean, item, operation, lineageDetailPanel, true);
 
         itemPanel.getToolBar().setOutMost(true);
         itemPanel.getToolBar().setFkToolBar(false);
