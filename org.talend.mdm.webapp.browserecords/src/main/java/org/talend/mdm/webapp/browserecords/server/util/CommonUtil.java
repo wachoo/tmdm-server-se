@@ -466,6 +466,16 @@ public class CommonUtil {
         return config.getCluster();
     }
 
+    public static String getCurrentDataCluster(boolean isStaging) throws Exception {
+        String cluster = getCurrentDataCluster();
+        if (isStaging) {
+            if (cluster != null && !cluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                cluster += StorageAdmin.STAGING_SUFFIX;
+            }
+        }
+        return cluster;
+    }
+
     public static String getCurrentDataModel() throws Exception {
         Configuration config = Configuration.getConfiguration();
         return config.getModel();
