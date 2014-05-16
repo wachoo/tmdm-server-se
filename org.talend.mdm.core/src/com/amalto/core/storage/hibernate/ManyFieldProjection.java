@@ -50,10 +50,32 @@ class ManyFieldProjection extends SimpleProjection {
         String containerIdColumn = MappingGenerator.formatSQLName(containingType.getKeyFields().iterator().next().getName(), resolver.getNameMaxLength());
         StringBuilder sqlFragment = new StringBuilder();
         switch (dataSource.getDialectName()) {
+            // For Postgres, uses "string_agg" function (introduced in 9.0).
+            case POSTGRES:
+                sqlFragment.append("(select string_agg(") //$NON-NLS-1$
+                        .append(collectionTable)
+                        .append(".value, ',') FROM ").append(containerTable); //$NON-NLS-1$
+                for (FieldMetadata currentKey : containingType.getKeyFields()) {
+                    String keyName = resolver.get(currentKey);
+                    sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
+                            .append(collectionTable)
+                            .append(" on ") //$NON-NLS-1$
+                            .append(containerTable).append('.').append(keyName)
+                            .append(" = ") //$NON-NLS-1$
+                            .append(collectionTable).append('.').append(keyName);
+                }
+                sqlFragment.append(" WHERE ") //$NON-NLS-1$
+                        .append(containerTable)
+                        .append('.')
+                        .append(containerIdColumn)
+                        .append(" = ") //$NON-NLS-1$
+                        .append(criteriaQuery.getSQLAlias(subCriteria))
+                        .append('.')
+                        .append(containerIdColumn).append(") as y").append(position).append('_'); //$NON-NLS-1$
+                break;
             // Following databases support group_concat function
             case H2:
             case MYSQL:
-            case POSTGRES:
                 sqlFragment.append("(select group_concat(") //$NON-NLS-1$
                         .append(collectionTable)
                         .append(".value separator ',') FROM ").append(containerTable); //$NON-NLS-1$
