@@ -93,8 +93,8 @@ public class EventStatistics {
     private void writeTo(Storage system, ComplexTypeMetadata routingOrderType, JSONWriter writer, String categoryName)
             throws JSONException {
         FieldMetadata parameters = routingOrderType.getField("service-parameters"); //$NON-NLS-1$
-        Expression routingNames = from(routingOrderType).select(alias(distinct(parameters), parameters.getName())).limit(1)
-                .cache().getExpression();
+        Expression routingNames = from(routingOrderType).select(alias(distinct(parameters), parameters.getName())).cache()
+                .getExpression();
         writer.object().key(categoryName);
         {
             writer.array();
