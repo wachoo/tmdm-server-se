@@ -127,7 +127,7 @@ public class EventStatistics {
                         }
                     }
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not build event statistics for '" + categoryName + "' events");
+                    throw new RuntimeException("Could not build event statistics for '" + categoryName + "' events", e);
                 } finally {
                     routingNameResults.close();
                 }
