@@ -209,7 +209,7 @@ public class Split {
         @Override
         public Iterator<DataRecord> iterator() {
             if (selects.isEmpty()) {
-                return Collections.emptyIterator(); // TMDM-7290: Paging filtering left no sub query, returns empty result.
+                return Collections.<DataRecord>emptySet().iterator(); // TMDM-7290: Paging filtering left no sub query, returns empty result.
             }
             return new MergeIterator(selects);
         }
