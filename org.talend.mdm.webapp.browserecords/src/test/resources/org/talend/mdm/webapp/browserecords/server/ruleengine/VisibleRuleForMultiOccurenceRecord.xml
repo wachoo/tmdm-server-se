@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Test xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <id>1</id>
+    <name>1</name>
+    <documents>
+        <document>
+            <id1>a1</id1>
+            <date>2014-05-08</date>
+        </document>
+        <document>
+            <id1>a2</id1>
+            <date/>
+        </document>
+        <document>
+            <id1>a3</id1>
+            <date/>
+        </document>
+    </documents>
+</Test>

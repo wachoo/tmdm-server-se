@@ -61,14 +61,15 @@ public class DisplayRuleEngine {
         return hasBeenProcessed;
     }
 
-    private void dependentDataTypeOrder(List<TypeModel> hasBeenProcessed, Set<TypeModel> stack, TypeModel bean, org.dom4j.Document doc4j) {
+    private void dependentDataTypeOrder(List<TypeModel> hasBeenProcessed, Set<TypeModel> stack, TypeModel bean,
+            org.dom4j.Document doc4j) {
         stack.add(bean);
         ExpressionUtil expUtil = new ExpressionUtil(bean.getDefaultValueExpression());
         List<String> typePathes = expUtil.getDepTypes();
         if (typePathes != null && typePathes.size() > 0) {
             for (String typePath : typePathes) {
                 if (typePath.startsWith("./") || typePath.startsWith("../")) { //$NON-NLS-1$//$NON-NLS-2$
-                	String xpath = CommonUtil.typePathToXpath(bean.getTypePath());
+                    String xpath = CommonUtil.typePathToXpath(bean.getTypePath());
                     Node node = doc4j.selectSingleNode(xpath);
                     if (node != null) {
                         node = node.selectSingleNode(typePath);
@@ -92,7 +93,7 @@ public class DisplayRuleEngine {
 
     private String getRealTypePath(org.dom4j.Element el) {
         String realXPath = ""; //$NON-NLS-1$
-        org.dom4j.Element current = (org.dom4j.Element) el;
+        org.dom4j.Element current = el;
         boolean isFirst = true;
         while (current != null) {
             String name;
@@ -150,24 +151,23 @@ public class DisplayRuleEngine {
         return valueItems;
     }
 
-
     public List<VisibleRuleResult> execVisibleRule(Document dom4jDoc) {
-
         List<VisibleRuleResult> valueItems = new ArrayList<VisibleRuleResult>();
         try {
             for (TypeModel model : metaDatas.values()) {
                 if (model.getVisibleExpression() != null && model.getVisibleExpression().trim().length() > 0) {
+                    boolean isMultiOccurence = model.getMaxOccurs() > 1 || model.getMaxOccurs() < 0;
                     String xpath = CommonUtil.typePathToXpath(model.getTypePath());
                     List nodes = dom4jDoc.selectNodes(xpath);
                     if (nodes != null) {
                         for (Object node : nodes) {
                             Element el = (Element) node;
                             String preciseXPath = getRealXPath(el);
-                            String style = genVisibleRuleStyle(concept, preciseXPath, model.getVisibleExpression());
+                            String style = genVisibleRuleStyle(concept, preciseXPath, model.getVisibleExpression(),
+                                    isMultiOccurence);
                             org.dom4j.Document transformedDocumentValue = XmlUtil.styleDocument(dom4jDoc, style);
-
                             int beginIndex = preciseXPath.lastIndexOf("/"); //$NON-NLS-1$
-                            String matchPath = beginIndex != -1 ? preciseXPath.substring(beginIndex) : preciseXPath;
+                            String matchPath = beginIndex != -1 ? preciseXPath.substring(beginIndex + 1) : preciseXPath;
                             matchPath = matchPath.replaceAll("\\[\\d+\\]$", ""); //$NON-NLS-1$//$NON-NLS-2$
                             org.dom4j.Node valueNode = transformedDocumentValue.selectSingleNode(concept + "/" + matchPath); //$NON-NLS-1$
                             if (valueNode != null) {
@@ -189,11 +189,9 @@ public class DisplayRuleEngine {
         return valueItems;
     }
 
-
     private String genDefaultValueStyle(String concept, String xpath, String defaultValueRule, TypeModel typeModel) {
         StringBuffer style = new StringBuffer();
-        style
-                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
+        style.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
 
         style.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
         style.append("<xsl:template match=\"/" + concept + "\">"); //$NON-NLS-1$//$NON-NLS-2$
@@ -210,7 +208,7 @@ public class DisplayRuleEngine {
         } else {
             style.append("<xsl:when test=\"not(text())\">"); //$NON-NLS-1$
         }
-        
+
         style.append("<xsl:value-of select=\"" + XmlUtil.escapeXml(defaultValueRule) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$
         style.append("</xsl:when> "); //$NON-NLS-1$
         style.append("<xsl:otherwise>"); //$NON-NLS-1$
@@ -225,10 +223,10 @@ public class DisplayRuleEngine {
         return style.toString();
     }
 
-    public static String genVisibleRuleStyle(String concept, String xpath, String visibleExpression) {
+    @SuppressWarnings("nls")
+    public static String genVisibleRuleStyle(String concept, String xpath, String visibleExpression, boolean isMultiOccurence) {
         StringBuffer style = new StringBuffer();
-        style
-                .append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
+        style.append("<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fn=\"http://www.w3.org/2005/xpath-functions\" xmlns:t=\"http://www.talend.com/2010/MDM\" version=\"2.0\">"); //$NON-NLS-1$
         style.append("<xsl:output method=\"xml\" indent=\"yes\" omit-xml-declaration=\"yes\"/>"); //$NON-NLS-1$
         style.append("<xsl:template match=\"/" + concept + "\">"); //$NON-NLS-1$//$NON-NLS-2$
         style.append("<xsl:copy>");//$NON-NLS-1$
@@ -238,7 +236,12 @@ public class DisplayRuleEngine {
 
         style.append("<xsl:template match=\"/" + xpath + "\">");//$NON-NLS-1$ //$NON-NLS-2$
         style.append("<xsl:copy>"); //$NON-NLS-1$
-
+        if (isMultiOccurence) {
+            String pathIndex = xpath.substring(xpath.lastIndexOf('[') + 1, xpath.lastIndexOf(']'));
+            String matchPath = xpath.replaceAll("\\[\\d+\\]$", "");
+            style.append("<xsl:for-each select=\"/" + matchPath + "\">");
+            style.append("<xsl:if test=\"position()=" + pathIndex + "\">");
+        }
         style.append("<xsl:choose>"); //$NON-NLS-1$
         style.append("<xsl:when test=\"not(" + getPureValue(XmlUtil.escapeXml(visibleExpression)) + ")\">"); //$NON-NLS-1$ //$NON-NLS-2$
         style.append("<xsl:attribute name=\"t:visible\">false</xsl:attribute>"); //$NON-NLS-1$
@@ -247,6 +250,10 @@ public class DisplayRuleEngine {
         style.append("<xsl:attribute name=\"t:visible\">true</xsl:attribute>"); //$NON-NLS-1$
         style.append("</xsl:otherwise>"); //$NON-NLS-1$
         style.append("</xsl:choose>"); //$NON-NLS-1$
+        if (isMultiOccurence) {
+            style.append("</xsl:if>");
+            style.append("</xsl:for-each>");
+        }
         style.append("</xsl:copy>"); //$NON-NLS-1$
         style.append("</xsl:template>"); //$NON-NLS-1$
         style.append("</xsl:stylesheet>"); //$NON-NLS-1$
