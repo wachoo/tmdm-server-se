@@ -1,14 +1,13 @@
 package com.amalto.core.query.user;
 
-import java.util.*;
-
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
+import java.util.*;
 
 /**
  * Provides a way to split a query (as {@link com.amalto.core.query.user.Select select}) into multiple sub-queries (one
@@ -228,7 +227,7 @@ public class Split {
                     Select next = selects.next();
                     currentIterator = storage.fetch(next).iterator();
                 }
-                return currentIterator.hasNext() || selects.hasNext();
+                return currentIterator != null && (currentIterator.hasNext() || selects.hasNext());
             }
 
             @Override
