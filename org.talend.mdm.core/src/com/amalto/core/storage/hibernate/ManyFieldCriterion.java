@@ -144,11 +144,19 @@ class ManyFieldCriterion extends SQLCriterion {
                 query.append(" AND "); //$NON-NLS-1$
             }
             query.append("(") //$NON-NLS-1$
-                    .append(criteriaQuery.getSQLAlias(typeCriteria))
-                    .append(".") //$NON-NLS-1$
-                    .append(simpleField.getName())
-                    .append(" = "); //$NON-NLS-1$
-            boolean isStringType = "string".equals(MetadataUtils.getSuperConcreteType(simpleField.getType()).getName()); //$NON-NLS-1$
+                    .append(criteriaQuery.getSQLAlias(typeCriteria)).append(".") //$NON-NLS-1$
+                    .append(simpleField.getName()).append(" = "); //$NON-NLS-1$
+            String name = MetadataUtils.getSuperConcreteType(simpleField.getType()).getName();
+            boolean isStringType = Types.STRING.equals(name);
+            // TMDM-7226: Consider date / time types as strings (for quotes).
+            if (!isStringType) {
+                for (String dateType : Types.DATES) {
+                    isStringType = dateType.equals(name);
+                    if (isStringType) {
+                        break;
+                    }
+                }
+            }
             if (isStringType) { //$NON-NLS-1$
                 query.append("'"); //$NON-NLS-1$
             }
