@@ -10,27 +10,27 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.hibernate.HibernateStorage;
-
-import static com.amalto.core.query.user.UserQueryBuilder.isNull;
 
 @SuppressWarnings("nls")
 public class StorageTestCase extends TestCase {
@@ -81,6 +81,10 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata ss;
 
+    protected static final ComplexTypeMetadata employee1;
+
+    protected static final ComplexTypeMetadata manager1;
+
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
     public static final String DATABASE = "H2";
@@ -115,6 +119,8 @@ public class StorageTestCase extends TestCase {
         persons = repository.getComplexType("Persons");
         employee = repository.getComplexType("Employee");
         manager = repository.getComplexType("Manager");
+        employee1 = repository.getComplexType("Employee1");
+        manager1 = repository.getComplexType("Manager1");
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
         List<Expression> indexedExpressions = new LinkedList<Expression>();
@@ -157,10 +163,12 @@ public class StorageTestCase extends TestCase {
             isActive = active;
         }
 
+        @Override
         public boolean hide(FieldMetadata field) {
             return isActive && field.getHideUsers().contains("System_Users");
         }
 
+        @Override
         public boolean hide(ComplexTypeMetadata type) {
             return isActive && type.getHideUsers().contains("System_Users");
         }
