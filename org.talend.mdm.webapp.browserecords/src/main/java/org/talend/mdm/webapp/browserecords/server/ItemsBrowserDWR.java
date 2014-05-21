@@ -18,8 +18,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 
@@ -86,6 +88,8 @@ public class ItemsBrowserDWR {
         BusinessConcept businessConcept = SchemaWebAgent.getInstance().getBusinessConcept(entity);
         businessConcept.load();
         Map<String, String> foreignKeyMap = businessConcept.getForeignKeyMap();
+        Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
+        
         Set<String> foreignKeyXpath = foreignKeyMap.keySet();
         Set<String> xpathes = new HashSet<String>();
 
@@ -104,14 +108,14 @@ public class ItemsBrowserDWR {
                 Map<String, String> fks = SchemaWebAgent.getInstance().getReferenceEntities(reusableType, dataObject);
                 Collection<String> fkPaths = fks != null ? fks.keySet() : null;
                 for (String fkpath : fkPaths) {
-                    if (fks.get(fkpath).indexOf(dataObject) != -1) {
+                    if (fks.get(fkpath).indexOf(dataObject) != -1 && ! resolvedInInheritanceMapping(fkpath, fks.get(fkpath), inheritanceForeignKeyMap)) {
                         xpathes.add(fkpath);
                     }
                 }
             }
         }
 
-        Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
+        //process foreign key obtained through inheritance
         if (inheritanceForeignKeyMap.size() > 0) {
             Set<String> keySet = inheritanceForeignKeyMap.keySet();
             String dataObjectPath = null;
@@ -154,6 +158,19 @@ public class ItemsBrowserDWR {
         listRange.setData(data);
 
         return listRange;
+    }
+
+    private boolean resolvedInInheritanceMapping(String fkpath, String target, Map<String, String> inheritanceForeignKeyMap) {
+        if (inheritanceForeignKeyMap.isEmpty() || ! inheritanceForeignKeyMap.containsValue(target) ) {
+            return false;
+        }
+        for (Entry<String, String> current :inheritanceForeignKeyMap.entrySet() ){
+            String fkName = StringUtils.substringAfterLast(fkpath, "/"); //$NON-NLS-1$
+            if (target.equals( current.getValue()) && current.getKey().endsWith(fkName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String joinSet(Set<String> set, String decollator) {
