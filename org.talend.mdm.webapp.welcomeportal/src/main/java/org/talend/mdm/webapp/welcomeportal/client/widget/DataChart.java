@@ -43,6 +43,10 @@ import com.googlecode.gflot.client.options.PlotOptions;
 
 public class DataChart extends ChartPortlet {
 
+    private String dc;
+
+    private boolean dataContainerChanged;
+
     private Map<String, Integer> entityData;
 
     public DataChart(Portal portal) {
@@ -82,6 +86,9 @@ public class DataChart extends ChartPortlet {
             @Override
             public void onSuccess(String dataContainer) {
 
+                dc = dataContainer;
+                dataContainerChanged = false;
+
                 StatisticsRestServiceHandler.getInstance().getContainerDataStats(dataContainer,
                         new SessionAwareAsyncCallback<JSONArray>() {
 
@@ -104,6 +111,9 @@ public class DataChart extends ChartPortlet {
 
             @Override
             public void onSuccess(String dataContainer) {
+
+                dataContainerChanged = !dc.equals(dataContainer);
+                dc = dataContainer;
 
                 StatisticsRestServiceHandler.getInstance().getContainerDataStats(dataContainer,
                         new SessionAwareAsyncCallback<JSONArray>() {
@@ -160,27 +170,36 @@ public class DataChart extends ChartPortlet {
     @Override
     protected void updatePlot() {
         PlotModel model = plot.getModel();
-        model.clear();
         Set<String> entityNames = entityData.keySet();
         List<String> entityNamesSorted = sort(entityNames);
 
-        List<? extends SeriesHandler> series = model.getHandlers();
+        if (!dataContainerChanged) {
+            // keep SeriesHandler, just clean their data
+            model.clear();
+            List<? extends SeriesHandler> series = model.getHandlers();
 
-        // new entities maybe added to DM and needs to be reflected on the new chart
-        // FIXME: (efficient for refresh with the same DM, but wrong when change to different DM)
-        Map<String, SeriesHandler> seriesMap = new HashMap<String, SeriesHandler>(entityNamesSorted.size());
-        int count = 0;
-        int prevTotal = series.size();
-        for (String entityName : entityNamesSorted) {
-            if (count < prevTotal) {
-                seriesMap.put(entityName, series.get(count++));
-            } else {
-                seriesMap.put(entityName, model.addSeries(Series.of(entityName)));
+            // new entities maybe added to DM and needs to be reflected on the new chart
+            Map<String, SeriesHandler> seriesMap = new HashMap<String, SeriesHandler>(entityNamesSorted.size());
+            int count = 0;
+            int prevTotal = series.size();
+            for (String entityName : entityNamesSorted) {
+                if (count < prevTotal) {
+                    seriesMap.put(entityName, series.get(count++));
+                } else {// for newly added enities in the same dm
+                    seriesMap.put(entityName, model.addSeries(Series.of(entityName)));
+                }
             }
-        }
 
-        for (String entityName : entityNamesSorted) {
-            seriesMap.get(entityName).add(DataPoint.of(entityName, entityData.get(entityName)));
+            for (String entityName : entityNamesSorted) {
+                seriesMap.get(entityName).add(DataPoint.of(entityName, entityData.get(entityName)));
+            }
+        } else {
+            // switched to diff dm, them dump and rebuild all Series
+            model.removeAllSeries();
+            for (String entityName : entityNamesSorted) {
+                SeriesHandler seriesEntity = model.addSeries(Series.of(entityName));
+                seriesEntity.add(DataPoint.of(entityName, entityData.get(entityName)));
+            }
         }
     }
 
