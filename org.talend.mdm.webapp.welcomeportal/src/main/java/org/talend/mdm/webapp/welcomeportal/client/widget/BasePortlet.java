@@ -64,6 +64,10 @@ public abstract class BasePortlet extends Portlet {
 
     protected String portletName;
 
+    protected Label label;
+
+    protected FieldSet set;
+
     public BasePortlet() {
         super();
         this.setLayout(new FitLayout());
@@ -92,13 +96,13 @@ public abstract class BasePortlet extends Portlet {
 
         this.setItemId(name + "Portlet"); //$NON-NLS-1$
 
-        Label label = new Label();
+        label = new Label();
         label.setItemId(name + "Label"); //$NON-NLS-1$
         label.setStyleAttribute("font-weight", "bold"); //$NON-NLS-1$ //$NON-NLS-2$
         label.setAutoHeight(true);
         this.add(label);
 
-        FieldSet set = new FieldSet();
+        set = new FieldSet();
         set.setItemId(name + "Set"); //$NON-NLS-1$
         set.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
         set.setStyleAttribute("margin-left", "10px");//$NON-NLS-1$ //$NON-NLS-2$

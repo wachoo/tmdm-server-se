@@ -20,10 +20,8 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -33,7 +31,6 @@ public class AlertPortlet extends BasePortlet {
     public AlertPortlet(Portal portal) {
         super(WelcomePortal.ALERT, portal);
 
-        Label label = (Label) this.getItemByItemId(portletName + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().loading_alert_msg());
 
         this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
@@ -54,10 +51,9 @@ public class AlertPortlet extends BasePortlet {
     }
 
     private void initLinks() {
-        final Label label = (Label) this.getItemByItemId(WelcomePortal.ALERT + "Label"); //$NON-NLS-1$
 
-        final FieldSet set = (FieldSet) this.getItemByItemId(WelcomePortal.ALERT + "Set"); //$NON-NLS-1$        
         set.removeAll();
+
         final HTML alertHtml = new HTML();
         final StringBuilder sb = new StringBuilder(
                 "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().alerts_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$

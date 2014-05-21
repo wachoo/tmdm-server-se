@@ -21,10 +21,8 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -64,10 +62,8 @@ public class TaskPortlet extends BasePortlet {
 
     private void initLinks() {
 
-        final Label label = (Label) this.getItemByItemId(WelcomePortal.TASKS + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
-        final FieldSet set = (FieldSet) this.getItemByItemId(WelcomePortal.TASKS + "Set"); //$NON-NLS-1$        
         set.removeAll();
 
         final HTML taskHtml_workflow = new HTML();

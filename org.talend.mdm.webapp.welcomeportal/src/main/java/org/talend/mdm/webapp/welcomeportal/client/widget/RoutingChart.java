@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.googlecode.gflot.client.DataPoint;
@@ -89,7 +88,6 @@ public class RoutingChart extends ChartPortlet {
     }
 
     private void initChart() {
-        final FieldSet set = (FieldSet) this.getItemByItemId(portletName + "Set"); //$NON-NLS-1$
         StatisticsRestServiceHandler.getInstance().getRoutingEventStats(new SessionAwareAsyncCallback<JSONArray>() {
 
             @Override

@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
@@ -51,13 +50,12 @@ public class SearchPortlet extends BasePortlet {
 
     @Override
     public void refresh() {
-        init();
+        // stay the same, no need to refresh
+        return;
     }
 
     private void init() {
-        FieldSet set = (FieldSet) this.getItemByItemId(portletName + "Set"); //$NON-NLS-1$
         set.setBorders(false);
-        set.removeAll();
 
         Grid grid = new Grid(1, 2);
         final TextBox textBox = new TextBox();

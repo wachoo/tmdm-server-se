@@ -24,11 +24,9 @@ import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
@@ -58,10 +56,8 @@ public class ProcessPortlet extends BasePortlet {
 
     private void initLinks() {
 
-        final Label label = (Label) this.getItemByItemId(portletName + "Label"); //$NON-NLS-1$
         label.setText(MessagesFactory.getMessages().process_desc());
 
-        final FieldSet set = (FieldSet) this.getItemByItemId(portletName + "Set"); //$NON-NLS-1$        
         set.removeAll();
 
         service.getStandaloneProcess(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<String>>() {
@@ -91,7 +87,7 @@ public class ProcessPortlet extends BasePortlet {
                                 service.isExpired(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 
                                     @Override
-                                    public void onSuccess(Boolean result) {
+                                    public void onSuccess(Boolean result1) {
                                         final MessageBox box = MessageBox.wait(null, MessagesFactory.getMessages().waiting_msg(),
                                                 MessagesFactory.getMessages().waiting_desc());
                                         Timer t = new Timer() {
@@ -113,15 +109,15 @@ public class ProcessPortlet extends BasePortlet {
                                             }
 
                                             @Override
-                                            public void onSuccess(final String result) {
+                                            public void onSuccess(final String result2) {
                                                 box.close();
                                                 MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
                                                         .getMessages().run_done(), new Listener<MessageBoxEvent>() {
 
                                                     @Override
                                                     public void handleEvent(MessageBoxEvent be) {
-                                                        if (result.length() > 0) {
-                                                            ((MainFramePanel) portal).openWindow(result);
+                                                        if (result2.length() > 0) {
+                                                            ((MainFramePanel) portal).openWindow(result2);
                                                         }
                                                     }
                                                 });

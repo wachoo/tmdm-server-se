@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.googlecode.gflot.client.DataPoint;
@@ -107,7 +106,6 @@ public class JournalChart extends ChartPortlet {
     }
 
     private void initChart() {
-        final FieldSet set = (FieldSet) this.getItemByItemId(WelcomePortal.CHART_JOURNAL + "Set"); //$NON-NLS-1$
 
         service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
 
@@ -122,7 +120,6 @@ public class JournalChart extends ChartPortlet {
                                 parseJSONData(jsonArray);
                                 initPlot();
                                 set.add(plot);
-                                // FIXME: needed?
                                 set.layout(true);
                             }
                         });

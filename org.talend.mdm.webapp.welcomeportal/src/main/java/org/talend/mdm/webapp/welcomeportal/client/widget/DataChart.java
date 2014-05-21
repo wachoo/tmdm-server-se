@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -79,7 +78,6 @@ public class DataChart extends ChartPortlet {
     }
 
     private void initChart() {
-        final FieldSet set = (FieldSet) this.getItemByItemId(WelcomePortal.CHART_DATA + "Set"); //$NON-NLS-1$
 
         service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
 

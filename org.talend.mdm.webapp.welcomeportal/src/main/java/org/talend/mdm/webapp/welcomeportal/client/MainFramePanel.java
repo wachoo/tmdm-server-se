@@ -17,7 +17,7 @@ import java.util.List;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.welcomeportal.client.widget.AlertPortlet;
-import org.talend.mdm.webapp.welcomeportal.client.widget.ChartPortlet;
+import org.talend.mdm.webapp.welcomeportal.client.widget.BasePortlet;
 import org.talend.mdm.webapp.welcomeportal.client.widget.DataChart;
 import org.talend.mdm.webapp.welcomeportal.client.widget.JournalChart;
 import org.talend.mdm.webapp.welcomeportal.client.widget.MatchingChart;
@@ -29,7 +29,7 @@ import org.talend.mdm.webapp.welcomeportal.client.widget.TaskPortlet;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.custom.Portlet;
+
 
 
 /**
@@ -40,18 +40,8 @@ public class MainFramePanel extends Portal {
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
     private boolean hiddenWorkFlowTask;
     private boolean hiddenDSCTask;
-    private List<ChartPortlet> charts = new ArrayList<ChartPortlet>(4);
-    
-    private StartPortlet startPortlet;
-    private ProcessPortlet procesPortlet;
-    private AlertPortlet alertPortlet;
-    private TaskPortlet taskPortlet;
-    private SearchPortlet searchPortlet;
-    
-    private DataChart dataChart;
-    private JournalChart journalChart;
-    private RoutingChart routingChart;
-    private MatchingChart matchingChart;
+    private List<BasePortlet> portlets;
+    private List<BasePortlet> charts;    
     
     public MainFramePanel(int numColumns) {
         super(numColumns);
@@ -61,16 +51,20 @@ public class MainFramePanel extends Portal {
         setColumnWidth(0, .5);
         setColumnWidth(1, .5);
 
-        startPortlet = new StartPortlet(this);
-        this.add(startPortlet, 0);
+        portlets = new ArrayList<BasePortlet>();
+        BasePortlet portlet;
         
-
-        procesPortlet = new ProcessPortlet(this);
-        this.add(procesPortlet, 1);
+        portlet = new StartPortlet(this);
+        this.add(portlet, 0);
+        portlets.add(portlet);
         
-        initAlertPortlet(this);
+        portlet = new ProcessPortlet(this);
+        this.add(portlet, 1);
+        portlets.add(portlet);
+        
+        initAlertPortlet();
 
-        searchPortlet = new SearchPortlet(this);
+        initSearchPortlet();
         
         initTaskPortlet();
         
@@ -79,12 +73,8 @@ public class MainFramePanel extends Portal {
     }
 
     public void refreshPortlets() {
-        alertPortlet.refresh();
-        taskPortlet.refresh();
-        procesPortlet.refresh();
-        
-        for (ChartPortlet chart : charts) {
-            chart.refresh();
+        for (BasePortlet portlet : portlets) {
+            portlet.refresh();
         }
     }
 
@@ -123,21 +113,23 @@ public class MainFramePanel extends Portal {
             @Override
             public void onSuccess(Boolean isEnterprise) {
                 if (isEnterprise) {
-                    searchPortlet = new SearchPortlet(MainFramePanel.this);
-                    MainFramePanel.this.add(alertPortlet, 1);
+                    BasePortlet searchPortlet = new SearchPortlet(MainFramePanel.this);
+                    MainFramePanel.this.add(searchPortlet, 1);
+                    portlets.add(searchPortlet);
                 }
             }
         });
     }
 
-    private void initAlertPortlet(final Portal portal) {
+    private void initAlertPortlet() {
         service.isHiddenLicense(new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean hideMe) {
                 if (!hideMe) {
-                    alertPortlet = new AlertPortlet(portal);
-                    portal.add(alertPortlet, 0);
+                    BasePortlet alertPortlet = new AlertPortlet(MainFramePanel.this);
+                    MainFramePanel.this.add(alertPortlet, 0);
+                    portlets.add(alertPortlet);
                 }
             }
 
@@ -158,8 +150,9 @@ public class MainFramePanel extends Portal {
                         setHiddenDSCTask(hideMeToo);
                         
                         if (!isHiddenWorkFlowTask() || !isHiddenDSCTask()) {
-                            taskPortlet = new TaskPortlet(MainFramePanel.this);
+                            BasePortlet taskPortlet = new TaskPortlet(MainFramePanel.this);
                             MainFramePanel.this.add(taskPortlet, 1);
+                            portlets.add(taskPortlet);
                         }
                         
                     }
@@ -169,11 +162,12 @@ public class MainFramePanel extends Portal {
     }  
 
     private void initChartPortlets() {
+        charts = new ArrayList<BasePortlet>(4);
 
-        dataChart = new DataChart(this);
-        journalChart = new JournalChart(this);
-        routingChart = new RoutingChart(this);
-        matchingChart = new MatchingChart(this);
+        BasePortlet dataChart = new DataChart(this);
+        BasePortlet journalChart = new JournalChart(this);
+        BasePortlet routingChart = new RoutingChart(this);
+        BasePortlet matchingChart = new MatchingChart(this);
 
         charts.add(dataChart);
         charts.add(journalChart);
@@ -181,8 +175,9 @@ public class MainFramePanel extends Portal {
         charts.add(matchingChart);
 
         int position = 0;
-        for (Portlet chart : charts) {
+        for (BasePortlet chart : charts) {
             this.add(chart, position%2);
+            portlets.add(chart);
             position++;
         }
     }
