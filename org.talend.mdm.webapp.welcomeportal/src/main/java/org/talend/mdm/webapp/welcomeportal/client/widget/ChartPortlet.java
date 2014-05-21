@@ -20,13 +20,16 @@ import java.util.Set;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.googlecode.gflot.client.SimplePlot;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
 
 public abstract class ChartPortlet extends BasePortlet {
+
+    private static int PLOT_WIDTH = 400;
+
+    private static int PLOT_HEIGHT = 300;
 
     protected SimplePlot plot;
 
@@ -38,14 +41,13 @@ public abstract class ChartPortlet extends BasePortlet {
         PlotOptions plotOptions = PlotOptions.create();
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create());
         plot = new SimplePlot(plotOptions);
-        plot.setWidth(400);
-        plot.setHeight(300);
+        plot.setWidth(PLOT_WIDTH);
+        plot.setHeight(PLOT_HEIGHT);
     }
 
-    public void refreshPlot() {
+    protected void refreshPlot() {
         updatePlot();
         plot.redraw();
-        FieldSet set = (FieldSet) this.getItemByItemId(portletName + "Set"); //$NON-NLS-1$
         set.layout(true);
     }
 
