@@ -14,13 +14,9 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
-import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -31,16 +27,6 @@ import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
 
 public abstract class ChartPortlet extends BasePortlet {
-
-    private static Map<String, String> chart_titles;
-
-    static {
-        chart_titles = new HashMap<String, String>(4);
-        chart_titles.put(WelcomePortal.CHART_DATA, MessagesFactory.getMessages().chart_data_title());
-        chart_titles.put(WelcomePortal.CHART_JOURNAL, MessagesFactory.getMessages().chart_journal_title());
-        chart_titles.put(WelcomePortal.CHART_ROUTING_EVENT, MessagesFactory.getMessages().chart_routing_event_title());
-        chart_titles.put(WelcomePortal.CHART_MATCHING, MessagesFactory.getMessages().chart_mathcing_title());
-    }
 
     protected SimplePlot plot;
 
@@ -71,13 +57,8 @@ public abstract class ChartPortlet extends BasePortlet {
     }
 
     @Override
-    public void setIcon() {
+    protected void setIcon() {
         this.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
-    }
-
-    @Override
-    public void setHeading() {
-        this.setHeading(chart_titles.get(portletName));
     }
 
     abstract protected void updatePlot();

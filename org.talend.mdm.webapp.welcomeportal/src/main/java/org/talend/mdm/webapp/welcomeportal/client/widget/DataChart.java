@@ -62,7 +62,7 @@ public class DataChart extends ChartPortlet {
 
                                             @Override
                                             public void onSuccess(JSONArray jsonArray) {
-                                                entityData = parseJSONData(jsonArray);
+                                                parseJSONData(jsonArray);
                                                 refreshPlot();
                                             }
                                         });
@@ -87,10 +87,9 @@ public class DataChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                entityData = parseJSONData(jsonArray);
+                                parseJSONData(jsonArray);
                                 initPlot();
                                 set.add(plot);
-                                // FIXME: needed?
                                 set.layout(true);
                             }
                         });
@@ -111,7 +110,7 @@ public class DataChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                entityData = parseJSONData(jsonArray);
+                                parseJSONData(jsonArray);
                                 refreshPlot();
                             }
                         });
@@ -168,6 +167,7 @@ public class DataChart extends ChartPortlet {
         List<? extends SeriesHandler> series = model.getHandlers();
 
         // new entities maybe added to DM and needs to be reflected on the new chart
+        // FIXME: (efficient for refresh with the same DM, but wrong when change to different DM)
         Map<String, SeriesHandler> seriesMap = new HashMap<String, SeriesHandler>(entityNamesSorted.size());
         int count = 0;
         int prevTotal = series.size();
@@ -184,16 +184,14 @@ public class DataChart extends ChartPortlet {
         }
     }
 
-    // TODO: change return type to void ?
-    private Map<String, Integer> parseJSONData(JSONArray jsonArray) {
-        Map<String, Integer> entityData = new HashMap<String, Integer>(jsonArray.size());
+    private void parseJSONData(JSONArray jsonArray) {
+        entityData = new HashMap<String, Integer>(jsonArray.size());
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonObject = jsonArray.get(i).isObject();
             String name = jsonObject.keySet().iterator().next();
             int value = new Double(jsonObject.get(name).isNumber().doubleValue()).intValue();
             entityData.put(name, value);
         }
-        return entityData;
     }
 
 }

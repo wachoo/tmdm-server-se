@@ -17,7 +17,6 @@ import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -27,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 public class StartPortlet extends BasePortlet {
@@ -102,16 +100,6 @@ public class StartPortlet extends BasePortlet {
                 set.layout(true);
             }
         });
-    }
-
-    @Override
-    public void setHeading() {
-        this.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.start()));
-    }
-
-    @Override
-    public void setIcon() {
-        this.setHeading(MessagesFactory.getMessages().start_title());
     }
 
 }

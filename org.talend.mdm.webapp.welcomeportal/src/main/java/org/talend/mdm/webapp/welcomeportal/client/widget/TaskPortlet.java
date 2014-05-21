@@ -18,7 +18,6 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -28,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 public class TaskPortlet extends BasePortlet {
@@ -217,16 +215,6 @@ public class TaskPortlet extends BasePortlet {
                 }
             });
         }
-    }
-
-    @Override
-    public void setHeading() {
-        this.setHeading(MessagesFactory.getMessages().tasks_title());
-    }
-
-    @Override
-    public void setIcon() {
-        this.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.task()));
     }
 
     private String buildMessageForWorkflowTasks(int num) {

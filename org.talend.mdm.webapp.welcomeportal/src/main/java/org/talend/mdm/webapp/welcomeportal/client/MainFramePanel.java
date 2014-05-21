@@ -38,45 +38,24 @@ import com.extjs.gxt.ui.client.widget.custom.Portlet;
 public class MainFramePanel extends Portal {
 
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
-    
-    public boolean isHiddenWorkFlowTask() {
-        return this.hiddenWorkFlowTask;
-    }
-
-    
-    public void setHiddenWorkFlowTask(boolean hiddenWorkFlowTask) {
-        this.hiddenWorkFlowTask = hiddenWorkFlowTask;
-    }
-
-    
-    public boolean isHiddenDSCTask() {
-        return this.hiddenDSCTask;
-    }
-
-    
-    public void setHiddenDSCTask(boolean hiddenDSCTask) {
-        this.hiddenDSCTask = hiddenDSCTask;
-    }
-
-    private boolean hiddenWorkFlowTask = true;
-    private boolean hiddenDSCTask = true;
+    private boolean hiddenWorkFlowTask;
+    private boolean hiddenDSCTask;
     private List<ChartPortlet> charts = new ArrayList<ChartPortlet>(4);
     
-    StartPortlet startPortlet;
-    ProcessPortlet procesPortlet;
-    AlertPortlet alertPortlet;
-    TaskPortlet taskPortlet;
+    private StartPortlet startPortlet;
+    private ProcessPortlet procesPortlet;
+    private AlertPortlet alertPortlet;
+    private TaskPortlet taskPortlet;
+    private SearchPortlet searchPortlet;
     
-    SearchPortlet searchPortlet;
-    
-    DataChart dataChart;
-    JournalChart journalChart;
-    RoutingChart routingChart;
-    MatchingChart matchingChart;
-    
+    private DataChart dataChart;
+    private JournalChart journalChart;
+    private RoutingChart routingChart;
+    private MatchingChart matchingChart;
     
     public MainFramePanel(int numColumns) {
         super(numColumns);
+        
         setBorders(true);
         setStyleAttribute("backgroundColor", "white"); //$NON-NLS-1$ //$NON-NLS-2$
         setColumnWidth(0, .5);
@@ -119,6 +98,25 @@ public class MainFramePanel extends Portal {
         });
     }
 
+    public boolean isHiddenWorkFlowTask() {
+        return this.hiddenWorkFlowTask;
+    }
+
+    
+    public void setHiddenWorkFlowTask(boolean hiddenWorkFlowTask) {
+        this.hiddenWorkFlowTask = hiddenWorkFlowTask;
+    }
+
+    
+    public boolean isHiddenDSCTask() {
+        return this.hiddenDSCTask;
+    }
+
+    
+    public void setHiddenDSCTask(boolean hiddenDSCTask) {
+        this.hiddenDSCTask = hiddenDSCTask;
+    }
+    
     private void initSearchPortlet() {
         service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
 

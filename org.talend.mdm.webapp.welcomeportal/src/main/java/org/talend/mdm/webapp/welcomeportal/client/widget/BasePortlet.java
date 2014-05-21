@@ -12,8 +12,13 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client.widget;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalServiceAsync;
+import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
@@ -24,8 +29,34 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public abstract class BasePortlet extends Portlet {
+
+    private static Map<String, String> titles;
+
+    private static Map<String, AbstractImagePrototype> icons;
+
+    static {
+        titles = new HashMap<String, String>(8);
+        titles.put(WelcomePortal.START, MessagesFactory.getMessages().start_title());
+        titles.put(WelcomePortal.ALERT, MessagesFactory.getMessages().alerts_title());
+        titles.put(WelcomePortal.TASKS, MessagesFactory.getMessages().tasks_title());
+        titles.put(WelcomePortal.PROCESS, MessagesFactory.getMessages().process_title());
+        titles.put(WelcomePortal.SEARCH, MessagesFactory.getMessages().search_title());
+        titles.put(WelcomePortal.CHART_DATA, MessagesFactory.getMessages().chart_data_title());
+        titles.put(WelcomePortal.CHART_JOURNAL, MessagesFactory.getMessages().chart_journal_title());
+        titles.put(WelcomePortal.CHART_ROUTING_EVENT, MessagesFactory.getMessages().chart_routing_event_title());
+        titles.put(WelcomePortal.CHART_MATCHING, MessagesFactory.getMessages().chart_mathcing_title());
+
+        icons = new HashMap<String, AbstractImagePrototype>(8);
+        icons.put(WelcomePortal.START, AbstractImagePrototype.create(Icons.INSTANCE.start()));
+        icons.put(WelcomePortal.ALERT, AbstractImagePrototype.create(Icons.INSTANCE.alert()));
+        icons.put(WelcomePortal.TASKS, AbstractImagePrototype.create(Icons.INSTANCE.task()));
+        icons.put(WelcomePortal.PROCESS, AbstractImagePrototype.create(Icons.INSTANCE.transformer()));
+        icons.put(WelcomePortal.SEARCH, AbstractImagePrototype.create(Icons.INSTANCE.find()));
+
+    }
 
     protected WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
 
@@ -80,9 +111,13 @@ public abstract class BasePortlet extends Portlet {
         this.setIcon();
     }
 
-    abstract public void setHeading();
+    protected void setHeading() {
+        this.setHeading(titles.get(portletName));
+    }
 
-    abstract public void setIcon();
+    protected void setIcon() {
+        this.setIcon(icons.get(portletName));
+    }
 
     abstract public void refresh();
 }

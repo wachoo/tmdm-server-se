@@ -63,7 +63,7 @@ public class RoutingChart extends ChartPortlet {
 
                                     @Override
                                     public void onSuccess(JSONArray jsonArray) {
-                                        routingData = parseJSONData(jsonArray);
+                                        parseJSONData(jsonArray);
                                         refreshPlot();
                                     }
                                 });
@@ -81,7 +81,7 @@ public class RoutingChart extends ChartPortlet {
 
             @Override
             public void onSuccess(JSONArray jsonArray) {
-                routingData = parseJSONData(jsonArray);
+                parseJSONData(jsonArray);
                 refreshPlot();
             }
         });
@@ -94,7 +94,7 @@ public class RoutingChart extends ChartPortlet {
 
             @Override
             public void onSuccess(JSONArray jsonArray) {
-                routingData = parseJSONData(jsonArray);
+                parseJSONData(jsonArray);
                 initPlot();
                 set.add(plot);
                 set.layout(true);
@@ -160,10 +160,10 @@ public class RoutingChart extends ChartPortlet {
         }
     }
 
-    private Map<String, Map<String, Integer>> parseJSONData(JSONArray jsonArray) {
+    private void parseJSONData(JSONArray jsonArray) {
         assert (jsonArray.size() == 2);
 
-        Map<String, Map<String, Integer>> routingDataMap = new HashMap<String, Map<String, Integer>>();
+        routingData = new HashMap<String, Map<String, Integer>>();
 
         JSONObject failedJSONObj;
         JSONObject completedJSONObj;
@@ -203,10 +203,8 @@ public class RoutingChart extends ChartPortlet {
             status = new HashMap<String, Integer>(2);
             status.put(ROUTING_STATUS_FAILED, !failureMap.containsKey(appName) ? 0 : failureMap.get(appName));
             status.put(ROUTING_STATUS_COMPLETED, !completesMap.containsKey(appName) ? 0 : completesMap.get(appName));
-            routingDataMap.put(appName, status);
+            routingData.put(appName, status);
         }
-
-        return routingDataMap;
     }
 
 }

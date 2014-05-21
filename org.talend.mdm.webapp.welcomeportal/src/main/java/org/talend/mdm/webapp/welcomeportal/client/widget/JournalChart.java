@@ -70,7 +70,7 @@ public class JournalChart extends ChartPortlet {
 
                                             @Override
                                             public void onSuccess(JSONArray jsonArray) {
-                                                journalData = parseJSONData(jsonArray);
+                                                parseJSONData(jsonArray);
                                                 refreshPlot();
                                             }
                                         });
@@ -97,7 +97,7 @@ public class JournalChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                journalData = parseJSONData(jsonArray);
+                                parseJSONData(jsonArray);
                                 refreshPlot();
                             }
                         });
@@ -119,8 +119,8 @@ public class JournalChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                journalData = parseJSONData(jsonArray);
-                                initPlot(journalData);
+                                parseJSONData(jsonArray);
+                                initPlot();
                                 set.add(plot);
                                 // FIXME: needed?
                                 set.layout(true);
@@ -130,7 +130,8 @@ public class JournalChart extends ChartPortlet {
         });
     }
 
-    private void initPlot(Map<String, Map<String, Integer>> journalData) {
+    @Override
+    protected void initPlot() {
         super.initPlot();
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
@@ -187,7 +188,7 @@ public class JournalChart extends ChartPortlet {
         }
     }
 
-    private Map<String, Map<String, Integer>> parseJSONData(JSONArray jsonArray) {
+    private void parseJSONData(JSONArray jsonArray) {
         JSONObject currentJSONObj;
         JSONArray events;
         JSONObject creations;
@@ -195,7 +196,7 @@ public class JournalChart extends ChartPortlet {
 
         int numOfEntities = jsonArray.size();
         List<String> entities = new ArrayList<String>(numOfEntities);
-        Map<String, Map<String, Integer>> journalData = new HashMap<String, Map<String, Integer>>(numOfEntities);
+        journalData = new HashMap<String, Map<String, Integer>>(numOfEntities);
 
         for (int i = 0; i < numOfEntities; i++) {
             currentJSONObj = (JSONObject) jsonArray.get(i);
@@ -229,6 +230,5 @@ public class JournalChart extends ChartPortlet {
             eventMap.put("update", numOfUpdates); //$NON-NLS-1$
             journalData.put(entityName, eventMap);
         }
-        return journalData;
     }
 }

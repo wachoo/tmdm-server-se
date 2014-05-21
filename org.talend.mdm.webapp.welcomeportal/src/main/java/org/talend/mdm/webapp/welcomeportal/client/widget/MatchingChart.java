@@ -63,7 +63,7 @@ public class MatchingChart extends ChartPortlet {
 
                                             @Override
                                             public void onSuccess(JSONArray jsonArray) {
-                                                matchingData = parseJSONData(jsonArray);
+                                                parseJSONData(jsonArray);
                                                 refreshPlot();
                                             }
                                         });
@@ -89,7 +89,7 @@ public class MatchingChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                matchingData = parseJSONData(jsonArray);
+                                parseJSONData(jsonArray);
                                 initPlot();
                                 set.add(plot);
                                 // FIXME: needed?
@@ -112,7 +112,7 @@ public class MatchingChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                matchingData = parseJSONData(jsonArray);
+                                parseJSONData(jsonArray);
                                 refreshPlot();
                             }
                         });
@@ -172,15 +172,14 @@ public class MatchingChart extends ChartPortlet {
         }
     }
 
-    private Map<String, Integer> parseJSONData(JSONArray jsonArray) {
-        Map<String, Integer> matchingData = new HashMap<String, Integer>(jsonArray.size());
+    private void parseJSONData(JSONArray jsonArray) {
+        matchingData = new HashMap<String, Integer>(jsonArray.size());
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonObject = jsonArray.get(i).isObject();
             String name = jsonObject.keySet().iterator().next();
             int value = new Double(jsonObject.get(name).isNumber().doubleValue()).intValue();
             matchingData.put(name, value);
         }
-        return matchingData;
     }
 
 }
