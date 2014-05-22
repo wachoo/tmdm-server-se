@@ -34,6 +34,8 @@ import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
 import com.amalto.webapp.util.webservices.WSExistsDataCluster;
 import com.amalto.webapp.util.webservices.WSExistsDataModel;
+import com.amalto.webapp.util.webservices.WSGetItem;
+import com.amalto.webapp.util.webservices.WSItemPK;
 import com.amalto.webapp.util.webservices.WSPutItem;
 
 public class Configuration {
@@ -158,7 +160,13 @@ public class Configuration {
         } else if (model == null || model.trim().length() == 0) {
             throw new Exception("nomodel"); //$NON-NLS-1$
         }
-        String xml = Util.getAjaxSubject().getXml();
+
+        String xml = Util
+                .getPort()
+                .getItem(
+                        new WSGetItem(new WSItemPK(
+                                new WSDataClusterPK("PROVISIONING"), "User", new String[] { Util.getLoginUserName() }))) //$NON-NLS-1$//$NON-NLS-2$
+                .getContent();
         Document d = Util.parse(xml);
         NodeList nodeList = Util.getNodeList(d, "//property"); //$NON-NLS-1$
         if (nodeList.getLength() == 0) {
