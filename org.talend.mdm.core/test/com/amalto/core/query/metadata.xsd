@@ -1192,5 +1192,66 @@
             <xsd:field xpath="Id"/>
         </xsd:unique>
     </xsd:element>
+    
+    <xsd:element name="Employee1"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:sequence> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Holiday" type="xsd:dateTime"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="birthday" type="xsd:dateTime"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="manager" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey">Manager1</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:sequence> 
+    </xsd:complexType>  
+    <xsd:unique name="Employee1"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="Id"/>  
+      <xsd:field xpath="Holiday"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:simpleType name="DateTimeType"> 
+    <xsd:restriction base="xsd:dateTime"/> 
+  </xsd:simpleType>  
+  <xsd:simpleType name="MyDateTimeType"> 
+    <xsd:restriction base="xsd:dateTime"/> 
+  </xsd:simpleType>  
+  <xsd:element name="Manager1"> 
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="birthday" type="xsd:dateTime"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Manager1"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="id"/>  
+      <xsd:field xpath="birthday"/> 
+    </xsd:unique> 
+  </xsd:element>
 
 </xsd:schema>
