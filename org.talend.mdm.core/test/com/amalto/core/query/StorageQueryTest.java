@@ -264,6 +264,17 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, e2, E2_Record6));
         allRecords.add(factory.read("1", repository, e2, E2_Record7));
 
+        allRecords
+                .add(factory
+                        .read("1", repository, manager1,
+                                "<Manager1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><birthday>2014-05-01T12:00:00</birthday><id>1</id></Manager1>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                employee1,
+                                "<Employee1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>1</Id><Holiday>2014-05-16T12:00:00</Holiday><birthday>2014-05-23T12:00:00</birthday><manager>[1][2014-05-01T12:00:00]</manager></Employee1>"));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -299,6 +310,12 @@ public class StorageQueryTest extends StorageTestCase {
                 storage.delete(qb.getSelect());
 
                 qb = from(e1);
+                storage.delete(qb.getSelect());
+
+                qb = from(employee1);
+                storage.delete(qb.getSelect());
+
+                qb = from(manager1);
                 storage.delete(qb.getSelect());
             }
             storage.commit();
