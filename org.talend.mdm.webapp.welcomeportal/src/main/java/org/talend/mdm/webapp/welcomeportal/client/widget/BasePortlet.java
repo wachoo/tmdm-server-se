@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
@@ -138,7 +137,6 @@ public abstract class BasePortlet extends Portlet {
             public void run() {
                 if (isAuto) {
                     // TODO: fetch time elapse from config file
-                    Info.display("Portlet:" + portletName, "Is refreshing it's content!");
                     refresh();
                     schedule(2000);
                 } else {
