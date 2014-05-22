@@ -58,11 +58,17 @@ public interface WelcomePortalMessages extends Messages {
     String chart_data_title();
 
     String chart_journal_title();
-    
+
     String chart_routing_event_title();
-    
+
     String chart_mathcing_title();
-    
+
+    String autorefresh();
+
+    String autorefresh_on();
+
+    String autorefresh_off();
+
     String alerts_title();
 
     String no_tasks();
@@ -74,7 +80,7 @@ public interface WelcomePortalMessages extends Messages {
     String waiting_task_prefix();
 
     String waiting_workflowtask_suffix();
-    
+
     String waiting_dsctask_suffix();
 
     String tasks_desc();

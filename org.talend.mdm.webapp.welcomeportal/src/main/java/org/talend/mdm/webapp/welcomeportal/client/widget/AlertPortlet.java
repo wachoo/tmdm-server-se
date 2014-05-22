@@ -33,6 +33,8 @@ public class AlertPortlet extends BasePortlet {
 
         label.setText(MessagesFactory.getMessages().loading_alert_msg());
 
+        initAutoRefresher();
+
         this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
                     @Override
@@ -107,5 +109,6 @@ public class AlertPortlet extends BasePortlet {
         });
         set.add(alertHtml);
         set.layout(true);
+        autoRefresh(autoRefreshToggle.isPressed());
     }
 }

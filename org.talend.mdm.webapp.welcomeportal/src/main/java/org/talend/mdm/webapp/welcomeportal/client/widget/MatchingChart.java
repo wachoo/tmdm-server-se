@@ -91,6 +91,7 @@ public class MatchingChart extends ChartPortlet {
                                 initPlot();
                                 set.add(plot);
                                 set.layout(true);
+                                MatchingChart.this.autoRefresh(autoRefreshToggle.isPressed());
                             }
                         });
             }

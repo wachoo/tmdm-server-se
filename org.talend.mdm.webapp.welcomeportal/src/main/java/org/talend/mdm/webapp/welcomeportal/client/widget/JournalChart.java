@@ -121,6 +121,7 @@ public class JournalChart extends ChartPortlet {
                                 initPlot();
                                 set.add(plot);
                                 set.layout(true);
+                                JournalChart.this.autoRefresh(autoRefreshToggle.isPressed());
                             }
                         });
             }

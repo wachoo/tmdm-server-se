@@ -37,6 +37,8 @@ public class ProcessPortlet extends BasePortlet {
     public ProcessPortlet(Portal portal) {
         super(WelcomePortal.PROCESS, portal);
 
+        initAutoRefresher();
+
         this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
                     @Override
@@ -133,6 +135,7 @@ public class ProcessPortlet extends BasePortlet {
                         set.layout(true);
                     }
                 }
+                autoRefresh(autoRefreshToggle.isPressed());
             }
 
         });

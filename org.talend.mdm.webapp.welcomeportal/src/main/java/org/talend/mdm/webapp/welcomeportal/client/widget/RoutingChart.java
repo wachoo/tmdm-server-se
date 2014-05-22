@@ -96,6 +96,7 @@ public class RoutingChart extends ChartPortlet {
                 initPlot();
                 set.add(plot);
                 set.layout(true);
+                RoutingChart.this.autoRefresh(autoRefreshToggle.isPressed());
             }
         });
     }

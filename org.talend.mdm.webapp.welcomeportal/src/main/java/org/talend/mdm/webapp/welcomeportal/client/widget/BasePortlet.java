@@ -21,14 +21,20 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public abstract class BasePortlet extends Portlet {
@@ -67,6 +73,14 @@ public abstract class BasePortlet extends Portlet {
     protected Label label;
 
     protected FieldSet set;
+
+    protected Timer autoRefresher;
+
+    protected boolean startedAsOn;// will come from setting config as with timer interval
+
+    protected boolean isAuto;
+
+    protected ToggleButton autoRefreshToggle;
 
     public BasePortlet() {
         super();
@@ -113,6 +127,47 @@ public abstract class BasePortlet extends Portlet {
 
         this.setHeading();
         this.setIcon();
+
+    }
+
+    protected void initAutoRefresher() {
+
+        autoRefresher = new Timer() {
+
+            @Override
+            public void run() {
+                if (isAuto) {
+                    // TODO: fetch time elapse from config file
+                    Info.display("Portlet:" + portletName, "Is refreshing it's content!");
+                    refresh();
+                    schedule(2000);
+                } else {
+                    cancel();
+                }
+            }
+
+        };
+
+        if (startedAsOn) {
+            autoRefreshToggle = new ToggleButton(MessagesFactory.getMessages().autorefresh_on());
+        } else {
+            autoRefreshToggle = new ToggleButton(MessagesFactory.getMessages().autorefresh_off());
+        }
+        autoRefreshToggle.toggle(startedAsOn);
+        autoRefreshToggle.setTitle(MessagesFactory.getMessages().autorefresh());
+        autoRefreshToggle.addListener(Events.Toggle, new Listener<BaseEvent>() {
+
+            @Override
+            public void handleEvent(BaseEvent be) {
+                autoRefreshToggle.setText(autoRefreshToggle.isPressed() ? MessagesFactory.getMessages().autorefresh_on()
+                        : MessagesFactory.getMessages().autorefresh_off());
+                BasePortlet.this.autoRefresh(autoRefreshToggle.isPressed());
+            }
+        });
+
+        // autoRefreshToggle.addStyleName("x-tool-refresh");
+        // FIXME: Need to align toggle buttion's appearance with other ToolButtons's
+        this.getHeader().addTool(autoRefreshToggle);
     }
 
     protected void setHeading() {
@@ -121,6 +176,16 @@ public abstract class BasePortlet extends Portlet {
 
     protected void setIcon() {
         this.setIcon(icons.get(portletName));
+    }
+
+    protected void autoRefresh(boolean auto) {
+        if (isAuto != auto) {
+            isAuto = auto;
+
+            if (isAuto) {
+                autoRefresher.run();
+            }
+        }
     }
 
     abstract public void refresh();

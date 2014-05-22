@@ -35,6 +35,7 @@ public abstract class ChartPortlet extends BasePortlet {
 
     public ChartPortlet(String name, Portal portal) {
         super(name, portal);
+        initAutoRefresher();
     }
 
     protected void initPlot() {

@@ -42,7 +42,7 @@ public class TaskPortlet extends BasePortlet {
 
         isHiddenWorkFlowTask = ((MainFramePanel) portal).isHiddenWorkFlowTask();
         isHiddenDSCTask = ((MainFramePanel) portal).isHiddenDSCTask();
-
+        initAutoRefresher();
         this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
                     @Override
@@ -211,6 +211,7 @@ public class TaskPortlet extends BasePortlet {
                 }
             });
         }
+        autoRefresh(autoRefreshToggle.isPressed());
     }
 
     private String buildMessageForWorkflowTasks(int num) {

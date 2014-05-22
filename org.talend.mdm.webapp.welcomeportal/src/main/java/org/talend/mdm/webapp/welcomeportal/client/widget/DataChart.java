@@ -96,6 +96,7 @@ public class DataChart extends ChartPortlet {
                                 initPlot();
                                 set.add(plot);
                                 set.layout(true);
+                                DataChart.this.autoRefresh(autoRefreshToggle.isPressed());
                             }
                         });
             }
