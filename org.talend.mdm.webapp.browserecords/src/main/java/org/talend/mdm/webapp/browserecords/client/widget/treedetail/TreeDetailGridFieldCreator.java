@@ -48,6 +48,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCrea
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldStyle;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
 import com.extjs.gxt.ui.client.Style.HideMode;
@@ -80,7 +81,7 @@ public class TreeDetailGridFieldCreator {
             Map<String, Field<?>> fieldMap, String operation, final ItemsDetailPanel itemsDetailPanel) {
         // Field
 
-        Serializable value = node.getObjectValue();
+        final Serializable value = node.getObjectValue();
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
@@ -98,16 +99,20 @@ public class TreeDetailGridFieldCreator {
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
-            if (dataType.getMinOccurs() == 1 && dataType.getMaxOccurs() == 1)
-                if(BrowseRecords.getSession().getAppHeader().isAutoValidate())
+            comboBox.setDisplayField("text"); //$NON-NLS-1$
+            if (dataType.getMinOccurs() == 1 && dataType.getMaxOccurs() == 1) {
+                if (BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
                     comboBox.setAllowBlank(false);
+                }
+            }
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
-            setEnumerationValues(dataType, comboBox);
-            comboBox.setSimpleValue(hasValue ? value.toString() : ""); //$NON-NLS-1$
+            setEnumerationValues(dataType, comboBox, node.isMandatory());
+            if (hasValue && value != null && !value.toString().isEmpty()) {
+                comboBox.setSimpleValue(value.toString());
+            }
             field = comboBox;
-
         } else if (dataType instanceof ComplexTypeModel) {
             final ComboBoxField<ComboBoxModel> comboxField = new ComboBoxField<ComboBoxModel>();
             comboxField.setDisplayField("text"); //$NON-NLS-1$
@@ -120,6 +125,7 @@ public class TreeDetailGridFieldCreator {
             List<ComplexTypeModel> reusableTypes = ((ComplexTypeModel) dataType).getReusableComplexTypes();
             Collections.sort(reusableTypes, new Comparator<ComplexTypeModel>() {
 
+                @Override
                 public int compare(ComplexTypeModel o1, ComplexTypeModel o2) {
                     return o1.getOrderValue() - o2.getOrderValue();
                 }
@@ -169,7 +175,8 @@ public class TreeDetailGridFieldCreator {
             context.setMandatory(node.isMandatory());
             TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
             Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
-            sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH, "400", TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
+            sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH,
+                    "400", TypeFieldStyle.SCOPE_BUILTIN_TYPEFIELD)); //$NON-NLS-1$
             field = typeFieldCreator.createFieldWithValueAndUpdateStyle(node, sytles);
         }
 
@@ -201,13 +208,15 @@ public class TreeDetailGridFieldCreator {
 
             String errorMsg = dataType.getFacetErrorMsgs().get(language);
             field.setData("facetErrorMsgs", errorMsg);//$NON-NLS-1$        
-            FacetEnum.setFacetValue("maxOccurence", (Widget) field, String.valueOf(dataType.getMaxOccurs())); //$NON-NLS-1$
+            FacetEnum.setFacetValue("maxOccurence", field, String.valueOf(dataType.getMaxOccurs())); //$NON-NLS-1$
 
-            if (((TextField<?>) field).getValidator() == null)
+            if (((TextField<?>) field).getValidator() == null) {
                 ((TextField<?>) field).setValidator(TextFieldValidator.getInstance());
+            }
 
-            if (errorMsg != null && !errorMsg.equals("")) //$NON-NLS-1$                
+            if (errorMsg != null && !errorMsg.equals("")) { //$NON-NLS-1$
                 ((TextField<?>) field).getMessages().setBlankText(errorMsg);
+            }
 
         }
         fieldMap.put(node.getId().toString(), field);
@@ -234,6 +243,7 @@ public class TreeDetailGridFieldCreator {
         field.setFireChangeEventOnSetValue(true);
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
+            @Override
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
                 if (fe.getField() instanceof ComboBoxField) {
@@ -269,6 +279,7 @@ public class TreeDetailGridFieldCreator {
 
         field.addListener(Events.Attach, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent fe) {
                 setErrorIcon(field);
                 validate(field, node);
@@ -277,24 +288,28 @@ public class TreeDetailGridFieldCreator {
 
         field.addListener(Events.Blur, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent fe) {
                 // TMDM-3353 only when node is valid, call setObjectValue(); otherwise objectValue is changed to
                 // original value
-                if (node.isValid())
+                if (node.isValid()) {
                     if (fe.getField() instanceof FormatTextField) {
-                        if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
+                        if (BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
                             node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
+                        }
                     } else if (fe.getField() instanceof FormatNumberField) {
-                        if(BrowseRecords.getSession().getAppHeader().isAutoValidate()) 
+                        if (BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
                             node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
+                        }
                     } else if (fe.getField() instanceof FormatDateField) {
                         node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
                     }
+                }
             }
         });
     }
 
-    private static void setErrorIcon(Field<?> field){
+    private static void setErrorIcon(Field<?> field) {
         WidgetComponent errorIcon = _getErrorIcon(field);
         if (errorIcon != null) {
             errorIcon.removeFromParent();
@@ -306,9 +321,11 @@ public class TreeDetailGridFieldCreator {
 
         errorIcon = new WidgetComponent(field.getImages().getInvalid().createImage()) {
 
+            @Override
             public void setElement(Element elem) {
                 _setEl(new El(elem) {
 
+                    @Override
                     public El alignTo(Element align, String pos, int[] offsets) {
                         return this;
                     }
@@ -333,15 +350,15 @@ public class TreeDetailGridFieldCreator {
 
         _setErrorIcon(field, errorIcon);
     }
-    
+
     private static native void _setErrorIcon(Field<?> field, WidgetComponent errorIcon)/*-{
         field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
     }-*/;
-    
+
     private static native WidgetComponent _getErrorIcon(Field<?> field)/*-{
         return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
     }-*/;
-    
+
     private static native String getTemplate() /*-{
         return [
             '<tpl for=".">',
@@ -364,13 +381,28 @@ public class TreeDetailGridFieldCreator {
         }
     }
 
-    private static void setEnumerationValues(TypeModel typeModel, Widget w) {
+    private static void setEnumerationValues(TypeModel typeModel, Widget w, boolean mandatory) {
         List<String> enumeration = ((SimpleTypeModel) typeModel).getEnumeration();
         if (enumeration != null && enumeration.size() > 0) {
             @SuppressWarnings("unchecked")
             SimpleComboBox<String> field = (SimpleComboBox<String>) w;
-            for (String value : enumeration) {
-                field.add(value);
+            if (!mandatory) {
+                field.getStore().add(new SimpleComboValue<String>() {
+
+                    {
+                        this.set("text", Constants.EMPTY);
+                        this.setValue("");
+                    }
+                });
+            }
+            for (final String value : enumeration) {
+                field.getStore().add(new SimpleComboValue<String>() {
+
+                    {
+                        this.set("text", value);
+                        this.setValue(value);
+                    }
+                });
             }
         }
     }
@@ -408,8 +440,9 @@ public class TreeDetailGridFieldCreator {
     public static void autoFillValue4MandatoryBooleanField(boolean enable, List<ModelData> toUpdateNodes,
             Map<String, Field<?>> fieldMap) {
 
-        if (toUpdateNodes == null)
+        if (toUpdateNodes == null) {
             return;
+        }
 
         if (enable) {
 
@@ -430,8 +463,9 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static TreeDetail getCurrentTreeDetail(Widget child) {
-        if (child == null)
+        if (child == null) {
             return null;
+        }
         Widget current = child;
         while (current != null) {
             if (current instanceof TreeDetail) {
@@ -444,8 +478,9 @@ public class TreeDetailGridFieldCreator {
 
     @SuppressWarnings("rawtypes")
     private static void setMandatory(Field<?> field, boolean mandatory) {
-        if(!BrowseRecords.getSession().getAppHeader().isAutoValidate())
+        if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
             return;
+        }
         if (field instanceof NumberField) {
             ((NumberField) field).setAllowBlank(!mandatory);
         } else if (field instanceof BooleanField) {
