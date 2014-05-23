@@ -39,7 +39,10 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
  */
 public class MainFramePanel extends Portal {
 
-    private static WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
+    private static final int DEFAULT_REFRESH_INTERVAL = 10000;
+    
+    private static final boolean DEFAULT_REFRESH_STARTASON = false;
+    
     private boolean startedAsOn;
     private int interval;
     private boolean hiddenWorkFlowTask;
@@ -47,6 +50,7 @@ public class MainFramePanel extends Portal {
     private List<BasePortlet> portlets;
     private List<BasePortlet> charts;
 
+    private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
     
     public MainFramePanel(int numColumns) {
         super(numColumns);
@@ -71,8 +75,8 @@ public class MainFramePanel extends Portal {
 
             @Override
             public void doOnFailure(Throwable e) {
-                startedAsOn = false;
-                interval = 5000;
+                startedAsOn = DEFAULT_REFRESH_STARTASON;
+                interval = DEFAULT_REFRESH_INTERVAL;
                 initializePortlets();
             }
         });

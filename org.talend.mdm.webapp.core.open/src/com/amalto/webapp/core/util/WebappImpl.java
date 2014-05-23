@@ -75,7 +75,7 @@ public class WebappImpl implements Webapp {
     @Override
     public Map<Boolean, Integer> getWelcomePortletConfig() {
         Map<Boolean, Integer> refreshConfig = new HashMap<Boolean, Integer>(1){{
-            this.put(false, 0);
+            this.put(false, 10000);
         }};
         return refreshConfig;
     }
