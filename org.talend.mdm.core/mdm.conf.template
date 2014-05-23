@@ -46,6 +46,12 @@ cluster_override=false
 #configuration.reloadfrequency=60
 
 ######################################################
+# WelcomePortal Webapp Auto Refresh Setting for portlets
+######################################################
+welcomportal.portlet.refresh.onstart=true
+welcomportal.portlet.refresh.interval=5000
+
+######################################################
 # eXist DB Settings
 ######################################################
 #xmldb.server.name=localhost

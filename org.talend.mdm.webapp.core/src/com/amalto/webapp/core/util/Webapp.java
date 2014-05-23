@@ -37,6 +37,8 @@ public interface Webapp {
     public boolean isEnterpriseVersion();
 
     public String getLicenseWarning(String language) throws Exception;
+    
+    public Map<Boolean, Integer> getWelcomePortletConfig();
 
     public static final Webapp INSTANCE = WebappFactory.createWebapp();
 

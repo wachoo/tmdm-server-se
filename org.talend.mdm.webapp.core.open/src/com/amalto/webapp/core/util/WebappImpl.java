@@ -71,4 +71,12 @@ public class WebappImpl implements Webapp {
     public String getLicenseWarning(String language) throws Exception {
         return null;
     }
+ 
+    @Override
+    public Map<Boolean, Integer> getWelcomePortletConfig() {
+        Map<Boolean, Integer> refreshConfig = new HashMap<Boolean, Integer>(1){{
+            this.put(false, 0);
+        }};
+        return refreshConfig;
+    }
 }
