@@ -211,7 +211,7 @@ public class TaskPortlet extends BasePortlet {
                 }
             });
         }
-        autoRefresh(autoRefreshToggle.isPressed());
+        autoRefresh(autoRefreshBtn.isOn());
     }
 
     private String buildMessageForWorkflowTasks(int num) {

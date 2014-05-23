@@ -56,7 +56,7 @@ public abstract class ChartPortlet extends BasePortlet {
         initPlot();
         set.add(plot);
         set.layout(true);
-        this.autoRefresh(autoRefreshToggle.isPressed());
+        this.autoRefresh(autoRefreshBtn.isOn());
     }
 
     protected List<String> sort(Set<String> names) {

@@ -135,7 +135,7 @@ public class ProcessPortlet extends BasePortlet {
                         set.layout(true);
                     }
                 }
-                autoRefresh(autoRefreshToggle.isPressed());
+                autoRefresh(autoRefreshBtn.isOn());
             }
 
         });

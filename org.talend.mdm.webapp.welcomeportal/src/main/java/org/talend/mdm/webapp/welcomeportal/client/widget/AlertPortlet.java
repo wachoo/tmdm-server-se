@@ -109,6 +109,6 @@ public class AlertPortlet extends BasePortlet {
         });
         set.add(alertHtml);
         set.layout(true);
-        autoRefresh(autoRefreshToggle.isPressed());
+        autoRefresh(autoRefreshBtn.isOn());
     }
 }

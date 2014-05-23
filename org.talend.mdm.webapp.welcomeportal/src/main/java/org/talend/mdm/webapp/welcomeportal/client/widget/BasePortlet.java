@@ -23,13 +23,10 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Label;
-import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
@@ -77,7 +74,7 @@ public abstract class BasePortlet extends Portlet {
 
     protected Timer autoRefresher;
 
-    protected ToggleButton autoRefreshToggle;
+    protected AutoRefreshButton autoRefreshBtn;
 
     private boolean isAuto;
 
@@ -151,6 +148,7 @@ public abstract class BasePortlet extends Portlet {
             @Override
             public void run() {
                 if (isAuto) {
+                    Info.display("Portlet:" + portletName, "Refreshing.....");
                     refresh();
                     schedule(interval);
                 } else {
@@ -160,27 +158,24 @@ public abstract class BasePortlet extends Portlet {
 
         };
 
-        if (startedAsOn) {
-            autoRefreshToggle = new ToggleButton(MessagesFactory.getMessages().autorefresh_on());
-        } else {
-            autoRefreshToggle = new ToggleButton(MessagesFactory.getMessages().autorefresh_off());
-        }
-        autoRefreshToggle.toggle(startedAsOn);
-        autoRefreshToggle.setTitle(MessagesFactory.getMessages().autorefresh());
-        autoRefreshToggle.addListener(Events.Toggle, new Listener<BaseEvent>() {
+        // TODO: use gear image temporarily, need find a suitbale image icon for auto-refresh
+        autoRefreshBtn = new AutoRefreshButton(startedAsOn, "x-tool-gear"); //$NON-NLS-1$
+        autoRefreshBtn.setTitle(MessagesFactory.getMessages().autorefresh());
+
+        autoRefreshBtn.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
             @Override
-            public void handleEvent(BaseEvent be) {
-                autoRefreshToggle.setText(autoRefreshToggle.isPressed() ? MessagesFactory.getMessages().autorefresh_on()
-                        : MessagesFactory.getMessages().autorefresh_off());
-                BasePortlet.this.autoRefresh(autoRefreshToggle.isPressed());
-                Cookies.setValue(cookieskey, autoRefreshToggle.isPressed());
+            public void componentSelected(IconButtonEvent ce) {
+                autoRefreshBtn.flip();
+                autoRefreshBtn.setTitle(autoRefreshBtn.isOn() ? MessagesFactory.getMessages().autorefresh_on() : MessagesFactory
+                        .getMessages().autorefresh_off());
+                BasePortlet.this.autoRefresh(autoRefreshBtn.isOn());
+                Cookies.setValue(cookieskey, autoRefreshBtn.isOn());
+                return;
             }
-        });
 
-        // autoRefreshToggle.addStyleName("x-tool-refresh");
-        // FIXME: Need to align toggle buttion's appearance with other ToolButtons's
-        BasePortlet.this.getHeader().addTool(autoRefreshToggle);
+        });
+        BasePortlet.this.getHeader().addTool(autoRefreshBtn);
 
     }
 
@@ -203,4 +198,31 @@ public abstract class BasePortlet extends Portlet {
     }
 
     abstract public void refresh();
+
+    protected class AutoRefreshButton extends ToolButton {
+
+        private boolean on;
+
+        public AutoRefreshButton(boolean on, String style) {
+            super(style);
+            this.on = on;
+        }
+
+        public AutoRefreshButton(String style, SelectionListener<IconButtonEvent> listener) {
+            super(style, listener);
+        }
+
+        public AutoRefreshButton(boolean on, String style, SelectionListener<IconButtonEvent> listener) {
+            this(style, listener);
+            this.on = on;
+        }
+
+        public boolean isOn() {
+            return this.on;
+        }
+
+        public void flip() {
+            this.on = !on;
+        }
+    }
 }
