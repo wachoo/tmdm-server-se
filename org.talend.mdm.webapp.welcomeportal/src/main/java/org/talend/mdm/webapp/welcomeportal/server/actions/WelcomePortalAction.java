@@ -267,4 +267,9 @@ public class WelcomePortalAction implements WelcomePortalService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
+    
+    @Override
+    public Map<Boolean, Integer> getWelcomePortletConfig() throws Exception {
+        return Webapp.INSTANCE.getWelcomePortletConfig();
+    }
 }

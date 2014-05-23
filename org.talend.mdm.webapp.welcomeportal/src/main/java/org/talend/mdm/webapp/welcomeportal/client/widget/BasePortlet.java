@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalServiceAsync;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
@@ -75,11 +76,13 @@ public abstract class BasePortlet extends Portlet {
 
     protected Timer autoRefresher;
 
-    protected boolean startedAsOn;// will come from setting config as with timer interval
-
-    protected boolean isAuto;
-
     protected ToggleButton autoRefreshToggle;
+
+    private boolean isAuto;
+
+    private boolean startedAsOn;
+
+    private int interval;
 
     public BasePortlet() {
         super();
@@ -127,6 +130,9 @@ public abstract class BasePortlet extends Portlet {
         this.setHeading();
         this.setIcon();
 
+        startedAsOn = ((MainFramePanel) portal).getStartedAsOn();
+        interval = ((MainFramePanel) portal).getInterval();
+
     }
 
     protected void initAutoRefresher() {
@@ -136,9 +142,8 @@ public abstract class BasePortlet extends Portlet {
             @Override
             public void run() {
                 if (isAuto) {
-                    // TODO: fetch time elapse from config file
                     refresh();
-                    schedule(2000);
+                    schedule(interval);
                 } else {
                     cancel();
                 }
@@ -165,7 +170,8 @@ public abstract class BasePortlet extends Portlet {
 
         // autoRefreshToggle.addStyleName("x-tool-refresh");
         // FIXME: Need to align toggle buttion's appearance with other ToolButtons's
-        this.getHeader().addTool(autoRefreshToggle);
+        BasePortlet.this.getHeader().addTool(autoRefreshToggle);
+
     }
 
     protected void setHeading() {

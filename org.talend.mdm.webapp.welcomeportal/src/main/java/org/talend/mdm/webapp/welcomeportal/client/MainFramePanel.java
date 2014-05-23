@@ -14,6 +14,9 @@ package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.welcomeportal.client.widget.AlertPortlet;
@@ -37,11 +40,14 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
  */
 public class MainFramePanel extends Portal {
 
-    private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
+    private static WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
+    private boolean startedAsOn;
+    private int interval;
     private boolean hiddenWorkFlowTask;
     private boolean hiddenDSCTask;
     private List<BasePortlet> portlets;
-    private List<BasePortlet> charts;    
+    private List<BasePortlet> charts;
+
     
     public MainFramePanel(int numColumns) {
         super(numColumns);
@@ -51,6 +57,32 @@ public class MainFramePanel extends Portal {
         setColumnWidth(0, .5);
         setColumnWidth(1, .5);
 
+
+        service.getWelcomePortletConfig(new SessionAwareAsyncCallback<Map<Boolean, Integer>>() {
+
+            @Override
+            public void onSuccess(Map<Boolean, Integer> config) {
+                //Set<Map.Entry<Boolean, Integer>> value = config.entrySet();
+                if (!config.containsKey(startedAsOn)) {
+                    startedAsOn = !startedAsOn;
+                }
+
+                interval = config.get(startedAsOn);
+                initializePortlets();
+            }
+
+            @Override
+            public void doOnFailure(Throwable e) {
+                startedAsOn = false;
+                interval = 5000;
+                initializePortlets();
+            }
+        });
+    
+
+    }
+
+    private void initializePortlets() {
         portlets = new ArrayList<BasePortlet>();
         BasePortlet portlet;
         
@@ -69,7 +101,6 @@ public class MainFramePanel extends Portal {
         initTaskPortlet();
         
         initChartPortlets();
-
     }
 
     public void refreshPortlets() {
@@ -105,6 +136,14 @@ public class MainFramePanel extends Portal {
     
     public void setHiddenDSCTask(boolean hiddenDSCTask) {
         this.hiddenDSCTask = hiddenDSCTask;
+    }
+    
+    public boolean getStartedAsOn() {
+        return this.startedAsOn;
+    }
+
+    public int getInterval() {
+        return this.interval;
     }
     
     private void initSearchPortlet() {

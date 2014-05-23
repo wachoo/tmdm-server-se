@@ -51,4 +51,6 @@ public interface WelcomePortalService extends RemoteService {
     public String getLicenseWarning(String language) throws ServiceException;
 
     public String getCurrentDataContainer() throws ServiceException;
+
+    public Map<Boolean, Integer> getWelcomePortletConfig() throws Exception;
 }

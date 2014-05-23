@@ -93,10 +93,7 @@ public class DataChart extends ChartPortlet {
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
                                 parseJSONData(jsonArray);
-                                initPlot();
-                                set.add(plot);
-                                set.layout(true);
-                                DataChart.this.autoRefresh(autoRefreshToggle.isPressed());
+                                initAndShow();
                             }
                         });
             }

@@ -60,4 +60,6 @@ public interface WelcomePortalServiceAsync {
 
     void getCurrentDataContainer(AsyncCallback<String> callback);
 
+    void getWelcomePortletConfig(AsyncCallback<Map<Boolean, Integer>> callback);
+
 }

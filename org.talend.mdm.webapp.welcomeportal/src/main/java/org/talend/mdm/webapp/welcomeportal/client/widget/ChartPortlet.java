@@ -52,6 +52,13 @@ public abstract class ChartPortlet extends BasePortlet {
         set.layout(true);
     }
 
+    protected void initAndShow() {
+        initPlot();
+        set.add(plot);
+        set.layout(true);
+        this.autoRefresh(autoRefreshToggle.isPressed());
+    }
+
     protected List<String> sort(Set<String> names) {
         List<String> appnamesSorted = new ArrayList<String>(names);
         Collections.sort(appnamesSorted);

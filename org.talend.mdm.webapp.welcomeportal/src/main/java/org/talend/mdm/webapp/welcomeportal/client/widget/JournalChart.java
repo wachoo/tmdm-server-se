@@ -118,10 +118,7 @@ public class JournalChart extends ChartPortlet {
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
                                 parseJSONData(jsonArray);
-                                initPlot();
-                                set.add(plot);
-                                set.layout(true);
-                                JournalChart.this.autoRefresh(autoRefreshToggle.isPressed());
+                                initAndShow();
                             }
                         });
             }

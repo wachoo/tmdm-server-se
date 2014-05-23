@@ -93,10 +93,7 @@ public class RoutingChart extends ChartPortlet {
             @Override
             public void onSuccess(JSONArray jsonArray) {
                 parseJSONData(jsonArray);
-                initPlot();
-                set.add(plot);
-                set.layout(true);
-                RoutingChart.this.autoRefresh(autoRefreshToggle.isPressed());
+                initAndShow();
             }
         });
     }

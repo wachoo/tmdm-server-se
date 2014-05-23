@@ -88,10 +88,7 @@ public class MatchingChart extends ChartPortlet {
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
                                 parseJSONData(jsonArray);
-                                initPlot();
-                                set.add(plot);
-                                set.layout(true);
-                                MatchingChart.this.autoRefresh(autoRefreshToggle.isPressed());
+                                initAndShow();
                             }
                         });
             }
