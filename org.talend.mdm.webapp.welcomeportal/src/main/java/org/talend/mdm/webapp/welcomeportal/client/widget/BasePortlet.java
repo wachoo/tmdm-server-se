@@ -25,7 +25,6 @@ import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -148,7 +147,6 @@ public abstract class BasePortlet extends Portlet {
             @Override
             public void run() {
                 if (isAuto) {
-                    Info.display("Portlet:" + portletName, "Refreshing.....");
                     refresh();
                     schedule(interval);
                 } else {
