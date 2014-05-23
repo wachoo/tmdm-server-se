@@ -32,6 +32,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCrea
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldStyle;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
@@ -41,13 +42,13 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
     public static Field<?> createField(SimpleTypeModel dataType, FormBinding formBindings, boolean enableMultiple, String language) {
         Field<?> field;
-
         if (dataType.isMultiOccurrence() && enableMultiple) {
             MultipleField multipleField = new MultipleField(dataType, language);
             field = multipleField;
@@ -59,8 +60,10 @@ public class FieldCreator {
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
-            if (dataType.getMinOccurs() > 0)
+            comboBox.setDisplayField("text"); //$NON-NLS-1$
+            if (dataType.getMinOccurs() > 0) {
                 comboBox.setAllowBlank(false);
+            }
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
@@ -118,8 +121,23 @@ public class FieldCreator {
         List<String> enumeration = ((SimpleTypeModel) typeModel).getEnumeration();
         if (enumeration != null && enumeration.size() > 0) {
             SimpleComboBox<String> field = (SimpleComboBox<String>) w;
-            for (String value : enumeration) {
-                field.add(value);
+            if (typeModel.getMinOccurs() <= 0) {
+                field.getStore().add(new SimpleComboValue<String>() {
+
+                    {
+                        this.set("text", Constants.EMPTY); //$NON-NLS-1$
+                        this.setValue(""); //$NON-NLS-1$
+                    }
+                });
+            }
+            for (final String value : enumeration) {
+                field.getStore().add(new SimpleComboValue<String>() {
+
+                    {
+                        this.set("text", value); //$NON-NLS-1$
+                        this.setValue(value);
+                    }
+                });
             }
         }
     }

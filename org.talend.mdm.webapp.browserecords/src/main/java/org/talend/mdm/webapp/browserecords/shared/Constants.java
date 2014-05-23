@@ -16,4 +16,6 @@ public class Constants {
     public static final String XSI_URI = "http://www.w3.org/2001/XMLSchema-instance"; //$NON-NLS-1$
     
     public static final String XSI_PREFIX = "xsi"; //$NON-NLS-1$
+
+    public static final String EMPTY = "Empty"; //$NON-NLS-1$
 }
