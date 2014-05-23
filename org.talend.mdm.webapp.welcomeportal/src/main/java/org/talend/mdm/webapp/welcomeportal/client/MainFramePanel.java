@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.welcomeportal.client;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -62,7 +61,6 @@ public class MainFramePanel extends Portal {
 
             @Override
             public void onSuccess(Map<Boolean, Integer> config) {
-                //Set<Map.Entry<Boolean, Integer>> value = config.entrySet();
                 if (!config.containsKey(startedAsOn)) {
                     startedAsOn = !startedAsOn;
                 }
