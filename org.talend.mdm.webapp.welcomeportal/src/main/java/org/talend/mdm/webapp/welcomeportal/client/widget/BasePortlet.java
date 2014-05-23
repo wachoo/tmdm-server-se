@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalServiceAsync;
@@ -84,6 +85,8 @@ public abstract class BasePortlet extends Portlet {
 
     private int interval;
 
+    private String cookieskey;
+
     public BasePortlet() {
         super();
         this.setLayout(new FitLayout());
@@ -130,7 +133,13 @@ public abstract class BasePortlet extends Portlet {
         this.setHeading();
         this.setIcon();
 
-        startedAsOn = ((MainFramePanel) portal).getStartedAsOn();
+        cookieskey = portletName + ".autoOnOff"; //$NON-NLS-1$
+
+        if (Cookies.getValue(cookieskey) == null) {
+            startedAsOn = ((MainFramePanel) portal).getStartedAsOn();
+        } else {
+            startedAsOn = (Boolean) Cookies.getValue(cookieskey);
+        }
         interval = ((MainFramePanel) portal).getInterval();
 
     }
@@ -165,6 +174,7 @@ public abstract class BasePortlet extends Portlet {
                 autoRefreshToggle.setText(autoRefreshToggle.isPressed() ? MessagesFactory.getMessages().autorefresh_on()
                         : MessagesFactory.getMessages().autorefresh_off());
                 BasePortlet.this.autoRefresh(autoRefreshToggle.isPressed());
+                Cookies.setValue(cookieskey, autoRefreshToggle.isPressed());
             }
         });
 
