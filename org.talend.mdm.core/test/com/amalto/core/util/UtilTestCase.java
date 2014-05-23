@@ -23,7 +23,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.storage.DispatchWrapper;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -43,6 +42,7 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.save.SaveException;
+import com.amalto.core.storage.DispatchWrapper;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -324,6 +324,15 @@ public class UtilTestCase extends TestCase {
             assertTrue("true".equals(condition2.getRightValueOrPath()));
             assertTrue("false".equals(condition3.getRightValueOrPath()));
             assertTrue("bj".equals(condition4.getRightValueOrPath()));
+        }
+    }
+
+    public void testExtractCharset() {
+        String messages[] = { "text/xml; charset  =   'utf-8' ;  ", "text/xml; charset  =   utf-8  ",
+                "text/xml; charset  =  \"utf-8\" ;  ", "text/xml; charset  =   utf-8  ; abc = charset ",
+                "text/xml; charset  =   'utf-8'  ; abc = charset ", "text/xml; charset  =   \"utf-8\"  ; abc = charset " };
+        for (String m : messages) {
+            assertTrue("UTF-8".equals(Util.extractCharset(m, "iso-8891")));
         }
     }
 

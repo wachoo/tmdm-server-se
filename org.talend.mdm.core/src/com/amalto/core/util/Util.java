@@ -1376,7 +1376,7 @@ public class Util {
      * Typed Content Manipulation
      ***********************************************************************************************************/
 
-    private static Pattern extractCharsetPattern = Pattern.compile(".*charset\\s*=[\"|']?(.+)[\"|']([\\s|;].*)?");
+    private static Pattern extractCharsetPattern = Pattern.compile(".*charset\\s*=(.+)");
 
     /**
      * Extract the charset of a content type<br>
@@ -1384,13 +1384,22 @@ public class Util {
      * 
      * @return the charset
      */
-    public static String extractCharset(String contentType) {
-        String charset = "UTF8";
-        Matcher m = extractCharsetPattern.matcher(contentType);
-        if (m.matches()) {
-            charset = m.group(1).trim().toUpperCase();
+    public static String extractCharset(String contentType, String defaultCharset) {
+        String charset = defaultCharset;
+        String properties[] = StringUtils.split(contentType, ';');
+        for (String property : properties) {
+            String strippedProperty = property.trim().replaceAll("\"", "").replaceAll("'", "");
+            Matcher m = extractCharsetPattern.matcher(strippedProperty);
+            if (m.matches()) {
+                charset = m.group(1).trim().toUpperCase();
+                break;
+            }
         }
         return charset;
+    }
+
+    public static String extractCharset(String contentType) {
+        return extractCharset(contentType, org.apache.commons.lang.CharEncoding.UTF_8);
     }
 
     /**

@@ -46,29 +46,21 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
-
 /**
  * @author Bruno Grieder
- *
- * @ejb.bean 	name="TISCallTransformerPlugin"
- *           	display-name="Name for TISCallPlugin"
- *           	description="Description for TISCallPlugin"
- * 		  		local-jndi-name = "amalto/local/transformer/plugin/callJob"
- *           	type="Stateless"
- *           	view-type="local"
- *           	local-business-interface="com.amalto.core.objects.transformers.v2.util.TransformerPluginV2LocalInterface"
- *
+ * 
+ * @ejb.bean name="TISCallTransformerPlugin" display-name="Name for TISCallPlugin"
+ * description="Description for TISCallPlugin" local-jndi-name = "amalto/local/transformer/plugin/callJob"
+ * type="Stateless" view-type="local"
+ * local-business-interface="com.amalto.core.objects.transformers.v2.util.TransformerPluginV2LocalInterface"
+ * 
  * @ejb.remote-facade
- *
- * @ejb.permission
- * 	view-type = "remote"
- * 	role-name = "administration"
- * @ejb.permission
- * 	view-type = "local"
- * 	unchecked = "true"
- *
- *
- *
+ * 
+ * @ejb.permission view-type = "remote" role-name = "administration"
+ * @ejb.permission view-type = "local" unchecked = "true"
+ * 
+ * 
+ * 
  */
 public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean implements SessionBean {
 
@@ -105,6 +97,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getJNDIName() throws XtentisException {
         return JNDI_NAME;
     }
@@ -114,6 +107,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getDescription(String twoLetterLanguageCode) throws XtentisException {
         if ("fr".matches(twoLetterLanguageCode.toLowerCase())) {
             return "Execute un call de TIS un texte et retourne le résultat";
@@ -121,16 +115,17 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
         return "Executes a TIS Job on a text and returns the result";
     }
 
-
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-    public ArrayList<TransformerPluginVariableDescriptor> getInputVariableDescriptors(String twoLettersLanguageCode) throws XtentisException {
+    @Override
+    public ArrayList<TransformerPluginVariableDescriptor> getInputVariableDescriptors(String twoLettersLanguageCode)
+            throws XtentisException {
         ArrayList<TransformerPluginVariableDescriptor> inputDescriptors = new ArrayList<TransformerPluginVariableDescriptor>();
 
-        //The csv_line descriptor
+        // The csv_line descriptor
         TransformerPluginVariableDescriptor descriptor1 = new TransformerPluginVariableDescriptor();
         descriptor1.setVariableName(INPUT_TEXT);
         descriptor1.setContentTypesRegex(Arrays.asList(Pattern.compile("text.*")));
@@ -138,22 +133,23 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
         descriptions1.put("en", "The text to run the TISCall on");
         descriptor1.setDescriptions(descriptions1);
         descriptor1.setMandatory(false);
-        descriptor1.setPossibleValuesRegex(Collections.<Pattern>emptyList());
+        descriptor1.setPossibleValuesRegex(Collections.<Pattern> emptyList());
         inputDescriptors.add(descriptor1);
 
         return inputDescriptors;
     }
-
 
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-    public ArrayList<TransformerPluginVariableDescriptor> getOutputVariableDescriptors(String twoLettersLanguageCode) throws XtentisException {
+    @Override
+    public ArrayList<TransformerPluginVariableDescriptor> getOutputVariableDescriptors(String twoLettersLanguageCode)
+            throws XtentisException {
         ArrayList<TransformerPluginVariableDescriptor> outputDescriptors = new ArrayList<TransformerPluginVariableDescriptor>();
 
-        //The csv_line descriptor
+        // The csv_line descriptor
         TransformerPluginVariableDescriptor descriptor = new TransformerPluginVariableDescriptor();
         descriptor.setVariableName(OUTPUT_TEXT);
         descriptor.setContentTypesRegex(Arrays.asList(Pattern.compile("text/xml")));
@@ -161,18 +157,18 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
         descriptions.put("en", "The result of the TIS call");
         descriptor.setDescriptions(descriptions);
         descriptor.setMandatory(true);
-        descriptor.setPossibleValuesRegex(Collections.<Pattern>emptyList());
+        descriptor.setPossibleValuesRegex(Collections.<Pattern> emptyList());
         outputDescriptors.add(descriptor);
 
         return outputDescriptors;
     }
-
 
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public void init(TransformerPluginContext context, String parameters) throws XtentisException {
         try {
             if (!configurationLoaded) {
@@ -181,7 +177,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
 
             compiledParameters = CompiledParameters.deserialize(parameters);
 
-            //set the parameters
+            // set the parameters
             JobInvokeConfig jobInvokeConfig;
             URI uri = URI.create(compiledParameters.getUrl());
             String protocol = uri.getScheme();
@@ -237,17 +233,18 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
 
     }
 
-
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public void execute(TransformerPluginContext context) throws XtentisException {
         String contentType = (String) context.get(CONTENT_TYPE);
         JobInvokeConfig invokeConfig = (JobInvokeConfig) context.get(INVOKE_CONFIG);
         try {
-            //the text should be a map(key=value)
+            String charset = org.apache.commons.lang.CharEncoding.UTF_8;
+            // the text should be a map(key=value)
             Properties p = new Properties();
             if (compiledParameters.getTisContext() != null) {
                 for (ContextParam kv : compiledParameters.getTisContext()) {
@@ -257,10 +254,13 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                         TypedContent textTC = getGlobalContext().getFromPipeline(kv.getValue());
 
                         if (textTC == null) {
-                            throw new XtentisException("The variable '" + kv.getName() + "' was not found in the plug-in inputs. It is either not specified or it may be misspelled.");
+                            throw new XtentisException(
+                                    "The variable '"
+                                            + kv.getName()
+                                            + "' was not found in the plug-in inputs. It is either not specified or it may be misspelled.");
                         }
 
-                        String charset = Util.extractCharset(textTC.getContentType());
+                        charset = Util.extractCharset(textTC.getContentType());
                         if (textTC != null) {
                             value = new String(textTC.getContentBytes(), charset);
                         } else {
@@ -282,7 +282,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                 argsMap.put(key, value);
             }
 
-            //parse concept parameters
+            // parse concept parameters
             ConceptMappingParam conceptMappingParam = compiledParameters.getConceptMappingParam();
             boolean hasConcept = false;
             String conceptName = "";
@@ -298,12 +298,15 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                     fieldsObject = new JSONObject(conceptMappingParam.getFields());
                 }
             }
-            //Build call parameters
+            // Build call parameters
             List<ArrayOfXsdString> list = new ArrayList<ArrayOfXsdString>();
 
             if (invokeConfig != null) { // Local test job invocation
-                argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, new String(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE).getContentBytes()));
-                String[][] result = JobContainer.getUniqueInstance().getJobInvoker(invokeConfig.getJobName(), invokeConfig.getJobVersion()).call(argsMap);
+
+                argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER,
+                        new String(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE).getContentBytes(), charset));
+                String[][] result = JobContainer.getUniqueInstance()
+                        .getJobInvoker(invokeConfig.getJobName(), invokeConfig.getJobVersion()).call(argsMap);
 
                 for (String[] currentResult : result) {
                     ArrayOfXsdString arrayOfXsdString = new ArrayOfXsdString();
@@ -318,7 +321,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                 WSxml port = (WSxml) context.get(PORT);
                 list = port.runJob(args).getItem();
             }
-            //FIXME use a better way ?
+            // FIXME use a better way ?
             StringBuilder sb = new StringBuilder();
             if (list.size() > 0) {
                 sb = sb.append("<results>\n");
@@ -331,16 +334,17 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                         sb = sb.append("<item>\n");
                     }
                     for (int j = 0; j < results.size(); j++) {
-                        String str = results.get(j);                       
+                        String str = results.get(j);
                         if (str != null) {
-                            //remove xml header
-                            str=str.replaceFirst("<\\?xml .*\\?>", "");
+                            // remove xml header
+                            str = str.replaceFirst("<\\?xml .*\\?>", "");
                             if (hasFields) {
                                 if (fieldsObject.has("p" + j)) {
                                     String columnName = (String) fieldsObject.get("p" + j);
-                                    sb = sb.append("<").append(columnName).append(">").append(str).append("</").append(columnName).append(">" + "\n");
+                                    sb = sb.append("<").append(columnName).append(">").append(str).append("</")
+                                            .append(columnName).append(">" + "\n");
                                 } else {
-                                    //do nothing
+                                    // do nothing
                                 }
                             } else {
                                 sb = sb.append("<attr>").append(str).append("</attr>" + "\n");
@@ -359,17 +363,14 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
             }
             String result = sb.toString();
             LOGGER.debug("execute() TIS CALL  result \n" + result);
-            //save result to context
+            // save result to context
             if (result != null) {
-                context.put(OUTPUT_TEXT, new TypedContent(
-                        result.getBytes("utf-8"),
-                        contentType
-                ));
+                context.put(OUTPUT_TEXT, new TypedContent(result.getBytes("utf-8"), contentType));
             } else {
                 context.put(OUTPUT_TEXT, null);
             }
 
-            //call the callback content is ready
+            // call the callback content is ready
             context.getPluginCallBack().contentIsReady(context);
 
         } catch (XtentisException xe) {
@@ -386,111 +387,71 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
         }
     }
 
-
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public void end(TransformerPluginContext context) throws XtentisException {
         context.removeAll();
     }
 
-
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getParametersSchema() throws XtentisException {
         return null;
     }
 
-
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getDocumentation(String twoLettersLanguageCode) throws XtentisException {
-        return
-                "The TIS Call plugin executes a Web Service call to TIS on a text\n" +
-                        "\n" +
-                        "\n" +
-                        "Parameters\n" +
-                        "	url [mandatory]: the webservice port URL to the TIS Server" + "\n" +
-                        "		or the local talend job URL: ltj://<jobName>/<jobVersion>/[jobMainClass]" + "\n" +
-                        "	contextParam   : the contextParam of the tis job" + "\n" +
-                        "		name: the name of the context param" + "\n" +
-                        "		value: the value of context param, the value will be viewed as a pipeline" + "\n" +
-                        "                   variable if the value is embraced with a brace, " + "\n" +
-                        "		isPipelineVariableName [optional]: true to set contextParam value as one " + "\n" +
-                        "                                            pipelinevariableName , this parameter will be " + "\n" +
-                        "                                            ignored if value is embraced with brace" + "\n" +
-                        "	username [optional]: the username to use for the call" + "\n" +
-                        "	password [optional]: the password to  use for the call" + "\n" +
-                        "	contentType [optional]: the contentType of the returned data. Defaults to 'text/xml'" + "\n" +
-                        "	conceptMapping [optional]: Directly map the result of a TIS call to a MDM Entity" + "\n" +
-                        "		concept: the name of the concept" + "\n" +
-                        "		fields: mapping rule with json format" + "\n" +
-                        "\n" +
-                        "\n" +
-                        "Example1" + "\n" +
-                        "	<configuration>" + "\n" +
-                        "		<url>http://server:port/TISService/TISPort</url>" + "\n" +
-                        "		<contextParam>" + "\n" +
-                        "			<name>firstname</name>" + "\n" +
-                        "			<value>jack</value>" + "\n" +
-                        "		</contextParam>" + "\n" +
-                        "		<contextParam>" + "\n" +
-                        "			<name>lastname</name>" + "\n" +
-                        "			<value>jones</value>" + "\n" +
-                        "		</contextParam>" + "\n" +
-                        "		<contextParam>" + "\n" +
-                        "			<name>company</name>" + "\n" +
-                        "			<value>{pipelineVariableName}</value>" + "\n" +
-                        "		</contextParam>" + "\n" +
-                        "		<username>john</username>" + "\n" +
-                        "		<password>doe</password>" + "\n" +
-                        "		<conceptMapping>" + "\n" +
-                        "			<concept>User</concept>" + "\n" +
-                        "			<fields>" + "\n" +
-                        "			  {" + "\n" +
-                        "			  p1:firstname," + "\n" +
-                        "			  p2:lastname" + "\n" +
-                        "			  }" + "\n" +
-                        "			</fields>" + "\n" +
-                        "		</conceptMapping>" + "\n" +
-                        "	</configuration>" + "\n" +
-                        "\n" +
-                        "Example2" + "\n" +
-                        "	<configuration>" + "\n" +
-                        "		<url>ltj://tiscall_multi_return/0.1</url>" + "\n" +
-                        "		<contextParam>" + "\n" +
-                        "			<name>nb_line</name>" + "\n" +
-                        "			<value>5</value>" + "\n" +
-                        "		</contextParam>" + "\n" +
-                        "	</configuration>" + "\n" +
-                        "\n";
+        return "The TIS Call plugin executes a Web Service call to TIS on a text\n" + "\n" + "\n" + "Parameters\n"
+                + "	url [mandatory]: the webservice port URL to the TIS Server" + "\n"
+                + "		or the local talend job URL: ltj://<jobName>/<jobVersion>/[jobMainClass]" + "\n"
+                + "	contextParam   : the contextParam of the tis job" + "\n" + "		name: the name of the context param" + "\n"
+                + "		value: the value of context param, the value will be viewed as a pipeline" + "\n"
+                + "                   variable if the value is embraced with a brace, " + "\n"
+                + "		isPipelineVariableName [optional]: true to set contextParam value as one " + "\n"
+                + "                                            pipelinevariableName , this parameter will be " + "\n"
+                + "                                            ignored if value is embraced with brace" + "\n"
+                + "	username [optional]: the username to use for the call" + "\n"
+                + "	password [optional]: the password to  use for the call" + "\n"
+                + "	contentType [optional]: the contentType of the returned data. Defaults to 'text/xml'" + "\n"
+                + "	conceptMapping [optional]: Directly map the result of a TIS call to a MDM Entity" + "\n"
+                + "		concept: the name of the concept" + "\n" + "		fields: mapping rule with json format" + "\n" + "\n" + "\n"
+                + "Example1" + "\n" + "	<configuration>" + "\n" + "		<url>http://server:port/TISService/TISPort</url>" + "\n"
+                + "		<contextParam>" + "\n" + "			<name>firstname</name>" + "\n" + "			<value>jack</value>" + "\n"
+                + "		</contextParam>" + "\n" + "		<contextParam>" + "\n" + "			<name>lastname</name>" + "\n"
+                + "			<value>jones</value>" + "\n" + "		</contextParam>" + "\n" + "		<contextParam>" + "\n"
+                + "			<name>company</name>" + "\n" + "			<value>{pipelineVariableName}</value>" + "\n" + "		</contextParam>"
+                + "\n" + "		<username>john</username>" + "\n" + "		<password>doe</password>" + "\n" + "		<conceptMapping>" + "\n"
+                + "			<concept>User</concept>" + "\n" + "			<fields>" + "\n" + "			  {" + "\n" + "			  p1:firstname," + "\n"
+                + "			  p2:lastname" + "\n" + "			  }" + "\n" + "			</fields>" + "\n" + "		</conceptMapping>" + "\n"
+                + "	</configuration>" + "\n" + "\n" + "Example2" + "\n" + "	<configuration>" + "\n"
+                + "		<url>ltj://tiscall_multi_return/0.1</url>" + "\n" + "		<contextParam>" + "\n" + "			<name>nb_line</name>"
+                + "\n" + "			<value>5</value>" + "\n" + "		</contextParam>" + "\n" + "	</configuration>" + "\n" + "\n";
     }
-
 
     private String getDefaultConfiguration() {
-        return
-                "<configuration>" +
-                        "	<url>http://server:port/TISService/TISPort</url>" +
-                        "	<username></username>" +
-                        "	<password></password>" +
-                        "	<contentType>text/xml</contentType>" +
-                        "</configuration>";
+        return "<configuration>" + "	<url>http://server:port/TISService/TISPort</url>" + "	<username></username>"
+                + "	<password></password>" + "	<contentType>text/xml</contentType>" + "</configuration>";
     }
-
 
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String getConfiguration(String optionalParameters) throws XtentisException {
         try {
             String configuration = loadConfiguration();
@@ -502,36 +463,36 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to deserialize the configuration of the TISCall Transformer Plugin"
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to deserialize the configuration of the TISCall Transformer Plugin" + ": "
+                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
     }
 
-
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public void putConfiguration(String configuration) throws XtentisException {
         configurationLoaded = false;
         super.putConfiguration(configuration);
     }
 
-
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
+    @Override
     public String compileParameters(String parameters) throws XtentisException {
         try {
             CompiledParameters compiled = new CompiledParameters();
             Element params = Util.parse(parameters).getDocumentElement();
 
-            //TISCall - mandatory
+            // TISCall - mandatory
             String url = Util.getFirstTextNode(params, "url");
             if (url == null) {
                 String err = "The url parameter of the TIS Call Transformer Plugin cannot be empty";
@@ -549,8 +510,9 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                 String paramName = Util.getFirstTextNode(paramList.item(i), "name");
                 String paramValue = Util.getFirstTextNode(paramList.item(i), "value");
                 String isPipelineVariableName = Util.getFirstTextNode(paramList.item(i), "isPipelineVariableName");
-                if (paramValue == null)
+                if (paramValue == null) {
                     paramValue = "";
+                }
 
                 if (paramName != null) {
                     boolean isPipeline = false;
@@ -567,20 +529,22 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
                 }
             }
             compiled.setTisContext(paramsList);
-            //content Type - defaults to "text/plain; charset=utf-8"
+            // content Type - defaults to "text/plain; charset=utf-8"
             String contentType = Util.getFirstTextNode(params, "contentType");
-            if (contentType == null) contentType = "text/xml; charset=utf-8";
+            if (contentType == null) {
+                contentType = "text/xml; charset=utf-8";
+            }
             compiled.setContentType(contentType);
 
-            //username - defaults to null
+            // username - defaults to null
             String username = Util.getFirstTextNode(params, "username");
             compiled.setUsername(username);
 
-            //password - defaults to null
+            // password - defaults to null
             String password = Util.getFirstTextNode(params, "password");
             compiled.setPassword(password);
 
-            //conceptMapping
+            // conceptMapping
             NodeList conceptMappingList = Util.getNodeList(parametersDoc.getDocumentElement(), "//conceptMapping");
             if (conceptMappingList != null && conceptMappingList.getLength() > 0) {
                 Node conceptMapping = conceptMappingList.item(0);
@@ -602,12 +566,11 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to serialize the configuration of the TISCall Transformer Plugin"
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to serialize the configuration of the TISCall Transformer Plugin" + ": "
+                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
     }
-
 
 }
