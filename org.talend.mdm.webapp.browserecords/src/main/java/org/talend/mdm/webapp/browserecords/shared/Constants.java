@@ -17,5 +17,11 @@ public class Constants {
     
     public static final String XSI_PREFIX = "xsi"; //$NON-NLS-1$
 
-    public static final String EMPTY = "Empty"; //$NON-NLS-1$
+    public static final String BOOLEAN_TRUE_VALUE = "true"; //$NON-NLS-1$
+
+    public static final String BOOLEAN_FALSE_VALUE = "false"; //$NON-NLS-1$
+
+    public static final String BOOLEAN_TRUE_DISPLAY_VALUE = "TRUE"; //$NON-NLS-1$
+
+    public static final String BOOLEAN_FALSE_DISPLAY_VALUE = "FALSE"; //$NON-NLS-1$
 }

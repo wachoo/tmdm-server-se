@@ -28,11 +28,11 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.Da
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.FKConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.MultiLanguageConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.NumberConverter;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreateContext;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldStyle;
-import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 import com.extjs.gxt.ui.client.binding.FieldBinding;
 import com.extjs.gxt.ui.client.binding.FormBinding;
@@ -67,6 +67,7 @@ public class FieldCreator {
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
+            comboBox.setTemplate(TreeDetailGridFieldCreator.getTemplate());
             setEnumerationValues(dataType, comboBox);
             field = comboBox;
         } else {
@@ -125,7 +126,7 @@ public class FieldCreator {
                 field.getStore().add(new SimpleComboValue<String>() {
 
                     {
-                        this.set("text", Constants.EMPTY); //$NON-NLS-1$
+                        this.set("text", ""); //$NON-NLS-1$ //$NON-NLS-2$
                         this.setValue(""); //$NON-NLS-1$
                     }
                 });
