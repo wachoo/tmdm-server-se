@@ -48,7 +48,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCrea
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldStyle;
-import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
 import com.extjs.gxt.ui.client.Style.HideMode;
@@ -108,6 +107,7 @@ public class TreeDetailGridFieldCreator {
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
+            comboBox.setTemplate(getTemplate());
             setEnumerationValues(dataType, comboBox, node.isMandatory());
             if (hasValue && value != null && !value.toString().isEmpty()) {
                 comboBox.setSimpleValue(value.toString());
@@ -338,7 +338,7 @@ public class TreeDetailGridFieldCreator {
             }
 
             private native void _setEl(El elem)/*-{
-        this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+		this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
     }-*/;
         };
         errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -352,22 +352,22 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static native void _setErrorIcon(Field<?> field, WidgetComponent errorIcon)/*-{
-        field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
+		field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
     }-*/;
 
     private static native WidgetComponent _getErrorIcon(Field<?> field)/*-{
-        return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
+		return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
     }-*/;
 
-    private static native String getTemplate() /*-{
-        return [
-            '<tpl for=".">',
-            '<tpl if="text == \'\'">',
-            '<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
-            '</tpl>',
-            '<tpl if="text != \'\'">',
-            '<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
-            '</tpl>', '</tpl>' ].join("");
+    public static native String getTemplate() /*-{
+		return [
+				'<tpl for=".">',
+				'<tpl if="text == \'\'">',
+				'<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
+				'</tpl>',
+				'<tpl if="text != \'\'">',
+				'<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
+				'</tpl>', '</tpl>' ].join("");
     }-*/;
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
@@ -390,8 +390,8 @@ public class TreeDetailGridFieldCreator {
                 field.getStore().add(new SimpleComboValue<String>() {
 
                     {
-                        this.set("text", Constants.EMPTY);
-                        this.setValue("");
+                        this.set("text", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                        this.setValue(""); //$NON-NLS-1$
                     }
                 });
             }
@@ -399,7 +399,7 @@ public class TreeDetailGridFieldCreator {
                 field.getStore().add(new SimpleComboValue<String>() {
 
                     {
-                        this.set("text", value);
+                        this.set("text", value); //$NON-NLS-1$
                         this.setValue(value);
                     }
                 });
