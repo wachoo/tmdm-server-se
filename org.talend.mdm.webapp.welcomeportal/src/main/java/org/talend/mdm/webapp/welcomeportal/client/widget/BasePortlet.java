@@ -147,6 +147,7 @@ public abstract class BasePortlet extends Portlet {
             @Override
             public void run() {
                 if (isAuto) {
+                    //Info.display("Portlet: " + portletName, "Refreshing started by timer...");
                     refresh();
                     schedule(interval);
                 } else {

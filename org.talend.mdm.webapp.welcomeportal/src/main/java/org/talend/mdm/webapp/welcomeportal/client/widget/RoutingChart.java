@@ -22,9 +22,6 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -48,28 +45,8 @@ public class RoutingChart extends ChartPortlet {
 
     private static String ROUTING_STATUS_COMPLETED = "completed"; //$NON-NLS-1$
 
-    private Map<String, Map<String, Integer>> routingData;
-
     public RoutingChart(Portal portal) {
         super(WelcomePortal.CHART_ROUTING_EVENT, portal);
-
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        StatisticsRestServiceHandler.getInstance().getRoutingEventStats(
-                                new SessionAwareAsyncCallback<JSONArray>() {
-
-                                    @Override
-                                    public void onSuccess(JSONArray jsonArray) {
-                                        parseJSONData(jsonArray);
-                                        refreshPlot();
-                                    }
-                                });
-
-                    }
-
-                }));
 
         initChart();
     }
@@ -80,8 +57,8 @@ public class RoutingChart extends ChartPortlet {
 
             @Override
             public void onSuccess(JSONArray jsonArray) {
-                parseJSONData(jsonArray);
-                refreshPlot();
+                Map<String, Object> newData = parseJSONData(jsonArray);
+                doRefreshWith(newData);
             }
         });
 
@@ -92,7 +69,7 @@ public class RoutingChart extends ChartPortlet {
 
             @Override
             public void onSuccess(JSONArray jsonArray) {
-                parseJSONData(jsonArray);
+                chartData = parseJSONData(jsonArray);
                 initAndShow();
             }
         });
@@ -103,7 +80,7 @@ public class RoutingChart extends ChartPortlet {
         super.initPlot();
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> appNames = routingData.keySet();
+        Set<String> appNames = chartData.keySet();
         List<String> appnamesSorted = sort(appNames);
 
         plotOptions
@@ -128,8 +105,9 @@ public class RoutingChart extends ChartPortlet {
 
         // add data
         for (String appName : appnamesSorted) {
-            seriesCompleted.add(DataPoint.of(appName, routingData.get(appName).get(ROUTING_STATUS_COMPLETED)));
-            seriesFailed.add(DataPoint.of(appName, routingData.get(appName).get(ROUTING_STATUS_FAILED)));
+            seriesCompleted.add(DataPoint.of(appName,
+                    ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
+            seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
         }
     }
 
@@ -137,7 +115,7 @@ public class RoutingChart extends ChartPortlet {
     protected void updatePlot() {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> appNames = routingData.keySet();
+        Set<String> appNames = chartData.keySet();
         List<String> appnamesSorted = sort(appNames);
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
@@ -151,15 +129,17 @@ public class RoutingChart extends ChartPortlet {
         seriesCompleted.clear();
         seriesFailed.clear();
         for (String appName : appnamesSorted) {
-            seriesCompleted.add(DataPoint.of(appName, routingData.get(appName).get(ROUTING_STATUS_COMPLETED)));
-            seriesFailed.add(DataPoint.of(appName, routingData.get(appName).get(ROUTING_STATUS_FAILED)));
+            seriesCompleted.add(DataPoint.of(appName,
+                    ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
+            seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
         }
     }
 
-    private void parseJSONData(JSONArray jsonArray) {
+    @Override
+    protected Map<String, Object> parseJSONData(JSONArray jsonArray) {
         assert (jsonArray.size() == 2);
 
-        routingData = new HashMap<String, Map<String, Integer>>();
+        Map<String, Object> routingDataNew = new HashMap<String, Object>();
 
         JSONObject failedJSONObj;
         JSONObject completedJSONObj;
@@ -199,8 +179,31 @@ public class RoutingChart extends ChartPortlet {
             status = new HashMap<String, Integer>(2);
             status.put(ROUTING_STATUS_FAILED, !failureMap.containsKey(appName) ? 0 : failureMap.get(appName));
             status.put(ROUTING_STATUS_COMPLETED, !completesMap.containsKey(appName) ? 0 : completesMap.get(appName));
-            routingData.put(appName, status);
+            routingDataNew.put(appName, status);
         }
+
+        return routingDataNew;
+    }
+
+    @Override
+    protected boolean isDifferentFrom(Map<String, Object> newData) {
+        if (chartData.size() != newData.size()) {
+            return true;
+        } else {
+            Map<String, Integer> status;
+            Map<String, Integer> statusNew;
+            for (String appName : chartData.keySet()) {
+                status = (Map<String, Integer>) chartData.get(appName);
+                statusNew = (Map<String, Integer>) newData.get(appName);
+
+                if (!status.get(ROUTING_STATUS_FAILED).equals(statusNew.get(ROUTING_STATUS_FAILED))
+                        || !status.get(ROUTING_STATUS_COMPLETED).equals(statusNew.get(ROUTING_STATUS_COMPLETED))) {
+                    return true;
+                }
+
+            }
+        }
+        return false;
     }
 
 }

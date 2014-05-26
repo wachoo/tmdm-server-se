@@ -15,11 +15,16 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.googlecode.gflot.client.SimplePlot;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
@@ -33,9 +38,18 @@ public abstract class ChartPortlet extends BasePortlet {
 
     protected SimplePlot plot;
 
+    protected Map<String, Object> chartData;
+
     public ChartPortlet(String name, Portal portal) {
         super(name, portal);
         initAutoRefresher();
+        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
+
+                    @Override
+                    public void componentSelected(IconButtonEvent ce) {
+                        refresh();
+                    }
+                }));
     }
 
     protected void initPlot() {
@@ -59,6 +73,13 @@ public abstract class ChartPortlet extends BasePortlet {
         this.autoRefresh(autoRefreshBtn.isOn());
     }
 
+    protected void doRefreshWith(Map<String, Object> newData) {
+        if (isDifferentFrom(newData)) {
+            chartData = newData;
+            refreshPlot();
+        }
+    }
+
     protected List<String> sort(Set<String> names) {
         List<String> appnamesSorted = new ArrayList<String>(names);
         Collections.sort(appnamesSorted);
@@ -71,5 +92,9 @@ public abstract class ChartPortlet extends BasePortlet {
         this.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
     }
 
+    abstract Map<String, Object> parseJSONData(JSONArray jsonArray);
+
     abstract protected void updatePlot();
+
+    abstract protected boolean isDifferentFrom(Map<String, Object> newData);
 }

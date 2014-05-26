@@ -48,6 +48,8 @@ public class ProcessPortlet extends BasePortlet {
 
                 }));
 
+        label.setText(MessagesFactory.getMessages().process_desc());
+
         initLinks();
     }
 
@@ -57,8 +59,6 @@ public class ProcessPortlet extends BasePortlet {
     }
 
     private void initLinks() {
-
-        label.setText(MessagesFactory.getMessages().process_desc());
 
         set.removeAll();
 

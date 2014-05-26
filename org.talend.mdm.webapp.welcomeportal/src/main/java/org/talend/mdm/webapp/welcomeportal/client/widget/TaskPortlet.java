@@ -52,6 +52,8 @@ public class TaskPortlet extends BasePortlet {
 
                 }));
 
+        label.setText(MessagesFactory.getMessages().loading_task_msg());
+
         initLinks();
     }
 
@@ -61,8 +63,6 @@ public class TaskPortlet extends BasePortlet {
     }
 
     private void initLinks() {
-
-        label.setText(MessagesFactory.getMessages().loading_task_msg());
 
         set.removeAll();
 

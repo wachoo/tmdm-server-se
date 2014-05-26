@@ -21,9 +21,6 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -43,34 +40,8 @@ import com.googlecode.gflot.client.options.PlotOptions;
 
 public class MatchingChart extends ChartPortlet {
 
-    private Map<String, Integer> matchingData;
-
     public MatchingChart(Portal portal) {
         super(WelcomePortal.CHART_MATCHING, portal);
-
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
-
-                            @Override
-                            public void onSuccess(String dataContainer) {
-
-                                StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer,
-                                        new SessionAwareAsyncCallback<JSONArray>() {
-
-                                            @Override
-                                            public void onSuccess(JSONArray jsonArray) {
-                                                parseJSONData(jsonArray);
-                                                refreshPlot();
-                                            }
-                                        });
-                            }
-                        });
-                    }
-
-                }));
 
         initChart();
     }
@@ -87,7 +58,7 @@ public class MatchingChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                parseJSONData(jsonArray);
+                                chartData = parseJSONData(jsonArray);
                                 initAndShow();
                             }
                         });
@@ -107,8 +78,8 @@ public class MatchingChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                parseJSONData(jsonArray);
-                                refreshPlot();
+                                Map<String, Object> newData = parseJSONData(jsonArray);
+                                doRefreshWith(newData);
                             }
                         });
             }
@@ -120,7 +91,7 @@ public class MatchingChart extends ChartPortlet {
         super.initPlot();
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> entityNames = matchingData.keySet();
+        Set<String> entityNames = chartData.keySet();
         List<String> entityNamesSorted = sort(entityNames);
 
         plotOptions
@@ -143,7 +114,7 @@ public class MatchingChart extends ChartPortlet {
 
         // add data
         for (String entityName : entityNamesSorted) {
-            seriesMatched.add(DataPoint.of(entityName, matchingData.get(entityName)));
+            seriesMatched.add(DataPoint.of(entityName, (Integer) chartData.get(entityName)));
         }
     }
 
@@ -151,7 +122,7 @@ public class MatchingChart extends ChartPortlet {
     protected void updatePlot() {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> entityNames = matchingData.keySet();
+        Set<String> entityNames = chartData.keySet();
         List<String> entityNamesSorted = sort(entityNames);
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
@@ -163,18 +134,35 @@ public class MatchingChart extends ChartPortlet {
 
         seriesMatched.clear();
         for (String entityName : entityNamesSorted) {
-            seriesMatched.add(DataPoint.of(entityName, matchingData.get(entityName)));
+            seriesMatched.add(DataPoint.of(entityName, (Integer) chartData.get(entityName)));
         }
     }
 
-    private void parseJSONData(JSONArray jsonArray) {
-        matchingData = new HashMap<String, Integer>(jsonArray.size());
+    @Override
+    protected Map<String, Object> parseJSONData(JSONArray jsonArray) {
+        Map<String, Object> matchingDataNew = new HashMap<String, Object>(jsonArray.size());
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonObject = jsonArray.get(i).isObject();
             String name = jsonObject.keySet().iterator().next();
             int value = new Double(jsonObject.get(name).isNumber().doubleValue()).intValue();
-            matchingData.put(name, value);
+            matchingDataNew.put(name, value);
         }
+
+        return matchingDataNew;
+    }
+
+    @Override
+    protected boolean isDifferentFrom(Map<String, Object> newData) {
+        if (chartData.size() != newData.size()) {
+            return true;
+        } else {
+            for (String entityName : chartData.keySet()) {
+                if (!chartData.get(entityName).equals(newData.get(entityName))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

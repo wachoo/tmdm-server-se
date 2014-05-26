@@ -22,9 +22,6 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -48,37 +45,9 @@ public class JournalChart extends ChartPortlet {
 
     private static String JOURNAL_ACTION_UPDATE = "update"; //$NON-NLS-1$
 
-    private Map<String, Map<String, Integer>> journalData;
-
     public JournalChart(Portal portal) {
 
         super(WelcomePortal.CHART_JOURNAL, portal);
-
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-
-                        service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
-
-                            @Override
-                            public void onSuccess(String dataContainer) {
-
-                                StatisticsRestServiceHandler.getInstance().getContainerJournalStats(dataContainer,
-                                        new SessionAwareAsyncCallback<JSONArray>() {
-
-                                            @Override
-                                            public void onSuccess(JSONArray jsonArray) {
-                                                parseJSONData(jsonArray);
-                                                refreshPlot();
-                                            }
-                                        });
-                            }
-                        });
-
-                    }
-
-                }));
 
         initChart();
     }
@@ -96,8 +65,8 @@ public class JournalChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                parseJSONData(jsonArray);
-                                refreshPlot();
+                                Map<String, Object> newData = parseJSONData(jsonArray);
+                                doRefreshWith(newData);
                             }
                         });
             }
@@ -117,7 +86,7 @@ public class JournalChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                parseJSONData(jsonArray);
+                                chartData = parseJSONData(jsonArray);
                                 initAndShow();
                             }
                         });
@@ -130,7 +99,7 @@ public class JournalChart extends ChartPortlet {
         super.initPlot();
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> entityNames = journalData.keySet();
+        Set<String> entityNames = chartData.keySet();
         List<String> entityNamesSorted = sort(entityNames);
 
         plotOptions
@@ -155,8 +124,10 @@ public class JournalChart extends ChartPortlet {
 
         // add data
         for (String entityName : entityNamesSorted) {
-            seriesCreation.add(DataPoint.of(entityName, journalData.get(entityName).get(JOURNAL_ACTION_CREATE)));
-            seriesUpdate.add(DataPoint.of(entityName, journalData.get(entityName).get(JOURNAL_ACTION_UPDATE)));
+            seriesCreation.add(DataPoint.of(entityName,
+                    ((Map<String, Integer>) chartData.get(entityName)).get(JOURNAL_ACTION_CREATE)));
+            seriesUpdate.add(DataPoint.of(entityName,
+                    ((Map<String, Integer>) chartData.get(entityName)).get(JOURNAL_ACTION_UPDATE)));
         }
     }
 
@@ -164,7 +135,7 @@ public class JournalChart extends ChartPortlet {
     protected void updatePlot() {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> entityNames = journalData.keySet();
+        Set<String> entityNames = chartData.keySet();
         List<String> entityNamesSorted = sort(entityNames);
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
@@ -178,12 +149,13 @@ public class JournalChart extends ChartPortlet {
         seriesCreation.clear();
         seriesUpdate.clear();
         for (String appName : entityNamesSorted) {
-            seriesCreation.add(DataPoint.of(appName, journalData.get(appName).get(JOURNAL_ACTION_CREATE)));
-            seriesUpdate.add(DataPoint.of(appName, journalData.get(appName).get(JOURNAL_ACTION_UPDATE)));
+            seriesCreation.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(JOURNAL_ACTION_CREATE)));
+            seriesUpdate.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(JOURNAL_ACTION_UPDATE)));
         }
     }
 
-    private void parseJSONData(JSONArray jsonArray) {
+    @Override
+    protected Map<String, Object> parseJSONData(JSONArray jsonArray) {
         JSONObject currentJSONObj;
         JSONArray events;
         JSONObject creations;
@@ -191,7 +163,7 @@ public class JournalChart extends ChartPortlet {
 
         int numOfEntities = jsonArray.size();
         List<String> entities = new ArrayList<String>(numOfEntities);
-        journalData = new HashMap<String, Map<String, Integer>>(numOfEntities);
+        Map<String, Object> journalDataNew = new HashMap<String, Object>(numOfEntities);
 
         for (int i = 0; i < numOfEntities; i++) {
             currentJSONObj = (JSONObject) jsonArray.get(i);
@@ -223,7 +195,30 @@ public class JournalChart extends ChartPortlet {
 
             eventMap.put("create", numOfCreates); //$NON-NLS-1$
             eventMap.put("update", numOfUpdates); //$NON-NLS-1$
-            journalData.put(entityName, eventMap);
+            journalDataNew.put(entityName, eventMap);
         }
+
+        return journalDataNew;
+    }
+
+    @Override
+    protected boolean isDifferentFrom(Map<String, Object> newData) {
+        if (chartData.size() != newData.size()) {
+            return true;
+        } else {
+            Map<String, Integer> events;
+            Map<String, Integer> eventsNew;
+            for (String entityName : chartData.keySet()) {
+                events = (Map<String, Integer>) chartData.get(entityName);
+                eventsNew = (Map<String, Integer>) newData.get(entityName);
+
+                if (!events.get(JOURNAL_ACTION_CREATE).equals(eventsNew.get(JOURNAL_ACTION_CREATE))
+                        || !events.get(JOURNAL_ACTION_UPDATE).equals(eventsNew.get(JOURNAL_ACTION_UPDATE))) {
+                    return true;
+                }
+
+            }
+        }
+        return false;
     }
 }

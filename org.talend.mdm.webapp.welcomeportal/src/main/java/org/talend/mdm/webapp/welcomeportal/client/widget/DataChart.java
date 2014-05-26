@@ -21,9 +21,6 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
@@ -46,33 +43,8 @@ public class DataChart extends ChartPortlet {
 
     private boolean dataContainerChanged;
 
-    private Map<String, Integer> entityData;
-
     public DataChart(Portal portal) {
         super(WelcomePortal.CHART_DATA, portal);
-
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        service.getCurrentDataContainer(new SessionAwareAsyncCallback<String>() {
-
-                            @Override
-                            public void onSuccess(String dataContainer) {
-
-                                StatisticsRestServiceHandler.getInstance().getContainerDataStats(dataContainer,
-                                        new SessionAwareAsyncCallback<JSONArray>() {
-
-                                            @Override
-                                            public void onSuccess(JSONArray jsonArray) {
-                                                parseJSONData(jsonArray);
-                                                refreshPlot();
-                                            }
-                                        });
-                            }
-                        });
-                    }
-                }));
 
         initChart();
     }
@@ -92,7 +64,7 @@ public class DataChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                parseJSONData(jsonArray);
+                                chartData = parseJSONData(jsonArray);
                                 initAndShow();
                             }
                         });
@@ -116,8 +88,8 @@ public class DataChart extends ChartPortlet {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
-                                parseJSONData(jsonArray);
-                                refreshPlot();
+                                Map<String, Object> newData = parseJSONData(jsonArray);
+                                doRefreshWith(newData);
                             }
                         });
             }
@@ -131,7 +103,7 @@ public class DataChart extends ChartPortlet {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
         final NumberFormat formatter = NumberFormat.getFormat("0.#"); //$NON-NLS-1$
-        Set<String> entityNames = entityData.keySet();
+        Set<String> entityNames = chartData.keySet();
         List<String> entityNamesSorted = sort(entityNames);
 
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create().setPieSeriesOptions(
@@ -158,7 +130,7 @@ public class DataChart extends ChartPortlet {
         // create series and add data
         for (String entityName : entityNamesSorted) {
             SeriesHandler seriesEntity = model.addSeries(Series.of(entityName));
-            seriesEntity.add(DataPoint.of(entityName, entityData.get(entityName)));
+            seriesEntity.add(DataPoint.of(entityName, (Integer) chartData.get(entityName)));
         }
 
     }
@@ -166,7 +138,7 @@ public class DataChart extends ChartPortlet {
     @Override
     protected void updatePlot() {
         PlotModel model = plot.getModel();
-        Set<String> entityNames = entityData.keySet();
+        Set<String> entityNames = chartData.keySet();
         List<String> entityNamesSorted = sort(entityNames);
 
         if (!dataContainerChanged) {
@@ -187,26 +159,43 @@ public class DataChart extends ChartPortlet {
             }
 
             for (String entityName : entityNamesSorted) {
-                seriesMap.get(entityName).add(DataPoint.of(entityName, entityData.get(entityName)));
+                seriesMap.get(entityName).add(DataPoint.of(entityName, (Integer) chartData.get(entityName)));
             }
         } else {
             // switched to diff dm, them dump and rebuild all Series
             model.removeAllSeries();
             for (String entityName : entityNamesSorted) {
                 SeriesHandler seriesEntity = model.addSeries(Series.of(entityName));
-                seriesEntity.add(DataPoint.of(entityName, entityData.get(entityName)));
+                seriesEntity.add(DataPoint.of(entityName, (Integer) chartData.get(entityName)));
             }
         }
     }
 
-    private void parseJSONData(JSONArray jsonArray) {
-        entityData = new HashMap<String, Integer>(jsonArray.size());
+    @Override
+    protected Map<String, Object> parseJSONData(JSONArray jsonArray) {
+        Map<String, Object> entityDataNew = new HashMap<String, Object>(jsonArray.size());
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonObject = jsonArray.get(i).isObject();
             String name = jsonObject.keySet().iterator().next();
             int value = new Double(jsonObject.get(name).isNumber().doubleValue()).intValue();
-            entityData.put(name, value);
+            entityDataNew.put(name, value);
         }
+
+        return entityDataNew;
+    }
+
+    @Override
+    protected boolean isDifferentFrom(Map<String, Object> newData) {
+        if (chartData.size() != newData.size()) {
+            return true;
+        } else {
+            for (String entityName : chartData.keySet()) {
+                if (!chartData.get(entityName).equals(newData.get(entityName))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
