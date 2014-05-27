@@ -42,6 +42,7 @@ import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.save.SaveException;
+import com.amalto.core.storage.DispatchWrapper;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -263,6 +264,15 @@ public class UtilTestCase extends TestCase {
         assertTrue(Util.isSystemDC(new DataClusterPOJOPK("PROVISIONING")));
         assertTrue(Util.isSystemDC(new DataClusterPOJOPK("MDMDomainObjects")));
         assertFalse(Util.isSystemDC(new DataClusterPOJOPK("Product")));
+    }
+
+    public void testExtractCharset() {
+        String messages[] = { "text/xml; charset  =   'utf-8' ;  ", "text/xml; charset  =   utf-8  ",
+                "text/xml; charset  =  \"utf-8\" ;  ", "text/xml; charset  =   utf-8  ; abc = charset ",
+                "text/xml; charset  =   'utf-8'  ; abc = charset ", "text/xml; charset  =   \"utf-8\"  ; abc = charset " };
+        for (String m : messages) {
+            assertTrue("UTF-8".equals(Util.extractCharset(m, "iso-8891")));
+        }
     }
 
     class SchemaTestAgent extends SchemaManager {
