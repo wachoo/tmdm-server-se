@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.Da
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.FKConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.MultiLanguageConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.NumberConverter;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreateContext;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldSource;
@@ -41,13 +42,13 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.google.gwt.user.client.ui.Widget;
 
 public class FieldCreator {
 
     public static Field<?> createField(SimpleTypeModel dataType, FormBinding formBindings, boolean enableMultiple, String language) {
         Field<?> field;
-
         if (dataType.isMultiOccurrence() && enableMultiple) {
             MultipleField multipleField = new MultipleField(dataType, language);
             field = multipleField;
@@ -59,11 +60,14 @@ public class FieldCreator {
         } else if (dataType.hasEnumeration()) {
             SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
-            if (dataType.getMinOccurs() > 0)
+            comboBox.setDisplayField("text"); //$NON-NLS-1$
+            if (dataType.getMinOccurs() > 0) {
                 comboBox.setAllowBlank(false);
+            }
             comboBox.setEditable(false);
             comboBox.setForceSelection(true);
             comboBox.setTriggerAction(TriggerAction.ALL);
+            comboBox.setTemplate(TreeDetailGridFieldCreator.getTemplate());
             setEnumerationValues(dataType, comboBox);
             field = comboBox;
         } else {
@@ -118,8 +122,23 @@ public class FieldCreator {
         List<String> enumeration = ((SimpleTypeModel) typeModel).getEnumeration();
         if (enumeration != null && enumeration.size() > 0) {
             SimpleComboBox<String> field = (SimpleComboBox<String>) w;
-            for (String value : enumeration) {
-                field.add(value);
+            if (typeModel.getMinOccurs() <= 0) {
+                field.getStore().add(new SimpleComboValue<String>() {
+
+                    {
+                        this.set("text", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                        this.setValue(""); //$NON-NLS-1$
+                    }
+                });
+            }
+            for (final String value : enumeration) {
+                field.getStore().add(new SimpleComboValue<String>() {
+
+                    {
+                        this.set("text", value); //$NON-NLS-1$
+                        this.setValue(value);
+                    }
+                });
             }
         }
     }
