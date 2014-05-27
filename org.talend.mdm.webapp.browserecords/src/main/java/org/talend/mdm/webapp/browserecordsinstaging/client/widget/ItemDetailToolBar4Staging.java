@@ -151,4 +151,9 @@ public class ItemDetailToolBar4Staging extends ItemDetailToolBar {
         }
         add(deleteButton);
     }
+
+    @Override
+    protected boolean isStaging() {
+        return true;
+    }
 }
