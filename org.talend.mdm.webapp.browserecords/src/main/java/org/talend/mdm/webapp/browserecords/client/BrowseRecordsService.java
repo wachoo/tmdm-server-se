@@ -148,4 +148,6 @@ public interface BrowseRecordsService extends RemoteService {
 
     boolean isExistId(String concept, String[] ids, String language) throws ServiceException;
 
+    List<ItemBaseModel> getSuggestInformation(String input) throws ServiceException;
+
 }

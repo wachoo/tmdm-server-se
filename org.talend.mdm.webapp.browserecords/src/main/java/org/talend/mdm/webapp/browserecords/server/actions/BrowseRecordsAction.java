@@ -2440,4 +2440,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 + ((ids != null && !"".equals(ids)) ? "." + ids : ""), localizedMessage); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         return errorMessage;
     }
+
+    @Override
+    public List<ItemBaseModel> getSuggestInformation(String input) throws ServiceException {
+        List<ItemBaseModel> result = new ArrayList<ItemBaseModel>();
+
+        ForeignKeyBean Bean = new ForeignKeyBean();
+        result.add(Bean);
+
+        try {
+            return result;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
 }

@@ -146,4 +146,6 @@ public interface BrowseRecordsServiceAsync {
             AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback);
 
     void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback);
+
+    void getSuggestInformation(String input, AsyncCallback<List<ItemBaseModel>> callback);
 }
