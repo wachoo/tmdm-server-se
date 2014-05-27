@@ -13,30 +13,101 @@ package com.amalto.core.storage.hibernate;
 import static org.hibernate.criterion.Restrictions.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.Distinct;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Type;
-import com.amalto.core.query.user.metadata.*;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.*;
-import org.hibernate.criterion.*;
+import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.PropertyProjection;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
+import org.hibernate.type.IntegerType;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
 import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.BigDecimalConstant;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.BooleanConstant;
+import com.amalto.core.query.user.ByteConstant;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.ComplexTypeExpression;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.ConstantCollection;
+import com.amalto.core.query.user.Count;
+import com.amalto.core.query.user.DateConstant;
+import com.amalto.core.query.user.DateTimeConstant;
+import com.amalto.core.query.user.Distinct;
+import com.amalto.core.query.user.DoubleConstant;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.FieldFullText;
+import com.amalto.core.query.user.FloatConstant;
+import com.amalto.core.query.user.FullText;
+import com.amalto.core.query.user.Id;
+import com.amalto.core.query.user.IndexedField;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.IsEmpty;
+import com.amalto.core.query.user.IsNull;
+import com.amalto.core.query.user.Isa;
+import com.amalto.core.query.user.Join;
+import com.amalto.core.query.user.LongConstant;
+import com.amalto.core.query.user.Max;
+import com.amalto.core.query.user.Min;
+import com.amalto.core.query.user.NotIsEmpty;
+import com.amalto.core.query.user.NotIsNull;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Paging;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Range;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.ShortConstant;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.query.user.Type;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UnaryLogicOperator;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.VisitorAdapter;
+import com.amalto.core.query.user.metadata.GroupSize;
+import com.amalto.core.query.user.metadata.StagingBlockKey;
+import com.amalto.core.query.user.metadata.StagingError;
+import com.amalto.core.query.user.metadata.StagingSource;
+import com.amalto.core.query.user.metadata.StagingStatus;
+import com.amalto.core.query.user.metadata.TaskId;
+import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.record.DataRecord;
-import org.hibernate.type.*;
-import org.talend.mdm.commmon.metadata.*;
 
 class StandardQueryHandler extends AbstractQueryHandler {
 
@@ -64,13 +135,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private String currentAliasName;
 
-    public StandardQueryHandler(Storage storage,
-            MappingRepository mappings,
-            TableResolver resolver,
-            StorageClassLoader storageClassLoader,
-            Session session,
-            Select select,
-            List<TypedExpression> selectedFields,
+    public StandardQueryHandler(Storage storage, MappingRepository mappings, TableResolver resolver,
+            StorageClassLoader storageClassLoader, Session session, Select select, List<TypedExpression> selectedFields,
             Set<ResultsCallback> callbacks) {
         super(storage, storageClassLoader, session, select, selectedFields, callbacks);
         this.mappings = mappings;
@@ -88,6 +154,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         final Iterator listIterator = list.iterator();
         if (isProjection) {
             iterator = new ProjectionIterator(mappings, new CloseableIterator<Object>() {
+
                 @Override
                 public void close() throws IOException {
                 }
@@ -301,10 +368,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(GroupSize groupSize) {
         Projection groupSizeProjection = Projections.sqlGroupProjection("count(X_TALEND_TASK_ID) as talend_group_size", //$NON-NLS-1$
-                Storage.METADATA_TASK_ID,
-                new String[]{"talend_group_size"}, //$NON-NLS-1$
-                new org.hibernate.type.Type[]{new IntegerType()}
-        );
+                Storage.METADATA_TASK_ID, new String[] { "talend_group_size" }, //$NON-NLS-1$
+                new org.hibernate.type.Type[] { new IntegerType() });
         projectionList.add(groupSizeProjection);
         return null;
     }
@@ -332,10 +397,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
                     }
                 } else {
-                    projectionList.add(new ManyFieldProjection(aliases,
-                            simpleField,
-                            resolver,
-                            (RDBMSDataSource) storage.getDataSource()));
+                    projectionList.add(new ManyFieldProjection(aliases, simpleField, resolver, (RDBMSDataSource) storage
+                            .getDataSource()));
                 }
                 return null;
             }
@@ -347,10 +410,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         projectionList.add(Projections.property(alias + '.' + enumField.getName()));
                     }
                 } else {
-                    projectionList.add(new ManyFieldProjection(aliases,
-                            enumField,
-                            resolver,
-                            (RDBMSDataSource) storage.getDataSource()));
+                    projectionList.add(new ManyFieldProjection(aliases, enumField, resolver, (RDBMSDataSource) storage
+                            .getDataSource()));
                 }
                 return null;
             }
@@ -368,12 +429,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     /**
      * <p>
-     * Generate an alias to the <code>field</code> starting from <code>type</code>. This code ensures all paths
-     * to <code>field</code> are covered (this field might be present several times inside the MDM entity
-     * scope).
+     * Generate an alias to the <code>field</code> starting from <code>type</code>. This code ensures all paths to
+     * <code>field</code> are covered (this field might be present several times inside the MDM entity scope).
      * </p>
-     *
-     * @param type          A type in the query.
+     * 
+     * @param type A type in the query.
      * @param field A field to include in current Hibernate criteria.
      * @return A set of aliases that represents the <code>field</code>.
      */
@@ -384,7 +444,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         FieldMetadata fieldMetadata = field.getFieldMetadata();
         String previousAlias = type.getName();
         String alias = null;
-        Set<List<FieldMetadata>> paths ;
+        Set<List<FieldMetadata>> paths;
         if (fieldMetadata instanceof ReferenceFieldMetadata || !fieldMetadata.getContainingType().isInstantiable()) {
             paths = MetadataUtils.paths(type, fieldMetadata);
         } else {
@@ -397,7 +457,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (next instanceof ReferenceFieldMetadata) {
                     aliases = joinFieldsToAlias.get(next);
                     if (aliases == null || newPath) {
-                        alias = createNewAlias(); //$NON-NLS-1$
+                        alias = createNewAlias();
                         if (aliases == null) {
                             aliases = new HashSet<String>(Arrays.asList(alias));
                             joinFieldsToAlias.put(next, aliases);
@@ -541,12 +601,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
             for (String fieldName : condition.criterionFieldNames) {
                 OrderBy.Direction direction = orderBy.getDirection();
                 switch (direction) {
-                    case ASC:
-                        criteria.addOrder(Order.asc(fieldName));
-                        break;
-                    case DESC:
-                        criteria.addOrder(Order.desc(fieldName));
-                        break;
+                case ASC:
+                    criteria.addOrder(Order.asc(fieldName));
+                    break;
+                case DESC:
+                    criteria.addOrder(Order.desc(fieldName));
+                    break;
                 }
             }
         }
@@ -678,8 +738,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 List<FieldMetadata> path = MetadataUtils.path(mainType, fieldCondition.fieldMetadata);
                 if (path.isEmpty()) {
                     throw new IllegalStateException("Expected field '" + fieldCondition.fieldMetadata.getName()
-                            + "' to be reachable from '"
-                            + mainType.getName() + "'.");
+                            + "' to be reachable from '" + mainType.getName() + "'.");
                 }
                 // Generate the joins
                 Set<String> aliases = getAliases(mainType, fieldCondition.field);
@@ -786,7 +845,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         if (current == null) {
                             current = Restrictions.not(Restrictions.eq(criterionFieldName, StringUtils.EMPTY));
                         } else {
-                            current = Restrictions.and(current, Restrictions.not(Restrictions.eq(criterionFieldName, StringUtils.EMPTY)));
+                            current = Restrictions.and(current,
+                                    Restrictions.not(Restrictions.eq(criterionFieldName, StringUtils.EMPTY)));
                         }
                     }
                     return current;
@@ -903,7 +963,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     String sqlConditionBuilder = "("; //$NON-NLS-1$
                     sqlConditionBuilder += "select count(1) from"; //$NON-NLS-1$
                     sqlConditionBuilder += ' ' + mainTableName + ' ';
-                    sqlConditionBuilder += "where " + Storage.METADATA_TASK_ID + " = " + mainTableAlias + "." + Storage.METADATA_TASK_ID; //$NON-NLS-1$  //$NON-NLS-1$
+                    sqlConditionBuilder += "where " + Storage.METADATA_TASK_ID + " = " + mainTableAlias + "." + Storage.METADATA_TASK_ID; //$NON-NLS-1$  
                     sqlConditionBuilder += ')';
                     sqlConditionBuilder += ' ' + comparator + ' ' + value;
                     return Restrictions.sqlRestriction(sqlConditionBuilder);
@@ -951,11 +1011,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             }
                         }
                         if (leftFieldCondition.position >= 0) {
-                            return new ManyFieldCriterion(typeCheckCriteria, resolver, fieldMetadata, condition.getRight().accept(
-                                    VALUE_ADAPTER), leftFieldCondition.position);
+                            return new ManyFieldCriterion(typeCheckCriteria, resolver, fieldMetadata, condition.getRight()
+                                    .accept(VALUE_ADAPTER), leftFieldCondition.position);
                         } else {
-                            return new ManyFieldCriterion(typeCheckCriteria, resolver, fieldMetadata, condition.getRight().accept(
-                                    VALUE_ADAPTER));
+                            return new ManyFieldCriterion(typeCheckCriteria, resolver, fieldMetadata, condition.getRight()
+                                    .accept(VALUE_ADAPTER));
                         }
                     } else {
                         throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
@@ -978,11 +1038,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         Criterion current = null;
                         for (String criterionFieldName : leftFieldCondition.criterionFieldNames) {
                             if (current == null) {
-                                current = or(eq(criterionFieldName, compareValue),
-                                        isNull(criterionFieldName));
+                                current = or(eq(criterionFieldName, compareValue), isNull(criterionFieldName));
                             } else {
-                                current = or(current, or(eq(criterionFieldName, compareValue),
-                                        isNull(criterionFieldName)));
+                                current = or(current, or(eq(criterionFieldName, compareValue), isNull(criterionFieldName)));
                             }
                         }
                         return current;
@@ -1007,7 +1065,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                                 Criterion[] keyValueCriteria = new Criterion[keyValues.length];
                                 int i = 0;
                                 for (FieldMetadata keyField : fields) {
-                                    Object keyValue = MetadataUtils.convert(String.valueOf(keyValues[i]), keyField);
+                                    Object keyValue = MetadataUtils.convert(MetadataUtils.toString(keyValues[i],keyField), keyField);
                                     keyValueCriteria[i] = eq(alias + '.' + keyField.getName(), keyValue);
                                     i++;
                                 }
@@ -1056,7 +1114,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         value = "%"; //$NON-NLS-1$
                     }
                     Object databaseValue = applyDatabaseType(leftFieldCondition, value); // Converts to CLOB if needed
-                    if (datasource.isCaseSensitiveSearch() || !(databaseValue instanceof String)) { // Can't use ilike on CLOBs
+                    if (datasource.isCaseSensitiveSearch() || !(databaseValue instanceof String)) { // Can't use ilike
+                                                                                                    // on CLOBs
                         Criterion current = null;
                         for (String fieldName : leftFieldCondition.criterionFieldNames) {
                             Criterion newCriterion = like(fieldName, databaseValue);
@@ -1153,7 +1212,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             } else { // Since we expect left part to be a field, this 'else' means we're comparing 2 fields
                 if (rightFieldCondition.criterionFieldNames.size() > 1) {
-                    throw new UnsupportedOperationException("Can't compare to multiple right fields (was " + rightFieldCondition.criterionFieldNames.size() + ").");
+                    throw new UnsupportedOperationException("Can't compare to multiple right fields (was "
+                            + rightFieldCondition.criterionFieldNames.size() + ").");
                 }
                 String rightValue = rightFieldCondition.criterionFieldNames.get(0);
                 if (predicate == Predicate.EQUALS) {
@@ -1193,10 +1253,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     // No GTE for properties, do it "manually"
                     Criterion current = null;
                     for (String fieldName : leftFieldCondition.criterionFieldNames) {
-                        Criterion newCriterion = or(
-                                Restrictions.gtProperty(fieldName, rightValue),
-                                Restrictions.eqProperty(fieldName, rightValue)
-                        );
+                        Criterion newCriterion = or(Restrictions.gtProperty(fieldName, rightValue),
+                                Restrictions.eqProperty(fieldName, rightValue));
                         if (current == null) {
                             current = newCriterion;
                         } else {
@@ -1208,10 +1266,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     // No LTE for properties, do it "manually"
                     Criterion current = null;
                     for (String fieldName : leftFieldCondition.criterionFieldNames) {
-                        Criterion newCriterion = or(
-                                Restrictions.ltProperty(fieldName, rightValue),
-                                Restrictions.eqProperty(fieldName, rightValue)
-                        );
+                        Criterion newCriterion = or(Restrictions.ltProperty(fieldName, rightValue),
+                                Restrictions.eqProperty(fieldName, rightValue));
                         if (current == null) {
                             current = newCriterion;
                         } else {
