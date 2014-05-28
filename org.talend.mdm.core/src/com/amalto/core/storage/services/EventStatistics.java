@@ -50,7 +50,7 @@ public class EventStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
 
-    private final ParameterURLReader handler = new ParameterURLReader();
+    // private final ParameterURLReader handler = new ParameterURLReader();
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -102,18 +102,33 @@ public class EventStatistics {
                 StorageResults routingNameResults = system.fetch(routingNames);
                 try {
                     XMLReader reader = XMLReaderFactory.createXMLReader();
-                    reader.setContentHandler(handler);
+                    ParameterReader handler = null;
                     for (DataRecord routingNameResult : routingNameResults) {
                         // Get the URL called by event
                         String parameter = String.valueOf(routingNameResult.get(parameters));
-                        reader.parse(new InputSource(new StringReader(parameter)));
-                        String url = handler.getUrl();
-                        String formattedUrl;
-                        try {
-                            formattedUrl = (new URI(url)).getHost();
-                        } catch (URISyntaxException e) {
-                            LOGGER.warn("Could not get information from '" + url + "'", e);
-                            formattedUrl = url; // As fallback, put the whole parameter content.
+                        String key = ""; //$NON-NLS-1$
+
+                        if (parameter.startsWith("process=")) { //$NON-NLS-1$
+                            // condition 1 handle process
+                            key = parameter.replace("process=", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                        } else if (parameter.contains("url")) { //$NON-NLS-1$
+                            // condition 2 handle job
+                            handler = new ParameterReader("url"); //$NON-NLS-1$
+                            reader.setContentHandler(handler);
+                            reader.parse(new InputSource(new StringReader(parameter)));
+                            String url = handler.getParameterValue();
+                            try {
+                                key = (new URI(url)).getHost();
+                            } catch (URISyntaxException e) {
+                                LOGGER.warn("Could not get information from '" + url + "'", e);
+                                key = url; // As fallback, put the whole parameter content.
+                            }
+                        } else {
+                            // condition 3 handle workflow
+                            handler = new ParameterReader("processId"); //$NON-NLS-1$
+                            reader.setContentHandler(handler);
+                            reader.parse(new InputSource(new StringReader(parameter)));
+                            key = handler.getParameterValue();
                         }
                         // Count the number of similar events
                         Expression routingNameCount = from(routingOrderType).select(alias(count(), "count")) //$NON-NLS-1$
@@ -121,7 +136,7 @@ public class EventStatistics {
                         StorageResults failedCountResult = system.fetch(routingNameCount);
                         try {
                             // ... and write count to result
-                            writer.object().key(formattedUrl).value(failedCountResult.iterator().next().get("count")).endObject(); //$NON-NLS-1$
+                            writer.object().key(key).value(failedCountResult.iterator().next().get("count")).endObject(); //$NON-NLS-1$
                         } finally {
                             failedCountResult.close();
                         }
@@ -137,31 +152,34 @@ public class EventStatistics {
         writer.endObject();
     }
 
-    private static class ParameterURLReader extends DefaultHandler {
+    private static class ParameterReader extends DefaultHandler {
 
-        private final ResettableStringWriter url;
+        private final String parameterName;
+
+        private final ResettableStringWriter parameterValue;
 
         boolean accumulate;
 
-        public ParameterURLReader() {
-            this.url = new ResettableStringWriter();
+        public ParameterReader(String parameterName) {
+            this.parameterName = parameterName;
+            this.parameterValue = new ResettableStringWriter();
             accumulate = false;
         }
 
-        public String getUrl() {
-            return url.reset();
+        public String getParameterValue() {
+            return parameterValue.reset();
         }
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-            if ("url".equals(localName)) { //$NON-NLS-1$
+            if (parameterName.equals(localName)) {
                 accumulate = true;
             }
         }
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            if ("url".equals(localName)) { //$NON-NLS-1$
+            if (parameterName.equals(localName)) {
                 accumulate = false;
             }
         }
@@ -170,7 +188,7 @@ public class EventStatistics {
         public void characters(char[] ch, int start, int length) throws SAXException {
             if (accumulate) {
                 for (int i = 0; i < length; i++) {
-                    url.append(ch[start + i]);
+                    parameterValue.append(ch[start + i]);
                 }
             }
         }
