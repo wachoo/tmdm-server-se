@@ -600,6 +600,12 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         public void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
                 boolean isStaging, String language, AsyncCallback<ItemNodeModel> callback) {
         }
+
+        @Override
+        public void getSuggestInformation(String input, AsyncCallback<List<ItemBaseModel>> callback) {
+
+        }
+
     }
 
     @Override
