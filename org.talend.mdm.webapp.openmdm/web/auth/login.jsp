@@ -23,7 +23,7 @@
          _LOGIN_= "Connexion";
          _ERROR_ = "Mauvais identifiant ou mot de passe";
     } else if ("ru".equals(language)) {
-         _USERNAME_ = "Имя пользователя";
+         _USERNAME_ = "Имя&nbsp;пользователя";
          _PASSWORD_ = "Пароль";
          _UNIVERSE_ = "Версия";
          _LOGIN_= "Войти";
