@@ -33,12 +33,6 @@ public interface WelcomePortalMessages extends Messages {
 
     String journal();
 
-    String license_soon_msg(String days);
-
-    String license_des_numbers(String users);
-
-    String license_des_con();
-
     String no_license_msg();
 
     String license_expired_msg();
