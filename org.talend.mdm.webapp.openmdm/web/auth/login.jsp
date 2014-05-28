@@ -10,24 +10,33 @@
     String language=locale.getLanguage();
     String error = request.getParameter("error");
     
-    //if language is empty or unsupported
-    if(language==""||!(language=="en"||language=="fr")){
-        language="en"; //default language
-    }
-    
-    //default en
-    String _USERNAME_ = "Login";
-    String _PASSWORD_ = "Password";
-    String _UNIVERSE_ = "Version";
-    String _LOGIN_ = "Login";
-    String _ERROR = "Login failed. Please check your login and password";
+    String _USERNAME_;
+    String _PASSWORD_;
+    String _UNIVERSE_;
+    String _LOGIN_;
+    String _ERROR_;
     
     if ("fr".equals(language)) {
          _USERNAME_ = "Identifiant";
          _PASSWORD_ = "Mot&nbsp;de&nbsp;passe";
+         _UNIVERSE_ = "Version";
          _LOGIN_= "Connexion";
-         _ERROR = "Mauvais identifiant ou mot de passe";
+         _ERROR_ = "Mauvais identifiant ou mot de passe";
+    } else if ("ru".equals(language)) {
+         _USERNAME_ = "Имя пользователя";
+         _PASSWORD_ = "Пароль";
+         _UNIVERSE_ = "Версия";
+         _LOGIN_= "Войти";
+         _ERROR_ = "Неверное имя пользователя или пароль";       
+    } else { 
+         language="en"; //default language
+         _USERNAME_ = "Login";
+         _PASSWORD_ = "Password";
+         _UNIVERSE_ = "Version";
+         _LOGIN_ = "Login";
+         _ERROR_ = "Login failed. Please check your login and password";
     }
+    
     String editionTitle=DefaultCommonUtil.getProductInfo();
     String version=Version.getSimpleVersionAsString(this.getClass());
 %>
@@ -95,7 +104,7 @@ function getUniverseList()
 
 function deleteCookie() {         
         if ('<%= error%>' == 'loginFailedAndClean') {
-            alert('<%= _ERROR%>');
+            alert('<%= _ERROR_ %>');
             document.cookie = "JSESSIONID=" + "; path=/; expires = Thu, 01-Jan-1970 00:00:01 GMT";
             document.cookie = "JSESSIONIDSSO=" + "; path=/; expires = Thu, 01-Jan-1970 00:00:01 GMT";
             location.href = "../index.html";               
@@ -132,7 +141,7 @@ deleteCookie();
                         <tr>
                             <td colspan="2">
                             <% if(request.getParameter("error")!=null) {%>
-                            <div style="text-align:center;color:red"><%= _ERROR %></div>                            
+                            <div style="text-align:center;color:red"><%= _ERROR_ %></div>                            
                             <% } %>
                             </td>
                         </tr>
