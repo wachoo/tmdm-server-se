@@ -97,8 +97,8 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             }
 
             // restore the session timeout
-            if (req.getSession().getAttribute("sessionTimeOut") != null) {
-                req.getSession().setMaxInactiveInterval((Integer) req.getSession().getAttribute("sessionTimeOut"));
+            if (req.getSession().getAttribute("sessionTimeOut") != null) { //$NON-NLS-1$
+                req.getSession().setMaxInactiveInterval((Integer) req.getSession().getAttribute("sessionTimeOut")); //$NON-NLS-1$
             }
 
             // Dispatch call
@@ -140,7 +140,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             }
 
         } catch (WebappRepeatedLoginException e) {
-            req.getSession().invalidate();
+            //req.getSession().invalidate();
             String html = getHtmlError(req.getContextPath(),
                     MESSAGES.getMessage(locale, "login.exception.repeated", username), locale, username, true); //$NON-NLS-1$
             out.write(html);
@@ -148,7 +148,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             req.getSession().invalidate();
             String message = e.getLocalizedMessage();
             if (message == null) {
-                message = MESSAGES.getMessage(locale, "error.occured");
+                message = MESSAGES.getMessage(locale, "error.occured"); //$NON-NLS-1$
             }
             String html = getHtmlError(req.getContextPath(), message, locale, username, false);
             out.write(html);
@@ -214,8 +214,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             io = ControllerServlet.class.getResourceAsStream("languageSelection.xml"); //$NON-NLS-1$
             SAXReader reader = new SAXReader();
             Document document = reader.read(io);
-            for (@SuppressWarnings("unchecked")
-            Iterator<Element> iterator = document.getRootElement().elementIterator(); iterator.hasNext();) {
+            for (Iterator<Element> iterator = document.getRootElement().elementIterator(); iterator.hasNext();) {
                 Element element = iterator.next();
                 String key = element.attributeValue("value");//$NON-NLS-1$
                 String value = element.getText();
