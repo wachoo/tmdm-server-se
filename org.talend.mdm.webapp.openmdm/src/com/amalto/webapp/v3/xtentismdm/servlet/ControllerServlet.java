@@ -31,6 +31,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
+import com.amalto.core.util.LocaleUtil;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
@@ -59,36 +60,32 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        String username = null;
-        Locale locale = req.getLocale();
+        String language = null;
+        Locale locale = null;
 
-        String language = "fr"; //$NON-NLS-1$
-        if (locale.getLanguage() != null) {
-            language = locale.getLanguage();
-        }
-        if (req.getSession().getAttribute("language") != null) { //$NON-NLS-1$
-            language = (String) req.getSession().getAttribute("language"); //$NON-NLS-1$
-        }
+        // Try first the user language
         try {
             String lang = getDefaultLanguage();
             if (lang != null && !"".equals(lang.trim())) { //$NON-NLS-1$
                 language = lang;
+                locale = new Locale(language.toLowerCase());
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        if (req.getParameter("language") != null) { //$NON-NLS-1$
-            language = req.getParameter("language"); //$NON-NLS-1$
-            req.getSession().setAttribute("language", language); //$NON-NLS-1$
+
+        // Try then the language set on request
+        if (language == null) {
+            locale = LocaleUtil.getLocale(req);
+            language = locale.getLanguage().toLowerCase();
         }
 
         req.getSession().setAttribute("language", language); //$NON-NLS-1$
         res.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
         res.setHeader("Content-Type", "text/html; charset=UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        locale = new Locale(language);
         PrintWriter out = res.getWriter();
-
+        String username = null;
         try {
             // see 0013864
             username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
@@ -140,7 +137,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             }
 
         } catch (WebappRepeatedLoginException e) {
-            //req.getSession().invalidate();
+            // req.getSession().invalidate();
             String html = getHtmlError(req.getContextPath(),
                     MESSAGES.getMessage(locale, "login.exception.repeated", username), locale, username, true); //$NON-NLS-1$
             out.write(html);

@@ -51,8 +51,10 @@ public class ControllerServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        Locale locale = LocaleUtil.getLocale(req);
-        String language = locale.getLanguage().toLowerCase();
+        String language = null;
+        Locale locale = null;
+
+        // Try first the user language
         try {
             String storedLanguage = com.amalto.webapp.core.util.Util.getDefaultLanguage();
             if (storedLanguage != null && !"".equals(storedLanguage)) { //$NON-NLS-1$
@@ -62,9 +64,13 @@ public class ControllerServlet extends HttpServlet {
         } catch (Exception e1) {
             Log.error("Load User Language Error!", e1); //$NON-NLS-1$
         }
-        if (req.getParameter("language") != null) { //$NON-NLS-1$
-            language = req.getParameter("language"); //$NON-NLS-1$
+
+        // Try then the language set on request
+        if (language == null) {
+            locale = LocaleUtil.getLocale(req);
+            language = locale.getLanguage().toLowerCase();
         }
+
         req.getSession().setAttribute("language", language); //$NON-NLS-1$
         res.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
         res.setHeader("Content-Type", "text/html; charset=UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$

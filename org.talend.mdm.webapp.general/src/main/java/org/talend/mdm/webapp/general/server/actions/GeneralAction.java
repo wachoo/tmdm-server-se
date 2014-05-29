@@ -238,7 +238,8 @@ public class GeneralAction implements GeneralService {
             if (storeLang != null && !"".equals(storeLang)) { //$NON-NLS-1$
                 lang = storeLang;
             } else {
-                setDefaultLanguage(language);
+                //language is not set try to store it (if license is set)
+                setDefaultLanguage(language, true);
             }
             return Utils.getLanguages(lang);
         } catch (Exception e) {
@@ -287,11 +288,17 @@ public class GeneralAction implements GeneralService {
 
     @Override
     public void setDefaultLanguage(String language) throws ServiceException {
+        setDefaultLanguage(language, false);
+    }
+
+    private void setDefaultLanguage(String language, boolean failQuietly) throws ServiceException {
         try {
             Utils.setDefaultLanguage(language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+            if (!failQuietly) {
+                throw new ServiceException(e.getLocalizedMessage());
+            }
         }
     }
 
