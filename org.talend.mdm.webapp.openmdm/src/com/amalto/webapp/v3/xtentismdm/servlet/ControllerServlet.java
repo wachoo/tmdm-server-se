@@ -34,9 +34,9 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
+import com.amalto.webapp.core.util.SessionListener;
 import com.amalto.webapp.core.util.WebappForbiddenLoginException;
 import com.amalto.webapp.core.util.WebappRepeatedLoginException;
-import com.amalto.webapp.core.util.SessionListener;
 
 public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericControllerServlet {
 
@@ -89,8 +89,9 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             }
 
             // restore the session timeout
-            if (req.getSession().getAttribute("sessionTimeOut") != null) //$NON-NLS-1$
+            if (req.getSession().getAttribute("sessionTimeOut") != null) { //$NON-NLS-1$
                 req.getSession().setMaxInactiveInterval((Integer) req.getSession().getAttribute("sessionTimeOut")); //$NON-NLS-1$
+            }
 
             // Dispatch call
             String jsp = req.getParameter("action"); //$NON-NLS-1$  
@@ -131,15 +132,16 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             }
 
         } catch (WebappRepeatedLoginException e) {
-            req.getSession().invalidate();
+            //req.getSession().invalidate();
             String html = getHtmlError(req.getContextPath(),
                     MESSAGES.getMessage(locale, "login.exception.repeated", username), locale, username, true); //$NON-NLS-1$
             out.write(html);
         } catch (Exception e) {
             req.getSession().invalidate();
             String message = e.getLocalizedMessage();
-            if (message == null)
-                message = MESSAGES.getMessage(locale, "error.occured"); //$NON-NLS-1$
+            if (message == null) {
+                message = MESSAGES.getMessage(locale, "error.occured");
+            }
             String html = getHtmlError(req.getContextPath(), message, locale, username, false);
             out.write(html);
         }
@@ -150,8 +152,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         LinkedHashMap<String, String> map = this.getLanguageMap();
         Set<String> set = map.keySet();
         String html = ""; //$NON-NLS-1$
-        for (Iterator<String> iterator = set.iterator(); iterator.hasNext();) {
-            String key = iterator.next();
+        for (String key : set) {
             String value = map.get(key);
             if (key.equals(language)) {
                 html += "       <option value=\"" + key + "\" selected>" + value + "</option>\n"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -205,8 +206,7 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
             io = ControllerServlet.class.getResourceAsStream("languageSelection.xml"); //$NON-NLS-1$
             SAXReader reader = new SAXReader();
             Document document = reader.read(io);
-            for (@SuppressWarnings("unchecked")
-            Iterator<Element> iterator = document.getRootElement().elementIterator(); iterator.hasNext();) {
+            for (Iterator<Element> iterator = document.getRootElement().elementIterator(); iterator.hasNext();) {
                 Element element = iterator.next();
                 String key = element.attributeValue("value");//$NON-NLS-1$
                 String value = element.getText();
@@ -215,12 +215,13 @@ public class ControllerServlet extends com.amalto.webapp.core.servlet.GenericCon
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
         } finally {
-            if (io != null)
+            if (io != null) {
                 try {
                     io.close();
                 } catch (IOException e) {
                     logger.error(e.getMessage(), e);
                 }
+            }
         }
         return map;
     }
