@@ -20,9 +20,6 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -43,13 +40,6 @@ public abstract class ChartPortlet extends BasePortlet {
     public ChartPortlet(String name, Portal portal) {
         super(name, portal);
         initAutoRefresher();
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        refresh();
-                    }
-                }));
     }
 
     protected void initPlot() {

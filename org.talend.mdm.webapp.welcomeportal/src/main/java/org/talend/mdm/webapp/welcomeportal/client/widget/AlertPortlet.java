@@ -18,9 +18,6 @@ import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -39,14 +36,6 @@ public class AlertPortlet extends BasePortlet {
         super(WelcomePortal.ALERT, portal);
 
         initAutoRefresher();
-
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        refresh();
-                    }
-                }));
 
         label.setText(MessagesFactory.getMessages().loading_alert_msg());
 
@@ -149,19 +138,21 @@ public class AlertPortlet extends BasePortlet {
                     linkData = sb.toString();
                     alertHtml.setHTML(linkData);
                 }
+
+                alertHtml.addClickHandler(new ClickHandler() {
+
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        ((MainFramePanel) portal).initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
+                    }
+
+                });
+                set.add(alertHtml);
+                set.layout(true);
+                autoRefresh(autoRefreshBtn.isOn());
             }
         });
-        alertHtml.addClickHandler(new ClickHandler() {
 
-            @Override
-            public void onClick(ClickEvent event) {
-                ((MainFramePanel) portal).initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
-            }
-
-        });
-        set.add(alertHtml);
-        set.layout(true);
-        autoRefresh(autoRefreshBtn.isOn());
     }
 
     private void refreshWithNewData(String newData) {

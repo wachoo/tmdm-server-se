@@ -18,10 +18,8 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -35,15 +33,6 @@ public class SearchPortlet extends BasePortlet {
 
     public SearchPortlet(Portal portal) {
         super(WelcomePortal.SEARCH, portal);
-
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        refresh();
-                    }
-
-                }));
 
         init();
     }

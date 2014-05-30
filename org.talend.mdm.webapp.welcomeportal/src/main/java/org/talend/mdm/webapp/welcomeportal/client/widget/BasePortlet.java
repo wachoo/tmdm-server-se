@@ -75,6 +75,8 @@ public abstract class BasePortlet extends Portlet {
 
     protected AutoRefreshButton autoRefreshBtn;
 
+    protected ToolButton refreshBtn;
+
     private boolean isAuto;
 
     private boolean startedAsOn;
@@ -99,6 +101,17 @@ public abstract class BasePortlet extends Portlet {
                     }
 
                 }));
+
+        // will be replaced only in StartPortlet, all other inherit it
+        refreshBtn = new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
+
+                    @Override
+                    public void componentSelected(IconButtonEvent ce) {
+                        refresh();
+                    }
+                });
+
+        this.getHeader().addTool(refreshBtn);
     }
 
     public BasePortlet(String name, Portal portal) {

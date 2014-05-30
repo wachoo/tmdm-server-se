@@ -19,9 +19,6 @@ import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -63,14 +60,6 @@ public class TaskPortlet extends BasePortlet {
         isHiddenWorkFlowTask = ((MainFramePanel) portal).isHiddenWorkFlowTask();
         isHiddenDSCTask = ((MainFramePanel) portal).isHiddenDSCTask();
         initAutoRefresher();
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        refresh();
-                    }
-
-                }));
 
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
@@ -109,6 +98,7 @@ public class TaskPortlet extends BasePortlet {
                     numOfWorkflowTask = num;
 
                     buildAndShowWorkflowTasksOnly();
+                    autoRefresh(autoRefreshBtn.isOn());
                 }
 
             });
@@ -122,6 +112,7 @@ public class TaskPortlet extends BasePortlet {
                     numOfDSCTasks = dscTasks;
 
                     buildAndShowDSCTasksOnly();
+                    autoRefresh(autoRefreshBtn.isOn());
                 }
             });
         }
@@ -139,12 +130,12 @@ public class TaskPortlet extends BasePortlet {
                             numOfWorkflowTask = workflowNum;
                             numOfDSCTasks = dscTasks;
                             buildAndShowWorkflowTasksAndDSCTasks();
+                            autoRefresh(autoRefreshBtn.isOn());
                         }
                     });
                 }
             });
         }
-        autoRefresh(autoRefreshBtn.isOn());
     }
 
     private void updateLinks() {

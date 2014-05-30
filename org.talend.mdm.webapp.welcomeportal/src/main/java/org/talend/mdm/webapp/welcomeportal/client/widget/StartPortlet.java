@@ -33,6 +33,7 @@ public class StartPortlet extends BasePortlet {
 
         label.setText(MessagesFactory.getMessages().useful_links_desc());
 
+        this.getHeader().removeTool(refreshBtn);
         this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
                     @Override
