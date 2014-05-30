@@ -66,7 +66,12 @@ public class JournalChart extends ChartPortlet {
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
                                 Map<String, Object> newData = parseJSONData(jsonArray);
-                                doRefreshWith(newData);
+                                if (plot == null) {
+                                    chartData = newData;
+                                    initAndShow();
+                                } else {
+                                    doRefreshWith(newData);
+                                }
                             }
                         });
             }

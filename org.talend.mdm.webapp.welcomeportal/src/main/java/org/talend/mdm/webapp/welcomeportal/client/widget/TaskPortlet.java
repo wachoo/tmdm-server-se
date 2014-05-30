@@ -33,11 +33,31 @@ public class TaskPortlet extends BasePortlet {
 
     private static String DSCTASKTYPE_PENDING = "pending"; //$NON-NLS-1$
 
+    private static String WORKFLOWTASKS_PREFIX = "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"; //$NON-NLS-1$ //$NON-NLS-2$
+
+    private static String DSCTASKS_PREFIX = "<span id=\"dsctasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"; //$NON-NLS-1$ //$NON-NLS-2$
+
     private boolean isHiddenWorkFlowTask = true;
 
     private boolean isHiddenDSCTask = true;
 
-    public TaskPortlet(Portal portal) {
+    private ClickHandler workflowClikcHanlder;
+
+    private ClickHandler dscClikcHanlder;
+
+    private int numOfWorkflowTask;
+
+    private Map<String, Integer> numOfDSCTasks;
+
+    private StringBuilder sbForWorkflowtasks;
+
+    private StringBuilder sbForDsctasks;
+
+    private HTML taskHtml_workflow;
+
+    private HTML taskHtml_dsc;
+
+    public TaskPortlet(final Portal portal) {
         super(WelcomePortal.TASKS, portal);
 
         isHiddenWorkFlowTask = ((MainFramePanel) portal).isHiddenWorkFlowTask();
@@ -54,25 +74,7 @@ public class TaskPortlet extends BasePortlet {
 
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
-        initLinks();
-    }
-
-    @Override
-    public void refresh() {
-        initLinks();
-    }
-
-    private void initLinks() {
-
-        set.removeAll();
-
-        final HTML taskHtml_workflow = new HTML();
-
-        final StringBuilder sbForWorkflowtasks = new StringBuilder(
-                "<span id=\"workflowtasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-        final StringBuilder sbForDsctasks = new StringBuilder(
-                "<span id=\"dsctasks\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().tasks_title() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-        final ClickHandler workflowClikcHanlder = new ClickHandler() {
+        workflowClikcHanlder = new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -81,7 +83,7 @@ public class TaskPortlet extends BasePortlet {
 
         };
 
-        final ClickHandler dscClikcHanlder = new ClickHandler() {
+        dscClikcHanlder = new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -89,61 +91,39 @@ public class TaskPortlet extends BasePortlet {
             }
 
         };
+        initLinks();
+    }
+
+    @Override
+    public void refresh() {
+        updateLinks();
+    }
+
+    private void initLinks() {
 
         if (!isHiddenWorkFlowTask && isHiddenDSCTask) {
             service.getWorkflowTaskMsg(new SessionAwareAsyncCallback<Integer>() {
 
                 @Override
                 public void onSuccess(Integer num) {
+                    numOfWorkflowTask = num;
 
-                    if (num.equals(0)) {
-
-                        label.setText(MessagesFactory.getMessages().no_tasks());
-                        set.setVisible(false);
-                    } else {
-                        String sbNum = buildMessageForWorkflowTasks(num);
-                        sbForWorkflowtasks.append(sbNum);
-                        label.setText(MessagesFactory.getMessages().tasks_desc());
-                        set.setVisible(true);
-                    }
-                    sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
-
-                    taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
+                    buildAndShowWorkflowTasksOnly();
                 }
 
             });
-            taskHtml_workflow.addClickHandler(workflowClikcHanlder);
-            set.add(taskHtml_workflow);
-            set.layout(true);
         }
 
-        final HTML taskHtml_dsc = new HTML();
         if (!isHiddenDSCTask && isHiddenWorkFlowTask) {
             service.getDSCTaskMsg(new SessionAwareAsyncCallback<Map<String, Integer>>() {
 
                 @Override
                 public void onSuccess(Map<String, Integer> dscTasks) {
-                    int total = dscTasks.get(DSCTASKTYPE_NEW) + dscTasks.get(DSCTASKTYPE_PENDING);
-                    if (total <= 0) {
+                    numOfDSCTasks = dscTasks;
 
-                        label.setText(MessagesFactory.getMessages().no_tasks());
-                        set.setVisible(false);
-                    } else {
-                        String sbNum = buildMessageForDSCTasks(dscTasks);
-                        sbForDsctasks.append(sbNum);
-                        label.setText(MessagesFactory.getMessages().tasks_desc());
-                        set.setVisible(true);
-                    }
-                    sbForDsctasks.append("</span>"); //$NON-NLS-1$
-
-                    taskHtml_dsc.setHTML(sbForDsctasks.toString());
+                    buildAndShowDSCTasksOnly();
                 }
-
             });
-            taskHtml_dsc.addClickHandler(dscClikcHanlder);
-
-            set.add(taskHtml_dsc);
-            set.layout(true);
         }
 
         if (!isHiddenWorkFlowTask && !isHiddenDSCTask) {
@@ -151,67 +131,185 @@ public class TaskPortlet extends BasePortlet {
 
                 @Override
                 public void onSuccess(final Integer workflowNum) {
+
                     service.getDSCTaskMsg(new SessionAwareAsyncCallback<Map<String, Integer>>() {
 
                         @Override
                         public void onSuccess(Map<String, Integer> dscTasks) {
-                            int dscNum = dscTasks.get(DSCTASKTYPE_NEW) + dscTasks.get(DSCTASKTYPE_PENDING);
-                            if (workflowNum + dscNum <= 0) {
-                                label.setText(MessagesFactory.getMessages().no_tasks());
-                                set.setVisible(false);
-                            } else if (workflowNum > 0 && dscNum == 0) {
-                                String sbNum = buildMessageForWorkflowTasks(workflowNum);
-                                sbForWorkflowtasks.append(sbNum);
-                                sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
-                                label.setText(MessagesFactory.getMessages().tasks_desc());
-                                set.setVisible(true);
-
-                                taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
-
-                                taskHtml_workflow.addClickHandler(workflowClikcHanlder);
-
-                                set.add(taskHtml_workflow);
-                            } else if (workflowNum == 0 && dscNum > 0) {
-                                String sbNum = buildMessageForDSCTasks(dscTasks);
-                                sbForDsctasks.append(sbNum);
-                                sbForDsctasks.append("</span>"); //$NON-NLS-1$
-                                label.setText(MessagesFactory.getMessages().tasks_desc());
-                                set.setVisible(true);
-
-                                taskHtml_dsc.setHTML(sbForDsctasks.toString());
-
-                                taskHtml_dsc.addClickHandler(dscClikcHanlder);
-
-                                set.add(taskHtml_dsc);
-                            } else {
-                                String sbNumWFT = buildMessageForWorkflowTasks(workflowNum);
-                                sbForWorkflowtasks.append(sbNumWFT);
-                                sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
-
-                                String sbNumDSC = buildMessageForDSCTasks(dscTasks);
-                                sbForDsctasks.append(sbNumDSC);
-                                sbForDsctasks.append("</span>"); //$NON-NLS-1$
-
-                                taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
-                                taskHtml_dsc.setHTML(sbForDsctasks.toString());
-
-                                taskHtml_workflow.addClickHandler(workflowClikcHanlder);
-
-                                taskHtml_dsc.addClickHandler(dscClikcHanlder);
-
-                                set.add(taskHtml_workflow);
-                                set.add(taskHtml_dsc);
-
-                                label.setText(MessagesFactory.getMessages().tasks_desc());
-                                set.setVisible(true);
-                            }
-                            set.layout(true);
+                            numOfWorkflowTask = workflowNum;
+                            numOfDSCTasks = dscTasks;
+                            buildAndShowWorkflowTasksAndDSCTasks();
                         }
                     });
                 }
             });
         }
         autoRefresh(autoRefreshBtn.isOn());
+    }
+
+    private void updateLinks() {
+
+        if (!isHiddenWorkFlowTask && isHiddenDSCTask) {
+            service.getWorkflowTaskMsg(new SessionAwareAsyncCallback<Integer>() {
+
+                @Override
+                public void onSuccess(Integer num) {
+                    if (numOfWorkflowTask != num) {
+                        numOfWorkflowTask = num;
+                        set.removeAll();
+
+                        buildAndShowWorkflowTasksOnly();
+                    }
+
+                }
+            });
+        }
+
+        if (!isHiddenDSCTask && isHiddenWorkFlowTask) {
+            service.getDSCTaskMsg(new SessionAwareAsyncCallback<Map<String, Integer>>() {
+
+                @Override
+                public void onSuccess(Map<String, Integer> dscTasks) {
+                    if (numOfDSCTasks.get(DSCTASKTYPE_NEW).equals(dscTasks.get(DSCTASKTYPE_NEW))
+                            && numOfDSCTasks.get(DSCTASKTYPE_PENDING).equals(dscTasks.get(DSCTASKTYPE_PENDING))) {
+                        return;
+                    }
+
+                    numOfDSCTasks = dscTasks;
+                    set.removeAll();
+
+                    buildAndShowDSCTasksOnly();
+                }
+            });
+        }
+
+        if (!isHiddenWorkFlowTask && !isHiddenDSCTask) {
+            service.getWorkflowTaskMsg(new SessionAwareAsyncCallback<Integer>() {
+
+                @Override
+                public void onSuccess(final Integer workflowNum) {
+
+                    service.getDSCTaskMsg(new SessionAwareAsyncCallback<Map<String, Integer>>() {
+
+                        @Override
+                        public void onSuccess(Map<String, Integer> dscTasks) {
+                            if (numOfWorkflowTask == workflowNum
+                                    && numOfDSCTasks.get(DSCTASKTYPE_NEW).equals(dscTasks.get(DSCTASKTYPE_NEW))
+                                    && numOfDSCTasks.get(DSCTASKTYPE_PENDING).equals(dscTasks.get(DSCTASKTYPE_PENDING))) {
+                                return;
+                            }
+                            numOfWorkflowTask = workflowNum;
+                            numOfDSCTasks = dscTasks;
+                            set.removeAll();
+                            buildAndShowWorkflowTasksAndDSCTasks();
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    private void buildAndShowWorkflowTasksOnly() {
+        sbForWorkflowtasks = new StringBuilder(WORKFLOWTASKS_PREFIX);
+
+        if (numOfWorkflowTask == 0) {
+            label.setText(MessagesFactory.getMessages().no_tasks());
+            set.setVisible(false);
+        } else {
+            String sbNum = buildMessageForWorkflowTasks(numOfWorkflowTask);
+            sbForWorkflowtasks.append(sbNum);
+            label.setText(MessagesFactory.getMessages().tasks_desc());
+            set.setVisible(true);
+        }
+        sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
+
+        taskHtml_workflow = new HTML();
+        taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
+
+        taskHtml_workflow.addClickHandler(workflowClikcHanlder);
+        set.add(taskHtml_workflow);
+        set.layout(true);
+    }
+
+    private void buildAndShowDSCTasksOnly() {
+        sbForDsctasks = new StringBuilder(DSCTASKS_PREFIX);
+
+        int total = numOfDSCTasks.get(DSCTASKTYPE_NEW) + numOfDSCTasks.get(DSCTASKTYPE_PENDING);
+        if (total <= 0) {
+            label.setText(MessagesFactory.getMessages().no_tasks());
+            set.setVisible(false);
+        } else {
+            String sbNum = buildMessageForDSCTasks(numOfDSCTasks);
+            sbForDsctasks.append(sbNum);
+            label.setText(MessagesFactory.getMessages().tasks_desc());
+            set.setVisible(true);
+        }
+        sbForDsctasks.append("</span>"); //$NON-NLS-1$
+
+        taskHtml_dsc = new HTML();
+        taskHtml_dsc.setHTML(sbForDsctasks.toString());
+
+        taskHtml_dsc.addClickHandler(dscClikcHanlder);
+
+        set.add(taskHtml_dsc);
+        set.layout(true);
+    }
+
+    private void buildAndShowWorkflowTasksAndDSCTasks() {
+        sbForWorkflowtasks = new StringBuilder(WORKFLOWTASKS_PREFIX);
+        sbForDsctasks = new StringBuilder(DSCTASKS_PREFIX);
+
+        taskHtml_workflow = new HTML();
+        taskHtml_dsc = new HTML();
+
+        int dscNum = numOfDSCTasks.get(DSCTASKTYPE_NEW) + numOfDSCTasks.get(DSCTASKTYPE_PENDING);
+        if (numOfWorkflowTask + dscNum <= 0) {
+            label.setText(MessagesFactory.getMessages().no_tasks());
+            set.setVisible(false);
+        } else {
+            label.setText(MessagesFactory.getMessages().tasks_desc());
+            set.setVisible(true);
+            if (numOfWorkflowTask > 0 && dscNum == 0) {
+                String sbNum = buildMessageForWorkflowTasks(numOfWorkflowTask);
+                sbForWorkflowtasks.append(sbNum);
+                sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
+
+                taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
+
+                taskHtml_workflow.addClickHandler(workflowClikcHanlder);
+
+                set.add(taskHtml_workflow);
+            } else if (numOfWorkflowTask == 0 && dscNum > 0) {
+                String sbNum = buildMessageForDSCTasks(numOfDSCTasks);
+                sbForDsctasks.append(sbNum);
+                sbForDsctasks.append("</span>"); //$NON-NLS-1$
+
+                taskHtml_dsc.setHTML(sbForDsctasks.toString());
+
+                taskHtml_dsc.addClickHandler(dscClikcHanlder);
+
+                set.add(taskHtml_dsc);
+            } else {
+                String sbNumWFT = buildMessageForWorkflowTasks(numOfWorkflowTask);
+                sbForWorkflowtasks.append(sbNumWFT);
+                sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
+
+                String sbNumDSC = buildMessageForDSCTasks(numOfDSCTasks);
+                sbForDsctasks.append(sbNumDSC);
+                sbForDsctasks.append("</span>"); //$NON-NLS-1$
+
+                taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
+                taskHtml_dsc.setHTML(sbForDsctasks.toString());
+
+                taskHtml_workflow.addClickHandler(workflowClikcHanlder);
+
+                taskHtml_dsc.addClickHandler(dscClikcHanlder);
+
+                set.add(taskHtml_workflow);
+                set.add(taskHtml_dsc);
+            }
+        }
+        set.layout(true);
     }
 
     private String buildMessageForWorkflowTasks(int num) {
