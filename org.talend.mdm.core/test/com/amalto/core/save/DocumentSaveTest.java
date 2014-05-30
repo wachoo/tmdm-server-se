@@ -2615,7 +2615,7 @@ public class DocumentSaveTest extends TestCase {
                 repository.getComplexType("EOR"),
                 "<EOR>  <UG_EOR>1</UG_EOR>  <TYP_EOR>1</TYP_EOR>  <L_TYP_EOR>1</L_TYP_EOR>  <CAT_TYP_EOR>1</CAT_TYP_EOR>  <D_DEB_EOR>2014-04-21</D_DEB_EOR>  <UG_EOR_FILLES/>  <UG_EOR_MERES/>  <GARES>    <GARE>[1][2]</GARE>  </GARES> </EOR>"));
         records.add(factory.read("1", repository, repository.getComplexType("GARE"),
-                "<GARE>  <IFE>1</IFE>  <ETFE>2</ETFE>  <UG_EOR>[1][2014-04-21][1]</UG_EOR> </GARE>"));
+                "<GARE>  <IFE>1</IFE>  <ETFE>2</ETFE>  <UG_EOR>[1][1][2014-04-21]</UG_EOR> </GARE>"));
         storage.begin();
         storage.update(records);
         storage.commit();
@@ -2629,7 +2629,7 @@ public class DocumentSaveTest extends TestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(1, results.getCount());
         DataRecord result = results.iterator().next();
-        assertEquals("[1][2014-04-21][1]", MetadataUtils.toString(result.get("UG_EOR"), result.getType().getField("UG_EOR")));
+        assertEquals("[1][1][2014-04-21]", MetadataUtils.toString(result.get("UG_EOR"), result.getType().getField("UG_EOR")));
     }
 
     private static class MockCommitter implements SaverSession.Committer {
