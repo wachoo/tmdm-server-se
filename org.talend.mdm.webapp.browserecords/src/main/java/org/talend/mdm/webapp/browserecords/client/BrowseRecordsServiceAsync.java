@@ -147,5 +147,6 @@ public interface BrowseRecordsServiceAsync {
 
     void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback);
 
-    void getSuggestInformation(String input, AsyncCallback<List<ItemBaseModel>> callback);
+    void getSuggestInformation(BasePagingLoadConfigImpl config, String key, List<String> keyInfo, String dataClusterPK,
+            boolean ifFKFilter, String input, String language, AsyncCallback<List<ForeignKeyBean>> callback);
 }

@@ -2442,14 +2442,22 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public List<ItemBaseModel> getSuggestInformation(String input) throws ServiceException {
-        List<ItemBaseModel> result = new ArrayList<ItemBaseModel>();
-
-        ForeignKeyBean Bean = new ForeignKeyBean();
-        result.add(Bean);
-
+    public List<ForeignKeyBean> getSuggestInformation(BasePagingLoadConfigImpl config, String key, List<String> keyInfo,
+            String dataClusterPK, boolean ifFKFilter, String input, String language) throws ServiceException {
         try {
-            return result;
+            String keyConcept = key.split("/")[0]; //$NON-NLS-1$
+            EntityModel entityModel = getEntityModel(keyConcept, language);
+
+            TypeModel typeModel = entityModel.getTypeModel(keyConcept);
+            typeModel.setForeignkey(key);
+            typeModel.setForeignKeyInfo(keyInfo);
+            typeModel.setRetrieveFKinfos(true);
+
+            ItemBasePageLoadResult<ForeignKeyBean> loadResult = ForeignKeyHelper.getForeignKeyList(config, typeModel,
+                    entityModel, dataClusterPK, ifFKFilter, input);
+
+            return loadResult.getData();
+
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

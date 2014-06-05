@@ -602,7 +602,9 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getSuggestInformation(String input, AsyncCallback<List<ItemBaseModel>> callback) {
+        public void getSuggestInformation(BasePagingLoadConfigImpl config, String key, List<String> keyInfo,
+                String dataClusterPK, boolean ifFKFilter, String input, String language,
+                AsyncCallback<List<ForeignKeyBean>> callback) {
 
         }
 

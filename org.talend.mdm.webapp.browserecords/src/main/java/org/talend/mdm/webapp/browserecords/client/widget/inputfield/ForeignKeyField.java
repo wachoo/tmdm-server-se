@@ -15,7 +15,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyLi
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.core.El;
-import com.extjs.gxt.ui.client.core.XDOM;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
@@ -28,6 +28,8 @@ import com.google.gwt.user.client.ui.Image;
 
 public class ForeignKeyField extends TextField<ForeignKeyBean> implements ReturnCriteriaFK {
 
+    private SuggestComboBoxField suggestBox;
+
     private Image selectFKBtn = new Image(Icons.INSTANCE.link());
 
     private Image addFKBtn = new Image(Icons.INSTANCE.link_add());
@@ -39,6 +41,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     private String foreignKeyName;
 
     private String foreignKey;
+
+    private List<String> foreignKeyInfo;
 
     private ForeignKeyListWindow fkWindow = new ForeignKeyListWindow();
 
@@ -55,6 +59,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         this.validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
         this.itemsDetailPanel = itemsDetailPanel;
         this.foreignKey = foreignKey;
+        this.foreignKeyInfo = foreignKeyInfo;
         this.foreignKeyName = foreignKey.split("/")[0]; //$NON-NLS-1$
         this.setFireChangeEventOnSetValue(true);
         this.setReturnCriteriaFK();
@@ -65,6 +70,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
         fkWindow.setBlinkModal(true);
+
+        suggestBox = new SuggestComboBoxField(this);
     }
 
     public ForeignKeyField(String foreignKey, List<String> foreignKeyInfo, ForeignKeyFieldList fkFieldList,
@@ -98,13 +105,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
         wrap.addStyleName("x-form-file-wrap"); //$NON-NLS-1$
 
-        input = new El(DOM.createInputText());
-        input.addStyleName(fieldStyle);
-        input.addStyleName("x-form-file-text"); //$NON-NLS-1$
-        input.setId(XDOM.getUniqueId());
-        input.setEnabled(false);
+        suggestBox.render(tdInput);
 
-        tdInput.appendChild(input.dom);
         Element foreignDiv = DOM.createTable();
         Element tr = DOM.createTR();
         Element body = DOM.createTBody();
@@ -137,9 +139,17 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     }
 
     @Override
+    protected void onFocus(ComponentEvent be) {
+        if (suggestBox != null) {
+            suggestBox.focus();
+        }
+    }
+
+    @Override
     public int getWidth() {
-        // when isChrome, it need to add foreignDiv's width
-        // TMDM-4153: FK mandatory icons display issue on main tab by using chrome browser
+        if (suggestBox != null) {
+            suggestBox.getWidth();
+        }
         return GXT.isChrome ? getOffsetWidth() + 75 : getOffsetWidth();
     }
 
@@ -221,6 +231,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         ComponentHelper.doAttach(selectFKBtn);
         ComponentHelper.doAttach(cleanFKBtn);
         ComponentHelper.doAttach(relationFKBtn);
+        ComponentHelper.doAttach(suggestBox);
     }
 
     @Override
@@ -230,6 +241,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         ComponentHelper.doDetach(selectFKBtn);
         ComponentHelper.doDetach(cleanFKBtn);
         ComponentHelper.doDetach(relationFKBtn);
+        ComponentHelper.doDetach(suggestBox);
     }
 
     @Override
@@ -242,17 +254,34 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
 
     @Override
     public void setValue(ForeignKeyBean fk) {
-        super.setValue(fk);
+        if (fk != null) {
+            super.setValue(fk);
+        }
+
+        if (suggestBox != null) {
+            suggestBox.setValue(fk);
+        }
     }
 
     @Override
     public void clear() {
         super.clear();
         this.validate();
+
+        ForeignKeyBean bean = new ForeignKeyBean();
+        bean.setId(""); //$NON-NLS-1$
+        setValue(bean);
+
+        if (suggestBox != null) {
+            suggestBox.clear();
+        }
     }
 
     @Override
     public ForeignKeyBean getValue() {
+        if (suggestBox.getValue() != null) {
+            return suggestBox.getValue();
+        }
         return value;
     }
 
@@ -271,5 +300,17 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
 
     public void setValidateFlag(boolean validateFlag) {
         this.validateFlag = validateFlag;
+    }
+
+    public SuggestComboBoxField getSuggestBox() {
+        return this.suggestBox;
+    }
+
+    public String getForeignKey() {
+        return this.foreignKey;
+    }
+
+    public List<String> getForeignKeyInfo() {
+        return this.foreignKeyInfo;
     }
 }
