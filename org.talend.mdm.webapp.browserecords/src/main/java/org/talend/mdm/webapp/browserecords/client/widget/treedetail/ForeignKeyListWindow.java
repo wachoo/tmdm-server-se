@@ -216,9 +216,12 @@ public class ForeignKeyListWindow extends Window {
                     baseConfig.set("dataObject", currentXpath.split("/")[0]); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 baseConfig.set("language", Locale.getLanguage()); //$NON-NLS-1$
-                service.getForeignKeyList(baseConfig, typeModel, BrowseRecords.getSession().getAppHeader().getDatacluster(),
-                        hasForeignKeyFilter, currentFilterText, Locale.getLanguage(),
-                        new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
+                String dataCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
+                if (dataCluster.contains("#")) { //$NON-NLS-1$
+                    dataCluster = dataCluster.substring(0, dataCluster.indexOf("#")); //$NON-NLS-1$
+                }
+                service.getForeignKeyList(baseConfig, typeModel, dataCluster, hasForeignKeyFilter, currentFilterText,
+                        Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             @Override
                             protected void doOnFailure(Throwable caught) {
