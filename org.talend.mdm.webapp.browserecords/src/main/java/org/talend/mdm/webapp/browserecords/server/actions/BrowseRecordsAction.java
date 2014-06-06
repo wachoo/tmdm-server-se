@@ -2442,15 +2442,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public List<ForeignKeyBean> getSuggestInformation(BasePagingLoadConfigImpl config, String key, List<String> keyInfo,
-            String dataClusterPK, boolean ifFKFilter, String input, String language) throws ServiceException {
+    public List<ForeignKeyBean> getForeignKeySuggestion(BasePagingLoadConfigImpl config, String foregnKey,
+            List<String> foregnKeyInfo, String dataClusterPK, boolean ifFKFilter, String input, String language)
+            throws ServiceException {
         try {
-            String keyConcept = key.split("/")[0]; //$NON-NLS-1$
-            EntityModel entityModel = getEntityModel(keyConcept, language);
+            String foregnKeyConcept = foregnKey.split("/")[0]; //$NON-NLS-1$
+            EntityModel entityModel = getEntityModel(foregnKeyConcept, language);
 
-            TypeModel typeModel = entityModel.getTypeModel(keyConcept);
-            typeModel.setForeignkey(key);
-            typeModel.setForeignKeyInfo(keyInfo);
+            TypeModel typeModel = entityModel.getTypeModel(foregnKeyConcept);
+            typeModel.setForeignkey(foregnKey);
+            typeModel.setForeignKeyInfo(foregnKeyInfo);
             typeModel.setRetrieveFKinfos(true);
 
             ItemBasePageLoadResult<ForeignKeyBean> loadResult = ForeignKeyHelper.getForeignKeyList(config, typeModel,
