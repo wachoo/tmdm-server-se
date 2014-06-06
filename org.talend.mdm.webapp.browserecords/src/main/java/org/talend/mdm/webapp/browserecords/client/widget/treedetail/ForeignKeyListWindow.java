@@ -131,6 +131,13 @@ public class ForeignKeyListWindow extends Window {
     private String currentXpath;
 
     private boolean isPagingAccurate;
+    
+    private boolean isStaging;
+
+    
+    public void setStaging(boolean isStaging) {
+        this.isStaging = isStaging;
+    }
 
     public ForeignKeyListWindow() {
     }
@@ -217,8 +224,10 @@ public class ForeignKeyListWindow extends Window {
                 }
                 baseConfig.set("language", Locale.getLanguage()); //$NON-NLS-1$
                 String dataCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
-                if (dataCluster.contains("#")) { //$NON-NLS-1$
-                    dataCluster = dataCluster.substring(0, dataCluster.indexOf("#")); //$NON-NLS-1$
+                if (!ForeignKeyListWindow.this.isStaging) {
+                    if (dataCluster.indexOf("#") != -1) { //$NON-NLS-1$
+                        dataCluster = dataCluster.substring(0, dataCluster.indexOf("#")); //$NON-NLS-1$
+                    }
                 }
                 service.getForeignKeyList(baseConfig, typeModel, dataCluster, hasForeignKeyFilter, currentFilterText,
                         Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {

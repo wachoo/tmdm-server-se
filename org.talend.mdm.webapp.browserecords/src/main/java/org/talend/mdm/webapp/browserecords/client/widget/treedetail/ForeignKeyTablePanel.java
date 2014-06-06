@@ -136,6 +136,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         this.panelName = panelName;
         this.isStaging = isStaging;
         initBaseComponent();
+        fkWindow.setStaging(isStaging);
     }
 
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
