@@ -123,6 +123,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         tr.appendChild(cleanTD);
         tr.appendChild(relationTD);
 
+        tdIcon.setAttribute("align", "right"); //$NON-NLS-1$//$NON-NLS-2$
         tdIcon.appendChild(foreignDiv);
         setElement(wrap.dom, target, index);
 

@@ -92,7 +92,7 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
                         : false;
                 BasePagingLoadConfigImpl config = new BasePagingLoadConfigImpl();
 
-                service.getSuggestInformation(config, foreignKey, foreignKeyInfo, BrowseRecords.getSession().getAppHeader()
+                service.getForeignKeySuggestion(config, foreignKey, foreignKeyInfo, BrowseRecords.getSession().getAppHeader()
                         .getDatacluster(), hasForeignKeyFilter, inputValue, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<List<ForeignKeyBean>>() {
 
@@ -110,7 +110,12 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         super.onRender(target, index);
         this.setMinChars(1000);
         getInputEl().dom.setAttribute("autocomplete", "off"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
 
+    @Override
+    protected void afterRender() {
+        super.afterRender();
+        getInputEl().dom.setAttribute("style", "width:83%"); //$NON-NLS-1$//$NON-NLS-2$ 
     }
 
     @Override
@@ -162,8 +167,8 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         }
 
         public native BoxComponent getBoxComponent() /*-{
-			return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
-        }-*/;
+                                                     return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
+                                                     }-*/;
 
     }
 
@@ -197,6 +202,8 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
                 foreignKeyStore.add(bean);
             }
         }
+
+        this.setExpanded(false);
 
         if (!this.isExpanded() && foreignKeyStore.getCount() > 0) {
             this.expand();
