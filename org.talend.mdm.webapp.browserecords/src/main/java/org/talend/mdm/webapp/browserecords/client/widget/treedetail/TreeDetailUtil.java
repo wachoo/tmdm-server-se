@@ -37,6 +37,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.TabItemListener;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -111,7 +112,8 @@ public class TreeDetailUtil {
                             @Override
                             public void onSuccess(ViewBean viewBean) {
                                 ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, panel);
-                                initDetailPanel(viewBean, panel, itemPanel, item, fromWhichApp, isFkToolBar, isHierarchyCall);
+                                initDetailPanel(viewBean, panel, itemPanel, item, fromWhichApp, isFkToolBar, isHierarchyCall,
+                                        false);
                             }
 
                         });
@@ -134,7 +136,8 @@ public class TreeDetailUtil {
                             @Override
                             public void onSuccess(ViewBean viewBean) {
                                 ItemPanel itemPanel = new ItemPanel(isStaging, viewBean, item, operation, panel);
-                                initDetailPanel(viewBean, panel, itemPanel, item, fromWhichApp, isFkToolBar, isHierarchyCall);
+                                initDetailPanel(viewBean, panel, itemPanel, item, fromWhichApp, isFkToolBar, isHierarchyCall,
+                                        isStaging);
                             }
 
                         });
@@ -143,7 +146,7 @@ public class TreeDetailUtil {
     }
 
     private static void initDetailPanel(ViewBean viewBean, ItemsDetailPanel panel, ItemPanel itemPanel, ItemBean item,
-            String fromWhichApp, Boolean isFkToolBar, Boolean isHierarchyCall) {
+            String fromWhichApp, Boolean isFkToolBar, Boolean isHierarchyCall, boolean isStaging) {
         itemPanel.getToolBar().setOutMost(true);
         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
@@ -165,7 +168,7 @@ public class TreeDetailUtil {
 
         String tabItemId = fromWhichApp + typeModel.getLabel(Locale.getLanguage()) + " " + panel.getItemId(); //$NON-NLS-1$
         panel.setHeading(tabItemId);
-        panel.setItemId(tabItemId);
+        panel.setItemId(tabItemId + (isStaging ? Constants.BROWSE_STAGING_SUFFIX_MARK : Constants.BROWSE_MASTER_SUFFIX_MARK));
         renderTreeDetailPanel(tabItemId, panel);
         CommonUtil.setCurrentCachedEntity(item.getConcept() + item.getIds() + panel.isOutMost(), itemPanel);
     }

@@ -23,4 +23,9 @@ public class Constants {
     public static final String BOOLEAN_TRUE_DISPLAY_VALUE = "TRUE"; //$NON-NLS-1$
 
     public static final String BOOLEAN_FALSE_DISPLAY_VALUE = "FALSE"; //$NON-NLS-1$
+
+    public static final String BROWSE_MASTER_SUFFIX_MARK = "_M"; //$NON-NLS-1$
+
+    public static final String BROWSE_STAGING_SUFFIX_MARK = "_S"; //$NON-NLS-1$
+
 }
