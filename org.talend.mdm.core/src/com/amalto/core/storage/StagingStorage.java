@@ -10,14 +10,14 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.core.storage.task.StagingConstants;
-import com.amalto.core.storage.transaction.StorageTransaction;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.iterators.TransformIterator;
 import org.apache.commons.lang.StringUtils;
@@ -25,10 +25,15 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.core.storage.task.StagingConstants;
+import com.amalto.core.storage.transaction.StorageTransaction;
 
 public class StagingStorage implements Storage {
 
@@ -110,50 +115,59 @@ public class StagingStorage implements Storage {
 
     @Override
     public void update(Iterable<DataRecord> records) {
-        final TransformIterator iterator = new TransformIterator(records.iterator(), new Transformer() {
+        if (delegate instanceof HibernateStorage) {
+            ((HibernateStorage) delegate).getClassLoader().bind(Thread.currentThread());
+        }
+        try {
+            final TransformIterator iterator = new TransformIterator(records.iterator(), new Transformer() {
 
-            @Override
-            public Object transform(Object input) {
-                DataRecord dataRecord = (DataRecord) input;
-                DataRecordMetadata metadata = dataRecord.getRecordMetadata();
-                Map<String, String> recordProperties = metadata.getRecordProperties();
-                // Update on a record in staging reset all its match&merge information.
-                String status = recordProperties.get(METADATA_STAGING_STATUS);
-                StagingUpdateAction updateAction = updateActions.get(status);
-                if (updateAction == null) {
-                    // Try to re-read status from database
-                    if (status == null) {
-                        UserQueryBuilder readStatus = from(dataRecord.getType());
-                        for (FieldMetadata keyField : dataRecord.getType().getKeyFields()) {
-                            readStatus.where(eq(keyField, String.valueOf(dataRecord.get(keyField))));
-                        }
-                        StorageResults refreshedRecord = delegate.fetch(readStatus.getSelect());
-                        for (DataRecord record : refreshedRecord) {
-                            Map<String, String> refreshedProperties = record.getRecordMetadata().getRecordProperties();
-                            updateAction = updateActions.get(refreshedProperties.get(METADATA_STAGING_STATUS));
-                        }
-                    }
-                    // Database doesn't have any satisfying update action
+                @Override
+                public Object transform(Object input) {
+                    DataRecord dataRecord = (DataRecord) input;
+                    DataRecordMetadata metadata = dataRecord.getRecordMetadata();
+                    Map<String, String> recordProperties = metadata.getRecordProperties();
+                    // Update on a record in staging reset all its match&merge information.
+                    String status = recordProperties.get(METADATA_STAGING_STATUS);
+                    StagingUpdateAction updateAction = updateActions.get(status);
                     if (updateAction == null) {
-                        updateAction = defaultUpdateAction; // Covers cases where update action isn't specified.
+                        // Try to re-read status from database
+                        if (status == null) {
+                            UserQueryBuilder readStatus = from(dataRecord.getType());
+                            for (FieldMetadata keyField : dataRecord.getType().getKeyFields()) {
+                                readStatus.where(eq(keyField, StorageMetadataUtils.toString(dataRecord.get(keyField), keyField)));
+                            }
+                            StorageResults refreshedRecord = delegate.fetch(readStatus.getSelect());
+                            for (DataRecord record : refreshedRecord) {
+                                Map<String, String> refreshedProperties = record.getRecordMetadata().getRecordProperties();
+                                updateAction = updateActions.get(refreshedProperties.get(METADATA_STAGING_STATUS));
+                            }
+                        }
+                        // Database doesn't have any satisfying update action
+                        if (updateAction == null) {
+                            updateAction = defaultUpdateAction; // Covers cases where update action isn't specified.
+                        }
                     }
+                    recordProperties.put(Storage.METADATA_STAGING_STATUS, updateAction.value());
+                    recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
+                    if (updateAction.resetTaskId()) {
+                        metadata.setTaskId(null);
+                    }
+                    return dataRecord;
                 }
-                recordProperties.put(Storage.METADATA_STAGING_STATUS, updateAction.value());
-                recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
-                if (updateAction.resetTaskId()) {
-                    metadata.setTaskId(null);
-                }
-                return dataRecord;
-            }
-        });
-        Iterable<DataRecord> transformedRecords = new Iterable<DataRecord>() {
+            });
+            Iterable<DataRecord> transformedRecords = new Iterable<DataRecord>() {
 
-            @Override
-            public Iterator<DataRecord> iterator() {
-                return iterator;
+                @Override
+                public Iterator<DataRecord> iterator() {
+                    return iterator;
+                }
+            };
+            delegate.update(transformedRecords);
+        } finally {
+            if (delegate instanceof HibernateStorage) {
+                ((HibernateStorage) delegate).getClassLoader().unbind(Thread.currentThread());
             }
-        };
-        delegate.update(transformedRecords);
+        }
     }
 
     @Override
