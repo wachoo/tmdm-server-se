@@ -202,18 +202,30 @@ public class MainFramePanel extends Portal {
         });
     }  
 
+    private void initMatchingChart() {
+        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
+
+            @Override
+            public void onSuccess(Boolean isEnterprise) {
+                if (isEnterprise) {
+                    BasePortlet chart = new MatchingChart(MainFramePanel.this);
+                    MainFramePanel.this.add(chart, 1);
+                    portlets.add(chart);
+                }
+            }
+        });
+    }
     private void initChartPortlets() {
-        charts = new ArrayList<BasePortlet>(4);
+        charts = new ArrayList<BasePortlet>(3);
 
         BasePortlet dataChart = new DataChart(this);
         BasePortlet journalChart = new JournalChart(this);
         BasePortlet routingChart = new RoutingChart(this);
-        BasePortlet matchingChart = new MatchingChart(this);
+        initMatchingChart();
 
         charts.add(dataChart);
         charts.add(journalChart);
         charts.add(routingChart);
-        charts.add(matchingChart);
 
         int position = 0;
         for (BasePortlet chart : charts) {

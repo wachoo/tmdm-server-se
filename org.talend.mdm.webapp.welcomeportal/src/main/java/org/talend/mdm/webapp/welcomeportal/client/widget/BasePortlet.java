@@ -52,7 +52,7 @@ public abstract class BasePortlet extends Portlet {
         titles.put(WelcomePortal.CHART_ROUTING_EVENT, MessagesFactory.getMessages().chart_routing_event_title());
         titles.put(WelcomePortal.CHART_MATCHING, MessagesFactory.getMessages().chart_mathcing_title());
 
-        icons = new HashMap<String, AbstractImagePrototype>(8);
+        icons = new HashMap<String, AbstractImagePrototype>(5);
         icons.put(WelcomePortal.START, AbstractImagePrototype.create(Icons.INSTANCE.start()));
         icons.put(WelcomePortal.ALERT, AbstractImagePrototype.create(Icons.INSTANCE.alert()));
         icons.put(WelcomePortal.TASKS, AbstractImagePrototype.create(Icons.INSTANCE.task()));
