@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
@@ -36,7 +37,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -49,8 +49,6 @@ import com.amalto.core.storage.record.DataRecord;
 public class EventStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
-
-    // private final ParameterURLReader handler = new ParameterURLReader();
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -102,18 +100,17 @@ public class EventStatistics {
                 StorageResults routingNameResults = system.fetch(routingNames);
                 try {
                     XMLReader reader = XMLReaderFactory.createXMLReader();
-                    ParameterReader handler = null;
                     for (DataRecord routingNameResult : routingNameResults) {
                         // Get the URL called by event
                         String parameter = String.valueOf(routingNameResult.get(parameters));
-                        String key = ""; //$NON-NLS-1$
-
+                        String key;
+                        // TMDM-7324: handle different possible values.
                         if (parameter.startsWith("process=")) { //$NON-NLS-1$
                             // condition 1 handle process
-                            key = parameter.replace("process=", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                            key = parameter.replace("process=", StringUtils.EMPTY); //$NON-NLS-1$
                         } else if (parameter.contains("url")) { //$NON-NLS-1$
                             // condition 2 handle job
-                            handler = new ParameterReader("url"); //$NON-NLS-1$
+                            ParameterReader handler = new ParameterReader("url"); //$NON-NLS-1$
                             reader.setContentHandler(handler);
                             reader.parse(new InputSource(new StringReader(parameter)));
                             String url = handler.getParameterValue();
@@ -125,7 +122,7 @@ public class EventStatistics {
                             }
                         } else {
                             // condition 3 handle workflow
-                            handler = new ParameterReader("processId"); //$NON-NLS-1$
+                            ParameterReader handler = new ParameterReader("processId"); //$NON-NLS-1$
                             reader.setContentHandler(handler);
                             reader.parse(new InputSource(new StringReader(parameter)));
                             key = handler.getParameterValue();
@@ -156,18 +153,18 @@ public class EventStatistics {
 
         private final String parameterName;
 
-        private final ResettableStringWriter parameterValue;
+        private final StringWriter parameterValue;
 
         boolean accumulate;
 
         public ParameterReader(String parameterName) {
             this.parameterName = parameterName;
-            this.parameterValue = new ResettableStringWriter();
+            this.parameterValue = new StringWriter();
             accumulate = false;
         }
 
         public String getParameterValue() {
-            return parameterValue.reset();
+            return parameterValue.toString();
         }
 
         @Override
