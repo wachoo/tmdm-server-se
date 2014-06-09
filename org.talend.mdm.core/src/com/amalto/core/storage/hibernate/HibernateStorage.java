@@ -832,7 +832,6 @@ public class HibernateStorage implements Storage {
             ImpactAnalyzer.Impact category = impactCategory.getKey();
             switch (category) {
             case HIGH:
-            case MEDIUM:
                 if (!impactCategory.getValue().isEmpty()) {
                     if (force) {
                         for (Change change : impactCategory.getValue()) {
@@ -847,8 +846,26 @@ public class HibernateStorage implements Storage {
                             }
                         }
                     } else {
+                        // High changes without force=true is an error
                         throw new IllegalArgumentException("Some changes require force parameter.");
                     }
+                }
+            case MEDIUM:
+                if (!impactCategory.getValue().isEmpty()) {
+                    if (force) {
+                        for (Change change : impactCategory.getValue()) {
+                            MetadataVisitable element = change.getElement();
+                            if (element instanceof FieldMetadata) {
+                                typesToDrop.add(((FieldMetadata) element).getContainingType().getEntity());
+                            } else if (element instanceof ComplexTypeMetadata) {
+                                typesToDrop.add((ComplexTypeMetadata) element);
+                            }
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Change '" + change.getMessage() + "' requires a database schema update.");
+                            }
+                        }
+                    }
+                    // Change from high change: no exception if force=false (no schema update).
                 }
                 break;
             case LOW:
