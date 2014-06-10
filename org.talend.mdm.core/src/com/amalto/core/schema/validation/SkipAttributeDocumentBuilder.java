@@ -11,6 +11,7 @@
 
 package com.amalto.core.schema.validation;
 
+import com.amalto.core.load.io.ResettableStringWriter;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.*;
 import org.xml.sax.*;
@@ -114,6 +115,8 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
 
         private final Set<String> declaredNamespaces = new HashSet<String>();
 
+        private final ResettableStringWriter textValue = new ResettableStringWriter();
+
         public SkipAttributeHandler(Document document, boolean ignoreTalendNamespace) {
             this.document = document;
             this.ignoreTalendNamespace = ignoreTalendNamespace;
@@ -157,6 +160,10 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
             if (!elementStack.empty()) {
                 Element parent = elementStack.peek();
                 parent.appendChild(newElement);
+                if (textValue.getBuffer().length() > 0) {
+                    Text textNode = document.createTextNode(textValue.reset());
+                    newElement.appendChild(textNode);
+                }
             }
         }
 
@@ -164,9 +171,8 @@ public class SkipAttributeDocumentBuilder extends DocumentBuilder {
         public void characters(char[] ch, int start, int length) throws SAXException {
             String value = new String(ch, start, length);
             // Ignore empty strings (incl. those with line feeds).
-            if (!value.trim().isEmpty()) {
-                Text textNode = document.createTextNode(value);
-                elementStack.peek().appendChild(textNode);
+            if (!value.trim().isEmpty() || textValue.getBuffer().length() > 0) {
+                textValue.append(value);
             }
         }
     }
