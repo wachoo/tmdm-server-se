@@ -180,14 +180,13 @@ public class BrowseRecordsController extends Controller {
 
                         if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
                             if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()) {
-                                if (ItemsListPanel.getInstance().getCurrentQueryModel() != null && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
-                                        .equals(itemBean.getConcept())
-                                        || isClose) {
+                                if (ItemsListPanel.getInstance().getCurrentQueryModel() != null
+                                        && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
+                                                .equals(itemBean.getConcept()) || isClose) {
                                     ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                                 }
                             }
                         }
-                        
                         if (detailToolBar.isOutMost()) {
                             detailToolBar.refreshNodeStatus();
                         }
@@ -203,7 +202,8 @@ public class BrowseRecordsController extends Controller {
                                 detailToolBar.updateOutTabPanel(tabText);
                             }
                         }
-                        if (isStaging) {
+                        // TMDM-7366 If open or duplicate record in new tab,don't refresh LineageListPanel after save action.
+                        if (isStaging && !detailToolBar.isOutMost()) {
                             LineageListPanel.getInstance().refresh();
                         }
                         // TMDM-3349 button 'save and close' function
@@ -213,8 +213,9 @@ public class BrowseRecordsController extends Controller {
 
                         // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
                         if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
-                            if (ItemsListPanel.getInstance().getCurrentQueryModel() != null && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
-                                    .equals(itemBean.getConcept())) {
+                            if (ItemsListPanel.getInstance().getCurrentQueryModel() != null
+                                    && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
+                                            .equals(itemBean.getConcept())) {
                                 itemBean.setIds(result.getReturnValue());
                                 ItemsListPanel.getInstance().refreshGrid(itemBean);
                             }
@@ -235,10 +236,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-                                                                      $wnd.setTimeout(function() {
-                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-                                                                      }, millisecond);
-                                                                      }-*/;
+		$wnd.setTimeout(function() {
+			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+		}, millisecond);
+    }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
