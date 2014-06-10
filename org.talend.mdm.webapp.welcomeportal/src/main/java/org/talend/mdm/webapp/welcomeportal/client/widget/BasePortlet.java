@@ -150,7 +150,6 @@ public abstract class BasePortlet extends Portlet {
             startedAsOn = (Boolean) Cookies.getValue(cookieskey);
         }
         interval = ((MainFramePanel) portal).getInterval();
-
     }
 
     protected void initAutoRefresher() {
@@ -235,5 +234,9 @@ public abstract class BasePortlet extends Portlet {
         public void flip() {
             this.on = !on;
         }
+    }
+
+    public String getPortletName() {
+        return this.portletName;
     }
 }

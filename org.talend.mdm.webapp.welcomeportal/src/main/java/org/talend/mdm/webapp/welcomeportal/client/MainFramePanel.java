@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +32,11 @@ import org.talend.mdm.webapp.welcomeportal.client.widget.StartPortlet;
 import org.talend.mdm.webapp.welcomeportal.client.widget.TaskPortlet;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.event.ContainerEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-
+import com.extjs.gxt.ui.client.widget.custom.Portlet;
 
 
 /**
@@ -43,12 +48,22 @@ public class MainFramePanel extends Portal {
     
     private static final boolean DEFAULT_REFRESH_STARTASON = false;
     
+    private static final List<String> ORDERING_INDEX_DEFAULT = Arrays.asList(WelcomePortal.START, WelcomePortal.PROCESS, WelcomePortal.ALERT, WelcomePortal.SEARCH, 
+            WelcomePortal.TASKS, WelcomePortal.CHART_DATA, WelcomePortal.CHART_ROUTING_EVENT, WelcomePortal.CHART_JOURNAL, WelcomePortal.CHART_MATCHING);
+
+    private static int pos = 0;
+    
     private boolean startedAsOn;
+
     private int interval;
+    
     private boolean hiddenWorkFlowTask;
+        
     private boolean hiddenDSCTask;
+    
     private List<BasePortlet> portlets;
-    private List<BasePortlet> charts;
+
+    private Map<String, int[]> portletLocations = new HashMap<String, int[]>();
 
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
     
@@ -59,8 +74,24 @@ public class MainFramePanel extends Portal {
         setStyleAttribute("backgroundColor", "white"); //$NON-NLS-1$ //$NON-NLS-2$
         setColumnWidth(0, .5);
         setColumnWidth(1, .5);
+        
+        this.addListener(Events.Add, new Listener<ContainerEvent>() {
 
-
+            @Override
+            public void handleEvent(ContainerEvent be) {
+                
+                BasePortlet portlet = (BasePortlet)  be.getItem();
+                String portletName = portlet.getPortletName();
+                int column = MainFramePanel.this.getPortletColumn(portlet);
+                int row = MainFramePanel.this.getPortletIndex(portlet);
+                portletLocations.put(portletName, new int[]{column, row});
+                int index = ORDERING_INDEX_DEFAULT.indexOf(portletName);
+                if (index < ORDERING_INDEX_DEFAULT.size()) {
+                    initializePortlet(ORDERING_INDEX_DEFAULT.get(index + 1));
+                }
+            }
+        });
+        
         service.getWelcomePortletConfig(new SessionAwareAsyncCallback<Map<Boolean, Integer>>() {
 
             @Override
@@ -83,27 +114,56 @@ public class MainFramePanel extends Portal {
     
 
     }
-
+    
     private void initializePortlets() {
         portlets = new ArrayList<BasePortlet>();
         BasePortlet portlet;
-        
+        //start portlets initialization, see ContainerEvent listener
         portlet = new StartPortlet(this);
-        this.add(portlet, 0);
+        // add to the portal according the ordering
+        this.add(portlet);
         portlets.add(portlet);
-        
-        portlet = new ProcessPortlet(this);
-        this.add(portlet, 1);
-        portlets.add(portlet);
-        
-        initAlertPortlet();
-
-        initSearchPortlet();
-        
-        initTaskPortlet();
-        
-        initChartPortlets();
+                
     }
+    
+    private void add(Portlet portlet) {
+        this.add(portlet, pos%2);
+        pos++;
+        fireEvent(Events.Add, new ContainerEvent<Portal, Portlet>(this, portlet));
+    }
+    private void initializePortlet(String portletName) {
+        //WelcomePortal.PROCESS, WelcomePortal.ALERT, WelcomePortal.SEARCH, WelcomePortal.TASKS, 
+        //WelcomePortal.CHART_DATA, WelcomePortal.CHART_ROUTING_EVENT, WelcomePortal.CHART_JOURNAL, WelcomePortal.CHART_MATCHING
+        BasePortlet portlet = null;
+
+        if (WelcomePortal.PROCESS.equals(portletName)) {
+            portlet = new ProcessPortlet(this);
+        } else if (WelcomePortal.ALERT.equals(portletName)) {
+            initAlertPortlet();
+        } else if (WelcomePortal.SEARCH.equals(portletName)) {
+            initSearchPortlet();
+        } else if (WelcomePortal.TASKS.equals(portletName)) {
+            initTaskPortlet();
+        } else if (WelcomePortal.CHART_DATA.equals(portletName)) {
+            portlet = new DataChart(this);
+        } else if (WelcomePortal.CHART_ROUTING_EVENT.equals(portletName)) {
+            portlet = new RoutingChart(this);
+        } else if (WelcomePortal.CHART_JOURNAL.equals(portletName)) {
+            portlet = new JournalChart(this);
+        } else if (WelcomePortal.CHART_MATCHING.equals(portletName)) {
+            initMatchingChart();
+        } 
+        
+        if (portlet != null) {
+            this.add(portlet);
+            portlets.add(portlet);
+        } 
+    }
+
+//    public void add(Portlet portlet) {
+//        int[] loc = portlet_locations.get(((BasePortlet)portlet).getPortletName());
+//        this.insert(portlet, loc[1], loc[0]);
+//    }
 
     public void refreshPortlets() {
         for (BasePortlet portlet : portlets) {
@@ -147,37 +207,48 @@ public class MainFramePanel extends Portal {
     public int getInterval() {
         return this.interval;
     }
-    
-    private void initSearchPortlet() {
-        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
-
-            @Override
-            public void onSuccess(Boolean isEnterprise) {
-                if (isEnterprise) {
-                    BasePortlet searchPortlet = new SearchPortlet(MainFramePanel.this);
-                    MainFramePanel.this.add(searchPortlet, 1);
-                    portlets.add(searchPortlet);
-                }
-            }
-        });
-    }
 
     private void initAlertPortlet() {
+        
         service.isHiddenLicense(new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean hideMe) {
                 if (!hideMe) {
-                    BasePortlet alertPortlet = new AlertPortlet(MainFramePanel.this);
-                    MainFramePanel.this.add(alertPortlet, 0);
-                    portlets.add(alertPortlet);
+                    BasePortlet portlet = new AlertPortlet(MainFramePanel.this);
+                    MainFramePanel.this.add(portlet);
+                    portlets.add(portlet);
+                } else {
+                    int index = ORDERING_INDEX_DEFAULT.indexOf(WelcomePortal.ALERT);
+                    initializePortlet(ORDERING_INDEX_DEFAULT.get(index + 1));
                 }
             }
 
         });
+        
+    }
+    
+    private void initSearchPortlet() {
+        
+        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
+
+            @Override
+            public void onSuccess(Boolean isEnterprise) {
+                if (isEnterprise) {
+                    BasePortlet portlet = new SearchPortlet(MainFramePanel.this);
+                    MainFramePanel.this.add(portlet);
+                    portlets.add(portlet);
+                } else {
+                    int index = ORDERING_INDEX_DEFAULT.indexOf(WelcomePortal.SEARCH);
+                    initializePortlet(ORDERING_INDEX_DEFAULT.get(index + 1));
+                }
+            }
+        });
+        
     }
 
     private void initTaskPortlet() {
+        
         service.isHiddenWorkFlowTask(new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
@@ -191,49 +262,37 @@ public class MainFramePanel extends Portal {
                         setHiddenDSCTask(hideMeToo);
                         
                         if (!isHiddenWorkFlowTask() || !isHiddenDSCTask()) {
-                            BasePortlet taskPortlet = new TaskPortlet(MainFramePanel.this);
-                            MainFramePanel.this.add(taskPortlet, 1);
-                            portlets.add(taskPortlet);
+                            BasePortlet portlet = new TaskPortlet(MainFramePanel.this);
+                            MainFramePanel.this.add(portlet);
+                            portlets.add(portlet);
+                        } else {
+                            int index = ORDERING_INDEX_DEFAULT.indexOf(WelcomePortal.TASKS);
+                            initializePortlet(ORDERING_INDEX_DEFAULT.get(index + 1));
                         }
                         
                     }
                 });                
             }
         });
+        
     }  
 
     private void initMatchingChart() {
+        
         service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean isEnterprise) {
                 if (isEnterprise) {
-                    BasePortlet chart = new MatchingChart(MainFramePanel.this);
-                    MainFramePanel.this.add(chart, 1);
-                    portlets.add(chart);
+                    BasePortlet portlet = new MatchingChart(MainFramePanel.this);
+                    MainFramePanel.this.add(portlet);
+                    portlets.add(portlet);
                 }
             }
         });
+        
     }
-    private void initChartPortlets() {
-        charts = new ArrayList<BasePortlet>(3);
 
-        BasePortlet dataChart = new DataChart(this);
-        BasePortlet journalChart = new JournalChart(this);
-        BasePortlet routingChart = new RoutingChart(this);
-        initMatchingChart();
-
-        charts.add(dataChart);
-        charts.add(journalChart);
-        charts.add(routingChart);
-
-        int position = 0;
-        for (BasePortlet chart : charts) {
-            this.add(chart, position%2);
-            portlets.add(chart);
-            position++;
-        }
-    }
 
     public native void openWindow(String url)/*-{
         window.open(url);
