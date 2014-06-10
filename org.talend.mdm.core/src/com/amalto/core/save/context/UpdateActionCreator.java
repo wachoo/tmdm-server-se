@@ -10,17 +10,36 @@
 
 package com.amalto.core.save.context;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
+
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.storage.StorageMetadataUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
-
-import java.util.*;
 
 public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
@@ -359,7 +378,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
                     if (!newTypeMetadata.getSuperTypes().isEmpty() || !newTypeMetadata.getSubTypes().isEmpty()) {
-                        actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
+                        actions.addAll(ChangeTypeAction.create(originalDocument, date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
                     } else if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Ignore type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
                     }
@@ -413,7 +432,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         }
                         // Record the type change information (if applicable).
                         if (!newTypeMetadata.getSuperTypes().isEmpty() || !newTypeMetadata.getSubTypes().isEmpty()) {
-                            actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
+                            actions.addAll(ChangeReferenceTypeAction.create(originalDocument, date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
                         } else if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Ignore reference type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
                         }
