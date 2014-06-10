@@ -465,7 +465,7 @@ public class StorageMetadataUtils {
             }
         }
         String type = org.talend.mdm.commmon.metadata.MetadataUtils.getSuperConcreteType(metadata).getName();
-        if (Types.STRING.equals(type)) {
+        if (Types.STRING.equals(type) || Types.TOKEN.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
         } else if (Types.ANY_URI.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
