@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
@@ -57,6 +58,10 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
 
     private int getListDelay = 200;
 
+    private final int listLimitCount = 10;
+
+    public static List<Integer> keyCodeList = new ArrayList<Integer>();
+
     public SuggestComboBoxField() {
         super();
         init();
@@ -71,7 +76,7 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
     }
 
     protected void init() {
-
+        initKeyCodeList();
         setDisplayField(displayFieldName);
         setTypeAhead(true);
         setTriggerAction(TriggerAction.ALL);
@@ -80,6 +85,18 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         setDefaultStore();
         setStore(store);
         setListener();
+    }
+
+    private void initKeyCodeList() {
+        keyCodeList.add(KeyCodes.KEY_UP);
+        keyCodeList.add(KeyCodes.KEY_DOWN);
+        keyCodeList.add(KeyCodes.KEY_ESCAPE);
+        keyCodeList.add(KeyCodes.KEY_ENTER);
+        keyCodeList.add(KeyCodes.KEY_SHIFT);
+        keyCodeList.add(KeyCodes.KEY_HOME);
+        keyCodeList.add(KeyCodes.KEY_END);
+        keyCodeList.add(KeyCodes.KEY_TAB);
+        keyCodeList.add(KeyCodes.KEY_CTRL);
     }
 
     private DelayedTask task = new DelayedTask(new Listener<BaseEvent>() {
@@ -91,6 +108,7 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
                 final boolean hasForeignKeyFilter = foreignKeyFilter != null && foreignKeyFilter.trim().length() > 0 ? true
                         : false;
                 BasePagingLoadConfigImpl config = new BasePagingLoadConfigImpl();
+                config.setLimit(listLimitCount);
 
                 service.getForeignKeySuggestion(config, foreignKey, foreignKeyInfo, BrowseRecords.getSession().getAppHeader()
                         .getDatacluster(), hasForeignKeyFilter, inputValue, Locale.getLanguage(),
@@ -130,11 +148,7 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
             @Override
             public void handleEvent(FieldEvent e) {
                 String inputValue = getInputValue();
-                if (e.getKeyCode() != KeyCodes.KEY_UP && e.getKeyCode() != KeyCodes.KEY_DOWN
-                        && e.getKeyCode() != KeyCodes.KEY_ESCAPE && e.getKeyCode() != KeyCodes.KEY_ENTER
-                        && e.getKeyCode() != KeyCodes.KEY_SHIFT && e.getKeyCode() != KeyCodes.KEY_HOME
-                        && e.getKeyCode() != KeyCodes.KEY_END && e.getKeyCode() != KeyCodes.KEY_TAB
-                        && e.getKeyCode() != KeyCodes.KEY_CTRL) {
+                if (!keyCodeList.contains(e.getKeyCode())) {
 
                     if (e.getKeyCode() == KeyCodes.KEY_BACKSPACE) {
                         if (inputValue.contains("[") || inputValue.contains("]")) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -167,8 +181,8 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         }
 
         public native BoxComponent getBoxComponent() /*-{
-                                                     return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
-                                                     }-*/;
+			return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
+        }-*/;
 
     }
 
