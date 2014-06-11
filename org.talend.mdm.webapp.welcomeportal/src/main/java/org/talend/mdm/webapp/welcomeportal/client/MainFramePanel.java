@@ -14,11 +14,15 @@ package org.talend.mdm.webapp.welcomeportal.client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.welcomeportal.client.widget.AlertPortlet;
 import org.talend.mdm.webapp.welcomeportal.client.widget.BasePortlet;
@@ -35,6 +39,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ContainerEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.PortalEvent;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 
@@ -48,10 +53,10 @@ public class MainFramePanel extends Portal {
     
     private static final boolean DEFAULT_REFRESH_STARTASON = false;
     
-    private static final List<String> ORDERING_INDEX_DEFAULT = Arrays.asList(WelcomePortal.START, WelcomePortal.PROCESS, WelcomePortal.ALERT, WelcomePortal.SEARCH, 
+    private static final List<String> DEFAULT_ORDERING_INDEX = Arrays.asList(WelcomePortal.START, WelcomePortal.PROCESS, WelcomePortal.ALERT, WelcomePortal.SEARCH, 
             WelcomePortal.TASKS, WelcomePortal.CHART_DATA, WelcomePortal.CHART_ROUTING_EVENT, WelcomePortal.CHART_JOURNAL, WelcomePortal.CHART_MATCHING);
 
-    private static int pos = 0;
+    private static final String COOKIES_PORTLET_LOCATIONS = "portletLocations"; //$NON-NLS-1$
     
     private boolean startedAsOn;
 
@@ -63,8 +68,10 @@ public class MainFramePanel extends Portal {
     
     private List<BasePortlet> portlets;
 
-    private Map<String, int[]> portletLocations = new HashMap<String, int[]>();
-
+    private int pos;
+    
+    private Map<String, List<Integer>> portletToLocations = new LinkedHashMap<String, List<Integer>>();
+    
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
     
     public MainFramePanel(int numColumns) {
@@ -84,11 +91,23 @@ public class MainFramePanel extends Portal {
                 String portletName = portlet.getPortletName();
                 int column = MainFramePanel.this.getPortletColumn(portlet);
                 int row = MainFramePanel.this.getPortletIndex(portlet);
-                portletLocations.put(portletName, new int[]{column, row});
-                int index = ORDERING_INDEX_DEFAULT.indexOf(portletName);
-                if (index < ORDERING_INDEX_DEFAULT.size()) {
-                    initializePortlet(ORDERING_INDEX_DEFAULT.get(index + 1));
+                
+                portletToLocations.put(portletName, Arrays.asList(column, row));
+                int index = DEFAULT_ORDERING_INDEX.indexOf(portletName);
+                if (index < DEFAULT_ORDERING_INDEX.size() - 1) {
+                    initializePortlet(DEFAULT_ORDERING_INDEX.get(index + 1));
+                } else {
+                    //init cookies value after all portlet initialized
+                    Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
                 }
+            }
+        });
+        
+        this.addListener(Events.Drop, new Listener<PortalEvent>() {
+
+            @Override
+            public void handleEvent(PortalEvent pe) {
+                updateLocations();
             }
         });
         
@@ -117,23 +136,53 @@ public class MainFramePanel extends Portal {
     
     private void initializePortlets() {
         portlets = new ArrayList<BasePortlet>();
-        BasePortlet portlet;
-        //start portlets initialization, see ContainerEvent listener
-        portlet = new StartPortlet(this);
-        // add to the portal according the ordering
-        this.add(portlet);
-        portlets.add(portlet);
+        if (Cookies.getValue(COOKIES_PORTLET_LOCATIONS) == null) {
+            BasePortlet portlet;
+            //start portlets initialization, see ContainerEvent listener
+            portlet = new StartPortlet(this);
+            portlets.add(portlet);
+            this.add(portlet);
+        } else {
+            portletToLocations = (Map<String, List<Integer>>) Cookies.getValue(COOKIES_PORTLET_LOCATIONS);
+            initializePortlets(portletToLocations);
+        }
                 
     }
     
-    private void add(Portlet portlet) {
-        this.add(portlet, pos%2);
-        pos++;
-        fireEvent(Events.Add, new ContainerEvent<Portal, Portlet>(this, portlet));
+    //called when portlet locations are restored from cookies -- back in synchronous mode
+    private void initializePortlets(Map<String, List<Integer>> locs) {
+        Comparator<List<Integer>> locationComparator = new Comparator<List<Integer>>(){
+
+            @Override
+            public int compare(List<Integer> loc1, List<Integer> loc2) {
+                assert loc1.size() == 2;
+                assert loc2.size() == 2;
+                
+                int row1 = loc1.get(1);
+                int row2 = loc2.get(1);
+                
+                int diff = row1 - row2;
+                if ( diff != 0) {
+                    return diff;
+                } else {
+                    return loc1.get(0) - loc2.get(0);
+                }
+            }
+          
+        };
+        
+        //sort locations in order to insert portlets in portal in ascending order and avoid out-of-index error
+        SortedMap<List<Integer>, String> locationToPortlets = new TreeMap<List<Integer>, String>(locationComparator);
+        for (String portletName : locs.keySet()) {
+            locationToPortlets.put(locs.get(portletName), portletName);
+        }
+ 
+        for (List<Integer> loc : locationToPortlets.keySet()) {
+            initializePortlet(locationToPortlets.get(loc), loc);
+        }
     }
+    
     private void initializePortlet(String portletName) {
-        //WelcomePortal.PROCESS, WelcomePortal.ALERT, WelcomePortal.SEARCH, WelcomePortal.TASKS, 
-        //WelcomePortal.CHART_DATA, WelcomePortal.CHART_ROUTING_EVENT, WelcomePortal.CHART_JOURNAL, WelcomePortal.CHART_MATCHING
         BasePortlet portlet = null;
 
         if (WelcomePortal.PROCESS.equals(portletName)) {
@@ -155,16 +204,73 @@ public class MainFramePanel extends Portal {
         } 
         
         if (portlet != null) {
-            this.add(portlet);
             portlets.add(portlet);
+            this.add(portlet);
         } 
     }
+    
+    private void initializePortlet(String portletName, List<Integer> loc) {
+        BasePortlet portlet = null;
+        if (WelcomePortal.START.equals(portletName)) {
+            portlet = new StartPortlet(this);
+        } else if (WelcomePortal.PROCESS.equals(portletName)) {
+            portlet = new ProcessPortlet(this);
+        } else if (WelcomePortal.ALERT.equals(portletName)) {
+            portlet = new AlertPortlet(this);
+        } else if (WelcomePortal.SEARCH.equals(portletName)) {
+            portlet = new SearchPortlet(this);
+        } else if (WelcomePortal.TASKS.equals(portletName)) {
+            portlet = new TaskPortlet(this);
+        } else if (WelcomePortal.CHART_DATA.equals(portletName)) {
+            portlet = new DataChart(this);
+        } else if (WelcomePortal.CHART_ROUTING_EVENT.equals(portletName)) {
+            portlet = new RoutingChart(this);
+        } else if (WelcomePortal.CHART_JOURNAL.equals(portletName)) {
+            portlet = new JournalChart(this);
+        } else if (WelcomePortal.CHART_MATCHING.equals(portletName)) {
+            portlet = new MatchingChart(this);
+        } else {
+            assert false;
+        }
+        
+        if (portlet != null) {
+            portlets.add(portlet);
+            this.add(portlet, loc);
+        } 
+    }
+    
+    private void add(Portlet portlet) {
+        this.add(portlet, pos%2);
+        pos++;
+        fireEvent(Events.Add, new ContainerEvent<Portal, Portlet>(this, portlet));
+    }
+    
+    private void add(Portlet portlet, List<Integer> loc) {
+        insert(portlet, loc.get(1), loc.get(0));
+    }
+    
+    private List<String> getPortletNames() {
+        List<String> names = new ArrayList<String>(portlets.size());
+        for (BasePortlet portlet : portlets) {
+            names.add(portlet.getPortletName());
+        }
+        return names;
+    }
 
-//    public void add(Portlet portlet) {
-//        int[] loc = portlet_locations.get(((BasePortlet)portlet).getPortletName());
-//        this.insert(portlet, loc[1], loc[0]);
-//    }
+    private void updateLocations() {
 
+        int column;
+        int row;
+        for (BasePortlet portlet : portlets) {
+            column = this.getPortletColumn(portlet);
+            row = this.getPortletIndex(portlet);
+            
+            portletToLocations.put(portlet.getPortletName(), Arrays.asList(column, row));
+        }
+        
+        Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
+    }
+    
     public void refreshPortlets() {
         for (BasePortlet portlet : portlets) {
             portlet.refresh();
@@ -216,11 +322,11 @@ public class MainFramePanel extends Portal {
             public void onSuccess(Boolean hideMe) {
                 if (!hideMe) {
                     BasePortlet portlet = new AlertPortlet(MainFramePanel.this);
-                    MainFramePanel.this.add(portlet);
                     portlets.add(portlet);
+                    MainFramePanel.this.add(portlet);
                 } else {
-                    int index = ORDERING_INDEX_DEFAULT.indexOf(WelcomePortal.ALERT);
-                    initializePortlet(ORDERING_INDEX_DEFAULT.get(index + 1));
+                    int index = DEFAULT_ORDERING_INDEX.indexOf(WelcomePortal.ALERT);
+                    initializePortlet(DEFAULT_ORDERING_INDEX.get(index + 1));
                 }
             }
 
@@ -236,11 +342,11 @@ public class MainFramePanel extends Portal {
             public void onSuccess(Boolean isEnterprise) {
                 if (isEnterprise) {
                     BasePortlet portlet = new SearchPortlet(MainFramePanel.this);
-                    MainFramePanel.this.add(portlet);
                     portlets.add(portlet);
+                    MainFramePanel.this.add(portlet);
                 } else {
-                    int index = ORDERING_INDEX_DEFAULT.indexOf(WelcomePortal.SEARCH);
-                    initializePortlet(ORDERING_INDEX_DEFAULT.get(index + 1));
+                    int index = DEFAULT_ORDERING_INDEX.indexOf(WelcomePortal.SEARCH);
+                    initializePortlet(DEFAULT_ORDERING_INDEX.get(index + 1));
                 }
             }
         });
@@ -263,11 +369,11 @@ public class MainFramePanel extends Portal {
                         
                         if (!isHiddenWorkFlowTask() || !isHiddenDSCTask()) {
                             BasePortlet portlet = new TaskPortlet(MainFramePanel.this);
-                            MainFramePanel.this.add(portlet);
                             portlets.add(portlet);
+                            MainFramePanel.this.add(portlet);
                         } else {
-                            int index = ORDERING_INDEX_DEFAULT.indexOf(WelcomePortal.TASKS);
-                            initializePortlet(ORDERING_INDEX_DEFAULT.get(index + 1));
+                            int index = DEFAULT_ORDERING_INDEX.indexOf(WelcomePortal.TASKS);
+                            initializePortlet(DEFAULT_ORDERING_INDEX.get(index + 1));
                         }
                         
                     }
@@ -285,14 +391,13 @@ public class MainFramePanel extends Portal {
             public void onSuccess(Boolean isEnterprise) {
                 if (isEnterprise) {
                     BasePortlet portlet = new MatchingChart(MainFramePanel.this);
-                    MainFramePanel.this.add(portlet);
                     portlets.add(portlet);
+                    MainFramePanel.this.add(portlet);
                 }
             }
         });
         
     }
-
 
     public native void openWindow(String url)/*-{
         window.open(url);
