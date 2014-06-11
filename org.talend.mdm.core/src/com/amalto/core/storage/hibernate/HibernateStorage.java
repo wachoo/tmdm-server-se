@@ -10,6 +10,8 @@
 
 package com.amalto.core.storage.hibernate;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,14 +22,19 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.WeakHashMap;
 
-import com.amalto.core.query.user.*;
-import com.amalto.core.server.StorageAdmin;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -36,12 +43,36 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.Lock;
-import org.hibernate.*;
+import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
+import org.hibernate.LockOptions;
+import org.hibernate.NonUniqueObjectException;
+import org.hibernate.PropertyValueException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.exception.ConstraintViolationException;
-import org.hibernate.mapping.*;
+import org.hibernate.mapping.Any;
+import org.hibernate.mapping.Array;
+import org.hibernate.mapping.Bag;
+import org.hibernate.mapping.Component;
+import org.hibernate.mapping.DependantValue;
+import org.hibernate.mapping.IdentifierBag;
+import org.hibernate.mapping.JoinedSubclass;
+import org.hibernate.mapping.ManyToOne;
+import org.hibernate.mapping.OneToMany;
+import org.hibernate.mapping.OneToOne;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.PersistentClassVisitor;
+import org.hibernate.mapping.PrimitiveArray;
+import org.hibernate.mapping.Property;
+import org.hibernate.mapping.RootClass;
+import org.hibernate.mapping.SimpleValue;
+import org.hibernate.mapping.SingleTableSubclass;
+import org.hibernate.mapping.Subclass;
+import org.hibernate.mapping.Table;
+import org.hibernate.mapping.UnionSubclass;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
@@ -50,7 +81,22 @@ import org.hibernate.search.impl.SearchFactoryImpl;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.InboundReferences;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataVisitable;
+import org.talend.mdm.commmon.metadata.MetadataVisitor;
+import org.talend.mdm.commmon.metadata.NoSupportTypes;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
@@ -61,9 +107,20 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.amalto.core.query.optimization.*;
+import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
+import com.amalto.core.query.optimization.ContainsOptimizer;
+import com.amalto.core.query.optimization.Optimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
+import com.amalto.core.query.optimization.RecommendedIndexes;
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryDumpConsole;
+import com.amalto.core.query.user.Visitor;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
@@ -71,16 +128,16 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.prepare.*;
+import com.amalto.core.storage.prepare.FullTextIndexCleaner;
+import com.amalto.core.storage.prepare.JDBCStorageCleaner;
+import com.amalto.core.storage.prepare.JDBCStorageInitializer;
+import com.amalto.core.storage.prepare.StorageCleaner;
+import com.amalto.core.storage.prepare.StorageInitializer;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordConverter;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
-
-import static com.amalto.core.query.user.UserQueryBuilder.and;
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 public class HibernateStorage implements Storage {
 
@@ -902,8 +959,7 @@ public class HibernateStorage implements Storage {
             List<String> tablesToDrop = new LinkedList<String>();
             TableClosureVisitor visitor = new TableClosureVisitor();
             for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
-                PersistentClass metadata = configuration.getClassMapping(ClassCreator.PACKAGE_PREFIX
-                        + tableResolver.get(typeMetadata));
+                PersistentClass metadata = configuration.getClassMapping(ClassCreator.getClassName(typeMetadata.getName()));
                 if (metadata != null) {
                     tablesToDrop.addAll((Collection<String>) metadata.accept(visitor));
                 } else {
@@ -922,8 +978,9 @@ public class HibernateStorage implements Storage {
                 try {
                     for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
                         try {
-                            Class<?> clazz = storageClassLoader.loadClass(ClassCreator.PACKAGE_PREFIX + tableResolver.get(typeMetadata));
-                            File directoryFile = new File(dataSource.getIndexDirectory() + '/' + getName() + '/' + clazz.getName());
+                            Class<?> clazz = storageClassLoader.loadClass(ClassCreator.getClassName(typeMetadata.getName()));
+                            File directoryFile = new File(dataSource.getIndexDirectory() + '/' + getName() + '/'
+                                    + clazz.getName());
                             if (directoryFile.exists()) {
                                 final Directory directory = FSDirectory.open(directoryFile);
                                 final String lockName = "delete." + typeMetadata.getName(); //$NON-NLS-1$
