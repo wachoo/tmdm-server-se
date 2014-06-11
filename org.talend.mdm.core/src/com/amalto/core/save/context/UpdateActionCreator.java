@@ -10,17 +10,36 @@
 
 package com.amalto.core.save.context;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
+
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.metadata.MetadataUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
-
-import java.util.*;
 
 public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
@@ -58,52 +77,21 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private boolean generateTouchActions = false;
 
-    public UpdateActionCreator(MutableDocument originalDocument,
-                               MutableDocument newDocument,
-                               Date date,
-                               String source,
-                               String userName,
-                               boolean generateTouchActions,
-                               MetadataRepository repository) {
-        this(originalDocument,
-                newDocument,
-                date,
-                false,
-                -1,
-                source,
-                userName,
-                generateTouchActions,
+    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, Date date, String source,
+            String userName, boolean generateTouchActions, MetadataRepository repository) {
+        this(originalDocument, newDocument, date, false, -1, source, userName, generateTouchActions, repository);
+    }
+
+    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, Date date,
+            boolean preserveCollectionOldValues, String source, String userName, boolean generateTouchActions,
+            MetadataRepository repository) {
+        this(originalDocument, newDocument, date, preserveCollectionOldValues, -1, source, userName, generateTouchActions,
                 repository);
     }
 
-    public UpdateActionCreator(MutableDocument originalDocument,
-                               MutableDocument newDocument,
-                               Date date,
-                               boolean preserveCollectionOldValues,
-                               String source,
-                               String userName,
-                               boolean generateTouchActions,
-                               MetadataRepository repository) {
-        this(originalDocument,
-                newDocument,
-                date,
-                preserveCollectionOldValues,
-                -1,
-                source,
-                userName,
-                generateTouchActions,
-                repository);
-    }
-
-    public UpdateActionCreator(MutableDocument originalDocument,
-                               MutableDocument newDocument,
-                               Date date,
-                               boolean preserveCollectionOldValues,
-                               int insertIndex,
-                               String source,
-                               String userName,
-                               boolean generateTouchActions,
-                               MetadataRepository repository) {
+    public UpdateActionCreator(MutableDocument originalDocument, MutableDocument newDocument, Date date,
+            boolean preserveCollectionOldValues, int insertIndex, String source, String userName, boolean generateTouchActions,
+            MetadataRepository repository) {
         this.preserveCollectionOldValues = preserveCollectionOldValues;
         this.originalDocument = originalDocument;
         this.newDocument = newDocument;
@@ -155,6 +143,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
      * Interface to encapsulate action to execute on fields
      */
     interface Closure {
+
         void execute(FieldMetadata field);
     }
 
@@ -230,9 +219,11 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         Accessor newAccessor = newDocument.createAccessor(path);
         if (!originalAccessor.exist()) {
             if (newAccessor.exist()) { // new accessor exist
-                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure legacy behavior
+                if (newAccessor.get() != null && !newAccessor.get().isEmpty()) { // Empty accessor means no op to ensure
+                                                                                 // legacy behavior
                     generateNoOp(lastMatchPath);
-                    actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(), comparedField));
+                    actions.add(new FieldUpdateAction(date, source, userName, path, StringUtils.EMPTY, newAccessor.get(),
+                            comparedField));
                     generateNoOp(path);
                 }
             }
@@ -244,7 +235,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     // TMDM-5216: Visit sub fields include old/new values for sub elements.
                     if (comparedField instanceof ContainedTypeFieldMetadata) {
                         isDeletingContainedElement = true;
-                        TypeMetadata type = repository.getNonInstantiableType(repository.getUserNamespace(), originalAccessor.getActualType());
+                        TypeMetadata type = repository.getNonInstantiableType(repository.getUserNamespace(),
+                                originalAccessor.getActualType());
                         if (type == null) {
                             type = ((ContainedTypeFieldMetadata) comparedField).getContainedType();
                         }
@@ -273,12 +265,15 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         String previousPathElement = this.path.pop();
                         int insertIndex = getInsertIndex(comparedField);
                         this.path.push(comparedField.getName() + "[" + insertIndex + "]");
-                        actions.add(new FieldInsertAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newValue, comparedField));
+                        actions.add(new FieldInsertAction(date, source, userName, getLeftPath(), StringUtils.EMPTY, newValue,
+                                comparedField));
                         this.path.pop();
                         this.path.push(previousPathElement);
                     } else if (oldValue != null && !oldValue.equals(newValue)) {
-                        if (!Types.STRING.equals(comparedField.getType().getName()) && !(comparedField instanceof ReferenceFieldMetadata)) {
-                            // Field is not string. To ensure false positive difference detection, creates a typed value.
+                        if (!Types.STRING.equals(comparedField.getType().getName())
+                                && !(comparedField instanceof ReferenceFieldMetadata)) {
+                            // Field is not string. To ensure false positive difference detection, creates a typed
+                            // value.
                             Object oldObject = MetadataUtils.convert(oldValue, comparedField);
                             Object newObject = MetadataUtils.convert(newValue, comparedField);
                             if (oldObject != null && newObject != null && oldObject instanceof Comparable) {
@@ -294,7 +289,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 }
                             }
                         }
-                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(),
+                                comparedField));
                     } else if (oldValue != null && oldValue.equals(newValue)) {
                         generateNoOp(path);
                     }
@@ -332,6 +328,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             this.containedField = containedField;
         }
 
+        @Override
         public void execute(FieldMetadata field) {
             ComplexTypeMetadata type = containedField.getContainedType();
 
@@ -347,8 +344,10 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
 
                 if (!newType.isEmpty() && !newType.startsWith(MetadataRepository.ANONYMOUS_PREFIX)) {
-                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), newType);
-                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), previousType);
+                    ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(
+                            repository.getUserNamespace(), newType);
+                    ComplexTypeMetadata previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(
+                            repository.getUserNamespace(), previousType);
                     // Perform some checks about the xsi:type value (valid or not?).
                     if (newTypeMetadata == null) {
                         throw new IllegalArgumentException("Type '" + newType + "' was not found.");
@@ -359,9 +358,11 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 + "' is not assignable from type '" + newTypeMetadata.getName() + "'");
                     }
                     if (!newTypeMetadata.getSuperTypes().isEmpty() || !newTypeMetadata.getSubTypes().isEmpty()) {
-                        actions.add(new ChangeTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
+                        actions.addAll(ChangeTypeAction.create(originalDocument, date, source, userName, getLeftPath(),
+                                previousTypeMetadata, newTypeMetadata, field));
                     } else if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignore type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
+                        LOGGER.debug("Ignore type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName()
+                                + "' does not belong to an inheritance tree.");
                     }
                     type = newTypeMetadata;
                 }
@@ -379,6 +380,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 
     private class CompareClosure implements Closure {
 
+        @Override
         public void execute(FieldMetadata field) {
             compare(field);
             if (field instanceof ReferenceFieldMetadata) {
@@ -392,7 +394,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                     }
 
                     if (!newType.isEmpty() && !newType.startsWith(MetadataRepository.ANONYMOUS_PREFIX)) {
-                        ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), newType);
+                        ComplexTypeMetadata newTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(
+                                repository.getUserNamespace(), newType);
                         ComplexTypeMetadata previousTypeMetadata = null;
                         if (newTypeMetadata != null && !newTypeMetadata.isInstantiable()) {
                             ComplexTypeMetadata actualNewTypeMetadata = newTypeMetadata;
@@ -406,16 +409,19 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 LOGGER.debug("Replacing type '" + newType + "' with '" + actualNewTypeMetadata.getName() + ".");
                             }
                             newTypeMetadata = actualNewTypeMetadata;
-                            previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), previousType);
+                            previousTypeMetadata = (ComplexTypeMetadata) repository.getNonInstantiableType(
+                                    repository.getUserNamespace(), previousType);
                         } else if (newTypeMetadata == null) {
                             newTypeMetadata = (ComplexTypeMetadata) repository.getType(newType);
                             previousTypeMetadata = (ComplexTypeMetadata) repository.getType(previousType);
                         }
                         // Record the type change information (if applicable).
                         if (!newTypeMetadata.getSuperTypes().isEmpty() || !newTypeMetadata.getSubTypes().isEmpty()) {
-                            actions.add(new ChangeReferenceTypeAction(date, source, userName, getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
+                            actions.addAll(ChangeReferenceTypeAction.create(originalDocument, date, source, userName,
+                                    getLeftPath(), previousTypeMetadata, newTypeMetadata, field));
                         } else if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Ignore reference type change on '" + getLeftPath() + "': type '" + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
+                            LOGGER.debug("Ignore reference type change on '" + getLeftPath() + "': type '"
+                                    + newTypeMetadata.getName() + "' does not belong to an inheritance tree.");
                         }
                     }
                 }

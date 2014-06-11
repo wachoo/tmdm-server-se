@@ -3,18 +3,23 @@
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.save.context;
 
-import org.talend.mdm.commmon.metadata.*;
-
 import java.util.Set;
 import java.util.Stack;
+
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
 class TypeComparison extends DefaultMetadataVisitor<Set<String>> {
 
@@ -46,10 +51,13 @@ class TypeComparison extends DefaultMetadataVisitor<Set<String>> {
 
     @Override
     public Set<String> visit(ReferenceFieldMetadata referenceField) {
+        String currentPath = getCurrentPath(referenceField);
         try {
-            type.getField(getCurrentPath(referenceField));
+            if (!type.hasField(currentPath)) {
+                paths.add(currentPath);
+            }
         } catch (Exception e) {
-            paths.add(getCurrentPath(referenceField));
+            paths.add(currentPath);
         }
         return paths;
     }
@@ -64,6 +72,7 @@ class TypeComparison extends DefaultMetadataVisitor<Set<String>> {
                 type = containedField.getContainingType();
             } else {
                 paths.add(containedField.getName());
+                containedField.getContainedType().accept(this);
             }
         }
         pathPrefix.pop();
@@ -72,30 +81,39 @@ class TypeComparison extends DefaultMetadataVisitor<Set<String>> {
 
     @Override
     public Set<String> visit(FieldMetadata fieldMetadata) {
+        String currentPath = getCurrentPath(fieldMetadata);
         try {
-            type.getField(fieldMetadata.getName());
+            if (!type.hasField(fieldMetadata.getName())) {
+                paths.add(currentPath);
+            }
         } catch (Exception e) {
-            paths.add(getCurrentPath(fieldMetadata));
+            paths.add(currentPath);
         }
         return paths;
     }
 
     @Override
     public Set<String> visit(SimpleTypeFieldMetadata simpleField) {
+        String currentPath = getCurrentPath(simpleField);
         try {
-            type.getField(simpleField.getName());
+            if (!type.hasField(simpleField.getName())) {
+                paths.add(currentPath);
+            }
         } catch (Exception e) {
-            paths.add(getCurrentPath(simpleField));
+            paths.add(currentPath);
         }
         return paths;
     }
 
     @Override
     public Set<String> visit(EnumerationFieldMetadata enumField) {
+        String currentPath = getCurrentPath(enumField);
         try {
-            type.getField(enumField.getName());
+            if (!type.hasField(enumField.getName())) {
+                paths.add(currentPath);
+            }
         } catch (Exception e) {
-            paths.add(getCurrentPath(enumField));
+            paths.add(currentPath);
         }
         return paths;
     }
