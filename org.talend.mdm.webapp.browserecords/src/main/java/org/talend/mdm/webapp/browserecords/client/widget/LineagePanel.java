@@ -21,6 +21,9 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -37,6 +40,10 @@ public class LineagePanel extends ContentPanel {
     private ContentPanel detailPanel;
 
     private ContentPanel explainTreePanel;
+
+    private TreePanel<BaseTreeModel> tree;
+
+    private BaseTreeModel root;
 
     public static LineagePanel getInstance() {
         if (instance == null) {
@@ -61,6 +68,15 @@ public class LineagePanel extends ContentPanel {
         northData.setFloatable(true);
         northData.setSplit(true);
         lineageListPanel = LineageListPanel.getInstance();
+        lineageListPanel.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+            @Override
+            public void handleEvent(BaseEvent be) {
+                if (explainTreePanel.isExpanded() && tree != null && root != null && !tree.isExpanded(root)) {
+                    tree.expandAll();
+                }
+            }
+        });
         contentPanel.add(lineageListPanel, northData);
 
         BorderLayoutData southData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -94,11 +110,14 @@ public class LineagePanel extends ContentPanel {
                 concept, taskId, new SessionAwareAsyncCallback<BaseTreeModel>() {
 
                     @Override
-                    public void onSuccess(BaseTreeModel root) {
-                        TreePanel<BaseTreeModel> tree = CommonUtil.getExplainResultPanel(root);
+                    public void onSuccess(BaseTreeModel rootNode) {
+                        LineagePanel.this.root = rootNode;
+                        tree = CommonUtil.getExplainResultPanel(rootNode);
                         explainTreePanel.add(tree);
                         explainTreePanel.layout();
-                        tree.expandAll();
+                        if (explainTreePanel.isExpanded()) {
+                            tree.expandAll();
+                        }
                     }
                 });
     }

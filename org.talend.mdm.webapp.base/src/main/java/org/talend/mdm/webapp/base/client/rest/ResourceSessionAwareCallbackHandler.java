@@ -74,12 +74,12 @@ public abstract class ResourceSessionAwareCallbackHandler implements ResourceCal
     public abstract void doProcess(Request request, Response response) throws Exception;
 
     protected void alertStagingError(Throwable e) {
-        String errorTitle = messages.service_rest_error();
+        String errorTitle = messages.error_title();
         String errorDetail;
         if (e.getMessage() == null || e.getMessage().trim().length() == 0) {
-            errorDetail = messages.service_rest_exception();
+            errorDetail = messages.unknown_error();
         } else {
-            errorDetail = messages.service_rest_exception() + "</br>" + messages.underlying_cause() //$NON-NLS-1$
+            errorDetail = messages.underlying_cause()
                     + "<div style='width:300px; height:80px; overflow:auto; margin-top: 5px; margin-left: 50px; border: dashed 1px #777777;'>" //$NON-NLS-1$
                     + Format.htmlEncode(e.getMessage()) + "</div>"; //$NON-NLS-1$
         }
