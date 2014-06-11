@@ -53,6 +53,9 @@ public class MatchingChart extends ChartPortlet {
             @Override
             public void onSuccess(String dataContainer) {
 
+                dc = dataContainer;
+                dataContainerChanged = false;
+
                 StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer,
                         new SessionAwareAsyncCallback<JSONArray>() {
 
@@ -73,13 +76,16 @@ public class MatchingChart extends ChartPortlet {
             @Override
             public void onSuccess(String dataContainer) {
 
+                dataContainerChanged = !dc.equals(dataContainer);
+                dc = dataContainer;
+
                 StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer,
                         new SessionAwareAsyncCallback<JSONArray>() {
 
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
                                 Map<String, Object> newData = parseJSONData(jsonArray);
-                                if (plot == null) {
+                                if (plot == null || dataContainerChanged) {
                                     chartData = newData;
                                     initAndShow();
                                 } else {

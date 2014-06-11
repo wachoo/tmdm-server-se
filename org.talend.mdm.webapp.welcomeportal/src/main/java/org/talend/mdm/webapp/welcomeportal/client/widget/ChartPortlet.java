@@ -37,6 +37,10 @@ public abstract class ChartPortlet extends BasePortlet {
 
     protected Map<String, Object> chartData;
 
+    protected String dc;
+
+    protected boolean dataContainerChanged;
+
     public ChartPortlet(String name, Portal portal) {
         super(name, portal);
         initAutoRefresher();

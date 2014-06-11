@@ -59,6 +59,8 @@ public class JournalChart extends ChartPortlet {
 
             @Override
             public void onSuccess(String dataContainer) {
+                dataContainerChanged = !dc.equals(dataContainer);
+                dc = dataContainer;
 
                 StatisticsRestServiceHandler.getInstance().getContainerJournalStats(dataContainer,
                         new SessionAwareAsyncCallback<JSONArray>() {
@@ -66,7 +68,7 @@ public class JournalChart extends ChartPortlet {
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
                                 Map<String, Object> newData = parseJSONData(jsonArray);
-                                if (plot == null) {
+                                if (plot == null || dataContainerChanged) {
                                     chartData = newData;
                                     initAndShow();
                                 } else {
@@ -85,6 +87,9 @@ public class JournalChart extends ChartPortlet {
 
             @Override
             public void onSuccess(String dataContainer) {
+
+                dc = dataContainer;
+                dataContainerChanged = false;
 
                 StatisticsRestServiceHandler.getInstance().getContainerJournalStats(dataContainer,
                         new SessionAwareAsyncCallback<JSONArray>() {

@@ -39,10 +39,6 @@ import com.googlecode.gflot.client.options.PlotOptions;
 
 public class DataChart extends ChartPortlet {
 
-    private String dc;
-
-    private boolean dataContainerChanged;
-
     public DataChart(Portal portal) {
         super(WelcomePortal.CHART_DATA, portal);
 
@@ -89,7 +85,7 @@ public class DataChart extends ChartPortlet {
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
                                 Map<String, Object> newData = parseJSONData(jsonArray);
-                                if (plot == null) {
+                                if (plot == null || dataContainerChanged) {
                                     chartData = newData;
                                     initAndShow();
                                 } else {
