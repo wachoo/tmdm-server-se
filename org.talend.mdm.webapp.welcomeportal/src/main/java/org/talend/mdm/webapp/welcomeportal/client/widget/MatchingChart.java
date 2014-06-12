@@ -34,6 +34,7 @@ import com.googlecode.gflot.client.options.BarSeriesOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
 import com.googlecode.gflot.client.options.CategoriesAxisOptions;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
+import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
 import com.googlecode.gflot.client.options.LineSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
@@ -119,6 +120,7 @@ public class MatchingChart extends ChartPortlet {
                                 CategoriesAxisOptions.create().setCategories(
                                         entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
         plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
+        plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
 
         // create series
         SeriesHandler seriesMatched = model.addSeries(Series.of("Matched")); //$NON-NLS-1$

@@ -35,6 +35,7 @@ import com.googlecode.gflot.client.options.BarSeriesOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
 import com.googlecode.gflot.client.options.CategoriesAxisOptions;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
+import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
 import com.googlecode.gflot.client.options.LineSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
@@ -127,6 +128,7 @@ public class JournalChart extends ChartPortlet {
                                         entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
 
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
+        plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
 
         // create series
         SeriesHandler seriesCreation = model.addSeries(Series.of("Creation")); //$NON-NLS-1$

@@ -35,6 +35,7 @@ import com.googlecode.gflot.client.options.BarSeriesOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
 import com.googlecode.gflot.client.options.CategoriesAxisOptions;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
+import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
 import com.googlecode.gflot.client.options.LineSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
@@ -98,7 +99,7 @@ public class RoutingChart extends ChartPortlet {
                                         appnamesSorted.toArray(new String[appnamesSorted.size()]))));
 
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
-
+        plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
         // create series
         SeriesHandler seriesCompleted = model.addSeries(Series.of("Completed")); //$NON-NLS-1$
         SeriesHandler seriesFailed = model.addSeries(Series.of("Failed")); //$NON-NLS-1$
