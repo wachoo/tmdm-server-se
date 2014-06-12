@@ -2464,4 +2464,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
+
+    @Override
+    public boolean isEnterpriseVersion() {
+        return Webapp.INSTANCE.isEnterpriseVersion();
+    }
 }

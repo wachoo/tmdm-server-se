@@ -151,4 +151,6 @@ public interface BrowseRecordsService extends RemoteService {
     List<ForeignKeyBean> getForeignKeySuggestion(BasePagingLoadConfigImpl config, String foregnKey, List<String> foregnKeyInfo,
             String dataClusterPK, boolean ifFKFilter, String input, String language) throws ServiceException;
 
+    boolean isEnterpriseVersion();
+
 }

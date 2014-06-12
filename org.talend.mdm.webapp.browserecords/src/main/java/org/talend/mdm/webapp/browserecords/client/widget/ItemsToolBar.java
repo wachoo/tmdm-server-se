@@ -266,8 +266,9 @@ public class ItemsToolBar extends ToolBar {
         if (!viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyCreatable()) {
             createButton.setEnabled(true);
             uploadButton.getMenu().getItemByItemId("importRecords").setEnabled(true); //$NON-NLS-1$
-            simulateMatchButton.setEnabled(true);
-
+            if (simulateMatchButton != null) {
+                simulateMatchButton.setEnabled(true);
+            }
         }
         boolean denyLogicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyLogicalDeletable();
         boolean denyPhysicalDelete = viewBean.getBindingEntityModel().getMetaDataTypes().get(concept).isDenyPhysicalDeleteable();
@@ -301,20 +302,28 @@ public class ItemsToolBar extends ToolBar {
     }
 
     private void initToolBar() {
-        addCreateButton();
-        addDeleteButton();
-        addSimulateMatchButton();
-        addImportAndExportButton();
-        add(new FillToolItem());
-        addEntityCombo();
-        addSearchPanel();
-        addSearchButton();
-        add(new SeparatorToolItem());
-        addAdvanceSearchButton();
-        add(new SeparatorToolItem());
-        addManageBookButton();
-        addBookMarkButton();
-        initAdvancedPanel();
+        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
+
+            @Override
+            public void onSuccess(Boolean isEnterprise) {
+                addCreateButton();
+                addDeleteButton();
+                if (isEnterprise) {
+                    addSimulateMatchButton();
+                }
+                addImportAndExportButton();
+                add(new FillToolItem());
+                addEntityCombo();
+                addSearchPanel();
+                addSearchButton();
+                add(new SeparatorToolItem());
+                addAdvanceSearchButton();
+                add(new SeparatorToolItem());
+                addManageBookButton();
+                addBookMarkButton();
+                initAdvancedPanel();
+            }
+        });
     }
 
     protected void addCreateButton() {
