@@ -68,7 +68,7 @@ public abstract class ChartPortlet extends BasePortlet {
     }
 
     protected void doRefreshWith(Map<String, Object> newData) {
-        if (isDifferentFrom(newData)) {
+        if (dataContainerChanged || isDifferentFrom(newData)) {
             chartData = newData;
             refreshPlot();
         }

@@ -85,7 +85,7 @@ public class DataChart extends ChartPortlet {
                             @Override
                             public void onSuccess(JSONArray jsonArray) {
                                 Map<String, Object> newData = parseJSONData(jsonArray);
-                                if (plot == null || dataContainerChanged) {
+                                if (plot == null) {
                                     chartData = newData;
                                     initAndShow();
                                 } else {
