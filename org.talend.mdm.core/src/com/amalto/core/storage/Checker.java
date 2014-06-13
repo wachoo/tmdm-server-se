@@ -81,7 +81,7 @@ class Checker extends VisitorAdapter<Boolean> {
 
     @Override
     public Boolean visit(Distinct distinct) {
-        return distinct.getField().accept(this);
+        return distinct.getExpression().accept(this);
     }
 
     @Override

@@ -286,7 +286,7 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     @Override
     public Expression visit(Distinct distinct) {
-        return new Distinct((Field) distinct.getField().accept(this));
+        return new Distinct((TypedExpression) distinct.getExpression().accept(this));
     }
 
     @Override

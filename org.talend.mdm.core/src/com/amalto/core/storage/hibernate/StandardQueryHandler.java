@@ -286,8 +286,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(Distinct distinct) {
-        PropertyProjection property = Projections.property(distinct.getField().getFieldMetadata().getName());
-        projectionList.add(Projections.distinct(property));
+        // Standard visit for the expression where distinct should be added
+        distinct.getExpression().accept(this);
+        // Wraps the last projection into a 'distinct' statement
+        // Note: Hibernate does not provide projection editing functions... have to work around that with a new projection list.
+        ProjectionList newProjectionList = projectionList.create();
+        int i = 0;
+        for (; i < projectionList.getLength() - 1; i++) {
+            newProjectionList.add(projectionList.getProjection(i));
+        }
+        newProjectionList.add(Projections.distinct(projectionList.getProjection(i)));
+        projectionList = newProjectionList;
         return null;
     }
 
