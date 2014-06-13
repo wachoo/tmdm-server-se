@@ -455,8 +455,6 @@ public class ItemsToolBar extends ToolBar {
                 }
             }
         });
-        if (deleteButton != null) {
-        }
         add(simulateMatchButton);
     }
 
