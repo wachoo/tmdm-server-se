@@ -776,6 +776,10 @@ public class UserQueryBuilder {
     }
 
     public static TypedExpression distinct(FieldMetadata field) {
-        return new Distinct(new Field(field));
+        return distinct(new Field(field));
+    }
+
+    public static TypedExpression distinct(TypedExpression expression) {
+        return new Distinct(expression);
     }
 }

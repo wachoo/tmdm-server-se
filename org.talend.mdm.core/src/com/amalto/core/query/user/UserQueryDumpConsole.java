@@ -261,7 +261,7 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     public Void visit(Distinct distinct) {
         print("[DISTINCT]"); //$NON-NLS-1$
         increaseIndent();
-        distinct.getField().accept(this);
+        distinct.getExpression().accept(this);
         decreaseIndent();
         return null;
     }

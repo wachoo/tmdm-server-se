@@ -132,7 +132,7 @@ public class RecommendedIndexes {
         }
 
         public Collection<FieldMetadata> visit(Distinct distinct) {
-            return distinct.getField().accept(this);
+            return distinct.getExpression().accept(this);
         }
 
         public Collection<FieldMetadata> visit(StagingStatus stagingStatus) {

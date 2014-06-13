@@ -13,18 +13,18 @@ package com.amalto.core.query.user;
 
 public class Distinct implements TypedExpression {
 
-    private final Field field;
+    private final TypedExpression expression;
 
-    public Distinct(Field field) {
-        this.field = field;
+    public Distinct(TypedExpression expression) {
+        this.expression = expression;
     }
 
-    public Field getField() {
-        return field;
+    public TypedExpression getExpression() {
+        return expression;
     }
 
     public String getTypeName() {
-        return field.getFieldMetadata().getType().getName();
+        return expression.getTypeName();
     }
 
     public Expression normalize() {
@@ -49,11 +49,11 @@ public class Distinct implements TypedExpression {
             return false;
         }
         Distinct type = (Distinct) o;
-        return !(field != null ? !field.equals(type.field) : type.field != null);
+        return !(expression != null ? !expression.equals(type.expression) : type.expression != null);
     }
 
     @Override
     public int hashCode() {
-        return field != null ? field.hashCode() : 0;
+        return expression != null ? expression.hashCode() : 0;
     }
 }
