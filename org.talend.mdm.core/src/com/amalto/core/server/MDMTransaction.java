@@ -19,7 +19,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.Transaction;
 
@@ -146,7 +145,11 @@ class MDMTransaction implements Transaction {
         }
         StorageTransaction storageTransaction;
         synchronized (storageTransactions) {
-            storageTransaction = getStorageTransaction(storage, Thread.currentThread());
+            StorageTransaction result;
+            synchronized (storageTransactions) {
+                result = (StorageTransaction) storageTransactions.get(storage, Thread.currentThread());
+            }
+            storageTransaction = result;
             if (storageTransaction == null) {
                 storageTransaction = storage.newStorageTransaction();
                 storageTransactions.put(storage, Thread.currentThread(), storageTransaction);
@@ -159,21 +162,6 @@ class MDMTransaction implements Transaction {
             return storageTransaction.dependent();
         default:
             throw new NotImplementedException("No support for life time '" + lifetime + "'");
-        }
-    }
-
-    private StorageTransaction getStorageTransaction(Storage storage, Thread thread) {
-        synchronized (storageTransactions) {
-            if (storage.getType() == StorageType.SYSTEM) {
-                for (Object storageTransactionAsObject : storageTransactions.values()) {
-                    StorageTransaction storageTransaction = (StorageTransaction) storageTransactionAsObject;
-                    Storage associatedStorage = storageTransaction.getStorage();
-                    if (associatedStorage.getType() == StorageType.SYSTEM) {
-                        return storageTransaction;
-                    }
-                }
-            }
-            return (StorageTransaction) storageTransactions.get(storage, thread);
         }
     }
 
