@@ -37,6 +37,8 @@ public class AppHeader implements IsSerializable {
 
     private boolean isUseRelations = true;
 
+    private boolean isEnterprise = false;
+
     /**
      * DOC HSHU AppHeader constructor comment.
      */
@@ -119,5 +121,13 @@ public class AppHeader implements IsSerializable {
 
     public void setUseRelations(boolean isUseRelations) {
         this.isUseRelations = isUseRelations;
+    }
+
+    public boolean isEnterprise() {
+        return this.isEnterprise;
+    }
+
+    public void setEnterprise(boolean isEnterprise) {
+        this.isEnterprise = isEnterprise;
     }
 }

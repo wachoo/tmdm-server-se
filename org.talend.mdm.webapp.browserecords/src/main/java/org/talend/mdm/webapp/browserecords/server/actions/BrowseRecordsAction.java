@@ -1203,6 +1203,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             header.setAutoValidate(BrowseRecordsConfiguration.isAutoValidate());
             header.setDataMigrationMultiLingualFieldAuto(BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto());
             header.setUseRelations(BrowseRecordsConfiguration.IsUseRelations());
+            header.setEnterprise(Webapp.INSTANCE.isEnterpriseVersion());
             return header;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -2463,10 +2464,5 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-    }
-
-    @Override
-    public boolean isEnterpriseVersion() {
-        return Webapp.INSTANCE.isEnterpriseVersion();
     }
 }

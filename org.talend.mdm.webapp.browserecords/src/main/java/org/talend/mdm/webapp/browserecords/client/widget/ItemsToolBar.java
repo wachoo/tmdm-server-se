@@ -51,6 +51,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -302,28 +303,22 @@ public class ItemsToolBar extends ToolBar {
     }
 
     private void initToolBar() {
-        service.isEnterpriseVersion(new SessionAwareAsyncCallback<Boolean>() {
-
-            @Override
-            public void onSuccess(Boolean isEnterprise) {
-                addCreateButton();
-                addDeleteButton();
-                if (isEnterprise) {
-                    addSimulateMatchButton();
-                }
-                addImportAndExportButton();
-                add(new FillToolItem());
-                addEntityCombo();
-                addSearchPanel();
-                addSearchButton();
-                add(new SeparatorToolItem());
-                addAdvanceSearchButton();
-                add(new SeparatorToolItem());
-                addManageBookButton();
-                addBookMarkButton();
-                initAdvancedPanel();
-            }
-        });
+        addCreateButton();
+        addDeleteButton();
+        if (((AppHeader) BrowseRecords.getSession().get(UserSession.APP_HEADER)).isEnterprise()) {
+            addSimulateMatchButton();
+        }
+        addImportAndExportButton();
+        add(new FillToolItem());
+        addEntityCombo();
+        addSearchPanel();
+        addSearchButton();
+        add(new SeparatorToolItem());
+        addAdvanceSearchButton();
+        add(new SeparatorToolItem());
+        addManageBookButton();
+        addBookMarkButton();
+        initAdvancedPanel();
     }
 
     protected void addCreateButton() {
@@ -460,6 +455,8 @@ public class ItemsToolBar extends ToolBar {
                 }
             }
         });
+        if (deleteButton != null) {
+        }
         add(simulateMatchButton);
     }
 

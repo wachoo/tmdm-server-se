@@ -149,6 +149,4 @@ public interface BrowseRecordsServiceAsync {
 
     void getForeignKeySuggestion(BasePagingLoadConfigImpl config, String foregnKey, List<String> foregnKeyInfo,
             String dataClusterPK, boolean ifFKFilter, String input, String language, AsyncCallback<List<ForeignKeyBean>> callback);
-
-    void isEnterpriseVersion(AsyncCallback<Boolean> callback);
 }
