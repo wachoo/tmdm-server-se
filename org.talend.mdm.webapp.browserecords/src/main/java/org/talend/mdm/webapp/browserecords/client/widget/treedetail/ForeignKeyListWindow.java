@@ -223,11 +223,11 @@ public class ForeignKeyListWindow extends Window {
                     baseConfig.set("dataObject", currentXpath.split("/")[0]); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 baseConfig.set("language", Locale.getLanguage()); //$NON-NLS-1$
-                String dataCluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
-                if (!ForeignKeyListWindow.this.isStaging) {
-                    if (dataCluster.indexOf("#") != -1) { //$NON-NLS-1$
-                        dataCluster = dataCluster.substring(0, dataCluster.indexOf("#")); //$NON-NLS-1$
-                    }
+                String dataCluster;
+                if (ForeignKeyListWindow.this.isStaging) {
+                    dataCluster = BrowseRecords.getSession().getAppHeader().getStagingDataCluster();
+                } else {
+                    dataCluster = BrowseRecords.getSession().getAppHeader().getMasterDataCluster();
                 }
                 service.getForeignKeyList(baseConfig, typeModel, dataCluster, hasForeignKeyFilter, currentFilterText,
                         Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
