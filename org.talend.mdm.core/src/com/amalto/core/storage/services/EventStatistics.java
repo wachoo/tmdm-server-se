@@ -16,8 +16,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -100,12 +98,10 @@ public class EventStatistics {
 
     private void writeTo(Storage system, ComplexTypeMetadata routingOrderType, JSONWriter writer, String categoryName)
             throws JSONException {
-        List<FieldMetadata> fieldList = new LinkedList<FieldMetadata>();
         FieldMetadata parameters = routingOrderType.getField("service-parameters"); //$NON-NLS-1$
         FieldMetadata jndiNameField = routingOrderType.getField("service-jNDI"); //$NON-NLS-1$
-        fieldList.add(parameters);
-        fieldList.add(jndiNameField);
-        Expression routingNames = from(routingOrderType).select(alias(distinct(parameters), parameters.getName())).select(jndiNameField).cache().getExpression();
+        Expression routingNames = from(routingOrderType).select(alias(distinct(parameters), parameters.getName()))
+                .select(jndiNameField).cache().getExpression();
         writer.object().key(categoryName);
         {
             writer.array();
