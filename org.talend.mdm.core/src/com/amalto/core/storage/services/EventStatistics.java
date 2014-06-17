@@ -16,6 +16,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -49,6 +51,14 @@ import com.amalto.core.storage.record.DataRecord;
 public class EventStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
+
+    private final String CALLJOB_SERVICE_JNDI_NAME = "amalto/local/service/callJob"; //$NON-NLS-1$
+
+    private final String CALLPROCESS_SERVICE_JNDI_NAME = "amalto/local/service/callprocess"; //$NON-NLS-1$
+
+    private final String WORKFLOW_SERVICE_JNDI_NAME = "amalto/local/service/workflow"; //$NON-NLS-1$
+
+    private final String WORKFLOWCONTEXT_SERVICE_JNDI_NAME = "amalto/local/service/workflowcontext"; //$NON-NLS-1$
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -90,9 +100,12 @@ public class EventStatistics {
 
     private void writeTo(Storage system, ComplexTypeMetadata routingOrderType, JSONWriter writer, String categoryName)
             throws JSONException {
+        List<FieldMetadata> fieldList = new LinkedList<FieldMetadata>();
         FieldMetadata parameters = routingOrderType.getField("service-parameters"); //$NON-NLS-1$
-        Expression routingNames = from(routingOrderType).select(alias(distinct(parameters), parameters.getName())).cache()
-                .getExpression();
+        FieldMetadata jndiNameField = routingOrderType.getField("service-jNDI"); //$NON-NLS-1$
+        fieldList.add(parameters);
+        fieldList.add(jndiNameField);
+        Expression routingNames = from(routingOrderType).select(alias(distinct(parameters), parameters.getName())).select(jndiNameField).cache().getExpression();
         writer.object().key(categoryName);
         {
             writer.array();
@@ -103,13 +116,10 @@ public class EventStatistics {
                     for (DataRecord routingNameResult : routingNameResults) {
                         // Get the URL called by event
                         String parameter = String.valueOf(routingNameResult.get(parameters));
-                        String key;
+                        String jndiName = String.valueOf(routingNameResult.get(jndiNameField));
+                        String key = null;
                         // TMDM-7324: handle different possible values.
-                        if (parameter.startsWith("process=")) { //$NON-NLS-1$
-                            // condition 1 handle process
-                            key = parameter.replace("process=", StringUtils.EMPTY); //$NON-NLS-1$
-                        } else if (parameter.contains("url")) { //$NON-NLS-1$
-                            // condition 2 handle job
+                        if (jndiName.equals(CALLJOB_SERVICE_JNDI_NAME)) {
                             ParameterReader handler = new ParameterReader("url"); //$NON-NLS-1$
                             reader.setContentHandler(handler);
                             reader.parse(new InputSource(new StringReader(parameter)));
@@ -120,22 +130,26 @@ public class EventStatistics {
                                 LOGGER.warn("Could not get information from '" + url + "'", e);
                                 key = url; // As fallback, put the whole parameter content.
                             }
-                        } else {
-                            // condition 3 handle workflow
+                        } else if (jndiName.equals(CALLPROCESS_SERVICE_JNDI_NAME)) {
+                            key = parameter.replace("process=", StringUtils.EMPTY); //$NON-NLS-1$
+                        } else if (jndiName.equals(WORKFLOW_SERVICE_JNDI_NAME)
+                                || jndiName.equals(WORKFLOWCONTEXT_SERVICE_JNDI_NAME)) {
                             ParameterReader handler = new ParameterReader("processId"); //$NON-NLS-1$
                             reader.setContentHandler(handler);
                             reader.parse(new InputSource(new StringReader(parameter)));
                             key = handler.getParameterValue();
                         }
-                        // Count the number of similar events
-                        Expression routingNameCount = from(routingOrderType).select(alias(count(), "count")) //$NON-NLS-1$
-                                .where(eq(parameters, parameter)).limit(1).cache().getExpression();
-                        StorageResults failedCountResult = system.fetch(routingNameCount);
-                        try {
-                            // ... and write count to result
-                            writer.object().key(key).value(failedCountResult.iterator().next().get("count")).endObject(); //$NON-NLS-1$
-                        } finally {
-                            failedCountResult.close();
+                        if (key != null && !key.isEmpty()) {
+                            // Count the number of similar events
+                            Expression routingNameCount = from(routingOrderType).select(alias(count(), "count")) //$NON-NLS-1$
+                                    .where(eq(parameters, parameter)).limit(1).cache().getExpression();
+                            StorageResults failedCountResult = system.fetch(routingNameCount);
+                            try {
+                                // ... and write count to result
+                                writer.object().key(key).value(failedCountResult.iterator().next().get("count")).endObject(); //$NON-NLS-1$
+                            } finally {
+                                failedCountResult.close();
+                            }
                         }
                     }
                 } catch (Exception e) {
