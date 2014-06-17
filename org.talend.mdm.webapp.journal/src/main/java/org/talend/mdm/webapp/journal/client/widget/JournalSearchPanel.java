@@ -322,7 +322,7 @@ public class JournalSearchPanel extends FormPanel {
             map.put("key", keyField.getValue()); //$NON-NLS-1$
         if (sourceCombo.getValue() != null)
             map.put("source", sourceCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
-        if (operationTypeCombo.getValue() != null && ! operationTypeCombo.getValue().get("key").equals("ALL")) //$NON-NLS-1$ //$NON-NLS-2$
+        if (operationTypeCombo.getValue() != null)
             map.put("operationType", operationTypeCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         if (startDateField.getValue() != null)
             map.put("startDate", String.valueOf(startDateField.getValue().getTime())); //$NON-NLS-1$
