@@ -20,6 +20,9 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -29,10 +32,6 @@ import com.googlecode.gflot.client.options.PlotOptions;
 
 public abstract class ChartPortlet extends BasePortlet {
 
-    private static int PLOT_WIDTH = 400;
-
-    private static int PLOT_HEIGHT = 300;
-
     protected SimplePlot plot;
 
     protected Map<String, Object> chartData;
@@ -40,6 +39,10 @@ public abstract class ChartPortlet extends BasePortlet {
     protected String dc;
 
     protected boolean dataContainerChanged;
+
+    private int plotWidth;
+
+    private int plotHeight;
 
     public ChartPortlet(String name, Portal portal) {
         super(name, portal);
@@ -50,8 +53,17 @@ public abstract class ChartPortlet extends BasePortlet {
         PlotOptions plotOptions = PlotOptions.create();
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create());
         plot = new SimplePlot(plotOptions);
-        plot.setWidth(PLOT_WIDTH);
-        plot.setHeight(PLOT_HEIGHT);
+        plotWidth = this.getWidth() - 50;
+        plotHeight = this.getWidth() - 60;
+        plot.setWidth(plotWidth);
+        plot.setHeight(plotHeight);
+    }
+
+    protected void resizePlot() {
+        plot.setWidth(plotWidth);
+        plot.setHeight(plotHeight);
+        plot.redraw();
+        set.layout(true);
     }
 
     protected void refreshPlot() {
@@ -65,6 +77,16 @@ public abstract class ChartPortlet extends BasePortlet {
         set.add(plot);
         set.layout(true);
         this.autoRefresh(autoRefreshBtn.isOn());
+
+        this.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+            @Override
+            public void handleEvent(BaseEvent be) {
+                plotWidth = ChartPortlet.this.getWidth() - 50;
+                plotHeight = plotWidth - 10;
+                resizePlot();
+            }
+        });
     }
 
     protected void doRefreshWith(Map<String, Object> newData) {
