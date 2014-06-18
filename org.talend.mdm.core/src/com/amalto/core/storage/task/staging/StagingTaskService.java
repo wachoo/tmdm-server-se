@@ -11,21 +11,30 @@
 
 package com.amalto.core.storage.task.staging;
 
-import com.amalto.core.storage.task.ConfigurableFilter;
-import com.amalto.core.storage.task.DefaultFilter;
-import com.amalto.core.storage.task.Filter;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import javax.ws.rs.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.List;
+import com.amalto.core.storage.task.ConfigurableFilter;
+import com.amalto.core.storage.task.DefaultFilter;
+import com.amalto.core.storage.task.Filter;
+import com.amalto.core.util.Util;
 
 @Path(StagingTaskService.TASKS)
 public class StagingTaskService {
@@ -115,5 +124,19 @@ public class StagingTaskService {
                                                  @QueryParam("model") String dataModel,
                                                  @PathParam("executionId") String executionId) {
         return delegate.getExecutionStats(dataContainer, dataModel, executionId);
+    }
+    
+    @GET
+    @Path("{container}/hasStaging")
+    public String isSupportStaging(@PathParam("container")
+            String dataContainer) {
+        try {
+            return String.valueOf(Util.getXmlServerCtrlLocal().supportStaging(dataContainer));
+        } catch (Exception e) {
+            if (Logger.getLogger(StagingTaskService.class).isDebugEnabled()) {
+                Logger.getLogger(StagingTaskService.class).debug("Could not confirm staging support.", e); //$NON-NLS-1$
+            }
+            throw new RuntimeException("Could not confirm staging support.", e); //$NON-NLS-1$
+        }
     }
 }
