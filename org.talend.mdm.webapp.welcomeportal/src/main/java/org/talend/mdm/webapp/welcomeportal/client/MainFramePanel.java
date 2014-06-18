@@ -79,8 +79,9 @@ public class MainFramePanel extends Portal {
         
         setBorders(true);
         setStyleAttribute("backgroundColor", "white"); //$NON-NLS-1$ //$NON-NLS-2$
-        setColumnWidth(0, .5);
-        setColumnWidth(1, .5);
+        setColumnWidth(0, .33);
+        setColumnWidth(1, .33);
+        setColumnWidth(2, .33);
         
         this.addListener(Events.Add, new Listener<ContainerEvent>() {
 
@@ -240,7 +241,7 @@ public class MainFramePanel extends Portal {
     }
     
     private void add(Portlet portlet) {
-        this.add(portlet, pos%2);
+        this.add(portlet, pos%3);
         pos++;
         fireEvent(Events.Add, new ContainerEvent<Portal, Portlet>(this, portlet));
     }
