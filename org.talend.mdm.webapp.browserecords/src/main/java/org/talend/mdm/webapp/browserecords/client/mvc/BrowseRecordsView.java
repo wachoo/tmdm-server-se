@@ -342,7 +342,7 @@ public class BrowseRecordsView extends View {
         panel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
         itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION, isStaging);
         itemPanel.getToolBar().setFkToolBar(true);
-        itemPanel.getToolBar().setOutMost(itemPanelWidget.getToolBar().isOutMost());
+        itemPanel.getToolBar().setOutMost(detailPanel.isLineage() ? true : itemPanelWidget.getToolBar().isOutMost());
         itemPanel.getToolBar().setHierarchyCall(itemPanelWidget.getToolBar().isHierarchyCall());
         if (itemPanel.getToolBar().isOutMost()) {
             panel.setHeading(itemBean.getLabel());
@@ -429,12 +429,12 @@ public class BrowseRecordsView extends View {
 
         ItemsDetailPanel lineageDetailPanel = ItemsDetailPanel.newInstance();
         lineageDetailPanel.setStaging(true);
+        lineageDetailPanel.setLineage(true);
         ItemPanel itemPanel = new ItemPanel(true, viewBean, item, operation, lineageDetailPanel, true);
 
         itemPanel.getToolBar().setOutMost(false);
         itemPanel.getToolBar().setFkToolBar(false);
         itemPanel.getToolBar().setHierarchyCall(false);
-        itemPanel.getToolBar().setLineage(true);
 
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (item != null) {

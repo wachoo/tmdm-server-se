@@ -78,7 +78,10 @@ public class ItemsDetailPanel extends ContentPanel {
 
     private boolean isStaging;
 
+    private boolean lineage;
+
     public static interface ItemsDetailPanelCreator {
+
         ItemsDetailPanel newInstance();
     }
 
@@ -886,5 +889,13 @@ public class ItemsDetailPanel extends ContentPanel {
 
     public void setStaging(boolean isStaging) {
         this.isStaging = isStaging;
+    }
+
+    public boolean isLineage() {
+        return this.lineage;
+    }
+
+    public void setLineage(boolean lineage) {
+        this.lineage = lineage;
     }
 }
