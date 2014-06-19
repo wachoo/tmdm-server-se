@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -100,6 +101,8 @@ public class MainFramePanel extends Portal {
                 } else {
                     //init cookies value after all portlet initialized
                     Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
+                    //now we have all available portets, need to record them in Actions panel in General project                    
+                    recordPortlets(portletToLocations.keySet());
                 }
             }
         });
@@ -409,4 +412,9 @@ public class MainFramePanel extends Portal {
             $wnd.amalto[context][application].init();
         }, 50);
     }-*/;
+    
+    //record available portlets in Actions panel
+    private static native void recordPortlets(Set<String> names)/*-{
+    	$wnd.amalto.core.markPortlets(names);
+	}-*/;
 }
