@@ -149,6 +149,7 @@ public class MainFramePanel extends Portal {
         } else {
             portletToLocations = (Map<String, List<Integer>>) Cookies.getValue(COOKIES_PORTLET_LOCATIONS);
             initializePortlets(portletToLocations);
+            recordPortlets(portletToLocations.keySet());
         }
                 
     }
@@ -414,7 +415,7 @@ public class MainFramePanel extends Portal {
     }-*/;
     
     //record available portlets in Actions panel
-    private static native void recordPortlets(Set<String> names)/*-{
+    private native void recordPortlets(Set<String> names)/*-{
     	$wnd.amalto.core.markPortlets(names);
 	}-*/;
 }
