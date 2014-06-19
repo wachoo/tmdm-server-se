@@ -39,6 +39,8 @@ import com.amalto.core.util.Util;
 @Path(StagingTaskService.TASKS)
 public class StagingTaskService {
 
+    private static final Logger LOGGER = Logger.getLogger(StagingTaskService.class);
+    
     public static final String TASKS = "/tasks/staging"; //$NON-NLS-1$
 
     private final StagingTaskServiceDelegate delegate = new DefaultStagingTaskService();
@@ -81,8 +83,8 @@ public class StagingTaskService {
             }
         } catch (Exception e) {
             filter = DefaultFilter.INSTANCE;
-            if (Logger.getLogger(StagingTaskService.class).isDebugEnabled()) {
-                Logger.getLogger(StagingTaskService.class).debug("Ignored parse error for staging filter: ", e);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Ignored parse error for staging filter: ", e);
             }
         }
         return delegate.startValidation(dataContainer, dataModel, filter);
@@ -133,8 +135,8 @@ public class StagingTaskService {
         try {
             return String.valueOf(Util.getXmlServerCtrlLocal().supportStaging(dataContainer));
         } catch (Exception e) {
-            if (Logger.getLogger(StagingTaskService.class).isDebugEnabled()) {
-                Logger.getLogger(StagingTaskService.class).debug("Could not confirm staging support.", e); //$NON-NLS-1$
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Could not confirm staging support.", e); //$NON-NLS-1$
             }
             throw new RuntimeException("Could not confirm staging support.", e); //$NON-NLS-1$
         }
