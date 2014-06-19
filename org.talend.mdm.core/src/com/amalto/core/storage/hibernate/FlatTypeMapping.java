@@ -1,27 +1,49 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.metadata.*;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.hibernate.Session;
+import org.hibernate.collection.PersistentList;
+import org.hibernate.engine.CollectionEntry;
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.persister.collection.CollectionPersister;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultMetadataVisitor;
+import com.amalto.core.metadata.DefaultValidationHandler;
+import com.amalto.core.metadata.EnumerationFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.SimpleTypeFieldMetadata;
+import com.amalto.core.metadata.TypeMetadata;
+import com.amalto.core.metadata.ValidationHandler;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.NotImplementedException;
-import org.hibernate.Session;
-
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.util.*;
 
 class FlatTypeMapping extends TypeMapping {
 
@@ -32,11 +54,12 @@ class FlatTypeMapping extends TypeMapping {
     public FlatTypeMapping(ComplexTypeMetadata complexType, MappingRepository mappings) {
         super(complexType, mappings);
     }
-    
+
     public FlatTypeMapping(ComplexTypeMetadata complexType, ComplexTypeMetadata database, MappingRepository mappings) {
         super(complexType, database, mappings);
     }
 
+    @Override
     protected void map(FieldMetadata user, FieldMetadata database) {
         if (isFrozen) {
             throw new IllegalStateException("Mapping is frozen.");
@@ -45,14 +68,17 @@ class FlatTypeMapping extends TypeMapping {
         databaseToUser.put(database.getDeclaringType().getName() + '_' + database.getName(), user);
     }
 
+    @Override
     public FieldMetadata getDatabase(FieldMetadata from) {
         return userToDatabase.get(from.getDeclaringType().getName() + '_' + from.getName());
     }
 
+    @Override
     public FieldMetadata getUser(FieldMetadata to) {
         return databaseToUser.get(to.getDeclaringType().getName() + '_' + to.getName());
     }
 
+    @Override
     public void freeze() {
         if (!isFrozen) {
             ValidationHandler handler = DefaultValidationHandler.INSTANCE;
@@ -116,7 +142,8 @@ class FlatTypeMapping extends TypeMapping {
                         if (dataRecordValue != null) {
                             TypeMetadata referencedType = dataRecordValue.getType();
                             Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
-                            Object referencedObject = createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, dataRecordValue);
+                            Object referencedObject = createReferencedObject(session, (ComplexTypeMetadata) referencedType,
+                                    referencedClass, dataRecordValue);
                             Object databaseValue = to.get(databaseField.getName());
                             if (databaseValue == null || !referencedObject.equals(databaseValue)) {
                                 to.set(databaseField.getName(), referencedObject);
@@ -136,7 +163,8 @@ class FlatTypeMapping extends TypeMapping {
                             for (DataRecord current : valueList) {
                                 TypeMetadata referencedType = current.getType();
                                 Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
-                                newValues.add(createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, current));
+                                newValues.add(createReferencedObject(session, (ComplexTypeMetadata) referencedType,
+                                        referencedClass, current));
                             }
                             resetList(list, newValues);
                         } else {
@@ -150,7 +178,8 @@ class FlatTypeMapping extends TypeMapping {
                         if (field.isMany()) {
                             List<DataRecord> dataRecords = (List<DataRecord>) from.get(containedField);
                             if (dataRecords.size() > 1) {
-                                throw new IllegalArgumentException("No support for many valued contained fields for this mapping.");
+                                throw new IllegalArgumentException(
+                                        "No support for many valued contained fields for this mapping.");
                             }
                             containedDataRecord = dataRecords.get(0);
                         } else {
@@ -159,45 +188,48 @@ class FlatTypeMapping extends TypeMapping {
 
                         if (containedDataRecord == null) {
                             // Nullify all fields reachable from contained data record.
-                            Set<FieldMetadata> reachableFields = field.getType().accept(new DefaultMetadataVisitor<Set<FieldMetadata>>() {
-                                final Set<FieldMetadata> fields = new HashSet<FieldMetadata>();
+                            Set<FieldMetadata> reachableFields = field.getType().accept(
+                                    new DefaultMetadataVisitor<Set<FieldMetadata>>() {
 
-                                @Override
-                                public Set<FieldMetadata> visit(ComplexTypeMetadata complexType) {
-                                    super.visit(complexType);
-                                    return fields;
-                                }
+                                        final Set<FieldMetadata> fields = new HashSet<FieldMetadata>();
 
-                                @Override
-                                public Set<FieldMetadata> visit(ContainedComplexTypeMetadata containedType) {
-                                    super.visit(containedType);
-                                    return fields;
-                                }
+                                        @Override
+                                        public Set<FieldMetadata> visit(ComplexTypeMetadata complexType) {
+                                            super.visit(complexType);
+                                            return fields;
+                                        }
 
-                                @Override
-                                public Set<FieldMetadata> visit(ReferenceFieldMetadata referenceField) {
-                                    fields.add(referenceField);
-                                    return fields;
-                                }
+                                        @Override
+                                        public Set<FieldMetadata> visit(ContainedComplexTypeMetadata containedType) {
+                                            super.visit(containedType);
+                                            return fields;
+                                        }
 
-                                @Override
-                                public Set<FieldMetadata> visit(SimpleTypeFieldMetadata simpleField) {
-                                    fields.add(simpleField);
-                                    return fields;
-                                }
+                                        @Override
+                                        public Set<FieldMetadata> visit(ReferenceFieldMetadata referenceField) {
+                                            fields.add(referenceField);
+                                            return fields;
+                                        }
 
-                                @Override
-                                public Set<FieldMetadata> visit(EnumerationFieldMetadata enumField) {
-                                    fields.add(enumField);
-                                    return fields;
-                                }
-                            });
+                                        @Override
+                                        public Set<FieldMetadata> visit(SimpleTypeFieldMetadata simpleField) {
+                                            fields.add(simpleField);
+                                            return fields;
+                                        }
+
+                                        @Override
+                                        public Set<FieldMetadata> visit(EnumerationFieldMetadata enumField) {
+                                            fields.add(enumField);
+                                            return fields;
+                                        }
+                                    });
                             reachableFields.add(field);
 
                             for (FieldMetadata fieldMetadata : reachableFields) {
                                 FieldMetadata databaseMapping = getDatabase(fieldMetadata);
                                 if (databaseMapping != null) {
-                                    Iterator<FieldMetadata> pathToValue = MetadataUtils.path(from.getType(), fieldMetadata).iterator();
+                                    Iterator<FieldMetadata> pathToValue = MetadataUtils.path(from.getType(), fieldMetadata)
+                                            .iterator();
                                     Object current = from;
                                     while (pathToValue.hasNext() && current != null) {
                                         FieldMetadata currentField = pathToValue.next();
@@ -245,7 +277,8 @@ class FlatTypeMapping extends TypeMapping {
                 if (userField.getContainingType() != getUser()) {
                     Iterator<FieldMetadata> path = MetadataUtils.path(getUser(), userField).iterator();
                     if (!path.hasNext()) {
-                        throw new IllegalStateException("No path found from '" + getUser().getName() + "' to field '" + userField.getName() + "'.");
+                        throw new IllegalStateException("No path found from '" + getUser().getName() + "' to field '"
+                                + userField.getName() + "'.");
                     }
                     while (path.hasNext()) {
                         FieldMetadata nextField = path.next();
@@ -258,7 +291,8 @@ class FlatTypeMapping extends TypeMapping {
                                 } else if (nextField instanceof ReferenceFieldMetadata) {
                                     type = ((ReferenceFieldMetadata) nextField).getReferencedType();
                                 } else {
-                                    throw new IllegalArgumentException("Did not expect an instance of '" + nextField.getClass().getName() + "'.");
+                                    throw new IllegalArgumentException("Did not expect an instance of '"
+                                            + nextField.getClass().getName() + "'.");
                                 }
                                 containedRecord = new DataRecord(type, UnsupportedDataRecordMetadata.INSTANCE);
                                 to.set(nextField, containedRecord);
@@ -268,14 +302,17 @@ class FlatTypeMapping extends TypeMapping {
                     }
                 }
                 if (userField instanceof ContainedTypeFieldMetadata) {
-                    // This mapping is not supposed to handle such cases (there's no field in type's fields mapped to a contained type).
+                    // This mapping is not supposed to handle such cases (there's no field in type's fields mapped to a
+                    // contained type).
                     throw new IllegalArgumentException("This mapping does not support contained types.");
                 } else if (userField instanceof ReferenceFieldMetadata) {
                     if (!userField.isMany()) {
                         Wrapper wrapper = (Wrapper) value;
                         if (wrapper != null) {
-                            TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
-                            DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+                            TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper
+                                    .getClass()));
+                            DataRecord referencedRecord = new DataRecord(mapping.getUser(),
+                                    UnsupportedDataRecordMetadata.INSTANCE);
                             for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                 referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
                             }
@@ -284,9 +321,12 @@ class FlatTypeMapping extends TypeMapping {
                     } else {
                         List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
-                            for (Wrapper wrapper : wrapperList) {
-                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
-                                DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+                            List<Wrapper> fullList = getFullList((PersistentList) value);
+                            for (Wrapper wrapper : fullList) {
+                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper
+                                        .getClass()));
+                                DataRecord referencedRecord = new DataRecord(mapping.getUser(),
+                                        UnsupportedDataRecordMetadata.INSTANCE);
                                 for (FieldMetadata keyField : mapping.getDatabase().getKeyFields()) {
                                     referencedRecord.set(mapping.getUser(keyField), wrapper.get(keyField.getName()));
                                 }
@@ -319,7 +359,8 @@ class FlatTypeMapping extends TypeMapping {
         return Storage.METADATA_TASK_ID;
     }
 
-    private Object createReferencedObject(Session session, ComplexTypeMetadata referencedType, Class<?> referencedClass, Object referencedIdValue) throws InstantiationException, IllegalAccessException {
+    private Object createReferencedObject(Session session, ComplexTypeMetadata referencedType, Class<?> referencedClass,
+            Object referencedIdValue) throws InstantiationException, IllegalAccessException {
         if (referencedIdValue == null) {
             return null; // Means no reference (reference is null).
         }
@@ -350,7 +391,6 @@ class FlatTypeMapping extends TypeMapping {
             throw new NotImplementedException("Unexpected state.");
         }
 
-
         Class<?> fieldJavaType = referencedIdValue.getClass();
         // Null package might happen with proxy classes generated by Hibernate
         if (fieldJavaType.getPackage() != null && fieldJavaType.getPackage().getName().startsWith("java.")) { //$NON-NLS-1$
@@ -379,6 +419,35 @@ class FlatTypeMapping extends TypeMapping {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /*
+     * See TMDM-5524: Hibernate sometimes "hides" values of a collection when condition is on contained value. This
+     * piece of code forces load.
+     */
+    private static <T> List<T> getFullList(PersistentList list) {
+        if (list == null) {
+            return null;
+        }
+        List<T> fullList = new LinkedList<T>();
+        SessionImplementor session = list.getSession();
+        if (!session.isConnected()) {
+            throw new IllegalStateException("Session is not connected: impossible to read values from database.");
+        }
+        CollectionEntry entry = session.getPersistenceContext().getCollectionEntry(list);
+        CollectionPersister persister = entry.getLoadedPersister();
+        int databaseSize = persister.getSize(entry.getKey(), session);
+        if (list.size() == databaseSize && !list.contains(null)) {
+            // No need to reload a list (no omission in list and size() corresponds to size read from database).
+            return list;
+        }
+        for (int i = 0; i < databaseSize; i++) {
+            T wrapper = (T) persister.getElementByIndex(entry.getLoadedKey(), i, session, list.getOwner());
+            fullList.add(wrapper);
+        }
+        // Returns a unmodifiable list -> returned list is *not* a persistent list so change tracking is not possible,
+        // returning a unmodifiable list is a safety for code using returned list.
+        return Collections.unmodifiableList(fullList);
     }
 
     @Override
