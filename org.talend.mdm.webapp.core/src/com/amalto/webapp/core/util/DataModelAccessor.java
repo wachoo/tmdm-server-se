@@ -16,9 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.rmi.RemoteException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -38,8 +36,6 @@ public class DataModelAccessor {
 
     private static final Logger LOG = Logger.getLogger(DataModelAccessor.class);
 
-    private Map<String,String> xsdSchemaMap = new HashMap<String,String>();
-
     private static DataModelAccessor accessor;
 
     public static synchronized DataModelAccessor getInstance(){
@@ -51,21 +47,15 @@ public class DataModelAccessor {
 
     public String getDataModelXSD(String dataModelName) throws RemoteException, XtentisWebappException {
         if (dataModelName != null && !dataModelName.isEmpty()) {
-            if (xsdSchemaMap.get(dataModelName) == null) {
-                WSDataModel dataModel = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelName)));
-                if (dataModel != null) {
-                    xsdSchemaMap.put(dataModelName, dataModel.getXsdSchema());
-                    return dataModel.getXsdSchema();
-                } else {
-                    return null;
-                }
+            WSDataModel dataModel = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelName)));
+            if (dataModel != null) {
+                return dataModel.getXsdSchema();
             } else {
-                return xsdSchemaMap.get(dataModelName);
+                return null;
             }
         } else {
             return null;
         }
-
     }
 
     public boolean checkReadAccess(String dataModelName, String conceptName) {

@@ -152,11 +152,7 @@ public abstract class TypeMapping {
             if (value != null && targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
                 try {
                     Reader characterStream = ((Clob) value).getCharacterStream();
-                    try {
-                        return new String(IOUtils.toCharArray(characterStream));
-                    } finally {
-                        characterStream.close();
-                    }
+                    return new String(IOUtils.toCharArray(characterStream)); // No need to close (Hibernate seems to handle this).
                 } catch (Exception e) {
                     throw new RuntimeException("Unexpected read from clob exception", e);
                 }

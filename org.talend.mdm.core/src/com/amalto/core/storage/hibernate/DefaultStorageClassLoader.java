@@ -4,35 +4,40 @@
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
  *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Map;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 
 @SuppressWarnings("UnusedDeclaration")
 // Dynamically called! Do not remove!
@@ -42,13 +47,11 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
 
     private static final XPath pathFactory = XPathFactory.newInstance().newXPath();
 
-    public DefaultStorageClassLoader(ClassLoader parent,
-                                     String storageName,
-                                     RDBMSDataSource.DataSourceDialect dialect,
-                                     StorageType type) {
+    public DefaultStorageClassLoader(ClassLoader parent, String storageName, RDBMSDataSource dialect, StorageType type) {
         super(parent, storageName, dialect, type);
     }
 
+    @Override
     public InputStream generateEhCacheConfig() {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -70,6 +73,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         }
     }
 
+    @Override
     public InputStream generateHibernateMapping() {
         if (resolver == null) {
             throw new IllegalStateException("Expected table resolver to be set before this method is called.");
@@ -87,7 +91,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
                 ComplexTypeMetadata typeMetadata = knownTypes.get(classNameToClass.getKey());
                 if (typeMetadata != null && typeMetadata.getSuperTypes().isEmpty()) {
                     Element classElement = typeMetadata.accept(mappingGenerator);
-                    if (classElement != null) { // Class element might be null if mapping is not applicable for this type
+                    if (classElement != null) { // Class element might be null if mapping is not applicable for this
+                                                // type
                         document.getDocumentElement().appendChild(classElement);
                     }
                 }
@@ -104,16 +109,17 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
 
     public MappingGenerator getMappingGenerator(Document document, TableResolver resolver) {
         switch (type) {
-            case MASTER:
-            case SYSTEM:
-                return new MappingGenerator(document, resolver, dialect);
-            case STAGING:
-                return new MappingGenerator(document, resolver, dialect, false);
-            default:
-                throw new NotImplementedException("No support for storage type '" + type + "'.");
+        case MASTER:
+        case SYSTEM:
+            return new MappingGenerator(document, resolver, dialect);
+        case STAGING:
+            return new MappingGenerator(document, resolver, dialect, false);
+        default:
+            throw new NotImplementedException("No support for storage type '" + type + "'.");
         }
     }
 
+    @Override
     public InputStream generateHibernateConfig() {
         try {
             Document document = generateHibernateConfiguration(dataSource);
@@ -127,7 +133,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         }
     }
 
-    public Document generateHibernateConfiguration(RDBMSDataSource rdbmsDataSource) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    public Document generateHibernateConfiguration(RDBMSDataSource rdbmsDataSource) throws ParserConfigurationException,
+            SAXException, IOException, XPathExpressionException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         factory.setExpandEntityReferences(false);
@@ -155,7 +162,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         setPropertyValue(document, "hibernate.connection.driver_class", driverClass); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.dialect", dialect); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.connection.password", password); //$NON-NLS-1$
-        
+
         if (connectionPoolMinSize > 0 && connectionPoolMaxSize > 0 && connectionPoolMaxSize >= connectionPoolMinSize) {
             setPropertyValue(document, "hibernate.c3p0.min_size", String.valueOf(connectionPoolMinSize)); //$NON-NLS-1$
             setPropertyValue(document, "hibernate.c3p0.max_size", String.valueOf(connectionPoolMaxSize)); //$NON-NLS-1$
@@ -167,7 +174,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
 
         Node sessionFactoryElement = document.getElementsByTagName("session-factory").item(0); //$NON-NLS-1$
         if (rdbmsDataSource.supportFullText()) {
-            addProperty(document, sessionFactoryElement, "hibernate.search.default.directory_provider", "org.hibernate.search.store.FSDirectoryProvider"); //$NON-NLS-1$ //$NON-NLS-2$
+            addProperty(document, sessionFactoryElement,
+                    "hibernate.search.default.directory_provider", "org.hibernate.search.store.FSDirectoryProvider"); //$NON-NLS-1$ //$NON-NLS-2$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.indexBase", indexBase + '/' + storageName); //$NON-NLS-1$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.sourceBase", indexBase + '/' + storageName); //$NON-NLS-1$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.source", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -176,14 +184,14 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
 
         if (dataSource.getCacheDirectory() != null && !dataSource.getCacheDirectory().isEmpty()) {
             /*
-            <!-- Second level cache -->
-            <property name="hibernate.cache.use_second_level_cache">true</property>
-            <property name="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</property>
-            <property name="hibernate.cache.use_query_cache">true</property>
-            <property name="net.sf.ehcache.configurationResourceName">ehcache.xml</property>
+             * <!-- Second level cache --> <property name="hibernate.cache.use_second_level_cache">true</property>
+             * <property name="hibernate.cache.provider_class">net.sf.ehcache.hibernate.EhCacheProvider</property>
+             * <property name="hibernate.cache.use_query_cache">true</property> <property
+             * name="net.sf.ehcache.configurationResourceName">ehcache.xml</property>
              */
             addProperty(document, sessionFactoryElement, "hibernate.cache.use_second_level_cache", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-            addProperty(document, sessionFactoryElement, "hibernate.cache.provider_class", "net.sf.ehcache.hibernate.EhCacheProvider"); //$NON-NLS-1$ //$NON-NLS-2$
+            addProperty(document, sessionFactoryElement,
+                    "hibernate.cache.provider_class", "net.sf.ehcache.hibernate.EhCacheProvider"); //$NON-NLS-1$ //$NON-NLS-2$
             addProperty(document, sessionFactoryElement, "hibernate.cache.use_query_cache", "true"); //$NON-NLS-1$ //$NON-NLS-2$
             addProperty(document, sessionFactoryElement, "net.sf.ehcache.configurationResourceName", "ehcache.xml"); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
@@ -213,13 +221,13 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
 
     protected String getDialect(RDBMSDataSource.DataSourceDialect dialectType) {
         switch (dialectType) {
-            case H2:
-                // Default Hibernate configuration for Hibernate forgot some JDBC type mapping.
-                return H2CustomDialect.class.getName();
-            case MYSQL:
-                return "org.hibernate.dialect.MySQLDialect"; //$NON-NLS-1$
-            default:
-                throw new IllegalArgumentException("Not supported database type '" + dialectType + "'");
+        case H2:
+            // Default Hibernate configuration for Hibernate forgot some JDBC type mapping.
+            return H2CustomDialect.class.getName();
+        case MYSQL:
+            return "org.hibernate.dialect.MySQLDialect"; //$NON-NLS-1$
+        default:
+            throw new IllegalArgumentException("Not supported database type '" + dialectType + "'");
         }
     }
 
@@ -248,7 +256,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
     }
 
     private static void setPropertyValue(Document document, String propertyName, String value) throws XPathExpressionException {
-        XPathExpression compile = pathFactory.compile("hibernate-configuration/session-factory/property[@name='" + propertyName + "']"); //$NON-NLS-1$ //$NON-NLS-2$
+        XPathExpression compile = pathFactory
+                .compile("hibernate-configuration/session-factory/property[@name='" + propertyName + "']"); //$NON-NLS-1$ //$NON-NLS-2$
         Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
         if (node != null) {
             node.setTextContent(value);

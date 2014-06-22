@@ -4,18 +4,11 @@
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
  *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
-
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +19,13 @@ import java.net.URLStreamHandler;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 
 public abstract class StorageClassLoader extends ClassLoader {
 
@@ -51,7 +51,7 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     final StorageType type;
 
-    final RDBMSDataSource.DataSourceDialect dialect;
+    final RDBMSDataSource dialect;
 
     RDBMSDataSource dataSource;
 
@@ -59,10 +59,7 @@ public abstract class StorageClassLoader extends ClassLoader {
 
     private boolean isClosed;
 
-    StorageClassLoader(ClassLoader parent,
-                       String storageName,
-                       RDBMSDataSource.DataSourceDialect dialect,
-                       StorageType type) {
+    StorageClassLoader(ClassLoader parent, String storageName, RDBMSDataSource dialect, StorageType type) {
         super(parent);
         this.storageName = storageName;
         this.dialect = dialect;
@@ -104,21 +101,23 @@ public abstract class StorageClassLoader extends ClassLoader {
         assertNotClosed();
         if (EHCACHE_XML_CONFIG.equals(name)) {
             try {
-                return new URL("http", "fakehost", 0, '/' + EHCACHE_XML_CONFIG, new URLStreamHandler() { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    @Override
-                    protected URLConnection openConnection(URL u) throws IOException {
-                        return new URLConnection(u) {
-                            @Override
-                            public void connect() throws IOException {
-                            }
+                return new URL("http", "fakehost", 0, '/' + EHCACHE_XML_CONFIG, new URLStreamHandler() { //$NON-NLS-1$ //$NON-NLS-2$
 
                             @Override
-                            public InputStream getInputStream() throws IOException {
-                                return generateEhCacheConfig();
+                            protected URLConnection openConnection(URL u) throws IOException {
+                                return new URLConnection(u) {
+
+                                    @Override
+                                    public void connect() throws IOException {
+                                    }
+
+                                    @Override
+                                    public InputStream getInputStream() throws IOException {
+                                        return generateEhCacheConfig();
+                                    }
+                                };
                             }
-                        };
-                    }
-                });
+                        });
             } catch (MalformedURLException e) {
                 return null;
             }
@@ -182,7 +181,8 @@ public abstract class StorageClassLoader extends ClassLoader {
     public void setDataSourceConfiguration(DataSource dataSource) {
         assertNotClosed();
         if (!(dataSource instanceof RDBMSDataSource)) {
-            throw new IllegalArgumentException("Expected an instance of " + RDBMSDataSource.class.getName() + " but was " + dataSource);
+            throw new IllegalArgumentException("Expected an instance of " + RDBMSDataSource.class.getName() + " but was "
+                    + dataSource);
         }
         this.dataSource = (RDBMSDataSource) dataSource;
     }
