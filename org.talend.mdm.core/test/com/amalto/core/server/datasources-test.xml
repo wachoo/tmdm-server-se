@@ -1,0 +1,75 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+<datasources xmlns="http://www.talend.com/mdm/datasources">
+    <datasource name="H2-Default">
+        <master>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>H2</dialect>
+                <connection-driver-class>org.h2.Driver</connection-driver-class>
+                <connection-url>jdbc:h2:target/data/h2_default</connection-url>
+                <fulltext-index-directory>target/indexes/H2_DEFAULT</fulltext-index-directory>
+                <schema-generation>create</schema-generation>
+            </rdbms-configuration>
+        </master>
+
+    </datasource>
+
+    <datasource name="H2-DS1">
+        <master>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>H2</dialect>
+                <connection-driver-class>org.h2.Driver</connection-driver-class>
+                <connection-url>jdbc:h2:target/data/h2_ds1</connection-url>
+                <fulltext-index-directory>target/indexes/H2_DS1</fulltext-index-directory>
+                <schema-generation>create</schema-generation>
+            </rdbms-configuration>
+        </master>
+
+    </datasource>
+
+    <datasource name="H2-DS2">
+        <master>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>H2</dialect>
+                <connection-driver-class>org.h2.Driver</connection-driver-class>
+                <connection-url>jdbc:h2:target/data/h2_ds2</connection-url>
+                <fulltext-index-directory>target/indexes/H2_DS2</fulltext-index-directory>
+                <schema-generation>create</schema-generation>
+            </rdbms-configuration>
+        </master>
+        <staging>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>H2</dialect>
+                <connection-driver-class>org.h2.Driver</connection-driver-class>
+                <connection-url>jdbc:h2:target/data/h2_staging_ds2</connection-url>
+                <schema-generation>create</schema-generation>
+            </rdbms-configuration>
+        </staging>
+
+    </datasource>
+
+    <datasource name="RDBMS-1-NO-FT">
+        <master>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>H2</dialect>
+                <connection-driver-class>org.h2.Driver</connection-driver-class>
+                <connection-url>jdbc:h2:target/data/rdbms_1_no_ft</connection-url>
+                <schema-generation>create</schema-generation>
+            </rdbms-configuration>
+        </master>
+
+    </datasource>
+</datasources>

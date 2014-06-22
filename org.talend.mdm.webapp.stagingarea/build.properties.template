@@ -1,0 +1,10 @@
+svn.revision=50000
+major=5
+minor=2
+rev=0
+jboss.dir=c:/opt/jboss_tem
+local.developer.build=true
+maven.ant.tasks.file=E:/datastewardship/org.talend.datastewardship/lib/maven-ant-tasks-2.1.1.jar
+env.M2_HOME=F:/software/apache-maven-3.0.2
+#dev.mode.excluded.start=<!--
+#dev.mode.excluded.end=-->

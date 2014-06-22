@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="lib/groovy-all-1.7.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.cxf-2.2.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.commons-jxpath-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/jbossall-client.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.commons-lang-2.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jboss-jaxrpc.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jboss-saaj.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/servlet-api.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.castor-1.0.5-xml.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.com.amalto.connector.library.jar" sourcepath="/org.talend.mdm.connector.core"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.crimson.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.jazzy-core.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/activation.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jboss-j2ee.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/mail.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-httpclient.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jboss-common.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jboss-jmx.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jboss-system.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jbosssx.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.dwr.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.jaxrpc-impl.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.jaxrpc-spi.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.poi-3.0.1-FINAL-20070705.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.xsom.jar" sourcepath="F:/Src/OpenSourceProject/xsom/xsom-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jbossws-client.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaxb-api.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jboss-jaxws.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.svnkit.jar" sourcepath="F:/Src/OpenSourceProject/svnkit/1.2.3/svnkit/src"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-codec.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.6.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-fileupload.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-io.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/xercesImpl-2.9.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.bsh-2.0b2.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/junit-3.8.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-3.1.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.exist.1.4-xmldb.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/z.exist.1.4.TalendPatch.jar" sourcepath="talend.mdm.librariessrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

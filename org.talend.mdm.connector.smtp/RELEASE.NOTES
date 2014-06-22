@@ -1,0 +1,44 @@
+RELEASE NOTES
+
+The SMTP Connector sends emails described in a xml file.
+
+1.3.0 NOT RELEASED
+Compliance with core 2.20.0
+
+1.2.0
+New feature : allow to send multipart content directly
+
+1.1.1
+Minor re-factoring and cleanup
+
+1.1.0
+Added attachment capabilities.
+Improved parameters tolerance, auth in particular.
+
+1.0.8 
+Removed dependency on com.amalto.connector.mail.XmlServerException
+Improved Packaging
+
+1.0.7 
+Packaging and naming shift
+
+1.0.6 
+Added RELEASE.NOTES and version.properties to the connector packages' root
+
+1.0.5 
+B2BOX 0.9 RELEASE
+
+1.0.4 
+Connection timeout set to 1 min (used to be 30 sec)
+
+1.0.3 
+Bug fixes
+
+1.0.2 
+More packaging & deployment bugs fixes...
+
+1.0.1 
+Packaging & deployment bugs fixes
+
+1.0.0 
+Initial release

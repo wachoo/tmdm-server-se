@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='browserecords'>
+ <inherits name="org.talend.mdm.webapp.browserecords.BaseBrowseRecords" />
+
+ <!-- Specify the app entry point class. -->
+ <entry-point class='org.talend.mdm.webapp.browserecords.client.BrowseRecords' />
+
+</module>

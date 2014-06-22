@@ -1,0 +1,11 @@
+<Product>
+    <Id>1</Id>
+    <Name>Old product name</Name>
+    <Description>Description</Description>
+    <Features>
+        <Colors>
+            <Color>Lemon</Color>
+        </Colors>
+    </Features>
+    <Price>60</Price>
+</Product>

@@ -1,0 +1,16 @@
+/*
+	Fixes the grid display issue in Firefox
+*/
+
+.x-grid3 table {
+    table-layout:fixed;
+}
+
+/*
+	Fixes the Calendar display issue
+*/
+
+.x-date-middle {
+    padding-top:2px;padding-bottom:2px;
+    width:130px; /* FF3 */
+}

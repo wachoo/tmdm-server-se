@@ -1,0 +1,80 @@
+<project default="all" basedir=".">
+
+    <!-- Xerces Java directories -->
+    <property name="src.dir" value="./src"/>
+    <property name="lib.dir" value="./lib"/>
+    <property name="tom.location" value="${basedir}/.."/>
+
+    <target name="all" depends="jar" description="building bulkloadclient">
+        <!--<eclipse.refreshLocal resource="${basedir}"/>-->
+    </target>
+
+    <target name="jar" depends="junit">
+
+        <delete file="./bulkloadclient.jar"/>
+        <delete file="MANIFEST.MF"/>
+        <manifest file="MANIFEST.MF">
+            <attribute name="Built-By" value="${user.name}"/>
+            <attribute name="Main-Class" value="org.talend.mdm.bulkload.client.BulkloadClientUtil"/>
+        </manifest>
+
+        <jar destfile="./bulkloadclient.jar"
+             basedir="bin"
+             includes="**/*.class"
+             excludes="**/*Test*.class"
+             manifest="MANIFEST.MF"
+                />
+    </target>
+
+    <target name="junit">
+        <delete dir="${basedir}/target/test-classes"/>
+        <mkdir dir="${basedir}/target/test-classes"/>
+
+        <delete dir="${basedir}/target/test-reports"/>
+        <mkdir dir="${basedir}/target/test-reports"/>
+
+        <path id="base.classpath">
+            <pathelement path="bin"/>
+        </path>
+
+        <path id="compile.classpath">
+            <pathelement path="${tom.location}/org.talend.mdm.bulkload.client/bin"/>
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar"/>
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar"/>
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-httpclient.jar"/>
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-logging-1.1.1.jar"/>
+            <path refid="base.classpath"/>
+        </path>
+
+        <path id="test.classpath">
+            <pathelement path="target/test-classes"/>
+            <path refid="compile.classpath"/>
+        </path>
+
+        <copy todir="${basedir}/target/test-classes" verbose="true">
+            <fileset dir="${basedir}/test" excludes="**/*.java"/>
+        </copy>
+
+        <javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes">
+            <classpath>
+                <path refid="compile.classpath"/>
+            </classpath>
+        </javac>
+
+        <junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+            <classpath>
+                <path refid="test.classpath"/>
+            </classpath>
+
+            <batchtest fork="yes" todir="target/test-reports">
+                <fileset dir="target/test-classes">
+                    <include name="**/*Test.class"/>
+                </fileset>
+            </batchtest>
+
+            <formatter type="plain"/>
+            <formatter type="xml"/>
+        </junit>
+    </target>
+
+</project>

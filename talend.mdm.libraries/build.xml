@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="talend.mdm.libraries" default="all">
+	
+	<property name="version.props" value="version.properties"/>
+		
+	<property name="jboss.dir" value="c:/opt/jboss_test"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+    <property name="jboss.endorsed.dir" value="${jboss.dir}/lib/endorsed"/>
+	<property name="jboss.bin.dir" value="${jboss.dir}/bin"/>
+	<property name="jboss.conf.dir" value="${jboss.instance.dir}/conf"/>
+    <property name="jboss.conf.data" value="${jboss.instance.dir}/data"/>
+	<property name="jboss.web.deployer" value="${jboss.deploy.dir}/jboss-web.deployer"/>
+	<property name="exist.version" value="exist-1.4.0-rev11706-TalendPatch"/>
+
+	
+    <!-- ================================= 
+          target: all              
+         ================================= -->
+	<target name="all" depends="version,undeploy,deploy" >
+		<!--<eclipse.refreshLocal resource="${basedir}"/>-->
+	</target>
+	
+   	<target name="version"  description="Maintain build.date property">
+   		<buildnumber file="${version.props}" />
+       	<propertyfile file="${version.props}">
+       		<entry key="build.date" type="date" value="now" />
+       	</propertyfile>   	
+    </target>
+		
+    <target name="undeploy" description="remove jar">		
+		<delete>
+			<fileset dir="${jboss.endorsed.dir}" includes="xercesImpl.jar"/>			
+		</delete>
+    	
+    	<delete dir="${jboss.deploy.dir}/${exist.version}.war"/>
+    </target>
+	
+	<target name="deploy">
+        <copy todir="${jboss.dir}" overwrite="true">
+            <fileset dir="deploy" includes="run.bat,run.sh,run-MacOSX.command,Talend_license.txt" />
+        </copy>
+		
+		<copy todir="${jboss.instance.lib}" overwrite="true">
+			<fileset dir="deploy/lib"/>
+		</copy>
+		
+		<copy todir="${jboss.endorsed.dir}">
+			<fileset dir="deploy/endorsed"/>
+		</copy>
+		
+		<copy todir="${jboss.bin.dir}" overwrite="true">
+			<fileset dir="deploy/bin"></fileset>			
+		</copy>
+		
+        <copy todir="${jboss.conf.dir}" overwrite="true">
+            <fileset dir="deploy/conf"></fileset>            
+        </copy>
+
+        <copy todir="${jboss.conf.data}" overwrite="true">
+            <fileset dir="deploy/data"></fileset>
+        </copy>
+
+        <copy todir="${jboss.web.deployer}" overwrite="true">
+            <fileset dir="deploy/jboss-web.deployer"></fileset>            
+        </copy>
+	    
+	    <copy todir="${jboss.deploy.dir}" overwrite="true">
+	        <fileset dir="deploy/deploy"></fileset>            
+	    </copy>
+		
+	    <copy todir="${jboss.deploy.dir}">
+	        <fileset dir="eXist" includes="${exist.version}.war/**"/>
+	    </copy>
+		
+    </target>
+</project>
+

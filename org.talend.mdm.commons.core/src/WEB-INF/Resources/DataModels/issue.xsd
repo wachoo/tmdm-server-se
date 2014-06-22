@@ -1,0 +1,82 @@
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    attributeFormDefault="unqualified"
+    blockDefault=""
+    elementFormDefault="qualified"
+    finalDefault=""
+>
+
+    <xsd:element abstract="false" name="logging_event" nillable="false">
+        <xsd:complexType mixed="false">
+            <xsd:sequence maxOccurs="1" minOccurs="1">
+                <xsd:element maxOccurs="1" minOccurs="1" name="time" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="level" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="logger" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="message" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="ndc" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="thread" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="0" name="throwable" nillable="false" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:unique name="logging_event">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="time"/>
+        </xsd:unique>
+    </xsd:element>
+
+
+    <xsd:element abstract="false" name="issue" nillable="false">
+        <xsd:annotation>
+            <xsd:documentation>A functional or technical error to be sent to the Error Management Console</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType mixed="false">
+            <xsd:sequence maxOccurs="1" minOccurs="1">
+                <xsd:element minOccurs="1" maxOccurs="1" name="id" nillable="false" type="xsd:string"/>
+                <xsd:element minOccurs="1" maxOccurs="1" name="type" nillable="false" type="ISSUE_TYPE"/>
+                <xsd:element minOccurs="0" maxOccurs="1" name="itemPK">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element minOccurs="1" maxOccurs="1" name="universe" nillable="true" type="xsd:string"/>
+                            <xsd:element minOccurs="1" maxOccurs="1" name="dataModel" nillable="false" type="xsd:string"/>
+                            <xsd:element minOccurs="1" maxOccurs="1" name="concept" nillable="false" type="xsd:string"/>
+                            <xsd:element minOccurs="1" maxOccurs="unbounded" name="ids" nillable="true" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element minOccurs="1" maxOccurs="1" name="errorState" nillable="false" type="ISSUE_STATE"/>
+                <xsd:element minOccurs="1" maxOccurs="1" name="errorCode" nillable="true" type="xsd:string"/>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="errorMessages" nillable="false" type="xsd:string"/>
+                <xsd:element minOccurs="0" maxOccurs="1" name="comments">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element minOccurs="1" maxOccurs="1" name="author" nillable="false" type="xsd:string"/>
+                            <xsd:element minOccurs="1" maxOccurs="1" name="comment" nillable="false" type="xsd:string"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:unique name="error">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
+
+    <xsd:simpleType name="ISSUE_TYPE">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Unknown"/>
+            <xsd:enumeration value="Technical"/>
+            <xsd:enumeration value="Functional"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="ISSUE_STATE">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Opened"/>
+            <xsd:enumeration value="Closed"/>
+            <xsd:enumeration value="Rejected"/>
+            <xsd:enumeration value="WontFix"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+</xsd:schema>

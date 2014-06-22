@@ -1,0 +1,59 @@
+
+
+/***************************************************************************************
+  ACTIONS
+****************************************************************************************/
+#actions {
+    overflow: auto;
+}
+
+
+.x-layout-collapsed-east {
+    background-image:url('../img/actions.gif');
+    background-repeat:no-repeat;
+    background-position:center;
+}
+
+#actions-body{
+	overflow:auto;
+}
+
+#actions{
+	padding:1px;
+}
+#actions a{
+	border:1px solid white;
+	display:block;
+	/* -moz-outline:none; */
+	margin-bottom:2px;
+	text-decoration:none;
+}
+#actions a .body{
+	padding:5px 2px 5px 22px;
+	background-image:url('../img/o-green-orange2.gif');
+	background-position: 2px 5px;
+	background-repeat: no-repeat;
+	font:bold 12px tahoma, verdana, helvetica,sans-serif;
+	color: #2d5593;
+	/* background-color: white;*/
+	display:block;
+	padding-top:0px;
+	/* -moz-outline:none; */
+}
+#actions a .desc{
+	font:normal 11px tahoma, verdana, helvetica,sans-serif;
+	color: #222222;
+	/* background-color: white; */
+}
+#actions a:hover{
+	text-decoration: none;
+	border:1px solid #c3daf9;
+	background-color:#ddecfe;
+	color: #2d5593;
+}
+#actions .selected{
+	text-decoration: none;
+	background-image: url('../img/post-bg.gif');
+	border:1px solid #c3daf9;
+}
+

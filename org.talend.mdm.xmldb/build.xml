@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================                                                   
+
+     Xtentis MDM
+     XML:DB Modules of Xtentis MDM - adapted for eXist Open
+                   
+     bgrieder                                                                
+     ====================================================================== -->
+<project name="XtentisMDM-Xmldb" default="all">
+	<description>
+            XML:DB module for Xtentis MDM
+    </description>
+
+	<property name="jar" value="z.mdm.xmldb.jar"/>
+
+	<!--    DO NOT CHANGE ANYTHING BELOW THIS LINE   -->
+
+	<property name="version.props" value="version.properties"/>
+	<property name="jboss.dir" value="/home/pascal/dev/jboss/jboss-4.2.2.GA-mdm"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+	<property name="tom.location" value="${basedir}/.." />
+
+	<!-- ================================= 
+          target: all              
+         ================================= -->
+	<target name="all" depends="package,undeploy,deploy">
+		<!--
+			On newer eclipse versions - activate Refresh in the External Tools Configuration 
+			<eclipse.refreshLocal resource="${basedir}"/> 
+		-->
+	</target>
+
+	<target name="version"  description="Maintain build.date property">
+		<buildnumber file="${version.props}" />
+		<propertyfile file="${version.props}">
+			<entry key="build.date" type="date" value="now" />
+			<entry key="built.by" type="string" value="${user.name}" />
+			<entry key="java.version" type="string" value="${java.vm.version}" />
+		</propertyfile>
+	</target>
+
+	<target name="junit">
+		<delete dir="${basedir}/target/test-classes" />
+		<mkdir dir="${basedir}/target/test-classes" />
+
+		<delete dir="${basedir}/target/test-reports" />
+		<mkdir dir="${basedir}/target/test-reports" />
+
+		<path id="base.classpath">
+			<pathelement path="bin" />
+			<pathelement path="${tom.location}/org.talend.mdm.xmlserver.interfaces/bin" />
+			<pathelement path="${tom.location}/org.talend.mdm.commmon/bin" />
+			<pathelement path="${tom.location}/org.talend.mdm.commons.core/bin" />
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar" />
+		</path>
+
+		<path id="compile.classpath">
+			<pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar" />
+			<path refid="base.classpath" />
+		</path>
+
+		<path id="test.classpath">
+			<pathelement path="target/test-classes" />
+			<path refid="compile.classpath" />
+		</path>
+
+		<copy todir="${basedir}/target/test-classes" verbose="true">
+			<fileset dir="${basedir}/test" excludes="**/*.java" />
+		</copy>
+
+		<javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes">
+			<classpath>
+				<path refid="compile.classpath" />
+			</classpath>
+		</javac>
+
+		<junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+			<classpath>
+				<path refid="test.classpath" />
+			</classpath>
+
+			<batchtest fork="yes" todir="target/test-reports">
+				<fileset dir="target/test-classes">
+					<include name="**/*Test.class" />
+				</fileset>
+			</batchtest>
+
+			<formatter type="plain" />
+			<formatter type="xml" />
+		</junit>
+	</target>
+
+	<target name="package" depends="version, junit">
+		<property file="${version.props}" />
+		<copy file="RELEASE.NOTES" tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+		<jar destfile="${jar}">
+			<zipfileset dir=".">
+				<include name="version.properties" />
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="RELEASE.NOTES" />
+			</zipfileset>
+			<zipfileset dir="bin" includes="**/*.class" />
+			<zipfileset dir="../org.talend.mdm.xmlserver.interfaces/bin" includes="**/interfaces/*.class" />
+		</jar>
+		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+	</target>
+
+	<target name="undeploy" description="--> remove packages">
+		<delete>
+			<fileset dir="${jboss.instance.lib}" includes="${jar}"/>
+		</delete>
+	</target>
+
+	<target name="deploy">
+		<property file="${version.props}" />
+		<echo>Deploying ${major}.${minor}.${rev}-${build.number}</echo>
+		<copy file="${jar}" tofile="${jboss.instance.lib}/${jar}"/>
+	</target>
+
+
+
+</project>
+

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     20 déc. 2005 09:21:22                                                        
+
+     Xtentis Core
+     Core Modules of Xtentis
+                   
+     bgrieder                                                                
+     ====================================================================== -->
+<project name="XtentisCore - Build" default="all">
+    <description>
+        Xtentis Core
+    </description>
+
+    <property name="version.props" value="product_version.properties" />
+
+    <property name="jboss.dir" value="/home/pascal/dev/jboss/jboss-4.2.2.GA-mdm/" />
+    <property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
+    <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
+    <property name="jboss.lib.dir" value="${jboss.instance.dir}/lib" />
+    <property name="jboss.bin.dir" value="${jboss.dir}/bin" />
+
+    <property name="war" value="zz.30.core.war" />
+    <property name="ejbs" value="zz.20.core.jar" />
+    <property name="lib" value="z.mdm.core.jar" />
+    <property name="service" value="org.talend.mdm.jullog4jservice.jar" />
+    <property name="conf" value="mdm.conf" />
+    <property name="conf.template" value="mdm.conf.template" />
+    <property name="svn.revision" value="36233" />
+
+    <property name="tom.location" value="${basedir}/.." />
+
+    <!-- =================================
+          target: all              
+         ================================= -->
+    <target name="all" depends="version,junit,package,undeploy,deploy">
+        <!-- <eclipse.refreshLocal resource="${basedir}"/> -->
+    </target>
+
+    <target name="create_patch">
+        <echo>Creating patch ${ejbs}, ${war} ${lib} and ${conf}</echo>
+
+        <copy file="${lib}" tofile="target/patch/ear/lib/${lib}" />
+        <copy file="${ejbs}" tofile="target/patch/ear/${ejbs}" />
+        <copy file="${war}" tofile="target/patch/ear/${war}" />
+
+        <copy file="bin/datasources.xml" tofile="target/patch/resources/bin/datasources.xml" />
+        <copy file="bin/default-datasources.xml" tofile="target/patch/resources/bin/default-datasources.xml" />
+        <copy file="${conf}" tofile="target/patch/resources/bin/${conf}" />
+        <copy file="${conf.template}" tofile="target/patch/resources/bin/${conf.template}" />
+    </target>
+
+    <target name="apply_patch">
+        <property name="ear" value="${jboss.deploy.dir}/tem.ear" />
+        <property name="resources" value="${jboss.dir}" />
+
+        <!-- EAR -->
+        <echo>********************************</echo>
+        <echo>Patching EAR...</echo>
+        <echo>********************************</echo>
+        <fileset id="patch_ear_content" dir="target/patch/ear">
+            <include name="**/*.*" />
+        </fileset>
+        <pathconvert pathsep="${line.separator}" property="patch_ear_content_info" refid="patch_ear_content" />
+        <echo>Destination: ${ear}</echo>
+        <echo>--- Content ---</echo>
+        <echo>${patch_ear_content_info}</echo>
+        <echo>--- Content ---</echo>
+
+        <jar destfile="${ear}" update="true" duplicate="add">
+            <fileset refid="patch_ear_content" />
+        </jar>
+
+        <!-- -->
+        <echo>********************************</echo>
+        <echo>Patching resources...</echo>
+        <echo>********************************</echo>
+        <fileset id="patch_resources_content" dir="target/patch/resources">
+            <include name="**/*.*" />
+        </fileset>
+        <pathconvert pathsep="${line.separator}" property="patch_resources_content_info" refid="patch_resources_content" />
+        <echo>Destination: ${resources}</echo>
+        <echo>--- Content ---</echo>
+        <echo>${patch_resources_content_info}</echo>
+        <echo>--- Content ---</echo>
+        <copy todir="${jboss.dir}" verbose="true" overwrite="true">
+            <fileset refid="patch_resources_content" />
+        </copy>
+    </target>
+
+
+    <target name="junit">
+        <echo message="${tom.location}/org.talend.mdm.commons.core/bin" />
+
+        <delete dir="${basedir}/target/test-classes" />
+        <mkdir dir="${basedir}/target/test-classes" />
+
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.xml" />
+        </copy>
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.xsd" />
+        </copy>
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.dtd" />
+        </copy>
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.txt" />
+        </copy>
+
+        <delete dir="${basedir}/target/test-reports" />
+        <mkdir dir="${basedir}/target/test-reports" />
+
+        <delete dir="${basedir}/target/data" />
+        <delete dir="${basedir}/target/indexes" />
+
+        <path id="base.classpath">
+            <pathelement path="bin" />
+            <pathelement path="${tom.location}/org.talend.mdm.commons.core/bin" />
+            <pathelement path="${tom.location}/org.talend.mdm.core/bin" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/deploy/lib/z.relaxngDatatype.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-lang-2.1.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/log4j.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/servlet-api.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-io.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.commons-jxpath-1.3.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/xercesImpl-2.9.1.jar" />
+
+            <pathelement path="${tom.location}/org.talend.mdm.commmon/bin" />
+            <pathelement path="${tom.location}/org.talend.mdm.xmldb/bin" />
+            <pathelement path="${tom.location}/org.talend.mdm.xmlserver.interfaces/bin" />
+            <fileset dir="${tom.location}/org.talend.mdm.core/lib" includes="*.jar" />
+        </path>
+
+        <path id="compile.classpath">
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/junit-3.8.1.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.jazzy-core.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.castor-1.0.5-xml.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-logging.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/jboss-j2ee.jar" />
+            <path refid="base.classpath" />
+        </path>
+
+        <path id="test.classpath">
+            <pathelement path="target/test-classes" />
+            <path refid="compile.classpath" />
+            <pathelement path="${tom.location}/org.talend.mdm.core/src/WEB-INF/lib/z.XmlSchema-1.4.5.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/dom4j.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/commons-httpclient.jar" />
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.exist.1.4.TalendPatch.jar" />
+            <pathelement path="${tom.location}/org.talend.mdm.xmldb/lib-1.4/common/z.exist.1.4-xmldb.jar" />
+            <pathelement path="${tom.location}/org.talend.mdm.xmldb/lib-1.4/common/z.exist.1.4-xmlrpc-client-3.1.2.jar" />
+            <pathelement path="${tom.location}/org.talend.mdm.xmldb/lib-1.4/common/z.exist.1.4-xmlrpc-common-3.1.2.jar" />
+
+            <pathelement path="${tom.location}/talend.mdm.libraries/lib/z.xsom.jar" />
+        </path>
+
+        <copy todir="${basedir}/target/test-classes" verbose="true">
+            <fileset dir="${basedir}/test" excludes="**/*.java" />
+            <fileset dir="${basedir}/src" includes="**/*.conf" />
+        </copy>
+
+        <javac srcdir="${basedir}/test" destdir="${basedir}/target/test-classes" debug="true">
+            <classpath>
+                <path refid="compile.classpath" />
+            </classpath>
+        </javac>
+
+        <junit printsummary="yes" haltonfailure="no" showoutput="yes">
+            <classpath>
+                <path refid="test.classpath" />
+            </classpath>
+
+            <batchtest fork="yes" todir="target/test-reports">
+                <fileset dir="target/test-classes">
+                    <include name="**/*Test.class" />
+                    <include name="**/*TestCase.class" />
+                </fileset>
+            </batchtest>
+
+            <formatter type="plain" />
+            <formatter type="xml" />
+        </junit>
+    </target>
+
+    <target name="version" description="Maintain build.date property">
+        <buildnumber file="${version.props}" />
+        <echo>Revision Number :${svn.revision}</echo>
+        <loadproperties srcfile="${version.props}">
+        </loadproperties>
+        <propertyfile file="${version.props}">
+            <entry key="build.date" type="date" value="now" />
+            <entry key="build.number" value="${svn.revision}" />
+            <entry key="major" value="${major}" />
+            <entry key="minor" value="${minor}" />
+            <entry key="rev" value="${rev}" />
+        </propertyfile>
+    </target>
+
+    <target name="package" depends="version">
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.xml" />
+        </copy>
+        <copy todir="${basedir}/bin/" verbose="true" overwrite="true">
+            <fileset dir="${basedir}/src" includes="**/**.dtd" />
+        </copy>
+
+        <jar destfile="${ejbs}" manifest="src/META-INF/MANIFEST.MF">
+
+            <zipfileset dir=".">
+                <include name="RELEASE.NOTES" />
+            </zipfileset>
+            <zipfileset dir=".">
+                <include name="${version.props}" />
+            </zipfileset>
+            <zipfileset dir="bin" includes="**/*.class" />
+            <zipfileset dir="src" excludes="**/*.java" />
+            <zipfileset dir="lib" includes="*.jar" prefix="WEB-INF/lib" />
+        </jar>
+
+        <!-- used by transformer plugins -->
+        <jar destfile="${lib}" manifest="src/META-INF/MANIFEST.MF">
+            <zipfileset dir=".">
+                <include name="${version.props}" />
+            </zipfileset>
+            <zipfileset dir=".">
+                <include name="RELEASE.NOTES" />
+            </zipfileset>
+            <zipfileset dir="bin" includes="**/util/*.class" />
+            <zipfileset dir="bin" includes="**/*POJO*.class" />
+        </jar>
+
+        <!-- JUL to log4j service MBean -->
+        <jar destfile="target/${service}" manifest="src/META-INF/MANIFEST.MF">
+            <zipfileset dir=".">
+                <include name="${version.props}" />
+            </zipfileset>
+            <zipfileset dir=".">
+                <include name="RELEASE.NOTES" />
+            </zipfileset>
+            <zipfileset dir="bin" includes="com/amalto/core/util/JULLog4j*.class" />
+        </jar>
+        
+        <jar destfile="${war}" manifest="src/META-INF/MANIFEST.MF">
+            <zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+                <include name="web.xml" />
+            </zipfileset>
+            <zipfileset dir="src/WEB-INF" prefix="WEB-INF">
+                <include name="jboss-web.xml" />
+            </zipfileset>
+            <zipfileset dir=".">
+                <include name="${version.props}" />
+            </zipfileset>
+            <zipfileset dir=".">
+                <include name="RELEASE.NOTES" />
+            </zipfileset>
+            <zipfileset dir="bin" prefix="WEB-INF/classes" includes="**/servlet/*.class" />
+            <zipfileset dir="src" includes="WEB-INF/lib/*.*" />
+            <zipfileset dir="lib" includes="*.jar" prefix="WEB-INF/lib" />
+        </jar>
+
+    </target>
+
+
+    <target name="undeploy" description="remove packages">
+        <delete>
+            <fileset dir="${jboss.lib.dir}" includes="${lib}" />
+            <fileset dir="${jboss.lib.dir}" includes="${service}" />
+            <fileset dir="${jboss.deploy.dir}" includes="${ejbs}" />
+            <fileset dir="${jboss.deploy.dir}" includes="${war}" />
+            <fileset dir="${jboss.bin.dir}" includes="${conf}" />
+            <fileset dir="${jboss.bin.dir}" includes="${conf.template}" />
+            <fileset dir="${jboss.bin.dir}" includes="datasources.xml.template" />
+        </delete>
+    </target>
+
+    <target name="deploy">
+        <echo>Deploying ${ejbs}, ${war}, ${lib}, ${service} and ${conf}</echo>
+
+        <copy file="${lib}" tofile="${jboss.lib.dir}/${lib}" />
+        <copy file="target/${service}" tofile="${jboss.lib.dir}/${service}" />
+        <copy file="${ejbs}" tofile="${jboss.deploy.dir}/${ejbs}" />
+        <copy file="${war}" tofile="${jboss.deploy.dir}/${war}" />
+        <copy file="${conf}" tofile="${jboss.bin.dir}/${conf}" />
+        <copy file="${conf.template}" tofile="${jboss.bin.dir}/${conf.template}" />
+        <copy file="src/default-datasources.xml" tofile="${jboss.bin.dir}/datasources.xml.template" />
+    </target>
+
+</project>

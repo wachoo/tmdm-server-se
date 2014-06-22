@@ -1,0 +1,41 @@
+<Societe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<CodeOSMOSE>12345</CodeOSMOSE>
+	<Nom>Talend SA</Nom>
+	<NomUsuel>Talend</NomUsuel>
+	<FormeJuridique>Societe anonyme</FormeJuridique>
+	<AppartenanceGroupe>false</AppartenanceGroupe>
+	<Consolidee>1</Consolidee>
+	<Archivee>1</Archivee>
+	<Contacts>
+		<Contact>
+			<StatutContactFk>2</StatutContactFk>
+			<SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+				<NatureLocalisationFk>[3]</NatureLocalisationFk>
+				<AdressePostale>
+					<Adresse1>1 cours Ferdinand de Lesseps</Adresse1>
+					<Adresse2/>
+					<Adresse3/>
+					<CodePostal>92500</CodePostal>
+					<Ville>RUEIL-MALMAISON</Ville>
+					<Etat/>
+					<PaysFk>[FR]</PaysFk>
+				</AdressePostale>
+			</SpecialisationContactType>
+		</Contact>
+		<Contact>
+			<StatutContactFk>2</StatutContactFk>
+			<SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+				<NatureLocalisationFk>[4]</NatureLocalisationFk>
+				<AdressePostale>
+					<Adresse1>1 cours Ferdinand de Lesseps</Adresse1>
+					<Adresse2/>
+					<Adresse3/>
+					<CodePostal>92500</CodePostal>
+					<Ville>RUEIL-MALMAISON</Ville>
+					<Etat/>
+					<PaysFk>[FR]</PaysFk>
+				</AdressePostale>
+			</SpecialisationContactType>
+		</Contact>
+	</Contacts>
+</Societe>

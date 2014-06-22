@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app >
+    <!-- <distributable/> -->
+    
+    <display-name>publish servlet</display-name>
+
+    <!-- Enable log service -->
+	<context-param>
+		<param-name>org.restlet.enableLog</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	
+	<!-- Application class name -->
+	<context-param>
+		<param-name>org.restlet.application</param-name>
+		<param-value>org.talend.mdm.ext.publish.ServerServletApplication</param-value>
+	</context-param>
+
+	<!-- Restlet adapter -->
+	<servlet>
+		<servlet-name>RestletServlet</servlet-name>
+		<servlet-class>com.noelios.restlet.ext.servlet.ServerServlet</servlet-class>
+	</servlet>
+    
+	<!-- Catch all requests -->
+	<servlet-mapping>
+		<servlet-name>RestletServlet</servlet-name>
+		<url-pattern>/secure/*</url-pattern>
+	</servlet-mapping>
+       
+    <security-constraint>    
+        <web-resource-collection>
+            <web-resource-name>Secure resources</web-resource-name>
+            <url-pattern>/secure/*</url-pattern>
+        </web-resource-collection>        
+        <web-resource-collection>
+            <web-resource-name>WEB-INF</web-resource-name>
+            <url-pattern>/WEB-INF/*</url-pattern>
+        </web-resource-collection>            
+        <auth-constraint>
+            <role-name>administration</role-name>
+            <role-name>authenticated</role-name>
+        </auth-constraint>    
+    </security-constraint>
+    
+    
+     <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>xtentisSecurity</realm-name>
+    </login-config>
+    
+    <security-role>
+        <role-name>administration</role-name>
+    </security-role> 
+    <security-role>
+        <role-name>authenticated</role-name>
+    </security-role> 
+    
+</web-app>

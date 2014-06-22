@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.talend.mdm.webapp.stagingarea" xmlns:artifact="antlib:org.apache.maven.artifact.ant" default="all">
+
+    <property file="build.properties" />
+
+    <target name="prepare-maven" if="local.developer.build">
+        <path id="maven-ant-tasks.classpath" path="${maven.ant.tasks.file}" />
+        <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+    </target>
+
+    <property name="build.dir" value="${basedir}/target" />
+    <property name="jboss.dir" value="${jboss.dir}" />
+    <property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
+    <property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
+    <property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
+    <property name="mdm.build.version" value="${major}.${minor}.${rev}-r${svn.revision}" />
+    <property name="dev.mode.excluded.start" value="" />
+    <property name="dev.mode.excluded.end" value="" />
+
+    <target name="clean">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="clean" />
+        </antcall>
+    </target>
+
+    <target name="package">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="package" />
+        </antcall>
+    </target>
+
+    <target name="install">
+        <antcall target="mvn.invoke">
+            <param name="mvn.goal" value="install" />
+        </antcall>
+    </target>
+
+    <target name="undeploy" description="undeploy war">
+        <delete file="${jboss.deploy.dir}/com.lch.gxttest.war" />
+    </target>
+    <target name="deploy" description="deploy war">
+        <copy file="${build.dir}/org.talend.mdm.webapp.stagingarea-${mdm.build.version}.war" tofile="${jboss.deploy.dir}/org.talend.mdm.webapp.stagingarea.war" />
+    </target>
+
+    <target name="all" depends="clean,package,undeploy,deploy" />
+
+    <target name="mvn.invoke" description="invokes maven" depends="prepare-maven">
+        <property environment="env" />
+
+        <artifact:mvn pom="pom.xml" mavenHome="${env.M2_HOME}" fork="true" failonerror="true">
+            <arg value="-V" />
+            <arg value="-Dmdm.build.dir=${build.dir}" />
+            <arg value="-Dmdm.build.version=${mdm.build.version}" />
+            <arg value="-Ddev.mode.excluded.start=${dev.mode.excluded.start}" />
+            <arg value="-Ddev.mode.excluded.end=${dev.mode.excluded.end}" />
+            <arg value="${mvn.goal}" />
+        </artifact:mvn>
+    </target>
+
+</project>

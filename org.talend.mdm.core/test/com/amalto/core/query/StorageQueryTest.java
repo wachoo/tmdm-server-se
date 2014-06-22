@@ -1,0 +1,2516 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2011 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
+
+package com.amalto.core.query;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
+import com.amalto.core.query.user.*;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageWrapper;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.Timestamp;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.ViewSearchResultsWriter;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.XmlServerException;
+
+@SuppressWarnings("nls")
+public class StorageQueryTest extends StorageTestCase {
+
+    private final String E1_Record1 = "<E1><subelement>aaa</subelement><subelement1>bbb</subelement1><name>asdf</name></E1>";
+
+    private final String E1_Record2 = "<E1><subelement>ccc</subelement><subelement1>ddd</subelement1><name>cvcvc</name></E1>";
+
+    private final String E1_Record3 = "<E1><subelement>ttt</subelement><subelement1>yyy</subelement1><name>nhhn</name></E1>";
+
+    private final String E2_Record1 = "<E2><subelement>111</subelement><subelement1>222</subelement1><name>qwe</name><fk>[ccc][ddd]</fk></E2>";
+
+    private final String E2_Record2 = "<E2><subelement>344</subelement><subelement1>544</subelement1><name>55</name><fk>[aaa][bbb]</fk></E2>";
+
+    private final String E2_Record3 = "<E2><subelement>333</subelement><subelement1>444</subelement1><name>tyty</name><fk>[ttt][yyy]</fk></E2>";
+
+    private final String E2_Record4 = "<E2><subelement>666</subelement><subelement1>777</subelement1><name>iuj</name><fk>[aaa][bbb]</fk></E2>";
+
+    private final String E2_Record5 = "<E2><subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk></E2>";
+
+    private final String E2_Record6 = "<E2><subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk></E2>";
+
+    private final String E2_Record7 = "<E2><subelement>119</subelement><subelement1>120</subelement1><name>zhang</name></E2>";
+
+    private void populateData() {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                country,
+                                "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                country,
+                                "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name></Country>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                address,
+                                "<Address><id>1</id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                address,
+                                "<Address><id>1</id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                address,
+                                "<Address><id>2</id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                address,
+                                "<Address><id>3</id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                address,
+                                "<Address><id>4</id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                person,
+                                "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                person,
+                                "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                person,
+                                "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                a,
+                                "<A><id>1</id><textA>TextA</textA><nestedB><text>Text</text></nestedB></A>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                a,
+                                "<A><id>2</id><textA>TextA</textA><nestedB><text>Text</text></nestedB><refA>[1]</refA></A>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
+                + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>.127</Id>\n"
+                + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>127.</Id>\n"
+                + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>127.0.0.1</Id>\n"
+                        + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
+                        + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
+                        + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
+                + "    <SupplierName>Starbucks Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Cafe</Name>\n"
+                + "        <Phone>33234567890</Phone>\n" + "        <Email>test@testfactory.org</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>3</Id>\n"
+                + "    <SupplierName>Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Paul</Name>\n"
+                + "        <Phone>33234567890</Phone>\n" + "        <Email>test@talend.com</Email>\n" + "    </Contact>\n"
+                + "</Supplier>"));
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
+                + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read("1", repository, store, "<Store>\n" + "    <Id>1</Id>\n" + "    <Name>Store #1</Name>\n"
+                + "</Store>"));
+        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Family>[2]</Family>\n"
+                + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
+        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
+                + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n" + "    <Family/>\n"
+                + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n" + "    <Supplier>[1]</Supplier>\n"
+                + "<Stores><Store>[1]</Store></Stores></Product>"));
+
+        allRecords.add(factory.read("1", repository, e1, E1_Record1));
+        allRecords.add(factory.read("1", repository, e1, E1_Record2));
+        allRecords.add(factory.read("1", repository, e1, E1_Record3));
+
+        allRecords.add(factory.read("1", repository, e2, E2_Record1));
+        allRecords.add(factory.read("1", repository, e2, E2_Record2));
+        allRecords.add(factory.read("1", repository, e2, E2_Record3));
+        allRecords.add(factory.read("1", repository, e2, E2_Record4));
+        allRecords.add(factory.read("1", repository, e2, E2_Record5));
+        allRecords.add(factory.read("1", repository, e2, E2_Record6));
+        allRecords.add(factory.read("1", repository, e2, E2_Record7));
+
+        try {
+            storage.begin();
+            storage.update(allRecords);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        populateData();
+        userSecurity.setActive(false); // Not testing security here
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        try {
+            storage.begin();
+            {
+                UserQueryBuilder qb = from(person);
+                storage.delete(qb.getSelect());
+
+                qb = from(address);
+                storage.delete(qb.getSelect());
+
+                qb = from(country);
+                storage.delete(qb.getSelect());
+
+                qb = from(e1);
+                storage.delete(qb.getSelect());
+
+                qb = from(e2);
+                storage.delete(qb.getSelect());
+            }
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+    }
+
+    public void testXmlSerialization() {
+        UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        try {
+            String expectedXml = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn&apos;t it][FR:mon magnifique resume, n&apos;est ce pas ?]</resume>"
+                    + "<age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2][true]</address><address>"
+                    + "[1][false]</address></addresses><Status>Employee</Status></Person>";
+            String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn&apos;t it][FR:mon magnifique resume, n&apos;est ce pas ?]</resume>"
+                    + "<age>10</age><score>130000</score><Available>true</Available><addresses><address>[2][true]</address><address>"
+                    + "[1][false]</address></addresses><Status>Employee</Status></Person>";
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                try {
+                    writer.write(result, output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            String actual = new String(output.toByteArray());
+            if (!"Oracle".equalsIgnoreCase(DATABASE)) {
+                assertEquals(expectedXml, actual);
+            } else {
+                assertEquals(expectedXml2, actual);
+            }
+        } finally {
+            results.close();
+        }
+
+    }
+
+    public void testSelectWithUselessIsa() throws Exception {
+        UserQueryBuilder qb = from(person).isa(person);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectId() throws Exception {
+        List<FieldMetadata> keyFields = person.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.get(0);
+
+        UserQueryBuilder qb = from(person).select(person.getField("id"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectById() throws Exception {
+        List<FieldMetadata> keyFields = person.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.get(0);
+
+        UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectByIdIncludingDots() throws Exception {
+        Collection<FieldMetadata> keyFields = supplier.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.iterator().next();
+
+        UserQueryBuilder qb = from(supplier).where(eq(supplier.getField("Id"), "127.0.0.1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+        // Wrapper test
+        StorageWrapper wrapper = new StorageWrapper() {
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        // Get document by id
+        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier.127.0.0.1");
+        assertNotNull(documentAsString);
+        // Get cluster ids
+        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        boolean found = false;
+        for (String id : ids) {
+            if("Test.Supplier.127.0.0.1".equals(id)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+        // Delete document
+        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier.127.0.0.1", "");
+        assertTrue(result >= 0);
+        wrapper.getAllDocumentsUniqueID(null, "Test");
+    }
+    
+    public void testSelectByIdIncludingDots2() throws Exception {
+        Collection<FieldMetadata> keyFields = supplier.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.iterator().next();
+
+        UserQueryBuilder qb = from(supplier).where(eq(supplier.getField("Id"), ".127"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+        // Wrapper test
+        StorageWrapper wrapper = new StorageWrapper() {
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        // Get document by id
+        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier..127");
+        assertNotNull(documentAsString);
+        // Get cluster ids
+        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        boolean found = false;
+        for (String id : ids) {
+            if("Test.Supplier..127".equals(id)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+        // Delete document
+        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier..127", "");
+        assertTrue(result >= 0);
+        wrapper.getAllDocumentsUniqueID(null, "Test");
+    }
+    
+    public void testSelectByIdIncludingDots3() throws Exception {
+        Collection<FieldMetadata> keyFields = supplier.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.iterator().next();
+
+        UserQueryBuilder qb = from(supplier).where(eq(supplier.getField("Id"), "127."));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+        // Wrapper test
+        StorageWrapper wrapper = new StorageWrapper() {
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        // Get document by id
+        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier.127.");
+        assertNotNull(documentAsString);
+        // Get cluster ids
+        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        boolean found = false;
+        for (String id : ids) {
+            if("Test.Supplier.127.".equals(id)) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+        // Delete document
+        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier.127.", "");
+        assertTrue(result >= 0);
+        wrapper.getAllDocumentsUniqueID(null, "Test");
+    }
+
+    public void testSelectByIdExclusion() throws Exception {
+        List<FieldMetadata> keyFields = person.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.get(0);
+
+        UserQueryBuilder qb = from(person).where(not(eq(person.getField("id"), "1")));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSelectByIdWithProjection() throws Exception {
+        List<FieldMetadata> keyFields = person.getKeyFields();
+        assertEquals(1, keyFields.size());
+        FieldMetadata keyField = keyFields.get(0);
+
+        UserQueryBuilder qb = from(person).select(person.getField("id")).where(eq(person.getField("id"), "1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get(keyField));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testOrderByASC() throws Exception {
+        // Test ASC direction
+        FieldMetadata personLastName = person.getField("lastname");
+        UserQueryBuilder qb = from(person).orderBy(personLastName, OrderBy.Direction.ASC);
+        String[] ascExpectedValues = { "Dupond", "Dupont", "Leblanc" };
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(ascExpectedValues[i++], result.get(personLastName));
+            }
+
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testOrderByDESC() throws Exception {
+        FieldMetadata personLastName = person.getField("lastname");
+        UserQueryBuilder qb = from(person).orderBy(personLastName, OrderBy.Direction.DESC);
+        String[] descExpectedValues = { "Leblanc", "Dupont", "Dupond" };
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(descExpectedValues[i++], result.get(personLastName));
+            }
+
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testNoConditionQuery() throws Exception {
+        UserQueryBuilder qb = from(person);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(address);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getSize());
+            assertEquals(5, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testEqualsCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(eq(person.getField("lastname"), "Dupond"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(address).where(eq(address.getField("Street"), "Street1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testEqualsDateCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(eq(country.getField("creationDate"), "2010-10-10"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testEqualsTimeCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(eq(country.getField("creationTime"), "2010-10-10T00:00:01"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testEqualsBooleanCondition() throws Exception {
+        UserQueryBuilder qb = from(address).where(eq(address.getField("enterprise"), "true"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(address).where(eq(address.getField("enterprise"), "false"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testNotEqualsCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(neq(person.getField("lastname"), "Dupond"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGreaterThanCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(gt(person.getField("age"), "10"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGreaterThanDateCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(gt(country.getField("creationDate"), "2000-01-01"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGreaterThanTimeCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(gt(country.getField("creationTime"), "2000-01-01T00:00:00"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGreaterThanDecimalCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(gt(person.getField("score"), "100000"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testLessThanCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(lt(person.getField("age"), "20"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testLessThanDateCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(lt(country.getField("creationDate"), "2020-01-01"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testLessThanTimeCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(lt(country.getField("creationTime"), "2020-01-01T00:00:00"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testLessThanDecimalCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(lt(person.getField("score"), "1000000"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGreaterThanEqualsCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(gte(person.getField("age"), "10"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testIntervalCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(gte(person.getField("age"), "10")).where(lte(person.getField("age"), "30"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGreaterThanEqualsDateCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(gte(country.getField("creationDate"), "2011-10-10"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGreaterThanEqualsTimeCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(gte(country.getField("creationTime"), "2011-10-10T00:00:00"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGreaterThanEqualsDecimalCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(gte(person.getField("score"), "170000"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testLessThanEqualsCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(lte(person.getField("age"), "20"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testLessThanEqualsDateCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(lte(country.getField("creationDate"), "2010-10-10"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testLessThanEqualsTimeCondition() throws Exception {
+        UserQueryBuilder qb = from(country).where(lte(country.getField("creationTime"), "2010-10-10T00:00:01"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testLessThanEqualsDecimalCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(lte(person.getField("score"), "170000"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testStartsWithCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(startsWith(person.getField("firstname"), "Ju"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).where(startsWith(person.getField("firstname"), "^Ju"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testContainsCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(contains(person.getField("lastname"), "Dupo"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(address).where(contains(address.getField("Street"), "Street"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getSize());
+            assertEquals(5, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testContainsConditionWithAllSimpledTypeFields() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(product);
+        String fieldName = "Product/../*";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS, "1",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testConditionOr() throws Exception {
+        UserQueryBuilder qb = from(person).where(
+                or(eq(person.getField("lastname"), "Dupond"), eq(person.getField("firstname"), "Robert-Julien")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testConditionAnd() throws Exception {
+        UserQueryBuilder qb = from(person).where(
+                and(eq(person.getField("lastname"), "Dupond"), eq(person.getField("firstname"), "Robert-Damien")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getSize());
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        // Wheres are equivalent to "and" statements
+        qb = from(person).where(eq(person.getField("lastname"), "Dupond")).where(
+                eq(person.getField("firstname"), "Robert-Damien"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getSize());
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testConditionNot() throws Exception {
+        UserQueryBuilder qb = from(person).where(
+                and(eq(person.getField("lastname"), "Dupond"), not(eq(person.getField("firstname"), "Robert"))));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        // Equivalent to the previous query (chained wheres are "and")
+        qb = from(person).where(eq(person.getField("lastname"), "Dupond")).where(not(eq(person.getField("firstname"), "Robert")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinQuery() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .join(person.getField("addresses/address"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(6, results.getSize());
+            assertEquals(6, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinQueryWithId() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.NO_OP_CONDITION))
+                .join(person.getField("addresses/address"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .where(and(UserQueryHelper.NO_OP_CONDITION, eq(person.getField("id"), "1")))
+                .join(person.getField("addresses/address"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinQueryNormalize() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.NO_OP_CONDITION))
+                .join(person.getField("addresses/address"));
+        Select select = qb.getSelect();
+        assertTrue(select.getCondition() instanceof BinaryLogicOperator);
+        Select normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is
+                                                               // NO_OP_CONDITION
+        assertTrue(normalizedSelect.getCondition() instanceof Compare);
+
+        qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .where(and(UserQueryHelper.NO_OP_CONDITION, eq(person.getField("id"), "1")))
+                .join(person.getField("addresses/address"));
+        select = qb.getSelect();
+        assertTrue(select.getCondition() instanceof BinaryLogicOperator);
+        normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is
+                                                        // NO_OP_CONDITION
+        assertTrue(normalizedSelect.getCondition() instanceof Compare);
+    }
+
+    public void testJoinQueryUsingSingleParameterJoin() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .join(person.getField("addresses/address"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(6, results.getSize());
+            assertEquals(6, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinQueryWithCondition() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .join(person.getField("addresses/address")).where(eq(person.getField("lastname"), "Dupond"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinQueryWithConditionAnd() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .join(person.getField("addresses/address")).where(eq(person.getField("lastname"), "Dupond"))
+                .where(eq(person.getField("firstname"), "Julien"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinQueryWithConditionNot() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .join(person.getField("addresses/address"))
+                .where(and(eq(person.getField("lastname"), "Dupond"), not(eq(person.getField("firstname"), "Julien"))));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getSize());
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testDoubleJoinQuery() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .select(country.getField("name")).join(person.getField("addresses/address"))
+                .join(address.getField("country"), country.getField("id"));
+        StorageResults results = storage.fetch(qb.getSelect());
+
+        try {
+            assertEquals(6, results.getSize());
+            assertEquals(6, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testDoubleJoinQueryWithCondition() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
+                .select(country.getField("name")).join(person.getField("addresses/address"))
+                .join(address.getField("country"), country.getField("id")).where(eq(person.getField("lastname"), "Dupond"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testPaging() throws Exception {
+        UserQueryBuilder qb = from(person).limit(1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(3, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get("id"));
+            }
+        } finally {
+            results.close();
+        }
+
+        //
+        qb = from(person).limit(-1);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        //
+        qb = from(person).limit(1).start(1);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).limit(1).start(4);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+            assertEquals(3, results.getCount());
+            assertFalse(results.iterator().hasNext());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testPagingWithOuterJoin() throws Exception {
+        UserQueryBuilder qb = from(product).start(0).limit(2);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            int iteratorCount = 0;
+            for (DataRecord result : results) {
+                assertNotNull(result.get("Id"));
+                iteratorCount++;
+            }
+            assertEquals(results.getSize(), iteratorCount);
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testEnumeration() throws Exception {
+        UserQueryBuilder qb = from(person).where(eq(person.getField("Status"), "Friend"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testTimestamp() throws Exception {
+        UserQueryBuilder qb = from(person).where(eq(person.getField("Status"), "Friend"));
+        StorageResults results = storage.fetch(qb.getSelect());
+
+        long lastModificationTime1;
+        try {
+            assertEquals(1, results.getCount());
+            Iterator<DataRecord> iterator = results.iterator();
+            assertTrue(iterator.hasNext());
+            DataRecord result = iterator.next();
+            assertNotNull(result);
+            DataRecordMetadata recordMetadata = result.getRecordMetadata();
+            assertNotNull(recordMetadata);
+            lastModificationTime1 = recordMetadata.getLastModificationTime();
+            assertNotSame("0", lastModificationTime1);
+        } finally {
+            results.close();
+        }
+
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord record = factory
+                .read("1",
+                        repository,
+                        person,
+                        "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>");
+        try {
+            storage.begin();
+            storage.update(record);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        qb = from(person).where(eq(person.getField("Status"), "Friend"));
+        results = storage.fetch(qb.getSelect());
+        long lastModificationTime2;
+        try {
+            assertEquals(1, results.getCount());
+            Iterator<DataRecord> iterator = results.iterator();
+            assertTrue(iterator.hasNext());
+            DataRecord result = iterator.next();
+            assertNotNull(result);
+            DataRecordMetadata recordMetadata = result.getRecordMetadata();
+            assertNotNull(recordMetadata);
+            lastModificationTime2 = recordMetadata.getLastModificationTime();
+            assertNotSame("0", lastModificationTime2);
+        } finally {
+            results.close();
+        }
+
+        // Now the actual timestamp test
+        assertNotSame(lastModificationTime1, lastModificationTime2);
+    }
+
+    public void testAliases() throws Exception {
+        long endTime = System.currentTimeMillis() + 60000;
+
+        UserQueryBuilder qb = from(person).select(alias(timestamp(), "timestamp")).select(alias(taskId(), "taskid"))
+                .selectId(person).where(gte(timestamp(), "0")).where(lte(timestamp(), String.valueOf(endTime))).limit(20)
+                .start(0);
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get("timestamp"));
+                assertNull(result.get("taskid"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testFKSearch() throws Exception {
+        UserQueryBuilder qb = from(address).selectId(address).select(address.getField("country"))
+                .where(eq(address.getField("country"), "[1]"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testFKOrderBy() throws Exception {
+        UserQueryBuilder qb = from(address).selectId(address).select(address.getField("country"))
+                .orderBy(address.getField("country"), OrderBy.Direction.ASC);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getCount());
+            int previousValue = -1;
+            for (DataRecord result : results) {
+                int newValue = ((Integer) result.get(address.getField("country")));
+                assertTrue(previousValue <= newValue);
+                previousValue = newValue;
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = from(address).selectId(address).select(address.getField("country"))
+                .orderBy(address.getField("country"), OrderBy.Direction.DESC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getCount());
+            int previousValue = Integer.MAX_VALUE;
+            for (DataRecord result : results) {
+                int newValue = ((Integer) result.get(address.getField("country")));
+                assertTrue(previousValue >= newValue);
+                previousValue = newValue;
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testNonMandatoryFKSelection() throws Exception {
+        UserQueryBuilder qb = from(product).selectId(product).select(product.getField("Name")).select(product.getField("Family"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            int actualIterationCount = 0;
+            ViewSearchResultsWriter writer = new ViewSearchResultsWriter();
+            for (DataRecord result : results) {
+                assertTrue("2".equals(result.get("Family")) || result.get("Family") == null);
+                actualIterationCount++;
+                writer.write(result, new NullOutputStream());
+            }
+            assertEquals(2, actualIterationCount);
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testEmptyOrNull() throws Exception {
+        UserQueryBuilder qb = from(address).selectId(address).where(emptyOrNull(address.getField("City")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        //
+        qb = from(address).selectId(address).where(emptyOrNull(address.getField("OptionalCity")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(4, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        //
+        qb = from(address).selectId(address).where(not(emptyOrNull(address.getField("OptionalCity"))));
+        results = storage.fetch(qb.getSelect().normalize());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testIsEmptyOrNullOnNonString() throws Exception {
+        UserQueryBuilder qb = from(address).selectId(address).where(emptyOrNull(address.getField("enterprise")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        //
+        qb = from(address).selectId(address).where(not(emptyOrNull(address.getField("enterprise"))));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        //
+        qb = from(country).selectId(country).where(emptyOrNull(country.getField("creationDate")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testBoolean() throws Exception {
+        UserQueryBuilder qb = from(person).selectId(person).where(eq(person.getField("Available"), "false"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testDate() throws Exception {
+        UserQueryBuilder qb = from(country).where(lte(country.getField("creationTime"), "2010-10-10T00:00:01"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+
+            ViewSearchResultsWriter writer = new ViewSearchResultsWriter();
+            StringWriter resultWriter = new StringWriter();
+            for (DataRecord result : results) {
+                writer.write(result, resultWriter);
+            }
+            assertEquals("<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" + "\t<id>1</id>\n"
+                    + "\t<creationDate>2010-10-10</creationDate>\n" + "\t<creationTime>2010-10-10T00:00:01</creationTime>\n"
+                    + "\t<name>France</name>\n" + "</result>", resultWriter.toString());
+        } finally {
+            results.close();
+        }
+
+    }
+
+    public void testInterFieldCondition() throws Exception {
+        UserQueryBuilder qb = from(person).selectId(person).where(lte(person.getField("id"), person.getField("score")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testRecursiveQuery() throws Exception {
+        UserQueryBuilder qb = from(a).selectId(a).select(a.getField("refA"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            Set<Object> expectedValues = new HashSet<Object>();
+            expectedValues.add(null);
+            expectedValues.add("1");
+            assertEquals(2, results.getCount());
+            for (DataRecord result : results) {
+                Object value = result.get("refA");
+                boolean wasRemoved = expectedValues.remove(value);
+                assertTrue(wasRemoved);
+            }
+            assertEquals(0, expectedValues.size());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testTimeStampQuery() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person);
+        String fieldName = "Person/../../t";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN,
+                "1000", WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        Select select = qb.getSelect();
+        select = (Select) select.normalize();
+        Condition condition = select.getCondition();
+        assertTrue(condition instanceof Compare);
+        assertTrue(((Compare) condition).getLeft() instanceof Timestamp);
+    }
+
+    public void testContainsOnNumericField() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(address).where(contains(address.getField("ZipCode"), "10000"));
+        Condition condition = qb.getSelect().getCondition();
+        assertTrue(condition instanceof Compare);
+        assertTrue(((Compare) condition).getLeft() instanceof Field);
+        assertTrue(((Compare) condition).getRight() instanceof IntegerConstant);
+        assertTrue(((Compare) condition).getPredicate() == Predicate.EQUALS);
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        int expected = 10000;
+        for (DataRecord result : results) {
+            assertEquals(expected, result.get("ZipCode"));
+        }
+    }
+
+    public void testNonValueFieldAndQueryOnId() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person).select(person.getField("addresses"), person.getField("id"))
+                .where(eq(person.getField("id"), "1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        for (DataRecord result : results) {
+            assertEquals(1, result.get("id"));
+            assertEquals("", result.get("addresses"));
+        }
+    }
+
+    public void testNonValueFieldAndQueryOnValue() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person).select(person.getField("addresses"), person.getField("id"))
+                .where(eq(person.getField("firstname"), "Juste"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        for (DataRecord result : results) {
+            assertEquals(3, result.get("id"));
+            assertEquals("", result.get("addresses"));
+        }
+    }
+
+    public void testRangeOnTimestamp() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person).where(
+                and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testRangeOnTimestampWithCondition() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person).where(or(
+                and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))),
+                eq(person.getField("id"), "1")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = UserQueryBuilder.from(person).where(and(
+                and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))),
+                eq(person.getField("id"), "1")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testCollectionClean() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n" + "</Product>");
+        try {
+            storage.begin();
+            storage.update(productInstance);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(product).where(eq(product.getField("Id"), "1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object o = result.get("Features/Colors/Color");
+                assertTrue(o instanceof List);
+                assertEquals(2, ((List) o).size());
+            }
+        } finally {
+            results.close();
+        }
+
+        productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors><Color/><Color/></Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n" + "</Product>");
+        try {
+            storage.begin();
+            storage.update(productInstance);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        qb = from(product).where(eq(product.getField("Id"), "1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object o = result.get("Features/Colors/Color");
+                assertTrue(o instanceof List);
+                assertEquals(0, ((List) o).size());
+            }
+        } finally {
+            results.close();
+        }
+
+        productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+                + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
+                + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>"
+                + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
+                + "    </Features>\n" + "    <Status>Pending</Status>\n" + "</Product>");
+        try {
+            storage.begin();
+            storage.update(productInstance);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        qb = from(product).where(eq(product.getField("Id"), "1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object o = result.get("Features/Colors/Color");
+                assertTrue(o instanceof List);
+                assertEquals(2, ((List) o).size());
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testUpdateReportCreation() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport);
+        StorageResults results = storage.fetch(qb.getSelect());
+        StringWriter storedDocument = new StringWriter();
+        try {
+            DataRecordXmlWriter writer = new DataRecordXmlWriter();
+            for (DataRecord result : results) {
+                writer.write(result, storedDocument);
+            }
+            assertEquals(builder.toString(), storedDocument.toString());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+    }
+
+    public void testUpdateReportQueryOptimization() throws Exception {
+        UpdateReportOptimizer optimizer = new UpdateReportOptimizer();
+
+        Condition condition = and(eq(updateReport.getField("Concept"), "Product"),
+                eq(updateReport.getField("DataModel"), "metadata.xsd"));
+        UserQueryBuilder qb = from(updateReport).where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        optimizer.optimize(qb.getSelect());
+        assertEquals(condition, qb.getSelect().getCondition());
+
+        condition = eq(updateReport.getField("Concept"), "C");
+        qb = from(updateReport).where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        optimizer.optimize(qb.getSelect());
+        assertEquals(condition, qb.getSelect().getCondition()); // No data model: no optimization can be done.
+
+        condition = and(eq(updateReport.getField("Concept"), "C"), eq(updateReport.getField("DataModel"), "metadata.xsd"));
+        qb = from(updateReport).where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        optimizer.optimize(qb.getSelect());
+        assertNotSame(condition, qb.getSelect().getCondition()); // C has super type, so condition changed.
+
+        condition = and(eq(updateReport.getField("Concept"), "C"),
+                and(eq(updateReport.getField("DataModel"), "metadata.xsd"), eq(updateReport.getField("TimeInMillis"), "0")));
+        qb = from(updateReport).where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        optimizer.optimize(qb.getSelect());
+        assertNotSame(condition, qb.getSelect().getCondition()); // C has super type, so condition changed.
+    }
+
+    public void testUpdateReportCreationWithoutSource() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest_NoSource.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+
+        try {
+            storage.begin();
+            assertNull(report.get("Source"));
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport);
+        StorageResults results = storage.fetch(qb.getSelect());
+        StringWriter storedDocument = new StringWriter();
+        try {
+            DataRecordXmlWriter writer = new DataRecordXmlWriter();
+            for (DataRecord result : results) {
+                writer.write(result, storedDocument);
+                assertEquals("none", result.get("Source"));
+            }
+            assertNotSame(builder.toString(), storedDocument.toString());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+    }
+
+    public void testUpdateReportTimeStampQuery() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport).where(gt(timestamp(), "0"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+    }
+    
+    public void testUpdateReportContentKeyWordsQuery() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        // build query condition
+        ItemPKCriteria criteria = new ItemPKCriteria();
+        criteria.setClusterName("UpdateReport");
+        criteria.setContentKeywords("Product");
+        String contentKeywords = criteria.getContentKeywords();
+        // build Storage whereCondition, the codes come from com.amalto.core.storage.StorageWrapper.buildQueryBuilder(UserQueryBuilder, ItemPKCriteria, ComplexTypeMetadata)
+        Condition condition = null;
+        UserQueryBuilder qb = from(updateReport);
+        for (FieldMetadata field : updateReport.getFields()) {
+            // isValueAssignable(contentKeyWords, typeName); this typeName should use the database column type
+            if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+                // UpdateReport Repository: the TimeInMillis field is a long type on SQL Storage
+                // So it need to check again, another workaround: change the field type to long type in the
+                // UpdateReport.xsd(but it may affect other places)
+                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && updateReport.getName().equals("Update")) { //$NON-NLS-1$
+                    if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
+                        continue;
+                    }
+                }
+                if (!(field instanceof ContainedTypeFieldMetadata)) {
+                    if (condition == null) {
+                        condition = contains(field, contentKeywords);
+                    } else {
+                        condition = or(condition, contains(field, contentKeywords));
+                    }
+                }
+            }
+        }
+        qb.where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();        
+    }
+    
+    public void testUpdateReportTimeInMillisQuery() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        // build query condition
+        ItemPKCriteria criteria = new ItemPKCriteria();
+        criteria.setClusterName("UpdateReport");
+        criteria.setContentKeywords("1307525701796");
+        String contentKeywords = criteria.getContentKeywords();
+        // build Storage whereCondition, the codes come from com.amalto.core.storage.StorageWrapper.buildQueryBuilder(UserQueryBuilder, ItemPKCriteria, ComplexTypeMetadata)
+        Condition condition = null;
+        UserQueryBuilder qb = from(updateReport);
+        for (FieldMetadata field : updateReport.getFields()) {
+            // isValueAssignable(contentKeyWords, typeName); this typeName should use the database column type
+            if (MetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+
+                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && updateReport.getName().equals("Update")) { //$NON-NLS-1$
+                    if (field.getName().equals("TimeInMillis") && !MetadataUtils.isValueAssignable(contentKeywords, Timestamp.INSTANCE.getTypeName())) { //$NON-NLS-1$
+                        continue;
+                    }
+                    if (field.getName().equals("TimeInMillis") && NumberUtils.isNumber(contentKeywords)) { //$NON-NLS-1$
+                        // because TimeInMillis field is a String type on xsd, com.amalto.core.query.user.UserQueryBuilder.contains(TypedExpression, String)
+                        // can not change CONTAINS to EQUALS. so manually change contains to eq method.
+                        if (condition == null) {
+                            condition = eq(field, contentKeywords);
+                        } else {
+                            condition = or(condition, eq(field, contentKeywords));
+                        }
+                        continue;
+                    }
+                }
+                if (!(field instanceof ContainedTypeFieldMetadata)) {
+                    if (condition == null) {
+                        condition = contains(field, contentKeywords);
+                    } else {
+                        condition = or(condition, contains(field, contentKeywords));
+                    }
+                }
+            }
+        }
+        qb.where(condition);
+        assertEquals(condition, qb.getSelect().getCondition());
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();        
+    }
+    
+    public void testUpdateReportQueryByKeys() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport).where(
+                and(eq(updateReport.getField("Source"), "genericUI"), eq(updateReport.getField("TimeInMillis"), String.valueOf(1307525701796L))));
+        StorageResults results = storage.fetch(qb.getSelect());
+        StringWriter storedDocument = new StringWriter();
+        try {
+            assertEquals(1, results.getCount());
+            DataRecordXmlWriter writer = new DataRecordXmlWriter();
+            for (DataRecord result : results) {
+                writer.write(result, storedDocument);
+            }
+            assertEquals(builder.toString(), storedDocument.toString());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+    }
+
+    public void testUpdateReportTaskIdQuery() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        try {
+            storage.begin();
+            storage.update(report);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = from(updateReport).where(isNull(taskId()));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+    }
+
+    public void testNativeQueryWithReturn() throws Exception {
+        UserQueryBuilder qb = from("SELECT * FROM PERSON;");
+        StorageResults results = storage.fetch(qb.getExpression());
+        assertEquals(3, results.getCount());
+        assertEquals(3, results.getSize());
+        for (DataRecord result : results) {
+            assertNotNull(result.get("col0") != null);
+        }
+    }
+
+    public void testNativeQueryWithNoReturn() throws Exception {
+        UserQueryBuilder qb = from("UPDATE PERSON set x_firstname='My SQL modified firstname';");
+        StorageResults results = storage.fetch(qb.getExpression());
+        assertEquals(0, results.getCount());
+        assertEquals(0, results.getSize());
+        for (DataRecord result : results) {
+            // Test iterator too (even if size is 0).
+        }
+
+        qb = from(person).where(eq(person.getField("firstname"), "Julien"));
+        results = storage.fetch(qb.getExpression());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).where(eq(person.getField("firstname"), "My SQL modified firstname"));
+        results = storage.fetch(qb.getExpression());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testContainsWithWildcards() throws Exception {
+        UserQueryBuilder qb = from(person).where(contains(person.getField("firstname"), "*Ju*e"));
+
+        Select select = qb.getSelect();
+        assertNotNull(select);
+        Condition condition = select.getCondition();
+        assertNotNull(condition);
+        assertTrue(condition instanceof Compare);
+        Compare compareCondition = (Compare) condition;
+        Expression right = compareCondition.getRight();
+        assertTrue(right instanceof StringConstant);
+        assertEquals("*Ju*e", ((StringConstant) right).getValue());
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testMultiLingualSearch() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("resume")).where(
+                contains(person.getField("resume"), "*[EN:*splendid*]*"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).select(person.getField("resume")).where(contains(person.getField("resume"), "*[FR:*magnifique*]*"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).select(person.getField("resume")).where(contains(person.getField("resume"), "*[FR:*splendid*]*"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testSortOnXPath() throws Exception {
+        UserQueryBuilder qb = from(person).selectId(person);
+        TypedExpression sortField = UserQueryHelper.getField(repository, "Person", "../../i");
+        qb.orderBy(sortField, OrderBy.Direction.DESC);
+
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        int[] expected = { 3, 2, 1 };
+        int i = 0;
+        for (DataRecord result : storageResults) {
+            assertEquals(expected[i++], result.get("id"));
+        }
+    }
+
+    public void testSelectIdFromXPath() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname"));
+        qb.select(person, "../../i");
+        qb.where(eq(person.getField("id"), "1"));
+        qb.orderBy(person.getField("firstname"), OrderBy.Direction.ASC);
+
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        for (DataRecord result : storageResults) {
+            for (FieldMetadata fieldMetadata : result.getSetFields()) {
+                assertNotNull(result.get(fieldMetadata));
+            }
+        }
+    }
+
+    public void testCompositeFKCollectionSearch() throws Exception {
+        UserQueryBuilder qb = from(person).selectId(person).where(eq(person.getField("addresses/address"), "[3][false]"));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testCompositeFKCollectionSearchWithWhereItem() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(person);
+        String fieldName = "Person/addresses/address";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS,
+                "[3][false]", WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testFKCollectionSearch() throws Exception {
+        UserQueryBuilder qb = from(product).selectId(product).where(eq(product.getField("Supplier"), "[2]"));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testFKCollectionSearchWithWhereItem() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(product);
+        String fieldName = "Product/Supplier";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "[2]",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testValueCollectionSearch() throws Exception {
+        UserQueryBuilder qb = from(product).selectId(product).where(eq(product.getField("Features/Colors/Color"), "Blue"));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testValueCollectionSearchWithWhereItem() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(product);
+        String fieldName = "Product/Features/Colors/Color";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "Blue",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+
+    public void testValueCollectionSearchInNested() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords.add(factory.read("1", repository, person,
+                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
+                        + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
+                        + "</address><address>[1][false]</address></addresses><age>30</age>"
+                        + "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>"
+                        + "<Phone>012345</Phone></knownAddress>"
+                        + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
+                        + "</Phone></knownAddress></knownAddresses>" + "<Status>Friend</Status></Person>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        UserQueryBuilder qb = from(person).selectId(person).where(
+                eq(person.getField("knownAddresses/knownAddress/City"), "City 1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        qb = from(person).selectId(person).where(eq(person.getField("knownAddresses/knownAddress/City"), "City 0"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testValueSelectInNested() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords.add(factory.read("1", repository, person,
+                "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
+                        + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
+                        + "</address><address>[1][false]</address></addresses><age>30</age>"
+                        + "<knownAddresses><knownAddress><Street>Street 1</Street><City>City 1</City>"
+                        + "<Phone>012345</Phone></knownAddress>"
+                        + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
+                        + "</Phone></knownAddress></knownAddresses>" + "<Status>Friend</Status></Person>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("knownAddresses/knownAddress/City"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        List<String> expected = new LinkedList<String>();
+        expected.add("City 1");
+        expected.add("City 2");
+        for (DataRecord result : results) {
+            assertTrue(expected.remove(result.get("City")));
+        }
+        assertTrue(expected.isEmpty());
+    }
+
+    public void testSelectCompositeFK() throws Exception {
+        ComplexTypeMetadata a1 = repository.getComplexType("a1");
+        ComplexTypeMetadata a2 = repository.getComplexType("a2");
+
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                a2,
+                                "<a2><subelement>1</subelement><subelement1>10</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                a1,
+                                "<a1><subelement>1</subelement><subelement1>11</subelement1><b1>String b1</b1><b2>[1][10]</b2></a1>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+
+        UserQueryBuilder qb = from(a1).selectId(a1).select(a1.getField("b1")).select(a1.getField("b2"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object b2Value = result.get("b2");
+                assertTrue(b2Value instanceof Object[]);
+                Object[] b2Values = (Object[]) b2Value;
+                assertEquals("1", b2Values[0]);
+                assertEquals("10", b2Values[1]);
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testJoinAndSelectJoinField() throws Exception {
+        UserQueryBuilder qb = from(product).selectId(product).select(product.getField("Family")).select(store.getField("Name"))
+                .join(product.getField("Stores/Store")).where(eq(store.getField("Name"), "Store #1")).limit(20);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertEquals("Store #1", result.get("Name"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testFetchAllE1() {
+        UserQueryBuilder qb = from(e1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(3, results.getCount());
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String actual = new String(output.toByteArray());
+        assertEquals(E1_Record1 + E1_Record2 + E1_Record3, actual);
+    }
+
+    public void testFetchAllE1ByAliasI() {
+        UserQueryBuilder qb = from(e1);
+        qb.selectId(e1);
+        qb.select(e1, "../../i");
+        qb.select(e1, "name");
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(3, results.getCount());
+
+        DataRecordWriter writer = new DataRecordWriter() {
+
+            @Override
+            public void write(DataRecord record, OutputStream output) throws IOException {
+                Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
+                write(record, out);
+            }
+
+            @Override
+            public void write(DataRecord record, Writer writer) throws IOException {
+                writer.write("<result>"); //$NON-NLS-1$
+                for (FieldMetadata fieldMetadata : record.getSetFields()) {
+                    Object value = record.get(fieldMetadata);
+                    if (value != null) {
+                        writer.append("<").append(fieldMetadata.getName()).append(">");
+                        writer.append(StringEscapeUtils.escapeXml(String.valueOf(value)));
+                        writer.append("</").append(fieldMetadata.getName()).append(">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    }
+                }
+                writer.append("</result>"); //$NON-NLS-1$
+                writer.flush();
+            }
+        };
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String actual = new String(output.toByteArray());
+        String r1 = "<result><subelement>aaa</subelement><subelement1>bbb</subelement1><i>aaa</i><i>bbb</i><name>asdf</name></result>";
+        String r2 = "<result><subelement>ccc</subelement><subelement1>ddd</subelement1><i>ccc</i><i>ddd</i><name>cvcvc</name></result>";
+        String r3 = "<result><subelement>ttt</subelement><subelement1>yyy</subelement1><i>ttt</i><i>yyy</i><name>nhhn</name></result>";
+        assertEquals(r1 + r2 + r3, actual);
+    }
+
+    public void testFetchE2ByForeignKeyToCompositeKeys() {
+        UserQueryBuilder qb = from(e2).where(eq(e2.getField("fk"), "[ccc][ddd]"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(3, results.getCount());
+
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String actual = new String(output.toByteArray());
+        assertEquals(E2_Record1 + E2_Record5 + E2_Record6, actual);
+
+        qb = from(e2).where(eq(e2.getField("fk"), "[aaa][bbb]"));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        writer = new DataRecordXmlWriter();
+        output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        actual = new String(output.toByteArray());
+        assertEquals(E2_Record2 + E2_Record4, actual);
+
+        qb = from(e2).where(eq(e2.getField("fk"), "[ttt][yyy]"));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+
+        writer = new DataRecordXmlWriter();
+        output = new ByteArrayOutputStream();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        actual = new String(output.toByteArray());
+        assertEquals(E2_Record3, actual);
+    }
+    
+    public void testDuplicateFieldNames() {
+        UserQueryBuilder qb = from(product);
+
+        List<String> viewables = new ArrayList<String>();
+        viewables.add("Product/Id");
+        viewables.add("Product/Name");
+        viewables.add("Product/Family");
+        viewables.add("ProductFamily/Id");
+        viewables.add("ProductFamily/Name");
+
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("Product/Family", "JOINS", "ProductFamily/Id", "&"));
+
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+
+        for (String viewableBusinessElement : viewables) {
+            String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
+            String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
+            qb.select(UserQueryHelper.getField(repository, viewableTypeName, viewablePath));
+        }
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        List<String> strings = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+                String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+                strings.add(document);
+                output.reset();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        assertEquals(2, strings.size());
+        assertEquals(
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>1</Id>\n\t<Name>Product name</Name>\n\t<Family>[2]</Family>\n\t<Id>2</Id>\n\t<Name>Product family #2</Name>\n</result>",
+                strings.get(0));
+        assertEquals(
+                "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<Id>2</Id>\n\t<Name>Renault car</Name>\n\t<Family/>\n\t<Id/>\n\t<Name/>\n</result>",
+                strings.get(1));
+    }
+
+    public void testFetchAllE2() throws Exception {
+        UserQueryBuilder qb = from(e2);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(7, results.getCount());
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        StringWriter output = new StringWriter();
+        List<String> expectedResults = new LinkedList<String>(Arrays.asList(E2_Record1, E2_Record2, E2_Record3, E2_Record4, E2_Record5, E2_Record6, E2_Record7));
+        for (DataRecord result : results) {
+            writer.write(result, output);
+            expectedResults.remove(output.toString());
+            output = new StringWriter();
+        }
+        assertTrue(expectedResults.isEmpty());
+    }
+
+    public void testFetchAllE2WithViewSearchResultsWriter() throws Exception {
+        UserQueryBuilder qb = from(e2);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(7, results.getCount());
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        ArrayList<String> resultsAsString = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new XmlServerException(e);
+            }
+            String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+            resultsAsString.add(document);
+            output.reset();
+        }
+
+        assertEquals(7, resultsAsString.size());
+
+        final String startRoot = "<result xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+        final String endRoot = "</result>";
+
+        assertEquals(startRoot + "<subelement>111</subelement><subelement1>222</subelement1><name>qwe</name><fk>[ccc][ddd]</fk>"
+                + endRoot, resultsAsString.get(0).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>344</subelement><subelement1>544</subelement1><name>55</name><fk>[aaa][bbb]</fk>"
+                + endRoot, resultsAsString.get(1).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>333</subelement><subelement1>444</subelement1><name>tyty</name><fk>[ttt][yyy]</fk>"
+                + endRoot, resultsAsString.get(2).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>666</subelement><subelement1>777</subelement1><name>iuj</name><fk>[aaa][bbb]</fk>"
+                + endRoot, resultsAsString.get(3).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot
+                + "<subelement>6767</subelement><subelement1>7878</subelement1><name>ioiu</name><fk>[ccc][ddd]</fk>" + endRoot,
+                resultsAsString.get(4).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot
+                + "<subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk>" + endRoot,
+                resultsAsString.get(5).replaceAll("\\r|\\n|\\t", ""));
+        assertEquals(startRoot + "<subelement>119</subelement><subelement1>120</subelement1><name>zhang</name>" + endRoot,
+                resultsAsString.get(6).replaceAll("\\r|\\n|\\t", ""));
+    }
+
+    public void testStringFieldConstraint() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord dataRecord = factory.read("1", repository, product, "<Product>\n" + "    <Id>3</Id>\n" + "    <Name>A long name to be short due to constraints</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
+                + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n" + "    <Family/>\n"
+                + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n" + "    <Supplier>[1]</Supplier>\n"
+                + "<Stores><Store>[1]</Store></Stores></Product>");
+        storage.begin();
+        storage.update(dataRecord);
+        try {
+            storage.commit();
+            fail("Expected an exception (value too long for name)");
+        } catch (Exception e) {
+            // Expected
+            storage.rollback();
+        }
+
+        dataRecord = factory.read("1", repository, product, "<Product>\n" + "    <Id>3</Id>\n" + "    <Name>A long nam</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
+                + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
+                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n" + "    <Family/>\n"
+                + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n" + "    <Supplier>[1]</Supplier>\n"
+                + "<Stores><Store>[1]</Store></Stores></Product>");
+        storage.begin();
+        storage.update(dataRecord);
+        storage.commit(); // This one should work.
+
+        UserQueryBuilder qb = from(product).select(product.getField("Name")).where(eq(product.getField("Id"), "3"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        for (DataRecord result : results) {
+            assertEquals("A long nam", result.get("Name"));
+        }
+
+    }
+
+    public void testEnumerationSelect() throws Exception {
+        UserQueryBuilder qb = from(product).select(product.getField("Status"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertTrue("There should be at least 2 records", results.getCount() >= 2);
+        List<String> expectedStatuses = Arrays.asList("Created", "Removed", "Active", "Pending");
+        for (DataRecord result : results) {
+            assertNotNull(result.get("Status"));
+            assertTrue(expectedStatuses.contains(String.valueOf(result.get("Status"))));
+        }
+    }
+
+    public void testManyFieldSelect() throws Exception {
+        UserQueryBuilder qb = from(product).select(product.getField("Features/Sizes/Size"));
+        // UserQueryBuilder qb = from(product);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertTrue("There should be at least 2 records", results.getCount() >= 2);
+        Set<String> expectedResults = new HashSet<String>();
+        expectedResults.add("Small,Medium,Large");
+        expectedResults.add("Large");
+        for (DataRecord result : results) {
+            expectedResults.remove(result.get("Size"));
+        }
+        assertTrue(expectedResults.isEmpty());
+	}
+}

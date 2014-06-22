@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="libs/com.noelios.restlet.ext.servlet_2.5.jar" sourcepath="F:/Src/OpenSourceProject/restlet/restlet-1.1.6/src"/>
+	<classpathentry kind="lib" path="libs/com.noelios.restlet.jar" sourcepath="F:/Src/OpenSourceProject/restlet/restlet-1.1.6/src"/>
+	<classpathentry kind="lib" path="libs/org.restlet.jar" sourcepath="F:/Src/OpenSourceProject/restlet/restlet-1.1.6/src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commmon"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry kind="lib" path="libs/dom4j-1.6.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

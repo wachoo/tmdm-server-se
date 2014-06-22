@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="com/amalto/core/test/ZZCoreV2EJBTest.java|com/amalto/core/ejb/OutboundPluginBeanOLD.java|com/amalto/core/ejb/OutboundPluginCtrlBeanOLD.java|com/amalto/core/ejb/OutboundAdaptorBeanOLD.java|com/amalto/core/ejb/OutboundAdaptorCtrlBeanOLD.java|com/amalto/core/ejb/DocumentCtrlBean.java|com/amalto/core/ejb/XmlServerSFWrapperBean.java|com/amalto/core/ejb/RoutingInfoPOJO.java|com/amalto/core/test/ItemBean.java|com/amalto/core/test/ItemCtrlBean.java|com/amalto/core/test/ItemCtrlFacade.java|com/amalto/core/test/ItemBeanOLD.java|com/amalto/core/test/ItemCtrlBeanOLD.java|com/amalto/core/test/RoutingInfoPOJO.java|com/amalto/core/test/InboundPluginBean.java|com/amalto/core/test/ViewCtrlBeanOLD.java|com/amalto/core/util/ViewBean.java|com/amalto/core/util/ViewBeanOLD.java|com/amalto/core/test/ViewBeanOLD.java|com/amalto/core/test/DataModelCtrlBeanOLD.java|com/amalto/core/test/DataModelBeanOLD.java|com/amalto/core/test/DataClusterCtrlBeanOLD.java|com/amalto/core/test/DataClusterBeanOLD.java|com/amalto/core/test/RoutingRuleBeanOLD.java|com/amalto/core/test/RoutingRuleCtrlBeanOLD.java|com/amalto/core/util/RoleMenuTree.java|com/amalto/core/transformers/TransformerPluginSpec.java|com/amalto/core/objects/transformers/v2/TransformerPluginSpec.java|com/amalto/core/util/InboundAdaptorUpdate.java|com/amalto/core/util/LocalUserOLD.java" kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/antlr-2.7.6.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-3.4-complete.jar"/>
+	<classpathentry kind="lib" path="lib/backport-util-concurrent.jar"/>
+	<classpathentry kind="lib" path="lib/c3p0-0.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache-1.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/h2-1.3.165.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-commons-annotations-3.2.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-core-3.5.6-Final.jar"/>
+    <classpathentry kind="lib" path="lib/hibernate-c3p0-3.6.5.Final.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-search-3.2.1.Final.jar"/>
+	<classpathentry kind="lib" path="lib/javassist.jar"/>
+	<classpathentry kind="lib" path="lib/jta-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-analyzers-2.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-2.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-snowball-2.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/solr-core-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/solr-solrj-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/xml-apis-1.0.b2.jar"/>
+	<classpathentry kind="lib" path="lib/z.commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="src/WEB-INF/lib/z.XmlSchema-1.4.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.xmlserver.interfaces"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commmon"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commons.core"/>
+	<classpathentry kind="lib" path="lib/quartz-1.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/abdera-core-0.4.0-incubating.jar"/>
+	<classpathentry kind="lib" path="lib/abdera-extensions-json-0.4.0-incubating.jar"/>
+	<classpathentry kind="lib" path="lib/abdera-extensions-main-0.4.0-incubating.jar"/>
+	<classpathentry kind="lib" path="lib/abdera-i18n-0.4.0-incubating.jar"/>
+	<classpathentry kind="lib" path="lib/abdera-parser-0.4.0-incubating.jar"/>
+	<classpathentry kind="lib" path="lib/axiom-api-1.2.7.jar"/>
+	<classpathentry kind="lib" path="lib/axiom-impl-1.2.7.jar"/>
+	<classpathentry kind="lib" path="lib/jettison-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsr311-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

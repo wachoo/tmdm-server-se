@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.xmlserver.interfaces"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commmon"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.commons.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/talend.mdm.libraries"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.talend.mdm.connector.core"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
