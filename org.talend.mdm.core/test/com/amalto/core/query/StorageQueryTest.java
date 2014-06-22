@@ -1152,6 +1152,16 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        //
+        qb = from(person).selectId(person).limit(-1);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
     }
 
     public void testPagingWithOuterJoin() throws Exception {

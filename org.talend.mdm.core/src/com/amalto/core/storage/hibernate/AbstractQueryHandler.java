@@ -43,7 +43,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     final ValueAdapter VALUE_ADAPTER = new ValueAdapter();
 
-    final Session session;
+    Session session;
 
     final Storage storage;
 
