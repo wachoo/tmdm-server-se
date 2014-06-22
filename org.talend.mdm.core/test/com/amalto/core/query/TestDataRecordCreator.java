@@ -11,6 +11,7 @@
 
 package com.amalto.core.query;
 
+import com.amalto.core.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -24,6 +25,8 @@ import java.util.Stack;
 class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
 
     private Stack<DataRecord> records = new Stack<DataRecord>();
+
+    private int currentId;
 
     @Override
     public DataRecord visit(ComplexTypeMetadata complexType) {
@@ -66,18 +69,15 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
 
     private Object createSimpleValue(FieldMetadata field) {
         if (field.isKey()) {
-            TypeMetadata type = field.getType();
-            while (!type.getSuperTypes().isEmpty()) {
-                type = type.getSuperTypes().iterator().next();
-            }
+            TypeMetadata type = MetadataUtils.getSuperConcreteType(field.getType());
             if ("string".equals(type.getName())) {
-                return "1";
+                return String.valueOf(currentId++);
             } else if ("int".equals(type.getName())
                     || "integer".equals(type.getName())
                     || "unsignedInt".equals(type.getName())) {
-                return 1;
+                return currentId++;
             } else if ("unsignedShort".equals(type.getName())) {
-                return ((short) 1);
+                return ((short) currentId++);
             } else if ("boolean".equals(type.getName())) {
                 return false;
             } else {
@@ -87,11 +87,7 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
 
         // Move up the inheritance tree to find the "most generic" type (used when simple types inherits from XSD types,
         // in this case, the XSD type is interesting, not the custom one).
-        TypeMetadata type = field.getType();
-        while (!type.getSuperTypes().isEmpty()) {
-            type = type.getSuperTypes().iterator().next();
-        }
-
+        TypeMetadata type = MetadataUtils.getSuperConcreteType(field.getType());
         Random random = new Random(System.currentTimeMillis());
         if (!(field instanceof ContainedTypeFieldMetadata)) { // Don't set contained (anonymous types) values
             if ("string".equals(type.getName())) {

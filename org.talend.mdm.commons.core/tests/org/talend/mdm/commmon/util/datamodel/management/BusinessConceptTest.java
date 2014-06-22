@@ -53,7 +53,7 @@ public class BusinessConceptTest extends SchemaManagerAbstractTest {
         assertEquals("xsd:PICTURE", xpathDerivedSimpleTypeMap.get("Product/Picture"));
 
         // key path
-        List<String> keyPaths = bizConcept.getKeyFiledPaths();
+        List<String> keyPaths = bizConcept.getKeyFieldPaths();
         assertEquals(1, keyPaths.size());
         assertEquals("Product/Id", keyPaths.get(0));
 

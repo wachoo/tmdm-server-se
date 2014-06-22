@@ -12,8 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client.util;
 
+
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
+
 
 
 /**
@@ -32,10 +34,25 @@ public class JournalSearchUtil {
         parameter.setRevisionId(gridModel.getRevisionId());
         parameter.setIds(gridModel.getIds());
         parameter.setAction(action);
-        String[] id = gridModel.getKey().split("\\."); //$NON-NLS-1$
+        String[] id = parseKey(gridModel.getKey());
         parameter.setId(id);
         parameter.setAuth(isAuth);
         parameter.setOperationType(gridModel.getOperationType());
         return parameter;
+    }
+
+    private static String[] parseKey(String keyStr) {
+        String [] ids = keyStr.split("\\."); //$NON-NLS-1$
+
+        if (keyStr.endsWith(".")) { //$NON-NLS-1$
+            String [] idsPlus = new String[ids.length+1];
+            for (int i=0; i < ids.length; i++) {
+                idsPlus[i] = ids[i];
+            }
+            idsPlus[ids.length] = ""; //$NON-NLS-1$
+            return idsPlus;
+        } else {
+            return ids;
+        }
     }
 }

@@ -4,13 +4,14 @@ import com.amalto.core.delegator.BeanDelegatorContainer;
 
 /**
  * resend the failed autocommittosvn message
+ *
  * @author achen
  *
  */
-public class ResendFaildMessageSubProc extends AssembleSubProc{
+public class ResendFaildMessageSubProc extends AssembleSubProc {
 
-	@Override
-	public void run() throws Exception {
-		BeanDelegatorContainer.getUniqueInstance().getItemCtrlDelegator().resendFailtSvnMessage();
-	}
+    @Override
+    public void run() throws Exception {
+        BeanDelegatorContainer.getInstance().getItemCtrlDelegator().resendFailtSvnMessage();
+    }
 }

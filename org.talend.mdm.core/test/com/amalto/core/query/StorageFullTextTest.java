@@ -146,7 +146,7 @@ public class StorageFullTextTest extends StorageTestCase {
             assertEquals(2, records.getCount());
             int currentId = -1;
             for (DataRecord record : records) {
-                Integer id = (Integer) record.get("Id");
+                Integer id = Integer.parseInt((String) record.get("Id"));
                 assertTrue(id > currentId);
                 currentId = id;
             }
@@ -164,7 +164,7 @@ public class StorageFullTextTest extends StorageTestCase {
             assertEquals(2, records.getCount());
             int currentId = Integer.MAX_VALUE;
             for (DataRecord record : records) {
-                Integer id = (Integer) record.get("Id");
+                Integer id = Integer.parseInt((String) record.get("Id"));
                 assertTrue(id < currentId);
                 currentId = id;
             }

@@ -25,6 +25,7 @@ import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
@@ -37,6 +38,7 @@ import java.io.*;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
 
 public class StorageWrapper implements IXmlServerSLWrapper {
 
@@ -49,7 +51,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public StorageWrapper() {
     }
 
-    private static Select getSelectTypeById(ComplexTypeMetadata type, String revisionId, String[] splitUniqueId) {
+    private static Select getSelectTypeById(ComplexTypeMetadata type, String revisionId, String[] splitUniqueId, String uniqueID) {
         ComplexTypeMetadata typeForSelect = type;
         while (typeForSelect.getSuperTypes() != null && !typeForSelect.getSuperTypes().isEmpty() && typeForSelect.getSuperTypes().size() > 0) {
             typeForSelect = (ComplexTypeMetadata) typeForSelect.getSuperTypes().iterator().next();
@@ -63,11 +65,16 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 builder.append(currentId).append('.');
             }
             throw new IllegalArgumentException("Id '" + builder.toString() + "' does not contain all required values for key of type '" + type.getName() + "'.");
-        }
-
-        int currentIndex = 2;
-        for (FieldMetadata keyField : keyFields) {
-            qb.where(eq(keyField, splitUniqueId[currentIndex++]));
+        } else if (keyFields.size() == 1) {
+            // Split unique id > keyField: if # of key elements is 1, consider all remaining value as a single value (with '.' separators).
+            String uniqueIdPrefix = splitUniqueId[0] + '.' + splitUniqueId[1] + '.';
+            String key = StringUtils.removeStart(uniqueID, uniqueIdPrefix);
+            qb.where(eq(keyFields.iterator().next(), key));
+        } else {
+            int currentIndex = 2;
+            for (FieldMetadata keyField : keyFields) {
+                qb.where(eq(keyField, splitUniqueId[currentIndex++]));
+            }
         }
         qb.getSelect().setRevisionId(revisionId);
         return qb.getSelect();
@@ -228,7 +235,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         MetadataRepository repository = storage.getMetadataRepository();
         String typeName = splitUniqueId[1];
         ComplexTypeMetadata type = repository.getComplexType(typeName);
-        Select select = getSelectTypeById(type, revisionID, splitUniqueId);
+        Select select = getSelectTypeById(type, revisionID, splitUniqueId, uniqueID);
         StorageResults records = storage.fetch(select);
         ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
         try {
@@ -239,7 +246,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 DataRecord result = iterator.next();
                 long timestamp = result.getRecordMetadata().getLastModificationTime();
                 String taskId = result.getRecordMetadata().getTaskId();
-                byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + clusterName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + splitUniqueId[2] + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+                byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + clusterName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + StringEscapeUtils.escapeXml(splitUniqueId[2]) + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
                 output.write(start);
                 dataRecordXmlWriter.write(result, output);
                 if (iterator.hasNext()) {
@@ -308,7 +315,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
             Storage storage = getStorage(clusterName, revisionID);
             ComplexTypeMetadata type = storage.getMetadataRepository().getComplexType(typeName);
-            Select select = getSelectTypeById(type, revisionID, splitUniqueID);
+            Select select = getSelectTypeById(type, revisionID, splitUniqueID, uniqueID);
             try {
                 storage.begin();
                 storage.delete(select);

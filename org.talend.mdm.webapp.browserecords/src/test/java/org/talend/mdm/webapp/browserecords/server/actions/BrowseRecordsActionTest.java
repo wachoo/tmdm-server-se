@@ -93,6 +93,39 @@ public class BrowseRecordsActionTest extends TestCase {
                 BrowseRecordsActionTest.class);
     }
     
+    public void testExtractIdWithDots() throws Exception {
+        String[] keys = new String[] { "Id" };
+        String ids = ".3";
+
+        String[] result = action.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 1);
+        assertEquals(result[0], ids);
+
+        ids = "1.3";
+        result = action.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 1);
+        assertEquals(result[0], ids);
+
+        ids = "3.";
+        result = action.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 1);
+        assertEquals(result[0], ids);
+
+        ids = "1";
+        result = action.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 1);
+        assertEquals(result[0], ids);
+
+        // Composite key is only support the following format, otherwise it will throw exception
+        // see com.amalto.core.storage.StorageWrapper.getSelectTypeById(ComplexTypeMetadata, String, String[])
+        keys = new String[] { "Id1", "Id2" };
+        ids = "1.3";
+        result = action.extractIdWithDots(keys, ids);
+        assertTrue(result.length == 2);
+        assertEquals(result[0], "1");
+        assertEquals(result[1], "3");
+    }
+
     public void testDynamicAssembleByResultOrder() throws Exception{
         String xml = "<result><numeroContrat xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>5005007</numeroContrat><xsi:type xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>AP-RE</xsi:type></result>";
         ItemBean itemBean = new ItemBean();

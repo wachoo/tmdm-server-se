@@ -57,7 +57,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             Document document = documentBuilder.parse(this.getClass().getResourceAsStream(EHCACHE_XML_CONFIG));
             // <diskStore path="java.io.tmpdir"/>
-            XPathExpression compile = pathFactory.compile("ehcache/diskStore"); //$NON-NLS-1$ //$NON-NLS-2$
+            XPathExpression compile = pathFactory.compile("ehcache/diskStore"); //$NON-NLS-1$
             Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
             node.getAttributes().getNamedItem("path").setNodeValue(dataSource.getCacheDirectory() + '/' + dataSource.getName()); //$NON-NLS-1$
             OutputFormat format = new OutputFormat(document);
@@ -216,6 +216,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
             case H2:
                 // Default Hibernate configuration for Hibernate forgot some JDBC type mapping.
                 return H2CustomDialect.class.getName();
+            case MYSQL:
+                return "org.hibernate.dialect.MySQLDialect"; //$NON-NLS-1$
             default:
                 throw new IllegalArgumentException("Not supported database type '" + dialectType + "'");
         }

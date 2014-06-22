@@ -149,7 +149,7 @@ public class ViewRemotePaging extends HttpServlet {
                         results[i] = "<result>" + results[i] + "</result>"; //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     Element root = Util.parse(results[i]).getDocumentElement();
-                    list = Util.getElementValues("/result", root); //$NON-NLS-1$
+                    list = Util.getElementValues(root);
                 }
                 String[] elements = list.toArray(new String[list.size()]);
                 // end

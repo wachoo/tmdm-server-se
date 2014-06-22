@@ -15,6 +15,7 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 
 public class LocalUser {
+
     /*
      * A very special user that is triggered by scheduled, timeout or startup processes
      */
@@ -24,7 +25,7 @@ public class LocalUser {
 
     private static ILocalUser findLocalUser() {
         if (localUser == null) {
-            localUser = BeanDelegatorContainer.getUniqueInstance().getLocalUserDelegator();
+            localUser = BeanDelegatorContainer.getInstance().getLocalUserDelegator();
         }
         return localUser;
     }
@@ -67,7 +68,7 @@ public class LocalUser {
     }
 
     /**
-     * Fetch the current user and its roles -  check XtentisLoginModule
+     * Fetch the current user and its roles - check XtentisLoginModule
      *
      * @return The Local User
      */
@@ -114,8 +115,7 @@ public class LocalUser {
     }
 
     /**
-     * Checks if the user can change the instance of the object specified
-     * Ability to change implies ability to read
+     * Checks if the user can change the instance of the object specified Ability to change implies ability to read
      */
     public boolean userCanWrite(Class<?> objectTypeClass, String instanceId) throws XtentisException {
         return findLocalUser().userCanWrite(objectTypeClass, instanceId);
@@ -123,6 +123,7 @@ public class LocalUser {
 
     /**
      * Checks if the user can read the instance of the object specified
+     *
      * @return true is the user can read
      */
     public boolean userCanRead(Class<?> objectTypeClass, String instanceId) throws XtentisException {

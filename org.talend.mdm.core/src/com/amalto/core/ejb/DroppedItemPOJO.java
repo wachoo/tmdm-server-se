@@ -6,16 +6,23 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.amalto.core.metadata.LongString;
+import com.amalto.core.schema.manage.SchemaCoreAgent;
 import com.amalto.core.util.Util;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.xml.sax.InputSource;
@@ -265,6 +272,7 @@ public class DroppedItemPOJO implements Serializable {
             }
             //build PKs collection
             List<DroppedItemPOJOPK> list = new ArrayList<DroppedItemPOJOPK>();
+            Map<String, BusinessConcept> conceptMap = new HashMap<String, BusinessConcept>();
             for (String uid : ids) {
                 String[] uidValues = uid.split("\\."); //$NON-NLS-1$
                 ItemPOJOPK refItemPOJOPK;
@@ -275,8 +283,19 @@ public class DroppedItemPOJO implements Serializable {
                         }
                         continue;
                     }
-                    refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]), uidValues[1], Arrays.copyOfRange(
-                            uidValues, 2, uidValues.length));
+                    // check xsd key's length
+                    String uidPrefix = uidValues[0] + "." + uidValues[1] + ".";  //$NON-NLS-1$//$NON-NLS-2$
+                    String[] idArray = Arrays.copyOfRange(uidValues, 2, uidValues.length);
+                    if (!conceptMap.containsKey(uidPrefix)) {
+                        BusinessConcept businessConcept = SchemaCoreAgent.getInstance().getBusinessConcept(uidValues[1], new DataModelID(uidValues[0], null));
+                        businessConcept.load();
+                        conceptMap.put(uidPrefix, businessConcept);
+                    }
+                    if (conceptMap.get(uidPrefix) != null && conceptMap.get(uidPrefix).getKeyFieldPaths().size() == 1) {
+                        idArray = new String[] {StringUtils.removeStart(uid, uidPrefix)};
+                    }
+
+                    refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]), uidValues[1], idArray);
                 } else {
                     // XML db format (deprecated)
                     if (uidValues.length < 4) {

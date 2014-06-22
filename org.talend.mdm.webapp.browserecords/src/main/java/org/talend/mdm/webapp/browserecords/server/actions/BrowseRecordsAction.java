@@ -42,6 +42,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -56,7 +57,6 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
-import org.talend.mdm.webapp.base.client.util.FormatUtil;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
@@ -100,7 +100,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
@@ -119,6 +118,7 @@ import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.webapp.util.webservices.WSBoolean;
 import com.amalto.webapp.util.webservices.WSByteArray;
+import com.amalto.webapp.util.webservices.WSConceptKey;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
 import com.amalto.webapp.util.webservices.WSDataModel;
 import com.amalto.webapp.util.webservices.WSDataModelPK;
@@ -127,6 +127,7 @@ import com.amalto.webapp.util.webservices.WSDropItem;
 import com.amalto.webapp.util.webservices.WSDroppedItemPK;
 import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
 import com.amalto.webapp.util.webservices.WSExistsItem;
+import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
 import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
 import com.amalto.webapp.util.webservices.WSGetDataModel;
 import com.amalto.webapp.util.webservices.WSGetItem;
@@ -182,7 +183,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
-            String[] ids = extractIdWithDots(item.getIds());
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+            String[] ids = extractIdWithDots(key.getFields(), item.getIds());
             String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
 
             String message = null;
@@ -199,7 +202,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(
                             new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
                     if (wsItem != null) {
-                        pushUpdateReport(ids, concept,UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
+                        pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
                     } else {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
                     }
@@ -260,10 +263,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         try {
             Map<ItemBean, FKIntegrityResult> itemBeanToResult = new HashMap<ItemBean, FKIntegrityResult>(selectedItems.size());
-
+            WSConceptKey key = null;
             for (ItemBean selectedItem : selectedItems) {
                 String concept = selectedItem.getConcept();
-                String[] ids = extractIdWithDots(selectedItem.getIds());
+                if (key == null) {
+                    key = CommonUtil.getPort().getBusinessConceptKey(
+                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+                }
+                String[] ids = extractIdWithDots(key.getFields(), selectedItem.getIds());
 
                 WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, ids);
                 WSDeleteItem deleteItem = new WSDeleteItem(wsItemPK, false);
@@ -304,122 +311,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
-    private List<String> getPKInfoList(EntityModel entityModel, TypeModel model, String ids, Document document, String language)
-            throws Exception {
-        List<String> xpathPKInfos = model.getPrimaryKeyInfo();
-        List<String> xPathList = new ArrayList<String>();
-        if (xpathPKInfos != null && xpathPKInfos.size() > 0 && ids != null) {
-            for (String pkInfoPath : xpathPKInfos) {
-                if (pkInfoPath != null && pkInfoPath.length() > 0) {
-                    String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
-                    if (pkInfo != null) {
-                        if (entityModel.getTypeModel(pkInfoPath).getType().equals(DataTypeConstants.MLS)) {
-                            String value = MultilanguageMessageParser.getValueByLanguage(pkInfo, language);
-                            if (value != null) {
-                                xPathList.add(value);
-                            }
-                        } else {
-                            xPathList.add(pkInfo);
-                        }
-                    }
-                }
-            }
-        } else {
-            xPathList.add(model.getLabel(language));
-        }
-        return xPathList;
-    }
-
-    private String getPKInfos(List<String> xPathList) {
-        StringBuilder gettedValue = new StringBuilder();
-        for (String pkInfo : xPathList) {
-            if (pkInfo != null) {
-                if (gettedValue.length() == 0) {
-                    gettedValue.append(pkInfo);
-                } else {
-                    gettedValue.append("-").append(pkInfo); //$NON-NLS-1$
-                }
-            }
-        }
-        return gettedValue.toString();
-    }
-
-    private ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType,
-            EntityModel entityModel, String language) throws Exception {
-        String xpathForeignKey = model.getForeignkey();
-        if (xpathForeignKey == null) {
-            return null;
-        }
-        if (ids == null || ids.trim().length() == 0) {
-            return null;
-        }
-
-        ForeignKeyBean bean = new ForeignKeyBean();
-        bean.setId(ids);
-        bean.setForeignKeyPath(model.getXpath());
-        try {
-            if (!model.isRetrieveFKinfos()) {
-                return bean;
-            } else {
-                ItemPOJOPK pk = new ItemPOJOPK();
-                String[] itemId = CommonUtil.extractFKRefValue(ids, language);
-                pk.setIds(itemId);
-                String conceptName = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
-                // get deriveType's conceptName, otherwise getItem() method will throw exception.
-                if (modelType != null && modelType.trim().length() > 0) {
-                    conceptName = modelType;
-                    bean.setConceptName(conceptName);
-                }
-                pk.setConceptName(conceptName);
-                pk.setDataClusterPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()));
-                ItemPOJO item = com.amalto.core.util.Util.getItemCtrl2Local().getItem(pk);
-
-                if (item != null) {
-                    org.w3c.dom.Document document = item.getProjection().getOwnerDocument();
-                    List<String> foreignKeyInfo = model.getForeignKeyInfo();
-                    String formattedId = ""; // Id formatted using foreign key info //$NON-NLS-1$
-                    for (String foreignKeyPath : foreignKeyInfo) {
-                        NodeList nodes = com.amalto.core.util.Util.getNodeList(document,
-                                StringUtils.substringAfter(foreignKeyPath, "/")); //$NON-NLS-1$
-                        if (nodes.getLength() == 1) {
-                            String value = nodes.item(0).getTextContent();
-                            TypeModel typeModel = entityModel.getTypeModel(foreignKeyPath);
-                            if (typeModel != null) {
-                                if (typeModel.getForeignKeyInfo() != null && typeModel.getForeignKeyInfo().size() > 0
-                                        && !"".equals(value)) { //$NON-NLS-1$
-                                    value = ForeignKeyHelper.getDisplayValue(value, foreignKeyPath, getCurrentDataCluster(),
-                                            entityModel, language);
-                                }
-
-                                if (typeModel.getType().equals(DataTypeConstants.MLS)) {
-                                    value = MultilanguageMessageParser.getValueByLanguage(value, language);
-                                }
-                            }
-                            bean.getForeignKeyInfo().put(foreignKeyPath, value);
-                            if (formattedId.equals("")) { //$NON-NLS-1$
-                                formattedId += value;
-                            } else {
-                                formattedId += "-" + value; //$NON-NLS-1$
-                            }
-                        }
-                    }
-
-                    bean.setDisplayInfo(formattedId);
-                    return bean;
-                } else {
-                    return null;
-                }
-            }
-        } catch (EntityNotFoundException e) {
-            if (!isNeedExceptionMessage) {
-                return null;
-            }
-            // fix bug TMDM-2757
-            bean.set("foreignKeyDeleteMessage", e.getMessage()); //$NON-NLS-1$
-            return bean;
         }
     }
 
@@ -491,7 +382,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String concept = itemBean.getConcept();
             // get item
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-            String[] ids = extractIdWithDots(itemBean.getIds());
+            String[] ids = extractIdWithDots(entityModel.getKeys(), itemBean.getIds());
 
             // parse schema firstly, then use element declaration (DataModelHelper.getEleDecl)
             DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
@@ -606,10 +497,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 TypeModel typeModel = types.get(path);
                 // set pkinfo and description on entity
                 if (path.equals(itemBean.getConcept())) {
-                    List<String> pkInfoList = getPKInfoList(entityModel, typeModel, itemBean.getIds(), docXml, language);
+                    List<String> pkInfoList = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfoList(
+                            entityModel, typeModel, itemBean.getIds(), docXml, language);
                     itemBean.setPkInfoList(pkInfoList);
                     itemBean.setLabel(typeModel.getLabel(language));
-                    itemBean.setDisplayPKInfo(getPKInfos(pkInfoList));
+                    itemBean.setDisplayPKInfo(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfos(pkInfoList));
                     itemBean.setDescription(typeModel.getDescriptionMap().get(language));
                 }
 
@@ -626,7 +518,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 for (int t = 0; t < nodes.getLength(); t++) {
                                     if (nodes.item(t) instanceof Element) {
                                         Node node = nodes.item(t);
-                                        migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
+                                        org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                                                .migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
                                         list.add(node.getTextContent());
                                     }
 
@@ -638,11 +531,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     String modelType = value.getAttribute("tmdm:type"); //$NON-NLS-1$
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
-                                            path + "-" + value.getTextContent(), getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType, getEntityModel(typeModel.getForeignkey().split("/")[0], language), language)); //$NON-NLS-1$ //$NON-NLS-2$    
+                                            path + "-" + value.getTextContent(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, value.getTextContent(), false, modelType, getEntityModel(typeModel.getForeignkey().split("/")[0], language), language)); //$NON-NLS-1$ //$NON-NLS-2$
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
-                                    migrationMultiLingualFieldValue(itemBean, typeModel, value, path, false, null);
+                                    org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(
+                                            itemBean, typeModel, value, path, false, null);
                                 }
                             }
                         }
@@ -656,63 +550,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
-        if (itemBean.getItemXml() != null) {
-            org.dom4j.Document docXml = DocumentHelper.parseText(itemBean.getItemXml());
-            int i = 0;
-            List els = docXml.getRootElement().elements();
-            for (String path : viewBean.getViewableXpaths()) {
-                String leafPath = path.substring(path.lastIndexOf('/') + 1);
-                if (leafPath.startsWith("@")) { //$NON-NLS-1$
-                    String[] xsiType = leafPath.substring(leafPath.indexOf("@") + 1).split(":"); //$NON-NLS-1$//$NON-NLS-2$
-                    itemBean.set(
-                            path,
-                            docXml.getRootElement()
-                                    .element(
-                                            new QName(xsiType[1], new Namespace(xsiType[0],
-                                                    "http://www.w3.org/2001/XMLSchema-instance"))).getText()); //$NON-NLS-1$
-                    continue;
-                }
-
-                TypeModel typeModel = entityModel.getMetaDataTypes().get(path);
-                org.dom4j.Element el = (org.dom4j.Element) els.get(i);
-                if (typeModel != null && typeModel.getForeignkey() != null) {
-                    String modelType = el.attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-                    itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
-                    itemBean.setForeignkeyDesc(
-                            path + "-" + el.getText(), getForeignKeyDesc(typeModel, el.getText(), false, modelType, map.get(typeModel.getXpath()), language)); //$NON-NLS-1$
-                } else {
-                    itemBean.set(path, el.getText());
-                }
-                i++;
-            }
-        }
-    }
-
-    private void migrationMultiLingualFieldValue(ItemBean itemBean, TypeModel typeModel, Node node, String path,
-            boolean isMultiOccurence, ItemNodeModel nodeModel) {
-        String value = node.getTextContent();
-        if (typeModel != null && typeModel.getType().equals(DataTypeConstants.MLS)
-                && BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto()) {
-            if (value != null && value.trim().length() > 0) {
-                if (!MultilanguageMessageParser.isExistMultiLanguageFormat(value)) {
-                    String defaultLanguage = com.amalto.core.util.Util.getDefaultSystemLocale();
-                    String newValue = MultilanguageMessageParser.getFormatValueByDefaultLanguage(value,
-                            defaultLanguage != null ? defaultLanguage : "en");//$NON-NLS-1$
-                    if (nodeModel == null) {
-                        if (isMultiOccurence) {
-                            node.setTextContent(newValue);
-                        } else {
-                            itemBean.set(path, newValue);
-                        }
-                    } else {
-                        nodeModel.setObjectValue(newValue);
-                    }
-                } else if (nodeModel != null) {
-                    nodeModel.setObjectValue(FormatUtil.multiLanguageEncode(value));
-                }
-
-            }
-        }
+        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean,
+                viewBean.getViewableXpaths(), entityModel, map, language);
     }
 
     @Override
@@ -800,7 +639,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String dataClusterPK = getCurrentDataCluster();
             String concept = item.getConcept();
-            String[] ids = extractIdWithDots(item.getIds());
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+            String[] ids = extractIdWithDots(key.getFields(), item.getIds());
 
             WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
             WSItem item1 = CommonUtil.getPort().getItem(new WSGetItem(wsItemPK));
@@ -893,7 +734,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemBean queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String ids,
             String language) throws ServiceException {
         try {
-            String[] idArr = ids.split("\\."); //$NON-NLS-1$
+            String[] idArr = StringUtils.splitPreserveAllTokens(ids, '.'); // String.split() omits the last '' if ends
+                                                                           // with delimiter
             String criteria = CommonUtil.buildCriteriaByIds(entityModel.getKeys(), idArr);
             Object[] result = getItemBeans(dataClusterPK, viewBean, entityModel, criteria, -1, 20,
                     ItemHelper.SEARCH_DIRECTION_ASC, null, language);
@@ -1433,16 +1275,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @param ids Expect a id like "value0.value1.value2"
      * @return Returns an array with ["value0", "value1", "value2"]
      */
-    private static String[] extractIdWithDots(String ids) {
+    public static String[] extractIdWithDots(String[] keys, String ids) {
         List<String> idList = new ArrayList<String>();
-        StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
-        if (!tokenizer.hasMoreTokens()) {
-            throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_id_malform", ids)); //$NON-NLS-1$
+        if (keys.length == 1) {
+            idList.add(ids);
+        } else {
+            StringTokenizer tokenizer = new StringTokenizer(ids, "."); //$NON-NLS-1$
+            if (!tokenizer.hasMoreTokens()) {
+                throw new IllegalArgumentException(MESSAGES.getMessage("label_exception_id_malform", ids)); //$NON-NLS-1$
+            }
+
+            while (tokenizer.hasMoreTokens()) {
+                idList.add(tokenizer.nextToken());
+            }
         }
 
-        while (tokenizer.hasMoreTokens()) {
-            idList.add(tokenizer.nextToken());
-        }
         return idList.toArray(new String[idList.size()]);
     }
 
@@ -1451,7 +1298,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$
         }
 
-        if (!(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(operationType))) {
+        if (!(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE
+                .equals(operationType))) {
             throw new UnsupportedOperationException();
         }
 
@@ -1495,7 +1343,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 .append(operationType).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
                 .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$
                 .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
-                .append("</Concept><Key>").append(key).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
+                .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
 
         if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
             // Important: Leave update report creation to MDM server
@@ -1752,8 +1600,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (modelType != null && modelType.trim().length() > 0) {
                 nodeModel.setTypeName(modelType);
             }
-            ForeignKeyBean fkBean = getForeignKeyDesc(model, el.getTextContent(), true, modelType,
-                    getEntityModel(foreignKey.split("/")[0], language), language); //$NON-NLS-1$
+            ForeignKeyBean fkBean = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(model,
+                    el.getTextContent(), true, modelType, getEntityModel(foreignKey.split("/")[0], language), language); //$NON-NLS-1$
             if (fkBean != null) {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
                 if (fkNotFoundMessage != null) {// fix bug TMDM-2757
@@ -1766,7 +1614,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
         } else if (model.isSimpleType()) {
             nodeModel.setObjectValue(el.getTextContent());
-            migrationMultiLingualFieldValue(null, model, el, typePath, false, nodeModel);
+            org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(null, model, el, typePath,
+                    false, nodeModel);
         }
         if (isCreate && model.getDefaultValueExpression() != null && model.getDefaultValueExpression().trim().length() > 0) {
             nodeModel.setChangeValue(true);
@@ -1899,7 +1748,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } else {
                 String[] pk = wsi.getIds();
                 if (pk == null || pk.length == 0) {
-                    pk = extractIdWithDots(ids);
+                    WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+                    pk = extractIdWithDots(key.getFields(), ids);
                 }
                 WSItem wsItem = CommonUtil.getPort().getItem(
                         new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, pk)));
@@ -1941,7 +1792,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String dataCluster = getCurrentDataCluster();
                 // get item
                 WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(dataCluster);
-                String[] idArray = extractIdWithDots(ids);
+                WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                        new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+                String[] idArray = extractIdWithDots(key.getFields(), ids);
 
                 WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, idArray)));
                 doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
@@ -1998,8 +1851,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public boolean isItemModifiedByOthers(ItemBean itemBean) throws ServiceException {
         try {
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
+                    new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), itemBean.getConcept()));
             ItemPOJOPK itempk = new ItemPOJOPK(new DataClusterPOJOPK(getCurrentDataCluster()), itemBean.getConcept(),
-                    extractIdWithDots(itemBean.getIds()));
+                    extractIdWithDots(key.getFields(), itemBean.getIds()));
             boolean isModified = com.amalto.core.util.Util.getItemCtrl2Local().isItemModifiedByOther(itempk,
                     itemBean.getLastUpdateTime());
             return isModified;

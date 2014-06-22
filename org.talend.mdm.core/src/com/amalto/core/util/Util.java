@@ -359,7 +359,7 @@ public class Util {
     }
 
     public static Document validate(Element element, String schema) throws Exception {
-        return BeanDelegatorContainer.getUniqueInstance().getValidationDelegator().validation(element, schema);
+        return BeanDelegatorContainer.getInstance().getValidationDelegator().validation(element, schema);
     }
 
     public static void removeXpathFromDocument(Document document, String xpath, boolean reservedRoot) throws Exception {
@@ -1607,8 +1607,8 @@ public class Util {
                 } else {
                     xml = pojo.getProjectionAsString();
                 }
-                String resultUpdateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null, //$NON-NLS-1$
-                        "", clusterName); //$NON-NLS-1$
+                String resultUpdateReport = Util.createUpdateReport(ids, concept,
+                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null, "", clusterName); //$NON-NLS-1$
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
                 final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
