@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<ii>
+    <c>Product</c>
+    <n>Product</n>
+    <dmn>Product</dmn>
+    <i>231035933</i>
+    <t>1327653438644</t>
+    <p>
+        <Product>
+            <Id>11</Id>
+            <Name>999</Name>
+            <Description>66</Description>
+            <Price>222</Price>
+            <Picture>http://</Picture>
+            <Features>
+                <Sizes>
+                    <Size>Small</Size>
+                    <Size>Medium</Size>
+                    <Size>Large</Size>
+                </Sizes>
+                <Colors>
+                    <Color>White</Color>
+                    <Color>Light Blue</Color>
+                    <Color>Khaki</Color>
+                </Colors>
+            </Features>
+            <Availability>false</Availability>
+            <OnlineStore>@@http://</OnlineStore>
+        </Product>
+    </p>
+</ii>

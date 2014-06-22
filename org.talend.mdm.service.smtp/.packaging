@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurations>
+<archive destination="" exploded="false" name="zz.30.xtentis.service.smtp.ejb.jar" used="true">
+<folder excludes="" includes="**/ejb/**/*.class" location="bin" name="bin" prefix="" project="" projectLocation="bin" used="true"/>
+<file location="src/META-INF/ejb-jar.xml" name="ejb-jar.xml" prefix="META-INF" project="" projectLocation="/src/META-INF/ejb-jar.xml" used="true"/>
+<file location="src/META-INF/jboss.xml" name="jboss.xml" prefix="META-INF" project="" projectLocation="/src/META-INF/jboss.xml" used="true"/>
+<folder excludes="" includes="**/util/**/*.class" location="bin" name="bin" prefix="" project="" projectLocation="bin" used="true"/>
+<file location="RELEASE.NOTES" name="RELEASE.NOTES" prefix="" project="" projectLocation="RELEASE.NOTES" used="true"/>
+<file location="version.properties" name="version.properties" prefix="" project="" projectLocation="version.properties" used="true"/>
+<folder excludes="" includes="**/*.*" location="xslt" name="xslt" prefix="com/amalto/service/smtp/ejb" project="" projectLocation="xslt" used="true"/>
+</archive>
+</configurations>

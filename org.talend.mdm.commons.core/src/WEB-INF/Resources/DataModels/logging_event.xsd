@@ -1,0 +1,28 @@
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    attributeFormDefault="unqualified"
+    blockDefault=""
+    elementFormDefault="qualified"
+    finalDefault=""
+>
+
+    <xsd:element abstract="false" name="logging_event" nillable="false">
+        <xsd:complexType mixed="false">
+            <xsd:sequence maxOccurs="1" minOccurs="1">
+                <xsd:element maxOccurs="1" minOccurs="1" name="time" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="level" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="logger" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="message" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="ndc" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="thread" nillable="false" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="0" name="throwable" nillable="false" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:unique name="logging_event">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="time"/>
+        </xsd:unique>
+    </xsd:element>
+
+
+</xsd:schema>

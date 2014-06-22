@@ -1,0 +1,115 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
+ <xsd:element name="M01_E01">
+  <xsd:annotation>
+   <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+  </xsd:annotation>
+  <xsd:complexType>
+   <xsd:all>
+    <xsd:element name="subelement" type="xsd:string">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+    </xsd:element>
+    <xsd:element maxOccurs="1" minOccurs="0" name="f1"
+     type="xsd:string">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+    </xsd:element>
+    <xsd:element maxOccurs="1" minOccurs="0" name="f2"
+     type="xsd:string">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+    </xsd:element>
+    <xsd:element maxOccurs="1" minOccurs="0" name="f3"
+     type="xsd:string">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+      <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+    </xsd:element>
+    <xsd:element maxOccurs="1" minOccurs="0" name="f4" type="T01">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+    </xsd:element>
+    <xsd:element maxOccurs="1" minOccurs="0" name="f5">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+     <xsd:complexType>
+      <xsd:all>
+       <xsd:element maxOccurs="1" minOccurs="0" name="sf1"
+        type="xsd:string">
+        <xsd:annotation>
+         <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+       </xsd:element>
+       <xsd:element maxOccurs="1" minOccurs="0" name="sf2"
+        type="xsd:string">
+        <xsd:annotation>
+         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+         <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+       </xsd:element>
+      </xsd:all>
+     </xsd:complexType>
+    </xsd:element>
+    <xsd:element maxOccurs="1" minOccurs="0" name="f6">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+     <xsd:complexType>
+      <xsd:all>
+       <xsd:element maxOccurs="1" minOccurs="0" name="sf1"
+        type="xsd:string" />
+      </xsd:all>
+     </xsd:complexType>
+    </xsd:element>
+   </xsd:all>
+  </xsd:complexType>
+  <xsd:unique name="M01_E01">
+   <xsd:selector xpath="." />
+   <xsd:field xpath="subelement" />
+  </xsd:unique>
+ </xsd:element>
+ <xsd:complexType name="T01">
+  <xsd:all>
+   <xsd:element maxOccurs="1" minOccurs="0" name="sf1"
+    type="xsd:string">
+    <xsd:annotation>
+     <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+    </xsd:annotation>
+   </xsd:element>
+   <xsd:element maxOccurs="1" minOccurs="0" name="sf2"
+    type="xsd:string">
+    <xsd:annotation>
+     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+     <xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+    </xsd:annotation>
+   </xsd:element>
+  </xsd:all>
+ </xsd:complexType>
+ <xsd:element name="M01_E02">
+  <xsd:annotation>
+   <xsd:appinfo source="X_Deny_LogicalDelete">System_Admin</xsd:appinfo>
+   <xsd:appinfo source="X_Deny_PhysicalDelete">System_Admin</xsd:appinfo>
+   <xsd:appinfo source="X_Deny_Create">System_Admin</xsd:appinfo>
+  </xsd:annotation>
+  <xsd:complexType>
+   <xsd:all>
+    <xsd:element name="subelement" type="xsd:string">
+     <xsd:annotation>
+      <xsd:appinfo source="X_Deny_Create">System_Admin</xsd:appinfo>
+     </xsd:annotation>
+    </xsd:element>
+   </xsd:all>
+  </xsd:complexType>
+  <xsd:unique name="M01_E02">
+   <xsd:selector xpath="." />
+   <xsd:field xpath="subelement" />
+  </xsd:unique>
+ </xsd:element>
+</xsd:schema>

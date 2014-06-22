@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     20 déc. 2005 09:21:22                                                        
+
+     mdm Service
+     DumpToConsole
+                   
+     bgrieder                                                                
+     ====================================================================== -->
+<project name="DumpToCOnsoleService - Build" default="all">
+	
+	<property name="version.props" value="version.properties"/>
+	
+	<property name="jboss.dir" value="/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+	
+
+    <!-- ================================= 
+          target: all              
+         ================================= -->
+    <target name="all" depends="version,package,undeploy,deploy">
+    	<!--eclipse.refreshLocal resource="org.talend.mdm.core"/-->
+    </target>
+
+    <target name="version"  description="Maintain build.date property">
+       	<propertyfile file="${version.props}"  comment="streek build date">
+       		<entry key="build.date" type="date" value="now" />
+       	</propertyfile>
+     </target>
+
+   	<target name="package">
+		<buildnumber file="${version.props}"/>
+		<property file="${version.props}" />
+   	   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
+		<ant antfile="packaging-build.xml"/>
+   		<!--eclipse.refreshLocal resource="org.talend.mdm.core"/-->
+    </target>
+		
+    <target name="undeploy" description="--> remove packages">		
+		<delete>
+			<fileset dir="${jboss.deploy.dir}" includes="zz.*.mdm.service.dumptoconsole.ejb.jar"/>
+		</delete>
+    </target>
+	
+	<target name="deploy">
+		<echo>Deploying build: ${version.build.new}</echo>
+		<copy file="zz.30.mdm.service.dumptoconsole.ejb.jar" tofile="${jboss.deploy.dir}/zz.30.mdm.service.dumptoconsole.ejb.jar"/>
+    </target>
+
+</project>

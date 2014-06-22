@@ -1,0 +1,27 @@
+RELEASE NOTES
+
+1.1.0
+feature:
+.supporting data model types
+
+1.0.0
+A publish component/server of MDM
+ 
+This component totally takes the advantage of REST, 
+which makes the web service architecture of Talend MDM to be the 'RPC-REST-hybrid'.
+
+Initial release
+
+feature:
+
+.We provide Master Data Web Service via restlet
+.Our Resource types are extensible(only support datamodel now)
+.Our security is enforced by Jboss security domain
+.Each behavior of accessing resource can be logged
+.You can custom your own access control rules to protect resources
+
+ 
+
+
+
+

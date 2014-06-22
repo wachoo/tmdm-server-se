@@ -1,0 +1,29 @@
+<Contrat xmlns:tmdm="http://www.talend.com/mdm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<numeroContrat>5004468</numeroContrat>
+<numeroContratExterne>RP_0407_0152</numeroContratExterne>
+<dateSignatureContrat>1900-01-01</dateSignatureContrat>
+<dateDebutPrevueContrat>2004-07-01</dateDebutPrevueContrat>
+<dateDebutEffectiveContrat>2003-11-01</dateDebutEffectiveContrat>
+<dateFinContrat>2011-07-24</dateFinContrat>
+<detailContrat xsi:type="AP-RP">
+	<Perimetre>
+		<entitesPresentes>
+			<EDPs>
+				<EDP>
+					<edp>[1]</edp>
+					<dateDebutApplication>2012-12-19</dateDebutApplication>
+				</EDP>
+				<EDP>
+					<edp>[2]</edp>
+					<dateDebutApplication>2012-12-19</dateDebutApplication>
+				</EDP>
+				<EDP>
+					<edp>[3]</edp>
+					<dateDebutApplication>2012-12-24</dateDebutApplication>
+					<dateFinApplication>2012-12-25</dateFinApplication>
+				</EDP>
+			</EDPs>
+		</entitesPresentes>
+	</Perimetre>
+</detailContrat>
+</Contrat>

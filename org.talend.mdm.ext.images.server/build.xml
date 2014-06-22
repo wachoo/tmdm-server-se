@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="imageserver" default="all">
+	<property name="version.props" value="version.properties" />
+	<property name="jboss.dir" value="c:/opt/jboss" />
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default" />
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy" />
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib" />
+	<property name="war" value="zz.50.ext.imageserver.war" />
+	<!--
+		================================= target: all
+		=================================
+	-->
+	<target name="all" depends="clean,version,package,deploy" description="--> MDM Image Server App">
+		<!--eclipse.refreshLocal resource="../" /-->
+	</target>
+	<target name="clean" description="Clean old release">
+		<delete dir="zz.20.ext.imageserver.war"/>
+		<delete dir="${jboss.deploy.dir}/zz.20.ext.imageserver.war"/>
+	</target>
+	<target name="version" description="Maintain build.date property">
+		<buildnumber file="${version.props}" />
+		<propertyfile file="${version.props}">
+			<entry key="build.date" type="date" value="now" />
+		</propertyfile>
+	</target>
+	<target name="package">
+		<property file="${version.props}" />
+		<copy file="RELEASE.NOTES"
+			tofile="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+		<delete dir="${war}"/>	
+		<mkdir dir="${war}" />
+		<copy todir="${war}/WEB-INF">
+			<fileset dir="src/WEB-INF">
+				<include name="web.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${war}/WEB-INF">
+			<fileset dir="src/WEB-INF">
+				<include name="jboss-web.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${war}">
+			<fileset dir=".">
+				<include name="version.properties" />
+			</fileset>
+		</copy>
+		<copy todir="${war}">
+			<fileset dir=".">
+				<include name="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+			</fileset>
+		</copy>
+		<copy todir="${war}/WEB-INF/classes">
+			<fileset dir="bin" includes="**/*.class" />
+		</copy>
+		<copy todir="${war}">
+			<fileset dir="web" includes="**/*" />
+		</copy>
+		<copy todir="${war}/WEB-INF/lib">
+			<fileset dir="libs" includes="*.jar" />
+		</copy>
+		<delete file="RELEASE-${major}.${minor}.${rev}-${build.number}.NOTES" />
+	</target>
+	<target name="deploy">
+		<echo>Deploying ${war}</echo>
+		<copy todir="${jboss.deploy.dir}/${war}">
+		   <fileset dir="${war}"/>
+		</copy>
+	</target>
+</project>

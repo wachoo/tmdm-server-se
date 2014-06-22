@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Contrat xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <numeroContrat>5004486</numeroContrat>
+    <numeroContratExterne>RP_0407_0056</numeroContratExterne>
+    <codeActeur/>
+    <dateSignatureContrat>1899-12-31</dateSignatureContrat>
+    <dateDebutPrevueContrat>2004-07-01</dateDebutPrevueContrat>
+    <dateDebutEffectiveContrat>2004-07-01</dateDebutEffectiveContrat>
+    <dateFinContrat>9999-12-31</dateFinContrat>
+    <commentaires/>
+    <detailContrat xsi:type="AP-RP">
+        <Perimetre>
+            <EntitesPresentes>
+                <EDAs>
+                    <EDA>
+                        <eda>[111]</eda>
+                        <dateDebutApplication/>
+                        <dateFinApplication/>
+                    </EDA>
+                    <EDA>
+                        <eda>[222]</eda>
+                        <dateDebutApplication/>
+                        <dateFinApplication/>
+                    </EDA>
+                </EDAs>
+            </EntitesPresentes>
+        </Perimetre>
+    </detailContrat>
+    <detailContrat xsi:type="AP-RE">
+        <Perimetre>
+            <EntitesPresentes>
+                <EDAs>
+                    <EDA>
+                        <eda>[111]</eda>
+                        <dateDebutApplication/>
+                        <dateFinApplication/>
+                    </EDA>
+                    <EDA>
+                        <eda>[222]</eda>
+                        <dateDebutApplication/>
+                        <dateFinApplication/>
+                    </EDA>
+                </EDAs>
+            </EntitesPresentes>
+        </Perimetre>
+    </detailContrat>
+</Contrat>
