@@ -12,6 +12,7 @@ package com.amalto.core.storage.hibernate;
 
 import static org.hibernate.criterion.Restrictions.*;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.amalto.core.query.user.*;
@@ -83,9 +84,27 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     protected StorageResults createResults(List list, boolean isProjection) {
         CloseableIterator<DataRecord> iterator;
-        Iterator listIterator = list.iterator();
+        final Iterator listIterator = list.iterator();
         if (isProjection) {
-            iterator = new ProjectionIterator(mappings, listIterator, selectedFields, callbacks);
+            iterator = new ProjectionIterator(mappings, new CloseableIterator<Object>() {
+                @Override
+                public void close() throws IOException {
+                }
+
+                @Override
+                public boolean hasNext() {
+                    return listIterator.hasNext();
+                }
+
+                @Override
+                public Object next() {
+                    return listIterator.next();
+                }
+
+                @Override
+                public void remove() {
+                }
+            }, selectedFields, callbacks);
         } else {
             iterator = new ListIterator(mappings, storageClassLoader, listIterator, callbacks);
         }
