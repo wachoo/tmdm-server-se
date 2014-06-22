@@ -50,7 +50,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
 
-    private final Map<FieldMetadata, String> joinFieldsToAlias = new HashMap<FieldMetadata, String>();
+    private final Map<FieldMetadata, Set<String>> joinFieldsToAlias = new HashMap<FieldMetadata, Set<String>>();
 
     private final MappingRepository mappings;
 
@@ -128,7 +128,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(Join join) {
         FieldMetadata fieldMetadata = join.getRightField().getFieldMetadata();
-
         // Choose the right join type
         String rightTableName = fieldMetadata.getContainingType().getName();
         int joinType;
@@ -164,11 +163,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     + mainType.getName() + "' to this field.");
         }
         // Generate all necessary joins to go from main type to join right table.
-        generateJoinPath(rightTableName, joinType, path);
+        generateJoinPath(Collections.singleton(rightTableName), joinType, path);
         return null;
     }
 
-    private void generateJoinPath(String rightTableName, int joinType, List<FieldMetadata> path) {
+    private void generateJoinPath(Set<String> rightTableAliases, int joinType, List<FieldMetadata> path) {
         Iterator<FieldMetadata> pathIterator = path.iterator();
         String previousAlias = mainType.getName();
         while (pathIterator.hasNext()) {
@@ -178,18 +177,25 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (pathIterator.hasNext()) {
                 if (!joinFieldsToAlias.containsKey(nextField)) {
                     criteria.createAlias(previousAlias + '.' + nextField.getName(), newAlias, joinType);
-                    joinFieldsToAlias.put(nextField, newAlias);
+                    joinFieldsToAlias.put(nextField, new HashSet<String>(Arrays.asList(newAlias)));
                     previousAlias = newAlias;
                 } else {
-                    previousAlias = joinFieldsToAlias.get(nextField);
+                    previousAlias = joinFieldsToAlias.get(nextField).iterator().next();
                 }
             } else {
                 if (!joinFieldsToAlias.containsKey(nextField)) {
-                    criteria.createAlias(previousAlias + '.' + nextField.getName(), rightTableName, joinType);
-                    joinFieldsToAlias.put(nextField, rightTableName);
-                    previousAlias = rightTableName;
+                    for (String rightTableAlias : rightTableAliases) {
+                        criteria.createAlias(previousAlias + '.' + nextField.getName(), rightTableAlias, joinType);
+                        Set<String> aliases = joinFieldsToAlias.get(nextField);
+                        if (aliases == null) {
+                            aliases = new HashSet<String>();
+                            joinFieldsToAlias.put(nextField, aliases);
+                        }
+                        aliases.add(rightTableAlias);
+                    }
+                    previousAlias = rightTableAliases.iterator().next();
                 } else {
-                    previousAlias = joinFieldsToAlias.get(nextField);
+                    previousAlias = joinFieldsToAlias.get(nextField).iterator().next();
                 }
             }
         }
@@ -292,7 +298,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(final Field field) {
         final FieldMetadata userFieldMetadata = field.getFieldMetadata();
         ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
-        final String alias = getAlias(containingType, userFieldMetadata);
+        final Set<String> aliases = getAliases(containingType, field);
         userFieldMetadata.accept(new DefaultMetadataVisitor<Void>() {
 
             @Override
@@ -307,9 +313,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
             @Override
             public Void visit(SimpleTypeFieldMetadata simpleField) {
                 if (!simpleField.isMany()) {
-                    projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
+                    for (String alias : aliases) {
+                        projectionList.add(Projections.property(alias + '.' + simpleField.getName()));
+                    }
                 } else {
-                    projectionList.add(new ManyFieldProjection(alias,
+                    projectionList.add(new ManyFieldProjection(aliases,
                             simpleField,
                             resolver,
                             (RDBMSDataSource) storage.getDataSource()));
@@ -320,9 +328,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
             @Override
             public Void visit(EnumerationFieldMetadata enumField) {
                 if (!enumField.isMany()) {
-                    projectionList.add(Projections.property(alias + '.' + enumField.getName()));
+                    for (String alias : aliases) {
+                        projectionList.add(Projections.property(alias + '.' + enumField.getName()));
+                    }
                 } else {
-                    projectionList.add(new ManyFieldProjection(alias,
+                    projectionList.add(new ManyFieldProjection(aliases,
                             enumField,
                             resolver,
                             (RDBMSDataSource) storage.getDataSource()));
@@ -341,28 +351,66 @@ class StandardQueryHandler extends AbstractQueryHandler {
         return containingType;
     }
 
-    private String getAlias(ComplexTypeMetadata type, FieldMetadata databaseField) {
-        String previousAlias = type.getName();
-        String alias;
-        for (FieldMetadata next : MetadataUtils.path(type, databaseField, false)) {
-            if (next instanceof ReferenceFieldMetadata) {
-                alias = joinFieldsToAlias.get(next);
-                if (alias == null) {
-                    alias = "a" + aliasCount++; //$NON-NLS-1$
-                    joinFieldsToAlias.put(next, alias);
-                    int joinType;
-                    // TMDM-4866: Do a left join in case FK is not mandatory.
-                    if (next.isMandatory()) {
-                        joinType = CriteriaSpecification.INNER_JOIN;
-                    } else {
-                        joinType = CriteriaSpecification.LEFT_JOIN;
-                    }
-                    criteria.createAlias(previousAlias + '.' + next.getName(), alias, joinType);
-                }
-                previousAlias = alias;
-            }
+    /**
+     * <p>
+     * Generate an alias to the <code>field</code> starting from <code>type</code>. This code ensures all paths
+     * to <code>field</code> are covered (this field might be present several times inside the MDM entity
+     * scope).
+     * </p>
+     *
+     * @param type          A type in the query.
+     * @param field A field to include in current Hibernate criteria.
+     * @return A set of aliases that represents the <code>field</code>.
+     */
+    private Set<String> getAliases(ComplexTypeMetadata type, Field field) {
+        if (joinFieldsToAlias.containsKey(field.getFieldMetadata())) {
+            return joinFieldsToAlias.get(field.getFieldMetadata());
         }
-        return previousAlias;
+        FieldMetadata fieldMetadata = field.getFieldMetadata();
+        String previousAlias = type.getName();
+        String alias = null;
+        Set<List<FieldMetadata>> paths ;
+        if (fieldMetadata instanceof ReferenceFieldMetadata && !fieldMetadata.getContainingType().isInstantiable()) {
+            paths = MetadataUtils.paths(type, fieldMetadata);
+        } else {
+            paths = Collections.singleton(field.getPath());
+        }
+        Set<String> aliases = new HashSet<String>(paths.size());
+        for (List<FieldMetadata> path : paths) {
+            boolean newPath = false;
+            for (FieldMetadata next : path) {
+                if (next instanceof ReferenceFieldMetadata) {
+                    aliases = joinFieldsToAlias.get(next);
+                    if (aliases == null || newPath) {
+                        alias = "a" + aliasCount++; //$NON-NLS-1$
+                        if (aliases == null) {
+                            aliases = new HashSet<String>(Arrays.asList(alias));
+                            joinFieldsToAlias.put(next, aliases);
+                        } else {
+                            aliases.add(alias);
+                        }
+                        int joinType;
+                        // TMDM-4866: Do a left join in case FK is not mandatory (only if there's one path).
+                        if (next.isMandatory() && paths.size() == 1) {
+                            joinType = CriteriaSpecification.INNER_JOIN;
+                        } else {
+                            joinType = CriteriaSpecification.LEFT_JOIN;
+                        }
+                        criteria.createAlias(previousAlias + '.' + next.getName(), alias, joinType);
+                        newPath = true;
+                    }
+                    if (alias != null) {
+                        previousAlias = alias;
+                    } else {
+                        previousAlias = aliases.iterator().next();
+                    }
+                }
+            }
+            aliases.add(previousAlias);
+            previousAlias = type.getName();
+            alias = null;
+        }
+        return aliases;
     }
 
     @Override
@@ -468,22 +516,25 @@ class StandardQueryHandler extends AbstractQueryHandler {
             Field field = (Field) orderByExpression;
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
             ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
-            String alias = getAlias(containingType, userFieldMetadata);
-            condition.criterionFieldName = alias + '.' + userFieldMetadata.getName();
-        }
-        if (condition != null) {
-            String fieldName = condition.criterionFieldName;
-            OrderBy.Direction direction = orderBy.getDirection();
-            switch (direction) {
-            case ASC:
-                criteria.addOrder(Order.asc(fieldName));
-                break;
-            case DESC:
-                criteria.addOrder(Order.desc(fieldName));
-                break;
+            Set<String> aliases = getAliases(containingType, field);
+            condition.criterionFieldNames = new ArrayList<String>(aliases.size());
+            for (String alias : aliases) {
+                condition.criterionFieldNames.add(alias + '.' + userFieldMetadata.getName());
             }
         }
-
+        if (condition != null) {
+            for (String fieldName : condition.criterionFieldNames) {
+                OrderBy.Direction direction = orderBy.getDirection();
+                switch (direction) {
+                    case ASC:
+                        criteria.addOrder(Order.asc(fieldName));
+                        break;
+                    case DESC:
+                        criteria.addOrder(Order.desc(fieldName));
+                        break;
+                }
+            }
+        }
         return null;
     }
 
@@ -515,7 +566,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
     @Override
     public StorageResults visit(Max max) {
         FieldCondition fieldCondition = max.getExpression().accept(criterionFieldCondition);
-        projectionList.add(Projections.max(fieldCondition.criterionFieldName));
+        for (String criterionFieldName : fieldCondition.criterionFieldNames) {
+            projectionList.add(Projections.max(criterionFieldName));
+        }
         return null;
     }
 
@@ -592,7 +645,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (fieldCondition == null) {
                 return NO_OP_CRITERION;
             }
-            if (fieldCondition.criterionFieldName.isEmpty()) {
+            if (fieldCondition.criterionFieldNames.isEmpty()) {
                 // Case #1: doing a simple instance type check on main selected type.
                 return Restrictions.eq("class", storageClassLoader.getClassFromType(isa.getType())); //$NON-NLS-1$
             } else {
@@ -605,10 +658,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             + mainType.getName() + "'.");
                 }
                 // Generate the joins
-                String alias = getAlias(mainType, fieldCondition.fieldMetadata);
-                generateJoinPath(alias, JoinFragment.INNER_JOIN, path);
+                Set<String> aliases = getAliases(mainType, fieldCondition.field);
+                generateJoinPath(aliases, JoinFragment.INNER_JOIN, path);
                 // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
-                Criteria foundSubCriteria = findCriteria(criteria, alias);
+                Criteria foundSubCriteria = findCriteria(criteria, aliases);
                 String name = storageClassLoader.getClassFromType(isa.getType()).getName();
                 return new FieldTypeCriterion(foundSubCriteria, name);
             }
@@ -621,9 +674,22 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 return NO_OP_CRITERION;
             }
             if (fieldCondition.isMany) {
-                throw new UnsupportedOperationException("Does not support isNull operation on collections.");
+                throw new UnsupportedOperationException("Does not support 'is null' operation on collections.");
             }
-            return Restrictions.isNull(fieldCondition.criterionFieldName);
+            if (fieldCondition.criterionFieldNames.isEmpty()) {
+                throw new IllegalStateException("No field name for 'is null' condition on " + isNull.getField());
+            } else {
+                // Criterion affect multiple fields
+                Criterion current = null;
+                for (String criterionFieldName : fieldCondition.criterionFieldNames) {
+                    if (current == null) {
+                        current = Restrictions.isNull(criterionFieldName);
+                    } else {
+                        current = Restrictions.and(current, Restrictions.isNull(criterionFieldName));
+                    }
+                }
+                return current;
+            }
         }
 
         @Override
@@ -633,9 +699,35 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 return NO_OP_CRITERION;
             }
             if (fieldCondition.isMany) {
-                return Restrictions.isEmpty(fieldCondition.criterionFieldName);
+                if (fieldCondition.criterionFieldNames.isEmpty()) {
+                    throw new IllegalStateException("No field name for 'is empty' condition on " + isEmpty.getField());
+                } else {
+                    // Criterion affect multiple fields
+                    Criterion current = null;
+                    for (String criterionFieldName : fieldCondition.criterionFieldNames) {
+                        if (current == null) {
+                            current = Restrictions.isEmpty(criterionFieldName);
+                        } else {
+                            current = Restrictions.and(current, Restrictions.isEmpty(criterionFieldName));
+                        }
+                    }
+                    return current;
+                }
             } else {
-                return Restrictions.eq(fieldCondition.criterionFieldName, StringUtils.EMPTY);
+                if (fieldCondition.criterionFieldNames.isEmpty()) {
+                    throw new IllegalStateException("No field name for 'is empty' condition on " + isEmpty.getField());
+                } else {
+                    // Criterion affect multiple fields
+                    Criterion current = null;
+                    for (String criterionFieldName : fieldCondition.criterionFieldNames) {
+                        if (current == null) {
+                            current = Restrictions.eq(criterionFieldName, StringUtils.EMPTY);
+                        } else {
+                            current = Restrictions.and(current, Restrictions.eq(criterionFieldName, StringUtils.EMPTY));
+                        }
+                    }
+                    return current;
+                }
             }
         }
 
@@ -646,9 +738,35 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 return NO_OP_CRITERION;
             }
             if (fieldCondition.isMany) {
-                return Restrictions.isNotEmpty(fieldCondition.criterionFieldName);
+                if (fieldCondition.criterionFieldNames.isEmpty()) {
+                    throw new IllegalStateException("No field name for 'not is empty' condition on " + notIsEmpty.getField());
+                } else {
+                    // Criterion affect multiple fields
+                    Criterion current = null;
+                    for (String criterionFieldName : fieldCondition.criterionFieldNames) {
+                        if (current == null) {
+                            current = Restrictions.isNotEmpty(criterionFieldName);
+                        } else {
+                            current = Restrictions.and(current, Restrictions.isNotEmpty(criterionFieldName));
+                        }
+                    }
+                    return current;
+                }
             } else {
-                return Restrictions.not(Restrictions.eq(fieldCondition.criterionFieldName, StringUtils.EMPTY));
+                if (fieldCondition.criterionFieldNames.isEmpty()) {
+                    throw new IllegalStateException("No field name for 'not is empty' condition on " + notIsEmpty.getField());
+                } else {
+                    // Criterion affect multiple fields
+                    Criterion current = null;
+                    for (String criterionFieldName : fieldCondition.criterionFieldNames) {
+                        if (current == null) {
+                            current = Restrictions.not(Restrictions.eq(criterionFieldName, StringUtils.EMPTY));
+                        } else {
+                            current = Restrictions.and(current, Restrictions.not(Restrictions.eq(criterionFieldName, StringUtils.EMPTY)));
+                        }
+                    }
+                    return current;
+                }
             }
         }
 
@@ -664,9 +782,22 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 return NO_OP_CRITERION;
             }
             if (fieldCondition.isMany) {
-                throw new UnsupportedOperationException("Does not support notIsNull operation on collections.");
+                throw new UnsupportedOperationException("Does not support 'not is null' operation on collections.");
             }
-            return Restrictions.isNotNull(fieldCondition.criterionFieldName);
+            if (fieldCondition.criterionFieldNames.isEmpty()) {
+                throw new IllegalStateException("No field name for 'not is null' condition on " + notIsNull.getField());
+            } else {
+                // Criterion affect multiple fields
+                Criterion current = null;
+                for (String criterionFieldName : fieldCondition.criterionFieldNames) {
+                    if (current == null) {
+                        current = Restrictions.isNotNull(criterionFieldName);
+                    } else {
+                        current = Restrictions.and(current, Restrictions.isNotNull(criterionFieldName));
+                    }
+                }
+                return current;
+            }
         }
 
         @Override
@@ -701,7 +832,20 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 end = MetadataUtils.convert(endValue, expression.getTypeName());
             }
             if (condition != null) {
-                return Restrictions.between(condition.criterionFieldName, start, end);
+                if (condition.criterionFieldNames.isEmpty()) {
+                    throw new IllegalStateException("No field name for 'range' condition on " + range.getExpression());
+                } else {
+                    // Criterion affect multiple fields
+                    Criterion current = null;
+                    for (String criterionFieldName : condition.criterionFieldNames) {
+                        if (current == null) {
+                            current = Restrictions.between(criterionFieldName, start, end);
+                        } else {
+                            current = Restrictions.and(current, Restrictions.between(criterionFieldName, start, end));
+                        }
+                    }
+                    return current;
+                }
             } else {
                 return null;
             }
@@ -748,33 +892,36 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (condition.getLeft() instanceof Field) {
                 Field leftField = (Field) condition.getLeft();
                 FieldMetadata fieldMetadata = leftField.getFieldMetadata();
-                String alias = fieldMetadata.getContainingType().getName();
+                Set<String> aliases = Collections.singleton(fieldMetadata.getContainingType().getName());
                 // TODO Ugly code path to fix once test coverage is ok.
                 if (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata) {
-                    (new Field(fieldMetadata)).accept(StandardQueryHandler.this);
-                    alias = getAlias(mainType, fieldMetadata);
+                    leftField.accept(StandardQueryHandler.this);
+                    aliases = getAliases(mainType, leftField);
                     if (!fieldMetadata.isMany()) {
-                        if (fieldMetadata instanceof ReferenceFieldMetadata) {
-                            // ignored CompoundFieldMetadata
-                            if (!(((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata)) {
-                                leftFieldCondition.criterionFieldName = alias + '.'
-                                        + ((ReferenceFieldMetadata) fieldMetadata).getReferencedField().getName();
+                        leftFieldCondition.criterionFieldNames.clear();
+                        for (String alias : aliases) {
+                            if (fieldMetadata instanceof ReferenceFieldMetadata) {
+                                // ignored CompoundFieldMetadata
+                                if (!(((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata)) {
+                                    leftFieldCondition.criterionFieldNames.add(alias + '.'
+                                            + ((ReferenceFieldMetadata) fieldMetadata).getReferencedField().getName());
+                                }
+                            } else {
+                                leftFieldCondition.criterionFieldNames.add(alias + '.' + fieldMetadata.getName());
                             }
-                        } else {
-                            leftFieldCondition.criterionFieldName = alias + '.' + fieldMetadata.getName();
                         }
                     }
                 }
                 if (leftFieldCondition.isMany || rightFieldCondition.isMany) {
                     // This is what could be done with Hibernate 4 for searches that includes conditions on collections:
-                    // criteria = criteria.createCriteria(leftFieldCondition.criterionFieldName);
+                    // criteria = criteria.createCriteria(leftFieldCondition.criterionFieldNames);
                     // This is what is done on Hibernate 3.5.6
                     if (criteria instanceof CriteriaImpl) {
                         Iterator iterator = ((CriteriaImpl) criteria).iterateSubcriteria();
                         Criteria typeCheckCriteria = criteria;
                         while (iterator.hasNext()) {
                             Criteria subCriteria = (Criteria) iterator.next();
-                            if (alias.equals(subCriteria.getAlias())) {
+                            if (aliases.contains(subCriteria.getAlias())) {
                                 typeCheckCriteria = subCriteria;
                                 break;
                             }
@@ -804,8 +951,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     if (!(Boolean) compareValue) {
                         // Special case for boolean: when looking for 'false' value, consider null values as 'false'
                         // too.
-                        return or(eq(leftFieldCondition.criterionFieldName, compareValue),
-                                isNull(leftFieldCondition.criterionFieldName));
+                        Criterion current = null;
+                        for (String criterionFieldName : leftFieldCondition.criterionFieldNames) {
+                            if (current == null) {
+                                current = or(eq(criterionFieldName, compareValue),
+                                        isNull(criterionFieldName));
+                            } else {
+                                current = or(current, or(eq(criterionFieldName, compareValue),
+                                        isNull(criterionFieldName)));
+                            }
+                        }
+                        return current;
                     }
                 }
                 if (predicate == Predicate.EQUALS) {
@@ -816,19 +972,37 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         if (!(referencedField instanceof CompoundFieldMetadata)) {
                             throw new IllegalArgumentException("Expected field '" + referencedField + "' to be a composite key.");
                         }
-                        String alias = getAlias(fieldMetadata.getContainingType(), fieldMetadata);
-                        FieldMetadata[] fields = ((CompoundFieldMetadata) referencedField).getFields();
-                        Object[] keyValues = (Object[]) compareValue;
-                        Criterion[] keyValueCriteria = new Criterion[keyValues.length];
-                        int i = 0;
-                        for (FieldMetadata keyField : fields) {
-                            Object keyValue = MetadataUtils.convert(String.valueOf(keyValues[i]), keyField);
-                            keyValueCriteria[i] = eq(alias + "." + keyField.getName(), keyValue); //$NON-NLS-1$
-                            i++;
+                        Set<String> aliases = getAliases(mainType, leftField);
+                        Criterion current = null;
+                        for (String alias : aliases) {
+                            FieldMetadata[] fields = ((CompoundFieldMetadata) referencedField).getFields();
+                            Object[] keyValues = (Object[]) compareValue;
+                            Criterion[] keyValueCriteria = new Criterion[keyValues.length];
+                            int i = 0;
+                            for (FieldMetadata keyField : fields) {
+                                Object keyValue = MetadataUtils.convert(String.valueOf(keyValues[i]), keyField);
+                                keyValueCriteria[i] = eq(alias + '.' + keyField.getName(), keyValue);
+                                i++;
+                            }
+                            Criterion newCriterion = makeAnd(keyValueCriteria);
+                            if (current == null) {
+                                current = newCriterion;
+                            } else {
+                                current = or(newCriterion, current);
+                            }
                         }
-                        return makeAnd(keyValueCriteria);
+                        return current;
                     } else {
-                        return eq(leftFieldCondition.criterionFieldName, compareValue);
+                        Criterion current = null;
+                        for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                            Criterion newCriterion = eq(fieldName, compareValue);
+                            if (current == null) {
+                                current = newCriterion;
+                            } else {
+                                current = or(newCriterion, current);
+                            }
+                        }
+                        return current;
                     }
                 } else if (predicate == Predicate.CONTAINS) {
                     String value = String.valueOf(compareValue);
@@ -843,45 +1017,168 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         value = "%"; //$NON-NLS-1$
                     }
                     if (datasource.isCaseSensitiveSearch()) {
-                        return like(leftFieldCondition.criterionFieldName, value);
+                        Criterion current = null;
+                        for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                            Criterion newCriterion = like(fieldName, value);
+                            if (current == null) {
+                                current = newCriterion;
+                            } else {
+                                current = or(newCriterion, current);
+                            }
+                        }
+                        return current;
                     } else {
-                        return ilike(leftFieldCondition.criterionFieldName, value, MatchMode.ANYWHERE);
+                        Criterion current = null;
+                        for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                            Criterion newCriterion = ilike(fieldName, value, MatchMode.ANYWHERE);
+                            if (current == null) {
+                                current = newCriterion;
+                            } else {
+                                current = or(newCriterion, current);
+                            }
+                        }
+                        return current;
                     }
                 } else if (predicate == Predicate.STARTS_WITH) {
                     String value = compareValue + "%";
                     if (datasource.isCaseSensitiveSearch()) {
-                        return like(leftFieldCondition.criterionFieldName, value);
+                        Criterion current = null;
+                        for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                            Criterion newCriterion = like(fieldName, value);
+                            if (current == null) {
+                                current = newCriterion;
+                            } else {
+                                current = or(newCriterion, current);
+                            }
+                        }
+                        return current;
                     } else {
-                        return ilike(leftFieldCondition.criterionFieldName, String.valueOf(value), MatchMode.START);
+                        Criterion current = null;
+                        for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                            Criterion newCriterion = ilike(fieldName, value, MatchMode.START);
+                            if (current == null) {
+                                current = newCriterion;
+                            } else {
+                                current = or(newCriterion, current);
+                            }
+                        }
+                        return current;
                     }
                 } else if (predicate == Predicate.GREATER_THAN) {
-                    return gt(leftFieldCondition.criterionFieldName, compareValue);
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = gt(fieldName, compareValue);
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else if (predicate == Predicate.LOWER_THAN) {
-                    return lt(leftFieldCondition.criterionFieldName, compareValue);
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = lt(fieldName, compareValue);
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
-                    return ge(leftFieldCondition.criterionFieldName, compareValue);
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = ge(fieldName, compareValue);
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
-                    return le(leftFieldCondition.criterionFieldName, compareValue);
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = le(fieldName, compareValue);
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else {
                     throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
                 }
             } else { // Since we expect left part to be a field, this 'else' means we're comparing 2 fields
+                if (rightFieldCondition.criterionFieldNames.size() > 1) {
+                    throw new UnsupportedOperationException("Can't compare to multiple right fields (was " + rightFieldCondition.criterionFieldNames.size() + ").");
+                }
+                String rightValue = rightFieldCondition.criterionFieldNames.get(0);
                 if (predicate == Predicate.EQUALS) {
-                    return Restrictions.eqProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = Restrictions.eqProperty(fieldName, rightValue);
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else if (predicate == Predicate.GREATER_THAN) {
-                    return Restrictions.gtProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = Restrictions.gtProperty(fieldName, rightValue);
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else if (predicate == Predicate.LOWER_THAN) {
-                    return Restrictions.ltProperty(leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName);
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = Restrictions.ltProperty(fieldName, rightValue);
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else if (predicate == Predicate.GREATER_THAN_OR_EQUALS) {
                     // No GTE for properties, do it "manually"
-                    return or(Restrictions.gtProperty(leftFieldCondition.criterionFieldName,
-                            rightFieldCondition.criterionFieldName), Restrictions.eqProperty(
-                            leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = or(
+                                Restrictions.gtProperty(fieldName, rightValue),
+                                Restrictions.eqProperty(fieldName, rightValue)
+                        );
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
                     // No LTE for properties, do it "manually"
-                    return or(Restrictions.ltProperty(leftFieldCondition.criterionFieldName,
-                            rightFieldCondition.criterionFieldName), Restrictions.eqProperty(
-                            leftFieldCondition.criterionFieldName, rightFieldCondition.criterionFieldName));
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = or(
+                                Restrictions.ltProperty(fieldName, rightValue),
+                                Restrictions.eqProperty(fieldName, rightValue)
+                        );
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
                 } else {
                     throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
                 }
@@ -889,8 +1186,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
     }
 
-    public static Criteria findCriteria(Criteria mainCriteria, String alias) {
-        if (alias.equals(mainCriteria.getAlias())) {
+    public static Criteria findCriteria(Criteria mainCriteria, Set<String> aliases) {
+        if (aliases.contains(mainCriteria.getAlias())) {
             return mainCriteria;
         }
         if (mainCriteria instanceof CriteriaImpl) {
@@ -898,7 +1195,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             Iterator iterator = ((CriteriaImpl) mainCriteria).iterateSubcriteria();
             while (iterator.hasNext()) {
                 Criteria subCriteria = (Criteria) iterator.next();
-                if (alias.equals(subCriteria.getAlias())) {
+                if (aliases.contains(subCriteria.getAlias())) {
                     foundSubCriteria = subCriteria;
                     break;
                 }
@@ -927,7 +1224,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         private FieldCondition createInternalCondition(String fieldName) {
             FieldCondition condition = new FieldCondition();
-            condition.criterionFieldName = fieldName;
+            condition.criterionFieldNames.add(fieldName);
             condition.isMany = false;
             condition.isProperty = true;
             return condition;
@@ -937,7 +1234,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             FieldCondition condition = new FieldCondition();
             condition.isProperty = false;
             condition.isMany = false;
-            condition.criterionFieldName = StringUtils.EMPTY;
+            condition.criterionFieldNames.clear();
             return condition;
         }
 
@@ -1008,10 +1305,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
             FieldCondition condition = new FieldCondition();
             condition.isMany = field.getFieldMetadata().isMany();
             // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
-            // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
+            // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
-            condition.criterionFieldName = getFieldName(field);
+            condition.criterionFieldNames.add(getFieldName(field));
             condition.fieldMetadata = field.getFieldMetadata();
+            condition.field = field;
             condition.isProperty = true;
             return condition;
         }
@@ -1021,9 +1319,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
             FieldCondition condition = new FieldCondition();
             condition.isMany = indexedField.getFieldMetadata().isMany();
             // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
-            // condition.criterionFieldName = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
+            // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
-            condition.criterionFieldName = getFieldName(indexedField);
+            condition.criterionFieldNames.add(getFieldName(indexedField));
             condition.isProperty = true;
             condition.position = indexedField.getPosition();
             return condition;
@@ -1097,7 +1395,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         @Override
         public FieldCondition visit(ComplexTypeExpression expression) {
             FieldCondition fieldCondition = new FieldCondition();
-            fieldCondition.criterionFieldName = StringUtils.EMPTY;
+            fieldCondition.criterionFieldNames.clear();
             fieldCondition.isMany = false;
             fieldCondition.isProperty = true;
             return fieldCondition;
@@ -1108,7 +1406,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
             FieldCondition fieldCondition = new FieldCondition();
             Field field = type.getField();
             FieldMetadata fieldMetadata = field.getFieldMetadata();
-            fieldCondition.criterionFieldName = getAlias(fieldMetadata.getContainingType(), fieldMetadata) + ".class"; //$NON-NLS-1$
+            Set<String> aliases = getAliases(fieldMetadata.getContainingType(), field);
+            for (String alias : aliases) {
+                fieldCondition.criterionFieldNames.add(alias + ".class"); //$NON-NLS-1$
+            }
             fieldCondition.isMany = false;
             fieldCondition.isProperty = true;
             return fieldCondition;

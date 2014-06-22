@@ -101,7 +101,7 @@ class TestDataRecordCreator extends DefaultMetadataVisitor<DataRecord> {
                         return s;
                     }
                 } else {
-                    return "" + random.nextLong();
+                    return field.getPath();
                 }
             } else if ("integer".equals(type.getName())
                     || "positiveInteger".equals(type.getName())

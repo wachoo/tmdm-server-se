@@ -279,10 +279,7 @@ public class HibernateStorage implements Storage {
                                 continue;
                             }
                             // Go up the containment tree in case containing type is anonymous.
-                            ComplexTypeMetadata containingType = indexedField.getContainingType();
-                            while (containingType instanceof ContainedComplexTypeMetadata) {
-                                containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
-                            }
+                            ComplexTypeMetadata containingType = indexedField.getContainingType().getEntity();
                             TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
                             FieldMetadata databaseField = mapping.getDatabase(indexedField);
                             if (!isIndexable(databaseField.getType())) {
@@ -397,7 +394,7 @@ public class HibernateStorage implements Storage {
                 if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
                     properties.setProperty(Environment.DEFAULT_SCHEMA, dataSource.getUserName());
                 }
-                // Logs DDL *before* initialization in case initialization (useful for debugging).
+                // Logs DDL *before* initialization in case initialization fails (useful for debugging).
                 if (LOGGER.isTraceEnabled()) {
                     traceDDL();
                 }

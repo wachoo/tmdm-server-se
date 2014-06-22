@@ -29,6 +29,10 @@ public class BinaryLogicOperator implements Condition {
     public Expression normalize() {
         left = (Condition) left.normalize();
         right = (Condition) right.normalize();
+        // If left and right are same (cond1 OR cond1 = cond1 / cond1 AND cond1 = cond1), return one of the side
+        if (left.equals(right)) {
+            return left;
+        }
         // If right or left is a no op condition, simplify a bit the query.
         if (right == UserQueryHelper.NO_OP_CONDITION && left == UserQueryHelper.NO_OP_CONDITION) {
             return UserQueryHelper.NO_OP_CONDITION;

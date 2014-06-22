@@ -158,12 +158,12 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                                 } else if (fieldType instanceof ContainedComplexTypeMetadata) { // Reads xsi:type for actual contained type.
                                     Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type")); //$NON-NLS-1$
                                     if (actualType != null) {
-                                        TypeMetadata potentialActualType = repository.getNonInstantiableType(fieldType.getNamespace(), actualType.getValue());
-                                        if (potentialActualType != null) {
-                                            fieldType = potentialActualType;
-                                        } else {
-                                            if (LOGGER.isDebugEnabled()) {
-                                                LOGGER.debug("Ignoring xsi:type '" + actualType + "' because it is not a data model type.");
+                                        if (!actualType.getValue().equals(fieldType.getName())) {
+                                            for (ComplexTypeMetadata subType : ((ContainedComplexTypeMetadata) fieldType).getSubTypes()) {
+                                                if (actualType.getValue().equals(subType.getName())) {
+                                                    fieldType = subType;
+                                                    break;
+                                                }
                                             }
                                         }
                                     }

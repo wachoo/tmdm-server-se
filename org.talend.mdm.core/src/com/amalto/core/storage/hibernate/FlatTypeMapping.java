@@ -39,11 +39,11 @@ class FlatTypeMapping extends TypeMapping {
     }
 
     protected void map(FieldMetadata user, FieldMetadata database) {
-        if (isFrozen) {
-            throw new IllegalStateException("Mapping is frozen.");
-        }
-        userToDatabase.put(user.getDeclaringType().getName() + '_' + user.getName(), database);
-        databaseToUser.put(database.getDeclaringType().getName() + '_' + database.getName(), user);
+        // TODO Investigate why map gets called after mapping is frozen.
+        String userKey = user.getDeclaringType().getName() + '_' + user.getName();
+        String databaseKey = database.getDeclaringType().getName() + '_' + database.getName();
+        userToDatabase.put(userKey, database);
+        databaseToUser.put(databaseKey, user);
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {

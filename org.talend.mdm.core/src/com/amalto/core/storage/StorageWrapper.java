@@ -583,7 +583,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     private int getTypeItemCount(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) {        
-        StorageResults results = storage.fetch(buildQueryBuilder(from(type), criteria, type).getSelect());
+        StorageResults results = storage.fetch(buildQueryBuilder(from(type).selectId(type), criteria, type).getSelect());
         try {
             return results.getCount();
         } finally {

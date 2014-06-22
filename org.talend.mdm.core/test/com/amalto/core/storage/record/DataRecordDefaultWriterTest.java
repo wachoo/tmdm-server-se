@@ -27,7 +27,7 @@ public class DataRecordDefaultWriterTest extends TestCase {
     public void testWrite() throws IOException {
         String xml = "<referenceField>[111][222][444]</referenceField>"; //$NON-NLS-1$
 
-        FieldMetadata fieldMetadata = new ReferenceFieldMetadata(null, true, false, true, "referenceField", null, null, Collections.<FieldMetadata>emptyList(), true, true, null, null, null, null, null); //$NON-NLS-1$
+        FieldMetadata fieldMetadata = new ReferenceFieldMetadata(null, true, false, true, "referenceField", null, null, Collections.<FieldMetadata>emptyList(), true, true, null, null, null, null); //$NON-NLS-1$
         DataRecord record = new DataRecord(null, null);
         Object[] values = new Object[3];
         values[0] = "111"; //$NON-NLS-1$

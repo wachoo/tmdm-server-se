@@ -22,6 +22,8 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
 
     private MetadataRepository userRepository;
 
+    private final MappingCreatorContext scatteredContext = new StatefulContext();
+
     final TypeMappingStrategy strategy;
 
     MappingRepository mappings;
@@ -45,9 +47,6 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
         mappings = new MappingRepository();
         internalRepository = new MetadataRepository();
         for (TypeMetadata type : repository.getUserComplexTypes()) {
-            type.accept(this);
-        }
-        for (TypeMetadata type : repository.getNonInstantiableTypes()) {
             type.accept(this);
         }
         for (TypeMapping typeMapping : mappings.getAllTypeMappings()) {
@@ -83,6 +82,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
                 }
                 return new ScatteredMappingCreator(internalRepository,
                         mappings,
+                        scatteredContext,
                         strategy.preferClobUse(),
                         strategy.useTechnicalFk());
             default:
@@ -97,7 +97,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
     }
 
     public MetadataRepository visit(SimpleTypeMetadata simpleType) {
-        internalRepository.addTypeMetadata(simpleType.copy(internalRepository));
+        internalRepository.addTypeMetadata(simpleType.copy());
         return internalRepository;
     }
 
@@ -172,7 +172,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
 
         @Override
         public TypeMappingStrategy visit(ContainedTypeFieldMetadata containedField) {
-            ContainedComplexTypeMetadata containedType = containedField.getContainedType();
+            ComplexTypeMetadata containedType = containedField.getContainedType();
             if (containedField.isMany()
                     || !containedType.getSubTypes().isEmpty()
                     || !containedType.getName().startsWith(MetadataRepository.ANONYMOUS_PREFIX)) {

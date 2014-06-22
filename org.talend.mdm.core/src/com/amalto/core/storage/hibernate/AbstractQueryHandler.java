@@ -74,10 +74,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
     String getFieldName(FieldMetadata fieldMetadata, boolean includeTypeName, boolean resolveReferencedField) {
         // Move up to the first complex type (contained type do not have any mapping).
-        TypeMetadata containingType = fieldMetadata.getContainingType();
-        while (containingType != null && containingType instanceof ContainedComplexTypeMetadata) {
-            containingType = ((ContainedComplexTypeMetadata) containingType).getContainerType();
-        }
+        TypeMetadata containingType = fieldMetadata.getContainingType().getEntity();
         if (containingType == null) {
             throw new IllegalStateException("Could not find containing type mapping for field '" + fieldMetadata.getName() + "'.");
         }
@@ -234,9 +231,11 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
         boolean isMany;
 
-        String criterionFieldName;
+        List<String> criterionFieldNames = new LinkedList<String>();
 
         FieldMetadata fieldMetadata;
+
+        Field field;
 
         boolean isProperty;
 

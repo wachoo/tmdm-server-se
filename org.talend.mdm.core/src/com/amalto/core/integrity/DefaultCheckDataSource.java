@@ -15,23 +15,20 @@ package com.amalto.core.integrity;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.*;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.amalto.core.integrity.FKIntegrityCheckResult.*;
 
@@ -67,30 +64,53 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
 
     public long countInboundReferences(String clusterName, String[] ids, String fromTypeName, ReferenceFieldMetadata fromReference)
             throws XtentisException {
-
         // For the anonymous type and leave the type name empty
-        if (fromTypeName == null || fromTypeName.trim().equals("")) //$NON-NLS-1$
+        if (fromTypeName == null || fromTypeName.trim().equals("")) { //$NON-NLS-1$
             return 0;
-
+        }
         // Transform ids into the string format expected in base
         StringBuilder referencedId = new StringBuilder(); //$NON-NLS-1$
         for (String id : ids) {
             referencedId.append('[').append(id).append(']');
         }
-
         LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
         conceptPatternsToClusterName.put(".*", clusterName); //$NON-NLS-1$
-
-        String leftPath = fromReference.getEntityTypeName() + '/' + fromReference.getPath();
-        IWhereItem whereItem = new WhereCondition(leftPath,
-                WhereCondition.EQUALS,
-                referencedId.toString(),
-                WhereCondition.NO_OPERATOR);
-
-        return Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap(),
-                conceptPatternsToClusterName,
-                fromTypeName,
-                whereItem);
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        Storage storage = storageAdmin.get(clusterName, null);
+        if (storage != null) {
+            MetadataRepository repository = storage.getMetadataRepository();
+            ComplexTypeMetadata complexType = repository.getComplexType(fromTypeName);
+            Set<List<FieldMetadata>> paths = MetadataUtils.paths(complexType, fromReference);
+            long inboundReferenceCount = 0;
+            for (List<FieldMetadata> path : paths) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(complexType.getName()).append('/');
+                for (FieldMetadata fieldMetadata : path) {
+                    builder.append(fieldMetadata.getName()).append('/');
+                }
+                String leftPath = builder.toString();
+                IWhereItem whereItem = new WhereCondition(leftPath,
+                        WhereCondition.EQUALS,
+                        referencedId.toString(),
+                        WhereCondition.NO_OPERATOR);
+                inboundReferenceCount += Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap<String, String>(),
+                        conceptPatternsToClusterName,
+                        fromTypeName,
+                        whereItem);
+            }
+            return inboundReferenceCount;
+        } else {
+            // For XML based storage
+            String leftPath = fromReference.getEntityTypeName() + '/' + fromReference.getPath();
+            IWhereItem whereItem = new WhereCondition(leftPath,
+                    WhereCondition.EQUALS,
+                    referencedId.toString(),
+                    WhereCondition.NO_OPERATOR);
+            return Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap<String, String>(),
+                    conceptPatternsToClusterName,
+                    fromTypeName,
+                    whereItem);
+        }
     }
 
     public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModel) throws XtentisException {

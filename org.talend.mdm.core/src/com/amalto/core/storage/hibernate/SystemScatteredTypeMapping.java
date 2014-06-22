@@ -16,7 +16,6 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.collection.PersistentList;
 import org.hibernate.engine.CollectionEntry;
@@ -31,15 +30,13 @@ import java.util.*;
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
  */
-class ScatteredTypeMapping extends TypeMapping {
-
-    private static final Logger LOGGER = Logger.getLogger(ScatteredTypeMapping.class);
+class SystemScatteredTypeMapping extends TypeMapping {
 
     private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
 
-    private Map<FieldMetadata, FieldMetadata> databaseToUser = new HashMap<FieldMetadata, FieldMetadata>();
+    private Map<String, FieldMetadata> databaseToUser = new HashMap<String, FieldMetadata>();
 
-    public ScatteredTypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
+    public SystemScatteredTypeMapping(ComplexTypeMetadata user, MappingRepository mappings) {
         super(user, mappings);
     }
 
@@ -49,10 +46,23 @@ class ScatteredTypeMapping extends TypeMapping {
 
     Object _setValues(Session session, DataRecord from, Wrapper to) {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        for (FieldMetadata field : from.getType().getFields()) {
-            FieldMetadata mappedDatabaseField = getDatabase(field);
+        TypeMapping mapping = mappings.getMappingFromUser(from.getType());
+        Collection<FieldMetadata> fields;
+        if (mapping != null) {
+            fields = mapping.getUser().getFields();
+        } else {
+            fields = from.getType().getFields();
+        }
+        for (FieldMetadata field : fields) {
+            FieldMetadata mappedDatabaseField;
+            if (mapping != null) {
+                mappedDatabaseField = mapping.getDatabase(field);
+            } else {
+                mappedDatabaseField = getDatabase(field);
+            }
             if (mappedDatabaseField == null) {
-                throw new IllegalStateException("Field '" + field.getName() + "' was expected to have a database mapping");
+                continue;
+                // throw new IllegalStateException("Field '" + field.getName() + "' was expected to have a database mapping");
             }
             if (field instanceof ContainedTypeFieldMetadata) {
                 if (!(mappedDatabaseField instanceof ReferenceFieldMetadata)) {
@@ -80,7 +90,12 @@ class ScatteredTypeMapping extends TypeMapping {
                     }
                 } else {
                     List<DataRecord> dataRecords = (List<DataRecord>) readValue(from, field, mappedDatabaseField, session);
-                    Object value = to.get(getDatabase(field).getName());
+                    Object value;
+                    if (mapping != null) {
+                        value = to.get(mapping.getDatabase(field).getName());
+                    } else {
+                        value = to.get(getDatabase(field).getName());
+                    }
                     if (dataRecords != null) {
                         List<Wrapper> existingValue = (List<Wrapper>) value;
                         if (existingValue != null) {
@@ -405,28 +420,19 @@ class ScatteredTypeMapping extends TypeMapping {
     }
 
     protected void map(FieldMetadata user, FieldMetadata database) {
-        ComplexTypeMetadata containingType = database.getContainingType();
-        TypeMetadata declaringType = database.getDeclaringType();
-        if (!containingType.isInstantiable() && !containingType.equals(declaringType)) {
-            return;
-        }
         if (isFrozen) {
             throw new IllegalStateException("Mapping is frozen.");
         }
-        String userFullPath = user.getEntityTypeName() + '/' + user.getPath();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Map '" + userFullPath + "' to '" + database.getEntityTypeName() + '/' + database.getPath());
-        }
-        userToDatabase.put(userFullPath, database);
-        databaseToUser.put(database, user);
+        userToDatabase.put(user.getContainingType().getName() + '_' + user.getName(), database);
+        databaseToUser.put(database.getContainingType().getName() + '_' + database.getName(), user);
     }
 
     public FieldMetadata getDatabase(FieldMetadata from) {
-        return userToDatabase.get(from.getEntityTypeName() + '/' + from.getPath());
+        return userToDatabase.get(from.getContainingType().getName() + '_' + from.getName());
     }
 
     public FieldMetadata getUser(FieldMetadata to) {
-        return databaseToUser.get(to);
+        return databaseToUser.get(to.getContainingType().getName() + '_' + to.getName());
     }
 
     /**
@@ -440,16 +446,16 @@ class ScatteredTypeMapping extends TypeMapping {
             database.freeze();
             user.freeze();
             // Freeze field mappings.
-            Map<String, FieldMetadata> frozenUser = new HashMap<String, FieldMetadata>();
+            Map<String, FieldMetadata> frozen = new HashMap<String, FieldMetadata>();
             for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
-                frozenUser.put(entry.getKey(), entry.getValue().freeze());
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
-            userToDatabase = frozenUser;
-            Map<FieldMetadata, FieldMetadata> frozenDatabase = new HashMap<FieldMetadata, FieldMetadata>();
-            for (Map.Entry<FieldMetadata, FieldMetadata> entry : databaseToUser.entrySet()) {
-                frozenDatabase.put(entry.getKey().freeze(), entry.getValue().freeze());
+            userToDatabase = frozen;
+            frozen = new HashMap<String, FieldMetadata>();
+            for (Map.Entry<String, FieldMetadata> entry : databaseToUser.entrySet()) {
+                frozen.put(entry.getKey(), entry.getValue().freeze());
             }
-            databaseToUser = frozenDatabase;
+            databaseToUser = frozen;
             isFrozen = true;
         }
     }

@@ -60,10 +60,10 @@ public class ClassRepository extends MetadataRepository {
         // Create a type for MAPs
         ComplexTypeMetadata internalMapType = new ComplexTypeMetadataImpl(getUserNamespace(), MAP_TYPE_NAME, false);
         SimpleTypeMetadata embeddedXml = new SimpleTypeMetadata(StringUtils.EMPTY, EMBEDDED_XML);
-        embeddedXml.addSuperType(STRING, this);
+        embeddedXml.addSuperType(STRING);
         embeddedXml.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(Integer.MAX_VALUE));
-        internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "key", STRING, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY)); //$NON-NLS-1$
-        internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "value", embeddedXml, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY)); //$NON-NLS-1$
+        internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "key", STRING, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
+        internalMapType.addField(new SimpleTypeFieldMetadata(internalMapType, false, false, false, "value", embeddedXml, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList())); //$NON-NLS-1$
         MAP_TYPE = (ComplexTypeMetadata) internalMapType.freeze();
         addTypeMetadata(MAP_TYPE);
         // Register known subclasses
@@ -80,9 +80,15 @@ public class ClassRepository extends MetadataRepository {
         for (Class clazz : classes) {
             loadClass(clazz);
         }
-        // Freeze (and validate) types
+        // Freeze types
         for (TypeMetadata typeMetadata : getTypes()) {
             typeMetadata.freeze();
+        }
+        // Freeze usages
+        for (TypeMetadata typeMetadata : getTypes()) {
+            if (typeMetadata instanceof ComplexTypeMetadata) {
+                ((ComplexTypeMetadata) typeMetadata).freezeUsages();
+            }
         }
     }
 
@@ -118,8 +124,7 @@ public class ClassRepository extends MetadataRepository {
                     STRING,
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList(),
-                    StringUtils.EMPTY);
+                    Collections.<String>emptyList());
             keyField.setData(LINK, "PK/unique-id"); //$NON-NLS-1$
             classType.addField(keyField);
         } else if (isEntity && ServiceBean.class.isAssignableFrom(clazz)) {
@@ -137,7 +142,7 @@ public class ClassRepository extends MetadataRepository {
             for (Class subClass : subClasses) {
                 TypeMetadata typeMetadata = loadClass(subClass);
                 typeMetadata.setInstantiable(superType.isInstantiable());
-                typeMetadata.addSuperType(superType, this);
+                typeMetadata.addSuperType(superType);
             }
             if (superType.isInstantiable()) {
                 typeStack.push(superType);
@@ -173,7 +178,7 @@ public class ClassRepository extends MetadataRepository {
                         continue;
                     } else if (Class.class.equals(returnType)) {
                         continue;
-                    } else if (returnType.getPackage() != null && returnType.getPackage().getName().startsWith("java.io")) {
+                    } else if (returnType.getPackage() != null && returnType.getPackage().getName().startsWith("java.io")) { //$NON-NLS-1$
                         continue;
                     }
                     if (returnType.isPrimitive() || returnType.getName().startsWith(JAVA_LANG_PREFIX)) {
@@ -195,8 +200,7 @@ public class ClassRepository extends MetadataRepository {
                                 fieldType,
                                 Collections.<String>emptyList(),
                                 Collections.<String>emptyList(),
-                                Collections.<String>emptyList(),
-                                StringUtils.EMPTY);
+                                Collections.<String>emptyList());
                         LongString annotation = declaredMethod.getAnnotation(LongString.class);
                         if (Types.STRING.equals(fieldTypeName) && annotation != null) {
                             fieldType.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(Integer.MAX_VALUE));
@@ -213,15 +217,13 @@ public class ClassRepository extends MetadataRepository {
                                     isMany,
                                     false,
                                     fieldName,
-                                    new ContainedComplexTypeRef(
-                                            typeStack.peek(),
+                                    new SoftTypeRef(this,
                                             StringUtils.EMPTY,
                                             fieldType.getName(),
-                                            fieldType),
+                                            false),
                                     Collections.<String>emptyList(),
                                     Collections.<String>emptyList(),
-                                    Collections.<String>emptyList(),
-                                    StringUtils.EMPTY);
+                                    Collections.<String>emptyList());
                         } else {
                             newField = new ReferenceFieldMetadata(typeStack.peek(),
                                     false,
@@ -236,8 +238,7 @@ public class ClassRepository extends MetadataRepository {
                                     STRING,
                                     Collections.<String>emptyList(),
                                     Collections.<String>emptyList(),
-                                    Collections.<String>emptyList(),
-                                    StringUtils.EMPTY);
+                                    Collections.<String>emptyList());
                         }
                     }
                     typeStack.peek().addField(newField);
@@ -253,8 +254,7 @@ public class ClassRepository extends MetadataRepository {
                 new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 Collections.<String>emptyList(),
                 Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                StringUtils.EMPTY));
+                Collections.<String>emptyList()));
         
         return typeStack.pop();
     }
@@ -313,13 +313,13 @@ public class ClassRepository extends MetadataRepository {
     }
 
     private static boolean isBooleanGetter(Method declaredMethod) {
-        return declaredMethod.getName().startsWith(BOOLEAN_PREFIX)
-                && declaredMethod.getName().length() > BOOLEAN_PREFIX.length();
+        String name = declaredMethod.getName();
+        return name.startsWith(BOOLEAN_PREFIX) && name.length() > BOOLEAN_PREFIX.length();
     }
 
     private static boolean isGetter(Method declaredMethod) {
-        return declaredMethod.getName().startsWith(GETTER_PREFIX)
-                && declaredMethod.getName().length() > GETTER_PREFIX.length();
+        String name = declaredMethod.getName();
+        return name.startsWith(GETTER_PREFIX) && name.length() > GETTER_PREFIX.length();
     }
 
     private static Class<?> getListItemClass(Method declaredMethod, Class<?> returnType) {
