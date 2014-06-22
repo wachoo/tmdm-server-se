@@ -1,0 +1,42 @@
+.header1 {
+    background-color: black;
+    background-image: url(./fond_gris.png);
+}
+
+.header2 {
+    background-color: white;
+    background-image: url(./fond_bleu.png);
+    background-repeat: repeat-x;
+    height: 31px;
+}
+
+.logo {
+    vertical-align: top;
+}
+
+.version, .suiteName, .appName {
+    font-family: Verdana,Sans-serif;
+    font-size: 16px;
+    color: white;
+}
+
+.version {
+    text-align: right;
+    vertical-align: top;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.suiteName {
+    font-size: 26px;
+    text-align: center;
+    color: #BBBBBB;
+    vertical-align: middle;
+}
+
+.appName {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+}

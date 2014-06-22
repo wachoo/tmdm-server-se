@@ -1,0 +1,63 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">  
+  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>  
+  <xsd:element name="Test"> 
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="oem" type="OEM_Type"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Visible_Rule">fn:matches(../name,"test")</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>  
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Test"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="OEM_Type"> 
+    <xsd:all> 
+      <xsd:element maxOccurs="1" minOccurs="0" name="oem_type" type="oem_type"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="a" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Visible_Rule">fn:starts-with(../oem_type,"a")</xsd:appinfo>  
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="b" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Visible_Rule">fn:starts-with(../oem_type,"b")</xsd:appinfo>  
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="c" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Visible_Rule">fn:starts-with(../oem_type,"c")</xsd:appinfo>  
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:all> 
+  </xsd:complexType> 
+    <xsd:simpleType name="oem_type"> 
+    <xsd:restriction base="xsd:string"> 
+      <xsd:enumeration value="a"/>  
+      <xsd:enumeration value="b"/>  
+      <xsd:enumeration value="c"/> 
+    </xsd:restriction> 
+  </xsd:simpleType>  
+</xsd:schema>

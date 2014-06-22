@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<Personne xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <IdMDM>8</IdMDM>
+    <IdVINCI>00000059</IdVINCI>
+    <Photo/>
+    <TypePersonneFk>[1]</TypePersonneFk>
+    <StatutPersonneFk>[8]</StatutPersonneFk>
+    <NomUsuel>TEST</NomUsuel>
+    <NomNaissance>TEST</NomNaissance>
+    <PrenomUsuel>TEST</PrenomUsuel>
+    <PrenomNaissance>TEST</PrenomNaissance>
+    <DateNaissance>1976-08-01</DateNaissance>
+    <DateEntreeGroupe>2005-08-01</DateEntreeGroupe>
+    <Contextes>
+        <Contexte>
+            <IdContexte>31506f84-0c35-4c85-a728-c335cb11e745</IdContexte>
+            <SourceFk>[10]</SourceFk>
+            <TypeContexteFk>[1]</TypeContexteFk>
+            <StatutContexteFk>[1]</StatutContexteFk>
+            <OrganisationFk>[0000]</OrganisationFk>
+            <Fonction/>
+            <Service/>
+            <Contacts>
+                <Contact>
+                    <StatutContactFk>[1]</StatutContactFk>
+                    <SpecialisationContactType xsi:type="SpecialisationContactEmail">
+                        <NatureEmailFk>[2]</NatureEmailFk>
+                        <Email>TEST2@eurovia.de</Email>
+                    </SpecialisationContactType>
+                </Contact>
+            </Contacts>
+        </Contexte>
+    </Contextes>
+</Personne>

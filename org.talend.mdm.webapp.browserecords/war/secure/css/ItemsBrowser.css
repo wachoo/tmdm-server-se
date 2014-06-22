@@ -1,0 +1,181 @@
+/*
+ *Thank you M. Jack Slocum.
+ */
+
+/***************************************************************************************
+  TREE
+****************************************************************************************/
+.leaf{background-image:url(/xtentismdm/secure/img/genericUI/leaf.gif);
+    background-repeat:no-repeat;
+    background-position:top left;
+    padding-left:15px}
+
+/***************************************************************************************
+  Buttons
+****************************************************************************************/
+.item_bt_save {
+    background-image: url(../img/save.png) !important;
+}
+
+.item_bt_refresh {
+    background-image: url(../img/refresh.png) !important;
+}
+
+.item_bt_process {
+    background-image: url(../img/launch_process.png) !important;
+}
+
+.item_bt_saveAndQ {
+    background-image: url(../img/save_and_close.png) !important;
+}
+
+.item_bt_sendTrash {
+    background-image: url(../img/send_to_trash.png) !important;
+}
+
+.item_bt_duplicate {
+    background-image: url(../img/duplicate.png) !important;
+}
+
+.item_bt_journal {
+    background-image: url(../img/journal.png) !important;
+}
+
+.item_bt_task {
+    background-image: url(../img/task.png) !important;
+}
+
+.item_bt_relations {
+    background-image: url(../img/relations.png) !important;
+}
+
+.item_bt_delete {
+    background-image: url(../img/delete.png) !important;
+}
+
+.x-tbar-done{
+    background-image: url(../img/refreshToolbar.gif) !important;
+}
+
+
+/***************************************************************************************
+  SPECIFIC
+****************************************************************************************/
+
+.inputLabel {
+  width: 200px;
+  float: left;
+  overflow: hidden;
+}
+
+.itemTree {
+  font-size:12px;
+}
+
+.errorValue
+{
+  border: 1pt solid red;
+  background-color: #FFF2EC;
+  font: 12px tahoma,verdana,helvetica;
+}
+
+.inputTree,
+.inputTreeREADONLY,
+.inputTreeForeignKey,
+.selectTree, 
+.selectTreeREADONLY,
+.textAreaTree,
+.textAreaTreeREADONLY {
+  font: 12px tahoma,verdana,helvetica;
+  border: 1px solid #787878;
+}
+
+
+
+.inputTree,
+.errorValue,
+.inputTreeREADONLY,
+.inputTreeForeignKey,
+.selectTree, 
+.selectTreeREADONLY {
+  height: 20px;
+}
+
+.inputTree,
+.errorValue,
+.inputTreeREADONLY,
+.inputTreeForeignKey,
+.textAreaTree,
+.textAreaTreeREADONLY {
+  padding: 2px 2px 2px 2px;
+  width: 360px;
+}
+
+.inputTree,
+.errorValue,
+.inputTreeREADONLY,
+.inputTreeForeignKey {
+  overflow: hidden;
+}
+
+.selectTree {
+  background-color: #FFFFFF;
+}
+
+.selectTreeREADONLY,
+.inputTreeREADONLY,
+.inputTreeForeignKey,
+.textAreaTreeREADONLY {
+  color:#777777;
+  background-color: #F4F4F4;
+}
+
+.detailOpened{background-image:url(/xtentismdm/secure/img/close-detail2.gif);}
+
+.detailClosed{background-image:url(/xtentismdm/secure/img/open-detail2.gif);}
+
+.detailLabel{color:787878;font: 13px tahoma, verdana, helvetica;}
+
+.gridGenericUI{font-family:tahoma,verdana;}
+
+.dotted-line {
+  display: none;
+  height: 0px;
+}
+
+.left{float:left;text-align:left;width:150px;}
+.leftField{float:left;text-align:left;left:20px;font-family:Verdana,Arial,Helvetica,sans-serif;}
+.right{float:right;}
+.buttonRightBottom{float:right;bottom:20px;right:20px}
+
+.ygtvitem {
+  margin-top: 4px;
+}
+
+.ygtvhtml div { 
+  /*float: none!important*/;
+  font-weight: bold;
+  font-size: 12px;
+  color: #7D7B7B;
+}
+
+.ygtvtn,
+.ygtvln,
+.ygtvdepthcell {
+  background: none;
+}
+
+.ygtvlm,
+.ygtvlmh,
+.ygtvtm,
+.ygtvtmh {
+  background:url(../img/expand.png) no-repeat center;
+}
+
+.ygtvlp,
+.ygtvlph,
+.ygtvtp,
+.ygtvtph {
+  background:url(../img/collapse.png) no-repeat center;
+}
+

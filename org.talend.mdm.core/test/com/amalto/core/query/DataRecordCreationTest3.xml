@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ii>
+    <c>RTE</c>
+    <n>RTE</n>
+    <dmn>Contrat</dmn>
+    <i>1</i>
+    <t>1328544306381</t>
+    <taskId/>
+    <p>
+        <Contrat xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <numeroContrat>1</numeroContrat>
+            <numeroContratExterne>1</numeroContratExterne>
+            <detailContrat xsi:type="AP-AA"></detailContrat>
+        </Contrat>
+    </p>
+</ii>

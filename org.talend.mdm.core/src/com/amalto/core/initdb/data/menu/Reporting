@@ -1,0 +1,24 @@
+<menu-pOJO>
+    <menu-entries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO">
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">en</key>
+            <value xsi:type="java:java.lang.String">Reports</value>
+        </descriptions>
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">fr</key>
+            <value xsi:type="java:java.lang.String">Rapports</value>
+        </descriptions>
+        <application>Reporting</application>
+        <context>reporting</context>
+        <id>Reporting</id>
+    </menu-entries>
+    <name>Reporting</name>
+    <description>Create/export reporting on any entity</description>
+    <PK>
+        <ids>Reporting</ids>
+        <unique-id>Reporting</unique-id>
+    </PK>
+    <last-synch>test</last-synch>
+    <last-error/>
+    <digest>82ddd5755426afd29eb91598c8dd1068</digest>
+</menu-pOJO>

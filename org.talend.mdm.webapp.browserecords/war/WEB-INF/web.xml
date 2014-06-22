@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+<!-- Servlets -->
+
+    <servlet>
+        <servlet-name>dwr-invoker</servlet-name>
+        <display-name>DWR Servlet</display-name>
+        <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>browserecordsServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>baseRemoteServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.base.server.BaseRemoteServiceImpl</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>exportExcelFile</servlet-name>
+        <display-name>exportExcelFile</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.DownloadData</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>exportExcelFile4Staging</servlet-name>
+        <display-name>exportExcelFile4Staging</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecordsinstaging.server.servlet.DownloadData4Staging</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>readExcelFile</servlet-name>
+        <display-name>readExcelFile</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.UploadData</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>readExcelFile4Staging</servlet-name>
+        <display-name>readExcelFile4Staging</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecordsinstaging.server.servlet.UploadData4Staging</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>SmartViewServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.SmartViewServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/secure/dwr/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>browserecordsServlet</servlet-name>
+        <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>browserecordsServlet</servlet-name>
+        <url-pattern>/browserecordsinstaging/BrowseRecordsService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>baseRemoteServlet</servlet-name>
+        <url-pattern>/browserecords/BaseRemoteService</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>readExcelFile</servlet-name>
+        <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+    
+   <servlet-mapping>
+        <servlet-name>readExcelFile4Staging</servlet-name>
+        <url-pattern>/upload4Staging</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>exportExcelFile</servlet-name>
+        <url-pattern>/download</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>exportExcelFile4Staging</servlet-name>
+        <url-pattern>/download4Staging</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>SmartViewServlet</servlet-name>
+        <url-pattern>/secure/SmartViewServlet</url-pattern>
+    </servlet-mapping>
+    <!-- Default page to serve -->
+    <welcome-file-list>
+        <welcome-file>BrowseRecords.html</welcome-file>
+    </welcome-file-list>
+
+    <!-- Security -->
+    @{dev.mode.excluded.start}
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Secure resources</web-resource-name>
+            <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
+            <url-pattern>/upload</url-pattern>
+            <url-pattern>/download</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>Main page resource</web-resource-name>
+            <url-pattern>/BrowseRecords.html</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>WEB-INF</web-resource-name>
+            <url-pattern>/WEB-INF/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>administration</role-name>
+            <role-name>authenticated</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>xtentisSecurity</realm-name>
+        <form-login-config>
+            <form-login-page>/loginAgent.html</form-login-page>
+            <form-error-page>/loginAgent.html</form-error-page>
+        </form-login-config>
+    </login-config>
+
+    <security-role>
+        <role-name>administration</role-name>
+    </security-role>
+    <security-role>
+        <role-name>authenticated</role-name>
+    </security-role>
+    @{dev.mode.excluded.end}
+
+</web-app>

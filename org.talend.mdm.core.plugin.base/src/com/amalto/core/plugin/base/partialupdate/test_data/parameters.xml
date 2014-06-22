@@ -1,0 +1,19 @@
+<parameters>
+    <pivot>Fournisseur/ListeClients/ClientSAFRAN</pivot>
+    <overwrite>true</overwrite>
+    <keyXPath>./Nom</keyXPath>
+    <startingPosition>1</startingPosition>
+    <dataCluster>SAFRAN</dataCluster>
+    <dataModel>SAFRAN</dataModel>
+</parameters>
+
+<!-- 
+
+Run files in this Order
+
+    Ajout-Client-a-Fournisseur-SAFRAN.xml               Added
+    Ajout-Client-a-Fournisseur-SAFRAN-2.xml            Added to the end (position 1)
+    Ajout-Client-a-Fournisseur-SAFRAN-1.xml            Added before 2 (position 1)
+    Modification-Client-a-Fournisseur-SAFRAN-1.xml  Modifies Contact/Nom in 1
+
+ -->

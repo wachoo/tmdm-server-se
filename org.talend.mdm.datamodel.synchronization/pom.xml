@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base</artifactId>
+        <version>5.5-SNAPSHOT</version>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.talend.mdm.datamodel.synchronization</artifactId>
+    <name>org.talend.mdm.datamodel.synchronization</name>
+
+    <properties>
+        <lib>zz.30.mdm.topic.datamodelsynchronization</lib>
+    </properties>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/**.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.deploy.dir}/${lib}.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                    tofile="${jboss.deploy.dir}/${lib}.jar" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <!-- 3rd party dependencies -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-j2ee</artifactId>
+        </dependency>
+
+        <!-- MDM dependencies -->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commmon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commons.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+            <classifier>ejbs</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.core</artifactId>
+            <classifier>lib</classifier>
+        </dependency>
+
+    </dependencies>
+
+</project>

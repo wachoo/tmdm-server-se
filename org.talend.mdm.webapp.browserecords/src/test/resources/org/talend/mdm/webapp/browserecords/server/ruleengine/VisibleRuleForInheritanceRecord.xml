@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisibleRuleForInheritance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<subelement>111</subelement>
+	<name>qq</name>
+	<testfield>qq</testfield>
+	<person xsi:type="Person">
+		<name>zhang</name>
+	</person>
+</VisibleRuleForInheritance>

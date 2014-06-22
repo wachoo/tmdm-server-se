@@ -1,0 +1,126 @@
+<data-model-pOJO>
+    <name>Reporting</name>
+    <schema>&lt;xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" blockDefault="" elementFormDefault="unqualified" finalDefault=""&gt;
+	&lt;xsd:element abstract="false" name="Reporting" nillable="false" type="ReportingType"&gt;
+		&lt;xsd:unique name="Reporting"&gt;
+			&lt;xsd:selector xpath="."/&gt;
+			&lt;xsd:field xpath="ReportingName"/&gt;
+		&lt;/xsd:unique&gt;
+	&lt;/xsd:element&gt;
+	&lt;xsd:element abstract="false" name="hierarchical-report" nillable="false" type="hierarchical-reportType"&gt;
+		&lt;xsd:unique name="hierarchical-report"&gt;
+			&lt;xsd:selector xpath="."/&gt;
+			&lt;xsd:field xpath="report-name"/&gt;
+		&lt;/xsd:unique&gt;
+	&lt;/xsd:element&gt;
+	&lt;xsd:complexType abstract="false" mixed="false" name="hierarchical-reportType"&gt;
+		&lt;xsd:all maxOccurs="1" minOccurs="1"&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="report-name" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="title-field-path" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="owner" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="filters" nillable="false"&gt;
+				&lt;xsd:complexType mixed="false"&gt;
+					&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+						&lt;xsd:element maxOccurs="unbounded" minOccurs="0" name="filter-items" nillable="false"&gt;
+							&lt;xsd:complexType mixed="false"&gt;
+								&lt;xsd:all maxOccurs="1" minOccurs="1"&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="operator" nillable="false" type="xsd:string"/&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="0" name="field-label" nillable="false" type="xsd:string"/&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="field-path" nillable="false" type="xsd:string"/&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="value" nillable="false" type="xsd:string"/&gt;
+								&lt;/xsd:all&gt;
+							&lt;/xsd:complexType&gt;
+						&lt;/xsd:element&gt;
+					&lt;/xsd:sequence&gt;
+				&lt;/xsd:complexType&gt;
+			&lt;/xsd:element&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="shared" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="limit" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="index-directions-expr" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="pivot-directions-expr" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="data-model" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="data-object-name" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="data-cluster" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="pivot-path" nillable="false" type="xsd:string"/&gt;
+		&lt;/xsd:all&gt;
+	&lt;/xsd:complexType&gt;
+	&lt;xsd:complexType abstract="false" mixed="false" name="ReportingType"&gt;
+		&lt;xsd:all maxOccurs="1" minOccurs="1"&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="ReportingName" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="Concept" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="Cluster" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="Format" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="Owner" nillable="false" type="xsd:string"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="Shared" nillable="false" type="xsd:boolean"/&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="Pivot" nillable="false"&gt;
+				&lt;xsd:complexType mixed="false"&gt;
+					&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+						&lt;xsd:element maxOccurs="1" minOccurs="0" name="Field" nillable="false" type="xsd:string"/&gt;
+						&lt;xsd:element maxOccurs="1" minOccurs="0" name="XPath" nillable="false" type="xsd:string"/&gt;
+					&lt;/xsd:sequence&gt;
+				&lt;/xsd:complexType&gt;
+			&lt;/xsd:element&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="StoredProcedure" nillable="false"&gt;
+				&lt;xsd:complexType mixed="false"&gt;
+					&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+						&lt;xsd:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xsd:string"/&gt;
+						&lt;xsd:element maxOccurs="1" minOccurs="0" name="ListOfParameters" nillable="false"&gt;
+							&lt;xsd:complexType mixed="false"&gt;
+								&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+									&lt;xsd:element maxOccurs="unbounded" minOccurs="0" name="Parameter" nillable="false"&gt;
+										&lt;xsd:complexType mixed="false"&gt;
+											&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+												&lt;xsd:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xsd:string"/&gt;
+												&lt;xsd:element maxOccurs="1" minOccurs="1" name="Description" nillable="false" type="xsd:string"/&gt;
+												&lt;xsd:element maxOccurs="1" minOccurs="1" name="Type" nillable="false" type="xsd:string"/&gt;
+											&lt;/xsd:sequence&gt;
+										&lt;/xsd:complexType&gt;
+									&lt;/xsd:element&gt;
+								&lt;/xsd:sequence&gt;
+							&lt;/xsd:complexType&gt;
+						&lt;/xsd:element&gt;
+					&lt;/xsd:sequence&gt;
+				&lt;/xsd:complexType&gt;
+			&lt;/xsd:element&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="1" name="ListOfFields" nillable="false"&gt;
+				&lt;xsd:complexType mixed="false"&gt;
+					&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+						&lt;xsd:element maxOccurs="unbounded" minOccurs="1" name="DisplayField" nillable="false"&gt;
+							&lt;xsd:complexType mixed="false"&gt;
+								&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="Field" nillable="false" type="xsd:string"/&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="XPath" nillable="false" type="xsd:string"/&gt;
+								&lt;/xsd:sequence&gt;
+							&lt;/xsd:complexType&gt;
+						&lt;/xsd:element&gt;
+					&lt;/xsd:sequence&gt;
+				&lt;/xsd:complexType&gt;
+			&lt;/xsd:element&gt;
+			&lt;xsd:element maxOccurs="1" minOccurs="0" name="ListOfFilters" nillable="false"&gt;
+				&lt;xsd:complexType mixed="false"&gt;
+					&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+						&lt;xsd:element maxOccurs="unbounded" minOccurs="0" name="Filter" nillable="false"&gt;
+							&lt;xsd:complexType mixed="false"&gt;
+								&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="Field" nillable="false" type="xsd:string"/&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="XPath" nillable="false" type="xsd:string"/&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="Operator" nillable="false" type="xsd:string"/&gt;
+									&lt;xsd:element maxOccurs="1" minOccurs="1" name="Value" nillable="false" type="xsd:string"/&gt;
+								&lt;/xsd:sequence&gt;
+							&lt;/xsd:complexType&gt;
+						&lt;/xsd:element&gt;
+					&lt;/xsd:sequence&gt;
+				&lt;/xsd:complexType&gt;
+			&lt;/xsd:element&gt;
+		&lt;/xsd:all&gt;
+	&lt;/xsd:complexType&gt;
+&lt;/xsd:schema&gt;
+</schema>
+    <description>Data Model for Reporting</description>
+    <PK>
+        <ids>Reporting</ids>
+        <unique-id>Reporting</unique-id>
+    </PK>
+    <last-error/>
+    <digest>248ddf3676f7bf0f46fe42f664ae15bd</digest>
+</data-model-pOJO>

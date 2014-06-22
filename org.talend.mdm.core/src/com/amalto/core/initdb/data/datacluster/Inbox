@@ -1,0 +1,12 @@
+<data-cluster-pOJO>
+    <name>Inbox</name>
+    <vocabulary/>
+    <description>Data Cluster to store incoming messages</description>
+    <PK>
+        <ids>Inbox</ids>
+        <unique-id>Inbox</unique-id>
+    </PK>
+    <last-synch>test</last-synch>
+    <last-error/>
+    <digest>4b97c20813408229d95775358d07e363</digest>  
+</data-cluster-pOJO>

@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<ii>
+    <c>Product</c>
+    <n>Product</n>
+    <dmn>Product</dmn>
+    <i>231035933</i>
+    <t>1327653438644</t>
+    <p>
+        <Product xmlns:tmdm="http://www.talend.com/mdm">
+            <Picture>
+                /imageserver/upload/TalendShop/dog.jpg?width=150&amp;amp;height=90&amp;amp;preserveAspectRatio=true
+            </Picture>
+            <Id>231035933</Id>
+            <Name>Talend Dog T-Shirt</Name>
+            <Description>Doggie t-shirt from American Apparel</Description>
+            <Availability>false</Availability>
+            <Price>16.99</Price>
+            <Family tmdm:type="ProductFamily">[3]</Family>
+            <OnlineStore>Talend Shop@@http://www.cafepress.com/Talend.231035933</OnlineStore>
+        </Product>
+    </p>
+</ii>
