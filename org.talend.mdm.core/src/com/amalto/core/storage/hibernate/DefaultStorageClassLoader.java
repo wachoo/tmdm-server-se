@@ -47,7 +47,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
 
     private static final XPath pathFactory = XPathFactory.newInstance().newXPath();
 
-    public DefaultStorageClassLoader(ClassLoader parent, String storageName, RDBMSDataSource dialect, StorageType type) {
+    public DefaultStorageClassLoader(ClassLoader parent, String storageName, RDBMSDataSource.DataSourceDialect dialect,
+            StorageType type) {
         super(parent, storageName, dialect, type);
     }
 
@@ -111,9 +112,9 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         switch (type) {
         case MASTER:
         case SYSTEM:
-            return new MappingGenerator(document, resolver, dialect);
+            return new MappingGenerator(document, resolver, dataSource);
         case STAGING:
-            return new MappingGenerator(document, resolver, dialect, false);
+            return new MappingGenerator(document, resolver, dataSource, false);
         default:
             throw new NotImplementedException("No support for storage type '" + type + "'.");
         }
