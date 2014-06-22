@@ -623,7 +623,7 @@ public class HibernateStorage implements Storage {
             for (DataRecord currentDataRecord : records) {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
                 Wrapper o = (Wrapper) currentDataRecord.convert(converter, mapping);
-                if (session.isReadOnly(o)) { // A read only instance for an update?
+                if (session.contains(o) && session.isReadOnly(o)) { // A read only instance for an update?
                     session.setReadOnly(o, false);
                 }
                 o.timestamp(System.currentTimeMillis());
