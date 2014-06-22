@@ -1,0 +1,108 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base</artifactId>
+        <version>5.6-SNAPSHOT</version>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>talend.mdm.libraries</artifactId>
+    <name>talend.mdm.libraries</name>
+    <packaging>pom</packaging>
+
+    <properties>
+        <jboss.web.deployer>${jboss.deploy.dir}/jboss-web.deployer</jboss.web.deployer>
+        <exist.version>exist-1.4.0-rev11706-TalendPatch</exist.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                                    classpathref="maven.plugin.classpath" />
+
+                                <delete file="${jboss.endorsed.dir}/xercesImpl.jar" />
+                                <delete dir="${jboss.deploy.dir}/${exist.version}.war" />
+
+                                <copy todir="${jboss.dir}" overwrite="true">
+                                    <fileset dir="deploy"
+                                        includes="run.bat,run.sh,run-MacOSX.command,Talend_license.txt" />
+                                </copy>
+
+                                <copy todir="${jboss.lib.dir}" overwrite="true">
+                                    <fileset dir="deploy/lib" />
+                                </copy>
+
+                                <copy todir="${jboss.endorsed.dir}">
+                                    <fileset dir="deploy/endorsed" />
+                                </copy>
+
+                                <copy todir="${jboss.bin.dir}" overwrite="true">
+                                    <fileset dir="deploy/bin"></fileset>
+                                </copy>
+
+                                <copy todir="${jboss.conf.dir}" overwrite="true">
+                                    <fileset dir="deploy/conf"></fileset>
+                                </copy>
+
+                                <copy todir="${jboss.conf.data}" overwrite="true">
+                                    <fileset dir="deploy/data"></fileset>
+                                </copy>
+
+                                <copy todir="${jboss.web.deployer}" overwrite="true">
+                                    <fileset dir="deploy/jboss-web.deployer"></fileset>
+                                </copy>
+
+                                <copy todir="${jboss.deploy.dir}" overwrite="true">
+                                    <fileset dir="deploy/deploy"></fileset>
+                                </copy>
+
+                                <copy todir="${jboss.deploy.dir}">
+                                    <fileset dir="eXist" includes="${exist.version}.war/**" />
+                                </copy>
+
+                                <!-- var substitution... -->
+                                <echo>ear name = ${ear.name}</echo>
+                                <if>
+                                    <equals arg1="${ear.name}" arg2="" />
+                                    <then>
+                                        <replace
+                                            file="${jboss.deploy.dir}/h2console.war/WEB-INF/jboss-web.xml"
+                                            summary="yes">
+                                            <replacefilter token="@@BEGIN_COMMENT@@"
+                                                value="&lt;!--" />
+                                            <replacefilter token="@@END_COMMENT@@"
+                                                value="--&gt;" />
+                                        </replace>
+                                    </then>
+                                    <else>
+                                        <replace
+                                            file="${jboss.deploy.dir}/h2console.war/WEB-INF/jboss-web.xml"
+                                            summary="yes">
+                                            <replacefilter token="@@EAR_NAME@@" value="${ear.name}" />
+                                            <replacefilter token="@@BEGIN_COMMENT@@"
+                                                value="" />
+                                            <replacefilter token="@@END_COMMENT@@"
+                                                value="" />
+                                        </replace>
+                                    </else>
+                                </if>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

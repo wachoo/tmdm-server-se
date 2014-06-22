@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>welcomeportalServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>welcomeportalServlet</servlet-name>
+        <url-pattern>/welcomeportal/WelcomePortalService</url-pattern>
+    </servlet-mapping>
+
+    <!-- Default page to serve -->
+    <welcome-file-list>
+        <welcome-file>WelcomePortal.html</welcome-file>
+    </welcome-file-list>
+
+    <!-- Security -->
+    @{dev.mode.excluded.start}
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Secure resources</web-resource-name>
+            <url-pattern>/welcomeportal/WelcomePortalService</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>Main page resource</web-resource-name>
+            <url-pattern>/WelcomePortal.html</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>WEB-INF</web-resource-name>
+            <url-pattern>/WEB-INF/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>administration</role-name>
+            <role-name>authenticated</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>xtentisSecurity</realm-name>
+        <form-login-config>
+            <form-login-page>/loginAgent.html</form-login-page>
+            <form-error-page>/loginAgent.html</form-error-page>
+        </form-login-config>
+    </login-config>
+
+    <security-role>
+        <role-name>administration</role-name>
+    </security-role>
+    <security-role>
+        <role-name>authenticated</role-name>
+    </security-role>
+    @{dev.mode.excluded.end}
+
+</web-app>

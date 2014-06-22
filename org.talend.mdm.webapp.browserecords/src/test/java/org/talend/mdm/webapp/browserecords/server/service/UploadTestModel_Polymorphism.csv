@@ -1,0 +1,6 @@
+id,info/name,info/@xsi:type
+1,1,SuperInfoType
+2,2,SubInfoType
+3,,SuperInfoType
+4,4,SubInfoType
+5,,SubInfoType

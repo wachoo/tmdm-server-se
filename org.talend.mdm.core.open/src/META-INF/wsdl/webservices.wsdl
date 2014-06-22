@@ -1,0 +1,2413 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<definitions 
+		xmlns="http://schemas.xmlsoap.org/wsdl/"
+		xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"	
+		targetNamespace="urn-com-amalto-xtentis-webservice"
+		xmlns:tns="urn-com-amalto-xtentis-webservice"
+		xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+		xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ http://schemas.xmlsoap.org/wsdl/"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		
+		
+	<types>
+		
+		
+    	<xsd:schema 
+			elementFormDefault="unqualified"
+			targetNamespace="urn-com-amalto-xtentis-webservice"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    		xmlns:tns="urn-com-amalto-xtentis-webservice"
+			>
+			
+			<xsd:include schemaLocation="xtentis.xsd"/>
+    	</xsd:schema>
+	</types>
+
+
+	<!-- *****************************************************
+		              M E S S A G E S
+		*******************************************************-->
+
+	<!-- ****************** VARIOUS  *********************** -->
+	
+	<message name="pingRequest">
+			<part name="wsPing" element="tns:WSPing"/>
+	</message>
+	<message name="pingResponse">
+		<part name="dummy" element="tns:WSString"/>
+	</message>
+	<message name="refreshCacheRequest">
+			<part name="refreshCache" element="tns:WSRefreshCache"/>
+	</message>	
+	<message name="refreshCacheResponse">
+			<part name="dummy" element="tns:WSString"/>
+	</message>
+	<message name="logoutRequest">
+		<part name="wsLogout" element="tns:WSLogout"/>
+	</message>
+	<message name="logoutResponse">
+		<part name="dummy" element="tns:WSString"/>
+	</message>
+	<message name="isXmlDBRequest">        
+    </message>
+	<message name="isXmlDBResponse">
+        <part name="wsBoolean" element="tns:WSBoolean"/>
+    </message>
+	<message name="getDigestRequest">
+        <part name="wsDigestKey" element="tns:WSDigestKey"/>
+    </message>
+    <message name="getDigestResponse">
+        <part name="wsDigest" element="tns:WSDigest"/>
+    </message>
+    <message name="updateDigestRequest">
+        <part name="wsDigest" element="tns:WSDigest"/>
+    </message>
+    <message name="updateDigestResponse">
+        <part name="wsLong" element="tns:WSLong"/>
+    </message>
+
+
+	<!-- ****************** COMPONENTS MANAGEMENT  *********************** -->
+	
+	<message name="getComponentVersionRequest">
+		<part name="wsGetComponentVersion" element="tns:WSGetComponentVersion"/>
+	</message>
+	<message name="getComponentVersionResponse">
+		<part name="wsVersion" element="tns:WSVersion"/>
+	</message>
+	
+		
+	<!-- ****************** INITIALIZATION  *********************** -->
+
+	<message name="initMDMRequest">
+		<part name="initData" element="tns:WSInitData"/>
+	</message>
+	<message name="initMDMResponse">
+		<part name="bytes" element="tns:WSInt"/>
+	</message>
+	
+		
+	<!-- ****************** DATA MODEL  *********************** -->
+	<!--
+	<message name="getDataModelsRequest">
+		<part name="regexp" element="tns:WSRegexDataModels"/>
+	</message>
+	<message name="getDataModelsResponse">
+		<part name="wsDataModels" element="tns:WSDataModelArray"/>
+	</message>
+	-->
+	
+	<message name="getDataModelPKsRequest">
+		<part name="regexp" element="tns:WSRegexDataModelPKs"/>
+	</message>
+	<message name="getDataModelPKsResponse">
+		<part name="wsDataModelPKs" element="tns:WSDataModelPKArray"/>
+	</message>
+	
+	<message name="getDataModelRequest">
+		<part name="wsDataModelget" element="tns:WSGetDataModel"/>
+	</message>
+	<message name="getDataModelResponse">
+		<part name="wsDataModel" element="tns:WSDataModel"/>
+	</message>
+
+	<message name="existsDataModelRequest">
+		<part name="wsDataModelExists" element="tns:WSExistsDataModel"/>
+	</message>
+	<message name="existsDataModelResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>
+	
+	<message name="putDataModelRequest">
+		<part name="wsDataModel" element="tns:WSPutDataModel"/>
+	</message>
+	<message name="putDataModelResponse">
+		<part name="wsDataModelPK" element="tns:WSDataModelPK"/>
+	</message>
+	
+	<message name="deleteDataModelRequest">
+		<part name="wsDeleteDataModel" element="tns:WSDeleteDataModel"/>
+	</message>
+	<message name="deleteDataModelResponse">
+		<part name="wsDataModelPK" element="tns:WSDataModelPK"/>
+	</message>
+
+	<message name="checkSchemaRequest">
+		<part name="wsSchema" element="tns:WSCheckSchema"/>
+	</message>
+	<message name="checkSchemaResponse">
+		<part name="wsErrors" element="tns:WSString"/>
+	</message>
+		
+	<message name="deleteBusinessConceptRequest">
+		<part name="wsDeleteBusinessConcept" element="tns:WSDeleteBusinessConcept"/>
+	</message>
+	<message name="deleteBusinessConceptResponse">
+		<part name="wsBusinessConceptName" element="tns:WSString"/>
+	</message>
+
+	<message name="getBusinessConceptsRequest">
+		<part name="wsGetBusinessConcepts" element="tns:WSGetBusinessConcepts"/>
+	</message>
+	<message name="getBusinessConceptsResponse">
+		<part name="wsBusinessConceptsNames" element="tns:WSStringArray"/>
+	</message>
+	
+	<message name="putBusinessConceptRequest">
+		<part name="wsPutBusinessConcept" element="tns:WSPutBusinessConcept"/>
+	</message>
+	<message name="putBusinessConceptResponse">
+		<part name="wsBusinessConceptSchema" element="tns:WSString"/>
+	</message>
+	
+	<message name="putBusinessConceptSchemaRequest">
+		<part name="wsPutBusinessConceptSchema" element="tns:WSPutBusinessConceptSchema"/>
+	</message>
+	<message name="putBusinessConceptSchemaResponse">
+		<part name="wsBusinessConceptName" element="tns:WSString"/>
+	</message>	
+	
+	<message name="getBusinessConceptKeyRequest">
+		<part name="wsGetBusinessConceptKey" element="tns:WSGetBusinessConceptKey"/>
+	</message>
+	<message name="getBusinessConceptKeyResponse">
+		<part name="wsconceptKey" element="tns:WSConceptKey"/>
+	</message>
+
+	<!-- ******************** DATA CLUSTER  *********************** -->
+	
+	<message name="getDataClusterPKsRequest">
+		<part name="regexp" element="tns:WSRegexDataClusterPKs"/>
+	</message>
+	<message name="getDataClusterPKsResponse">
+		<part name="wsDataClusterPKs" element="tns:WSDataClusterPKArray"/>
+	</message>
+	
+	<message name="getDataClusterRequest">
+		<part name="wsDataClusterPK" element="tns:WSGetDataCluster"/>
+	</message>
+	<message name="getDataClusterResponse">
+		<part name="wsDataCluster" element="tns:WSDataCluster"/>
+	</message>
+	
+	<message name="existsDataClusterRequest">
+		<part name="wsExistsDataCluster" element="tns:WSExistsDataCluster"/>
+	</message>
+	<message name="existsDataClusterResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>
+	<message name="existsDBDataClusterRequest">
+		<part name="wsExistsDBDataCluster" element="tns:WSExistsDBDataCluster"/>
+	</message>
+	<message name="existsDBDataClusterResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>	
+	
+	<message name="putDataClusterRequest">
+		<part name="wsDataCluster" element="tns:WSPutDataCluster"/>
+	</message>
+	<message name="putDataClusterResponse">
+		<part name="wsDataClusterPK" element="tns:WSDataClusterPK"/>
+	</message>
+	<message name="putDBDataClusterRequest">
+		<part name="wsDataCluster" element="tns:WSPutDBDataCluster"/>
+	</message>
+	<message name="putDBDataClusterResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>	
+	<message name="deleteDataClusterRequest">
+		<part name="wsDeleteDataCluster" element="tns:WSDeleteDataCluster"/>
+	</message>
+	<message name="deleteDataClusterResponse">
+		<part name="wsDataClusterPK" element="tns:WSDataClusterPK"/>
+	</message>
+
+	<message name="getConceptsInDataClusterRequest">
+		<part name="wsGetConceptsInDataCluster" element="tns:WSGetConceptsInDataCluster"/>
+	</message>
+	<message name="getConceptsInDataClusterResponse">
+		<part name="wsConcepts" element="tns:WSStringArray"/>
+	</message>
+	
+	<message name="getConceptsInDataClusterWithRevisionsRequest">
+		<part name="wsGetConceptsInDataClusterWithRevisions" element="tns:WSGetConceptsInDataClusterWithRevisions"/>
+	</message>
+	<message name="getConceptsInDataClusterWithRevisionsResponse">
+		<part name="wsConceptRevisionMap" element="tns:WSConceptRevisionMap"/>
+	</message>
+		
+	<!-- ******************** B A C K G R O U N D    J O B  *********************** -->
+	
+	<message name="findBackgroundJobPKsRequest">
+		<part name="status" element="tns:WSFindBackgroundJobPKs"/>
+	</message>
+	<message name="findBackgroundJobPKsResponse">
+		<part name="wsJobs" element="tns:WSBackgroundJobPKArray"/>
+	</message>
+	<message name="putBackgroundJobRequest">
+		<part name="wsPutBackgroundJob" element="tns:WSPutBackgroundJob"/>
+	</message>
+	<message name="putBackgroundJobResponse">
+		<part name="wsBackgroundJobPK" element="tns:WSBackgroundJobPK"/>
+	</message>
+	<message name="getBackgroundJobRequest">
+		<part name="wsGetBackgroundJob" element="tns:WSGetBackgroundJob"/>
+	</message>
+	<message name="getBackgroundJobResponse">
+		<part name="wsBackgroundJob" element="tns:WSBackgroundJob"/>
+	</message>
+
+	
+	<!-- ************************ VIEW  *************************** -->
+	
+	<message name="getViewPKsRequest">
+		<part name="regexp" element="tns:WSGetViewPKs"/>
+	</message>
+	<message name="getViewPKsResponse">
+		<part name="wsViewPKs" element="tns:WSViewPKArray"/>
+	</message>
+	
+	<message name="getViewRequest">
+		<part name="wsViewPK" element="tns:WSGetView"/>
+	</message>
+	<message name="getViewResponse">
+		<part name="wsView" element="tns:WSView"/>
+	</message>
+
+	<message name="existsViewRequest">
+		<part name="wsViewPK" element="tns:WSExistsView"/>
+	</message>
+	<message name="existsViewResponse">
+		<part name="wsBooelan" element="tns:WSBoolean"/>
+	</message>
+	
+	
+	<message name="putViewRequest">
+		<part name="wsView" element="tns:WSPutView"/>
+	</message>
+	<message name="putViewResponse">
+		<part name="wsViewPK" element="tns:WSViewPK"/>
+	</message>
+	
+	<message name="deleteViewRequest">
+		<part name="wsViewDel" element="tns:WSDeleteView"/>
+	</message>
+	<message name="deleteViewResponse">
+		<part name="wsViewPK" element="tns:WSViewPK"/>
+	</message>
+	
+	<!-- ************************ SEARCH  *************************** -->
+	
+	<message name="getBusinessConceptValueRequest">
+		<part name="wsGetBusinessConceptValue" element="tns:WSGetBusinessConceptValue"/>
+	</message>
+	<message name="getBusinessConceptValueResponse">
+		<part name="value" element="tns:WSString"/>
+	</message>
+	
+	<message name="getFullPathValuesRequest">
+		<part name="wsGetFullPathValues" element="tns:WSGetFullPathValues"/>
+	</message>
+	<message name="getFullPathValuesResponse">
+		<part name="values" element="tns:WSStringArray"/>
+	</message>
+	
+	<message name="getItemRequest">
+		<part name="wsGetItem" element="tns:WSGetItem"/>
+	</message>
+	<message name="getItemResponse">
+		<part name="wsItem" element="tns:WSItem"/>
+	</message>
+
+	<message name="existsItemRequest">
+		<part name="wsExistsItem" element="tns:WSExistsItem"/>
+	</message>
+	<message name="existsItemResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>
+	
+	<message name="getItemsRequest">
+		<part name="wsGetItems" element="tns:WSGetItems"/>
+	</message>
+	<message name="getItemsResponse">
+		<part name="results" element="tns:WSStringArray"/>
+	</message>
+		
+	<message name="getItemsSortRequest">
+		<part name="wsGetItemsSort" element="tns:WSGetItemsSort"/>
+	</message>
+	<message name="getItemsSortResponse">
+		<part name="results" element="tns:WSStringArray"/>
+	</message>
+			
+	<message name="getItemPKsByCriteriaRequest">
+		<part name="wsGetItemPKsByCriteria" element="tns:WSGetItemPKsByCriteria"/>
+	</message>
+	<message name="getItemPKsByCriteriaResponse">
+		<part name="wsItemPKsByCriteriaResponse" element="tns:WSItemPKsByCriteriaResponse"/>
+	</message>
+	
+	<message name="getItemPKsByFullCriteriaRequest">
+        <part name="wsGetItemPKsByFullCriteria" element="tns:WSGetItemPKsByFullCriteria"/>
+    </message>
+    <message name="getItemPKsByFullCriteriaResponse">
+        <part name="wsItemPKsByFullCriteriaResponse" element="tns:WSItemPKsByCriteriaResponse"/>
+    </message>
+    
+    <message name="countItemsByCustomFKFiltersRequest">
+        <part name="wsCountItemsByCustomFKFilters" element="tns:WSCountItemsByCustomFKFilters"/>
+    </message>
+    <message name="countItemsByCustomFKFiltersResponse">
+        <part name="wsCountItemsByCustomFKFiltersResponse" element="tns:WSString"/>
+    </message>
+    
+    <message name="getItemsByCustomFKFiltersRequest">
+        <part name="wsGetItemsByCustomFKFilters" element="tns:WSGetItemsByCustomFKFilters"/>
+    </message>
+    <message name="getItemsByCustomFKFiltersResponse">
+        <part name="wsGetItemsByCustomFKFiltersResponse" element="tns:WSStringArray"/>
+    </message>
+	
+	<message name="viewSearchRequest">
+		<part name="wsViewSearch" element="tns:WSViewSearch"/>
+	</message>
+	<message name="viewSearchResponse">
+		<part name="results" element="tns:WSStringArray"/>
+	</message>
+	<message name="xPathsSearchRequest">
+		<part name="wsXPathsSearch" element="tns:WSXPathsSearch"/>
+	</message>
+	<message name="xPathsSearchResponse">
+		<part name="results" element="tns:WSStringArray"/>
+	</message>
+	<message name="getItemsPivotIndexRequest">
+		<part name="wsGetItemsPivotIndex" element="tns:WSGetItemsPivotIndex"/>
+	</message>
+	<message name="getItemsPivotIndexResponse">
+		<part name="results" element="tns:WSStringArray"/>
+	</message>
+	<message name="getChildrenItemsRequest">
+        <part name="wsGetChildrenItems" element="tns:WSGetChildrenItems"/>
+    </message>
+    <message name="getChildrenItemsResponse">
+        <part name="results" element="tns:WSStringArray"/>
+    </message>
+	<message name="countRequest">
+		<part name="wsCount" element="tns:WSCount"/>
+	</message>
+	<message name="countResponse">
+		<part name="count" element="tns:WSString"/>
+	</message>
+	<message name="quickSearchRequest">
+		<part name="wsQuickSearch" element="tns:WSQuickSearch"/>
+	</message>
+	<message name="quickSearchResponse">
+		<part name="results" element="tns:WSStringArray"/>
+	</message>
+	
+
+	<!-- ************************ PUT ITEM *************************** -->
+	<message name="putItemRequest">
+		<part name="wsPutItem" element="tns:WSPutItem"/>
+	</message>
+	<message name="putItemResponse">
+		<part name="wsItemPK" element="tns:WSItemPK"/>
+	</message>
+	<message name="updateItemMetadataRequest">
+		<part name="wsUpdateMetadataItem" element="tns:WSUpdateMetadataItem"/>
+	</message>
+	<message name="partialPutItemRequest">
+		<part name="wsPartialPutItem" element="tns:WSPartialPutItem"/>
+	</message>
+	<message name="partialPutItemResponse">
+		<part name="wsItemPK" element="tns:WSItemPK"/>
+	</message>
+		
+	<message name="putItemArrayRequest">
+		<part name="wsPutItemArray" element="tns:WSPutItemArray"/>
+	</message>
+	<message name="putItemArrayResponse">
+		<part name="wsItemPKArray" element="tns:WSItemPKArray"/>
+	</message>	
+	<message name="putItemWithReportRequest">
+		<part name="wsPutItemWithReport" element="tns:WSPutItemWithReport"/>
+	</message>
+	<message name="putItemWithReportResponse">
+		<part name="wsItemPK" element="tns:WSItemPK"/>
+	</message>
+	<message name="putItemWithCustomReportRequest">
+		<part name="wsPutItemWithCustomReport" element="tns:WSPutItemWithCustomReport"/>
+	</message>
+	<message name="putItemWithCustomReportResponse">
+		<part name="wsItemPK" element="tns:WSItemPK"/>
+	</message>
+	<message name="putItemWithReportArrayRequest">
+		<part name="wsPutItemWithReportArray" element="tns:WSPutItemWithReportArray"/>
+	</message>
+	<message name="putItemWithReportArrayResponse">
+		<part name="wsItemPKArray" element="tns:WSItemPKArray"/>
+	</message>	
+	 
+    <message name="isItemModifiedByOtherRequest">
+        <part name="wsItem" element="tns:WSIsItemModifiedByOther"/>
+    </message>
+    <message name="isItemModifiedByOtherResponse">
+        <part name="wsBoolean" element="tns:WSBoolean"/>
+    </message>  
+       	
+	<!-- ************************ EXTRACT ITEMS *************************** -->
+	<message name="extractUsingTransformerRequest">
+		<part name="wsExtractUsingTransformer" element="tns:WSExtractUsingTransformer"/>
+	</message>
+	<message name="extractUsingTransformerResponse">
+		<part name="wsPipeline" element="tns:WSPipeline"/>
+	</message>
+	<message name="extractUsingTransformerThruViewRequest">
+		<part name="wsExtractUsingTransformerThruView" element="tns:WSExtractUsingTransformerThruView"/>
+	</message>
+	<message name="extractUsingTransformerThruViewResponse">
+		<part name="wsPipeline" element="tns:WSPipeline"/>
+	</message>
+
+	
+	<!-- ************************ DELETE ITEM *************************** -->
+	<message name="deleteItemRequest">
+		<part name="wsDeleteItem" element="tns:WSDeleteItem"/>
+	</message>
+	<message name="deleteItemResponse">
+		<part name="wsItemPK" element="tns:WSItemPK"/>
+	</message>
+
+	<message name="deleteItemWithReportRequest">
+		<part name="wsDeleteItem" element="tns:WSDeleteItemWithReport"/>
+	</message>
+	<message name="deleteItemWithReportResponse">
+		<part name="message" element="tns:WSString"/>
+	</message>
+		
+	<message name="deleteItemsRequest">
+		<part name="wsDeleteItems" element="tns:WSDeleteItems"/>
+	</message>
+	<message name="deleteItemsResponse">
+		<part name="numItems" element="tns:WSInt"/>
+	</message>
+	
+	<message name="dropItemRequest">
+		<part name="wsDropItem" element="tns:WSDropItem"/>
+	</message>
+	<message name="dropItemResponse">
+		<part name="wsDroppedItemPK" element="tns:WSDroppedItemPK"/>
+	</message>
+
+
+	<!-- ************************ DIRECT QUERY *************************** -->
+	<message name="runQueryRequest">
+		<part name="wsRunQuery" element="tns:WSRunQuery"/>
+	</message>
+	<message name="runQueryResponse">
+		<part name="wsStringArray" element="tns:WSStringArray"/>
+	</message>
+	
+	
+	<!-- ************************ CONNECTOR *************************** -->
+	<message name="connectorInteractionRequest">
+		<part name="wsConnectorInteraction" element="tns:WSConnectorInteraction"/>
+	</message>
+	<message name="connectorInteractionResponse">
+		<part name="wsConnectorInteractionResponse" element="tns:WSConnectorInteractionResponse"/>
+	</message>
+
+
+
+	<!-- ************************ Services  *************************** -->
+	
+	<message name="serviceActionRequest">
+		<part name="wsServiceAction" element="tns:WSServiceAction"/>
+	</message>
+	<message name="serviceActionResponse">
+		<part name="statusString" element="tns:WSString"/>
+	</message>
+	
+	<message name="getServiceConfigurationRequest">
+		<part name="wsGetConfiguration" element="tns:WSServiceGetConfiguration"/>
+	</message>
+	<message name="getServiceConfigurationResponse">
+		<part name="configuration" element="tns:WSString"/>
+	</message>
+	
+	<message name="putServiceConfigurationRequest">
+		<part name="wsPutConfiguration" element="tns:WSServicePutConfiguration"/>
+	</message>
+	<message name="putServiceConfigurationResponse">
+		<part name="result" element="tns:WSString"/>
+	</message>
+	
+	<message name="getServicesListRequest">
+		<part name="wsGetServicesList" element="tns:WSGetServicesList"/>
+	</message>
+	<message name="getServicesListResponse">
+		<part name="wsServicesList" element="tns:WSServicesList"/>
+	</message>
+
+	<message name="getServiceDocumentRequest">
+		<part name="serviceName" element="tns:WSString"/>
+	</message>
+	<message name="getServiceDocumentResponse">
+		<part name="result" element="tns:WSServiceGetDocument"/>
+	</message>	
+	<!-- ************************ Stored Procedure  *************************** -->
+	
+	<message name="getStoredProcedurePKsRequest">
+		<part name="regex" element="tns:WSRegexStoredProcedure"/>
+	</message>
+	<message name="getStoredProcedurePKsResponse">
+		<part name="wsStoredProcedurePKArray" element="tns:WSStoredProcedurePKArray"/>
+	</message>
+	
+	<message name="getStoredProcedureRequest">
+		<part name="wsGetStoredProcedure" element="tns:WSGetStoredProcedure"/>
+	</message>
+	<message name="getStoredProcedureResponse">
+		<part name="wsStoredProcedure" element="tns:WSStoredProcedure"/>
+	</message>
+
+	<message name="existsStoredProcedureRequest">
+		<part name="wsExistsStoredProcedure" element="tns:WSExistsStoredProcedure"/>
+	</message>
+	<message name="existsStoredProcedureResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>
+	
+	<message name="putStoredProcedureRequest">
+		<part name="wsStoredProcedure" element="tns:WSPutStoredProcedure"/>
+	</message>
+	<message name="putStoredProcedureResponse">
+		<part name="wsStoredProcedurePK" element="tns:WSStoredProcedurePK"/>
+	</message>
+	
+	<message name="deleteStoredProcedureRequest">
+		<part name="wsStoredProcedureDelete" element="tns:WSDeleteStoredProcedure"/>
+	</message>
+	<message name="deleteStoredProcedureResponse">
+		<part name="wsStoredProcedurePK" element="tns:WSStoredProcedurePK"/>
+	</message>
+	
+	<message name="executeStoredProcedureRequest">
+		<part name="wsExecuteStoredProcedure" element="tns:WSExecuteStoredProcedure"/>
+	</message>
+	<message name="executeStoredProcedureResponse">
+		<part name="results" element="tns:WSStringArray"/>
+	</message>
+	
+
+	<!-- ************************ Transformer  *************************** -->
+	
+	<message name="getTransformerPKsRequest">
+		<part name="regex" element="tns:WSGetTransformerPKs"/>
+	</message>
+	<message name="getTransformerPKsResponse">
+		<part name="wsTransformerPKArray" element="tns:WSTransformerPKArray"/>
+	</message>
+	
+	<message name="getTransformerRequest">
+		<part name="wsGetTransformer" element="tns:WSGetTransformer"/>
+	</message>
+	<message name="getTransformerResponse">
+		<part name="wsTransformer" element="tns:WSTransformer"/>
+	</message>
+
+	<message name="existsTransformerRequest">
+		<part name="wsExistsTransformer" element="tns:WSExistsTransformer"/>
+	</message>
+	<message name="existsTransformerResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>
+	
+	<message name="putTransformerRequest">
+		<part name="wsTransformer" element="tns:WSPutTransformer"/>
+	</message>
+	<message name="putTransformerResponse">
+		<part name="wsTransformerPK" element="tns:WSTransformerPK"/>
+	</message>
+	
+	<message name="deleteTransformerRequest">
+		<part name="wsTransformerDelete" element="tns:WSDeleteTransformer"/>
+	</message>
+	<message name="deleteTransformerResponse">
+		<part name="wsTransformerPK" element="tns:WSTransformerPK"/>
+	</message>
+
+	<message name="processBytesUsingTransformerRequest">
+		<part name="wsProcessBytesUsingTransformer" element="tns:WSProcessBytesUsingTransformer"/>
+	</message>
+	<message name="processBytesUsingTransformerResponse">
+		<part name="wsPipeline" element="tns:WSPipeline"/>
+	</message>
+	
+	<message name="processFileUsingTransformerRequest">
+		<part name="wsProcessFileUsingTransformer" element="tns:WSProcessFileUsingTransformer"/>
+	</message>
+	<message name="processFileUsingTransformerResponse">
+		<part name="wsPipeline" element="tns:WSPipeline"/>
+	</message>
+	
+	<message name="processBytesUsingTransformerAsBackgroundJobRequest">
+		<part name="wsProcessBytesUsingTransformerAsBackgroundJob" element="tns:WSProcessBytesUsingTransformerAsBackgroundJob"/>
+	</message>
+	<message name="processBytesUsingTransformerAsBackgroundJobResponse">
+		<part name="wsBackgroundJobPK" element="tns:WSBackgroundJobPK"/>
+	</message>
+	
+	<message name="processFileUsingTransformerAsBackgroundJobRequest">
+		<part name="wsProcessFileUsingTransformerAsBackgroundJob" element="tns:WSProcessFileUsingTransformerAsBackgroundJob"/>
+	</message>
+	<message name="processFileUsingTransformerAsBackgroundJobResponse">
+		<part name="wsBackgroundJobPK" element="tns:WSBackgroundJobPK"/>
+	</message>	
+
+	
+	
+	<!-- ************************ Menu  *************************** -->
+	
+	<message name="getMenuPKsRequest">
+		<part name="regex" element="tns:WSGetMenuPKs"/>
+	</message>
+	<message name="getMenuPKsResponse">
+		<part name="wsMenuPKArray" element="tns:WSMenuPKArray"/>
+	</message>
+	
+	<message name="getMenuRequest">
+		<part name="wsGetMenu" element="tns:WSGetMenu"/>
+	</message>
+	<message name="getMenuResponse">
+		<part name="wsMenu" element="tns:WSMenu"/>
+	</message>
+
+	<message name="existsMenuRequest">
+		<part name="wsExistsMenu" element="tns:WSExistsMenu"/>
+	</message>
+	<message name="existsMenuResponse">
+		<part name="wsBoolean" element="tns:WSBoolean"/>
+	</message>
+	
+	<message name="putMenuRequest">
+		<part name="wsMenu" element="tns:WSPutMenu"/>
+	</message>
+	<message name="putMenuResponse">
+		<part name="wsMenuPK" element="tns:WSMenuPK"/>
+	</message>
+	
+	<message name="deleteMenuRequest">
+		<part name="wsMenuDelete" element="tns:WSDeleteMenu"/>
+	</message>
+	<message name="deleteMenuResponse">
+		<part name="wsMenuPK" element="tns:WSMenuPK"/>
+	</message>
+
+	
+	<!-- ************************ Universe  *************************** -->
+
+	<message name="getCurrentUniverseRequest">
+		<part name="wsGetCurrentUniverse" element="tns:WSGetCurrentUniverse"/>
+	</message>
+	<message name="getCurrentUniverseResponse">
+		<part name="wsUniverse" element="tns:WSUniverse"/>
+	</message>
+
+	<!-- ************************ Dropped Item  *************************** -->
+	
+	<message name="recoverDroppedItemRequest">
+		<part name="wsRecoverDroppedItem" element="tns:WSRecoverDroppedItem"/>
+	</message>
+	<message name="recoverDroppedItemResponse">
+		<part name="wsItemPK" element="tns:WSItemPK"/>
+	</message>
+	
+	<message name="findAllDroppedItemsPKsRequest">
+		<part name="regex" element="tns:WSFindAllDroppedItemsPKs"/>
+	</message>
+	<message name="findAllDroppedItemsPKsResponse">
+		<part name="wsDroppedItemPKArray" element="tns:WSDroppedItemPKArray"/>
+	</message>
+
+	<message name="loadDroppedItemRequest">
+		<part name="wsLoadDroppedItem" element="tns:WSLoadDroppedItem"/>
+	</message>
+	<message name="loadDroppedItemResponse">
+		<part name="wsDroppedItem" element="tns:WSDroppedItem"/>
+	</message>
+	
+	<message name="removeDroppedItemRequest">
+		<part name="wsRemoveDroppedItem" element="tns:WSRemoveDroppedItem"/>
+	</message>
+	<message name="removeDroppedItemResponse">
+		<part name="wsDroppedItemPK" element="tns:WSDroppedItemPK"/>
+	</message>
+	
+	<message name="getMDMConfigurationRequest">
+	</message>
+	<message name="getMDMConfigurationResponse">
+		<part name="wsMDMConfig" element="tns:WSMDMConfig"></part>
+	</message>
+	<message name="checkServiceConfigurationRequest">
+	<part name="serviceName" element="tns:WSCheckServiceConfigRequest"></part>
+	</message>
+	<message name="checkServiceConfigurationResponse">
+		<part name="result" element="tns:WSCheckServiceConfigResponse"></part>
+	</message>
+    <!-- ************************ RoutingRule  *************************** -->
+    
+    <message name="getRoutingRulePKsRequest">
+        <part name="regexp" element="tns:WSGetRoutingRulePKs"/>
+    </message>
+    <message name="getRoutingRulePKsResponse">
+        <part name="wsRoutingRulePKs" element="tns:WSRoutingRulePKArray"/>
+    </message>
+    
+    <message name="getRoutingRuleRequest">
+        <part name="wsRoutingRulePK" element="tns:WSGetRoutingRule"/>
+    </message>
+    <message name="getRoutingRuleResponse">
+        <part name="wsRoutingRule" element="tns:WSRoutingRule"/>
+    </message>
+
+    <message name="existsRoutingRuleRequest">
+        <part name="wsExistsRoutingRule" element="tns:WSExistsRoutingRule"/>
+    </message>
+    <message name="existsRoutingRuleResponse">
+        <part name="wsBoolean" element="tns:WSBoolean"/>
+    </message>
+    
+    <message name="putRoutingRuleRequest">
+        <part name="wsRoutingRule" element="tns:WSPutRoutingRule"/>
+    </message>
+    <message name="putRoutingRuleResponse">
+        <part name="wsRoutingRulePK" element="tns:WSRoutingRulePK"/>
+    </message>
+    
+    <message name="deleteRoutingRuleRequest">
+        <part name="wsRoutingRuleDel" element="tns:WSDeleteRoutingRule"/>
+    </message>
+    <message name="deleteRoutingRuleResponse">
+        <part name="wsRoutingRulePK" element="tns:WSRoutingRulePK"/>
+    </message>
+    <!-- ************************ TransformerV2  *************************** -->
+    
+    <message name="getTransformerV2PKsRequest">
+        <part name="regex" element="tns:WSGetTransformerV2PKs"/>
+    </message>
+    <message name="getTransformerV2PKsResponse">
+        <part name="wsTransformerV2PKArray" element="tns:WSTransformerV2PKArray"/>
+    </message>
+    
+    <message name="getTransformerV2Request">
+        <part name="wsGetTransformerV2" element="tns:WSGetTransformerV2"/>
+    </message>
+    <message name="getTransformerV2Response">
+        <part name="wsTransformerV2" element="tns:WSTransformerV2"/>
+    </message>
+    
+    <message name="existsTransformerV2Request">
+        <part name="wsExistsTransformerV2" element="tns:WSExistsTransformerV2"/>
+    </message>
+    <message name="existsTransformerV2Response">
+        <part name="wsBoolean" element="tns:WSBoolean"/>
+    </message>
+    
+    <message name="putTransformerV2Request">
+        <part name="wsTransformerV2" element="tns:WSPutTransformerV2"/>
+    </message>
+    <message name="putTransformerV2Response">
+        <part name="wsTransformerV2PK" element="tns:WSTransformerV2PK"/>
+    </message>
+    
+    <message name="deleteTransformerV2Request">
+        <part name="wsDeleteTransformerV2" element="tns:WSDeleteTransformerV2"/>
+    </message>
+    <message name="deleteTransformerV2Response">
+        <part name="wsTransformerV2PK" element="tns:WSTransformerV2PK"/>
+    </message>
+    
+    <message name="executeTransformerV2Request">
+        <part name="wsExecuteTransformerV2" element="tns:WSExecuteTransformerV2"/>
+    </message>
+    <message name="executeTransformerV2Response">
+        <part name="wsTransformerContext" element="tns:WSTransformerContext"/>
+    </message>  
+
+    <message name="executeTransformerV2AsJobRequest">
+        <part name="wsExecuteTransformerV2AsJob" element="tns:WSExecuteTransformerV2AsJob"/>
+    </message>
+    <message name="executeTransformerV2AsJobResponse">
+        <part name="wsBackgroundJobPK" element="tns:WSBackgroundJobPK"/>
+    </message>  
+    
+    <message name="extractThroughTransformerV2Request">
+        <part name="wsExtractThroughTransformerV2" element="tns:WSExtractThroughTransformerV2"/>
+    </message>
+    <message name="extractThroughTransformerV2Response">
+        <part name="wsTransformerContext" element="tns:WSTransformerContext"/>
+    </message>  
+    
+    <!-- ************************ TransformerPluginV2s  *************************** -->
+
+    <message name="existsTransformerPluginV2Request">
+        <part name="wsExistsTransformerPluginV2" element="tns:WSExistsTransformerPluginV2"/>
+    </message>
+    <message name="existsTransformerPluginV2Response">
+        <part name="wsBoolean" element="tns:WSBoolean"/>
+    </message>
+    
+    <message name="getTransformerPluginV2ConfigurationRequest">
+        <part name="wsGetConfiguration" element="tns:WSTransformerPluginV2GetConfiguration"/>
+    </message>
+    <message name="getTransformerPluginV2ConfigurationResponse">
+        <part name="configuration" element="tns:WSString"/>
+    </message>
+    
+    <message name="putTransformerPluginV2ConfigurationRequest">
+        <part name="wsPutConfiguration" element="tns:WSTransformerPluginV2PutConfiguration"/>
+    </message>
+    <message name="putTransformerPluginV2ConfigurationResponse">
+        <part name="result" element="tns:WSString"/>
+    </message>
+
+    <message name="getTransformerPluginV2DetailsRequest">
+        <part name="wsGetTransformerPluginV2Details" element="tns:WSGetTransformerPluginV2Details"/>
+    </message>
+    <message name="getTransformerPluginV2DetailsResponse">
+        <part name="result" element="tns:WSTransformerPluginV2Details"/>
+    </message>
+    
+    <message name="getTransformerPluginV2sListRequest">
+        <part name="wsGetTransformerPluginV2sList" element="tns:WSGetTransformerPluginV2sList"/>
+    </message>
+    <message name="getTransformerPluginV2sListResponse">
+        <part name="wsTransformerPluginV2sList" element="tns:WSTransformerPluginV2sList"/>
+    </message>
+
+    <!-- ************************ Routing Order V2 *************************** -->
+    
+    <message name="getRoutingOrderV2Request">
+        <part name="wsGetRoutingOrderV2" element="tns:WSGetRoutingOrderV2"/>
+    </message>
+    <message name="getRoutingOrderV2Response">
+        <part name="wsRoutingOrder" element="tns:WSRoutingOrderV2"/>
+    </message>
+    
+    <message name="existsRoutingOrderV2Request">
+        <part name="wsExistsRoutingOrder" element="tns:WSExistsRoutingOrderV2"/>
+    </message>
+    <message name="existsRoutingOrderV2Response">
+        <part name="wsRoutingOrder" element="tns:WSRoutingOrderV2"/>
+    </message>
+
+    <message name="deleteRoutingOrderV2Request">
+        <part name="wsDeleteRoutingOrder" element="tns:WSDeleteRoutingOrderV2"/>
+    </message>
+    <message name="deleteRoutingOrderV2Response">
+        <part name="wsRoutingOrderPK" element="tns:WSRoutingOrderV2PK"/>
+    </message>
+    
+    <message name="executeRoutingOrderV2AsynchronouslyRequest">
+        <part name="wsExecuteRoutingOrderAsynchronously" element="tns:WSExecuteRoutingOrderV2Asynchronously"/>
+    </message>
+    <message name="executeRoutingOrderV2AsynchronouslyResponse">
+        <part name="wsRoutingOrderPK" element="tns:WSRoutingOrderV2PK"/>
+    </message>
+    
+    <message name="executeRoutingOrderV2SynchronouslyRequest">
+        <part name="wsExecuteRoutingOrderSynchronously" element="tns:WSExecuteRoutingOrderV2Synchronously"/>
+    </message>
+    <message name="executeRoutingOrderV2SynchronouslyResponse">
+        <part name="result" element="tns:WSString"/>
+    </message>
+
+    <message name="getRoutingOrderV2PKsByCriteriaRequest">
+        <part name="wsGetRoutingOrderV2PKsByCriteria" element="tns:WSGetRoutingOrderV2PKsByCriteria"/>
+    </message>
+    <message name="getRoutingOrderV2PKsByCriteriaResponse">
+        <part name="wsRoutingOrderPKArray" element="tns:WSRoutingOrderV2PKArray"/>
+    </message>
+    
+    <message name="getRoutingOrderV2sByCriteriaRequest">
+        <part name="wsGetRoutingOrderV2sByCriteria" element="tns:WSGetRoutingOrderV2sByCriteria"/>
+    </message>
+    <message name="getRoutingOrderV2sByCriteriaResponse">
+        <part name="wsRoutingOrderArray" element="tns:WSRoutingOrderV2Array"/>
+    </message>
+    
+    <message name="getRoutingOrderV2ByCriteriaWithPagingRequest">
+        <part name="wsGetRoutingOrderV2ByCriteriaWithPaging" element="tns:WSGetRoutingOrderV2ByCriteriaWithPaging"/>
+    </message>
+    <message name="getRoutingOrderV2ByCriteriaWithPagingResponse">
+        <part name="wsRoutingOrderArray" element="tns:WSRoutingOrderV2Array"/>
+    </message>
+    
+
+    <!-- ************************ Routing Engine V2  *************************** -->
+    
+    <message name="routeItemV2Request">
+        <part name="wsRouteItem" element="tns:WSRouteItemV2"/>
+    </message>
+    <message name="routeItemV2Response">
+        <part name="wsRoutingRulePKs" element="tns:WSRoutingRulePKArray"/>
+    </message>
+    
+    <message name="routingEngineV2ActionRequest">
+        <part name="wsRoutingEngineAction" element="tns:WSRoutingEngineV2Action"/>
+    </message>
+    <message name="routingEngineV2ActionResponse">
+        <part name="wsRoutingEngineStatus" element="tns:WSRoutingEngineV2Status"/>
+    </message>
+
+    <message name="getMDMJobRequest">
+      <part name="mdmJobRequest" element="tns:WSMDMNULL"></part>
+    </message>
+    <message name="getMDMJobResponse">
+        <part name="mdmJobResponse" element="tns:WSMDMJobArray"></part>
+    </message>
+    
+    <message name="putMDMJobRequest">
+        <part name="putMDMJobRequest" element="tns:WSPUTMDMJob"></part>
+    </message>
+    <message name="putMDMJobResponse">
+        <part name="putMDMJobResponse" element="tns:WSBoolean"></part>
+    </message>
+    
+    <message name="deleteMDMJobRequest">
+           <part name="deleteMDMJobRequest" element="tns:WSDELMDMJob"></part>
+    </message>
+    <message name="deleteMDMJobResponse">
+        <part name="deleteMDMJobResponse" element="tns:WSBoolean"></part>
+    </message>
+    <message name="getMDMCategoryRequest">
+       <part name="wsCategoryDataRequest" element="tns:WSCategoryData"/>
+    </message>
+    <message name="getMDMCategoryResponse">
+       <part name="wsCategoryDataResponse" element="tns:WSCategoryData"/>
+    </message>
+    <message name="getAutoIncrementRequest">
+       <part name="wsAutoIncrementRequest" element="tns:WSAutoIncrement"/>
+    </message>
+    <message name="getAutoIncrementResponse">
+       <part name="wsAutoIncrementResponse" element="tns:WSAutoIncrement"/>
+    </message>    
+	<!-- *****************************************************
+		              P O R T		
+		              
+		*******************************************************-->
+
+
+	<portType name="XtentisPort">
+
+		
+		<!-- ****************** COMPONENTS MANAGEMENT  *********************** -->
+		
+		<operation name="getComponentVersion">
+			<input message="tns:getComponentVersionRequest"/>
+			<output message="tns:getComponentVersionResponse"/>
+		</operation>
+		
+
+		<!-- ****************** VARIOUS  *********************** -->
+		
+		<operation name="ping">
+			<input message="tns:pingRequest"/>
+			<output message="tns:pingResponse"/>
+		</operation>
+		<operation name="refreshCache">
+			<input message="tns:refreshCacheRequest"/>
+			<output message="tns:refreshCacheResponse"/>
+		</operation>
+		<operation name="logout">
+			<input message="tns:logoutRequest"/>
+			<output message="tns:logoutResponse"/>
+		</operation>
+		<operation name="isXmlDB">
+			<input message="tns:isXmlDBRequest"/>
+            <output message="tns:isXmlDBResponse"/>
+        </operation>
+        <operation name="getDigest">
+            <input message="tns:getDigestRequest"/>
+            <output message="tns:getDigestResponse"/>
+        </operation>
+        <operation name="updateDigest">
+            <input message="tns:updateDigestRequest"/>
+            <output message="tns:updateDigestResponse"/>
+        </operation>
+		
+		<!-- ****************** INITIALIZATION  *********************** -->
+		
+		<operation name="initMDM">
+			<input message="tns:initMDMRequest"/>
+			<output message="tns:initMDMResponse"/>
+		</operation>
+		
+		<!-- ****************** DATA MODEL  *********************** -->
+
+		<operation name="getDataModelPKs">
+			<input message="tns:getDataModelPKsRequest"/>
+			<output message="tns:getDataModelPKsResponse"/>
+		</operation>
+		<operation name="existsDataModel">
+			<input message="tns:existsDataModelRequest"/>
+			<output message="tns:existsDataModelResponse"/>
+		</operation>
+		<operation name="getDataModel">
+			<input message="tns:getDataModelRequest"/>
+			<output message="tns:getDataModelResponse"/>
+		</operation>
+		<operation name="putDataModel">
+			<input message="tns:putDataModelRequest"/>
+			<output message="tns:putDataModelResponse"/>
+		</operation>
+		<operation name="deleteDataModel">
+			<input message="tns:deleteDataModelRequest"/>
+			<output message="tns:deleteDataModelResponse"/>
+		</operation>		
+		<operation name="checkSchema">
+			<input message="tns:checkSchemaRequest"/>
+			<output message="tns:checkSchemaResponse"/>
+		</operation>	
+		<operation name="deleteBusinessConcept">
+			<input message="tns:deleteBusinessConceptRequest"/>
+			<output message="tns:deleteBusinessConceptResponse"/>
+		</operation>
+		<operation name="putBusinessConceptSchema">
+			<input message="tns:putBusinessConceptSchemaRequest"/>
+			<output message="tns:putBusinessConceptSchemaResponse"/>
+		</operation>	
+		<operation name="getBusinessConcepts">
+			<input message="tns:getBusinessConceptsRequest"/>
+			<output message="tns:getBusinessConceptsResponse"/>
+		</operation>	
+		<operation name="putBusinessConcept">
+			<input message="tns:putBusinessConceptRequest"/>
+			<output message="tns:putBusinessConceptResponse"/>
+		</operation>			
+		<operation name="getBusinessConceptKey">
+			<input message="tns:getBusinessConceptKeyRequest"/>
+			<output message="tns:getBusinessConceptKeyResponse"/>
+		</operation>	
+
+
+
+		<!-- ***************D A T A   C L U S T E R ********************** -->
+		
+		<operation name="getDataClusterPKs">
+			<input message="tns:getDataClusterPKsRequest"/>
+			<output message="tns:getDataClusterPKsResponse"/>
+		</operation>		
+		<operation name="getDataCluster">
+			<input message="tns:getDataClusterRequest"/>
+			<output message="tns:getDataClusterResponse"/>
+		</operation>
+		<operation name="existsDataCluster">
+			<input message="tns:existsDataClusterRequest"/>
+			<output message="tns:existsDataClusterResponse"/>
+		</operation>	
+		<operation name="existsDBDataCluster">
+			<input message="tns:existsDBDataClusterRequest"/>
+			<output message="tns:existsDBDataClusterResponse"/>
+		</operation>			
+		<operation name="putDataCluster">
+			<input message="tns:putDataClusterRequest"/>
+			<output message="tns:putDataClusterResponse"/>
+		</operation>
+		<operation name="putDBDataCluster">
+			<input message="tns:putDBDataClusterRequest"/>
+			<output message="tns:putDBDataClusterResponse"/>
+		</operation>		
+		<operation name="deleteDataCluster">
+			<input message="tns:deleteDataClusterRequest"/>
+			<output message="tns:deleteDataClusterResponse"/>
+		</operation>
+		<operation name="getConceptsInDataCluster">
+			<input message="tns:getConceptsInDataClusterRequest"/>
+			<output message="tns:getConceptsInDataClusterResponse"/>
+		</operation>
+		<operation name="getConceptsInDataClusterWithRevisions">
+			<input message="tns:getConceptsInDataClusterWithRevisionsRequest"/>
+			<output message="tns:getConceptsInDataClusterWithRevisionsResponse"/>
+		</operation>
+
+
+		<!-- *********************  VIEW  ************************ -->
+		
+		<operation name="getViewPKs">
+			<input message="tns:getViewPKsRequest"/>
+			<output message="tns:getViewPKsResponse"/>
+		</operation>		
+		<operation name="getView">
+			<input message="tns:getViewRequest"/>
+			<output message="tns:getViewResponse"/>
+		</operation>
+		<operation name="existsView">
+			<input message="tns:existsViewRequest"/>
+			<output message="tns:existsViewResponse"/>
+		</operation>		
+		<operation name="putView">
+			<input message="tns:putViewRequest"/>
+			<output message="tns:putViewResponse"/>
+		</operation>
+		<operation name="deleteView">
+			<input message="tns:deleteViewRequest"/>
+			<output message="tns:deleteViewResponse"/>
+		</operation>
+
+		<!-- *********************  SEARCH  ************************ -->
+
+		<operation name="getBusinessConceptValue">
+			<input message="tns:getBusinessConceptValueRequest"/>
+			<output message="tns:getBusinessConceptValueResponse"/>
+		</operation>		
+		<operation name="getFullPathValues">
+			<input message="tns:getFullPathValuesRequest"/>
+			<output message="tns:getFullPathValuesResponse"/>
+		</operation>
+		<operation name="getItem">
+			<input message="tns:getItemRequest"/>
+			<output message="tns:getItemResponse"/>
+		</operation>
+		<operation name="existsItem">
+			<input message="tns:existsItemRequest"/>
+			<output message="tns:existsItemResponse"/>
+		</operation>		
+		<operation name="getItems">
+			<input message="tns:getItemsRequest"/>
+			<output message="tns:getItemsResponse"/>
+		</operation>
+		<operation name="getItemsSort">
+			<input message="tns:getItemsSortRequest"/>
+			<output message="tns:getItemsSortResponse"/>
+		</operation>		
+		<operation name="getItemPKsByCriteria">
+			<input message="tns:getItemPKsByCriteriaRequest"/>
+			<output message="tns:getItemPKsByCriteriaResponse"/>
+		</operation>
+        <operation name="getItemPKsByFullCriteria">
+            <input message="tns:getItemPKsByFullCriteriaRequest"/>
+            <output message="tns:getItemPKsByFullCriteriaResponse"/>
+        </operation>
+        <operation name="countItemsByCustomFKFilters">
+            <input message="tns:countItemsByCustomFKFiltersRequest"/>
+            <output message="tns:countItemsByCustomFKFiltersResponse"/>
+        </operation>
+        <operation name="getItemsByCustomFKFilters">
+            <input message="tns:getItemsByCustomFKFiltersRequest"/>
+            <output message="tns:getItemsByCustomFKFiltersResponse"/>
+        </operation>				
+		<operation name="viewSearch">
+			<input message="tns:viewSearchRequest"/>
+			<output message="tns:viewSearchResponse"/>
+		</operation>
+		<operation name="xPathsSearch">
+			<input message="tns:xPathsSearchRequest"/>
+			<output message="tns:xPathsSearchResponse"/>
+		</operation>
+		<operation name="getItemsPivotIndex">
+			<input message="tns:getItemsPivotIndexRequest"/>
+			<output message="tns:getItemsPivotIndexResponse"/>
+		</operation>
+		<operation name="getChildrenItems">
+            <input message="tns:getChildrenItemsRequest"/>
+            <output message="tns:getChildrenItemsResponse"/>
+        </operation>
+		<operation name="count">
+			<input message="tns:countRequest"/>
+			<output message="tns:countResponse"/>
+		</operation>
+		<operation name="quickSearch">
+			<input message="tns:quickSearchRequest"/>
+			<output message="tns:quickSearchResponse"/>
+		</operation>
+	
+
+		<operation name="putItem">
+			<input message="tns:putItemRequest"/>
+			<output message="tns:putItemResponse"/>
+		</operation>
+		
+		<operation name="partialPutItem">
+			<input message="tns:partialPutItemRequest"/>
+			<output message="tns:partialPutItemResponse"/>
+		</operation>		
+		<operation name="putItemArray">
+			<input message="tns:putItemArrayRequest"/>
+			<output message="tns:putItemArrayResponse"/>
+		</operation>		
+		<operation name="putItemWithReport">
+			<input message="tns:putItemWithReportRequest"/>
+			<output message="tns:putItemWithReportResponse"/>
+		</operation>
+		<operation name="putItemWithCustomReport">
+			<input message="tns:putItemWithCustomReportRequest"/>
+			<output message="tns:putItemWithCustomReportResponse"/>
+		</operation>
+		<operation name="putItemWithReportArray">
+			<input message="tns:putItemWithReportArrayRequest"/>
+			<output message="tns:putItemWithReportArrayResponse"/>
+		</operation>		
+		<operation name="extractUsingTransformer">
+			<input message="tns:extractUsingTransformerRequest"/>
+			<output message="tns:extractUsingTransformerResponse"/>
+		</operation>
+		<operation name="extractUsingTransformerThruView">
+			<input message="tns:extractUsingTransformerThruViewRequest"/>
+			<output message="tns:extractUsingTransformerThruViewResponse"/>
+		</operation>		
+
+        <operation name="isItemModifiedByOther">
+            <input message="tns:isItemModifiedByOtherRequest"/>
+            <output message="tns:isItemModifiedByOtherResponse"/>
+        </operation>
+		
+		<!-- *********************  DELETE ITEMS  ************************ -->
+		
+		<operation name="deleteItem">
+			<input message="tns:deleteItemRequest"/>
+			<output message="tns:deleteItemResponse"/>
+		</operation>		
+
+		<operation name="deleteItemWithReport">
+			<input message="tns:deleteItemWithReportRequest"/>
+			<output message="tns:deleteItemWithReportResponse"/>
+		</operation>
+				
+		<operation name="deleteItems">
+			<input message="tns:deleteItemsRequest"/>
+			<output message="tns:deleteItemsResponse"/>
+		</operation>				
+		
+		<operation name="dropItem">
+			<input message="tns:dropItemRequest"/>
+			<output message="tns:dropItemResponse"/>
+		</operation>
+
+		<!-- *********************  DIRECT QUERY  ************************ -->
+		
+		<operation name="runQuery">
+			<input message="tns:runQueryRequest"/>
+			<output message="tns:runQueryResponse"/>
+		</operation>				
+		
+		<!-- *********************  CONNECTOR  ************************ -->
+		
+		<operation name="connectorInteraction">
+			<input message="tns:connectorInteractionRequest"/>
+			<output message="tns:connectorInteractionResponse"/>
+		</operation>		
+		
+
+		<!-- *********************  SERVICES  ************************ -->
+		
+		<operation name="serviceAction">
+			<input message="tns:serviceActionRequest"/>
+			<output message="tns:serviceActionResponse"/>
+		</operation>
+		<operation name="getServiceConfiguration">
+			<input message="tns:getServiceConfigurationRequest"/>
+			<output message="tns:getServiceConfigurationResponse"/>
+		</operation>
+		<operation name="putServiceConfiguration">
+			<input message="tns:putServiceConfigurationRequest"/>
+			<output message="tns:putServiceConfigurationResponse"/>
+		</operation>
+		<operation name="getServicesList">
+			<input message="tns:getServicesListRequest"/>
+			<output message="tns:getServicesListResponse"/>
+		</operation>		
+		<operation name="getServiceDocument">
+			<input message="tns:getServiceDocumentRequest"/>
+			<output message="tns:getServiceDocumentResponse"/>
+		</operation>			
+		<!-- ********************* STORED PROCEDURE  ************************ -->
+		
+		<operation name="getStoredProcedure">
+			<input message="tns:getStoredProcedureRequest"/>
+			<output message="tns:getStoredProcedureResponse"/>
+		</operation>
+		<operation name="existsStoredProcedure">
+			<input message="tns:existsStoredProcedureRequest"/>
+			<output message="tns:existsStoredProcedureResponse"/>
+		</operation>		
+		<operation name="getStoredProcedurePKs">
+			<input message="tns:getStoredProcedurePKsRequest"/>
+			<output message="tns:getStoredProcedurePKsResponse"/>
+		</operation>
+		<operation name="putStoredProcedure">
+			<input message="tns:putStoredProcedureRequest"/>
+			<output message="tns:putStoredProcedureResponse"/>
+		</operation>
+		<operation name="deleteStoredProcedure">
+			<input message="tns:deleteStoredProcedureRequest"/>
+			<output message="tns:deleteStoredProcedureResponse"/>
+		</operation>
+		<operation name="executeStoredProcedure">
+			<input message="tns:executeStoredProcedureRequest"/>
+			<output message="tns:executeStoredProcedureResponse"/>
+		</operation>
+
+		
+		<!-- ********************* TRANSFORMER  ************************ -->
+		
+		<operation name="getTransformer">
+			<input message="tns:getTransformerRequest"/>
+			<output message="tns:getTransformerResponse"/>
+		</operation>
+		<operation name="existsTransformer">
+			<input message="tns:existsTransformerRequest"/>
+			<output message="tns:existsTransformerResponse"/>
+		</operation>		
+		<operation name="getTransformerPKs">
+			<input message="tns:getTransformerPKsRequest"/>
+			<output message="tns:getTransformerPKsResponse"/>
+		</operation>
+		<operation name="putTransformer">
+			<input message="tns:putTransformerRequest"/>
+			<output message="tns:putTransformerResponse"/>
+		</operation>
+		<operation name="deleteTransformer">
+			<input message="tns:deleteTransformerRequest"/>
+			<output message="tns:deleteTransformerResponse"/>
+		</operation>		
+		<operation name="processBytesUsingTransformer">
+			<input message="tns:processBytesUsingTransformerRequest"/>
+			<output message="tns:processBytesUsingTransformerResponse"/>
+		</operation>
+		<operation name="processFileUsingTransformer">
+			<input message="tns:processFileUsingTransformerRequest"/>
+			<output message="tns:processFileUsingTransformerResponse"/>
+		</operation>				
+		<operation name="processBytesUsingTransformerAsBackgroundJob">
+			<input message="tns:processBytesUsingTransformerAsBackgroundJobRequest"/>
+			<output message="tns:processBytesUsingTransformerAsBackgroundJobResponse"/>
+		</operation>
+		<operation name="processFileUsingTransformerAsBackgroundJob">
+			<input message="tns:processFileUsingTransformerAsBackgroundJobRequest"/>
+			<output message="tns:processFileUsingTransformerAsBackgroundJobResponse"/>
+		</operation>				
+
+		
+		<!-- ********************* Menu  ************************ -->
+		
+		<operation name="getMenu">
+			<input message="tns:getMenuRequest"/>
+			<output message="tns:getMenuResponse"/>
+		</operation>
+		<operation name="existsMenu">
+			<input message="tns:existsMenuRequest"/>
+			<output message="tns:existsMenuResponse"/>
+		</operation>		
+		<operation name="getMenuPKs">
+			<input message="tns:getMenuPKsRequest"/>
+			<output message="tns:getMenuPKsResponse"/>
+		</operation>
+		<operation name="putMenu">
+			<input message="tns:putMenuRequest"/>
+			<output message="tns:putMenuResponse"/>
+		</operation>
+		<operation name="deleteMenu">
+			<input message="tns:deleteMenuRequest"/>
+			<output message="tns:deleteMenuResponse"/>
+		</operation>
+
+		<!-- *************** B A C K G R O U N D   J O B   ********************** -->
+		
+		<operation name="findBackgroundJobPKs">
+			<input message="tns:findBackgroundJobPKsRequest"/>
+			<output message="tns:findBackgroundJobPKsResponse"/>
+		</operation>
+		<operation name="putBackgroundJob">
+			<input message="tns:putBackgroundJobRequest"/>
+			<output message="tns:putBackgroundJobResponse"/>
+		</operation>
+		<operation name="getBackgroundJob">
+			<input message="tns:getBackgroundJobRequest"/>
+			<output message="tns:getBackgroundJobResponse"/>
+		</operation>
+		
+
+		<!-- ********************* Universe  ************************ -->
+
+		<operation name="getCurrentUniverse">
+			<input message="tns:getCurrentUniverseRequest"/>
+			<output message="tns:getCurrentUniverseResponse"/>
+		</operation>
+
+
+		<!-- ********************* Dropped Item  ************************ -->
+		
+		<operation name="recoverDroppedItem">
+			<input message="tns:recoverDroppedItemRequest"/>
+			<output message="tns:recoverDroppedItemResponse"/>
+		</operation>
+		<operation name="findAllDroppedItemsPKs">
+			<input message="tns:findAllDroppedItemsPKsRequest"/>
+			<output message="tns:findAllDroppedItemsPKsResponse"/>
+		</operation>
+		<operation name="loadDroppedItem">
+			<input message="tns:loadDroppedItemRequest"/>
+			<output message="tns:loadDroppedItemResponse"/>
+		</operation>
+		<operation name="removeDroppedItem">
+			<input message="tns:removeDroppedItemRequest"/>
+			<output message="tns:removeDroppedItemResponse"/>
+		</operation>
+
+		<operation name="getMDMConfiguration">
+            <input message="tns:getMDMConfigurationRequest"/>
+			<output message="tns:getMDMConfigurationResponse"></output>
+		</operation>
+		<operation name="checkServiceConfiguration">
+            <input message="tns:checkServiceConfigurationRequest"/>
+			<output message="tns:checkServiceConfigurationResponse"></output>
+		</operation>
+        <!-- *********************  ROUTING RULES  ************************ -->
+        
+        <operation name="getRoutingRulePKs">
+            <input message="tns:getRoutingRulePKsRequest"/>
+            <output message="tns:getRoutingRulePKsResponse"/>
+        </operation>
+        <operation name="getRoutingRule">
+            <input message="tns:getRoutingRuleRequest"/>
+            <output message="tns:getRoutingRuleResponse"/>
+        </operation>
+        <operation name="existsRoutingRule">
+            <input message="tns:existsRoutingRuleRequest"/>
+            <output message="tns:existsRoutingRuleResponse"/>
+        </operation>        
+        <operation name="putRoutingRule">
+            <input message="tns:putRoutingRuleRequest"/>
+            <output message="tns:putRoutingRuleResponse"/>
+        </operation>
+        <operation name="deleteRoutingRule">
+            <input message="tns:deleteRoutingRuleRequest"/>
+            <output message="tns:deleteRoutingRuleResponse"/>
+        </operation>
+        <!-- ********************* TRANSFORMER V2  ************************ -->
+        
+        <operation name="getTransformerV2">
+            <input message="tns:getTransformerV2Request"/>
+            <output message="tns:getTransformerV2Response"/>
+        </operation>
+        <operation name="existsTransformerV2">
+            <input message="tns:existsTransformerV2Request"/>
+            <output message="tns:existsTransformerV2Response"/>
+        </operation>        
+        <operation name="getTransformerV2PKs">
+            <input message="tns:getTransformerV2PKsRequest"/>
+            <output message="tns:getTransformerV2PKsResponse"/>
+        </operation>
+        <operation name="putTransformerV2">
+            <input message="tns:putTransformerV2Request"/>
+            <output message="tns:putTransformerV2Response"/>
+        </operation>
+        <operation name="deleteTransformerV2">
+            <input message="tns:deleteTransformerV2Request"/>
+            <output message="tns:deleteTransformerV2Response"/>
+        </operation>        
+        <operation name="executeTransformerV2">
+            <input message="tns:executeTransformerV2Request"/>
+            <output message="tns:executeTransformerV2Response"/>
+        </operation>        
+        <operation name="executeTransformerV2AsJob">
+            <input message="tns:executeTransformerV2AsJobRequest"/>
+            <output message="tns:executeTransformerV2AsJobResponse"/>
+        </operation>
+        <operation name="extractThroughTransformerV2">
+            <input message="tns:extractThroughTransformerV2Request"/>
+            <output message="tns:extractThroughTransformerV2Response"/>
+        </operation>        
+
+        
+        <!-- *********************  TRANSFORMER PLUGIN  V2 ************************ -->
+        
+        <operation name="existsTransformerPluginV2">
+            <input message="tns:existsTransformerPluginV2Request"/>
+            <output message="tns:existsTransformerPluginV2Response"/>
+        </operation>
+        <operation name="getTransformerPluginV2Configuration">
+            <input message="tns:getTransformerPluginV2ConfigurationRequest"/>
+            <output message="tns:getTransformerPluginV2ConfigurationResponse"/>
+        </operation>
+        <operation name="putTransformerPluginV2Configuration">
+            <input message="tns:putTransformerPluginV2ConfigurationRequest"/>
+            <output message="tns:putTransformerPluginV2ConfigurationResponse"/>
+        </operation>
+        <operation name="getTransformerPluginV2Details">
+            <input message="tns:getTransformerPluginV2DetailsRequest"/>
+            <output message="tns:getTransformerPluginV2DetailsResponse"/>
+        </operation>        
+        <operation name="getTransformerPluginV2sList">
+            <input message="tns:getTransformerPluginV2sListRequest"/>
+            <output message="tns:getTransformerPluginV2sListResponse"/>
+        </operation>        
+        <!-- *************** R O U T I N G    O R D E R S    V 2   ********************** -->
+        
+        <operation name="getRoutingOrderV2">
+            <input message="tns:getRoutingOrderV2Request"/>
+            <output message="tns:getRoutingOrderV2Response"/>
+        </operation>        
+        <operation name="existsRoutingOrderV2">
+            <input message="tns:existsRoutingOrderV2Request"/>
+            <output message="tns:existsRoutingOrderV2Response"/>
+        </operation>        
+        <operation name="deleteRoutingOrderV2">
+            <input message="tns:deleteRoutingOrderV2Request"/>
+            <output message="tns:deleteRoutingOrderV2Response"/>
+        </operation>        
+        <operation name="executeRoutingOrderV2Asynchronously">
+            <input message="tns:executeRoutingOrderV2AsynchronouslyRequest"/>
+            <output message="tns:executeRoutingOrderV2AsynchronouslyResponse"/>
+        </operation>        
+        <operation name="executeRoutingOrderV2Synchronously">
+            <input message="tns:executeRoutingOrderV2SynchronouslyRequest"/>
+            <output message="tns:executeRoutingOrderV2SynchronouslyResponse"/>
+        </operation>        
+        <operation name="getRoutingOrderV2PKsByCriteria">
+            <input message="tns:getRoutingOrderV2PKsByCriteriaRequest"/>
+            <output message="tns:getRoutingOrderV2PKsByCriteriaResponse"/>
+        </operation>        
+        <operation name="getRoutingOrderV2sByCriteria">
+            <input message="tns:getRoutingOrderV2sByCriteriaRequest"/>
+            <output message="tns:getRoutingOrderV2sByCriteriaResponse"/>
+        </operation>
+        <operation name="getRoutingOrderV2ByCriteriaWithPaging">
+            <input message="tns:getRoutingOrderV2ByCriteriaWithPagingRequest"/>
+            <output message="tns:getRoutingOrderV2ByCriteriaWithPagingResponse"/>
+        </operation>
+        
+        <!-- *************** R O U T I N G    E N G I N E    V 2   ********************** -->
+        
+        <operation name="routeItemV2">
+            <input message="tns:routeItemV2Request"/>
+            <output message="tns:routeItemV2Response"/>
+        </operation>        
+        <operation name="routingEngineV2Action">
+            <input message="tns:routingEngineV2ActionRequest"/>
+            <output message="tns:routingEngineV2ActionResponse"/>
+        </operation>
+  
+        <operation name="getMDMJob">
+            <input message="tns:getMDMJobRequest"/>
+            <output message="tns:getMDMJobResponse"/>
+        </operation>
+        <operation name="putMDMJob">
+           <input message="tns:putMDMJobRequest"/>
+           <output message="tns:putMDMJobResponse"/>
+        </operation>
+        <operation name="deleteMDMJob">
+           <input message="tns:deleteMDMJobRequest"/>
+           <output message="tns:deleteMDMJobResponse"/>
+        </operation>
+
+
+                  
+         <operation name="getMDMCategory">
+            <input message="tns:getMDMCategoryRequest"/>
+            <output message="tns:getMDMCategoryResponse"></output>
+        </operation>
+         <operation name="getAutoIncrement">
+            <input message="tns:getAutoIncrementRequest"/>
+            <output message="tns:getAutoIncrementResponse"></output>
+         </operation>   
+		<operation name="updateItemMetadata">
+			<input message="tns:updateItemMetadataRequest"/>
+			<output message="tns:putItemResponse"/>
+		</operation>
+	</portType>
+	
+
+
+	
+		<!-- *****************************************************
+		             B I N D I N G
+		*******************************************************-->	
+	
+	<binding type="tns:XtentisPort" name="XtentisBinding">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+
+		<!-- ****************** COMPONENTS MANAGEMENT  *********************** -->
+		
+		<operation name="getComponentVersion">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		<!-- ****************** VARIOUS  *********************** -->
+		
+		<operation name="ping">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="refreshCache">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="logout">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="isXmlDB">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+		<operation name="getDigest">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="updateDigest">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+		
+		<!-- ****************** INITIALIZATION  *********************** -->
+		
+		<operation name="initMDM">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		
+		
+		<!-- ****************** DATA MODEL  *********************** -->
+		
+		<!--
+		<operation name="getDataModels">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+         -->
+		<operation name="getDataModelPKs">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getDataModel">
+		<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="existsDataModel">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>         
+		<operation name="putDataModel">
+		<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="deleteDataModel">
+		<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>	
+		<operation name="checkSchema">
+		<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="deleteBusinessConcept">
+		<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="getBusinessConcepts">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putBusinessConcept">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>			
+		<operation name="putBusinessConceptSchema">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>			
+		<operation name="getBusinessConceptKey">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+	
+	
+		<!-- ***************D A T A   C L U S T E R  ********************** -->
+		
+		<operation name="getDataClusterPKs">
+			<soap:operation style="document"/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		 <operation name="getDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="existsDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="existsDBDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="putDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="putDBDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>         
+		<operation name="deleteDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="getConceptsInDataCluster">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getConceptsInDataClusterWithRevisions">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		<!-- *********************  VIEW  ************************ -->
+		
+		<operation name="getViewPKs">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>         
+		<operation name="getView">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="existsView">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="putView">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+		<operation name="deleteView">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+         </operation>
+
+		<!-- *********************  SEARCH  ************************ -->
+
+		<operation name="getBusinessConceptValue">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="getFullPathValues">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="existsItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="getItems">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getItemsSort">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="getItemPKsByCriteria">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getItemPKsByFullCriteria">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="countItemsByCustomFKFilters">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getItemsByCustomFKFilters">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+		<operation name="viewSearch">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="xPathsSearch">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getItemsPivotIndex">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getChildrenItems">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+		<operation name="count">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>	
+		<operation name="quickSearch">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+	
+
+		<!-- *********************  PUT ITEM  ************************ -->
+		
+		<operation name="putItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="updateItemMetadata">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="partialPutItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+		<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putItemArray">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="putItemWithReportArray">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		
+		<operation name="putItemWithReport">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putItemWithCustomReport">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		
+        <operation name="isItemModifiedByOther">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        		
+		<!-- *********************  EXTRACT ITEMS  ************************ -->
+		<operation name="extractUsingTransformer">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="extractUsingTransformerThruView">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+	
+		<!-- *********************  DELETE ITEMS  ************************ -->
+		
+		<operation name="deleteItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		<operation name="deleteItemWithReport">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+				
+		<operation name="deleteItems">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		
+		<operation name="dropItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		<!-- *********************  TEST: GET INCOMPLETE ITEMS  ************************ -->
+		<!--
+		<operation name="getIncompleteItems">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		-->
+
+		<!-- *********************  DIRECT QUERY  ************************ -->
+		
+		<operation name="runQuery">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		<!-- *********************  CONNECTOR  ************************ -->
+		
+		<operation name="connectorInteraction">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		
+		<!-- *********************  SERVICES  ************************ -->
+		
+		<operation name="serviceAction">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getServiceConfiguration">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putServiceConfiguration">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getServicesList">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getServiceDocument">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<!-- ********************* STORED PROCEDURES  ************************ -->
+		
+		<operation name="getStoredProcedure">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="existsStoredProcedure">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="getStoredProcedurePKs">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putStoredProcedure">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="deleteStoredProcedure">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="executeStoredProcedure">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		
+		
+		<!-- ********************* TRANSFORMER  ************************ -->
+		
+		<operation name="getTransformer">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="existsTransformer">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="getTransformerPKs">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putTransformer">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="deleteTransformer">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="processBytesUsingTransformer">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="processFileUsingTransformer">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>	
+		<operation name="processBytesUsingTransformerAsBackgroundJob">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="processFileUsingTransformerAsBackgroundJob">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>	
+		
+
+
+		<!-- ********************* Menu  ************************ -->
+		
+		<operation name="getMenu">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="existsMenu">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="getMenuPKs">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putMenu">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="deleteMenu">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		
+		<!-- ********************* Background Jobs  ************************ -->
+
+		<operation name="findBackgroundJobPKs">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="getBackgroundJob">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="putBackgroundJob">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		<!-- ********************* Universe  ************************ -->
+		
+		<operation name="getCurrentUniverse">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+		<!-- ********************* Dropped Item  ************************ -->
+		<operation name="recoverDroppedItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="findAllDroppedItemsPKs">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>		
+		<operation name="loadDroppedItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="removeDroppedItem">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="getMDMConfiguration">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+		<operation name="checkServiceConfiguration">
+			<soap:operation/>
+			<input><soap:body use="literal"/></input>
+			<output><soap:body use="literal"/></output>
+		</operation>
+
+        <!-- *********************  ROUTING RULE  ************************ -->
+        
+        <operation name="getRoutingRulePKs">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getRoutingRule">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="existsRoutingRule">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>        
+        <operation name="putRoutingRule">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="deleteRoutingRule">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        
+        
+        <!-- ********************* TRANSFORMERV2  ************************ -->
+        
+        <operation name="getTransformerV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="existsTransformerV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>        
+        <operation name="getTransformerV2PKs">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="putTransformerV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="deleteTransformerV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="executeTransformerV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="executeTransformerV2AsJob">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="extractThroughTransformerV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>    
+            
+                
+        <!-- *********************  TRANSFORMER PLUGIN  V2 ************************ -->
+        
+        <operation name="existsTransformerPluginV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>        
+        <operation name="getTransformerPluginV2Configuration">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="putTransformerPluginV2Configuration">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getTransformerPluginV2Details">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getTransformerPluginV2sList">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <!-- ********************* Routing Order V2  ************************ -->
+        
+        <operation name="getRoutingOrderV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="existsRoutingOrderV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="deleteRoutingOrderV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="executeRoutingOrderV2Asynchronously">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="executeRoutingOrderV2Synchronously">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getRoutingOrderV2PKsByCriteria">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getRoutingOrderV2sByCriteria">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="getRoutingOrderV2ByCriteriaWithPaging">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        
+        
+        <!-- ********************* Routing Engine V2  ************************ -->
+        
+        <operation name="routeItemV2">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        <operation name="routingEngineV2Action">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+  
+        <operation name="getMDMJob">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        
+        <operation name="putMDMJob">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+        
+        <operation name="deleteMDMJob">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+             
+        <operation name="getMDMCategory">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>
+         <operation name="getAutoIncrement">
+            <soap:operation/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+        </operation>      
+	</binding>
+		
+	
+	<service name="XtentisService">
+		<port binding="tns:XtentisBinding" name="XtentisPort">
+			<soap:address location="http://localhost:8080/talend/TalendPort"/>
+		</port>
+	</service>
+	
+</definitions>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="wsdl_all" name="WSDLCompile-GenerateWSElements">
+
+	<property name="jwsdp.home" value="/opt/jwsdp-1.5"/>
+	<property name="source.dir" value="./src"/>
+	<property name="bin.dir" value="./bin"/>
+	<property name="config.xml" value="./config.xml"/>
+	<property name="mapping.xml" value="${source.dir}/META-INF/mapping.xml"/>
+	
+	<target name="wsdl_all">
+		<exec executable="${jwsdp.home}/jaxrpc/bin/wscompile.sh">
+			<!--<arg line="-import"/>-->
+			<arg line="-gen:client"/>
+			<arg line="-verbose"/>
+			<arg line="-g"/>			
+			<arg line="-d ${bin.dir} -s ${source.dir}"/>
+			<arg line="-keep"/>
+			<arg line="-f:documentliteral"/>
+			<arg line="-f:wsi"/>
+			<arg line="-f:donotunwrap"/>
+			<arg line="-f:useonewayoperations"/>
+			<!-- <arg line="-f:explicitcontext"/> -->
+			<!-- <arg line="-f:searchschema"/> -->
+			<!-- <arg line="-f:serializeinterfaces"/>
+			-->
+			<arg line="${config.xml}"/>									
+		</exec>	
+	</target>
+
+</project>

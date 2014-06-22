@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<languages>
+	<language value="en" dateTime="MM/dd/yyyy HH:mm:ss">English</language>
+	<language value="fr" dateTime="MM/dd/yyyy HH:mm:ss">Français</language>
+    <language value="ar">العربية</language>
+    <language value="bn">বাঙ্গালী</language>
+    <language value="zh" dateTime="yyyy/MM/dd HH:mm:ss">中文</language>
+    <language value="de">Deutsch</language>
+    <language value="hi">हिंदी</language>
+    <language value="it">Italiano</language>
+    <language value="ja">日本語</language>
+    <language value="ko">한국어</language>
+    <language value="pt">Português</language>
+    <language value="ru">Pусский</language>
+    <language value="es">Español</language>
+    <language value="te">తెలుగు</language>
+    <language value="ta">தமிழ்</language>
+    <language value="uk">Український</language>
+</languages>

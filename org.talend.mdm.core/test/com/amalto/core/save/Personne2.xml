@@ -1,0 +1,7 @@
+<Personne>
+ <IdMDM></IdMDM>
+ <TypePersonneFk>[1]</TypePersonneFk>
+ <StatutPersonneFk>[8]</StatutPersonneFk>
+ <NomUsuel>Test</NomUsuel>
+ <PrenomUsuel>Heiko</PrenomUsuel>
+</Personne>

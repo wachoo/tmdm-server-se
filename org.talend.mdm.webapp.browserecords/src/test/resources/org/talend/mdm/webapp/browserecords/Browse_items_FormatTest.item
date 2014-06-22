@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdmserverobject:WSViewE xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:mdmserverobject="http://www.talend.org/mdmserverobject" xmi:id="_AcVEoyJ8EeGKksxehAavMw" name="Browse_items_Product" description="[FR:Produit][EN:FormatTest]" transformerPK="">
+  <lastServerDef xmi:id="_AcVEpCJ8EeGKksxehAavMw" name="Ports-01" label="" passwd="talend" url="http://localhost:8180/talend/TalendPort" user="admin"/>
+  <searchableBusinessElements>FormatTest/subelement</searchableBusinessElements>
+  <searchableBusinessElements>FormatTest/name</searchableBusinessElements>
+  <searchableBusinessElements>FormatTest/d1</searchableBusinessElements>
+  <searchableBusinessElements>FormatTest/dt1</searchableBusinessElements>
+  <searchableBusinessElements>FormatTest/num</searchableBusinessElements>
+  <viewableBusinessElements>FormatTest/subelement</viewableBusinessElements>
+  <viewableBusinessElements>FormatTest/name</viewableBusinessElements>
+  <viewableBusinessElements>FormatTest/d1</viewableBusinessElements>
+  <viewableBusinessElements>FormatTest/dt1</viewableBusinessElements>
+  <viewableBusinessElements>FormatTest/num</viewableBusinessElements>
+  <isTransformerActive xmi:id="_AcVEpSJ8EeGKksxehAavMw"/>
+</mdmserverobject:WSViewE>

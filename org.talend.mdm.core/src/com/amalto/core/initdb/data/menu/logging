@@ -1,0 +1,24 @@
+<menu-pOJO>
+    <menu-entries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO">
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">en</key>
+            <value xsi:type="java:java.lang.String">Logging Service Setup</value>
+        </descriptions>
+        <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+            <key xsi:type="java:java.lang.String">fr</key>
+            <value xsi:type="java:java.lang.String">Paramétrage du Logging Service</value>
+        </descriptions>
+        <application>LoggingAdapter</application>
+        <context>loggingadapter</context>
+        <id>logging</id>
+    </menu-entries>
+    <name>logging</name>
+    <description>logging configure setup</description>
+    <PK>
+        <ids>logging</ids>
+        <unique-id>logging</unique-id>
+    </PK>
+    <last-synch>test</last-synch>
+    <last-error/>
+    <digest>2f1266d46bbf5913e8ac4bdf9c6c86d3</digest>
+</menu-pOJO>
