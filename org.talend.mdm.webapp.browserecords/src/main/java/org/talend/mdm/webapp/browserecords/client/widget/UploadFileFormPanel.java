@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2013 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -166,6 +167,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         file.setFieldLabel(MessagesFactory.getMessages().label_field_file());
         file.addListener(Events.Change, new Listener<BaseEvent>() {
 
+            @Override
             public void handleEvent(BaseEvent be) {
                 type = FileUtil.getFileType(file.getValue());
                 if (type.equalsIgnoreCase("CSV")) { //$NON-NLS-1$
@@ -275,7 +277,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         encodingList.add(iso88591);
 
         ItemBaseModel iso885915 = new ItemBaseModel();
-        iso885915.set("label", "iso885915"); //$NON-NLS-1$ //$NON-NLS-2$
+        iso885915.set("label", "ISO-8859-15"); //$NON-NLS-1$ //$NON-NLS-2$
         iso885915.set("key", "iso-8859-15"); //$NON-NLS-1$ //$NON-NLS-2$
         encodingList.add(iso885915);
 
@@ -283,6 +285,11 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         cp1252.set("label", "cp1252"); //$NON-NLS-1$ //$NON-NLS-2$
         cp1252.set("key", "cp-1252"); //$NON-NLS-1$ //$NON-NLS-2$
         encodingList.add(cp1252);
+
+        ItemBaseModel gbk = new ItemBaseModel();
+        gbk.set("label", "GBK"); //$NON-NLS-1$ //$NON-NLS-2$
+        gbk.set("key", "GBK"); //$NON-NLS-1$ //$NON-NLS-2$
+        encodingList.add(gbk);
 
         ListStore<ItemBaseModel> encodingStoreList = new ListStore<ItemBaseModel>();
         encodingStoreList.add(encodingList);
@@ -329,6 +336,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         this.addListener(Events.Submit, this);
     }
 
+    @Override
     public void handleEvent(FormEvent be) {
         String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
 
@@ -340,8 +348,11 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
             ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
             ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, buttonEvent);
         } else {
-            MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                    MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result)), null);
+            String errorMsg = MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result));
+            if (errorMsg == null || errorMsg.length() == 0 || errorMsg.equals("<f></f>")) { //$NON-NLS-1$
+                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+            }
+            MessageBox.alert(MessagesFactory.getMessages().error_title(), errorMsg, null);
         }
     }
 
