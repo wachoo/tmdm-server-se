@@ -19,9 +19,11 @@ import java.io.Writer;
 import javax.xml.XMLConstants;
 
 import org.apache.commons.lang.StringEscapeUtils;
-
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+
+import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
@@ -72,8 +74,11 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
             }
         } else if (value instanceof Object[]) {
             StringBuilder valueAsString = new StringBuilder();
+            CompoundFieldMetadata compoundFields = (CompoundFieldMetadata) ((ReferenceFieldMetadata) fieldMetadata)
+                    .getReferencedField();
+            int i = 0;
             for (Object current : ((Object[]) value)) {
-                valueAsString.append('[').append(String.valueOf(current)).append(']');
+                valueAsString.append('[').append(MetadataUtils.toString(current, compoundFields.getFields()[i++])).append(']');
             }
             stringValue = valueAsString.toString();
         } else {
@@ -90,7 +95,7 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                 stringValue = fkValueAsString.toString();
             } else {
                 if (!stringValue.startsWith("[")) { //$NON-NLS-1$
-                    stringValue = "[" + stringValue + ']'; //$NON-NLS-1$
+                    stringValue = "[" + MetadataUtils.toString(value, ((ReferenceFieldMetadata) fieldMetadata).getReferencedField()) + ']'; //$NON-NLS-1$
                 }
             }
         }

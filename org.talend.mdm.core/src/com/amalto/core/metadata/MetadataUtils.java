@@ -4,12 +4,43 @@
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
  *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.metadata;
+
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+import javax.xml.XMLConstants;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
 import com.amalto.core.integrity.ForeignKeyIntegrity;
 import com.amalto.core.query.user.DateConstant;
@@ -19,17 +50,6 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.*;
-
-import javax.xml.XMLConstants;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.*;
 
 public class MetadataUtils {
 
@@ -44,9 +64,7 @@ public class MetadataUtils {
      * the inverse operation of Page Rank).
      * </p>
      * <p>
-     * Entity rank is computed with this algorithm:
-     * ER(E) = N + d (ER(E1)/C(E1) + ... + ER(En)/C(En))
-     * where:
+     * Entity rank is computed with this algorithm: ER(E) = N + d (ER(E1)/C(E1) + ... + ER(En)/C(En)) where:
      * <ul>
      * <li>ER(E) is the entity rank of E.</li>
      * <li>N the number of entities in <code>repository</code></li>
@@ -94,12 +112,14 @@ public class MetadataUtils {
     }
 
     /**
-     * Similar to {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata, boolean)}
+     * Similar to
+     * {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata, boolean)}
      * but will remain in entity boundaries (won't follow FK to other MDM entities).
      *
      * @param origin Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
-     * @return A path <b>within</b> type <code>origin</code> to field <code>target</code>. Returns empty stack if no path could be found.
+     * @return A path <b>within</b> type <code>origin</code> to field <code>target</code>. Returns empty stack if no
+     * path could be found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      */
     public static List<FieldMetadata> path(ComplexTypeMetadata origin, FieldMetadata target) {
@@ -108,7 +128,8 @@ public class MetadataUtils {
 
     /**
      * <p>
-     * Find <b>a</b> path (<b>not necessarily the shortest</b>) from type <code>origin</code> to field <code>target</code>.
+     * Find <b>a</b> path (<b>not necessarily the shortest</b>) from type <code>origin</code> to field
+     * <code>target</code>.
      * </p>
      * <p>
      * Method is expected to run in linear time, depending on:
@@ -120,7 +141,8 @@ public class MetadataUtils {
      *
      * @param type Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
-     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be found.
+     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be
+     * found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      */
     public static List<FieldMetadata> path(ComplexTypeMetadata type, FieldMetadata target, boolean includeReferences) {
@@ -129,11 +151,8 @@ public class MetadataUtils {
         return path;
     }
 
-    private static void _path(ComplexTypeMetadata type,
-                              FieldMetadata target,
-                              Stack<FieldMetadata> path,
-                              Set<ComplexTypeMetadata> processedTypes,
-                              boolean includeReferences) {
+    private static void _path(ComplexTypeMetadata type, FieldMetadata target, Stack<FieldMetadata> path,
+            Set<ComplexTypeMetadata> processedTypes, boolean includeReferences) {
         // Various optimizations for very simple cases
         if (type == null) {
             throw new IllegalArgumentException("Origin can not be null");
@@ -193,7 +212,7 @@ public class MetadataUtils {
                     for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
                         for (FieldMetadata field : subType.getFields()) {
                             if (field.getDeclaringType() == subType) {
-                                _path(subType, target, path,processedTypes,  true);
+                                _path(subType, target, path, processedTypes, true);
                                 if (path.peek() == target) {
                                     return;
                                 }
@@ -212,15 +231,19 @@ public class MetadataUtils {
      * </p>
      * <p>
      * This is a rather expensive operation, so use this method only when needed. When you need only <b>a</b> path to
-     * field <code>target</code>, prefer usage of {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata)}.
+     * field <code>target</code>, prefer usage of
+     * {@link #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata)}
+     * .
      * </p>
      * <p>
-     * This method follows references to other type <b>only</b> when type is not instantiable (see {@link org.talend.mdm.commmon.metadata.TypeMetadata#isInstantiable()}).
+     * This method follows references to other type <b>only</b> when type is not instantiable (see
+     * {@link org.talend.mdm.commmon.metadata.TypeMetadata#isInstantiable()}).
      * </p>
      *
      * @param type Point of entry in the metadata graph.
      * @param target Field to look for as end of path.
-     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be found.
+     * @return A path from type <code>origin</code> to field <code>target</code>. Returns empty list if no path could be
+     * found.
      * @throws IllegalArgumentException If either <code>origin</code> or <code>path</code> is null.
      * @see #path(org.talend.mdm.commmon.metadata.ComplexTypeMetadata, org.talend.mdm.commmon.metadata.FieldMetadata)
      */
@@ -231,67 +254,65 @@ public class MetadataUtils {
         return foundPaths;
     }
 
-    private static void _paths(ComplexTypeMetadata type,
-                               FieldMetadata target,
-                               Stack<FieldMetadata> currentPath,
-                               Set<List<FieldMetadata>> foundPaths) {
-            // Various optimizations for very simple cases
-            if (type == null) {
-                throw new IllegalArgumentException("Origin can not be null");
+    private static void _paths(ComplexTypeMetadata type, FieldMetadata target, Stack<FieldMetadata> currentPath,
+            Set<List<FieldMetadata>> foundPaths) {
+        // Various optimizations for very simple cases
+        if (type == null) {
+            throw new IllegalArgumentException("Origin can not be null");
+        }
+        if (target == null) {
+            throw new IllegalArgumentException("Target field can not be null");
+        }
+        if (Storage.PROJECTION_TYPE.equals(type.getName()) && type.hasField(target.getName())) {
+            currentPath.push(type.getField(target.getName()));
+        }
+        //
+        Collection<FieldMetadata> fields = type.getFields();
+        for (FieldMetadata current : fields) {
+            currentPath.push(current);
+            if (current == target) {
+                foundPaths.add(new ArrayList<FieldMetadata>(currentPath));
             }
-            if (target == null) {
-                throw new IllegalArgumentException("Target field can not be null");
-            }
-            if (Storage.PROJECTION_TYPE.equals(type.getName()) && type.hasField(target.getName())) {
-                currentPath.push(type.getField(target.getName()));
-            }
-            //
-            Collection<FieldMetadata> fields = type.getFields();
-            for (FieldMetadata current : fields) {
-                currentPath.push(current);
-                if (current == target) {
-                    foundPaths.add(new ArrayList<FieldMetadata>(currentPath));
+            if (current instanceof ContainedTypeFieldMetadata) {
+                ComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
+                _paths(containedType, target, currentPath, foundPaths);
+                for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+                    for (FieldMetadata field : subType.getFields()) {
+                        if (field.getDeclaringType() == subType) {
+                            _paths(subType, target, currentPath, foundPaths);
+                        }
+                    }
                 }
-                if (current instanceof ContainedTypeFieldMetadata) {
-                    ComplexTypeMetadata containedType = ((ContainedTypeFieldMetadata) current).getContainedType();
-                    _paths(containedType, target, currentPath, foundPaths);
-                    for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+            } else if (current instanceof ReferenceFieldMetadata) {
+                ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
+                if (!referencedType.isInstantiable()) {
+                    _paths(referencedType, target, currentPath, foundPaths);
+                    for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
                         for (FieldMetadata field : subType.getFields()) {
                             if (field.getDeclaringType() == subType) {
                                 _paths(subType, target, currentPath, foundPaths);
                             }
                         }
                     }
-                } else if (current instanceof ReferenceFieldMetadata) {
-                    ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
-                    if (!referencedType.isInstantiable()) {
-                        _paths(referencedType, target, currentPath, foundPaths);
-                        for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
-                            for (FieldMetadata field : subType.getFields()) {
-                                if (field.getDeclaringType() == subType) {
-                                    _paths(subType, target, currentPath, foundPaths);
-                                }
-                            }
-                        }
-                    }
                 }
-                currentPath.pop();
             }
+            currentPath.pop();
         }
+    }
 
     /**
-     * Creates a value from <code>dataAsString</code>. Type and/or format of the returned value depends on <code>field</code>.
-     * For instance, calling this method with {@link String} with value "0" and a field typed as integer returns {@link Integer}
-     * instance with value 0.
+     * Creates a value from <code>dataAsString</code>. Type and/or format of the returned value depends on
+     * <code>field</code>. For instance, calling this method with {@link String} with value "0" and a field typed as
+     * integer returns {@link Integer} instance with value 0.
      *
      * @param dataAsString A {@link String} containing content to initialize a value.
-     * @param field        A {@link FieldMetadata} that describes type information about the field.
-     * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code> if
-     *         field is instance of {@link ContainedTypeFieldMetadata} (this type of field isn't expected to have values).
-     *         Also returns <code>null</code> is parameter <code>dataAsString</code> is null <b>OR</b> if <code>dataAsString</code>
-     *         is empty string.
-     * @throws RuntimeException Throws sub classes of {@link RuntimeException} if <code>dataAsString</code>  format does
-     *                          not match field's type.
+     * @param field A {@link FieldMetadata} that describes type information about the field.
+     * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code>
+     * if field is instance of {@link ContainedTypeFieldMetadata} (this type of field isn't expected to have values).
+     * Also returns <code>null</code> is parameter <code>dataAsString</code> is null <b>OR</b> if
+     * <code>dataAsString</code> is empty string.
+     * @throws RuntimeException Throws sub classes of {@link RuntimeException} if <code>dataAsString</code> format does
+     * not match field's type.
      */
     public static Object convert(String dataAsString, FieldMetadata field) {
         return convert(dataAsString, field.getType());
@@ -311,19 +332,19 @@ public class MetadataUtils {
                 StringBuilder builder = null;
                 for (char currentChar : chars) {
                     switch (currentChar) {
-                        case '[':
-                            builder = new StringBuilder();
-                            break;
-                        case ']':
-                            if (builder != null) {
-                                ids.add(builder.toString());
-                            }
-                            break;
-                        default:
-                            if (builder != null) {
-                                builder.append(currentChar);
-                            }
-                            break;
+                    case '[':
+                        builder = new StringBuilder();
+                        break;
+                    case ']':
+                        if (builder != null) {
+                            ids.add(builder.toString());
+                        }
+                        break;
+                    default:
+                        if (builder != null) {
+                            builder.append(currentChar);
+                        }
+                        break;
                     }
                 }
             } else {
@@ -339,7 +360,8 @@ public class MetadataUtils {
             DataRecord referencedRecord = new DataRecord(actualComplexType, UnsupportedDataRecordMetadata.INSTANCE);
             Collection<FieldMetadata> keyFields = actualComplexType.getKeyFields();
             if (ids.size() != keyFields.size()) {
-                throw new IllegalStateException("Type '" + actualType.getName() + "' expects " + keyFields.size() + " keys values, but got " + ids.size() + ".");
+                throw new IllegalStateException("Type '" + actualType.getName() + "' expects " + keyFields.size()
+                        + " keys values, but got " + ids.size() + ".");
             }
             Iterator<FieldMetadata> keyIterator = keyFields.iterator();
             for (String id : ids) {
@@ -358,7 +380,8 @@ public class MetadataUtils {
             }
 
             TypeMetadata type = field.getType();
-            if (!(field instanceof ContainedTypeFieldMetadata)) {  // Contained (anonymous types) values can't have values
+            if (!(field instanceof ContainedTypeFieldMetadata)) { // Contained (anonymous types) values can't have
+                                                                  // values
                 try {
                     return convert(xmlData, type);
                 } catch (Exception e) {
@@ -371,8 +394,8 @@ public class MetadataUtils {
     }
 
     /**
-     * Returns the top level type for <code>type</code> parameter: this method returns the type before <i>anyType</i>
-     * in type hierarchy. This does not apply to types declared in {@link XMLConstants#W3C_XML_SCHEMA_NS_URI}.
+     * Returns the top level type for <code>type</code> parameter: this method returns the type before <i>anyType</i> in
+     * type hierarchy. This does not apply to types declared in {@link XMLConstants#W3C_XML_SCHEMA_NS_URI}.
      * <ul>
      * <li>In an MDM entity B inherits from A, getSuperConcreteType(B) returns A.</li>
      * <li>If a simple type LimitedString extends xsd:string, getSuperConcreteType(LimitedString) returns xsd:string.</li>
@@ -393,9 +416,8 @@ public class MetadataUtils {
             while (!type.getSuperTypes().isEmpty()) {
                 TypeMetadata superType = type.getSuperTypes().iterator().next();
                 if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(superType.getNamespace())
-                        && (Types.ANY_TYPE.equals(superType.getName())
-                        || Types.ANY_SIMPLE_TYPE.equals(superType.getName())
-                        || Types.DECIMAL.equals(superType.getName()))) {
+                        && (Types.ANY_TYPE.equals(superType.getName()) || Types.ANY_SIMPLE_TYPE.equals(superType.getName()) || Types.DECIMAL
+                                .equals(superType.getName()))) {
                     break;
                 }
                 type = superType;
@@ -406,8 +428,8 @@ public class MetadataUtils {
 
     public static Object convert(String dataAsString, TypeMetadata type) {
         String typeName = type.getName();
-        if (dataAsString == null || 
-                (dataAsString.isEmpty() && !Types.STRING.equals(typeName) && !typeName.contains("limitedString"))) { //$NON-NLS-1$
+        if (dataAsString == null
+                || (dataAsString.isEmpty() && !Types.STRING.equals(typeName) && !typeName.contains("limitedString"))) { //$NON-NLS-1$
             return null;
         } else {
             return convert(dataAsString, getSuperConcreteType(type).getName());
@@ -418,12 +440,8 @@ public class MetadataUtils {
 
         if (Types.STRING.equals(type)) {
             return dataAsString;
-        } else if (Types.INTEGER.equals(type)
-                || Types.POSITIVE_INTEGER.equals(type)
-                || Types.NEGATIVE_INTEGER.equals(type)
-                || Types.NON_NEGATIVE_INTEGER.equals(type)
-                || Types.NON_POSITIVE_INTEGER.equals(type)
-                || Types.INT.equals(type)
+        } else if (Types.INTEGER.equals(type) || Types.POSITIVE_INTEGER.equals(type) || Types.NEGATIVE_INTEGER.equals(type)
+                || Types.NON_NEGATIVE_INTEGER.equals(type) || Types.NON_POSITIVE_INTEGER.equals(type) || Types.INT.equals(type)
                 || Types.UNSIGNED_INT.equals(type)) {
             return Integer.parseInt(dataAsString);
         } else if (Types.DATE.equals(type)) {
@@ -505,7 +523,7 @@ public class MetadataUtils {
      *
      * @param metadata A {@link TypeMetadata} instance.
      * @return The name of Java class for the <code>metadata</code> argument. Returned string might directly be used for
-     *         a {@link Class#forName(String)} call.
+     * a {@link Class#forName(String)} call.
      */
     public static String getJavaType(TypeMetadata metadata) {
         String sqlType = metadata.getData(TypeMapping.SQL_TYPE);
@@ -519,21 +537,15 @@ public class MetadataUtils {
             return "java.lang.String"; //$NON-NLS-1$
         } else if (Types.ANY_URI.equals(type)) {
             return "java.lang.String"; //$NON-NLS-1$
-        } else if (Types.INT.equals(type)
-                || Types.INTEGER.equals(type)
-                || Types.POSITIVE_INTEGER.equals(type)
-                || Types.NON_POSITIVE_INTEGER.equals(type)
-                || Types.NON_NEGATIVE_INTEGER.equals(type)
-                || Types.NEGATIVE_INTEGER.equals(type)
-                || Types.UNSIGNED_INT.equals(type)) {
+        } else if (Types.INT.equals(type) || Types.INTEGER.equals(type) || Types.POSITIVE_INTEGER.equals(type)
+                || Types.NON_POSITIVE_INTEGER.equals(type) || Types.NON_NEGATIVE_INTEGER.equals(type)
+                || Types.NEGATIVE_INTEGER.equals(type) || Types.UNSIGNED_INT.equals(type)) {
             return "java.lang.Integer"; //$NON-NLS-1$
         } else if (Types.BOOLEAN.equals(type)) {
             return "java.lang.Boolean"; //$NON-NLS-1$
         } else if (Types.DECIMAL.equals(type)) {
             return "java.math.BigDecimal"; //$NON-NLS-1$
-        } else if (Types.DATE.equals(type)
-                || Types.DATETIME.equals(type)
-                || Types.TIME.equals(type)
+        } else if (Types.DATE.equals(type) || Types.DATETIME.equals(type) || Types.TIME.equals(type)
                 || Types.DURATION.equals(type)) {
             return "java.sql.Timestamp"; //$NON-NLS-1$
         } else if (Types.UNSIGNED_SHORT.equals(type) || Types.SHORT.equals(type)) {
@@ -602,10 +614,10 @@ public class MetadataUtils {
      * </p>
      *
      * @param repository The repository that contains entity types to sort.
-     * @return A sorted list of {@link ComplexTypeMetadata} types. First type of list is a type that has no dependency on
-     *         any other type of the list.
-     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency. Error message contains
-     *                                  information on where the cycle is.
+     * @return A sorted list of {@link ComplexTypeMetadata} types. First type of list is a type that has no dependency
+     * on any other type of the list.
+     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency. Error message
+     * contains information on where the cycle is.
      */
     public static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository) {
         ArrayList<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(repository.getUserComplexTypes());
@@ -628,20 +640,19 @@ public class MetadataUtils {
      * </p>
      *
      * @param repository This is used to display information in case of cycle.
-     * @param types The list of types to be sorted. This list should provide a transitive closure of types (all references
-     *              to other types must be satisfied in this list), if it isn't the unresolved FK will be ignored.
-     * @return A sorted list of {@link ComplexTypeMetadata} types. First type of list is a type that has no dependency on
-     *         any other type of the list.
-     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency. Error message contains
-     *                                  information on where the cycle is.
+     * @param types The list of types to be sorted. This list should provide a transitive closure of types (all
+     * references to other types must be satisfied in this list), if it isn't the unresolved FK will be ignored.
+     * @return A sorted list of {@link ComplexTypeMetadata} types. First type of list is a type that has no dependency
+     * on any other type of the list.
+     * @throws IllegalArgumentException If repository contains types that creates a cyclic dependency. Error message
+     * contains information on where the cycle is.
      */
     public static List<ComplexTypeMetadata> sortTypes(MetadataRepository repository, List<ComplexTypeMetadata> types) {
         return _sortTypes(repository, true, types);
     }
 
-    private static List<ComplexTypeMetadata> _sortTypes(MetadataRepository repository,
-                                                        final boolean sortAllTypes,
-                                                        final List<ComplexTypeMetadata> types) {
+    private static List<ComplexTypeMetadata> _sortTypes(MetadataRepository repository, final boolean sortAllTypes,
+            final List<ComplexTypeMetadata> types) {
         /*
          * Compute additional data for topological sorting
          */
@@ -649,6 +660,7 @@ public class MetadataUtils {
         byte[][] dependencyGraph = new byte[typeNumber][typeNumber];
         for (final ComplexTypeMetadata type : types) {
             dependencyGraph[getId(type, types)] = type.accept(new DefaultMetadataVisitor<byte[]>() {
+
                 Set<TypeMetadata> processedTypes = new HashSet<TypeMetadata>();
 
                 byte[] lineContent = new byte[typeNumber]; // Stores dependencies of current type
@@ -698,7 +710,8 @@ public class MetadataUtils {
                 @Override
                 public byte[] visit(ReferenceFieldMetadata referenceField) {
                     ComplexTypeMetadata referencedType = referenceField.getReferencedType();
-                    if (!type.equals(referencedType) && referenceField.isFKIntegrity()) { // Don't count a dependency to itself as a dependency.
+                    if (!type.equals(referencedType) && referenceField.isFKIntegrity()) { // Don't count a dependency to
+                                                                                          // itself as a dependency.
                         if (sortAllTypes || referencedType.isInstantiable()) {
                             if (types.contains(referencedType)) {
                                 lineContent[getId(referencedType, types)]++;
@@ -714,9 +727,9 @@ public class MetadataUtils {
             });
         }
         /*
-        * TOPOLOGICAL SORTING
-        * See "Kahn, A. B. (1962), "Topological sorting of large networks", Communications of the ACM"
-        */
+         * TOPOLOGICAL SORTING See "Kahn, A. B. (1962), "Topological sorting of large
+         * networks", Communications of the ACM"
+         */
         List<ComplexTypeMetadata> sortedTypes = new LinkedList<ComplexTypeMetadata>();
         Set<ComplexTypeMetadata> noIncomingEdges = new HashSet<ComplexTypeMetadata>();
         int lineNumber = 0;
@@ -772,7 +785,8 @@ public class MetadataUtils {
                         }
                     } while (currentLineNumber != lineNumber);
                     if (dependencyPath.size() > 1) {
-                        dependencyPath.add(getType(types, lineNumber)); // Include cycle start to get a better exception message.
+                        dependencyPath.add(getType(types, lineNumber)); // Include cycle start to get a better exception
+                                                                        // message.
                         cycles.add(dependencyPath);
                     }
                 }
@@ -792,7 +806,8 @@ public class MetadataUtils {
                         if (dependencyPathIterator.hasNext()) {
                             cyclesAsString.append(" -> "); //$NON-NLS-1$
                         } else if (previous != null) {
-                            Set<ReferenceFieldMetadata> inboundReferences = repository.accept(new ForeignKeyIntegrity(currentType));
+                            Set<ReferenceFieldMetadata> inboundReferences = repository
+                                    .accept(new ForeignKeyIntegrity(currentType));
                             cyclesAsString.append(" ( possible fields: ");
                             for (ReferenceFieldMetadata inboundReference : inboundReferences) {
                                 String xPath = inboundReference.getPath();
@@ -850,7 +865,8 @@ public class MetadataUtils {
         if (field instanceof ReferenceFieldMetadata) {
             return toString(o);
         }
-        String typeName = field.getType().getName();
+        TypeMetadata type = MetadataUtils.getSuperConcreteType(field.getType());
+        String typeName = type.getName();
         if (Types.DATE.equals(typeName)) {
             synchronized (DateConstant.DATE_FORMAT) {
                 try {
@@ -903,4 +919,3 @@ public class MetadataUtils {
         return StringEscapeUtils.escapeXml(String.valueOf(value));
     }
 }
-

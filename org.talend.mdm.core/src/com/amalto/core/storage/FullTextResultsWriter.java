@@ -4,18 +4,11 @@
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
  *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
-
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordWriter;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,18 +19,34 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+
+import com.amalto.core.metadata.MetadataUtils;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordWriter;
+
 public class FullTextResultsWriter implements DataRecordWriter {
+
     private final String keyword;
 
     public FullTextResultsWriter(String keyword) {
         this.keyword = keyword;
     }
 
+    @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(output, "UTF-8"); //$NON-NLS-1$
         write(record, writer);
     }
 
+    @Override
     public void write(DataRecord record, Writer writer) throws IOException {
         Collection<FieldMetadata> keyFields = record.getType().getKeyFields();
 
@@ -46,7 +55,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
             {
                 writer.write("<ids>"); //$NON-NLS-1$
                 for (FieldMetadata keyField : keyFields) {
-                    writer.write("<id>" + StringEscapeUtils.escapeXml(String.valueOf(record.get(keyField))) + "</id>"); //$NON-NLS-1$ //$NON-NLS-2$
+                    writer.write("<id>" + StringEscapeUtils.escapeXml(MetadataUtils.toString(record.get(keyField), keyField)) + "</id>"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 writer.write("</ids>"); //$NON-NLS-1$
             }
@@ -54,7 +63,7 @@ public class FullTextResultsWriter implements DataRecordWriter {
                 writer.write("<title>"); //$NON-NLS-1$
                 writer.write(record.getType().getName());
                 for (FieldMetadata keyField : keyFields) {
-                    writer.write(" " + StringEscapeUtils.escapeXml(String.valueOf(record.get(keyField)))); //$NON-NLS-1$
+                    writer.write(" " + StringEscapeUtils.escapeXml(MetadataUtils.toString(record.get(keyField), keyField))); //$NON-NLS-1$
                 }
                 writer.write("</title>"); //$NON-NLS-1$
             }
@@ -82,7 +91,11 @@ public class FullTextResultsWriter implements DataRecordWriter {
 
         private final DataRecord record;
 
-        private final String[] snippetWords = new String[]{StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY}; // Prevent "null" values in results
+        private final String[] snippetWords = new String[] { StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY }; // Prevent
+                                                                                                                        // "null"
+                                                                                                                        // values
+                                                                                                                        // in
+                                                                                                                        // results
 
         boolean hasMetKeyword;
 
