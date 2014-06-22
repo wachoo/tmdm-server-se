@@ -1,0 +1,12 @@
+<data-cluster-pOJO>
+    <name>Reporting</name>
+    <vocabulary/>
+    <description>Reporting</description>
+    <PK>
+        <ids>Reporting</ids>
+        <unique-id>Reporting</unique-id>
+    </PK>
+    <last-synch>test</last-synch>
+    <last-error/>
+    <digest>0c07f6606a5c811146c0085646a44e7a</digest>
+</data-cluster-pOJO>

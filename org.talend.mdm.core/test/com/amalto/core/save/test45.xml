@@ -1,0 +1,96 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<Create_Supplier>
+    <Request_Status>[1]</Request_Status>
+    <Request_Id_PK>4</Request_Id_PK>
+    <Requester_Details>
+        <requester_name>qsdqsd</requester_name>
+        <requester_site>qsdqsd</requester_site>
+        <requester_email>qsdqsd</requester_email>
+        <requester_phone/>
+        <request_date>2012-09-12</request_date>
+    </Requester_Details>
+    <Supplier_Name>bob</Supplier_Name>
+    <Supplier_Country/>
+    <Company_RegNbr/>
+    <Supplier_Details>
+        <supplier_sells>qsdqsd</supplier_sells>
+        <vat_reg_code/>
+        <irish_vat>false</irish_vat>
+        <uk_vat>false</uk_vat>
+        <cis_supplier>false</cis_supplier>
+        <warehouse_selfbill>false</warehouse_selfbill>
+        <haulier_selfbill>false</haulier_selfbill>
+    </Supplier_Details>
+    <Supplier_Address>
+        <address_1/>
+        <address_2>Test</address_2>
+        <address_3/>
+        <address_4/>
+        <city>Test</city>
+        <postal_code>Test</postal_code>
+        <county/>
+    </Supplier_Address>
+    <Contact_Details>
+        <contact_role>Purchasing</contact_role>
+        <title/>
+        <first_name/>
+        <surname/>
+        <telephone>
+            <line_type/>
+            <area_code/>
+            <local_number/>
+            <extension/>
+        </telephone>
+        <email/>
+    </Contact_Details>
+    <Payment_Details>
+        <payment_terms/>
+        <nonstd_terms_reason/>
+    </Payment_Details>
+    <PurCategories>
+        <purcat_level_1/>
+        <purcat_level_2/>
+        <purcat_level_3/>
+    </PurCategories>
+    <Bank>
+        <nonuk_bank/>
+        <sort_code/>
+        <account_number/>
+        <account_currency/>
+        <bank_name/>
+        <bank_country/>
+        <swift_code/>
+        <iban/>
+    </Bank>
+    <ABC_information>
+        <Q1/>
+        <Q2/>
+        <Q3/>
+        <Q4/>
+        <Q5/>
+        <Q6/>
+        <Q7/>
+    </ABC_information>
+    <CIS_Details>
+        <unique_tax_reference/>
+        <CIS_doc_type/>
+        <nins_nbr/>
+    </CIS_Details>
+    <Letterhead>
+        <Link/>
+    </Letterhead>
+    <Workflow_Control>
+        <WF_In_Progress>false</WF_In_Progress>
+        <ProcurementApproval>Rejected</ProcurementApproval>
+    </Workflow_Control>
+</Create_Supplier>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='welcomeportal'>
+ <inherits name="org.talend.mdm.webapp.base.BASE" />
+
+ <!-- Specify the app entry point class. -->
+ <entry-point class='org.talend.mdm.webapp.welcomeportal.client.WelcomePortal' />
+
+ <!-- Specify the paths for translatable code -->
+ <source path='client' />
+ <source path='shared' />
+
+ <stylesheet src='../WelcomePortal.css' />
+
+</module>

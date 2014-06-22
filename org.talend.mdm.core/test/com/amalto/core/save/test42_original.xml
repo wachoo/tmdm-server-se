@@ -1,0 +1,66 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+
+<ii>
+    <c>Product</c>
+    <n>ThirdEntity</n>
+    <dmn>Test</dmn>
+    <i>321</i>
+    <t>1342521961921</t>
+    <taskId/>
+    <p>
+        <Personne xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <IdMDM>8</IdMDM>
+            <IdVINCI>00000059</IdVINCI>
+            <TypePersonneFk>[1]</TypePersonneFk>
+            <StatutPersonneFk>[8]</StatutPersonneFk>
+            <NomUsuel>TEST</NomUsuel>
+            <NomNaissance>TEST</NomNaissance>
+            <PrenomUsuel>TEST</PrenomUsuel>
+            <PrenomNaissance>TEST</PrenomNaissance>
+            <DateNaissance>1975-01-01</DateNaissance>
+            <DateEntreeGroupe>2005-01-01</DateEntreeGroupe>
+            <Contextes>
+                <Contexte>
+                    <IdContexte>31506f84-0c35-4c85-a728-c335cb11e742</IdContexte>
+                    <SourceFk>[10]</SourceFk>
+                    <TypeContexteFk>[1]</TypeContexteFk>
+                    <StatutContexteFk>[1]</StatutContexteFk>
+                    <OrganisationFk>[5249]</OrganisationFk>
+                    <Contacts>
+                        <Contact>
+                            <StatutContactFk>[1]</StatutContactFk>
+                            <SpecialisationContactType xsi:type="SpecialisationContactEmail">
+                                <NatureEmailFk>[2]</NatureEmailFk>
+                                <Email>TEST@eurovia.de</Email>
+                            </SpecialisationContactType>
+                        </Contact>
+                        <Contact>
+                            <StatutContactFk>[4]</StatutContactFk>
+                            <SpecialisationContactType xsi:type="SpecialisationContactTelephone">
+                                <NatureTelephoneFk>[2]</NatureTelephoneFk>
+                                <Numero>(0000)0000</Numero>
+                            </SpecialisationContactType>
+                        </Contact>
+                        <Contact>
+                            <StatutContactFk>[1]</StatutContactFk>
+                            <SpecialisationContactType xsi:type="SpecialisationContactEmail">
+                                <NatureEmailFk>[1]</NatureEmailFk>
+                                <Email>test.test@eurovia.de</Email>
+                            </SpecialisationContactType>
+                        </Contact>
+                    </Contacts>
+                </Contexte>
+            </Contextes>
+        </Personne>
+    </p>
+</ii>

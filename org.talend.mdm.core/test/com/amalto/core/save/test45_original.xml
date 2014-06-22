@@ -1,0 +1,36 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<ii>
+    <c>Product</c>
+    <n>ThirdEntity</n>
+    <dmn>Test</dmn>
+    <i>321</i>
+    <t>1342521961921</t>
+    <taskId/>
+    <p>
+        <Create_Supplier>
+            <Request_Status>[1]</Request_Status>
+            <Request_Id_PK>4</Request_Id_PK>
+            <Requester_Details>
+                <requester_name>qsdqsd</requester_name>
+                <requester_site>qsdqsd</requester_site>
+                <requester_email>qsdqsd</requester_email>
+                <request_date>2012-09-12</request_date>
+            </Requester_Details>
+            <Supplier_Name>bob</Supplier_Name>
+            <Workflow_Control>
+                <WF_In_Progress>false</WF_In_Progress>
+                <ProcurementApproval>Rejected</ProcurementApproval>
+            </Workflow_Control>
+        </Create_Supplier>
+    </p>
+</ii>

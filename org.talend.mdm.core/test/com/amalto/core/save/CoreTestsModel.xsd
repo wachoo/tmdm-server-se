@@ -1,0 +1,1116 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+    <xsd:element name="FirstEntity" type="FirstEntityType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="FirstEntity">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="FirstEntityType">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="mandatoryElement">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="o1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="o2" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="m1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="SecondEntity" type="SecondEntityType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="SecondEntity">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="SecondEntityType">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="optionalElement">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="o1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="o2" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="m1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="ThirdEntity" type="ThirdEntityType">
+        <xsd:annotation>
+
+
+            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="ThirdEntity">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="ThirdEntityType">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="optionalDetails">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="mandatory1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional2" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded3" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="1" name="mandatoryUbounded4" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional5">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:all>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="mandatory51" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:element>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="optional51" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:element>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded6">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:all>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="mandatory61" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:element>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="optional62" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:element>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="mandatoryDetails">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="mandatory1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional2" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded3" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="1" name="mandatoryUbounded4" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional5">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:all>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="mandatory51" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:element>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="optional51" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:element>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded6">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:all>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="mandatory61" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:element>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="optional62" type="xsd:string">
+                                        <xsd:annotation>
+                                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                        </xsd:annotation>
+                                    </xsd:element>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="DetailsType">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="mandatory1" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="optional2" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded3" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="unbounded" minOccurs="1" name="mandatoryUbounded4" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="optional5">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="mandatory51" type="xsd:string"/>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional51" type="xsd:string"/>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded6">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="mandatory61" type="xsd:string"/>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional62" type="xsd:string"/>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="DataTypesTest">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="id" type="AUTO_INCREMENT">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="boolean1" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="boolean2" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="date1" type="xsd:date">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="date2" type="xsd:date">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="string1" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="string2" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="integer1" type="xsd:integer">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="integer2" type="xsd:integer">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="datetime1" type="xsd:dateTime">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="datetime2" type="xsd:dateTime">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="decimal1" type="xsd:decimal">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="decimal2" type="xsd:decimal">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="float1" type="xsd:float">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="float2" type="xsd:float">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="double1" type="xsd:double">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="double2" type="xsd:double">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="ID" type="xsd:ID">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="ID1" type="xsd:ID">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="base64Binary" type="xsd:base64Binary">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="base64Binary1" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="anyURI" type="xsd:anyURI">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="anyURI1" type="xsd:anyURI">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="gDay" type="xsd:gDay">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="gDay1" type="xsd:gDay">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="gMonth" type="xsd:gMonth">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="gMonth1" type="xsd:gMonth">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="gMonthDay" type="xsd:gMonthDay">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="gMonthDay1" type="xsd:gMonthDay">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="gYear" type="xsd:gYear">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="gYear1" type="xsd:gYear">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="gYearMonth" type="xsd:gYearMonth">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="gYearMonth1" type="xsd:gYearMonth">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="hexBinary" type="xsd:hexBinary">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="hexBinary1" type="xsd:hexBinary">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="int" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="int1" type="xsd:int">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="language" type="xsd:language">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="language1" type="xsd:language">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="negativeInteger" type="xsd:negativeInteger">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="negativeInteger1" type="xsd:negativeInteger">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="long" type="xsd:long">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="long1" type="xsd:long">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="nonNegativeInteger" type="xsd:nonNegativeInteger">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="nonNegativeInteger1" type="xsd:nonNegativeInteger">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="nonPositiveInteger" type="xsd:nonPositiveInteger">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="nonPositiveInteger1" type="xsd:nonPositiveInteger">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="normalizedString" type="xsd:normalizedString">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="normalizedString1" type="xsd:normalizedString">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="positiveInteger" type="xsd:positiveInteger">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="positiveInteger1" type="xsd:positiveInteger">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="short" type="xsd:short">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="short1" type="xsd:short">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="token" type="xsd:token">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="token1" type="xsd:token">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="unsignedByte" type="xsd:unsignedByte">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="unsignedByte1" type="xsd:unsignedByte">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="unsignedInt" type="xsd:unsignedInt">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="unsignedInt1" type="xsd:unsignedInt">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="unsignedLong" type="xsd:unsignedLong">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="unsignedLong1" type="xsd:unsignedLong">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="unsignedShort" type="xsd:unsignedShort">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="unsignedShort1" type="xsd:unsignedShort">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="duration" type="xsd:duration">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="duration1" type="xsd:duration">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="byte" type="xsd:byte">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="byte1" type="xsd:byte">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="IDREF" type="xsd:IDREF">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="IDREF1" type="xsd:IDREF">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="IDREFS" type="xsd:IDREFS">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="IDREFS1" type="xsd:IDREFS">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="QName" type="xsd:QName">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="QName1" type="xsd:QName">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="ENTITIES" type="xsd:ENTITIES">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="ENTITY" type="xsd:ENTITY">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="NMTOKEN" type="xsd:NMTOKEN">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="NMTOKENS" type="xsd:NMTOKENS">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="Name" type="xsd:Name">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="NCName" type="xsd:NCName">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="NOTATION" type="xsd:string">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="DataTypesTest">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:simpleType name="AUTO_INCREMENT">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="URL">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="PICTURE">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="UUID">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:element name="CustomTypes">
+        <xsd:annotation>
+
+            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="key1" type="AUTO_INCREMENT">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="auto_increment" type="AUTO_INCREMENT">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="auto_increment1" type="AUTO_INCREMENT">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="url" type="URL">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="url1" type="URL">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="picture" type="PICTURE">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="enum" type="enum">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="enum1" type="enum">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="uuid" type="UUID">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="uuid1" type="UUID">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="CustomTypes">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key1"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:simpleType name="enum">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="one"/>
+            <xsd:enumeration value="two"/>
+            <xsd:enumeration value="three"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:element name="ComplexTypes">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="key" type="AUTO_INCREMENT">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="son" type="Son">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="son1" type="Son">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="father" type="Father">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="father1" type="Father">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="ComplexTypes">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="Father">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Name" type="xsd:string">
+                <xsd:annotation>
+
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="Address" type="xsd:string">
+                <xsd:annotation>
+
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Photo" type="PICTURE">
+                <xsd:annotation>
+
+                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="Son">
+        <xsd:complexContent>
+            <xsd:extension base="Father">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="School" type="xsd:string">
+                        <xsd:annotation>
+
+                            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:element name="Occurrences">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element maxOccurs="1" minOccurs="1" name="id" type="AUTO_INCREMENT">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="boolean" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="boolean2" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="string" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="string2" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="integer" type="xsd:integer">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="integer2" type="xsd:integer">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="double" type="xsd:double">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="double2" type="xsd:double">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="datetime" type="xsd:dateTime">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="datetime2" type="xsd:dateTime">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="autoincrement" type="AUTO_INCREMENT">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="autoincrement2" type="AUTO_INCREMENT">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="url" type="URL">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="url2" type="URL">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="picture2" type="PICTURE">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="enum" type="enum">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="enum2" type="enum">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="uuid" type="UUID">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="uuid2" type="UUID">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="father" type="Father">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="father2" type="Father">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="son" type="Son">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="son2" type="Son">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:unique name="Occurrences">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="FourthEntity">
+        <xsd:annotation>
+
+            <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+            <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="typesEntity">
+                    <xsd:annotation>
+
+                        <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element maxOccurs="unbounded" minOccurs="0" name="typeEntity" type="SecondEntityType">
+                                <xsd:annotation>
+
+                                    <xsd:appinfo source="X_Write">CoreTestsRole</xsd:appinfo>
+                                    <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
+                                </xsd:annotation>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="FourthEntity">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key"/>
+        </xsd:unique>
+    </xsd:element>
+</xsd:schema>

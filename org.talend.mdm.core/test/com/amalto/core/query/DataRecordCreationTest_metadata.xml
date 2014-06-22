@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ii>
+    <c>Product</c>
+    <n>Product</n>
+    <dmn>Product</dmn>
+    <i>1</i>
+    <t>1328544306381</t>
+    <taskId/>
+    <p>
+        <Product xmlns:metadata="http://www.talend.com/mdm/metadata">
+            <metadata:staging_source>My Source</metadata:staging_source>
+            <metadata:staging_error>My Error</metadata:staging_error>
+            <metadata:staging_status>999</metadata:staging_status>
+            <metadata:staging_blockkey>5678</metadata:staging_blockkey>
+            <metadata:task_id>1234</metadata:task_id>
+            <Id>1</Id>
+            <Name>Test23</Name>
+            <ShortDescription>TestDD</ShortDescription>
+            <LongDescription/>
+            <Features>
+                <Sizes>
+                    <Size>Small</Size>
+                    <Size>Large</Size>
+                </Sizes>
+                <Colors>
+                    <Color>Blue</Color>
+                </Colors>
+            </Features>
+            <Product>A value just there to test when entity contains an element with same name as entity (TMDM-4717)</Product>
+            <Availability/>
+            <Price>30</Price>
+            <Family>[2]</Family>
+            <Supplier>[1]</Supplier>
+            <CreationDate/>
+            <RemovalDate/>
+            <Status>Pending</Status>
+        </Product>
+    </p>
+</ii>

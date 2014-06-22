@@ -1,0 +1,22 @@
+<ii>
+    <c>Product</c>
+    <n>Product</n>
+    <dmn>Product</dmn>
+    <i>1</i>
+    <t>1328544306381</t>
+    <taskId/>
+    <p>
+		<Product>
+		    <Id>1</Id>
+		    <Name>Old product name</Name>
+		    <Description>Description</Description>
+		    <Features>
+		        <Colors>
+		            <Color>Lemon</Color>
+		        </Colors>
+		    </Features>
+		    <Price>60</Price>
+		    <Family>[1]</Family>
+		</Product>
+    </p>
+</ii>

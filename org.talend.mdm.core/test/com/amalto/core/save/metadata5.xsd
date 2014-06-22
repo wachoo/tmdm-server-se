@@ -1,0 +1,306 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+
+
+    <xsd:element name="FirstEntity" type="FirstEntityType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+            <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="FirstEntity">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="FirstEntityType">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="mandatoryElement">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="o1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="o2" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="m1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="SecondEntity" type="SecondEntityType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+            <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="SecondEntity">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="SecondEntityType">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="optionalElement">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="o1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="o2" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="m1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="ThirdEntity" type="ThirdEntityType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="ThirdEntity">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="key"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="ThirdEntityType">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="optionalDetails">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="mandatory1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional2" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded3"
+                                     type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="1" name="mandatoryUbounded4"
+                                     type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional5">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:all>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="mandatory51" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="optional51" type="xsd:string"/>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded6">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:all>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="mandatory61" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="optional62" type="xsd:string"/>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="mandatoryDetails">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="mandatory1" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional2" type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded3"
+                                     type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="1" name="mandatoryUbounded4"
+                                     type="xsd:string">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional5">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:all>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="mandatory51" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="optional51" type="xsd:string"/>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded6">
+                            <xsd:annotation>
+                                <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:all>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="mandatory61" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="optional62" type="xsd:string"/>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:complexType name="DetailsType">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="mandatory1" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="optional2" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded3" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Create">System_Admin</xsd:appinfo>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="unbounded" minOccurs="1" name="mandatoryUbounded4" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="optional5">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="mandatory51" type="xsd:string"/>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional51" type="xsd:string"/>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="optionalUbounded6">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="mandatory61" type="xsd:string"/>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="optional62" type="xsd:string"/>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+</xsd:schema>

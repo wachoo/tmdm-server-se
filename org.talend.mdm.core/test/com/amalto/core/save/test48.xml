@@ -1,0 +1,21 @@
+<Product>
+	<Picture>/upload/c201210/cellphone.jpg</Picture>
+	<Id>10001</Id>
+	<Name>Talend Cap</Name>
+	<Description>Cpa - 002</Description>
+	<Features>
+		<Sizes>
+			<Size/>
+		</Sizes>
+		<Colors>
+			<Color/>
+		</Colors>
+	</Features>
+	<Availability/>
+	<Price>24</Price>
+	<Family>[1]</Family>
+	<OnlineStore/>
+	<Stores>
+		<Store>[1]</Store>
+	</Stores>
+</Product>

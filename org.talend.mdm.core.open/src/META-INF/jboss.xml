@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 4.0//EN" "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
+
+<jboss>
+
+    <security-domain>java:/jaas/xtentisSecurity</security-domain>
+    <unauthenticated-principal>guest</unauthenticated-principal>
+
+    <enterprise-beans>
+        <session>
+            <ejb-name>XtentisWS</ejb-name>
+            <port-component>
+                <port-component-name>XtentisPort</port-component-name>
+                <port-component-uri>/talend/TalendPort</port-component-uri>
+                <auth-method>BASIC</auth-method>
+            </port-component>
+        </session>
+    </enterprise-beans>
+
+    <assembly-descriptor/>
+
+    <resource-managers/>
+
+    <container-configurations>
+        <container-configuration>
+            <container-name>Option D30</container-name>
+            <call-logging>false</call-logging>
+            <invoker-proxy-binding-name>entity-rmi-invoker</invoker-proxy-binding-name>
+            <sync-on-commit-only>false</sync-on-commit-only>
+            <insert-after-ejb-post-create>false</insert-after-ejb-post-create>
+            <container-interceptors>
+                <interceptor>org.jboss.ejb.plugins.ProxyFactoryFinderInterceptor</interceptor>
+                <interceptor>org.jboss.ejb.plugins.LogInterceptor</interceptor>
+                <interceptor>org.jboss.ejb.plugins.SecurityInterceptor</interceptor>
+                <interceptor>org.jboss.ejb.plugins.TxInterceptorCMT</interceptor>
+                <interceptor>org.jboss.ejb.plugins.CallValidationInterceptor</interceptor>
+                <interceptor metricsEnabled="true">org.jboss.ejb.plugins.MetricsInterceptor</interceptor>
+                <interceptor>org.jboss.ejb.plugins.EntityCreationInterceptor</interceptor>
+                <interceptor>org.jboss.ejb.plugins.EntityLockInterceptor</interceptor>
+                <interceptor>org.jboss.ejb.plugins.EntityInstanceInterceptor</interceptor>
+                <interceptor>org.jboss.ejb.plugins.EntityReentranceInterceptor</interceptor>
+                <interceptor>org.jboss.resource.connectionmanager.CachedConnectionInterceptor</interceptor>
+                <interceptor>org.jboss.ejb.plugins.EntitySynchronizationInterceptor</interceptor>
+            </container-interceptors>
+            <instance-pool>org.jboss.ejb.plugins.EntityInstancePool</instance-pool>
+            <instance-cache>org.jboss.ejb.plugins.EntityInstanceCache</instance-cache>
+            <persistence-manager>org.jboss.ejb.plugins.BMPPersistenceManager</persistence-manager>
+            <locking-policy>org.jboss.ejb.plugins.lock.QueuedPessimisticEJBLock</locking-policy>
+            <container-cache-conf>
+                <cache-policy>org.jboss.ejb.plugins.LRUEnterpriseContextCachePolicy</cache-policy>
+                <cache-policy-conf>
+                    <min-capacity>50</min-capacity>
+                    <max-capacity>1000000</max-capacity>
+                    <overager-period>300</overager-period>
+                    <max-bean-age>600</max-bean-age>
+                    <resizer-period>400</resizer-period>
+                    <max-cache-miss-period>60</max-cache-miss-period>
+                    <min-cache-miss-period>1</min-cache-miss-period>
+                    <cache-load-factor>0.75</cache-load-factor>
+                </cache-policy-conf>
+            </container-cache-conf>
+            <container-pool-conf>
+                <MaximumSize>100</MaximumSize>
+            </container-pool-conf>
+            <commit-option>D</commit-option>
+            <optiond-refresh-rate>30</optiond-refresh-rate>
+        </container-configuration>
+    </container-configurations>
+</jboss>

@@ -1,0 +1,26 @@
+<ComplexTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <key>1</key>
+    <son>
+        <Name></Name>
+        <Address></Address>
+        <Photo></Photo>
+        <School></School>
+    </son>
+    <son1>
+        <Name>Name</Name>
+        <Address/>
+        <Photo></Photo>
+        <School></School>
+    </son1>
+    <father xsi:type="Son">
+        <Name></Name>
+        <Address></Address>
+        <Photo></Photo>
+        <School></School>
+    </father>
+    <father1 xsi:type="Father">
+        <Name>Name</Name>
+        <Address></Address>
+        <Photo></Photo>
+    </father1>
+</ComplexTypes>
