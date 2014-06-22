@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<Societe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <CodeOSMOSE>12345</CodeOSMOSE>
+    <Contacts>
+        <Contact>
+            <StatutContactFk>[2]</StatutContactFk>
+            <SpecialisationContactType xsi:type="SpecialisationContactTelephone">
+                <NatureTelephoneFk>[5]</NatureTelephoneFk>
+                <Numero>+33 1 00 00 00 00</Numero>
+            </SpecialisationContactType>
+        </Contact>
+    </Contacts>
+</Societe>

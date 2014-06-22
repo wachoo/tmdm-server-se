@@ -1,0 +1,23 @@
+<menu-pOJO>
+ <menu-entries xsi:type="java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+   <key xsi:type="java:java.lang.String">fr</key>
+   <value xsi:type="java:java.lang.String">Staging Area</value>
+  </descriptions>
+  <descriptions xsi:type="java:org.exolab.castor.mapping.MapItem">
+   <key xsi:type="java:java.lang.String">en</key>
+   <value xsi:type="java:java.lang.String">Staging Area</value>
+  </descriptions>
+  <application>Stagingarea</application>
+  <context>stagingarea</context>
+  <id>StagingArea</id>
+ </menu-entries>
+ <name>StagingArea</name>
+ <description />
+ <PK>
+  <ids>StagingArea</ids>
+  <unique-id>StagingArea</unique-id>
+ </PK>
+ <last-error />
+</menu-pOJO>

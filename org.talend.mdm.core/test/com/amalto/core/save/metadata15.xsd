@@ -1,0 +1,100 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">  
+  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>  
+  <xsd:complexType name="Add"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="Add1" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="Add2" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:sequence> 
+  </xsd:complexType>  
+  <xsd:complexType name="UAdd"> 
+    <xsd:complexContent> 
+      <xsd:extension base="Add"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="Uadd1" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="4" minOccurs="0" name="Uadd2" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:complexType abstract="false" name="CAdd"> 
+    <xsd:complexContent> 
+      <xsd:extension base="Add"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="Cadd1" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Cadd2" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:element name="Pers"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:sequence> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="Name" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="Gender" type="Gender"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="5" minOccurs="1" name="ADdress" type="Add"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="pic" type="PICTURE"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:sequence> 
+    </xsd:complexType>  
+    <xsd:unique name="Pers"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="Id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:simpleType name="Gender"> 
+    <xsd:restriction base="xsd:string"> 
+      <xsd:enumeration value="Male"/>  
+      <xsd:enumeration value="Female"/> 
+    </xsd:restriction> 
+  </xsd:simpleType>  
+  <xsd:simpleType name="PICTURE"> 
+    <xsd:restriction base="xsd:string"/> 
+  </xsd:simpleType> 
+</xsd:schema>

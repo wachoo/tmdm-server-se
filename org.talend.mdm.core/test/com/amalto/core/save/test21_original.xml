@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<ii>
+    <c>testImport</c>
+    <n>testImport</n>
+    <dmn>testImport</dmn>
+    <i>231035933</i>
+    <t>1327653438644</t>
+    <p>
+        <testImport>
+            <Marke>111</Marke>
+            <ArtikeLnummer>222</ArtikeLnummer>
+            <KeyMapping>
+                <Keys>
+                    <System>111</System>
+                    <Key>111</Key>
+                </Keys>
+                <Keys>
+                    <System>222</System>
+                    <Key>222</Key>
+                </Keys>
+                <Keys>
+                    <System>333</System>
+                    <Key>333</Key>
+                </Keys>
+            </KeyMapping>
+            <Class>eeerrr</Class>
+        </testImport>
+    </p>
+</ii>

@@ -1,0 +1,34 @@
+<!--
+  ~ Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<Personne xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <IdMDM>4</IdMDM>
+    <TypePersonneFk>[1]</TypePersonneFk>
+    <StatutPersonneFk>[2]</StatutPersonneFk>
+    <NomUsuel>u</NomUsuel>
+    <PrenomUsuel>p</PrenomUsuel>
+    <Contextes>
+        <Contexte>
+            <IdContexte>31506f84-0c35-4c85-a728-c335cb11e742</IdContexte>
+            <TypeContexteFk>[7]</TypeContexteFk>
+            <StatutContexteFk>[8]</StatutContexteFk>
+            <Contacts>
+                <Contact>
+                    <StatutContactFk>[9]</StatutContactFk>
+                    <SpecialisationContactType xsi:type="SpecialisationContactEmail">
+                        <NatureEmailFk>[10]</NatureEmailFk>
+                        <Email>test3@eurovia.de</Email>
+                    </SpecialisationContactType>
+                </Contact>
+            </Contacts>
+        </Contexte>
+    </Contextes>
+</Personne>

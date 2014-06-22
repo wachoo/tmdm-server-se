@@ -1,0 +1,36 @@
+<!-- ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com ~ ~ This source code is available under agreement 
+    available at ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt ~ 
+    ~ You should have received a copy of the agreement ~ along with this program; if not, write to Talend 
+    SA ~ 9 rue Pages 92150 Suresnes, France -->
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+
+    <session-factory>
+
+        <property name="statement_cache.size">0</property>
+
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.url" />
+        <property name="hibernate.connection.username" />
+        <property name="hibernate.connection.driver_class" />
+        <property name="hibernate.dialect" />
+        <property name="hibernate.connection.password" />
+
+        <property name="hibernate.jdbc.batch_size">100</property>
+
+        <!-- Needs a special org.hibernate.context.ThreadLocalSessionContext implementation that allow CLOB creations -->
+        <property name="hibernate.current_session_context_class">com.amalto.core.storage.hibernate.MDMSessionContext</property>
+
+        <property name="hibernate.c3p0.min_size">5</property>
+        <property name="hibernate.c3p0.max_size">50</property>
+        <property name="hibernate.c3p0.timeout">500</property>
+        <property name="hibernate.c3p0.idle_test_period">300</property>
+        <property name="hibernate.c3p0.max_statements">50</property>
+
+        <property name="hibernate.show_sql">false</property>
+
+    </session-factory>
+
+</hibernate-configuration>

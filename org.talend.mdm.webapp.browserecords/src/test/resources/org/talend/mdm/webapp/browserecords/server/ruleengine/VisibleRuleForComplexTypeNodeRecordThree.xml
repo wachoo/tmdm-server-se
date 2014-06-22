@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Test xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <id>1</id>
+    <oem>
+        <oem_type></oem_type>
+        <a></a>
+        <b></b>
+        <c></c>
+    </oem>
+    <name>abc</name>
+</Test>

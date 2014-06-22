@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurations>
+<archive name="logging.jar" destination="" used="true" exploded="false">
+<folder prefix="com/amalto/connector/logging/eis" includes="" excludes="" project="" projectLocation="bin/com/amalto/connector/logging/eis" name="eis" location="bin/com/amalto/connector/logging/eis" used="true"/>
+<folder prefix="com/amalto/connector/logging/ra" includes="**/*.class" excludes="" project="" projectLocation="bin/com/amalto/connector/logging/ra" name="ra" location="bin/com/amalto/connector/logging/ra" used="true"/>
+</archive>
+<archive name="zz.20.xtentis.connector.logging.rar" destination="" used="true" exploded="false">
+<file prefix="META-INF" project="" projectLocation="/src/META-INF/ra.xml" name="ra.xml" location="src/META-INF/ra.xml" used="true"/>
+<file prefix="" project="" projectLocation="logging.jar" name="logging.jar" location="logging.jar" used="true"/>
+<file prefix="" project="" projectLocation="RELEASE.NOTES" name="RELEASE.NOTES" location="RELEASE.NOTES" used="true"/>
+<file prefix="" project="" projectLocation="version.properties" name="version.properties" location="version.properties" used="true"/>
+</archive>
+<archive name="zz.20.xtentis.connector.logging-mdb.ejb.jar" destination="" used="true" exploded="false">
+<file prefix="META-INF" project="" projectLocation="src/META-INF/ejb-jar.xml" name="ejb-jar.xml" location="src/META-INF/ejb-jar.xml" used="true"/>
+<file prefix="META-INF" project="" projectLocation="src/META-INF/jboss.xml" name="jboss.xml" location="src/META-INF/jboss.xml" used="true"/>
+<folder prefix="com/amalto/connector/logging/mdb" includes="" excludes="" project="" projectLocation="bin/com/amalto/connector/logging/mdb" name="mdb" location="bin/com/amalto/connector/logging/mdb" used="true"/>
+<file prefix="" project="" projectLocation="RELEASE.NOTES" name="RELEASE.NOTES" location="RELEASE.NOTES" used="true"/>
+<file prefix="" project="" projectLocation="version.properties" name="version.properties" location="version.properties" used="true"/>
+</archive>
+</configurations>

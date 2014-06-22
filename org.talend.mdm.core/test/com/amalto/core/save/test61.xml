@@ -1,0 +1,14 @@
+<Pers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <Id>id1</Id>
+    <Name>name1</Name>
+    <Gender>Male</Gender>
+    <ADdress xsi:type="Add">
+        <Add1>add1-1</Add1>
+        <Add2>add1-2</Add2>
+    </ADdress>
+    <ADdress xsi:type="Add">
+        <Add1>add2-1</Add1>
+        <Add2>add2-2</Add2>
+    </ADdress>
+    <pic>/upload/a/0.jpeg</pic>
+</Pers>

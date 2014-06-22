@@ -1,0 +1,85 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
+	<xsd:element name="M26_E01">
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element name="subelement" type="xsd:string" />
+			</xsd:all>
+		</xsd:complexType>
+		<xsd:unique name="M26_E01">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="subelement" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="M26_E02">
+		<xsd:annotation>
+			<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element name="subelement" type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:all>
+		</xsd:complexType>
+		<xsd:unique name="M26_E02">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="subelement" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="M26_E03">
+		<xsd:annotation>
+			<xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element name="subelement" type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:all>
+		</xsd:complexType>
+		<xsd:unique name="M26_E03">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="subelement" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="M26_E04">
+		<xsd:annotation>
+			<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+			<xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element name="subelement" type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+						<xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:all>
+		</xsd:complexType>
+		<xsd:unique name="M26_E04">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="subelement" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="M26_E05" type="M26_T01">
+		<xsd:unique name="M26_E05">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="subelement" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:complexType name="M26_T01">
+		<xsd:all>
+			<xsd:element name="subelement" type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Hide">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:all>
+	</xsd:complexType>
+</xsd:schema>

@@ -1,0 +1,227 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base</artifactId>
+        <version>5.3-SNAPSHOT</version>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.talend.mdm.webapp.browserecords</artifactId>
+    <name>org.talend.mdm.webapp.browserecords</name>
+    <packaging>war</packaging>
+
+    <dependencies>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-dev</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-user</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml</groupId>
+            <artifactId>relaxngDatatype</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.schema</groupId>
+            <artifactId>XmlSchema</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 3rd party dependencies -->
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.allen-sauer.gwt.log</groupId>
+            <artifactId>gwt-log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.extjs</groupId>
+            <artifactId>gxt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-j2ee</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss.jbossws</groupId>
+            <artifactId>jboss-jaxrpc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.rpc</groupId>
+            <artifactId>jaxrpc-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.rpc</groupId>
+            <artifactId>jaxrpc-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xsom</groupId>
+            <artifactId>xsom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>saxon</artifactId>
+        </dependency>
+
+        <!-- MDM dependencies -->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.core</artifactId>
+            <classifier>lib</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commons.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commmon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+            <classifier>ejbs</classifier>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- generate jar file with sources and classes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jar-source</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jar-lib</id>
+                        <configuration>
+                            <classifier>lib</classifier>
+                        </configuration>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>gwt-compile</id>
+                        <configuration>
+                            <module>org.talend.mdm.webapp.browserecords.BrowseRecords</module>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <!-- Apply dev mode exclusions -->
+                    <execution>
+                        <id>devmode-exclusions</id>
+                        <phase>prepare-package</phase>
+                    </execution>
+                    <!-- Deploy to Jboss -->
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <delete file="${jboss.deploy.dir}/${project.name}.war" />
+                                <delete file="${jboss.lib.dir}/${project.name}.jar" />
+
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                    tofile="${jboss.deploy.dir}/${project.name}.war" />
+                                <copy
+                                    file="${project.build.directory}/${project.build.finalName}-lib.jar"
+                                    tofile="${jboss.lib.dir}/${project.name}.jar" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>

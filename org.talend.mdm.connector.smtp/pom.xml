@@ -1,0 +1,186 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.talend.mdm</groupId>
+        <artifactId>mdm-base</artifactId>
+        <version>5.3-SNAPSHOT</version>
+        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.talend.mdm.connector.smtp</artifactId>
+    <name>org.talend.mdm.connector.smtp</name>
+
+    <properties>
+        <jar>smtp</jar>
+        <rar>zz.20.mdm.connector.smtp</rar>
+        <mdb>zz.20.mdm.connector.smtp-mdb.ejb</mdb>
+        <ds>zz.20.mdm.connector.smtp-ds.xml</ds>
+    </properties>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/**.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <finalName>${rar}</finalName>
+                    <includes>
+                        <include>${jar}.jar</include>
+                        <include>META-INF/ra.xml</include>
+                        <include>${version.properties}</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jar-classes</id>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <finalName>${jar}</finalName>
+                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                            <includes>
+                                <include>**/eis/**/*.class</include>
+                                <include>**/ra/**/*.class</include>
+                                <include>${version.properties}</include>
+                            </includes>
+                        </configuration>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-jboss</id>
+                        <configuration>
+                            <tasks>
+                                <echo>ear name = ${ear.name}</echo>
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                                    classpathref="maven.plugin.classpath" />
+                                <if>
+                                    <equals arg1="${ear.name}" arg2="tom.ear" />
+                                    <then>
+                                        <jar destfile="${project.build.directory}/${mdb}.jar">
+                                            <zipfileset dir="src/META-INF" prefix="META-INF">
+                                                <include name="ejb-jar.xml" />
+                                            </zipfileset>
+                                            <zipfileset dir="src/META-INF/tom" prefix="META-INF">
+                                                <include name="jboss.xml" />
+                                            </zipfileset>
+                                            <zipfileset dir="${project.build.outputDirectory}"
+                                                includes="**/mdb/**/*.class" />
+                                            <zipfileset
+                                                dir="${project.build.directory}/generated-version"
+                                                includes="${version.properties}" />
+                                        </jar>
+                                    </then>
+                                    <elseif>
+                                        <equals arg1="${ear.name}" arg2="tem.ear" />
+                                        <then>
+                                            <jar destfile="${project.build.directory}/${mdb}.jar">
+                                                <zipfileset dir="src/META-INF" prefix="META-INF">
+                                                    <include name="ejb-jar.xml" />
+                                                </zipfileset>
+                                                <zipfileset dir="src/META-INF/tem"
+                                                    prefix="META-INF">
+                                                    <include name="jboss.xml" />
+                                                </zipfileset>
+                                                <zipfileset dir="${project.build.outputDirectory}"
+                                                    includes="**/mdb/**/*.class" />
+                                                <zipfileset
+                                                    dir="${project.build.directory}/generated-version"
+                                                    includes="${version.properties}" />
+                                            </jar>
+                                        </then>
+                                    </elseif>
+                                    <else>
+                                        <jar destfile="${project.build.directory}/${mdb}.jar">
+                                            <zipfileset dir="src/META-INF" prefix="META-INF">
+                                                <include name="ejb-jar.xml" />
+                                            </zipfileset>
+                                            <zipfileset dir="src/META-INF" prefix="META-INF">
+                                                <include name="jboss.xml" />
+                                            </zipfileset>
+                                            <zipfileset dir="${project.build.outputDirectory}"
+                                                includes="**/mdb/**/*.class" />
+                                            <zipfileset
+                                                dir="${project.build.directory}/generated-version"
+                                                includes="${version.properties}" />
+                                        </jar>
+                                    </else>
+                                </if>
+
+                                <delete file="${jboss.deploy.dir}/${mdb}.jar" />
+                                <sleep seconds="2" />
+                                <!-- wait for endpoint deactivation to complete -->
+                                <delete file="${jboss.deploy.dir}/${rar}.rar" />
+                                <delete file="${jboss.deploy.dir}/${ds}" />
+
+                                <copy file="${project.build.directory}/${rar}.jar" tofile="${jboss.deploy.dir}/${rar}.rar" />
+                                <copy file="${project.build.directory}/${mdb}.jar" tofile="${jboss.deploy.dir}/${mdb}.jar" />
+                                <if>
+                                    <equals arg1="${ear.name}" arg2="tom.ear" />
+                                    <then>
+                                        <copy file="src/META-INF/tom/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
+                                    </then>
+                                    <elseif>
+                                        <equals arg1="${ear.name}" arg2="tem.ear" />
+                                        <then>
+                                            <copy file="src/META-INF/tem/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
+                                        </then>
+                                    </elseif>
+                                    <else>
+                                        <copy file="src/META-INF/ds.xml" tofile="${jboss.deploy.dir}/${ds}" />
+                                    </else>
+                                </if>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <!-- 3rd party dependencies -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-j2ee</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+        </dependency>
+
+        <!-- MDM dependencies -->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.connector.core</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

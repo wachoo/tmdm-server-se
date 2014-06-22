@@ -1,0 +1,50 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<ii>
+    <c>Organisation</c>
+    <n>Organisation</n>
+    <dmn>Organisation</dmn>
+    <i>231035933</i>
+    <t>1327653438644</t>
+    <p>
+        <Organisation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <IdOrganisation>1</IdOrganisation>
+            <Nom>Cegelec Katowice</Nom>
+            <StatutOrganisationFk>[1]</StatutOrganisationFk>
+            <TypeOrganisationFk>[5]</TypeOrganisationFk>
+            <Contacts>
+                <Contact>
+                    <StatutContactFk>[2]</StatutContactFk>
+                    <SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+                        <NatureLocalisationFk>[5]</NatureLocalisationFk>
+                        <AdressePostale>
+                            <CodePostal>40-142</CodePostal>
+                            <Ville>Test</Ville>
+                            <Region>Test</Region>
+                        </AdressePostale>
+                    </SpecialisationContactType>
+                </Contact>
+                <Contact>
+                    <StatutContactFk>[2]</StatutContactFk>
+                    <SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+                        <NatureLocalisationFk>[6]</NatureLocalisationFk>
+                        <AdressePostale>
+                            <CodePostal>40-142</CodePostal>
+                            <Ville>Katowice</Ville>
+                            <Region>Slaskie</Region>
+                        </AdressePostale>
+                    </SpecialisationContactType>
+                </Contact>
+            </Contacts>
+        </Organisation>
+    </p>
+</ii>
