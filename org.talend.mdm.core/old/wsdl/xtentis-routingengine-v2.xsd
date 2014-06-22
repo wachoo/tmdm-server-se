@@ -1,0 +1,178 @@
+<xsd:schema 
+    elementFormDefault="unqualified"
+    targetNamespace="urn-com-amalto-xtentis-webservice"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="urn-com-amalto-xtentis-webservice"
+    >
+    
+    <xsd:include schemaLocation="xtentis-core.xsd"/>
+
+
+    <!-- *****************************************************
+        ROUTING ORDERS
+        *******************************************************-->
+
+    <!-- Definitions -->
+
+    <xsd:simpleType name="WSRoutingOrderV2Status">
+        <xsd:restriction base="xsd:NMTOKEN">
+            <xsd:enumeration value="ACTIVE"/>
+            <xsd:enumeration value="FAILED"/>
+            <xsd:enumeration value="COMPLETED"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:complexType name="WSRoutingOrderV2PK">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="status" type="tns:WSRoutingOrderV2Status"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSRoutingOrderV2PK" type = "tns:WSRoutingOrderV2PK"/>
+    
+
+    <xsd:complexType name="WSRoutingOrderV2">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="name" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="status" type="tns:WSRoutingOrderV2Status"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeCreated" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeScheduled" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunStarted" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunCompleted" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="serviceJNDI" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="serviceParameters" type="xsd:string"/>
+            <xsd:element minOccurs="0" maxOccurs="1"  nillable="false" name="message" type="xsd:string"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSRoutingOrderV2" type = "tns:WSRoutingOrderV2"/>
+      
+    <xsd:complexType name="WSRoutingOrderV2PKArray">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsRoutingOrder" type="tns:WSRoutingOrderV2PK"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSRoutingOrderV2PKArray" type = "tns:WSRoutingOrderV2PKArray"/>
+
+    <xsd:complexType name="WSRoutingOrderV2Array">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="unbounded"  nillable="false" name="wsRoutingOrder" type="tns:WSRoutingOrderV2"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSRoutingOrderV2Array" type = "tns:WSRoutingOrderV2Array"/>
+    
+    <!-- Actions -->
+    
+    <xsd:complexType name="WSGetRoutingOrderV2">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingOrderPK" type="tns:WSRoutingOrderV2PK"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSGetRoutingOrderV2" type="tns:WSGetRoutingOrderV2"/>
+    
+    <xsd:complexType name="WSExistsRoutingOrderV2">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingOrderPK" type="tns:WSRoutingOrderV2PK"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSExistsRoutingOrderV2" type="tns:WSExistsRoutingOrderV2"/>
+
+    <xsd:complexType name="WSDeleteRoutingOrderV2">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsRoutingOrderPK" type="tns:WSRoutingOrderV2PK"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSDeleteRoutingOrderV2" type="tns:WSDeleteRoutingOrderV2"/>
+    
+    <xsd:complexType name="WSRoutingOrderV2SearchCriteria">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="status" type="tns:WSRoutingOrderV2Status"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="anyFieldContains" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="nameContains" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeCreatedMin" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeCreatedMax" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeScheduledMin" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeScheduledMax" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunStartedMin" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunStartedMax" type="xsd:long"/>            
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunCompletedMin" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="timeLastRunCompletedMax" type="xsd:long"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="itemPKConceptContains" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="itemPKIDFieldsContain" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="serviceJNDIContains" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="serviceParametersContain" type="xsd:string"/>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="true" name="messageContain" type="xsd:string"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSRoutingOrderV2SearchCriteria" type = "tns:WSRoutingOrderV2SearchCriteria"/>
+    
+    <xsd:complexType name="WSGetRoutingOrderV2PKsByCriteria">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSearchCriteria" type="tns:WSRoutingOrderV2SearchCriteria"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="WSGetRoutingOrderV2PKsByCriteria" type = "tns:WSGetRoutingOrderV2PKsByCriteria"/>
+    
+    <xsd:complexType name="WSGetRoutingOrderV2sByCriteria">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsSearchCriteria" type="tns:WSRoutingOrderV2SearchCriteria"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="WSGetRoutingOrderV2sByCriteria" type = "tns:WSGetRoutingOrderV2sByCriteria"/>
+    
+    <xsd:complexType name="WSExecuteRoutingOrderV2Synchronously">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="routingOrderV2PK" type="tns:WSRoutingOrderV2PK"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSExecuteRoutingOrderV2Synchronously" type="tns:WSExecuteRoutingOrderV2Synchronously"/>
+    
+    <xsd:complexType name="WSExecuteRoutingOrderV2Asynchronously">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="routingOrderV2PK" type="tns:WSRoutingOrderV2PK"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSExecuteRoutingOrderV2Asynchronously" type="tns:WSExecuteRoutingOrderV2Asynchronously"/>
+    
+
+    <!-- *****************************************************
+        ROUTING ENGINE
+        *******************************************************-->
+    <xsd:simpleType name="WSRoutingEngineV2Status">
+        <xsd:restriction base="xsd:NMTOKEN">
+            <xsd:enumeration value="DEAD"/>
+            <xsd:enumeration value="STOPPED"/>
+            <xsd:enumeration value="SUSPENDED"/>
+            <xsd:enumeration value="RUNNING"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:element name="WSRoutingEngineV2Status" type="tns:WSRoutingEngineV2Status"/>
+    
+    <xsd:complexType name="WSRouteItemV2">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsItemPK" type="tns:WSItemPK"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSRouteItemV2" type="tns:WSRouteItemV2"/>
+    
+    
+    <xsd:simpleType name="WSRoutingEngineV2ActionCode">
+        <xsd:restriction base="xsd:NMTOKEN">
+            <xsd:enumeration value="START"/>
+            <xsd:enumeration value="STOP"/>
+            <xsd:enumeration value="SUSPEND"/>
+            <xsd:enumeration value="RESUME"/>
+            <xsd:enumeration value="STATUS"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:element name="WSRoutingEngineV2ActionCode" type="tns:WSRoutingEngineV2ActionCode"/>
+    
+    <xsd:complexType name="WSRoutingEngineV2Action">
+        <xsd:sequence>
+            <xsd:element minOccurs="1" maxOccurs="1"  nillable="false" name="wsAction" type="tns:WSRoutingEngineV2ActionCode"/>
+        </xsd:sequence>		
+    </xsd:complexType>
+    <xsd:element name="WSRoutingEngineV2Action" type="tns:WSRoutingEngineV2Action"/>
+    
+
+</xsd:schema>

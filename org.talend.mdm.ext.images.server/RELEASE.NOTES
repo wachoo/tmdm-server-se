@@ -1,0 +1,15 @@
+RELEASE NOTES
+
+Http Image Server
+1.0.0
+Initial release
+
+1) Upload images to different catalogs.
+2) Download scaled images from server side.
+
+
+1.1.0
+add db backup function
+
+1.1.1
+add delete function

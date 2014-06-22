@@ -1,0 +1,10 @@
+RELEASE NOTES
+
+Logging adapter
+Includes Capture and SMTP configuration
+
+1.0.0
+Initial Release
+The Log4 Adapter part of the JS should be rewritten in the SMTP part style. 
+
+

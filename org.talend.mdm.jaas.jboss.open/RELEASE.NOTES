@@ -1,0 +1,55 @@
+RELEASE NOTES
+com.amalto.provisioning .mdm
+
+JAAS authentication module for JBoss that uses xtentis as the source of user data
+
+ * In server/default/cong/login-config.xml you must add a new domain
+ * 
+ *   
+    <application-policy name="xtentisSecurity">
+      <authentication>
+        <login-module code="com.amalto.provisioning.mdm.jboss.XtentisLoginModule"
+          flag="required">
+          <module-option name="password-stacking">useFirstPass</module-option>
+		  <module-option name="unauthenticatedIdentity">anonymous</module-option>
+		  <module-option name="provisioningCluster">PROVISIONING</module-option>
+		  <module-option name="userConcept">User</module-option>
+		  <module-option name="passwordPath">./password</module-option>
+		  <module-option name="rolesPath">./roles/role</module-option>
+		  <module-option name="adminPassword">1a254116eb5e70714b0680dfd4d8f7d4</module-option>
+		  <module-option name="defaultUniversePath">./universe</module-option>
+        </login-module>
+      </authentication>
+    </application-policy>
+ * 
+ * The Jar should go in sever/default/lib
+ */
+ 
+2.0.0 NOT RELEASED
+Complete rewrite to cater for Universes.
+Should be forward compatible with Old, non-universed, set-ups.
+ 
+1.3.0
+Upfront and unique determination of permissions on objects based on the roles  which are now cached in the JACC Subject.
+Removed dependencies on eXist 
+ 
+1.2.1
+Removed custom xmldb code. Ready for XMLDB 2.0+
+ 
+1.2.0
+Performs direct access to the XML Server for user details avoiding infinite loop symptoms.
+Only works with XMLDB compliant XML servers
+ 
+ 1.1.1
+Cleaned-up Build Path
+
+1.1.0
+Attempt to circumvene the user session timeout on connectors
+Taking in accoutn the enabled flag - the module shoud have an additional option line:
+	<module-option name="enabledPath">./enabled</module-option>
+
+1.0.1
+Refactored for core 2.14+
+
+1.0.0
+This module is functionally equivalent to the deprecated z.com.amalto.provisioning.mdm.jar version 1.3.0

@@ -1,0 +1,11 @@
+<data-cluster-pOJO>
+    <name>MDMItemsTrash</name>
+    <vocabulary/>
+    <description>Data Cluster to store logical deleted records</description>
+    <PK>
+        <ids>MDMItemsTrash</ids>
+        <unique-id>MDMItemsTrash</unique-id>
+    </PK>
+    <last-synch>test</last-synch>
+    <last-error/>
+</data-cluster-pOJO>

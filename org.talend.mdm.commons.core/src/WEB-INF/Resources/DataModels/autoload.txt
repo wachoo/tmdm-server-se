@@ -1,0 +1,5 @@
+#List all the models to load automatically below
+#One model per line with name,fileName,description
+.logging_event,logging_event.xsd,Logging events
+xCBL,xCBL-3.5.xsd,xCBL 3.5 Data Model
+cXML,cXML-1.2.xsd,cXML 1.2 Data Model

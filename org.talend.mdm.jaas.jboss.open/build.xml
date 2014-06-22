@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== 
+     20 déc. 2005 09:21:22                                                        
+
+     Xtentis
+     JAAS/Provisioning libraries
+                   
+     bgrieder                                                                
+     ====================================================================== -->
+<project name="xtentis-JAAS" default="all">
+	
+	<property name="version.props" value="version.properties"/>
+	
+	<property name="jboss.dir" value="c:/opt/jboss"/>
+	<property name="jboss.instance.dir" value="${jboss.dir}/server/default"/>
+	<property name="jboss.deploy.dir" value="${jboss.instance.dir}/deploy"/>
+	<property name="jboss.instance.lib" value="${jboss.instance.dir}/lib"/>
+
+	
+	<property name="jar" value="z.mdm.jaas.openmdm.jboss.jar"/>
+	<property name="conf" value="login-config.xml"/>
+
+    <!-- ================================= 
+          target: all              
+         ================================= -->
+    <target name="all" depends="version,package,undeploy,deploy">
+    </target>
+	
+	<target name="package" >
+		<buildnumber file="${version.props}"/>
+		<property file="${version.props}" />
+   	   	<property name="version.build.new" value="${major}-${minor}-${rev}_${build.number}"  />
+		<jar destfile="${jar}" manifest="src/META-INF/MANIFEST.MF">
+			<zipfileset dir=".">
+				<include name="RELEASE.NOTES" />
+			</zipfileset>
+			<zipfileset dir=".">
+				<include name="version.properties" />
+			</zipfileset>
+			<zipfileset dir="bin" includes="**/*.class" />
+
+		</jar>
+	</target>
+
+   	<target name="version"  description="Maintain build.date property">
+   		<buildnumber file="${version.props}" />
+       	<propertyfile file="${version.props}">
+       		<entry key="build.date" type="date" value="now" />
+       		<entry key="built.by" type="string" value="${user.name}" />
+       		<entry key="java.version" type="string" value="${java.vm.version}" />
+       	</propertyfile>   	
+     </target>
+		
+    <target name="undeploy" description="--> remove packages">		
+		<delete>
+			<fileset dir="${jboss.instance.lib}" includes="${jar}"/>	
+			<fileset dir="${jboss.instance.dir}/conf" includes="${conf}"/>
+		</delete>
+    </target>
+	
+	<target name="deploy">
+		<echo>Deploying build: ${version.build.new}</echo>
+		<copy file="${jar}" tofile="${jboss.instance.lib}/${jar}"/>
+		<copy file="${conf}" tofile="${jboss.instance.dir}/conf/${conf}"/>
+    </target>
+
+</project>
+
+
+
+
+

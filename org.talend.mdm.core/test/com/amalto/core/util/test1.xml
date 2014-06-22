@@ -1,0 +1,21 @@
+<FourthEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<key>222</key>
+	<typeEntityList>
+		<NullValue1></NullValue1>
+		<typeEntity>
+			<key>AAA</key>
+			<name>bbbb</name>
+			<optionalElement></optionalElement>
+		</typeEntity>
+	</typeEntityList>
+	<NullValue2/>
+	<EntireNullNode>
+		<NullSubNode1/>
+		<NullSubNode2/>
+	</EntireNullNode>
+	<PartialNullNode>
+		<PartialNullNode1/>
+		<PartialNullNode2>ABC</PartialNullNode2>
+		<PartialNullNode3/>
+	</PartialNullNode>
+</FourthEntity>

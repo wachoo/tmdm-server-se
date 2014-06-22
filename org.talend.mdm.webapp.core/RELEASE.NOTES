@@ -1,0 +1,22 @@
+RELEASE NOTES
+
+1.1.0 NOT RELEASED
+WebServices of core-2.20.0
+
+1.0.3
+Aligned to core 2.19.4
+
+1.0.2
+Add getDocByDocumentName method, this method is required to be able to handle datamodel with several documents using a same concept (cXML datamodel for instance)
+
+1.0.1
+Fixes to DWRAction
+Added the possibility to access all data loaded by DWRAction by reading the value action.dwrData in the success callback function; See the as2 webapp for an example of usage.
+Abilities to send form values when calling DWRLoad by setting option dwrSendValues to true
+
+1.0.0
+Initial release with yui-2.4.0 - DWRAction with DWR 2
+Automatic reload of XML Configuration after configuration.reloadfrequency seconds (property of xtentis.conf. Defaults to 60 seconds)
+
+
+

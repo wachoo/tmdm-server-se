@@ -1,0 +1,18 @@
+RELEASE NOTES
+
+This service dumps the content of the XML message sent by the core to the console
+
+1.1.0
+Made fully comply with core 2.19+. Remove routing orders update.
+
+1.0.3
+Bug Fixing
+
+1.0.2
+Adapted to new service framework
+
+1.0.1
+Clean-up of EJB references
+
+1.0.0
+Initial release
