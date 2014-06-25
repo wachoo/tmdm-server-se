@@ -163,10 +163,7 @@ public class WSVersion_LiteralSerializer extends LiteralObjectSerializerBase imp
             throw new SerializationException("literal.unexpectedNull");
         }
         ns3_myns3__int__int_Int_Serializer.serialize(new Integer(instance.getRevision()), ns1_revision_QNAME, null, writer, context);
-        if (new Integer(instance.getBuild()) == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
-        ns3_myns3__int__int_Int_Serializer.serialize(new Integer(instance.getBuild()), ns1_build_QNAME, null, writer, context);
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getBuild(), ns1_build_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getDescription(), ns1_description_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getDate(), ns1_date_QNAME, null, writer, context);
     }
