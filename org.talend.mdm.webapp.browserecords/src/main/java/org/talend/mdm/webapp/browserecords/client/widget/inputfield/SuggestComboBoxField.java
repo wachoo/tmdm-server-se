@@ -210,17 +210,19 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         if (suggestionList != null) {
             for (int i = 0; i < suggestionList.size(); i++) {
                 ForeignKeyBean bean = suggestionList.get(i);
-                if (bean != null && "".equals(bean.getDisplayInfo().trim())) { //$NON-NLS-1$
-                    bean.setDisplayInfo(bean.getId());
+                if (bean != null) {
+                    if (bean.getDisplayInfo() == null || "".equals(bean.getDisplayInfo().trim())) { //$NON-NLS-1$
+                        bean.setDisplayInfo(bean.getId());
+                    }
+                    foreignKeyStore.add(bean);
                 }
-                foreignKeyStore.add(bean);
             }
         }
 
-        this.setExpanded(false);
-
         if (!this.isExpanded() && foreignKeyStore.getCount() > 0) {
             this.expand();
+        } else if (foreignKeyStore.getCount() == 0) {
+            this.setExpanded(false);
         }
     }
 
