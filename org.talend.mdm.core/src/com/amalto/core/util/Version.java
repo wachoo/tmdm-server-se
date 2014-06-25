@@ -1,152 +1,160 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 public class Version {
-	static Properties props;
 
-	private static final String PROP_FILE = "/product_version.properties";
-	
-	
-	/**
-	 * Returns a <code>Version</code> object holding the package version implementation
-	 */
-	public static Version getVersion(Class clazz) {
-		if (props == null) loadProps(clazz);
-		return 
-			new Version(
-					Integer.parseInt(props.getProperty("major")),
-					Integer.parseInt(props.getProperty("minor")),
-					Integer.parseInt(props.getProperty("rev")),
-					Integer.parseInt(props.getProperty("build.number")),
-					props.getProperty("description"),
-					props.getProperty("build.date")
-			);
-	}
+    private static Properties props;
 
-	/**
-	 * Returns <code>String</code> representation of package version
-	 * information.
-	 */
-	public static String getVersionAsString(Class clazz) {
-		if (props == null) loadProps(clazz);
-		return 
-			"v"
-			+props.getProperty("major")+"."+props.getProperty("minor")+"."+props.getProperty("rev")+"_"+props.getProperty("build.number")
-			+" "+props.getProperty("build.date")
-			+" : "+props.getProperty("description");
-	}
-	
-	public static String getSimpleVersionAsString(Class clazz) {
-		if (props == null) loadProps(clazz);
-		return 
-			"v"
-			+props.getProperty("major")+"."+props.getProperty("minor")+"."+props.getProperty("rev")+"_"+props.getProperty("build.number");
-	}
+    private static final Logger LOG = Logger.getLogger(Version.class);
 
-	// load props as resource on classpath
-	private static void loadProps(Class clazz) {
-		InputStream is;
-		props = new Properties();
-		is = clazz.getResourceAsStream(PROP_FILE);
-		if (is == null) {
-			throw new RuntimeException("Couldn't find: " + PROP_FILE + " on CLASSPATH");
-		}
-		try {
-			props.load(is);
-			is.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-	}
+    private static final String PROP_FILE = "/product_version.properties"; //$NON-NLS-1$
 
-	@Override
-	/**
-	 * Returns a Version String with Release Notes
-	 * @return the Version String
-	 */
-	public String toString() {
-		return 
-		"v"
-		+props.getProperty("major")+"."+props.getProperty("minor")+"."+props.getProperty("rev")+"_"+props.getProperty("build.number")
-		+" "+props.getProperty("build.date")
-		+" : "+((props.getProperty("description")==null||props.getProperty("description").length()==0)?"[no description]":props.getProperty("description"));
-	}
+    /**
+     * Returns a <code>Version</code> object holding the package version implementation
+     */
+    public static Version getVersion(Class<?> clazz) {
+        if (props == null)
+            loadProps(clazz);
+        return new Version(Integer.parseInt(props.getProperty("major")), //$NON-NLS-1$
+                Integer.parseInt(props.getProperty("minor")), //$NON-NLS-1$
+                Integer.parseInt(props.getProperty("rev")), //$NON-NLS-1$
+                props.getProperty("build.number"), //$NON-NLS-1$
+                props.getProperty("description"), //$NON-NLS-1$
+                props.getProperty("build.date") //$NON-NLS-1$
+        );
+    }
 
+    /**
+     * Returns <code>String</code> representation of package version information.
+     */
+    public static String getVersionAsString(Class<?> clazz) {
+        if (props == null)
+            loadProps(clazz);
+        return getVersionAsString();
+    }
 
+    private static String getVersionAsString() {
+        return "v" + props.getProperty("major") + '.' //$NON-NLS-1$ //$NON-NLS-2$
+                + props.getProperty("minor") + '.' + props.getProperty("rev") //$NON-NLS-1$ //$NON-NLS-2$
+                + '-' + props.getProperty("build.number") + ' ' //$NON-NLS-1$
+                + props.getProperty("build.date") + " : " //$NON-NLS-1$ //$NON-NLS-2$
+                + props.getProperty("description"); //$NON-NLS-1$
+    }
 
-	/*********************************************************************************
-	 * Bean Implementation
-	 *********************************************************************************/
-	
-	private int major;
-	private int minor;
-	private int revision;
-	private int build;
-	private String description;
-	private String date;
-	
-	private Version() {
-	}
-	
-	public Version(int major, int minor, int revision, int build, String description, String date) {
-		super();
-		this.major = major;
-		this.minor = minor;
-		this.revision = revision;
-		this.build = build;
-		this.description = description;
-		this.date = date;
-	}
+    // load props as resource on classpath
+    private static void loadProps(Class<?> clazz) {
+        InputStream is;
+        props = new Properties();
+        is = clazz.getResourceAsStream(PROP_FILE);
+        if (is == null) {
+            throw new RuntimeException("Couldn't find: " + PROP_FILE //$NON-NLS-1$
+                    + " on CLASSPATH"); //$NON-NLS-1$
+        }
+        try {
+            props.load(is);
+            is.close();
+        } catch (IOException ioe) {
+            LOG.error(ioe.getMessage(), ioe);
+        }
+    }
 
-	public int getBuild() {
-		return build;
-	}
+    @Override
+    /**
+     * Returns a Version String with Release Notes
+     * @return the Version String
+     */
+    public String toString() {
+        return getVersionAsString();
+    }
 
-	public void setBuild(int build) {
-		this.build = build;
-	}
+    /*********************************************************************************
+     * Bean Implementation
+     *********************************************************************************/
 
-	public String getDate() {
-		return date;
-	}
+    private int major;
 
-	public void setDate(String date) {
-		this.date = date;
-	}
+    private int minor;
 
-	public String getDescription() {
-		return description;
-	}
+    private int revision;
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    private String build;
 
-	public int getMajor() {
-		return major;
-	}
+    private String description;
 
-	public void setMajor(int major) {
-		this.major = major;
-	}
+    private String date;
 
-	public int getMinor() {
-		return minor;
-	}
+    public Version(int major, int minor, int revision, String build, String description, String date) {
+        super();
+        this.major = major;
+        this.minor = minor;
+        this.revision = revision;
+        this.build = build;
+        this.description = description;
+        this.date = date;
+    }
 
-	public void setMinor(int minor) {
-		this.minor = minor;
-	}
+    public String getBuild() {
+        return build;
+    }
 
-	public int getRevision() {
-		return revision;
-	}
+    public void setBuild(String build) {
+        this.build = build;
+    }
 
-	public void setRevision(int revision) {
-		this.revision = revision;
-	}
+    public String getDate() {
+        return date;
+    }
 
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getMajor() {
+        return major;
+    }
+
+    public void setMajor(int major) {
+        this.major = major;
+    }
+
+    public int getMinor() {
+        return minor;
+    }
+
+    public void setMinor(int minor) {
+        this.minor = minor;
+    }
+
+    public int getRevision() {
+        return revision;
+    }
+
+    public void setRevision(int revision) {
+        this.revision = revision;
+    }
 }

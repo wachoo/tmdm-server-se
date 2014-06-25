@@ -16,9 +16,9 @@ public class ConfigurationInfoPOJO extends ObjectPOJO{
 
     private int revision;
 
-    private int build;
+    private String build;
 
-    private String releaseNote = "";
+    private String releaseNote = ""; //$NON-NLS-1$
 
     private String date;
 
@@ -85,11 +85,11 @@ public class ConfigurationInfoPOJO extends ObjectPOJO{
         this.releaseNote = releaseNote;
     }
 
-    public int getBuild() {
+    public String getBuild() {
         return build;
     }
 
-    public void setBuild(int build) {
+    public void setBuild(String build) {
         this.build = build;
     }
 
@@ -131,7 +131,7 @@ public class ConfigurationInfoPOJO extends ObjectPOJO{
     }
 
     public String getVersionString() {
-        return major + "." + minor + "." + revision + "_" + build + " " + releaseNote;
+        return major + '.' + minor + '.' + revision + '-' + build + ' ' + releaseNote;
     }
 
 }
