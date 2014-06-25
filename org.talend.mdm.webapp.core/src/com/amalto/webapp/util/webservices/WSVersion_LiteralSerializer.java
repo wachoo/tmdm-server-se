@@ -103,11 +103,8 @@ public class WSVersion_LiteralSerializer extends LiteralObjectSerializerBase imp
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_build_QNAME)) {
-                member = ns3_myns3__int__int_Int_Serializer.deserialize(ns1_build_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
-                instance.setBuild(((Integer)member).intValue());
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_build_QNAME, reader, context);
+                instance.setBuild((java.lang.String)member);
                 reader.nextElementContent();
             } else {
                 throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_build_QNAME, reader.getName() });
