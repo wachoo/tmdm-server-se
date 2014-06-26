@@ -49,6 +49,13 @@ public class Version {
             loadProps(clazz);
         return getVersionAsString();
     }
+    
+    public static String getSimpleVersionAsString(Class<?> clazz) {
+        if (props == null)
+            loadProps(clazz);
+        return "v" + props.getProperty("major") + '.' + props.getProperty("minor") + '.' + props.getProperty("rev") + '-' //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                + props.getProperty("build.number"); //$NON-NLS-1$
+    }
 
     private static String getVersionAsString() {
         return "v" + props.getProperty("major") + '.' //$NON-NLS-1$ //$NON-NLS-2$
