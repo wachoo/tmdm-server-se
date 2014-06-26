@@ -194,4 +194,9 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String underlying_cause() {
         return MESSAGES.getMessage("underlying_cause");
     }
+
+    @Override
+    public String service_rest_error_no_matchrule() {
+        return MESSAGES.getMessage("service_rest_error_no_matchrule");
+    }
 }

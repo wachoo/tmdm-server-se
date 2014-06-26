@@ -77,4 +77,6 @@ public interface BaseMessages extends Messages {
     String service_rest_exception();
 
     String underlying_cause();
+
+    String service_rest_error_no_matchrule();
 }
