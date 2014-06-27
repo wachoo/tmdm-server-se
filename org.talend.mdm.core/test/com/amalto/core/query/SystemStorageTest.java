@@ -23,6 +23,7 @@ import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.DispatchWrapper;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;

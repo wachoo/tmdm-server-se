@@ -484,13 +484,11 @@ public class MetadataValidationTest extends TestCase {
         } catch (Exception e) {
             // Expected
         }
-        assertEquals(4, handler.getErrorCount()); // TODO Check other errors in data model in assert
+        assertEquals(3, handler.getErrorCount()); // TODO Check other errors in data model in assert
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_CANNOT_OVERRIDE_SUPER_TYPE_KEY));
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_EXIST));
-        assertTrue(handler.getMessages().contains(ValidationError.FOREIGN_KEY_INFO_NOT_REFERENCING_FK_TYPE));
         assertTrue(handler.getLineNumbers().contains(18));
         assertTrue(handler.getLineNumbers().contains(160));
-        assertTrue(handler.getLineNumbers().contains(178));
         assertTrue(handler.getLineNumbers().contains(393));
         assertFalse(handler.getLineNumbers().contains(null));
     }
@@ -500,7 +498,7 @@ public class MetadataValidationTest extends TestCase {
         InputStream resourceAsStream = this.getClass().getResourceAsStream("xsd_attributes.xsd");
         TestValidationHandler handler = new TestValidationHandler();
         repository.load(resourceAsStream, handler);
-        assertEquals(2, handler.getWarningCount());
+        assertEquals(6, handler.getWarningCount());
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_USE_XSD_ATTRIBUTES));
         assertTrue(handler.getLineNumbers().contains(63));
         assertTrue(handler.getLineNumbers().contains(109));
