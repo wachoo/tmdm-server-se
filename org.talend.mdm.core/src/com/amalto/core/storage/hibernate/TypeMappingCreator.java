@@ -75,7 +75,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     referenceField.getWorkflowAccessRights());
             database.addField(newFlattenField);
         } else {
-            newFlattenField = new SoftFieldRef(internalRepository, context.getFieldColumn(referenceField), referenceField.getContainingType());
+            newFlattenField = new SoftFieldRef(internalRepository, context.getFieldColumn(referenceField), referenceField.getContainingType().getName());
         }
         typeMapping.map(referenceField, newFlattenField);
         return typeMapping;
@@ -166,7 +166,7 @@ class TypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         } else {
             newFlattenField = new SoftFieldRef(internalRepository,
                     context.getFieldColumn(enumField),
-                    enumField.getContainingType());
+                    enumField.getContainingType().getName());
         }
         typeMapping.map(enumField, newFlattenField);
         return typeMapping;

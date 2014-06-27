@@ -155,7 +155,7 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                                     } else {
                                         fieldType = ((ReferenceFieldMetadata) field).getReferencedType();
                                     }
-                                } else if (fieldType instanceof ContainedComplexTypeMetadata) { // Reads xsi:type for actual contained type.
+                                } else if (field instanceof ContainedTypeFieldMetadata) { // Reads xsi:type for actual contained type.
                                     Attribute actualType = startElement.getAttributeByName(new QName(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type")); //$NON-NLS-1$
                                     if (actualType != null) {
                                         if (!actualType.getValue().equals(fieldType.getName())) {

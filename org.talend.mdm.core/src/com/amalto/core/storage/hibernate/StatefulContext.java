@@ -27,7 +27,7 @@ public class StatefulContext implements MappingCreatorContext {
     public String getFieldColumn(FieldMetadata field) {
         if (!field.getContainingType().getSuperTypes().isEmpty() && !field.getContainingType().isInstantiable()) {
             boolean isUnique = isUniqueWithinTypeHierarchy(field.getContainingType(), field.getName());
-            if (field.getDeclaringType() == field.getContainingType() && !isUnique) {
+            if (field.getDeclaringType().equals(field.getContainingType()) && !isUnique) {
                 // Non instantiable types are mapped using a "table per hierarchy" strategy, if field name isn't unique
                 // make sure name becomes unique to avoid conflict (Hibernate doesn't issue warning/errors in case of
                 // overlap).

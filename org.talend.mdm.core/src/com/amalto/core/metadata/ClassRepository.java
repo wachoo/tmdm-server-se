@@ -85,11 +85,7 @@ public class ClassRepository extends MetadataRepository {
             typeMetadata.freeze();
         }
         // Freeze usages
-        for (TypeMetadata typeMetadata : getTypes()) {
-            if (typeMetadata instanceof ComplexTypeMetadata) {
-                ((ComplexTypeMetadata) typeMetadata).freezeUsages();
-            }
-        }
+        freezeUsages();
     }
 
     public Class getJavaClass(String entityTypeName) {
