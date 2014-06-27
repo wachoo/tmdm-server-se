@@ -104,7 +104,7 @@ public class SystemStorageTest extends TestCase {
         };
         Set<String> internalClusterNames = DispatchWrapper.getInternalClusterNames();
         for (String expectedInternalCluster : expectedInternalClusters) {
-            assertTrue("Expected " + expectedInternalCluster, internalClusterNames.contains(expectedInternalCluster.toLowerCase()));
+            assertTrue("Expected " + expectedInternalCluster, internalClusterNames.contains(expectedInternalCluster));
         }
     }
 
