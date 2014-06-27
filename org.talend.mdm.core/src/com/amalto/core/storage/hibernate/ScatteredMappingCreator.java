@@ -82,7 +82,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         currentMapping.peek().map(field, newFlattenField);
         return null;
     }
-
+    
     private static String newNonInstantiableTypeName(ComplexTypeMetadata fieldReferencedType) {
         return getNonInstantiableTypeName(fieldReferencedType.getName());
     }
