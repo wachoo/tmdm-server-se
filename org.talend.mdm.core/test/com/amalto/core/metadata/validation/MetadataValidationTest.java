@@ -119,6 +119,7 @@ public class MetadataValidationTest extends TestCase {
             fail("Should fail validation.");
         } catch (Exception e) {
             // Expected
+            e.printStackTrace();
         }
         assertEquals(1, handler.getErrorCount());
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_EXIST));

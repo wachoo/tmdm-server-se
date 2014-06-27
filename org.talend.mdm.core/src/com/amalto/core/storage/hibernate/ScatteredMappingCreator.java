@@ -42,10 +42,10 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     private final Set<ComplexTypeMetadata> processedTypes = new HashSet<ComplexTypeMetadata>();
 
     public ScatteredMappingCreator(MetadataRepository repository,
-                                   MappingRepository mappings,
-                                   MappingCreatorContext context,
-                                   boolean shouldCompressLongStrings,
-                                   boolean enforceTechnicalFK) {
+            MappingRepository mappings,
+            MappingCreatorContext context,
+            boolean shouldCompressLongStrings,
+            boolean enforceTechnicalFK) {
         this.internalRepository = repository;
         this.mappings = mappings;
         this.context = context;
@@ -254,7 +254,11 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     public TypeMapping visit(ComplexTypeMetadata complexType) {
         TypeMapping typeMapping;
         if (complexType.isInstantiable()) {
+<<<<<<< HEAD
         entityMapping = new ScatteredTypeMapping(complexType, mappings);
+=======
+            entityMapping = new ScatteredTypeMapping(complexType, mappings);
+>>>>>>> 6662108... TMDM-7148: "use RTE-RAP demo ,click relations button with exception"
             typeMapping = entityMapping;
         } else {
             typeMapping = new ScatteredTypeMapping(complexType, mappings);
@@ -273,30 +277,20 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             if (complexType.getKeyFields().isEmpty() && complexType.getSuperTypes().isEmpty()) {
                 // Assumes super type will define an id.
                 SoftTypeRef type = new SoftTypeRef(internalRepository, StringUtils.EMPTY, Types.UUID, false);
-                SimpleTypeFieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(database,
-                        true,
-                        false,
-                        true,
-                        GENERATED_ID,
-                        type,
-                        Collections.<String>emptyList(),
-                        Collections.<String>emptyList(),
-                        Collections.<String>emptyList());
+                SimpleTypeFieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(database, true, false, true, GENERATED_ID,
+                        type, Collections.<String> emptyList(), Collections.<String> emptyList(),
+                        Collections.<String> emptyList());
                 database.addField(fieldMetadata);
                 fieldMetadata.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH);
             }
             for (TypeMetadata superType : complexType.getSuperTypes()) {
                 if (superType.isInstantiable()) {
-                    SoftTypeRef type = new SoftTypeRef(internalRepository,
-                            superType.getNamespace(),
-                            superType.getName().replace('-', '_'),
-                            superType.isInstantiable());
+                    SoftTypeRef type = new SoftTypeRef(internalRepository, superType.getNamespace(), superType.getName().replace(
+                            '-', '_'), superType.isInstantiable());
                     database.addSuperType(type);
                 } else {
-                    SoftTypeRef type = new SoftTypeRef(internalRepository,
-                            superType.getNamespace(),
-                            getNonInstantiableTypeName(superType.getName()),
-                            superType.isInstantiable());
+                    SoftTypeRef type = new SoftTypeRef(internalRepository, superType.getNamespace(),
+                            getNonInstantiableTypeName(superType.getName()), superType.isInstantiable());
                     database.addSuperType(type);
                 }
             }
