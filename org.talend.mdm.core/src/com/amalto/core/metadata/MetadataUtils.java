@@ -273,7 +273,7 @@ public class MetadataUtils {
         Collection<FieldMetadata> fields = type.getFields();
         for (FieldMetadata current : fields) {
             currentPath.push(current);
-            if (current == target) {
+            if (current.equals(target)) {
                 foundPaths.add(new ArrayList<FieldMetadata>(currentPath));
             }
             if (current instanceof ContainedTypeFieldMetadata) {
@@ -281,7 +281,7 @@ public class MetadataUtils {
                 _paths(containedType, target, currentPath, foundPaths);
                 for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
                     for (FieldMetadata field : subType.getFields()) {
-                        if (field.getDeclaringType() == subType) {
+                        if (field.getDeclaringType().equals(subType)) {
                             _paths(subType, target, currentPath, foundPaths);
                         }
                     }
