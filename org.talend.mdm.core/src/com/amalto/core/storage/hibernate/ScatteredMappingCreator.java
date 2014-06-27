@@ -54,30 +54,22 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     }
 
     private TypeMapping handleField(FieldMetadata field) {
-        String fieldName = getFieldName(field);
-        SimpleTypeFieldMetadata newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(),
-                false,
+        SimpleTypeFieldMetadata newFlattenField;
+        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(),
+                field.isKey(),
                 field.isMany(),
                 field.isMandatory(),
-                fieldName,
+                context.getFieldColumn(field),
                 field.getType(),
                 field.getWriteUsers(),
                 field.getHideUsers(),
                 field.getWorkflowAccessRights());
         TypeMetadata declaringType = field.getDeclaringType();
-        if (declaringType != field.getContainingType()) {
-            SoftTypeRef type;
-            if (!declaringType.isInstantiable()) {
-                type = new SoftTypeRef(internalRepository,
-                        declaringType.getNamespace(),
-                        getNonInstantiableTypeName(declaringType.getName()),
-                        false);
-            } else {
-                type = new SoftTypeRef(internalRepository,
+        if (declaringType != field.getContainingType() && declaringType.isInstantiable()) {
+            SoftTypeRef type = new SoftTypeRef(internalRepository,
                         declaringType.getNamespace(),
                         declaringType.getName(),
                         true);
-            }
             newFlattenField.setDeclaringType(type);
         }
         String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
@@ -89,17 +81,6 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         entityMapping.map(field, newFlattenField);
         currentMapping.peek().map(field, newFlattenField);
         return null;
-    }
-
-    private String getFieldName(FieldMetadata field) {
-        String fieldName = context.getFieldColumn(field);
-        ComplexTypeMetadata containingType = field.getContainingType();
-        if (containingType.getSubTypes().isEmpty() && containingType.getSuperTypes().isEmpty()) {
-            for (int i = 1; !field.isKey() && currentType.peek().hasField(fieldName); i++) {
-                fieldName += i;
-            }
-        }
-        return fieldName;
     }
 
     private static String newNonInstantiableTypeName(ComplexTypeMetadata fieldReferencedType) {
@@ -170,11 +151,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     }
 
     private String createContainedType(String typeName, String superTypeName, ComplexTypeMetadata originalContainedType) {
-        if(!processedTypes.add(originalContainedType)) {
-            // Prevents re-entry for nested types with recursive references.
-            return typeName;
-        }
-        ComplexTypeMetadata internalContainedType = (ComplexTypeMetadata) internalRepository.getNonInstantiableType(internalRepository.getUserNamespace(), typeName);
+        ComplexTypeMetadata internalContainedType = (ComplexTypeMetadata) internalRepository.getType(typeName);
         if (internalContainedType == null) {
             internalContainedType = new ComplexTypeMetadataImpl(originalContainedType.getNamespace(),
                     typeName,
@@ -214,9 +191,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
         // Visit contained type fields
         TypeMapping mapping = mappings.getMappingFromUser(originalContainedType);
-        if (mapping != null) {
-            currentMapping.push(mapping);
-        } else {
+        if (mapping == null) {
             mapping = new FlatTypeMapping(originalContainedType, internalContainedType, mappings);
             mappings.addMapping(mapping);
         }
@@ -256,7 +231,10 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         currentType.peek().addField(newFlattenField);
         currentMapping.peek().map(containedField, newFlattenField);
         entityMapping.map(containedField, newFlattenField);
-        containedField.getType().accept(this);
+        if (!processedTypes.contains(containedField.getContainedType())) {
+            processedTypes.add(containedField.getContainedType());
+            containedField.getContainedType().accept(this);
+        }
         return null;
     }
 
@@ -272,17 +250,21 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     @Override
     public TypeMapping visit(ComplexTypeMetadata complexType) {
-        if(!complexType.isInstantiable()) {
-            return null;
-        }
+        TypeMapping typeMapping;
+        if (complexType.isInstantiable()) {
         entityMapping = new ScatteredTypeMapping(complexType, mappings);
-        ComplexTypeMetadata database = entityMapping.getDatabase();
+            typeMapping = entityMapping;
+        } else {
+            typeMapping = new ScatteredTypeMapping(complexType, mappings);
+            mappings.addMapping(typeMapping);
+        }
+        ComplexTypeMetadata database = typeMapping.getDatabase();
         if (!complexType.isInstantiable()) {
             // In this mapping prefix non instantiable types with "x_" so table name is not mixed up with an entity
             // table with same name.
             database.setName(newNonInstantiableTypeName(database));
         }
-        currentMapping.push(entityMapping);
+        currentMapping.push(typeMapping);
         currentType.push(database);
         {
             internalRepository.addTypeMetadata(database);
@@ -323,9 +305,9 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
         currentType.pop();
         currentMapping.pop();
-        if (!currentType.isEmpty()) { // This is unexpected
+        if (complexType.isInstantiable() && !currentType.isEmpty()) { // This is unexpected
             throw new IllegalStateException("Type remained in process stack.");
         }
-        return entityMapping;
+        return typeMapping;
     }
 }
