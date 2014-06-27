@@ -156,6 +156,8 @@ public class Util {
 
     public static final String DEFAULT_LANGUAGE = "en"; //$NON-NLS-1$
 
+    private static final Logger LOGGER = Logger.getLogger(Util.class);
+
     /*********************************************************************
      * WEB SERVICES
      *********************************************************************/
@@ -165,6 +167,7 @@ public class Util {
         try {
             as = Util.getAjaxSubject();
         } catch (Exception e) {
+            LOGGER.error("Unable to access the logged user data", e); //$NON-NLS-1$
             throw new XtentisWebappException("Unable to access the logged user data"); //$NON-NLS-1$
         }
         if (as == null) {
