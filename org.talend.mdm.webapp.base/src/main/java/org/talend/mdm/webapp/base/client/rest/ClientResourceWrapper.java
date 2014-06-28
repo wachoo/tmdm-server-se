@@ -24,6 +24,7 @@ import org.restlet.client.data.Method;
 import org.restlet.client.resource.ClientResource;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 
+import com.amalto.core.util.RestServiceConstants;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 public class ClientResourceWrapper {
@@ -78,8 +79,14 @@ public class ClientResourceWrapper {
                 if (statusCode >= 200 && statusCode <= 299 || statusCode == 1223) {
                     callbackHandler.process(request, response);
                 } else {
-                    MessageBox.alert(BaseMessagesFactory.getMessages().server_error(), BaseMessagesFactory.getMessages()
-                            .server_error_notification(), null);
+                    String errorMessage;
+                    if (response.getStatus().getCode() == RestServiceConstants.SERVICE_ERROR_CODE_NOT_IMPLEMENTED
+                            && response.getEntity().equals(RestServiceConstants.SERVICE_ERROR_MESSAGE_NO_MATCHRULE)) {
+                        errorMessage = BaseMessagesFactory.getMessages().service_rest_error_no_matchrule();
+                    } else {
+                        errorMessage = BaseMessagesFactory.getMessages().server_error_notification();
+                    }
+                    MessageBox.alert(BaseMessagesFactory.getMessages().server_error(), errorMessage, null);
                 }
             }
         });
