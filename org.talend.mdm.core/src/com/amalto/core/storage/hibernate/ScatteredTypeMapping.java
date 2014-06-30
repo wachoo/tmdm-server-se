@@ -18,9 +18,6 @@ import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
 import org.hibernate.collection.PersistentList;
-import org.hibernate.engine.CollectionEntry;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.persister.collection.CollectionPersister;
 import org.talend.mdm.commmon.metadata.*;
 
 import java.io.*;
@@ -253,35 +250,6 @@ class ScatteredTypeMapping extends TypeMapping {
             }
         }
         return to;
-    }
-
-    /*
-     * See TMDM-5524: Hibernate sometimes "hides" values of a collection when condition is on contained value. This piece
-     * of code forces load.
-     */
-    private static <T> List<T> getFullList(PersistentList list) {
-        if (list == null) {
-            return null;
-        }
-        List<T> fullList = new LinkedList<T>();
-        SessionImplementor session = list.getSession();
-        if (!session.isConnected()) {
-            throw new IllegalStateException("Session is not connected: impossible to read values from database.");
-        }
-        CollectionEntry entry = session.getPersistenceContext().getCollectionEntry(list);
-        CollectionPersister persister = entry.getLoadedPersister();
-        int databaseSize = persister.getSize(entry.getKey(), session);
-        if (list.size() == databaseSize && !list.contains(null)) {
-            // No need to reload a list (no omission in list and size() corresponds to size read from database).
-            return (List<T>) list;
-        }
-        for (int i = 0; i < databaseSize; i++) {
-            T wrapper = (T) persister.getElementByIndex(entry.getLoadedKey(), i, session, list.getOwner());
-            fullList.add(wrapper);
-        }
-        // Returns a unmodifiable list -> returned list is *not* a persistent list so change tracking is not possible,
-        // returning a unmodifiable list is a safety for code using returned list.
-        return Collections.unmodifiableList(fullList);
     }
 
     @Override
