@@ -76,14 +76,14 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
     }
 
     protected void init() {
+
         initKeyCodeList();
         setDisplayField(displayFieldName);
         setTypeAhead(true);
         setTriggerAction(TriggerAction.ALL);
         setFireChangeEventOnSetValue(true);
 
-        setDefaultStore();
-        setStore(store);
+        setStore(foreignKeyStore);
         setListener();
     }
 
@@ -181,8 +181,8 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         }
 
         public native BoxComponent getBoxComponent() /*-{
-			return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
-        }-*/;
+                                                     return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
+                                                     }-*/;
 
     }
 
@@ -200,10 +200,6 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         }
     }
 
-    protected void setDefaultStore() {
-        store = foreignKeyStore;
-    }
-
     public void updateListStore(List<ForeignKeyBean> suggestionList) {
         foreignKeyStore.removeAll();
 
@@ -211,7 +207,8 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
             for (int i = 0; i < suggestionList.size(); i++) {
                 ForeignKeyBean bean = suggestionList.get(i);
                 if (bean != null) {
-                    if (bean.getDisplayInfo() == null || "".equals(bean.getDisplayInfo().trim())) { //$NON-NLS-1$
+                    if (bean.getDisplayInfo() == null
+                            || "".equals(bean.getDisplayInfo().trim()) || "null".equals(bean.getDisplayInfo())) { //$NON-NLS-1$ //$NON-NLS-2$
                         bean.setDisplayInfo(bean.getId());
                     }
                     foreignKeyStore.add(bean);
@@ -221,13 +218,11 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
 
         if (!this.isExpanded() && foreignKeyStore.getCount() > 0) {
             this.expand();
-        } else if (foreignKeyStore.getCount() == 0) {
-            this.setExpanded(false);
         }
     }
 
     public void setFieldValue() {
-        foreignKeyField.setValue(this.getValue());
+        foreignKeyField.setValue(getValue());
     }
 
     public String getInputValue() {
@@ -250,25 +245,33 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
     public void setValue(ForeignKeyBean fk) {
         if (fk != null) {
             super.setValue(fk);
-            setRawValue(fk.getId());
+            if (fk.getDisplayInfo() == null || "null".equals(fk.getDisplayInfo())) { //$NON-NLS-1$
+                setRawValue(fk.getId());
+            } else {
+                setRawValue(fk.getDisplayInfo());
+            }
         }
     }
 
     @Override
     public ForeignKeyBean getValue() {
+
         if (getRawValue() != null && !"".equals(getRawValue().trim())) { //$NON-NLS-1$
             if (foreignKeyStore != null && foreignKeyStore.getCount() > 0) {
                 for (ForeignKeyBean bean : foreignKeyStore.getModels()) {
-                    if (this.getRawValue().trim().equals(bean.get(displayFieldName))) {
+                    if (this.getRawValue().trim().equals(bean.get(displayFieldName))
+                            || this.getRawValue().trim().equals(bean.getId())) {
                         return bean;
                     }
                 }
             }
-            return null;
-        } else {
-            return null;
         }
+        return null;
+    }
 
+    @Override
+    public void clear() {
+        super.clear();
     }
 
     public String getForeignKey() {
@@ -277,11 +280,6 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
 
     public void setForeignKey(String foreignKey) {
         this.foreignKey = foreignKey;
-    }
-
-    @Override
-    public void clear() {
-        super.clear();
     }
 
 }
