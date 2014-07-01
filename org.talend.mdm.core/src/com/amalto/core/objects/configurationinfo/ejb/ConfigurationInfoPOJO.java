@@ -22,7 +22,7 @@ public class ConfigurationInfoPOJO extends ObjectPOJO{
 	private int major;
 	private int minor;
 	private int revision;
-	private int build;
+	private String build;
 	private String releaseNote = "";
 	private String date;
 	private HashMap<String, String> properties = new HashMap<String, String>();
@@ -98,10 +98,10 @@ public class ConfigurationInfoPOJO extends ObjectPOJO{
 		this.releaseNote = releaseNote;
 	}
 	
-	public int getBuild() {
+	public String getBuild() {
 		return build;
 	}
-	public void setBuild(int build) {
+	public void setBuild(String build) {
 		this.build = build;
 	}
 	public String getDate() {
