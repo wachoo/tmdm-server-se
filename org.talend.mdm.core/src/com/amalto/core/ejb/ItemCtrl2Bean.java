@@ -1126,7 +1126,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 if (DispatchWrapper.isMDMInternal(dataClusterPOJOPK.getUniqueId())) {
                     types = SystemStorageWrapper.filter(repository, dataModelName);
                 } else {
-                    types = MetadataUtils.sortTypes(repository);
+                    types = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
                 }
                 for (ComplexTypeMetadata type : types) {
                     concepts.put(type.getName(), universe.getConceptRevisionID(type.getName()));

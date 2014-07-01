@@ -427,7 +427,7 @@ public class InboundReferencesTest extends TestCase {
 
         // Check FK integrity checks following TMDM-3515
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "BusinessFunction");
-        assertEquals(2, references.size());
+        assertEquals(6, references.size());
 
         IntegrityCheckDataSourceMock dataSource = new IntegrityCheckDataSourceMock(repository);
         FKIntegrityChecker integrityChecker = FKIntegrityChecker.getInstance();
@@ -452,7 +452,7 @@ public class InboundReferencesTest extends TestCase {
 
         // Check FK integrity checks following TMDM-3739
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
-        assertEquals(14, references.size());
+        assertEquals(24, references.size());
 
         String dataCluster = "DataCluster";
         String typeName = "Contrat";
@@ -497,7 +497,7 @@ public class InboundReferencesTest extends TestCase {
 
         MetadataRepository repository = getMetadataRepository("model17.xsd");
         Set<ReferenceFieldMetadata> references = getReferencedFields(repository, "Contrat");
-        assertEquals(14, references.size());
+        assertEquals(24, references.size());
         ReferenceFieldMetadata referencedField = references.iterator().next();
 
         String dataCluster = "DataCluster";
