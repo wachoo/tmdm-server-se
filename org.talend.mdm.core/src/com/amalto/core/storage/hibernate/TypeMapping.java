@@ -143,14 +143,16 @@ public abstract class TypeMapping {
         }
         CollectionEntry entry = session.getPersistenceContext().getCollectionEntry(list);
         CollectionPersister persister = entry.getLoadedPersister();
-        int databaseSize = persister.getSize(entry.getKey(), session);
-        if (list.size() == databaseSize && !list.contains(null)) {
-            // No need to reload a list (no omission in list and size() corresponds to size read from database).
-            return list;
-        }
-        for (int i = 0; i < databaseSize; i++) {
-            T wrapper = (T) persister.getElementByIndex(entry.getLoadedKey(), i, session, list.getOwner());
-            fullList.add(wrapper);
+        if (persister != null) {
+            int databaseSize = persister.getSize(entry.getKey(), session);
+            if (list.size() == databaseSize && !list.contains(null)) {
+                // No need to reload a list (no omission in list and size() corresponds to size read from database).
+                return list;
+            }
+            for (int i = 0; i < databaseSize; i++) {
+                T wrapper = (T) persister.getElementByIndex(entry.getLoadedKey(), i, session, list.getOwner());
+                fullList.add(wrapper);
+            }
         }
         // Returns a unmodifiable list -> returned list is *not* a persistent list so change tracking is not possible,
         // returning a unmodifiable list is a safety for code using returned list.
