@@ -626,14 +626,16 @@ public class StorageFullTextTest extends StorageTestCase {
         try {
             UserQueryBuilder qb = from(a1).selectId(a1).select(a1.getField("b1")).select(a1.getField("b2"))
                     .where(fullText("String")).limit(20);
+            storage.begin();
             storage.fetch(qb.getSelect());
-
+            fail();
         } catch (RuntimeException runtimeException) {
             if (FullTextQueryCompositeKeyException.class.isInstance(runtimeException.getCause())) {
                 assertEquals("a1", runtimeException.getCause().getMessage());
             } else {
                 throw runtimeException;
             }
+            storage.rollback();
         }
     }
 
