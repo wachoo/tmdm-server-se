@@ -103,11 +103,8 @@ public class WSVersion_LiteralSerializer extends LiteralObjectSerializerBase imp
         elementName = reader.getName();
         if (reader.getState() == XMLReader.START) {
             if (elementName.equals(ns1_build_QNAME)) {
-                member = ns3_myns3__int__int_Int_Serializer.deserialize(ns1_build_QNAME, reader, context);
-                if (member == null) {
-                    throw new DeserializationException("literal.unexpectedNull");
-                }
-                instance.setBuild(((Integer)member).intValue());
+                member = ns3_myns3_string__java_lang_String_String_Serializer.deserialize(ns1_build_QNAME, reader, context);
+                instance.setBuild((java.lang.String)member);
                 reader.nextElementContent();
             } else {
                 throw new DeserializationException("literal.unexpectedElementName", new Object[] { ns1_build_QNAME, reader.getName() });
@@ -166,10 +163,7 @@ public class WSVersion_LiteralSerializer extends LiteralObjectSerializerBase imp
             throw new SerializationException("literal.unexpectedNull");
         }
         ns3_myns3__int__int_Int_Serializer.serialize(new Integer(instance.getRevision()), ns1_revision_QNAME, null, writer, context);
-        if (new Integer(instance.getBuild()) == null) {
-            throw new SerializationException("literal.unexpectedNull");
-        }
-        ns3_myns3__int__int_Int_Serializer.serialize(new Integer(instance.getBuild()), ns1_build_QNAME, null, writer, context);
+        ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getBuild(), ns1_build_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getDescription(), ns1_description_QNAME, null, writer, context);
         ns3_myns3_string__java_lang_String_String_Serializer.serialize(instance.getDate(), ns1_date_QNAME, null, writer, context);
     }
