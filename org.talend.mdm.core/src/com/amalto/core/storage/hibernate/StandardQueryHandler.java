@@ -1420,7 +1420,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
             // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
-            condition.criterionFieldNames.add(getFieldName(field));
+            Set<String> aliases = getAliases(mainType, field);
+            for (String alias : aliases) {
+                condition.criterionFieldNames.add(alias + '.' + field.getFieldMetadata().getName());
+            }
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;
             condition.isProperty = true;

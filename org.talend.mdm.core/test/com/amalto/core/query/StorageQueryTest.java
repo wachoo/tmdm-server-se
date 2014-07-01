@@ -1594,6 +1594,16 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testEmptyOrNullOnContainedElement() throws Exception {
+        UserQueryBuilder qb = from(country).selectId(country).where(emptyOrNull(country.getField("notes/note")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testIsEmptyOrNullOnNonString() throws Exception {
         UserQueryBuilder qb = from(address).selectId(address).where(emptyOrNull(address.getField("enterprise")));
         StorageResults results = storage.fetch(qb.getSelect());
