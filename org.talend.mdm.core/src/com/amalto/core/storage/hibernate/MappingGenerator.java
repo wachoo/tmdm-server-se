@@ -608,7 +608,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private void setIndexName(FieldMetadata field, String fieldName, Attr indexName) {
         String prefix = field.getContainingType().getName();
-        if (!tableNames.isEmpty()) {
+        if (!tableNames.isEmpty() && field.getContainingType().getSuperTypes().isEmpty()) {
             prefix = tableNames.peek();
         }
         indexName.setValue(resolver.getIndex(fieldName, prefix)); //

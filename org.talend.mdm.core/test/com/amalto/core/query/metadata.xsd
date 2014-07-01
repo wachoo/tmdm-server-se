@@ -813,6 +813,12 @@
             <xsd:field xpath="id"/>
         </xsd:unique>
     </xsd:element>
+    <xsd:element name="E" type="E">
+        <xsd:unique name="E">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
     <xsd:complexType name="A">
         <xsd:sequence>
             <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/>
@@ -851,6 +857,17 @@
             <xsd:extension base="B">
                 <xsd:sequence>
                     <xsd:element maxOccurs="1" minOccurs="1" name="textD" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="commonText" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="E">
+        <xsd:complexContent>
+            <xsd:extension base="B">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="textE" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="commonText" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>

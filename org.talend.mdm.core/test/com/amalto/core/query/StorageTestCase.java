@@ -67,6 +67,8 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata d;
 
+    protected static final ComplexTypeMetadata e;
+
     protected static final ComplexTypeMetadata e2;
 
     protected static final ComplexTypeMetadata e1;
@@ -111,6 +113,7 @@ public class StorageTestCase extends TestCase {
         b = repository.getComplexType("B");
         c = repository.getComplexType("C");
         d = repository.getComplexType("D");
+        e = repository.getComplexType("E");
         updateReport = repository.getComplexType("Update");
         ff = repository.getComplexType("ff");
         e2 = repository.getComplexType("E2");
@@ -129,6 +132,8 @@ public class StorageTestCase extends TestCase {
         indexedExpressions.add(UserQueryBuilder.from(person).where(isNull(address.getField("score"))).getExpression());
         indexedExpressions.add(UserQueryBuilder.from(person).where(isNull(product.getField("Stores/Store"))).getExpression());
         indexedExpressions.add(UserQueryBuilder.from(country).where(isNull(country.getField("notes/comment"))).getExpression());
+        indexedExpressions.add(UserQueryBuilder.from(d).where(isNull(d.getField("commonText"))).getExpression());
+        indexedExpressions.add(UserQueryBuilder.from(e).where(isNull(e.getField("commonText"))).getExpression());
         storage.prepare(repository, new HashSet<Expression>(indexedExpressions), true, true);
         LOG.info("Storage prepared.");
     }
