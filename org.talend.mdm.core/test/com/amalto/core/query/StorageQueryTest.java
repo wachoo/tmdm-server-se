@@ -1145,6 +1145,21 @@ public class StorageQueryTest extends StorageTestCase {
             storageResults.close();
         }
     }
+    
+    public void testContainsTextOfConditionWithAllSimpledTypeFields() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(product);
+        String fieldName = "Product/../*";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS_TEXT_OF, "1",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+    }
+    
 
     public void testConditionOr() throws Exception {
         UserQueryBuilder qb = from(person).where(
