@@ -62,7 +62,7 @@ public class LBPAMTestCase extends TestCase {
         storage.prepare(repository, false);
         LOG.info("Storage prepared.");
 
-        Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository);
+        Collection<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
         int numberOfQueries = 0;
         List<Expression> failedExpressions = new LinkedList<Expression>();
         try {

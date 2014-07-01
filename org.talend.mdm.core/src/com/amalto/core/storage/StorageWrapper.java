@@ -577,7 +577,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName, String revisionID) {
         Storage storage = getStorage(clusterName, revisionID);
         MetadataRepository repository = storage.getMetadataRepository();
-        return MetadataUtils.sortTypes(repository);
+        return MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
     }
 
     private int getTypeItemCount(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) {        
