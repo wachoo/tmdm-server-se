@@ -1885,7 +1885,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testUpdateReportCreation() throws Exception {
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("StorageQueryTest_1.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -1955,7 +1955,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testUpdateReportCreationWithoutSource() throws Exception {
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest_NoSource.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("StorageQueryTest_2.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -1997,7 +1997,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testUpdateReportTimeStampQuery() throws Exception {
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("StorageQueryTest_1.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -2031,7 +2031,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testUpdateReportContentKeyWordsQuery() throws Exception {
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("StorageQueryTest_1.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -2087,7 +2087,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testUpdateReportTimeInMillisQuery() throws Exception {
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("StorageQueryTest_1.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -2154,7 +2154,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testUpdateReportQueryByKeys() throws Exception {
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("StorageQueryTest_1.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -2197,7 +2197,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testUpdateReportTaskIdQuery() throws Exception {
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("UpdateReportCreationTest.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("StorageQueryTest_1.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {

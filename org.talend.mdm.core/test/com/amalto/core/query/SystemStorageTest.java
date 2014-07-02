@@ -546,7 +546,7 @@ public class SystemStorageTest extends TestCase {
         // Parse a user XML from a 5.0 install
         XmlDOMDataRecordReader reader = new XmlDOMDataRecordReader();
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("user.xml"));
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_1.xml"));
         Element element = (Element) document.getElementsByTagName("User").item(0);
         reader.read(null, repository, repository.getComplexType("User"), element);
     }
@@ -599,10 +599,10 @@ public class SystemStorageTest extends TestCase {
         factory.setNamespaceAware(true);
         List<DataRecord> records = new LinkedList<DataRecord>();
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("user1.xml")); //$NON-NLS-1$
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_2.xml")); //$NON-NLS-1$
         Element element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
         records.add(dataRecordReader.read("1", repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
-        document = builder.parse(SystemStorageTest.class.getResourceAsStream("user2.xml")); //$NON-NLS-1$
+        document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_3.xml")); //$NON-NLS-1$
         element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
         records.add(dataRecordReader.read("1", repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
         // Commit users

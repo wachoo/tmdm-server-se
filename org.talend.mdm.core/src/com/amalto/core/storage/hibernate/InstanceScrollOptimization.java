@@ -125,22 +125,8 @@ public class InstanceScrollOptimization extends StandardQueryHandler {
 
         @Override
         public String toString() {
-            final StringBuilder conditionToString = new StringBuilder();
-            UserQueryDumpConsole.DumpPrinter dumpPrinter = new UserQueryDumpConsole.DumpPrinter() {
-
-                @Override
-                public void increaseIndent() {
-                }
-
-                @Override
-                public void print(String message) {
-                    conditionToString.append(message).append(' ');
-                }
-
-                @Override
-                public void decreaseIndent() {
-                }
-            };
+            StringBuilder conditionToString = new StringBuilder();
+            UserQueryDumpConsole.DumpPrinter dumpPrinter = new StringBuilderPrinter(conditionToString);
             Condition condition = select.getCondition();
             if (condition != null) {
                 condition.accept(new UserQueryDumpConsole(dumpPrinter));

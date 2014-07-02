@@ -50,7 +50,7 @@ public class StorageFieldTypeTest extends StorageTestCase {
         assertNotNull(type);
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        InputStream testData = this.getClass().getResourceAsStream("StorageFieldTypeTest.xml");
+        InputStream testData = this.getClass().getResourceAsStream("StorageFieldTypeTest_1.xml");
         assertNotNull(testData);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(testData));
