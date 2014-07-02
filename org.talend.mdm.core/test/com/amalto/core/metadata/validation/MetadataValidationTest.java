@@ -119,7 +119,6 @@ public class MetadataValidationTest extends TestCase {
             fail("Should fail validation.");
         } catch (Exception e) {
             // Expected
-            e.printStackTrace();
         }
         assertEquals(1, handler.getErrorCount());
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_EXIST));
@@ -249,6 +248,23 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(0, handler.getWarningCount());
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_DOES_NOT_OWN_FIELD));
         assertTrue(handler.getLineNumbers().contains(228));
+        assertFalse(handler.getLineNumbers().contains(null));
+    }
+    
+    public void testFKInfo7() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("FKINFO7.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(1, handler.getErrorCount());
+        assertEquals(0, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.FOREIGN_KEY_INFO_NOT_REFERENCING_FK_TYPE));
+        assertTrue(handler.getLineNumbers().contains(195));
         assertFalse(handler.getLineNumbers().contains(null));
     }
 
