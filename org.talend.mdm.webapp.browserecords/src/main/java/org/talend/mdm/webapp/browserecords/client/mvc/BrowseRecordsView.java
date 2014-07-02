@@ -151,20 +151,21 @@ public class BrowseRecordsView extends View {
         ItemBean fkItemBean = model.getItemBean();
         ViewBean fkViewBean = model.getViewBean();
         ItemPanel panel = detailPanel.getCurrentItemPanel();
-        boolean openTab = false;
+        boolean isOutMost = false;
         boolean isHierarchyCall = false;
         if (panel != null) {
-            openTab = !panel.getToolBar().isOutMost();
+            isOutMost = panel.getToolBar().isOutMost();
             isHierarchyCall = panel.getToolBar().isHierarchyCall();
         }
         detailPanel.clearContent();
         detailPanel.clearBanner();
-        detailPanel.setOutMost(!openTab);
+        detailPanel.setOutMost(isOutMost);
+
         String pkInfo = fkItemBean.getDisplayPKInfo().equals(fkItemBean.getLabel()) ? null : fkItemBean.getDisplayPKInfo();
         detailPanel.appendBreadCrumb(fkItemBean.getConcept(), fkItemBean.getLabel(), fkItemBean.getIds(), pkInfo);
         String operation = getOperation(fkItemBean);
-        ItemPanel itemPanel = new ItemPanel(fkViewBean, fkItemBean, operation, detailPanel, openTab);
-        itemPanel.getToolBar().setOutMost(!openTab);
+        ItemPanel itemPanel = new ItemPanel(detailPanel.isStaging(), fkViewBean, fkItemBean, operation, detailPanel, !isOutMost);
+        itemPanel.getToolBar().setOutMost(isOutMost);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
         itemPanel.getToolBar().setFkToolBar(true);
         detailPanel.initBanner(fkItemBean.getPkInfoList(), fkItemBean.getDescription());

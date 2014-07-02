@@ -202,7 +202,8 @@ public class BrowseRecordsController extends Controller {
                                 detailToolBar.updateOutTabPanel(tabText);
                             }
                         }
-                        // TMDM-7366 If open or duplicate record in new tab,don't refresh LineageListPanel after save action.
+                        // TMDM-7366 If open or duplicate record in new tab,don't refresh LineageListPanel after save
+                        // action.
                         if (isStaging && !detailToolBar.isOutMost()) {
                             LineageListPanel.getInstance().refresh();
                         }
@@ -248,6 +249,7 @@ public class BrowseRecordsController extends Controller {
 
         Boolean isStaging = (Boolean) event.getData("isStaging"); //$NON-NLS-1$
         final ItemsDetailPanel detailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
+        detailPanel.setStaging(isStaging);
         service.getForeignKeyModel(concept, ids, isStaging, Locale.getLanguage(),
                 new SessionAwareAsyncCallback<ForeignKeyModel>() {
 
