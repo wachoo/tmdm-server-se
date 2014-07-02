@@ -145,11 +145,7 @@ class MDMTransaction implements Transaction {
         }
         StorageTransaction storageTransaction;
         synchronized (storageTransactions) {
-            StorageTransaction result;
-            synchronized (storageTransactions) {
-                result = (StorageTransaction) storageTransactions.get(storage, Thread.currentThread());
-            }
-            storageTransaction = result;
+            storageTransaction = (StorageTransaction) storageTransactions.get(storage, Thread.currentThread());
             if (storageTransaction == null) {
                 storageTransaction = storage.newStorageTransaction();
                 storageTransactions.put(storage, Thread.currentThread(), storageTransaction);
