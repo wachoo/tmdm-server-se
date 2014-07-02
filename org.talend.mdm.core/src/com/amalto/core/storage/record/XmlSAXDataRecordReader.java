@@ -1,29 +1,40 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.record;
 
-import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
-import org.talend.mdm.commmon.metadata.*;
-import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.log4j.Logger;
-import org.xml.sax.*;
+import java.util.Stack;
 
 import javax.xml.XMLConstants;
-import java.util.Stack;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import com.amalto.core.load.io.ResettableStringWriter;
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
+import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecordReader.Input> {
 
@@ -41,6 +52,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         }
     }
 
+    @Override
     public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, Input input) {
         try {
             InputSource inputSource = input.input;
@@ -94,21 +106,27 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             hasMetUserElement = false;
         }
 
+        @Override
         public void setDocumentLocator(Locator locator) {
         }
 
+        @Override
         public void startDocument() throws SAXException {
         }
 
+        @Override
         public void endDocument() throws SAXException {
         }
 
+        @Override
         public void startPrefixMapping(String prefix, String uri) throws SAXException {
         }
 
+        @Override
         public void endPrefixMapping(String prefix) throws SAXException {
         }
 
+        @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             if (!hasMetUserElement) {
                 if (mainType.getName().equals(localName)) {
@@ -145,15 +163,13 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                         }
                         currentType.push(actualType);
                     } else if (field instanceof ContainedTypeFieldMetadata) {
-                        ComplexTypeMetadata actualType = ((ContainedTypeFieldMetadata) field).getContainedType();
+                        ComplexTypeMetadata actualType = (ComplexTypeMetadata) field.getType();
                         String xsiType = attributes.getValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
                         if (xsiType != null) {
-                            ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
-                            if (type != null) {
-                                actualType = type;
-                            } else {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("Ignoring xsi:type '" + xsiType + "' because it is not a data model type.");
+                            for (ComplexTypeMetadata subType : actualType.getSubTypes()) {
+                                if (subType.getName().equals(xsiType)) {
+                                    actualType = subType;
+                                    break;
                                 }
                             }
                         }
@@ -172,6 +188,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             }
         }
 
+        @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
             if (accumulateXml > 0) {
                 charactersBuffer.append("</").append(localName).append('>');
@@ -188,7 +205,8 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                 isMetadata = false;
             } else if (hasMetUserElement && field != null) {
                 if (!value.isEmpty()) {
-                    dataRecordStack.peek().set(field, value.isEmpty() ? null : StorageMetadataUtils.convert(value, field, currentType.peek()));
+                    dataRecordStack.peek().set(field,
+                            value.isEmpty() ? null : StorageMetadataUtils.convert(value, field, currentType.peek()));
                 }
                 if (!currentType.isEmpty()) {
                     TypeMetadata typeMetadata = currentType.pop();
@@ -207,16 +225,20 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             }
         }
 
+        @Override
         public void characters(char[] ch, int start, int length) throws SAXException {
             charactersBuffer.append(new String(ch, start, length).trim());
         }
 
+        @Override
         public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
         }
 
+        @Override
         public void processingInstruction(String target, String data) throws SAXException {
         }
 
+        @Override
         public void skippedEntity(String name) throws SAXException {
         }
 

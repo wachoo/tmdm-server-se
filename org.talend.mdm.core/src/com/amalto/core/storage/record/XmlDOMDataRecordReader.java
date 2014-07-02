@@ -105,12 +105,10 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
                             xsiType = ClassRepository.format(StringUtils.substringAfterLast(StringUtils.substringAfter(xsiType, "java:"), ".")); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                         if (!xsiType.isEmpty()) {
-                            ComplexTypeMetadata actualType = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
-                            if (actualType != null) {
-                                containedType = actualType;
-                            } else {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("Ignoring xsi:type '" + xsiType + "' because it is not a data model type.");
+                            for (ComplexTypeMetadata subType : containedType.getSubTypes()) {
+                                if (subType.getName().equals(xsiType)) {
+                                    containedType = subType;
+                                    break;
                                 }
                             }
                         }

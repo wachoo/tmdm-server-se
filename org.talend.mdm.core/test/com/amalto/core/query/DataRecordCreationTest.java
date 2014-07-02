@@ -10,9 +10,22 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.*;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import com.amalto.core.util.Util;
+import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
@@ -21,14 +34,38 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
-import java.util.List;
-import java.util.Map;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
 @SuppressWarnings("nls")
 public class DataRecordCreationTest extends StorageTestCase {
+
+    @Override
+    public void tearDown() throws Exception {
+        try {
+            storage.begin();
+            {
+                UserQueryBuilder qb = from(company);
+                try {
+                    storage.delete(qb.getSelect());
+                } catch (Exception e) {
+                    // Ignored
+                }
+            }
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+    }
 
     public void testCreationFromXMLString() throws Exception {
         MetadataRepository repository = new MetadataRepository();
@@ -76,7 +113,7 @@ public class DataRecordCreationTest extends StorageTestCase {
     private void performMetadataAsserts(DataRecord dataRecord) {
         DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
         assertEquals("1234", recordMetadata.getTaskId());
-        Map<String,String> recordProperties = recordMetadata.getRecordProperties();
+        Map<String, String> recordProperties = recordMetadata.getRecordProperties();
         assertEquals("My Source", recordProperties.get(Storage.METADATA_STAGING_SOURCE));
         assertEquals("My Error", recordProperties.get(Storage.METADATA_STAGING_ERROR));
         assertEquals("999", recordProperties.get(Storage.METADATA_STAGING_STATUS));
@@ -142,18 +179,99 @@ public class DataRecordCreationTest extends StorageTestCase {
     public void testCreationFromSAXWithInheritance() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
-
         ComplexTypeMetadata c = repository.getComplexType("C");
         assertNotNull(c);
-
         XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
                 .getResourceAsStream("DataRecordCreationTest2.xml")));
         DataRecord dataRecord = dataRecordReader.read("1", repository, c, input);
-
         performInheritanceAsserts(dataRecord);
+    }
+
+    public void testCreationFromSAXWithReusableTypeFieldUnregistered() throws Exception {
+        try {
+            List<DataRecord> records = getDataRecords("DataRecordCreationTest4.xml", company);
+            for (DataRecord record : records) {
+                performCreationFromSAXWithReusableTypeFieldUnregisteredAsserts(record);
+            }
+        } finally {
+            storage.end();
+        }
+    }
+
+    private List<DataRecord> getDataRecords(String resourceName, ComplexTypeMetadata recordType) throws Exception {
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        // Read using SAX
+        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+        DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
+        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
+                .getResourceAsStream(resourceName)));
+        DataRecord dataRecord = dataRecordReader.read("1", repository, recordType, input);
+        records.add(dataRecord);
+        // Read using DOM
+        DataRecordReader<Element> documentDataRecordReader = new XmlDOMDataRecordReader();
+        Document document = Util.parse(IOUtils.toString(this.getClass().getResourceAsStream(resourceName)));
+        records.add(documentDataRecordReader.read("1", repository, company, document.getDocumentElement()));
+        // Read using String
+        DataRecordReader<String> stringDataRecordReader = new XmlStringDataRecordReader();
+        DataRecord record = stringDataRecordReader.read("1", repository, company, IOUtils.toString(this.getClass().getResourceAsStream(resourceName)));
+        records.add(record);
+        return records;
+    }
+
+    private static void performCreationFromSAXWithReusableTypeFieldUnregisteredAsserts(DataRecord dataRecord) {
+        assertNotNull(dataRecord);
+        assertEquals("Company", dataRecord.getType().getName());
+        assertEquals("1", dataRecord.get("subelement"));
+        Object staff = dataRecord.get("staff");
+        assertNotNull(staff);
+        assertTrue(staff instanceof DataRecord);
+        assertEquals("PersonType", ((DataRecord) staff).getType().getName());
+        assertEquals("John", dataRecord.get("staff/name"));
+        assertEquals(30, dataRecord.get("staff/age"));
+        // Test storage update
+        storage.begin();
+        storage.update(dataRecord);
+        storage.commit();
+    }
+
+    public void testCreationFromSAXWithReusableTypeNoMapping() throws Exception {
+        List<DataRecord> records = getDataRecords("DataRecordCreationTest5.xml", company);
+        for (DataRecord record : records) {
+            performCreationFromSAXWithReusableTypeNoMappingAsserts(record);
+        }
+    }
+
+    private void performCreationFromSAXWithReusableTypeNoMappingAsserts(DataRecord dataRecord) {
+        assertNotNull(dataRecord);
+        assertEquals("Company", dataRecord.getType().getName());
+        assertEquals("1", dataRecord.get("subelement"));
+        Object companyType = dataRecord.get("type");
+        assertNotNull(companyType);
+        assertTrue(companyType instanceof DataRecord);
+        assertEquals("CompanyType", ((DataRecord) companyType).getType().getName());
+        assertEquals("Non-Profit", dataRecord.get("type/profitable"));
+        try {
+            storage.begin();
+            storage.update(dataRecord);
+            storage.commit();
+
+            storage.begin();
+            UserQueryBuilder qb = from(company);
+            StorageResults results = storage.fetch(qb.getSelect());
+
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result);
+                assertTrue("1".equals(result.get("subelement")));
+                assertTrue("Non-Profit".equals(result.get("type/profitable")));
+            }
+            results.close();
+            storage.commit();
+        } finally {
+            storage.end();
+        }
     }
 
     public void testCreationFromDOM() throws Exception {
@@ -242,7 +360,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertNotNull(o);
         assertTrue(o instanceof List);
         assertEquals(1, ((List) o).size());
-        assertTrue(((DataRecord) ((List) o).get(0)) instanceof DataRecord);
+        assertTrue(((List) o).get(0) instanceof DataRecord);
         assertEquals("Supplier", ((DataRecord) ((List) o).get(0)).getType().getName());
         assertEquals("1", ((DataRecord) ((List) o).get(0)).get("Id"));
 
@@ -283,40 +401,40 @@ public class DataRecordCreationTest extends StorageTestCase {
     }
 
     public void testUserXmlData() {
-            DataRecordReader<String> xmlReader = new XmlStringDataRecordReader();
-            DataRecord r1 = xmlReader.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>");
-            DataRecord r2 = xmlReader.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>");
-            DataRecord r3 = xmlReader.read("1", repository, persons, "<Persons><name>person</name><age>20</age></Persons>");
-            DataRecord r4 = xmlReader.read("1", repository, employee,
-                    "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>");
-            DataRecord r5 = xmlReader.read("1", repository, manager,
-                    "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>");
+        DataRecordReader<String> xmlReader = new XmlStringDataRecordReader();
+        DataRecord r1 = xmlReader.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>");
+        DataRecord r2 = xmlReader.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>");
+        DataRecord r3 = xmlReader.read("1", repository, persons, "<Persons><name>person</name><age>20</age></Persons>");
+        DataRecord r4 = xmlReader.read("1", repository, employee,
+                "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>");
+        DataRecord r5 = xmlReader.read("1", repository, manager,
+                "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>");
 
-            assertNotNull(r1);
-            assertEquals("1", r1.get(b.getField("id")));
-            assertEquals("TextB", r1.get(b.getField("textB")));
+        assertNotNull(r1);
+        assertEquals("1", r1.get(b.getField("id")));
+        assertEquals("TextB", r1.get(b.getField("textB")));
 
-            assertNotNull(r2);
-            assertEquals("2", r2.get(d.getField("id")));
-            assertEquals("TextBD", r2.get(d.getField("textB")));
-            assertEquals("TextDD", r2.get(d.getField("textD")));
+        assertNotNull(r2);
+        assertEquals("2", r2.get(d.getField("id")));
+        assertEquals("TextBD", r2.get(d.getField("textB")));
+        assertEquals("TextDD", r2.get(d.getField("textD")));
 
-            assertNotNull(r3);
-            assertEquals("person", r3.get(persons.getField("name")));
-            assertEquals(20, r3.get(persons.getField("age")));
+        assertNotNull(r3);
+        assertEquals("person", r3.get(persons.getField("name")));
+        assertEquals(20, r3.get(persons.getField("age")));
 
-            assertNotNull(r4);
-            assertEquals("employee", r4.get(employee.getField("name")));
-            assertEquals(21, r4.get(employee.getField("age")));
-            assertEquals("Test", r4.get(employee.getField("jobTitle")));
+        assertNotNull(r4);
+        assertEquals("employee", r4.get(employee.getField("name")));
+        assertEquals(21, r4.get(employee.getField("age")));
+        assertEquals("Test", r4.get(employee.getField("jobTitle")));
 
-            assertNotNull(r5);
-            assertEquals("manager", r5.get(manager.getField("name")));
-            assertEquals(25, r5.get(manager.getField("age")));
-            assertEquals("Test", r5.get(manager.getField("jobTitle")));
-            assertEquals("manager", r5.get(manager.getField("dept")));
+        assertNotNull(r5);
+        assertEquals("manager", r5.get(manager.getField("name")));
+        assertEquals(25, r5.get(manager.getField("age")));
+        assertEquals("Test", r5.get(manager.getField("jobTitle")));
+        assertEquals("manager", r5.get(manager.getField("dept")));
 
-        }
+    }
 
     public void testUserXmlDataWithInnerProperties() {
         DataRecordReader<String> xmlReader = new XmlStringDataRecordReader();
@@ -378,7 +496,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertEquals("123456", metadata.getTaskId());
 
     }
-    
+
     public void testCreationFromXMLStringWithReusableType() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(this.getClass().getResourceAsStream("rte.xsd"));

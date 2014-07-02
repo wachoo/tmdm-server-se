@@ -69,19 +69,10 @@ class ScatteredTypeMapping extends TypeMapping {
                 if (!field.isMany()) {
                     DataRecord referencedObject = (DataRecord) readValue(from, field, mappedDatabaseField, session);
                     if (referencedObject != null) {
-                        TypeMapping mappingFromUser = mappings.getMappingFromUser(referencedObject.getType());
-                        ComplexTypeMetadata referencedType = mappingFromUser != null ? mappingFromUser.getDatabase()
-                                : referencedObject.getType();
                         Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
-                        boolean needCreate = existingValue == null;
-                        if (!needCreate) {
-                            ComplexTypeMetadata existingType = ((StorageClassLoader) contextClassLoader)
-                                    .getTypeFromClass(existingValue.getClass());
-                            needCreate = !existingType.equals(referencedType);
-                        }
-                        Wrapper object = needCreate ? createObject(contextClassLoader, referencedType) : existingValue;
+                        Wrapper object = createObject(contextClassLoader, referencedObject);
                         to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, object));
-                        if (needCreate) {
+                        if (existingValue == null) {
                             session.persist(object);
                         }
                     } else {
@@ -103,13 +94,13 @@ class ScatteredTypeMapping extends TypeMapping {
                                 ComplexTypeMetadata existingType = ((StorageClassLoader) contextClassLoader)
                                         .getTypeFromClass(objects.get(i).getClass());
                                 if (!existingType.equals(dataRecord.getType())) {
-                                    Wrapper object = createObject(contextClassLoader, dataRecord.getType());
+                                    Wrapper object = createObject(contextClassLoader, dataRecord);
                                     objects.set(i, (Wrapper) _setValues(session, dataRecord, object));
                                 } else {
                                     objects.set(i, (Wrapper) _setValues(session, dataRecord, objects.get(i)));
                                 }
                             } else {
-                                Wrapper object = createObject(contextClassLoader, dataRecord.getType());
+                                Wrapper object = createObject(contextClassLoader, dataRecord);
                                 objects.add((Wrapper) _setValues(session, dataRecord, object));
                                 session.persist(object);
                             }
@@ -325,19 +316,14 @@ class ScatteredTypeMapping extends TypeMapping {
                 + userField.getName() + "'.");
     }
 
-    private Wrapper createObject(ClassLoader storageClassLoader, ComplexTypeMetadata referencedType) {
+    private Wrapper createObject(ClassLoader storageClassLoader, DataRecord record) {
         try {
-            TypeMapping mappingFromUser = mappings.getMappingFromUser(referencedType);
-            Class<? extends Wrapper> referencedClass;
-            if (mappingFromUser != null) {
-                ComplexTypeMetadata databaseReferenceType = mappingFromUser.getDatabase();
-                referencedClass = ((StorageClassLoader) storageClassLoader).getClassFromType(databaseReferenceType);
-            } else {
-                referencedClass = ((StorageClassLoader) storageClassLoader).getClassFromType(referencedType);
-            }
+            TypeMapping mappingFromUser = mappings.getMappingFromUser(record.getType());
+            ComplexTypeMetadata databaseReferenceType = mappingFromUser.getDatabase();
+            Class<? extends Wrapper> referencedClass = ((StorageClassLoader) storageClassLoader).getClassFromType(databaseReferenceType);
             return referencedClass.newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Could not create wrapper object for type '" + referencedType.getName() + "'", e);
+            throw new RuntimeException("Could not create wrapper object for type '" + record.getType().getName() + "'", e);
         }
     }
 
