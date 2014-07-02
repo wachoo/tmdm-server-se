@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.client.rest;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -80,11 +81,15 @@ public class ClientResourceWrapper {
                     callbackHandler.process(request, response);
                 } else {
                     String errorMessage;
-                    if (response.getStatus().getCode() == RestServiceConstants.SERVICE_ERROR_CODE_NOT_IMPLEMENTED
-                            && response.getEntity().equals(RestServiceConstants.SERVICE_ERROR_MESSAGE_NO_MATCHRULE)) {
-                        errorMessage = BaseMessagesFactory.getMessages().service_rest_error_no_matchrule();
-                    } else {
-                        errorMessage = BaseMessagesFactory.getMessages().server_error_notification();
+                    try {
+                        if (response.getStatus().getCode() == RestServiceConstants.SERVICE_ERROR_CODE_NOT_IMPLEMENTED
+                                && response.getEntity().getText().equals(RestServiceConstants.SERVICE_ERROR_MESSAGE_NO_MATCHRULE)) {
+                            errorMessage = BaseMessagesFactory.getMessages().service_rest_error_no_matchrule();
+                        } else {
+                            errorMessage = BaseMessagesFactory.getMessages().server_error_notification();
+                        }
+                    } catch (IOException e) {
+                        errorMessage = e.getMessage();
                     }
                     MessageBox.alert(BaseMessagesFactory.getMessages().server_error(), errorMessage, null);
                 }
