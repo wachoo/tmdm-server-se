@@ -315,18 +315,19 @@ public class UserQueryBuilder {
     public static Condition isEmpty(FieldMetadata field) {
         assertNullField(field);
         // If field is a number field, consider a condition "field equals 0"
+        String typeName = MetadataUtils.getSuperConcreteType(field.getType()).getName();
         for (String numberType : Types.NUMBERS) {
-            if (numberType.equals(field.getType().getName())) {
+            if (numberType.equals(typeName)) {
                 return new Compare(new Field(field), Predicate.EQUALS, new IntegerConstant(0));
             }
         }
         // For booleans, consider "field equals false"
-        if (Types.BOOLEAN.equals(field.getType().getName())) {
+        if (Types.BOOLEAN.equals(typeName)) {
             return new Compare(new Field(field), Predicate.EQUALS, new BooleanConstant(false));
         }
         // Dates
         for (String dateType : Types.DATES) {
-            if (dateType.equals(field.getType().getName())) {
+            if (dateType.equals(typeName)) {
                 return isNull(field);
             }
         }
