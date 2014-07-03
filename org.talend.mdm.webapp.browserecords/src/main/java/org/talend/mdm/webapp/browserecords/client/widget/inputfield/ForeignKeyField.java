@@ -70,6 +70,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
         fkWindow.setBlinkModal(true);
+        fkWindow.setStaging(itemsDetailPanel.isStaging());
 
         suggestBox = new SuggestComboBoxField(this);
     }

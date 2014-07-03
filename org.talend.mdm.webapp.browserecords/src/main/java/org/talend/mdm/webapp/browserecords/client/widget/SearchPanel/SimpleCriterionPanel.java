@@ -78,6 +78,8 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     private ListStore<BaseModel> operatorlist = new ListStore<BaseModel>();
 
+    private boolean staging;
+
     public SimpleCriterionPanel(final MultipleCriteriaPanel ancestor, final Panel parent, Button searchBut) {
         super();
         this.searchBut = searchBut;
@@ -207,6 +209,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
             field.setId("SimpleSearchValueFiled"); //$NON-NLS-1$
             if (field instanceof FKField) {
                 ((FKField) field).Update(getKey(), this);
+                ((FKField) field).setStaging(staging);
             }
             content.add(field);
             field.addListener(Events.KeyDown, new Listener<FieldEvent>() {
@@ -425,4 +428,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         return simpleCriterionPanel;
     }
 
+    public void setStaging(boolean staging) {
+        this.staging = staging;
+    }
 }
