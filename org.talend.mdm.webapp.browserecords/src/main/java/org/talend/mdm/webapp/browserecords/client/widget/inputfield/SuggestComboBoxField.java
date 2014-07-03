@@ -110,9 +110,15 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
                 BasePagingLoadConfigImpl config = new BasePagingLoadConfigImpl();
                 config.setLimit(listLimitCount);
 
-                service.getForeignKeySuggestion(config, foreignKey, foreignKeyInfo, BrowseRecords.getSession().getAppHeader()
-                        .getDatacluster(), hasForeignKeyFilter, inputValue, Locale.getLanguage(),
-                        new SessionAwareAsyncCallback<List<ForeignKeyBean>>() {
+                String dataCluster = BrowseRecords.getSession().getAppHeader().getMasterDataCluster();
+                if (foreignKeyField.getItemsDetailPanel() != null) {
+                    if (foreignKeyField.getItemsDetailPanel().isStaging()) {
+                        dataCluster = BrowseRecords.getSession().getAppHeader().getStagingDataCluster();
+                    }
+                }
+
+                service.getForeignKeySuggestion(config, foreignKey, foreignKeyInfo, dataCluster, hasForeignKeyFilter, inputValue,
+                        Locale.getLanguage(), new SessionAwareAsyncCallback<List<ForeignKeyBean>>() {
 
                             @Override
                             public void onSuccess(List<ForeignKeyBean> result) {

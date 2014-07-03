@@ -314,4 +314,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     public List<String> getForeignKeyInfo() {
         return this.foreignKeyInfo;
     }
+
+    public ItemsDetailPanel getItemsDetailPanel() {
+        return this.itemsDetailPanel;
+    }
 }
