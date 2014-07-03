@@ -10,15 +10,22 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.util.Util;
+import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
@@ -27,12 +34,38 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
 @SuppressWarnings("nls")
 public class DataRecordCreationTest extends StorageTestCase {
+
+    @Override
+    public void tearDown() throws Exception {
+        try {
+            storage.begin();
+            {
+                UserQueryBuilder qb = from(company);
+                try {
+                    storage.delete(qb.getSelect());
+                } catch (Exception e) {
+                    // Ignored
+                }
+            }
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+    }
 
     public void testCreationFromXMLString() throws Exception {
         MetadataRepository repository = new MetadataRepository();
@@ -42,7 +75,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertNotNull(product);
 
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest_1.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -63,7 +96,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertNotNull(product);
 
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest_3.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest_metadata.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -95,7 +128,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertNotNull(c);
 
         StringBuilder builder = new StringBuilder();
-        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest_2.xml");
+        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest2.xml");
         BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
         String current;
         while ((current = reader.readLine()) != null) {
@@ -119,7 +152,7 @@ public class DataRecordCreationTest extends StorageTestCase {
 
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
-                .getResourceAsStream("DataRecordCreationTest_1.xml")));
+                .getResourceAsStream("DataRecordCreationTest.xml")));
         DataRecord dataRecord = dataRecordReader.read("1", repository, product, input);
 
         performAsserts(dataRecord);
@@ -136,7 +169,7 @@ public class DataRecordCreationTest extends StorageTestCase {
 
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
-                .getResourceAsStream("DataRecordCreationTest_3.xml")));
+                .getResourceAsStream("DataRecordCreationTest_metadata.xml")));
         DataRecord dataRecord = dataRecordReader.read("1", repository, product, input);
 
         performAsserts(dataRecord);
@@ -146,18 +179,99 @@ public class DataRecordCreationTest extends StorageTestCase {
     public void testCreationFromSAXWithInheritance() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(this.getClass().getResourceAsStream("metadata.xsd"));
-
         ComplexTypeMetadata c = repository.getComplexType("C");
         assertNotNull(c);
-
         XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
-                .getResourceAsStream("DataRecordCreationTest_2.xml")));
+                .getResourceAsStream("DataRecordCreationTest2.xml")));
         DataRecord dataRecord = dataRecordReader.read("1", repository, c, input);
-
         performInheritanceAsserts(dataRecord);
+    }
+
+    public void testCreationFromSAXWithReusableTypeFieldUnregistered() throws Exception {
+        try {
+            List<DataRecord> records = getDataRecords("DataRecordCreationTest4.xml", company);
+            for (DataRecord record : records) {
+                performCreationFromSAXWithReusableTypeFieldUnregisteredAsserts(record);
+            }
+        } finally {
+            storage.end();
+        }
+    }
+
+    private List<DataRecord> getDataRecords(String resourceName, ComplexTypeMetadata recordType) throws Exception {
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        // Read using SAX
+        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+        DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
+        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
+                .getResourceAsStream(resourceName)));
+        DataRecord dataRecord = dataRecordReader.read("1", repository, recordType, input);
+        records.add(dataRecord);
+        // Read using DOM
+        DataRecordReader<Element> documentDataRecordReader = new XmlDOMDataRecordReader();
+        Document document = Util.parse(IOUtils.toString(this.getClass().getResourceAsStream(resourceName)));
+        records.add(documentDataRecordReader.read("1", repository, company, document.getDocumentElement()));
+        // Read using String
+        DataRecordReader<String> stringDataRecordReader = new XmlStringDataRecordReader();
+        DataRecord record = stringDataRecordReader.read("1", repository, company, IOUtils.toString(this.getClass().getResourceAsStream(resourceName)));
+        records.add(record);
+        return records;
+    }
+
+    private static void performCreationFromSAXWithReusableTypeFieldUnregisteredAsserts(DataRecord dataRecord) {
+        assertNotNull(dataRecord);
+        assertEquals("Company", dataRecord.getType().getName());
+        assertEquals("1", dataRecord.get("subelement"));
+        Object staff = dataRecord.get("staff");
+        assertNotNull(staff);
+        assertTrue(staff instanceof DataRecord);
+        assertEquals("PersonType", ((DataRecord) staff).getType().getName());
+        assertEquals("John", dataRecord.get("staff/name"));
+        assertEquals(30, dataRecord.get("staff/age"));
+        // Test storage update
+        storage.begin();
+        storage.update(dataRecord);
+        storage.commit();
+    }
+
+    public void testCreationFromSAXWithReusableTypeNoMapping() throws Exception {
+        List<DataRecord> records = getDataRecords("DataRecordCreationTest5.xml", company);
+        for (DataRecord record : records) {
+            performCreationFromSAXWithReusableTypeNoMappingAsserts(record);
+        }
+    }
+
+    private void performCreationFromSAXWithReusableTypeNoMappingAsserts(DataRecord dataRecord) {
+        assertNotNull(dataRecord);
+        assertEquals("Company", dataRecord.getType().getName());
+        assertEquals("1", dataRecord.get("subelement"));
+        Object companyType = dataRecord.get("type");
+        assertNotNull(companyType);
+        assertTrue(companyType instanceof DataRecord);
+        assertEquals("CompanyType", ((DataRecord) companyType).getType().getName());
+        assertEquals("Non-Profit", dataRecord.get("type/profitable"));
+        try {
+            storage.begin();
+            storage.update(dataRecord);
+            storage.commit();
+
+            storage.begin();
+            UserQueryBuilder qb = from(company);
+            StorageResults results = storage.fetch(qb.getSelect());
+
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result);
+                assertTrue("1".equals(result.get("subelement")));
+                assertTrue("Non-Profit".equals(result.get("type/profitable")));
+            }
+            results.close();
+            storage.commit();
+        } finally {
+            storage.end();
+        }
     }
 
     public void testCreationFromDOM() throws Exception {
@@ -168,7 +282,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertNotNull(product);
 
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                .parse(this.getClass().getResourceAsStream("DataRecordCreationTest_1.xml"));
+                .parse(this.getClass().getResourceAsStream("DataRecordCreationTest.xml"));
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
         DataRecord dataRecord = dataRecordReader.read("1", repository, product, document.getDocumentElement());
 
@@ -185,7 +299,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-        InputStream stream = this.getClass().getResourceAsStream("DataRecordCreationTest_3.xml");
+        InputStream stream = this.getClass().getResourceAsStream("DataRecordCreationTest_metadata.xml");
         Document document = documentBuilder.parse(stream);
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
         DataRecord dataRecord = dataRecordReader.read("1", repository, product, document.getDocumentElement());
@@ -204,7 +318,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-        Document document = documentBuilder.parse(this.getClass().getResourceAsStream("DataRecordCreationTest_2.xml"));
+        Document document = documentBuilder.parse(this.getClass().getResourceAsStream("DataRecordCreationTest2.xml"));
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
         DataRecord dataRecord = dataRecordReader.read("1", repository, c, document.getDocumentElement());
 
@@ -382,4 +496,37 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertEquals("123456", metadata.getTaskId());
 
     }
+
+    public void testCreationFromXMLStringWithReusableType() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("rte.xsd"));
+
+        ComplexTypeMetadata contrat = repository.getComplexType("Contrat");
+        assertNotNull(contrat);
+
+        StringBuilder builder = new StringBuilder();
+        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest3.xml");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(testResource));
+        String current;
+        while ((current = reader.readLine()) != null) {
+            builder.append(current);
+        }
+
+        DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
+        DataRecord dataRecord = dataRecordReader.read("1", repository, contrat, builder.toString());
+        assertNotNull(dataRecord);
+
+        // Test exportToString
+        StringWriter output = new StringWriter();
+        DataRecordWriter writer = new DataRecordXmlWriter();
+        try {
+            writer.write(dataRecord, output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String actualXml = output.toString();
+        String expectedXml = "<Contrat><numeroContrat>1</numeroContrat><numeroContratExterne>1</numeroContratExterne><detailContrat xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"AP-AA\"></detailContrat></Contrat>";
+        assertEquals(expectedXml, actualXml);
+    }
+
 }
