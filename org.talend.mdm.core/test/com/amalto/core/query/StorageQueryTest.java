@@ -3480,7 +3480,6 @@ public class StorageQueryTest extends StorageTestCase {
             storage.rollback();
             throw new RuntimeException(e);
         }
-        System.out.println("count = " + count);
         // Ensures split behavior is same as no split
         storage.begin();
         try {
@@ -3517,7 +3516,6 @@ public class StorageQueryTest extends StorageTestCase {
             storage.rollback();
             throw new RuntimeException(e);
         }
-        System.out.println("count = " + count);
         // Ensures split behavior is same as no split
         storage.begin();
         try {

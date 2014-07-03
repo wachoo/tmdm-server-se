@@ -191,7 +191,7 @@ public class DataRecordCreationTest extends StorageTestCase {
 
     public void testCreationFromSAXWithReusableTypeFieldUnregistered() throws Exception {
         try {
-            List<DataRecord> records = getDataRecords("DataRecordCreationTest4.xml", company);
+            List<DataRecord> records = getDataRecords("DataRecordCreationTest_4.xml", company);
             for (DataRecord record : records) {
                 performCreationFromSAXWithReusableTypeFieldUnregisteredAsserts(record);
             }
@@ -237,7 +237,7 @@ public class DataRecordCreationTest extends StorageTestCase {
     }
 
     public void testCreationFromSAXWithReusableTypeNoMapping() throws Exception {
-        List<DataRecord> records = getDataRecords("DataRecordCreationTest5.xml", company);
+        List<DataRecord> records = getDataRecords("DataRecordCreationTest_5.xml", company);
         for (DataRecord record : records) {
             performCreationFromSAXWithReusableTypeNoMappingAsserts(record);
         }
