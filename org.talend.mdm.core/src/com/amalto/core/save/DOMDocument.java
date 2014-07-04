@@ -135,23 +135,7 @@ public class DOMDocument implements DOMMutableDocument {
         static final Cleaner INSTANCE = new EmptyElementCleaner();
 
         public boolean clean(Element element) {
-            if (element == null) {
-                return true;
-            }
-            if (element.hasChildNodes()) {
-                return false;
-            }
-            if (element.hasAttributes()) {
-                // Returns true (isEmpty) if all attributes are empty.
-                NamedNodeMap attributes = element.getAttributes();
-                for (int i = 0; i < attributes.getLength(); i++) {
-                    String attributeValue = attributes.item(i).getNodeValue();
-                    if (attributeValue != null && !attributeValue.trim().isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return element == null || !element.hasChildNodes();
         }
     }
 

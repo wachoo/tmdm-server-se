@@ -236,7 +236,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
-        assertEquals("ContractDetailType", evaluate(committedElement, "/Contract/detail[1]/@xsi:type"));
+        assertEquals("", evaluate(committedElement, "/Contract/detail[1]/@xsi:type"));
         assertEquals("", evaluate(committedElement, "/Contract/detail[1]/code"));
     }
 
@@ -2616,6 +2616,27 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("[40]", evaluate(committedElement, "/Contrat/detailContrat/Perimetre/entitesPresentes/EDAs/EDA/eda"));
+    }
+    
+    public void test65() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata11.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contrat", repository);
+
+        SaverSource source = new TestSaverSource(repository, false, "", "metadata11.xsd");
+        ((TestSaverSource) source).setUserName("administrator");
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test65.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Contrat", "Source", recordXml, true, true,
+                true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("", evaluate(committedElement, "/Contrat/detailContrat[@xsi:type]"));
     }
 
     public void testDateTypeInKey() throws Exception {
