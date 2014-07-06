@@ -10,23 +10,22 @@
 
 package com.amalto.core.save.context;
 
-import java.util.*;
-
+import com.amalto.core.history.Action;
+import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.history.action.LogicalDeleteAction;
 import com.amalto.core.history.action.PhysicalDeleteAction;
-import org.apache.commons.lang.NotImplementedException;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-
-import com.amalto.core.history.Action;
-import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.util.SynchronizedNow;
+import org.apache.commons.lang.NotImplementedException;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+
+import java.util.*;
 
 class GenerateActions implements DocumentSaver {
 
@@ -162,11 +161,8 @@ class GenerateActions implements DocumentSaver {
     }
 
     private boolean hasModificationActions(List<Action> actions) {
-        if (actions.isEmpty()) {
-            return false;
-        }
         for (Action action : actions) {
-            if (!(action instanceof TouchAction)) {
+            if(!action.isTransient()) {
                 return true;
             }
         }

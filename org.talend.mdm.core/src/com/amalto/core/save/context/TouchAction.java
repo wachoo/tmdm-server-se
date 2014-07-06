@@ -72,6 +72,11 @@ public class TouchAction implements Action {
     }
 
     @Override
+    public boolean isTransient() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "TouchAction{" + //$NON-NLS-1$
                 "path='" + path + '\'' + //$NON-NLS-1$

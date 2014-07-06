@@ -52,4 +52,9 @@ abstract class AbstractFieldAction implements FieldAction {
     public FieldMetadata getField() {
         return field;
     }
+
+    @Override
+    public boolean isTransient() {
+        return false;
+    }
 }

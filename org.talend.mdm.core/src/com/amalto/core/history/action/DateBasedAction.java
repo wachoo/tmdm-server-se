@@ -102,4 +102,9 @@ public class DateBasedAction implements Action {
     public String getDetails() {
         return getAction().getDetails();
     }
+
+    @Override
+    public boolean isTransient() {
+        return getAction().isTransient();
+    }
 }

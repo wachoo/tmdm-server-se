@@ -10,16 +10,15 @@
 
 package com.amalto.core.save.context;
 
-import java.util.*;
-
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-
 import com.amalto.core.history.Action;
 import com.amalto.core.history.FieldAction;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.history.action.NoOpAction;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+
+import java.util.*;
 
 abstract class AbstractChangeTypeAction implements FieldAction {
 
@@ -90,6 +89,11 @@ abstract class AbstractChangeTypeAction implements FieldAction {
 
     public boolean isAllowed(Set<String> roles) {
         return true;
+    }
+
+    @Override
+    public boolean isTransient() {
+        return !hasChangedType;
     }
 
     public MutableDocument addModificationMark(MutableDocument document) {

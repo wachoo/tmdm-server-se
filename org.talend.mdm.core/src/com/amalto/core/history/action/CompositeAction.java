@@ -97,4 +97,14 @@ public class CompositeAction implements Action {
         }
         return result.toString();
     }
+
+    @Override
+    public boolean isTransient() {
+        for (Action action : actions) {
+            if(!action.isTransient()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

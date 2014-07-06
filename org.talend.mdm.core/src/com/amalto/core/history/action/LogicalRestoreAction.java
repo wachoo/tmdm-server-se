@@ -61,4 +61,9 @@ public class LogicalRestoreAction extends AbstractAction {
     public String getDetails() {
         return "restore from logical delete of type '" + deletedType.getName() + "'";
     }
+
+    @Override
+    public boolean isTransient() {
+        return false;
+    }
 }

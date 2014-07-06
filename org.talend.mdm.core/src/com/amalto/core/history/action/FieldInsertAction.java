@@ -47,6 +47,11 @@ public class FieldInsertAction extends FieldUpdateAction {
     }
 
     @Override
+    public boolean isTransient() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "FieldInsertAction{" +
                 "path='" + path + '\'' +

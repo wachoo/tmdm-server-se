@@ -61,4 +61,9 @@ public class CreateAction extends AbstractAction {
     public String getDetails() {
         return "create '" + createdType.getName() + "'";
     }
+
+    @Override
+    public boolean isTransient() {
+        return false;
+    }
 }

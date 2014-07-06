@@ -91,4 +91,11 @@ public interface Action {
      * @return A {@link String} representation of this action.
      */
     String getDetails();
+
+    /**
+     * @return <code>true</code> if the action does not make any change on the underlying data, <code>false</code> otherwise.
+     * For example, changing type  for a element <b>is</b> a transient action when type does not change whereas changing field's
+     * value is not.
+     */
+    boolean isTransient();
 }

@@ -61,4 +61,9 @@ public class PhysicalDeleteAction extends AbstractAction {
     public String getDetails() {
         return "physical delete of '" + deletedType.getName() + "'";
     }
+
+    @Override
+    public boolean isTransient() {
+        return false;
+    }
 }

@@ -78,4 +78,9 @@ public class NoOpAction implements Action {
     public String getDetails() {
         return StringUtils.EMPTY;
     }
+
+    @Override
+    public boolean isTransient() {
+        return true;
+    }
 }

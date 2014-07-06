@@ -61,4 +61,9 @@ public class LogicalDeleteAction extends AbstractAction {
     public String getDetails() {
         return "logical delete of type '" + deletedType.getName() + "'";
     }
+
+    @Override
+    public boolean isTransient() {
+        return false;
+    }
 }
