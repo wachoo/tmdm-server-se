@@ -184,21 +184,6 @@ class IdQueryHandler extends AbstractQueryHandler {
         return null;
     }
 
-    @Override
-    public StorageResults visit(Timestamp timestamp) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(TaskId taskId) {
-        return null;
-    }
-
-    @Override
-    public StorageResults visit(StagingStatus stagingStatus) {
-        return null;
-    }
-
     private static class ExplicitProjectionAdapter extends VisitorAdapter<Void> {
 
         private final DataRecord next;

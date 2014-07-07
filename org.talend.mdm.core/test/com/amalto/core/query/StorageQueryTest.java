@@ -3555,6 +3555,117 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testGetByIdWithProjection() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).where(eq(person.getField("id"), "1"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertEquals("Julien", result.get("firstname"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testGetByIdWithCondition() throws Exception {
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).where(
+                and(eq(person.getField("id"), "1"), eq(person.getField("id"), "2"))); 
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount()); // Id can't be equals to "1" AND "2"...
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).select(person.getField("firstname")).where(
+                or(eq(person.getField("id"), "1"), eq(person.getField("id"), "2")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount()); // ... but "1" OR "2" returns 2 results. 
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testDistinctProjection() throws Exception {
+        UserQueryBuilder qb = from(person).select(alias(distinct(person.getField("firstname")), "firstname"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            Set<String> expected = new HashSet<String>();
+            expected.add("Julien");
+            expected.add("Juste");
+            expected.add("Robert-Julien");
+            for (DataRecord result : results) {
+                expected.remove(result.get("firstname"));
+            }
+            assertEquals(0, expected.size());
+        } finally {
+            results.close();
+        }
+    }
+    
+    public void testMaxProjection() throws Exception {
+        UserQueryBuilder qb = from(person).select(max(person.getField("score")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertEquals("200000.00", String.valueOf(result.get("max")));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testMinProjection() throws Exception {
+        UserQueryBuilder qb = from(person).select(min(person.getField("score")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertEquals("130000.00", String.valueOf(result.get("min")));
+            }
+        } finally {
+            results.close();
+        }
+    }
+    
+    public void testTaskIdProjection() throws Exception {
+        UserQueryBuilder qb = from(person).select(taskId());
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertNull(result.get("metadata:taskId"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+    
+    public void testTimestampProjection() throws Exception {
+        UserQueryBuilder qb = from(person).select(timestamp());
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertNotNull(result.get("metadata:timestamp"));
+                assertTrue(((Long) result.get("metadata:timestamp")) > 0);
+            }
+        } finally {
+            results.close();
+        }
+    }
+    
+    public void testCountProjection() throws Exception {
+        UserQueryBuilder qb = from(person).select(count());
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertNotNull(result.get("count"));
+                assertEquals(3l, result.get("count"));
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     private static class TestRDBMSDataSource extends RDBMSDataSource {
 
         private ContainsOptimization optimization;
