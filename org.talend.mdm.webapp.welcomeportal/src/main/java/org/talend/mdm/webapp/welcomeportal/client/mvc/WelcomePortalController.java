@@ -53,6 +53,8 @@ public class WelcomePortalController extends Controller {
             forwardToView(view, event);
         } else if (type == WelcomePortalEvents.RefreshPortlet) {
             forwardToView(view, event);
+        } else if (type == WelcomePortalEvents.RefreshPortal) {
+            forwardToView(view, event);
         }
     }
 }

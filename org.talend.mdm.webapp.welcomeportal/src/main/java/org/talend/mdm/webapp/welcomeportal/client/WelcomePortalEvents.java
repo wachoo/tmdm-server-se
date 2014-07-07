@@ -22,4 +22,6 @@ public class WelcomePortalEvents {
     public static final EventType InitFrame = new EventType();
 
     public static final EventType RefreshPortlet = new EventType();
+
+    public static final EventType RefreshPortal = new EventType();
 }

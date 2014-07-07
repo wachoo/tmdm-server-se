@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
@@ -22,8 +21,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
@@ -40,27 +37,33 @@ public class ActionsPanel extends ContentPanel {
 
     private static ActionsPanel instance;
 
-    private final static String PORTLET_START = "Start", PORTLET_ALERT = "Alert", PORTLET_TASKS = "Tasks", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            PORTLET_PROCESS = "Process", PORTLET_SEARCH = "Search", CHART_DATA = "Data", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            CHART_JOURNAL = "Journal", CHART_ROUTING_EVENT = "Routing Event", CHART_MATCHING = "Matching"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    private final static String LABEL_START = "Start", LABEL_ALERT = "Alert", LABEL_TASKS = "Tasks", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            LABEL_PROCESS = "Process", LABEL_SEARCH = "Search", LABEL_DATA = "Data", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            LABEL_JOURNAL = "Journal", LABEL_ROUTING_EVENT = "Routing Event", LABEL_MATCHING = "Matching"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-    private static final List<String> DEFAULT_PORTLET_LABELS = Arrays.asList(PORTLET_START, PORTLET_PROCESS, PORTLET_ALERT,
-            PORTLET_SEARCH, PORTLET_TASKS, CHART_DATA, CHART_ROUTING_EVENT, CHART_JOURNAL, CHART_MATCHING);
+    private static final String NAME_START = "start", NAME_PROCESS = "process", NAME_ALERT = "alert", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            NAME_SEARCH = "search", NAME_TASKS = "tasks", NAME_CHART_DATA = "chart_data", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            NAME_CHART_ROUTING_EVENT = "chart_routing_event", NAME_CHART_JOURNAL = "chart_journal", NAME_CHART_MATCHING = "chart_matching"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+    private static final List<String> DEFAULT_PORTLET_NAMES = Arrays.asList(NAME_START, NAME_PROCESS, NAME_ALERT, NAME_SEARCH,
+            NAME_TASKS, NAME_CHART_DATA, NAME_CHART_ROUTING_EVENT, NAME_CHART_JOURNAL, NAME_CHART_MATCHING);
 
     private static final Map<String, String> NAME_LABEL_MAPPER = new HashMap<String, String>(9) {
 
         {
-            put("start", PORTLET_START); //$NON-NLS-1$
-            put("process", PORTLET_PROCESS); //$NON-NLS-1$
-            put("alert", PORTLET_ALERT); //$NON-NLS-1$
-            put("search", PORTLET_SEARCH); //$NON-NLS-1$
-            put("tasks", PORTLET_TASKS); //$NON-NLS-1$
-            put("chart_data", CHART_DATA); //$NON-NLS-1$
-            put("chart_routing_event", CHART_ROUTING_EVENT); //$NON-NLS-1$
-            put("chart_journal", CHART_JOURNAL); //$NON-NLS-1$
-            put("chart_matching", CHART_MATCHING); //$NON-NLS-1$
+            put(NAME_START, LABEL_START);
+            put(NAME_PROCESS, LABEL_PROCESS);
+            put(NAME_ALERT, LABEL_ALERT);
+            put(NAME_SEARCH, LABEL_SEARCH);
+            put(NAME_TASKS, LABEL_TASKS);
+            put(NAME_CHART_DATA, LABEL_DATA);
+            put(NAME_CHART_ROUTING_EVENT, LABEL_ROUTING_EVENT);
+            put(NAME_CHART_JOURNAL, LABEL_JOURNAL);
+            put(NAME_CHART_MATCHING, LABEL_MATCHING);
         }
     };
+
+    private static final String DEFAULT_COLUMN_NUM = "defaultColNum"; //$NON-NLS-1$
 
     private ListStore<ComboBoxModel> containerStore = new ListStore<ComboBoxModel>();
 
@@ -72,9 +75,15 @@ public class ActionsPanel extends ContentPanel {
 
     private Map<String, CheckBox> portletCKBoxes;
 
+    private Radio col2Radio;
+
+    private Radio col3Radio;
+
     private FormData formData;
 
     private Button saveBtn = new Button(MessageFactory.getMessages().save());
+
+    private Button saveConfigBtn = new Button(MessageFactory.getMessages().save());
 
     private ComboBoxModel emptyModelValue = new ComboBoxModel();
 
@@ -113,8 +122,9 @@ public class ActionsPanel extends ContentPanel {
 
         this.add(dataContainerBox, formData);
         this.add(dataModelBox, formData);
-        this.addDefaultPortletConfig();
         this.add(saveBtn, formData);
+        this.addDefaultPortletConfig();
+        this.add(saveConfigBtn, formData);
         this.setScrollMode(Scroll.AUTO);
 
         initEvent();
@@ -131,29 +141,29 @@ public class ActionsPanel extends ContentPanel {
         checkGroup.setFieldLabel("Portlets"); //$NON-NLS-1$
         checkGroup.setOrientation(Orientation.VERTICAL);
         CheckBox check;
-        
-        for (String portletLabel : DEFAULT_PORTLET_LABELS) {
+
+        for (String portletName : DEFAULT_PORTLET_NAMES) {
             check = new CheckBox();
-            check.setBoxLabel(portletLabel);
-            check.setValue(false);            
+            check.setName(portletName);
+            check.setBoxLabel(NAME_LABEL_MAPPER.get(portletName));
+            check.setValue(false);
             check.setVisible(false);
             checkGroup.add(check);
-            portletCKBoxes.put(portletLabel, check);
+            portletCKBoxes.put(portletName, check);
         }
-        
+
         portalConfig.add(checkGroup);
 
         RadioGroup radioGroup = new RadioGroup();
-        radioGroup.setFieldLabel("Welocme Columns"); //$NON-NLS-1$
-        Radio radio1 = new Radio();
-        radio1.setBoxLabel("Two"); //$NON-NLS-1$
+        radioGroup.setFieldLabel("Welcome Columns"); //$NON-NLS-1$
+        col2Radio = new Radio();
+        col2Radio.setBoxLabel("Two"); //$NON-NLS-1$
 
-        Radio radio2 = new Radio();
-        radio2.setBoxLabel("Three"); //$NON-NLS-1$
-        radio2.setValue(true);
+        col3Radio = new Radio();
+        col3Radio.setBoxLabel("Three"); //$NON-NLS-1$
 
-        radioGroup.add(radio1);
-        radioGroup.add(radio2);
+        radioGroup.add(col2Radio);
+        radioGroup.add(col3Radio);
 
         portalConfig.add(radioGroup);
         this.add(portalConfig, formData);
@@ -173,6 +183,18 @@ public class ActionsPanel extends ContentPanel {
             public void componentSelected(ButtonEvent ce) {
                 Dispatcher dispatcher = Dispatcher.get();
                 dispatcher.dispatch(GeneralEvent.SwitchClusterAndModel);
+            }
+        });
+
+        saveConfigBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                Dispatcher dispatcher = Dispatcher.get();
+                dispatcher.dispatch(GeneralEvent.SwitchClusterAndModel);
+                Map<String, Boolean> configUpdates = getPortalConfigUpdate();
+                refreshPortal(configUpdates);
+
             }
         });
 
@@ -266,16 +288,64 @@ public class ActionsPanel extends ContentPanel {
         return dataModelBox.getValue().getValue();
     }
 
-    public void updatePortletConfig(Set<String> portlets) {
-        for (String name : portlets) {
-            portletCKBoxes.get(NAME_LABEL_MAPPER.get(name)).setVisible(true);
-            portletCKBoxes.get(NAME_LABEL_MAPPER.get(name)).setValue(true);
+    public void updatePortletConfig(Map<String, Boolean> portletVisibles) {
+        Map<String, Boolean> parsedConfig = parseConfig(portletVisibles.toString());
+        for (CheckBox check : portletCKBoxes.values()) {
+            String name = check.getName();
+            if (parsedConfig.containsKey(name)) {
+                check.setVisible(true);
+                check.setValue(parsedConfig.get(name));
+            }
+        }
+        if (parsedConfig.get(DEFAULT_COLUMN_NUM)) {
+            col3Radio.setValue(true);
+        } else {
+            col2Radio.setValue(true);
         }
         this.layout(true);
     }
 
+    private Map<String, Boolean> parseConfig(String dataString) {
+        Map<String, Boolean> config = new HashMap<String, Boolean>();
+        String temp = dataString.substring(1, dataString.length() - 1);
+        String[] nameValues = temp.split(","); //$NON-NLS-1$
+        String name;
+        Boolean visible;
+        String[] nameValuePair;
+        for (String nameValue : nameValues) {
+            nameValuePair = nameValue.split("="); //$NON-NLS-1$
+            name = nameValuePair[0].trim();
+            visible = Boolean.parseBoolean(nameValuePair[1]);
+            config.put(name, visible);
+        }
+        return config;
+    }
+
     public void uncheckPortlet(String portletName) {
-        portletCKBoxes.get(NAME_LABEL_MAPPER.get(portletName)).setValue(false);
+        portletCKBoxes.get(portletName).setValue(false);
         this.layout(true);
     }
+
+    private HashMap<String, Boolean> getPortalConfigUpdate() {
+        HashMap<String, Boolean> updates = new HashMap<String, Boolean>();
+        CheckBox check;
+        for (String name : DEFAULT_PORTLET_NAMES) {
+            check = portletCKBoxes.get(name);
+            if (check.isVisible()) {
+                updates.put(name, check.getValue());
+            }
+        }
+
+        boolean defaultColNum = true;
+        if (!col3Radio.getValue()) {
+            defaultColNum = false;
+        }
+        updates.put(DEFAULT_COLUMN_NUM, defaultColNum);
+        return updates;
+    }
+
+    // record available portlets in Actions panel
+    private native void refreshPortal(Map<String, Boolean> portalConfig)/*-{
+        $wnd.amalto.core.refreshPortal(portalConfig);
+    }-*/;
 }

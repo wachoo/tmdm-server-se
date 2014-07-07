@@ -97,7 +97,9 @@ public abstract class BasePortlet extends Portlet {
 
                     @Override
                     public void componentSelected(IconButtonEvent ce) {
-                        removeFromParent();
+                        BasePortlet.this.hide();
+                        ((MainFramePanel) BasePortlet.this.portal).updateVisibilities();
+                        removePortlet(portletName);
                     }
 
                 }));
@@ -239,4 +241,8 @@ public abstract class BasePortlet extends Portlet {
     public String getPortletName() {
         return this.portletName;
     }
+
+    private native void removePortlet(String name)/*-{
+		$wnd.amalto.core.unmarkPortlet(name);
+    }-*/;
 }
