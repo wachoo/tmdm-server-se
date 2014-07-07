@@ -65,7 +65,7 @@ abstract class MetadataRepositoryTask implements Task {
             startLock.notifyAll();
         }
         try {
-            List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+            List<ComplexTypeMetadata> types = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.STRICT);
             for (ComplexTypeMetadata type : types) {
                 if (!filter.exclude(type) && type.isInstantiable() && processType(type)) {
                     Task task = createTypeTask(type);
