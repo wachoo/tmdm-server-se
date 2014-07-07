@@ -105,13 +105,6 @@ public class WelcomePortal implements EntryPoint {
 
     }-*/;
 
-    private native void registerMe()/*-{
-		var instance = this
-		$wnd.amalto.core.refreshPortal = function(portalConfig) {
-			instance.@org.talend.mdm.webapp.welcomeportal.client.WelcomePortal::refreshPortal(Ljava/util/Map;)(portalConfig);
-		};
-    }-*/;
-
     private native void _initUI()/*-{
 		var tabPanel = $wnd.amalto.core.getTabPanel();
 		var panel = tabPanel.getItem("Welcome");
