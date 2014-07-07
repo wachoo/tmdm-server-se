@@ -109,6 +109,7 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
                         : false;
                 BasePagingLoadConfigImpl config = new BasePagingLoadConfigImpl();
                 config.setLimit(listLimitCount);
+                config.set("language", Locale.getLanguage()); //$NON-NLS-1$
 
                 String dataCluster = BrowseRecords.getSession().getAppHeader().getMasterDataCluster();
                 if (foreignKeyField.getItemsDetailPanel() != null) {
@@ -209,7 +210,7 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
     public void updateListStore(List<ForeignKeyBean> suggestionList) {
         foreignKeyStore.removeAll();
 
-        if (suggestionList != null) {
+        if (suggestionList != null && suggestionList.size() > 0) {
             for (int i = 0; i < suggestionList.size(); i++) {
                 ForeignKeyBean bean = suggestionList.get(i);
                 if (bean != null) {
@@ -220,11 +221,11 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
                     foreignKeyStore.add(bean);
                 }
             }
+            this.setExpanded(hidden);
+        } else {
+            this.setExpanded(getForceSelection());
         }
-
-        if (!this.isExpanded() && foreignKeyStore.getCount() > 0) {
-            this.expand();
-        }
+        this.expand();
     }
 
     public void setFieldValue() {

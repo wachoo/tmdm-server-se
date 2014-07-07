@@ -2447,6 +2447,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             List<String> foregnKeyInfo, String dataClusterPK, boolean ifFKFilter, String input, String language)
             throws ServiceException {
         try {
+            String keyWords = input;
+            String pattern = "[^a-zA-Z0-9\\s\\@\\.\\-\\_\\'\"]"; //$NON-NLS-1$
             String foregnKeyConcept = foregnKey.split("/")[0]; //$NON-NLS-1$
             EntityModel entityModel = getEntityModel(foregnKeyConcept, language);
 
@@ -2455,14 +2457,50 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             typeModel.setForeignKeyInfo(foregnKeyInfo);
             typeModel.setRetrieveFKinfos(true);
 
+            if (input.contains(":") && input.indexOf(":") > 0) { //$NON-NLS-1$ //$NON-NLS-2$
+                String entityName = input.split(":")[0]; //$NON-NLS-1$
+
+                entityModel = getForeignKeyEntityModel(foregnKey, entityName, language);
+                if (entityModel != null) {
+                    if (input.indexOf(":") < input.length() - 1) { //$NON-NLS-1$
+                        keyWords = input.split(":")[1]; //$NON-NLS-1$
+                    }
+                    typeModel = replaceForeignKeyTypeModel(typeModel, entityName);
+                }
+            }
+
+            keyWords = keyWords.replaceAll(pattern, ""); //$NON-NLS-1$
             ItemBasePageLoadResult<ForeignKeyBean> loadResult = ForeignKeyHelper.getForeignKeyList(config, typeModel,
-                    entityModel, dataClusterPK, ifFKFilter, input);
+                    entityModel, dataClusterPK, ifFKFilter, keyWords);
 
             return loadResult.getData();
-
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
+    }
+
+    private EntityModel getForeignKeyEntityModel(String foregnKey, String entityName, String language) throws ServiceException {
+        List<Restriction> foregnKeyEntityList = getForeignKeyPolymTypeList(foregnKey, language);
+
+        for (Restriction re : foregnKeyEntityList) {
+            if (entityName.equals(re.getValue())) {
+                return getEntityModel(entityName, language);
+            }
+        }
+        return null;
+    }
+
+    private TypeModel replaceForeignKeyTypeModel(TypeModel typeModel, String entityName) throws ServiceException {
+        TypeModel newTypeModel = typeModel;
+        List<String> newFKInfoList = new ArrayList<String>();
+        String foregnKeyConcept = typeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
+        newTypeModel.setForeignkey(typeModel.getForeignkey().replace(foregnKeyConcept, entityName));
+        for (String foreignKeyInfo : typeModel.getForeignKeyInfo()) {
+            newFKInfoList.add(foreignKeyInfo.replace(foregnKeyConcept, entityName));
+        }
+        newTypeModel.setForeignKeyInfo(newFKInfoList);
+
+        return newTypeModel;
     }
 }
