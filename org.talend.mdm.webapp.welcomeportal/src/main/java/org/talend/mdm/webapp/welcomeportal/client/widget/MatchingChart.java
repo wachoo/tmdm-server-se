@@ -119,7 +119,7 @@ public class MatchingChart extends ChartPortlet {
                         AxesOptions.create().addAxisOptions(
                                 CategoriesAxisOptions.create().setCategories(
                                         entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
-        plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
+        plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
 
         // create series
