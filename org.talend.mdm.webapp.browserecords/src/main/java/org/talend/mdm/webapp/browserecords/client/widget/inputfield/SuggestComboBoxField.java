@@ -46,6 +46,8 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
 
     private ListStore<ForeignKeyBean> foreignKeyStore = new ListStore<ForeignKeyBean>();
 
+    private ForeignKeyBean selectedBean;
+
     private String foreignKey;
 
     private List<String> foreignKeyInfo;
@@ -165,7 +167,6 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
 
                     if (inputValue != null && !"".equals(inputValue.trim()) && !"[".equals(inputValue.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
                         task.delay(getListDelay);
-                        setFieldValue();
                     }
                 }
             }
@@ -250,43 +251,26 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
 
     @Override
     public void setValue(ForeignKeyBean fk) {
+        selectedBean = fk;
         if (fk != null) {
             super.setValue(fk);
-            if (fk.getDisplayInfo() == null || "null".equals(fk.getDisplayInfo())) { //$NON-NLS-1$
-                setRawValue(fk.getId());
+            if (selectedBean.getDisplayInfo() == null
+                    || "".equals(selectedBean.getDisplayInfo()) || "null".equals(selectedBean.getDisplayInfo())) { //$NON-NLS-1$ //$NON-NLS-2$
+                setRawValue(selectedBean.getId());
             } else {
-                setRawValue(fk.getDisplayInfo());
+                setRawValue(selectedBean.getDisplayInfo());
             }
         }
     }
 
     @Override
     public ForeignKeyBean getValue() {
-
-        if (getRawValue() != null && !"".equals(getRawValue().trim())) { //$NON-NLS-1$
-            if (foreignKeyStore != null && foreignKeyStore.getCount() > 0) {
-                for (ForeignKeyBean bean : foreignKeyStore.getModels()) {
-                    if (this.getRawValue().trim().equals(bean.get(displayFieldName))
-                            || this.getRawValue().trim().equals(bean.getId())) {
-                        return bean;
-                    }
-                }
-            }
-        }
-        return null;
+        return selectedBean;
     }
 
     @Override
     public void clear() {
         super.clear();
-    }
-
-    public String getForeignKey() {
-        return this.foreignKey;
-    }
-
-    public void setForeignKey(String foreignKey) {
-        this.foreignKey = foreignKey;
     }
 
 }

@@ -105,6 +105,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
         wrap.addStyleName("x-form-file-wrap"); //$NON-NLS-1$
 
+        input = new El(DOM.createInputText());
         suggestBox.render(tdInput);
 
         Element foreignDiv = DOM.createTable();
