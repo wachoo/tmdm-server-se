@@ -16,30 +16,8 @@ public class FieldNotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public FieldNotFoundException() {
-        super();
-    }
-
-    /**
-     * @param message
-     */
     public FieldNotFoundException(String message) {
         super(message);
-    }
-
-    /**
-     * @param message
-     * @param cause
-     */
-    public FieldNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    /**
-     * @param cause
-     */
-    public FieldNotFoundException(Throwable cause) {
-        super(cause);
     }
 
 }

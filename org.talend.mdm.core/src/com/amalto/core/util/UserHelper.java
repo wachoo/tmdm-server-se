@@ -14,10 +14,6 @@ package com.amalto.core.util;
 
 import java.util.Set;
 
-/**
- * DOC mhirt class global comment. Detailled comment <br/>
- * 
- */
 public final class UserHelper {
 
     private static UserHelper instance;

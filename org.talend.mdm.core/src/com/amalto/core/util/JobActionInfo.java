@@ -1,7 +1,3 @@
-/*
- * Created on 9 août 2005
- *
- */
 package com.amalto.core.util;
 
 import java.io.Serializable;

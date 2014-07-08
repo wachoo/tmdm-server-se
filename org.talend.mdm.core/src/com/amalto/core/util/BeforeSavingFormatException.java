@@ -12,25 +12,10 @@
 // ============================================================================
 package com.amalto.core.util;
 
-/**
- * DOC talend2 class global comment. Detailled comment
- */
 public class BeforeSavingFormatException extends RuntimeException {
-
-    public BeforeSavingFormatException() {
-        super();
-    }
 
     public BeforeSavingFormatException(String message) {
         super(message);
-    }
-
-    public BeforeSavingFormatException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public BeforeSavingFormatException(Throwable cause) {
-        super(cause);
     }
 
 }

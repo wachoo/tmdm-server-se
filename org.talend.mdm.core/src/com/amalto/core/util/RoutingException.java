@@ -13,24 +13,10 @@
 package com.amalto.core.util;
 
 
-/**
- * DOC talend2  class global comment. Detailled comment
- */
 public class RoutingException extends RuntimeException {
-
-    public RoutingException() {
-        super();
-    }
 
     public RoutingException(String message) {
         super(message);
     }
 
-    public RoutingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public RoutingException(Throwable cause) {
-        super(cause);
-    }
 }

@@ -12,7 +12,6 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.server.StorageAdminImpl;
 import org.apache.commons.lang.StringUtils;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
@@ -105,7 +104,7 @@ public class DigestHelper {
         } else if (TYPE_CUSTOM_FORM.equals(type)) {
             name = CustomFormPOJO.class.getName();
         }  else if (TYPE_MATCH_RULE.equals(type)) {
-            name = StorageAdminImpl.MATCH_RULE_POJO_CLASS; // Class is not is class path when running CE edition.
+            name = StorageAdminImpl.MATCH_RULE_POJO_CLASS; // Class is not in class path when running CE edition.
         } else {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Type '" + type + "' is not supported.");

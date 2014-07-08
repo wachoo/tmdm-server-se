@@ -70,9 +70,9 @@ public class RoleWhereCondition {
 		else if (this.getPredicate().equals("")) predicate = WhereCondition.PRE_NONE;
 		else if (this.getPredicate().equalsIgnoreCase("not")) predicate = WhereCondition.PRE_NOT;
 		else if (this.getPredicate().equalsIgnoreCase("or")) predicate = WhereCondition.PRE_OR;
-		else if (this.getPredicate().equals("strict and")) predicate = WhereCondition.PRE_STRICTAND;;
+		else if (this.getPredicate().equals("strict and")) predicate = WhereCondition.PRE_STRICTAND;
 
-		return new WhereCondition(
+        return new WhereCondition(
 				this.getLeftPath(),
 				operator,
 				this.getRightValueOrPath(),

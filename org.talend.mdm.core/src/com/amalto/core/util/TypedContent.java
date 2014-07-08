@@ -10,8 +10,9 @@ import java.io.InputStream;
  *
  */
 public class TypedContent {
-	private byte[] bytes = null;;
-	private String contentType="";
+	private byte[] bytes = null;
+
+    private String contentType="";
 	private InputStream stream = null;
 	
 	public TypedContent() {

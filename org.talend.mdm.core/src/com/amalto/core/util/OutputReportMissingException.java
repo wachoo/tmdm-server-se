@@ -13,25 +13,10 @@
 package com.amalto.core.util;
 
 
-/**
- * DOC talend2  class global comment. Detailled comment
- */
 public class OutputReportMissingException extends RuntimeException {
     
-    public OutputReportMissingException() {
-        super();
-    }
-
     public OutputReportMissingException(String message) {
         super(message);
-    }
-
-    public OutputReportMissingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public OutputReportMissingException(Throwable cause) {
-        super(cause);
     }
 
 }

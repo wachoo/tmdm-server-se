@@ -12,12 +12,7 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -171,9 +166,7 @@ public class User implements Cloneable {
             String[] roles = Util.getTextNodes(result, "//roles/role");
             HashSet<String> rs = new HashSet<String>();
             if (roles != null) {
-                for (String role : roles) {
-                    rs.add(role);
-                }
+                Collections.addAll(rs, roles);
             }
             user.setRoleNames(rs);
 
@@ -435,7 +428,7 @@ public class User implements Cloneable {
     }
 
     @Override
-    public Object clone() {
+    public Object clone() throws CloneNotSupportedException {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
