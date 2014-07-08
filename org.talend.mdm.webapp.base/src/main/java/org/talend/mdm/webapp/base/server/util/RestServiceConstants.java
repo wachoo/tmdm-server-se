@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package com.amalto.core.util;
+package org.talend.mdm.webapp.base.server.util;
 
 public class RestServiceConstants {
 

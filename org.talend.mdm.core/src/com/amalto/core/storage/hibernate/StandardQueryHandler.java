@@ -37,7 +37,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.impl.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
@@ -376,7 +375,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(GroupSize groupSize) {
-        Projection groupSizeProjection = Projections.sqlGroupProjection("count(X_TALEND_TASK_ID) as talend_group_size", //$NON-NLS-1$
+        Projection groupSizeProjection = Projections.sqlGroupProjection(
+                "count(" + Storage.METADATA_TASK_ID.toUpperCase() + ") as talend_group_size", //$NON-NLS-1$ //$NON-NLS-2$ 
                 Storage.METADATA_TASK_ID, new String[] { "talend_group_size" }, //$NON-NLS-1$
                 new org.hibernate.type.Type[] { new IntegerType() });
         projectionList.add(groupSizeProjection);
