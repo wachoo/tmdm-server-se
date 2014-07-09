@@ -25,7 +25,7 @@ import org.restlet.client.data.Method;
 import org.restlet.client.resource.ClientResource;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 
-import org.talend.mdm.webapp.base.server.util.RestServiceConstants;
+import com.amalto.core.util.RestServiceConstants;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 public class ClientResourceWrapper {
