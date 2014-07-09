@@ -404,12 +404,12 @@ public class HibernateStorage implements Storage {
                 }
                 break;
             case STAGING:
-                // Adds "staging status" as indexed field
                 if (!optimizedExpressions.isEmpty()) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Ignoring " + optimizedExpressions.size() + " to optimize (disabled on staging area).");
                     }
                 }
+                // Adds "staging status" / "staging block key" / "staging task id" as indexed fields
                 for (TypeMapping typeMapping : mappingRepository.getAllTypeMappings()) {
                     ComplexTypeMetadata database = typeMapping.getDatabase();
                     if (database.hasField(METADATA_STAGING_STATUS)) {
@@ -417,6 +417,9 @@ public class HibernateStorage implements Storage {
                     }
                     if (database.hasField(METADATA_STAGING_BLOCK_KEY)) {
                         databaseIndexedFields.add(database.getField(METADATA_STAGING_BLOCK_KEY));
+                    }
+                    if (database.hasField(METADATA_TASK_ID)) {
+                        databaseIndexedFields.add(database.getField(METADATA_TASK_ID));
                     }
                 }
                 break;
