@@ -20,20 +20,19 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
-public class ActionsPanel extends ContentPanel {
+public class ActionsPanel extends FormPanel {
 
     private static ActionsPanel instance;
 
@@ -94,9 +93,11 @@ public class ActionsPanel extends ContentPanel {
     private ActionsPanel() {
         super();
         this.setHeading(MessageFactory.getMessages().actions());
-        FormLayout formLayout = new FormLayout();
-        formLayout.setLabelAlign(LabelAlign.TOP);
-        this.setLayout(formLayout);
+        this.setStyleAttribute("background", "#fff"); //$NON-NLS-1$ //$NON-NLS-2$
+        FieldSet domainConfig = new FieldSet();
+        FormLayout formLayout = new FormLayout(LabelAlign.TOP);
+        domainConfig.setLayout(formLayout);
+        domainConfig.setHeading("Domain Configuration"); //$NON-NLS-1$
 
         dataContainerBox.setFieldLabel(MessageFactory.getMessages().data_container());
         dataContainerBox.setDisplayField("value"); //$NON-NLS-1$
@@ -118,13 +119,13 @@ public class ActionsPanel extends ContentPanel {
         dataModelBox.setEditable(disabled);
         saveBtn.disable();
         formData = new FormData();
-        formData.setMargins(new Margins(5));
 
-        this.add(dataContainerBox, formData);
-        this.add(dataModelBox, formData);
-        this.add(saveBtn, formData);
+        domainConfig.add(dataContainerBox);
+        domainConfig.add(dataModelBox);
+        domainConfig.add(saveBtn);
+        this.add(domainConfig);
+
         this.addDefaultPortletConfig();
-        this.add(saveConfigBtn, formData);
         this.setScrollMode(Scroll.AUTO);
 
         initEvent();
@@ -152,7 +153,8 @@ public class ActionsPanel extends ContentPanel {
             portletCKBoxes.put(portletName, check);
         }
 
-        portalConfig.add(checkGroup);
+        formData.setMargins(new Margins(5, -30, 5, 30));
+        portalConfig.add(checkGroup, formData);
 
         RadioGroup radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("Welcome Columns"); //$NON-NLS-1$
@@ -165,8 +167,9 @@ public class ActionsPanel extends ContentPanel {
         radioGroup.add(col2Radio);
         radioGroup.add(col3Radio);
 
-        portalConfig.add(radioGroup);
-        this.add(portalConfig, formData);
+        portalConfig.add(radioGroup, formData);
+        portalConfig.add(saveConfigBtn);
+        this.add(portalConfig);
     }
 
     public static ActionsPanel getInstance() {
