@@ -68,7 +68,7 @@ public class AdvancedSearchPanel extends FormPanel {
     private BaseModel modifiedonModel = new BaseModel();
 
     private BaseModel matchgroupModel = new BaseModel();
-    
+
     private AdvancedSearchPanel instance = this;
 
     private static String ge = "GREATER_THAN_OR_EQUAL";//$NON-NLS-1$
@@ -89,10 +89,13 @@ public class AdvancedSearchPanel extends FormPanel {
 
     MatchGroupCriteria matchgroupCriteria;
 
+    private boolean staging;
+
     final public void setCriteria(String criteriaStr) {
         if (criteriaStr.indexOf(modifiedON + blank) > -1) {
             // modified on condition
-            String express = criteriaStr.indexOf(modifiedON) - 5 > -1 ? criteriaStr.substring(0, criteriaStr.indexOf(modifiedON) - 5) + ")" : "";//$NON-NLS-1$ //$NON-NLS-2$ 
+            String express = criteriaStr.indexOf(modifiedON) - 5 > -1 ? criteriaStr.substring(0,
+                    criteriaStr.indexOf(modifiedON) - 5) + ")" : "";//$NON-NLS-1$ //$NON-NLS-2$ 
             parseSearchExpression(express);
             expressionTextField.setValue(express);
             String condition = criteriaStr.endsWith(")") ? criteriaStr.substring(criteriaStr.indexOf(modifiedON), criteriaStr.length() - 1) : criteriaStr.substring(criteriaStr.indexOf(modifiedON), criteriaStr.length()); //$NON-NLS-1$
@@ -108,25 +111,27 @@ public class AdvancedSearchPanel extends FormPanel {
             if (condition.indexOf(ge) > -1) {
                 Date d = new Date();
                 int index = condition.indexOf(ge) + ge.length() + 1;
-                if (condition.indexOf(blank, index) == -1)
+                if (condition.indexOf(blank, index) == -1) {
                     d.setTime(Long.valueOf(condition.substring(index)));
-                else
+                } else {
                     d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(blank, index))));
+                }
 
                 modifiedonCriteria.setStartDate(d);
             }
             if (condition.indexOf(le) > -1) {
                 Date d = new Date();
                 int index = condition.indexOf(le) + le.length() + 1;
-                if (condition.indexOf(blank, index) == -1)
+                if (condition.indexOf(blank, index) == -1) {
                     d.setTime(Long.valueOf(condition.substring(index)));
-                else
+                } else {
                     d.setTime(Long.valueOf(condition.substring(index, condition.indexOf(blank, index))));
+                }
                 modifiedonCriteria.setEndDate(d);
             }
             cb.setValue(modifiedonModel);
         } else if (criteriaStr.indexOf(matchGroup + blank) > -1) {
-            String express = filterOutMatchGroupConditon(criteriaStr); 
+            String express = filterOutMatchGroupConditon(criteriaStr);
             parseSearchExpression(express);
             expressionTextField.setValue(express);
             String condition = getMatchGroupCondition(criteriaStr);
@@ -154,9 +159,9 @@ public class AdvancedSearchPanel extends FormPanel {
     private void populateMatchGroupCriteria(String condition) {
         String value;
         int firstBlankIndex = condition.indexOf(blank);
-        int secondBlankIndex = condition.indexOf(blank, firstBlankIndex + 1) ;
+        int secondBlankIndex = condition.indexOf(blank, firstBlankIndex + 1);
         value = condition.substring(secondBlankIndex + 1);
-        
+
         matchgroupCriteria.setValue(value);
         matchgroupCriteria.setOperator(condition.substring(firstBlankIndex + 1, secondBlankIndex));
     }
@@ -175,17 +180,17 @@ public class AdvancedSearchPanel extends FormPanel {
         String express;
         start = criteriaStr.indexOf(matchGroup);
         end = criteriaStr.indexOf(')', start);
-        if (start <= 2 ) {
+        if (start <= 2) {
             nextStart = criteriaStr.indexOf('(', end);
-            if (nextStart == -1 )
+            if (nextStart == -1) {
                 express = ""; //$NON-NLS-1$
-            else {
+            } else {
                 express = '(' + criteriaStr.substring(nextStart);
             }
         } else {
             preEnd = criteriaStr.lastIndexOf(')', start);
             if (criteriaStr.charAt(end + 1) == ')') {
-                express = criteriaStr.substring(0, preEnd + 1) + ')';   
+                express = criteriaStr.substring(0, preEnd + 1) + ')';
             } else {
                 express = criteriaStr.substring(0, preEnd + 1) + criteriaStr.substring(end + 1);
             }
@@ -197,7 +202,7 @@ public class AdvancedSearchPanel extends FormPanel {
         try {
             if (!s.isEmpty()) {
                 if (!s.startsWith("(") && !s.endsWith(")")) { //$NON-NLS-1$ //$NON-NLS-2$
-                    s = "((" +s + "))"; //$NON-NLS-1$ //$NON-NLS-2$
+                    s = "((" + s + "))"; //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 char[] sa = s.toCharArray();
                 BrowseRecords.getSession().put(
@@ -206,8 +211,9 @@ public class AdvancedSearchPanel extends FormPanel {
                                 .parseSimpleSearchExpression(sa, 0).cr);
             }
         } catch (Exception e) {
-            if (Log.isErrorEnabled())
+            if (Log.isErrorEnabled()) {
                 Log.error(e.toString());
+            }
         }
     }
 
@@ -217,33 +223,43 @@ public class AdvancedSearchPanel extends FormPanel {
     }
 
     public String getCriteria() {
-        MultipleCriteria criteriaStore = (MultipleCriteria) (BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE) == null ? BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE) : BrowseRecords.getSession().get(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE));
+        MultipleCriteria criteriaStore = (MultipleCriteria) (BrowseRecords.getSession().get(
+                UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE) == null ? BrowseRecords.getSession().get(
+                UserSession.CUSTOMIZE_CRITERION_STORE) : BrowseRecords.getSession().get(
+                UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE));
         String express = criteriaStore != null ? criteriaStore.toString() : null;// expressionTextField.getValue();
         String curCriteria = null, curDate = null;
         if (modifiedonCriteria.isAttached()) {
-            if (modifiedonCriteria.getStartDate() != null)
+            if (modifiedonCriteria.getStartDate() != null) {
                 curDate = modifiedON + blank + ge + blank + modifiedonCriteria.getStartDate().getTime();
-            if (modifiedonCriteria.getEndDate() != null)
-                if (curDate != null)
+            }
+            if (modifiedonCriteria.getEndDate() != null) {
+                if (curDate != null) {
                     curDate += " AND " + modifiedON + blank + le + blank + modifiedonCriteria.getEndDate().getTime(); //$NON-NLS-1$
-                else
+                } else {
                     curDate = modifiedON + blank + le + blank + modifiedonCriteria.getEndDate().getTime();
+                }
+            }
 
-            if (curDate != null)
+            if (curDate != null) {
                 curCriteria = (express == null) ? curDate : express.substring(0, express.lastIndexOf(")")) + " AND " + curDate //$NON-NLS-1$  //$NON-NLS-2$
                         + ")"; //$NON-NLS-1$
-            else
+            } else {
                 curCriteria = (express == null) ? curDate : express;
+            }
         } else if (matchgroupCriteria.isAttached()) {
             String matchgroupCriteriaStr = null;
             if (matchgroupCriteria.getValue() != null && matchgroupCriteria.getValue().trim().length() > 0) {
-                matchgroupCriteriaStr = matchGroup + blank + matchgroupCriteria.getOperator() + blank + matchgroupCriteria.getValue();
+                matchgroupCriteriaStr = matchGroup + blank + matchgroupCriteria.getOperator() + blank
+                        + matchgroupCriteria.getValue();
             }
-            if (matchgroupCriteriaStr != null){
-                curCriteria = (express == null) ? matchgroupCriteriaStr : express.substring(0, express.lastIndexOf(")")) + " AND " + matchgroupCriteriaStr + ")"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
+            if (matchgroupCriteriaStr != null) {
+                curCriteria = (express == null) ? matchgroupCriteriaStr
+                        : express.substring(0, express.lastIndexOf(")")) + " AND " + matchgroupCriteriaStr + ")"; //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
             }
-        } else
+        } else {
             curCriteria = express;
+        }
 
         return curCriteria;
     }
@@ -289,7 +305,7 @@ public class AdvancedSearchPanel extends FormPanel {
                 root.setBodyBorder(false);
                 root.setFrame(false);
                 root.setScrollMode(Scroll.AUTO);
-                final MultipleCriteriaPanel multiCriteria = new MultipleCriteriaPanel(null, view, winFilter);
+                final MultipleCriteriaPanel multiCriteria = new MultipleCriteriaPanel(null, view, winFilter, staging);
                 multiCriteria.addStyleName("filter-panel"); //$NON-NLS-1$
                 root.add(multiCriteria);
                 winFilter.add(root);
@@ -299,7 +315,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
                     @Override
                     public void componentSelected(ButtonEvent ce) {
-                        MultipleCriteria mutilCriteria = multiCriteria.getCriteria();                        
+                        MultipleCriteria mutilCriteria = multiCriteria.getCriteria();
                         BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE, mutilCriteria);
                         setCriteria(mutilCriteria.toString());
                         winFilter.close();
@@ -400,6 +416,7 @@ public class AdvancedSearchPanel extends FormPanel {
 
         expressionTextField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent be) {
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                     if (searchBtn != null) {
@@ -459,5 +476,10 @@ public class AdvancedSearchPanel extends FormPanel {
         });
         this.add(cb, new FormData("20%")); //$NON-NLS-1$
 
+    }
+
+    public AdvancedSearchPanel(ViewBean viewbean, Button search, boolean staging) {
+        this(viewbean, search);
+        this.staging = staging;
     }
 }

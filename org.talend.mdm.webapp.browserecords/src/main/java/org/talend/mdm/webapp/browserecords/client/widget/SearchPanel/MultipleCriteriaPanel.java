@@ -57,12 +57,19 @@ public class MultipleCriteriaPanel extends SimplePanel {
 
     private ListStore<ItemBaseModel> list;
 
+    private boolean staging;
+
     public MultipleCriteriaPanel(MultipleCriteriaPanel parent, ViewBean view, Window win) {
         super();
         this.parent = parent;
         this.view = view;
         this.parentWin = win;
         this.add(getMainPanel());
+    }
+
+    public MultipleCriteriaPanel(MultipleCriteriaPanel parent, ViewBean view, Window win, boolean staging) {
+        this(parent, view, win);
+        this.staging = staging;
     }
 
     public MultipleCriteriaPanel(ViewBean view) {
@@ -90,9 +97,11 @@ public class MultipleCriteriaPanel extends SimplePanel {
                 {
                     addClickListener(new ClickListener() {
 
+                        @Override
                         public void onClick(Widget sender) {
-                            if (parent != null)
+                            if (parent != null) {
                                 parent.removeChildFilter(MultipleCriteriaPanel.this);
+                            }
                             redraw();
                         }
                     });
@@ -104,6 +113,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
         // work, probably because panel isn't displayed yet).
         Timer timer = new Timer() {
 
+            @Override
             public void run() {
                 redraw();
             }
@@ -126,8 +136,9 @@ public class MultipleCriteriaPanel extends SimplePanel {
             field.set("value", curOper); //$NON-NLS-1$
             list.add(field);
         }
-        if (list.getCount() > 0)
+        if (list.getCount() > 0) {
             operatorComboBox.setValue(list.getAt(0));
+        }
 
         operatorComboBox.setDisplayField("name"); //$NON-NLS-1$
         operatorComboBox.setValueField("value"); //$NON-NLS-1$
@@ -163,6 +174,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
 
         image.addClickListener(new ClickListener() {
 
+            @Override
             public void onClick(Widget sender) {
                 addSimpleCriterionPanel();
             }
@@ -175,6 +187,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
         button.setTitle(MessagesFactory.getMessages().advsearch_subclause());
         button.addClickListener(new ClickListener() {
 
+            @Override
             public void onClick(Widget sender) {
                 addMultipleCriteriaPanel();
             }
@@ -185,7 +198,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
     }
 
     private SimpleCriterionPanel addSimpleCriterionPanel() {
-        final SimpleCriterionPanel newPanel = new SimpleCriterionPanel(MultipleCriteriaPanel.this, rightPanel, null);
+        final SimpleCriterionPanel newPanel = new SimpleCriterionPanel(MultipleCriteriaPanel.this, rightPanel, null, staging);
         newPanel.updateFields(view);
         final int index = (rightPanel.getWidgetCount() == 0 ? 0 : rightPanel.getWidgetCount() - 1);
         rightPanel.insert(newPanel, index);
@@ -205,17 +218,20 @@ public class MultipleCriteriaPanel extends SimplePanel {
     protected void redraw() {
         final int offsetHeight = rightPanel.getOffsetHeight();
         final int offsetWidth = rightPanel.getOffsetWidth();
-        if (separationLeftPanel != null)
+        if (separationLeftPanel != null) {
             separationLeftPanel.setHeight(offsetHeight + "px"); //$NON-NLS-1$
-        if (separationRightPanel != null)
+        }
+        if (separationRightPanel != null) {
             separationRightPanel.setHeight(offsetHeight + "px"); //$NON-NLS-1$   
+        }
 
         if (this.parentWin != null) {
             if (offsetWidth > 0) {
-                if (offsetWidth > 600)
+                if (offsetWidth > 600) {
                     this.parentWin.setWidth("800px"); //$NON-NLS-1$
-                else
+                } else {
                     this.parentWin.setWidth(offsetWidth + 160 + "px"); //$NON-NLS-1$
+                }
                 this.parentWin.center();
             }
             if (this.parentWin.getOffsetHeight() > 600) {
@@ -224,8 +240,9 @@ public class MultipleCriteriaPanel extends SimplePanel {
 
         }
 
-        if (parent != null)
+        if (parent != null) {
             parent.redraw();
+        }
     }
 
     protected void removeChildFilter(MultipleCriteriaPanel toRemove) {
@@ -250,6 +267,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
         return toReturn;
     }
 
+    @Override
     public void clear() {
         for (int i = 0; i < rightPanel.getWidgetCount(); i++) {
             Widget widget = rightPanel.getWidget(i);
@@ -273,7 +291,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
                     newPanel.setCriterion((SimpleCriterion) current);
                 } else if (current instanceof MultipleCriteria) {
                     MultipleCriteriaPanel newPanel = addMultipleCriteriaPanel();
-                    newPanel.setCriteria((MultipleCriteria) current);
+                    newPanel.setCriteria(current);
                 }
             }
         } else if (criteria instanceof SimpleCriterion) {

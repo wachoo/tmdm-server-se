@@ -320,9 +320,6 @@ public class ItemsToolBar extends ToolBar {
         add(new SeparatorToolItem());
         addManageBookButton();
         addBookMarkButton();
-        if (simplePanel != null) {
-            simplePanel.setStaging(isStaging());
-        }
         initAdvancedPanel();
     }
 
@@ -590,7 +587,7 @@ public class ItemsToolBar extends ToolBar {
     }
 
     protected void addSearchPanel() {
-        simplePanel = new SimpleCriterionPanel(null, null, searchButton);
+        simplePanel = new SimpleCriterionPanel(null, null, searchButton, isStaging());
         add(simplePanel);
     }
 
@@ -996,7 +993,7 @@ public class ItemsToolBar extends ToolBar {
     private void initAdvancedPanel() {
         if (advancedPanel == null) {
             Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
-            advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), searchBtn);
+            advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), searchBtn, isStaging());
             advancedPanel.setItemId("advancedPanel"); //$NON-NLS-1$
             advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
 

@@ -126,6 +126,11 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
     }
 
+    public SimpleCriterionPanel(final MultipleCriteriaPanel ancestor, final Panel parent, Button searchBut, boolean staging) {
+        this(ancestor, parent, searchBut);
+        this.staging = staging;
+    }
+
     public SimpleCriterionPanel(Button searchBut) {
         super();
         this.searchBut = searchBut;
@@ -153,7 +158,11 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
         sizeGrid.getElement().getStyle().setMarginLeft(24D, Unit.PX);
         add(sizeGrid);
+    }
 
+    public SimpleCriterionPanel(Button searchBut, boolean staging) {
+        this(searchBut);
+        this.staging = staging;
     }
 
     public void updateFields(ViewBean view) {
@@ -415,7 +424,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     }
 
     public SimpleCriterionPanel<?> clonePanel() {
-        SimpleCriterionPanel<T> simpleCriterionPanel = new SimpleCriterionPanel<T>(searchBut);
+        SimpleCriterionPanel<T> simpleCriterionPanel = new SimpleCriterionPanel<T>(searchBut, staging);
         if (view != null) {
             simpleCriterionPanel.updateFields(view);
             simpleCriterionPanel.adaptOperatorAndValue();
@@ -424,11 +433,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         simpleCriterionPanel.addKeyComboBoxListener(this);
         simpleCriterionPanel.setCriterion(this.getCriteria());
         simpleCriterionPanel.addOperatorAndFieldListener(this, true);
-
         return simpleCriterionPanel;
-    }
-
-    public void setStaging(boolean staging) {
-        this.staging = staging;
     }
 }
