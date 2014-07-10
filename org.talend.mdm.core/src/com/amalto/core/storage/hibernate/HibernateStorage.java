@@ -380,7 +380,11 @@ public class HibernateStorage implements Storage {
                         ComplexTypeMetadata containingType = indexedField.getContainingType().getEntity();
                         TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
                         FieldMetadata databaseField = mapping.getDatabase(indexedField);
-                        if (!isIndexable(databaseField.getType())) {
+                        if (databaseField == null) {
+                            LOGGER.error("Could not index field '" + indexedField + "' (" + indexedField.getPath()
+                                    + "), ignoring index.");
+                            continue;
+                        } else if (!isIndexable(databaseField.getType())) {
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("Ignore index on field '" + indexedField.getName()
                                         + "' because value (in database mapping) is stored in TEXT.");
