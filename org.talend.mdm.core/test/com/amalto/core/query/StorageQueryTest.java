@@ -3409,6 +3409,17 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testQueryWithIntFK() throws Exception {
+        UserQueryBuilder qb = from(entityB).where(
+                and(contains(entityB.getField("A_FK"), "b"), contains(entityB.getField("IdB"), "b")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testMax() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(person).select(max(person.getField("age"))).limit(1);
         StorageResults results = storage.fetch(qb.getSelect());
