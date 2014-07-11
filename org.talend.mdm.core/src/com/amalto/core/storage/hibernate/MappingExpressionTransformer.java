@@ -1,82 +1,25 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- * 
+ *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- * 
- * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
- * 92150 Suresnes, France
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.metadata.Types;
 
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.BigDecimalConstant;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.BooleanConstant;
-import com.amalto.core.query.user.ByteConstant;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.ComplexTypeExpression;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.ConstantCollection;
-import com.amalto.core.query.user.Count;
-import com.amalto.core.query.user.DateConstant;
-import com.amalto.core.query.user.DateTimeConstant;
-import com.amalto.core.query.user.Distinct;
-import com.amalto.core.query.user.DoubleConstant;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.FieldFullText;
-import com.amalto.core.query.user.FloatConstant;
-import com.amalto.core.query.user.FullText;
-import com.amalto.core.query.user.Id;
-import com.amalto.core.query.user.IndexedField;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.IsEmpty;
-import com.amalto.core.query.user.IsNull;
-import com.amalto.core.query.user.Isa;
-import com.amalto.core.query.user.Join;
-import com.amalto.core.query.user.LongConstant;
-import com.amalto.core.query.user.Max;
-import com.amalto.core.query.user.Min;
-import com.amalto.core.query.user.NativeQuery;
-import com.amalto.core.query.user.NotIsEmpty;
-import com.amalto.core.query.user.NotIsNull;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Paging;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Range;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.ShortConstant;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.TimeConstant;
-import com.amalto.core.query.user.Type;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UnaryLogicOperator;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
-import com.amalto.core.query.user.VisitorAdapter;
-import com.amalto.core.query.user.metadata.GroupSize;
-import com.amalto.core.query.user.metadata.StagingBlockKey;
-import com.amalto.core.query.user.metadata.StagingError;
-import com.amalto.core.query.user.metadata.StagingSource;
-import com.amalto.core.query.user.metadata.StagingStatus;
-import com.amalto.core.query.user.metadata.TaskId;
-import com.amalto.core.query.user.metadata.Timestamp;
-import com.amalto.core.storage.StorageMetadataUtils;
+import java.util.*;
 
 class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
@@ -185,26 +128,17 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
         if (previousLeft instanceof TypedExpression && left instanceof TypedExpression) {
             TypedExpression previousTypedExpression = (TypedExpression) previousLeft;
             TypedExpression typedExpression = (TypedExpression) left;
-            if (Types.STRING.equals(previousTypedExpression.getTypeName()) && predicate == Predicate.CONTAINS) {
-                if (left instanceof Field) {
-                    Field leftField = (Field) left;
-                    // TMDM-7455, if referenced field is not of String type, ignore
-                    if (leftField.getFieldMetadata() != null && leftField.getFieldMetadata() instanceof ReferenceFieldMetadata) {
-                        TypeMetadata fieldType = ((ReferenceFieldMetadata) leftField.getFieldMetadata()).getReferencedField()
-                                .getType();
-                        if (MetadataUtils.getSuperConcreteType(fieldType).getName() != Types.STRING) {
-                            return UserQueryHelper.NO_OP_CONDITION;
-                        }
-                    }
-                }
-                if (!previousTypedExpression.getTypeName().equals(typedExpression.getTypeName())) {
-                    predicate = Predicate.EQUALS;
-                }
+            if (Types.STRING.equals(previousTypedExpression.getTypeName())
+                    && predicate == Predicate.CONTAINS
+                    && !previousTypedExpression.getTypeName().equals(typedExpression.getTypeName())) {
+                predicate = Predicate.EQUALS;
             }
         }
         Expression constant = condition.getRight().accept(this);
         if (constant != null) {
-            return new Compare(left, predicate, constant);
+            return new Compare(left,
+                    predicate,
+                    constant);
         } else {
             return UserQueryHelper.NO_OP_CONDITION;
         }
@@ -212,7 +146,8 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     @Override
     public Expression visit(BinaryLogicOperator condition) {
-        return new BinaryLogicOperator(((Condition) condition.getLeft().accept(this)), condition.getPredicate(),
+        return new BinaryLogicOperator(((Condition) condition.getLeft().accept(this)),
+                condition.getPredicate(),
                 ((Condition) condition.getRight().accept(this)));
     }
 
@@ -277,7 +212,9 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     @Override
     public Expression visit(Join join) {
-        return new Join(((Field) join.getLeftField().accept(this)), (Field) join.getRightField().accept(this), join.getJoinType());
+        return new Join(((Field) join.getLeftField().accept(this)),
+                (Field) join.getRightField().accept(this),
+                join.getJoinType());
     }
 
     @Override
@@ -298,8 +235,7 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
         ComplexTypeMetadata entity = fieldMetadata.getContainingType().getEntity();
         List<FieldMetadata> mappingPath;
         ComplexTypeMetadata mainType = builder.getSelect().getTypes().get(0);
-        if (!entity.equals(mainType)) { // Field is not in the main (first selected type) type, build path from join
-                                        // clause.
+        if (!entity.equals(mainType)) { // Field is not in the main (first selected type) type, build path from join clause.
             List<Join> joins = builder.getSelect().getJoins();
             if (!joins.isEmpty()) {
                 List<FieldMetadata> joinPath = new LinkedList<FieldMetadata>();
@@ -335,8 +271,7 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
                 }
             }
         }
-        // Create the new field (target is the mapping in database, and contains the path to field if any needs to be
-        // set).
+        // Create the new field (target is the mapping in database, and contains the path to field if any needs to be set).
         Field mappedField = new Field(mappedFieldMetadata);
         mappedField.setPath(mappingPath);
         currentField = mappedField;
@@ -478,8 +413,7 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
             throw new IllegalStateException("Could not get field information from full text expression.");
         }
         if (!(currentField instanceof Field)) {
-            throw new IllegalStateException("Expected full text expression to contains a field not '" + currentField.getClass()
-                    + "'.");
+            throw new IllegalStateException("Expected full text expression to contains a field not '" + currentField.getClass() + "'.");
         }
         return new FieldFullText((Field) currentField, fullText.getValue());
     }
