@@ -106,6 +106,11 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
     }
 
     @Override
+    public Expression visit(ConstantCondition constantCondition) {
+        return constantCondition;
+    }
+
+    @Override
     public Expression visit(NativeQuery nativeQuery) {
         return nativeQuery;
     }
@@ -140,7 +145,7 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
                     predicate,
                     constant);
         } else {
-            return UserQueryHelper.NO_OP_CONDITION;
+            return UserQueryHelper.TRUE;
         }
     }
 

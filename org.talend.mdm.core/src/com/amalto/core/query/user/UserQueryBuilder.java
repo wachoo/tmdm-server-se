@@ -14,6 +14,7 @@ package com.amalto.core.query.user;
 import com.amalto.core.query.user.metadata.MetadataField;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.storage.StorageMetadataUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -180,11 +181,18 @@ public class UserQueryBuilder {
     public static Condition eq(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);
         Field userField = new Field(field);
-        return eq(userField, constant);
+        if (StorageMetadataUtils.isValueAssignable(constant, field)) {
+            return eq(userField, constant);
+        } else {
+            return UserQueryHelper.FALSE;
+        }
     }
 
     public static Condition eq(Field field, String constant) {
         assertValueConditionArguments(field, constant);
+        if (!StorageMetadataUtils.isValueAssignable(constant, field.getFieldMetadata())) {
+            return UserQueryHelper.FALSE;
+        }
         if (field.getFieldMetadata() instanceof ReferenceFieldMetadata) {
             ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
             return new Compare(field, Predicate.EQUALS, new Id(fieldMetadata.getReferencedType(), constant));
@@ -761,10 +769,14 @@ public class UserQueryBuilder {
     public static Condition contains(FieldMetadata field, String value) {
         assertValueConditionArguments(field, value);
         if (value.isEmpty()) {
-            return UserQueryHelper.NO_OP_CONDITION;
+            return UserQueryHelper.TRUE;
         }
         Field userField = new Field(field);
-        return contains(userField, value);
+        if (StorageMetadataUtils.isValueAssignable(value, field)) {
+            return contains(userField, value);
+        } else {
+            return UserQueryHelper.FALSE;
+        }
     }
 
     public static Condition contains(TypedExpression field, String value) {

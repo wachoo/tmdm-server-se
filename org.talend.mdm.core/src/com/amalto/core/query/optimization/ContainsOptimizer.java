@@ -37,6 +37,11 @@ public class ContainsOptimizer implements Optimizer {
         private String containsValue;
 
         @Override
+        public Condition visit(ConstantCondition constantCondition) {
+            return constantCondition;
+        }
+
+        @Override
         public Condition visit(Select select) {
             return select.getCondition().accept(this);
         }
@@ -105,7 +110,7 @@ public class ContainsOptimizer implements Optimizer {
                     containsValue = StringUtils.EMPTY;
                     return new Compare(condition.getLeft(), Predicate.CONTAINS, new StringConstant(processedContains));
                 } else {
-                    return UserQueryHelper.NO_OP_CONDITION;
+                    return UserQueryHelper.TRUE;
                 }
             }
             return condition;

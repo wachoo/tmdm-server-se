@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -82,11 +83,6 @@ import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -1232,7 +1228,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testJoinQueryWithId() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.NO_OP_CONDITION))
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.TRUE))
                 .join(person.getField("addresses/address"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -1243,7 +1239,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(UserQueryHelper.NO_OP_CONDITION, eq(person.getField("id"), "1")))
+                .where(and(UserQueryHelper.TRUE, eq(person.getField("id"), "1")))
                 .join(person.getField("addresses/address"));
         results = storage.fetch(qb.getSelect());
         try {
@@ -1256,21 +1252,21 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testJoinQueryNormalize() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.NO_OP_CONDITION))
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.TRUE))
                 .join(person.getField("addresses/address"));
         Select select = qb.getSelect();
         assertTrue(select.getCondition() instanceof BinaryLogicOperator);
         Select normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is
-                                                               // NO_OP_CONDITION
+                                                               // TRUE
         assertTrue(normalizedSelect.getCondition() instanceof Compare);
 
         qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(UserQueryHelper.NO_OP_CONDITION, eq(person.getField("id"), "1")))
+                .where(and(UserQueryHelper.TRUE, eq(person.getField("id"), "1")))
                 .join(person.getField("addresses/address"));
         select = qb.getSelect();
         assertTrue(select.getCondition() instanceof BinaryLogicOperator);
         normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is
-                                                        // NO_OP_CONDITION
+                                                        // TRUE
         assertTrue(normalizedSelect.getCondition() instanceof Compare);
     }
 
@@ -2059,7 +2055,7 @@ public class StorageQueryTest extends StorageTestCase {
         Condition condition = null;
         UserQueryBuilder qb = from(updateReport);
         for (FieldMetadata field : updateReport.getFields()) {
-            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field)) {
                 if (!(field instanceof ContainedTypeFieldMetadata)) {
                     if (condition == null) {
                         condition = contains(field, contentKeywords);
@@ -2126,7 +2122,7 @@ public class StorageQueryTest extends StorageTestCase {
         Condition condition = null;
         qb = from(updateReport);
         for (FieldMetadata field : updateReport.getFields()) {
-            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field)) {
                 if (!(field instanceof ContainedTypeFieldMetadata)) {
                     if (condition == null) {
                         condition = contains(field, contentKeywords);
@@ -3380,6 +3376,15 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        qb = from(product).where(contains(product.getField("Family"), "b"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
     }
 
     public void testMax() throws Exception {

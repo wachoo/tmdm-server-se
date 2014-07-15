@@ -10,43 +10,13 @@
 
 package com.amalto.core.query.optimization;
 
+import com.amalto.core.query.user.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.Types;
 
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.BigDecimalConstant;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.BooleanConstant;
-import com.amalto.core.query.user.ByteConstant;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.DateConstant;
-import com.amalto.core.query.user.DateTimeConstant;
-import com.amalto.core.query.user.DoubleConstant;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.FieldFullText;
-import com.amalto.core.query.user.FloatConstant;
-import com.amalto.core.query.user.FullText;
-import com.amalto.core.query.user.Id;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.IsEmpty;
-import com.amalto.core.query.user.IsNull;
-import com.amalto.core.query.user.Isa;
-import com.amalto.core.query.user.LongConstant;
-import com.amalto.core.query.user.NotIsEmpty;
-import com.amalto.core.query.user.NotIsNull;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Range;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.ShortConstant;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.TimeConstant;
-import com.amalto.core.query.user.UnaryLogicOperator;
-import com.amalto.core.query.user.Visitor;
-import com.amalto.core.query.user.VisitorAdapter;
 import com.amalto.core.query.user.metadata.GroupSize;
 import com.amalto.core.query.user.metadata.StagingBlockKey;
 import com.amalto.core.query.user.metadata.StagingError;
@@ -312,6 +282,11 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     private static class HasContains extends VisitorAdapter<Boolean> {
 
         @Override
+        public Boolean visit(ConstantCondition constantCondition) {
+            return false;
+        }
+
+        @Override
         public Boolean visit(Compare condition) {
             return condition.getPredicate() == Predicate.CONTAINS && condition.getRight().accept(this);
         }
@@ -433,6 +408,11 @@ public class ConfigurableContainsOptimizer implements Optimizer {
     }
 
     private static class HasForbiddenFullTextPredicates extends VisitorAdapter<Boolean> {
+
+        @Override
+        public Boolean visit(ConstantCondition constantCondition) {
+            return false;
+        }
 
         @Override
         public Boolean visit(Compare condition) {

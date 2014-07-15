@@ -158,7 +158,7 @@ public class MultiThreadedTask implements Task {
 
     @Override
     public Condition getDefaultFilter() {
-        return UserQueryHelper.NO_OP_CONDITION;
+        return UserQueryHelper.TRUE;
     }
 
     @Override

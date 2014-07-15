@@ -67,6 +67,14 @@ public class UnaryLogicOperator implements Condition {
             });
         } else {
             condition = (Condition) condition.normalize();
+            if (condition instanceof ConstantCondition) {
+                ConstantCondition constantCondition = (ConstantCondition) condition;
+                if (constantCondition.value()) {
+                    return UserQueryHelper.FALSE;
+                } else {
+                    return UserQueryHelper.TRUE;
+                }
+            }
             return this;
         }
     }

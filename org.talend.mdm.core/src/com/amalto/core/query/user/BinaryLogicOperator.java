@@ -33,16 +33,55 @@ public class BinaryLogicOperator implements Condition {
         if (left.equals(right)) {
             return left;
         }
-        // If right or left is a no op condition, simplify a bit the query.
-        if (right == UserQueryHelper.NO_OP_CONDITION && left == UserQueryHelper.NO_OP_CONDITION) {
-            return UserQueryHelper.NO_OP_CONDITION;
-        } else if (right == UserQueryHelper.NO_OP_CONDITION) {
-            return left;
-        } else if (left == UserQueryHelper.NO_OP_CONDITION) {
-            return right;
-        } else {
-            return this;
+        // If right or left is a constant condition, simplify a bit the query.
+        if (right instanceof ConstantCondition && left instanceof ConstantCondition) {
+            ConstantCondition constantLeft = (ConstantCondition) left;
+            ConstantCondition constantRight = (ConstantCondition) right;
+            if (predicate == Predicate.AND) {
+                if (constantLeft.value() && constantRight.value()) {
+                    return UserQueryHelper.TRUE;
+                } else {
+                    return UserQueryHelper.FALSE;
+                }
+            } else if (predicate == Predicate.OR) {
+                if (!constantLeft.value() && !constantRight.value()) {
+                    return UserQueryHelper.FALSE; 
+                } else {
+                    return UserQueryHelper.TRUE;
+                }
+            }
+        } else if (left instanceof ConstantCondition) { // only left is a constant condition
+            ConstantCondition constantLeft = (ConstantCondition) left;
+            if(constantLeft.value()) {
+                if (predicate == Predicate.OR) {
+                    return UserQueryHelper.TRUE;
+                } else if (predicate == Predicate.AND) {
+                    return right;
+                }
+            } else {
+                if (predicate == Predicate.OR) {
+                    return right;
+                } else if (predicate == Predicate.AND) {
+                    return UserQueryHelper.FALSE;
+                }
+            }
+        } else if (right instanceof ConstantCondition) { // only right is a constant condition
+            ConstantCondition constantRight = (ConstantCondition) right;
+            if (constantRight.value()) {
+                if (predicate == Predicate.OR) {
+                    return UserQueryHelper.TRUE;
+                } else if (predicate == Predicate.AND) {
+                    return left;
+                }
+            } else {
+                if (predicate == Predicate.OR) {
+                    return left;
+                } else if (predicate == Predicate.AND) {
+                    return UserQueryHelper.FALSE;
+                }
+            }
         }
+        return this;
     }
 
     @Override

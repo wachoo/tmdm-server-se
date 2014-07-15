@@ -35,6 +35,12 @@ class Checker extends VisitorAdapter<Boolean> {
     }
 
     @Override
+    public Boolean visit(ConstantCondition constantCondition) {
+        // Always allow constant conditions.
+        return true;
+    }
+
+    @Override
     public Boolean visit(Expression expression) {
         return true;
     }
