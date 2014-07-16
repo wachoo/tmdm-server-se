@@ -209,7 +209,7 @@ class ScatteredTypeMapping extends TypeMapping {
                     } else {
                         List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
-                            List<Wrapper> fullList = getFullList((PersistentList) value);
+                            List<Wrapper> fullList = getFullList(wrapperList);
                             for (Wrapper wrapper : fullList) {
                                 if (wrapper != null) {
                                     to.set(userField,
