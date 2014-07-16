@@ -12,7 +12,6 @@ package com.amalto.core.storage.hibernate;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,9 +23,6 @@ import java.util.Set;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
 import org.hibernate.collection.PersistentList;
-import org.hibernate.engine.CollectionEntry;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.persister.collection.CollectionPersister;
 
 import com.amalto.core.metadata.ComplexTypeMetadata;
 import com.amalto.core.metadata.ContainedComplexTypeMetadata;
@@ -158,7 +154,8 @@ class FlatTypeMapping extends TypeMapping {
                             to.set(databaseField.getName(), list);
                         }
                         if (value != null) {
-                            List<DataRecord> valueList = getFullList((org.hibernate.collection.PersistentList) value);
+                            @SuppressWarnings("unchecked")
+                            List<DataRecord> valueList = getFullList((List<Wrapper>) value);
                             List<Object> newValues = new LinkedList<Object>();
                             for (DataRecord current : valueList) {
                                 TypeMetadata referencedType = current.getType();

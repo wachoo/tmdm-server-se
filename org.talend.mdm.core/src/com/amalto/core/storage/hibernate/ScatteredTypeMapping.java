@@ -1,31 +1,38 @@
 /*
  * Copyright (C) 2006-2012 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.hibernate.Session;
 import org.hibernate.collection.PersistentList;
-import org.hibernate.engine.CollectionEntry;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.persister.collection.CollectionPersister;
-import com.amalto.core.metadata.*;
+
+import com.amalto.core.metadata.ComplexTypeMetadata;
+import com.amalto.core.metadata.ContainedTypeFieldMetadata;
+import com.amalto.core.metadata.DefaultValidationHandler;
+import com.amalto.core.metadata.FieldMetadata;
+import com.amalto.core.metadata.ReferenceFieldMetadata;
+import com.amalto.core.metadata.ValidationHandler;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.commons.lang.NotImplementedException;
-import org.hibernate.Session;
-
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.util.*;
 
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
@@ -40,6 +47,7 @@ class ScatteredTypeMapping extends TypeMapping {
         super(user, mappings);
     }
 
+    @Override
     public void setValues(Session session, DataRecord from, Wrapper to) {
         _setValues(session, from, to);
     }
@@ -72,11 +80,13 @@ class ScatteredTypeMapping extends TypeMapping {
                     DataRecord containedRecord = (DataRecord) from.get(field);
                     if (containedRecord != null) {
                         TypeMapping mappingFromUser = mappings.getMappingFromUser(containedRecord.getType());
-                        ComplexTypeMetadata referencedType = mappingFromUser != null ? mappingFromUser.getDatabase() : containedRecord.getType();
+                        ComplexTypeMetadata referencedType = mappingFromUser != null ? mappingFromUser.getDatabase()
+                                : containedRecord.getType();
                         Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
                         boolean needCreate = existingValue == null;
                         if (!needCreate) {
-                            ComplexTypeMetadata existingType = ((StorageClassLoader) contextClassLoader).getTypeFromClass(existingValue.getClass());
+                            ComplexTypeMetadata existingType = ((StorageClassLoader) contextClassLoader)
+                                    .getTypeFromClass(existingValue.getClass());
                             needCreate = !existingType.equals(referencedType);
                         }
                         Wrapper object = needCreate ? createObject(contextClassLoader, referencedType) : existingValue;
@@ -97,7 +107,8 @@ class ScatteredTypeMapping extends TypeMapping {
                     }
                     if (dataRecords != null) {
                         List<Wrapper> existingValue = (List<Wrapper>) value;
-                        List<Wrapper> objects = existingValue == null ? new ArrayList<Wrapper>(dataRecords.size()) : existingValue;
+                        List<Wrapper> objects = existingValue == null ? new ArrayList<Wrapper>(dataRecords.size())
+                                : existingValue;
                         int i = 0;
                         for (DataRecord dataRecord : dataRecords) {
                             if (i < objects.size() && objects.get(i) != null) {
@@ -135,7 +146,9 @@ class ScatteredTypeMapping extends TypeMapping {
                         } else {
                             referenceId = referencedObject.get(keyFields.get(0));
                         }
-                        to.set(mappedDatabaseField.getName(), getReferencedObject(contextClassLoader, session, mappings.getMappingFromUser(referencedObject.getType()).getDatabase(), referenceId));
+                        to.set(mappedDatabaseField.getName(),
+                                getReferencedObject(contextClassLoader, session,
+                                        mappings.getMappingFromUser(referencedObject.getType()).getDatabase(), referenceId));
                     } else {
                         to.set(mappedDatabaseField.getName(), null);
                     }
@@ -182,6 +195,7 @@ class ScatteredTypeMapping extends TypeMapping {
         return to;
     }
 
+    @Override
     public DataRecord setValues(Wrapper from, DataRecord to) {
         StorageClassLoader contextClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
         ComplexTypeMetadata typeFromClass = contextClassLoader.getTypeFromClass(from.getClass());
@@ -194,16 +208,20 @@ class ScatteredTypeMapping extends TypeMapping {
                     if (!userField.isMany()) {
                         Wrapper valueAsWrapper = (Wrapper) value;
                         if (value != null) {
-                            DataRecord containedDataRecord = new DataRecord(getActualContainedType(userField, valueAsWrapper), UnsupportedDataRecordMetadata.INSTANCE);
+                            DataRecord containedDataRecord = new DataRecord(getActualContainedType(userField, valueAsWrapper),
+                                    UnsupportedDataRecordMetadata.INSTANCE);
                             to.set(userField, setValues(valueAsWrapper, containedDataRecord));
                         }
                     } else {
+                        @SuppressWarnings("unchecked")
                         List<Wrapper> wrapperList = (List<Wrapper>) value;
                         if (wrapperList != null) {
-                            List<Wrapper> fullList = getFullList((PersistentList) value);
+                            List<Wrapper> fullList = getFullList(wrapperList);
                             for (Wrapper wrapper : fullList) {
                                 if (wrapper != null) {
-                                    to.set(userField, setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper), UnsupportedDataRecordMetadata.INSTANCE)));
+                                    to.set(userField,
+                                            setValues(wrapper, new DataRecord(getActualContainedType(userField, wrapper),
+                                                    UnsupportedDataRecordMetadata.INSTANCE)));
                                 }
                             }
                         }
@@ -212,8 +230,10 @@ class ScatteredTypeMapping extends TypeMapping {
                     if (!userField.isMany()) {
                         Wrapper wrapper = (Wrapper) value;
                         if (wrapper != null) {
-                            TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
-                            DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+                            TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper
+                                    .getClass()));
+                            DataRecord referencedRecord = new DataRecord(mapping.getUser(),
+                                    UnsupportedDataRecordMetadata.INSTANCE);
                             for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
                                 if (mapping.getUser(fkField) != null) {
                                     referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
@@ -226,8 +246,10 @@ class ScatteredTypeMapping extends TypeMapping {
                         if (wrapperList != null) {
                             List<Wrapper> fullList = getFullList((PersistentList) value);
                             for (Wrapper wrapper : fullList) {
-                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
-                                DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper
+                                        .getClass()));
+                                DataRecord referencedRecord = new DataRecord(mapping.getUser(),
+                                        UnsupportedDataRecordMetadata.INSTANCE);
                                 for (FieldMetadata fkField : ((ReferenceFieldMetadata) field).getReferencedType().getFields()) {
                                     if (mapping.getUser(fkField) != null) {
                                         referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
@@ -242,7 +264,7 @@ class ScatteredTypeMapping extends TypeMapping {
                 }
             } else {
                 DataRecordMetadata recordMetadata = to.getRecordMetadata();
-                Map<String,String> recordProperties = recordMetadata.getRecordProperties();
+                Map<String, String> recordProperties = recordMetadata.getRecordProperties();
                 if (!ScatteredMappingCreator.GENERATED_ID.equals(fieldName) && value != null) {
                     try {
                         recordProperties.put(fieldName, String.valueOf(value));
@@ -272,7 +294,8 @@ class ScatteredTypeMapping extends TypeMapping {
         if (clazz.getName().contains("javassist")) { //$NON-NLS-1$
             clazz = (Class<? extends Wrapper>) clazz.getSuperclass();
         }
-        ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader()).getTypeFromClass(clazz);
+        ComplexTypeMetadata typeFromClass = ((StorageClassLoader) Thread.currentThread().getContextClassLoader())
+                .getTypeFromClass(clazz);
         TypeMapping mappingFromDatabase = mappings.getMappingFromDatabase(typeFromClass);
         String actualValueType;
         if (mappingFromDatabase != null) {
@@ -290,7 +313,8 @@ class ScatteredTypeMapping extends TypeMapping {
                 }
             }
         }
-        throw new IllegalStateException("Could not set value with class '" + String.valueOf(value) + "' to field '" + userField.getName() + "'.");
+        throw new IllegalStateException("Could not set value with class '" + String.valueOf(value) + "' to field '"
+                + userField.getName() + "'.");
     }
 
     private Wrapper createObject(ClassLoader storageClassLoader, ComplexTypeMetadata referencedType) {
@@ -309,7 +333,8 @@ class ScatteredTypeMapping extends TypeMapping {
         }
     }
 
-    private Object getReferencedObject(ClassLoader storageClassLoader, Session session, ComplexTypeMetadata referencedType, Object referencedIdValue) {
+    private Object getReferencedObject(ClassLoader storageClassLoader, Session session, ComplexTypeMetadata referencedType,
+            Object referencedIdValue) {
         Class<?> referencedClass;
         try {
             referencedClass = ((StorageClassLoader) storageClassLoader).getClassFromType(referencedType);
@@ -355,7 +380,7 @@ class ScatteredTypeMapping extends TypeMapping {
             }
             Class<?> fieldJavaType = referencedIdValue.getClass();
             // Null package might happen with proxy classes generated by Hibernate
-            if (fieldJavaType.getPackage() != null && fieldJavaType.getPackage().getName().startsWith("java.")) {  //$NON-NLS-1$
+            if (fieldJavaType.getPackage() != null && fieldJavaType.getPackage().getName().startsWith("java.")) { //$NON-NLS-1$
                 Wrapper referencedObject = (Wrapper) referencedClass.newInstance();
                 for (FieldMetadata fieldMetadata : referencedType.getFields()) {
                     if (fieldMetadata.isKey()) {
@@ -367,7 +392,8 @@ class ScatteredTypeMapping extends TypeMapping {
                 return referencedIdValue;
             }
         } catch (Exception e) {
-            throw new RuntimeException("Could not create referenced object of type '" + referencedClass + "' with id '" + String.valueOf(referencedIdValue) + "'", e);
+            throw new RuntimeException("Could not create referenced object of type '" + referencedClass + "' with id '"
+                    + String.valueOf(referencedIdValue) + "'", e);
         }
     }
 
@@ -376,6 +402,7 @@ class ScatteredTypeMapping extends TypeMapping {
         return "SCATTERED (" + user.getName() + ")";
     }
 
+    @Override
     protected void map(FieldMetadata user, FieldMetadata database) {
         if (isFrozen) {
             throw new IllegalStateException("Mapping is frozen.");
@@ -384,18 +411,22 @@ class ScatteredTypeMapping extends TypeMapping {
         databaseToUser.put(database.getContainingType().getName() + '_' + database.getName(), user);
     }
 
+    @Override
     public FieldMetadata getDatabase(FieldMetadata from) {
         return userToDatabase.get(from.getContainingType().getName() + '_' + from.getName());
     }
 
+    @Override
     public FieldMetadata getUser(FieldMetadata to) {
         return databaseToUser.get(to.getContainingType().getName() + '_' + to.getName());
     }
 
     /**
      * "Freeze" both database and internal types.
+     * 
      * @see com.amalto.core.metadata.TypeMetadata#freeze(com.amalto.core.metadata.ValidationHandler)
      */
+    @Override
     public void freeze() {
         if (!isFrozen) {
             ValidationHandler handler = DefaultValidationHandler.INSTANCE;
