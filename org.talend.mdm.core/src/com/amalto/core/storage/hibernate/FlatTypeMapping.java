@@ -228,7 +228,7 @@ class FlatTypeMapping extends TypeMapping {
                             to.set(userField, referencedRecord);
                         }
                     } else {
-                        List<Wrapper> wrapperList = getFullList((org.hibernate.collection.PersistentList) value);
+                        List<Wrapper> wrapperList = getFullList((List<Wrapper>) value);
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
                                 TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));

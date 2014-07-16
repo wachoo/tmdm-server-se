@@ -178,10 +178,14 @@ public abstract class TypeMapping {
      * piece of code forces load.
      * Relates also to TMDM-7452.
      */
-    protected static <T> List<T> getFullList(PersistentList list) {
-        if (list == null) {
+    protected static <T> List<T> getFullList(List valueList) {
+        if (valueList == null) {
             return null;
         }
+        if( !(valueList instanceof PersistentList)) {
+            return valueList;
+        }
+        PersistentList list = (PersistentList) valueList;
         List<T> fullList = new LinkedList<T>();
         SessionImplementor session = list.getSession();
         if (!session.isConnected()) {
