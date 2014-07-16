@@ -139,35 +139,36 @@ public class UserQueryHelper {
                             Type fieldExpression = (Type) alias.getTypedExpression();
                             condition = emptyOrNull(fieldExpression);
                         }
-                    }
-                    boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
-                    if (!isFk
-                            && (field instanceof Field && !StorageMetadataUtils.isValueAssignable(value,
-                                    ((Field) field).getFieldMetadata())) && !WhereCondition.EMPTY_NULL.equals(operator)) {
-                        LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
-                        continue;
-                    }
-                    if (WhereCondition.CONTAINS.equals(operator) || WhereCondition.STRICTCONTAINS.equals(operator)
-                            || WhereCondition.CONTAINS_TEXT_OF.equals(operator)) {
-                        condition = add(condition, contains(field, value));
-                    } else if (WhereCondition.EQUALS.equals(operator)) {
-                        condition = add(condition, eq(field, value));
-                    } else if (WhereCondition.GREATER_THAN.equals(operator)) {
-                        condition = add(condition, gt(field, value));
-                    } else if (WhereCondition.GREATER_THAN_OR_EQUAL.equals(operator)) {
-                        condition = add(condition, gte(field, value));
-                    } else if (WhereCondition.LOWER_THAN.equals(operator)) {
-                        condition = add(condition, lt(field, value));
-                    } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
-                        condition = add(condition, lte(field, value));
-                    } else if (WhereCondition.NOT_EQUALS.equals(operator)) {
-                        condition = add(condition, neq(field, value));
-                    } else if (WhereCondition.STARTSWITH.equals(operator)) {
-                        condition = add(condition, startsWith(field, value));
-                    } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
-                        condition = add(condition, emptyOrNull(field));
                     } else {
-                        throw new NotImplementedException("'" + operator + "' support not implemented.");
+                        boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
+                        if (!isFk
+                                && (field instanceof Field && !StorageMetadataUtils.isValueAssignable(value,
+                                ((Field) field).getFieldMetadata())) && !WhereCondition.EMPTY_NULL.equals(operator)) {
+                            LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
+                            continue;
+                        }
+                        if (WhereCondition.CONTAINS.equals(operator) || WhereCondition.STRICTCONTAINS.equals(operator)
+                                || WhereCondition.CONTAINS_TEXT_OF.equals(operator)) {
+                            condition = add(condition, contains(field, value));
+                        } else if (WhereCondition.EQUALS.equals(operator)) {
+                            condition = add(condition, eq(field, value));
+                        } else if (WhereCondition.GREATER_THAN.equals(operator)) {
+                            condition = add(condition, gt(field, value));
+                        } else if (WhereCondition.GREATER_THAN_OR_EQUAL.equals(operator)) {
+                            condition = add(condition, gte(field, value));
+                        } else if (WhereCondition.LOWER_THAN.equals(operator)) {
+                            condition = add(condition, lt(field, value));
+                        } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
+                            condition = add(condition, lte(field, value));
+                        } else if (WhereCondition.NOT_EQUALS.equals(operator)) {
+                            condition = add(condition, neq(field, value));
+                        } else if (WhereCondition.STARTSWITH.equals(operator)) {
+                            condition = add(condition, startsWith(field, value));
+                        } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
+                            condition = add(condition, emptyOrNull(field));
+                        } else {
+                            throw new NotImplementedException("'" + operator + "' support not implemented.");
+                        }
                     }
                 } else {
                     // Right value is another field name
