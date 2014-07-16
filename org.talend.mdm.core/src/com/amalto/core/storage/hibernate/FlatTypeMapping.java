@@ -134,7 +134,7 @@ class FlatTypeMapping extends TypeMapping {
                             to.set(databaseField.getName(), list);
                         }
                         if (value != null) {
-                            List<DataRecord> valueList = getFullList((org.hibernate.collection.PersistentList) value);
+                            List<DataRecord> valueList = getFullList((List<Wrapper>) value);
                             List<Object> newValues = new LinkedList<Object>();
                             for (DataRecord current : valueList) {
                                 TypeMetadata referencedType = current.getType();
