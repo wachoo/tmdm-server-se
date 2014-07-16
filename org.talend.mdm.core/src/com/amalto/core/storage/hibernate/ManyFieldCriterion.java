@@ -148,15 +148,27 @@ class ManyFieldCriterion extends SQLCriterion {
                     .append(".") //$NON-NLS-1$
                     .append(simpleField.getName())
                     .append(" = "); //$NON-NLS-1$
-            boolean isStringType = "string".equals(MetadataUtils.getSuperConcreteType(simpleField.getType()).getName()); //$NON-NLS-1$
-            if (isStringType) { //$NON-NLS-1$
+
+            String name = MetadataUtils.getSuperConcreteType(simpleField.getType()).getName();
+            boolean isStringType = "string".equals(name); //$NON-NLS-1$
+            // TMDM-7226: Consider date / time types as strings (for quotes).
+            if (!isStringType) {
+                String[] dateTypes = new String[] {"date", "datetime", "time"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                for (String dateType : dateTypes) {
+                    isStringType = dateType.equals(name);
+                    if (isStringType) {
+                        break;
+                    }
+                }
+            }
+            if (isStringType) {
                 query.append("'"); //$NON-NLS-1$
             }
             query.append(String.valueOf(getValue()));
-            if (isStringType) { //$NON-NLS-1$
-                query.append("'");
+            if (isStringType) {
+                query.append("'"); //$NON-NLS-1$
             }
-            query.append(")");
+            query.append(")"); //$NON-NLS-1$
             return query.toString();
         }
     }
