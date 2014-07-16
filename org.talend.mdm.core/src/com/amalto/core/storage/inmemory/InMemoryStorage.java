@@ -284,8 +284,8 @@ public class InMemoryStorage implements Storage {
         }
 
         @Override
-        public Matcher visit(com.amalto.core.query.user.Compare condition) {
-            String value = condition.getRight().accept(new VisitorAdapter<String>() {
+        public Matcher visit(final com.amalto.core.query.user.Compare condition) {
+            final String value = condition.getRight().accept(new VisitorAdapter<String>() {
 
                 @Override
                 public String visit(StringConstant constant) {
@@ -353,14 +353,18 @@ public class InMemoryStorage implements Storage {
                     return String.valueOf(constant.getValue());
                 }
             });
-            FieldMetadata field = condition.getLeft().accept(new VisitorAdapter<FieldMetadata>() {
+            return condition.getLeft().accept(new VisitorAdapter<Matcher>() {
 
                 @Override
-                public FieldMetadata visit(Field field) {
-                    return field.getFieldMetadata();
+                public Matcher visit(StagingBlockKey stagingBlockKey) {
+                    return new BuiltInBlockKeyMatcher(condition.getPredicate(), value);
+                }
+
+                @Override
+                public Matcher visit(Field field) {
+                    return new CompareMatcher(field.getFieldMetadata(), condition.getPredicate(), value);
                 }
             });
-            return new CompareMatcher(field, condition.getPredicate(), value);
         }
 
         @Override
