@@ -70,6 +70,8 @@ public class ActionsPanel extends FormPanel {
 
     private static final String DEFAULT_COLUMN_NUM = "defaultColNum"; //$NON-NLS-1$
 
+    private static final String CHARTS_ON = "chartsOn"; //$NON-NLS-1$
+    
     private static final String CHARTS_MESSAGE_ADD = "Enable charts"; //$NON-NLS-1$
 
     private static final String CHARTS_MESSAGE_REMOVE = "Disable charts"; //$NON-NLS-1$
@@ -95,6 +97,8 @@ public class ActionsPanel extends FormPanel {
     private Button saveBtn = new Button(MessageFactory.getMessages().save());
 
     private Button saveConfigBtn = new Button(MessageFactory.getMessages().save());
+    
+    private ToggleButton chartsSwitcher;
 
     private boolean chartsOn;
 
@@ -170,6 +174,12 @@ public class ActionsPanel extends FormPanel {
         formData.setMargins(new Margins(5, -30, 5, 30));
         portalConfig.add(checkGroup, formData);
 
+        chartsOn = true;
+        chartsSwitcher = new ToggleButton(CHARTS_MESSAGE_REMOVE);
+
+        formData = new FormData();
+        portalConfig.add(chartsSwitcher, formData);
+        
         RadioGroup radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("Welcome Columns"); //$NON-NLS-1$
         col2Radio = new Radio();
@@ -181,31 +191,8 @@ public class ActionsPanel extends FormPanel {
         radioGroup.add(col2Radio);
         radioGroup.add(col3Radio);
 
+        formData.setMargins(new Margins(5, -30, 5, 30));
         portalConfig.add(radioGroup, formData);
-
-        chartsOn = true;
-        ToggleButton chartsSwitcher = new ToggleButton(CHARTS_MESSAGE_REMOVE, new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent evt) {
-                String title;
-                ToggleButton toggleBtn = (ToggleButton) evt.getButton();
-                if (toggleBtn.isPressed()) {
-                    chartsOn = false;
-                    title = CHARTS_MESSAGE_ADD;
-                } else {
-                    chartsOn = true;
-                    title = CHARTS_MESSAGE_REMOVE;
-
-                }
-                toggleBtn.setTitle(title);
-                toggleBtn.setText(title);
-                updateChartsConfig(chartsOn);
-            }
-        });
-
-        formData = new FormData();
-        portalConfig.add(chartsSwitcher, formData);
 
         portalConfig.add(saveConfigBtn);
         this.add(portalConfig);
@@ -238,6 +225,26 @@ public class ActionsPanel extends FormPanel {
             }
         });
 
+        chartsSwitcher.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent evt) {
+                String title;
+                ToggleButton toggleBtn = (ToggleButton) evt.getButton();
+                if (toggleBtn.isPressed()) {
+                    chartsOn = false;
+                    title = CHARTS_MESSAGE_ADD;
+                } else {
+                    chartsOn = true;
+                    title = CHARTS_MESSAGE_REMOVE;
+
+                }
+                toggleBtn.setTitle(title);
+                toggleBtn.setText(title);
+                updateChartsConfig(chartsOn);
+            }
+        });
+        
         dataModelBox.addSelectionChangedListener(new SelectionChangedListener<ComboBoxModel>() {
 
             @Override
@@ -406,6 +413,7 @@ public class ActionsPanel extends FormPanel {
             defaultColNum = false;
         }
         updates.put(DEFAULT_COLUMN_NUM, defaultColNum);
+        updates.put(CHARTS_ON, chartsOn);
         return updates;
     }
 
