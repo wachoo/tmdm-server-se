@@ -272,6 +272,10 @@ public class StorageQueryTest extends StorageTestCase {
                                 repository,
                                 employee1,
                                 "<Employee1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>1</Id><Holiday>2014-05-16T12:00:00</Holiday><birthday>2014-05-23T12:00:00</birthday><manager>[1][2014-05-01T12:00:00]</manager></Employee1>"));
+        allRecords.add(factory.read("1", repository, entityA,
+                "<EntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdA>100</IdA></EntityA>"));
+        allRecords.add(factory.read("1", repository, entityB,
+                "<EntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdB>B1</IdB><A_FK>[100]</A_FK></EntityB>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -309,11 +313,11 @@ public class StorageQueryTest extends StorageTestCase {
                 qb = from(e1);
                 storage.delete(qb.getSelect());
 
-                 qb = from(employee1);
-                 storage.delete(qb.getSelect());
-                
-                 qb = from(manager1);
-                 storage.delete(qb.getSelect());
+                qb = from(employee1);
+                storage.delete(qb.getSelect());
+
+                qb = from(manager1);
+                storage.delete(qb.getSelect());
             }
             storage.commit();
         } finally {
@@ -1141,12 +1145,12 @@ public class StorageQueryTest extends StorageTestCase {
             storageResults.close();
         }
     }
-    
+
     public void testContainsTextOfConditionWithAllSimpledTypeFields() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(product);
         String fieldName = "Product/../*";
-        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS_TEXT_OF, "1",
-                WhereCondition.NO_OPERATOR)));
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS_TEXT_OF,
+                "1", WhereCondition.NO_OPERATOR)));
         qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
         StorageResults storageResults = storage.fetch(qb.getSelect());
         try {
@@ -1155,7 +1159,6 @@ public class StorageQueryTest extends StorageTestCase {
             storageResults.close();
         }
     }
-    
 
     public void testConditionOr() throws Exception {
         UserQueryBuilder qb = from(person).where(
@@ -3387,6 +3390,17 @@ public class StorageQueryTest extends StorageTestCase {
 
     }
 
+    public void testQueryWithIntFK() throws Exception {
+        UserQueryBuilder qb = from(entityB).where(
+                and(contains(entityB.getField("A_FK"), "b"), contains(entityB.getField("IdB"), "b")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testMax() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(person).select(max(person.getField("age"))).limit(1);
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3574,7 +3588,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testGetByIdWithCondition() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("firstname")).where(
-                and(eq(person.getField("id"), "1"), eq(person.getField("id"), "2"))); 
+                and(eq(person.getField("id"), "1"), eq(person.getField("id"), "2")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount()); // Id can't be equals to "1" AND "2"...
@@ -3586,7 +3600,7 @@ public class StorageQueryTest extends StorageTestCase {
                 or(eq(person.getField("id"), "1"), eq(person.getField("id"), "2")));
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount()); // ... but "1" OR "2" returns 2 results. 
+            assertEquals(2, results.getCount()); // ... but "1" OR "2" returns 2 results.
         } finally {
             results.close();
         }
@@ -3608,7 +3622,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testMaxProjection() throws Exception {
         UserQueryBuilder qb = from(person).select(max(person.getField("score")));
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3632,7 +3646,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testTaskIdProjection() throws Exception {
         UserQueryBuilder qb = from(person).select(taskId());
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3644,7 +3658,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testTimestampProjection() throws Exception {
         UserQueryBuilder qb = from(person).select(timestamp());
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3657,7 +3671,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testCountProjection() throws Exception {
         UserQueryBuilder qb = from(person).select(count());
         StorageResults results = storage.fetch(qb.getSelect());
