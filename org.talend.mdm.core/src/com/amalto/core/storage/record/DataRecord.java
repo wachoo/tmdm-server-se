@@ -119,6 +119,19 @@ public class DataRecord {
         return recordMetadata;
     }
 
+    /**
+     * <p>
+     * Get <b>a</b> value for a <code>field</code>. This method the first value to be found, so in case the field is present many
+     * different times inside record (for example if field is contained in repeatable elements) this method does not aggregate
+     * all values.
+     * </p>
+     * <p>
+     * For a method that aggregates all values, please look at {@link #find(org.talend.mdm.commmon.metadata.FieldMetadata)};
+     * </p>
+     *
+     * @param field A {@link org.talend.mdm.commmon.metadata.FieldMetadata field} contained in record.
+     * @return The value of the field in this record or <code>null</code> if no value is set for field.
+     */
     public Object get(FieldMetadata field) {
         if (field == null) {
             throw new IllegalArgumentException("Field cannot be null.");
@@ -202,6 +215,49 @@ public class DataRecord {
             }
         }
         return currentValue;
+    }
+    
+    public List<Object> find(FieldMetadata field) {
+        // Build path elements
+        String path = field.getPath();
+        StringTokenizer tokenizer = new StringTokenizer(path, "/"); //$NON-NLS-1$
+        List<String> pathElements = new ArrayList<String>(tokenizer.countTokens());
+        while (tokenizer.hasMoreTokens()) {
+            pathElements.add(tokenizer.nextToken());
+        }
+        List<Object> values = new LinkedList<Object>();
+        _find(values, this, pathElements);
+        return values;
+    }
+
+    private void _find(List<Object> values, DataRecord current, List<String> pathElements) {
+        String fieldName = pathElements.get(0);
+        if (!current.getType().hasField(fieldName)) {
+            return; // TODO Error?
+        }
+        FieldMetadata fieldMetadata = current.getType().getField(fieldName);
+        Object fieldValue = current.fieldToValue.get(fieldMetadata);
+        if (pathElements.size() == 1) {
+            if (fieldMetadata.isMany()) {
+                values.addAll((Collection<?>) fieldValue);
+            } else {
+                values.add(fieldValue);
+            }
+        } else {
+            if (fieldValue == null) {
+                return;
+            }
+            List<DataRecord> subRecords;
+            if (fieldMetadata.isMany()) {
+                subRecords = (List<DataRecord>) fieldValue;
+            } else {
+                subRecords = Collections.singletonList((DataRecord) fieldValue);
+            }
+            List<String> subPathElements = pathElements.subList(1, pathElements.size());
+            for (DataRecord record : subRecords) {
+                _find(values, record, subPathElements);
+            }
+        }
     }
 
     public void set(FieldMetadata field, Object o) {
