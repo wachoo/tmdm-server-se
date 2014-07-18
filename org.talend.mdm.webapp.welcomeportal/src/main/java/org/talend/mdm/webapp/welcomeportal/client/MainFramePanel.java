@@ -77,6 +77,10 @@ public class MainFramePanel extends Portal {
     private static final String COOKIES_CHARTS = "allCharts"; //$NON-NLS-1$
 
     private static final String USING_DEFAULT_COLUMN_NUM = "defaultColNum"; //$NON-NLS-1$
+    
+    private static final int DEFAULT_COLUMN_NUM = 3;
+    
+    private static final int ALTERNATIVE_COLUMN_NUM = 2;
 
     private static final String CHARTS_ENABLED = "chartsOn"; //$NON-NLS-1$
 
@@ -100,9 +104,9 @@ public class MainFramePanel extends Portal {
 
     private boolean columnChanged = false;
 
-    private Map<String, List<Integer>> portletToLocations = new LinkedHashMap<String, List<Integer>>();
+    private Map<String, List<Integer>> portletToLocations;
 
-    private Map<String, Boolean> portletToVisibilities = new HashMap<String, Boolean>();
+    private Map<String, Boolean> portletToVisibilities;
 
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
 
@@ -122,16 +126,13 @@ public class MainFramePanel extends Portal {
             chartsOn = config.get(CHARTS_ENABLED);
         } else {
             columnChanged = false;
-            if (Cookies.getValue(COOKIES_CHARTS_ENABLED) == null) {
-                chartsOn = true;
-            } else {
-                chartsOn = (Boolean) Cookies.getValue(COOKIES_CHARTS_ENABLED);
-            }
+            Object chartsOnObj = Cookies.getValue(COOKIES_CHARTS_ENABLED);
+            chartsOn = (chartsOnObj == null) ? true : (Boolean) chartsOnObj;
         }
 
         setBorders(true);
         setStyleAttribute("backgroundColor", "white"); //$NON-NLS-1$ //$NON-NLS-2$
-        if (numColumns == 3) {
+        if (numColumns == DEFAULT_COLUMN_NUM) {
             setColumnWidth(0, .33);
             setColumnWidth(1, .33);
             setColumnWidth(2, .33);
@@ -156,6 +157,7 @@ public class MainFramePanel extends Portal {
                     initializePortlet(DEFAULT_ORDERING_INDEX.get(index + 1));
                 } else {
                     // init cookies value after all portlet initialized
+                    portletToVisibilities = new HashMap<String, Boolean>();
                     for (String name : portletToLocations.keySet()) {
                         portletToVisibilities.put(name, true);
                     }
@@ -173,9 +175,8 @@ public class MainFramePanel extends Portal {
                     Cookies.setValue(COOKIES_PORTLET_COLUMN, MainFramePanel.this.numColumns);
                     Cookies.setValue(COOKIES_CHARTS, allCharts);
                     Cookies.setValue(COOKIES_CHARTS_ENABLED, chartsOn);
-                    List<String> temp = (List<String>) Cookies.getValue(COOKIES_CHARTS);
-
-                    portletConfigs.put(USING_DEFAULT_COLUMN_NUM, MainFramePanel.this.numColumns == 3);
+                    
+                    portletConfigs.put(USING_DEFAULT_COLUMN_NUM, MainFramePanel.this.numColumns == DEFAULT_COLUMN_NUM);
                     portletConfigs.put(CHARTS_ENABLED, chartsOn);
                     recordPortlets(portletConfigs);
                 }
@@ -187,6 +188,7 @@ public class MainFramePanel extends Portal {
             @Override
             public void handleEvent(PortalEvent pe) {
                 updateLocations();
+                Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
             }
         });
 
@@ -215,6 +217,7 @@ public class MainFramePanel extends Portal {
     private void initializePortlets() {
         portlets = new ArrayList<BasePortlet>();
         if (Cookies.getValue(COOKIES_PORTLET_LOCATIONS) == null) {
+            portletToLocations = new LinkedHashMap<String, List<Integer>>();
             BasePortlet portlet;
             // start portlets initialization, see ContainerEvent listener
             portlet = new StartPortlet(this);
@@ -229,7 +232,8 @@ public class MainFramePanel extends Portal {
             for (String name : portletToLocations.keySet()) {
                 portletConfigs.put(name, portletToVisibilities.get(name));
             }
-            portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == 3);
+
+            portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == DEFAULT_COLUMN_NUM);
             chartsOn = (Boolean) Cookies.getValue(COOKIES_CHARTS_ENABLED);
             portletConfigs.put(CHARTS_ENABLED, chartsOn);
             recordPortlets(portletConfigs);
@@ -239,36 +243,40 @@ public class MainFramePanel extends Portal {
             for (String portletName : portletToLocations.keySet()) {
                 locationToPortlets.put(portletToLocations.get(portletName), portletName);
             }
-            List<String> portletNameOrdering = new ArrayList<String>(portletToLocations.size());
-            portletNameOrdering.addAll(locationToPortlets.values());
+
+            List<String> orderedPortletNames = new ArrayList<String>(portletToLocations.size());
+            orderedPortletNames.addAll(locationToPortlets.values());
 
             allCharts = (List<String>) Cookies.getValue(COOKIES_CHARTS);
             if (chartsOn) {
-                if (!portletNameOrdering.containsAll(allCharts)) {
-                    portletNameOrdering.addAll(allCharts);
+                if (!orderedPortletNames.containsAll(allCharts)) {
+                    orderedPortletNames.addAll(allCharts);
                 }
             } else {
-                portletNameOrdering.removeAll(allCharts);
+                orderedPortletNames.removeAll(allCharts);
             }
+            
             List<List<Integer>> defaultLocations = getDefaultLocations(numColumns);
             int index = 0;
             List<Integer> loc;
-            for (String name : portletNameOrdering) {
+            for (String name : orderedPortletNames) {
                 loc = defaultLocations.get(index);
                 initializePortlet(name, loc, portletToVisibilities.get(name));
                 index++;
             }
+            
+            updateLocations();
+
+            Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
             Cookies.setValue(COOKIES_PORTLET_VISIBILITIES, portletToVisibilities);
             Cookies.setValue(COOKIES_PORTLET_COLUMN, numColumns);
             Cookies.setValue(COOKIES_CHARTS_ENABLED, chartsOn);
-
-            updateLocations();
-
+            
             Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
             for (String name : portletToLocations.keySet()) {
                 portletConfigs.put(name, portletToVisibilities.get(name));
             }
-            portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == 3);
+            portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == DEFAULT_COLUMN_NUM);
             portletConfigs.put(CHARTS_ENABLED, chartsOn);
             recordPortlets(portletConfigs);
         }
@@ -300,7 +308,7 @@ public class MainFramePanel extends Portal {
     private List<List<Integer>> getDefaultLocations(int colNum) {
 
         List<List<Integer>> locs = new ArrayList<List<Integer>>(9);
-        if (colNum == 2) {
+        if (colNum == ALTERNATIVE_COLUMN_NUM) {
             locs.add(Arrays.asList(0, 0));
             locs.add(Arrays.asList(1, 0));
             locs.add(Arrays.asList(0, 1));
@@ -433,19 +441,18 @@ public class MainFramePanel extends Portal {
 
             portletToLocations.put(portlet.getPortletName(), Arrays.asList(column, row));
         }
+        
         if ((!chartsOn) && (portlets.size() < portletToLocations.size())) {
             for (String name : allCharts) {
                 portletToLocations.remove(name);
             }
         }
-        Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
     }
 
     public void updateVisibilities() {
         for (BasePortlet portlet : portlets) {
             portletToVisibilities.put(portlet.getPortletName(), portlet.isVisible());
         }
-        Cookies.setValue(COOKIES_PORTLET_VISIBILITIES, portletToVisibilities);
     }
 
     public void refreshPortlets() {
@@ -468,6 +475,7 @@ public class MainFramePanel extends Portal {
 
         this.layout(true);
         updateVisibilities();
+        Cookies.setValue(COOKIES_PORTLET_VISIBILITIES, portletToVisibilities);
     }
 
     public void itemClick(final String context, final String application) {

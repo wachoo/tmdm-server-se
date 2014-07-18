@@ -340,8 +340,6 @@ public class ActionsPanel extends FormPanel {
 
     public void updatePortletConfig(Map<String, Boolean> portletVisibles) {
         Map<String, Boolean> parsedConfig = parseConfig(portletVisibles.toString());
-        List<String> temp = (List<String>) Cookies.getValue(COOKIES_CHARTS);
-        allCharts = new HashSet<String>(temp);
 
         for (CheckBox check : portletCKBoxes.values()) {
             String name = check.getName();
@@ -352,6 +350,7 @@ public class ActionsPanel extends FormPanel {
         }
 
         boolean isChartsOn = parsedConfig.get(CHARTS_ENABLED);
+        allCharts = new HashSet<String>((List<String>) Cookies.getValue(COOKIES_CHARTS));
         if (!isChartsOn) {
             for (CheckBox check : portletCKBoxes.values()) {
                 String name = check.getName();
@@ -415,8 +414,8 @@ public class ActionsPanel extends FormPanel {
         this.layout(true);
     }
 
-    private HashMap<String, Boolean> getPortalConfigUpdate() {
-        HashMap<String, Boolean> updates = new HashMap<String, Boolean>();
+    private Map<String, Boolean> getPortalConfigUpdate() {
+        Map<String, Boolean> updates = new HashMap<String, Boolean>();
         CheckBox check;
         for (String name : DEFAULT_PORTLET_NAMES) {
             check = portletCKBoxes.get(name);
@@ -434,7 +433,7 @@ public class ActionsPanel extends FormPanel {
         return updates;
     }
 
-    // record available portlets in Actions panel
+    // call refresh in WelcomePortal
     private native void refreshPortal(Map<String, Boolean> portalConfig)/*-{
         $wnd.amalto.core.refreshPortal(portalConfig);
     }-*/;
