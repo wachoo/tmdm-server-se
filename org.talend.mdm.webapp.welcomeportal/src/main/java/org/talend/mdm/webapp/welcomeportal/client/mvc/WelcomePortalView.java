@@ -52,6 +52,8 @@ public class WelcomePortalView extends View {
 
     private Portal portal;
 
+    private boolean chartsSwitcherUpdated;
+
     public WelcomePortalView(Controller controller) {
         super(controller);
     }
@@ -73,7 +75,7 @@ public class WelcomePortalView extends View {
 
         Map<String, Boolean> parsedConfig = parseConfig(dataString);
         Boolean defaultColConfig = parsedConfig.get(USING_DEFAULT_COLUMN_NUM);
-        boolean chartsSwitcherUpdated = !(chartsOn == parsedConfig.get(CHARTS_ENABLED));
+        chartsSwitcherUpdated = !(chartsOn == parsedConfig.get(CHARTS_ENABLED));
         ContentPanel container = GenerateContainer.getContentPanel();
         if ((!chartsSwitcherUpdated)
                 && ((defaultColConfig && numColumns == DEFAULT_COLUMN_NUM) || (!defaultColConfig && numColumns == ALTERNATIVE_COLUMN_NUM))) {
@@ -107,7 +109,9 @@ public class WelcomePortalView extends View {
         ContentPanel container = GenerateContainer.getContentPanel();
         numColumns = config.get(USING_DEFAULT_COLUMN_NUM) ? DEFAULT_COLUMN_NUM : ALTERNATIVE_COLUMN_NUM;
         chartsOn = config.get(CHARTS_ENABLED);
-
+        if (chartsSwitcherUpdated && !chartsOn) {
+            ((MainFramePanel) portal).stopChartsAutoRefresh();
+        }
         container.remove(portal);
         portal = new MainFramePanel(numColumns, config);
         container.add(portal);

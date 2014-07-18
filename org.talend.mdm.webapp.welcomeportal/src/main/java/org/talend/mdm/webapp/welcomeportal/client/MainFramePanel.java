@@ -29,6 +29,7 @@ import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.welcomeportal.client.widget.AlertPortlet;
 import org.talend.mdm.webapp.welcomeportal.client.widget.BasePortlet;
+import org.talend.mdm.webapp.welcomeportal.client.widget.ChartPortlet;
 import org.talend.mdm.webapp.welcomeportal.client.widget.DataChart;
 import org.talend.mdm.webapp.welcomeportal.client.widget.JournalChart;
 import org.talend.mdm.webapp.welcomeportal.client.widget.MatchingChart;
@@ -448,6 +449,13 @@ public class MainFramePanel extends Portal {
         }
     }
 
+    public void stopChartsAutoRefresh() {
+        for (BasePortlet portlet : portlets) {
+            if (allCharts.contains(portlet.getPortletName())) {
+                portlet.autoRefresh(false);
+            }
+        }
+    }
     public void refresh(Map<String, Boolean> config) {
         chartsOn = config.get(CHARTS_ENABLED);
 
