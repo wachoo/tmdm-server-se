@@ -184,14 +184,14 @@ public class UserQueryBuilder {
         if (StorageMetadataUtils.isValueAssignable(constant, field)) {
             return eq(userField, constant);
         } else {
-            return UserQueryHelper.NO_OP_CONDITION;
+            return UserQueryHelper.FALSE;
         }
     }
 
     public static Condition eq(Field field, String constant) {
         assertValueConditionArguments(field, constant);
         if (!StorageMetadataUtils.isValueAssignable(constant, field.getFieldMetadata())) {
-            return UserQueryHelper.NO_OP_CONDITION;
+            return UserQueryHelper.FALSE;
         }
         if (field.getFieldMetadata() instanceof ReferenceFieldMetadata) {
             ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
@@ -769,13 +769,13 @@ public class UserQueryBuilder {
     public static Condition contains(FieldMetadata field, String value) {
         assertValueConditionArguments(field, value);
         if (value.isEmpty()) {
-            return UserQueryHelper.NO_OP_CONDITION;
+            return UserQueryHelper.TRUE;
         }
         Field userField = new Field(field);
         if (StorageMetadataUtils.isValueAssignable(value, field)) {
             return contains(userField, value);
         } else {
-            return UserQueryHelper.NO_OP_CONDITION;
+            return UserQueryHelper.FALSE;
         }
     }
 

@@ -77,7 +77,7 @@ public class ConditionChecks extends VisitorAdapter<Result> {
     @Override
     public Result visit(Condition condition) {
         Result conditionResult = new Result();
-        conditionResult.id = condition != UserQueryHelper.NO_OP_CONDITION;
+        conditionResult.id = condition != UserQueryHelper.TRUE;
         return conditionResult;
     }
 

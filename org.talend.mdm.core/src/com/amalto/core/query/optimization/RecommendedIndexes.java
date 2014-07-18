@@ -116,6 +116,11 @@ public class RecommendedIndexes {
             return range.getExpression().accept(this);
         }
 
+        @Override
+        public Collection<FieldMetadata> visit(ConstantCondition constantCondition) {
+            return Collections.emptySet();
+        }
+
         public Collection<FieldMetadata> visit(Timestamp timestamp) {
             // TODO Should indicate that timestamp needs index
             return Collections.emptySet();

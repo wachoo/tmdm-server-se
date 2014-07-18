@@ -15,6 +15,7 @@ import com.amalto.core.query.analysis.ConditionChecks;
 import com.amalto.core.query.analysis.Result;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.*;
+import com.amalto.core.storage.EmptyIterator;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;
@@ -88,7 +89,12 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
         isCheckingProjection = false;
         Condition condition = select.getCondition();
         if (condition != null) {
-            condition.accept(this);
+            // Shortcut: condition is set to "FALSE", means no record should ever match, return empty record.
+            if (condition == UserQueryHelper.FALSE) {
+                return new EmptyResultAdapter();
+            } else {
+                condition.accept(this);
+            }
         }
         // Full text
         if (isFullText) {
@@ -121,7 +127,8 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
         if (condition != null) {
             ConditionChecks conditionChecks = new ConditionChecks(select);
             Result result = condition.accept(conditionChecks);
-            if (result.id && !select.isProjection()) { // TMDM-5965: IdQueryHandler has trouble with projections using reusable type's elements.
+            if (result.id && !select.isProjection()) { // TMDM-5965: IdQueryHandler has trouble with projections using
+                                                       // reusable type's elements.
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Using \"get by id\" strategy");
                 }
@@ -353,4 +360,11 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
         return null;
     }
 
+    private class EmptyResultAdapter extends VisitorAdapter<StorageResults> {
+
+        @Override
+        public StorageResults visit(Select select) {
+            return new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
+        }
+    }
 }

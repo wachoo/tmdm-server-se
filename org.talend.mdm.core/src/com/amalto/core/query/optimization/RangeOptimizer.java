@@ -27,6 +27,11 @@ public class RangeOptimizer implements Optimizer {
         private Expression rangeEnd;
 
         @Override
+        public Condition visit(ConstantCondition constantCondition) {
+            return constantCondition;
+        }
+
+        @Override
         public Condition visit(Select select) {
             return select.getCondition().accept(this);
         }
