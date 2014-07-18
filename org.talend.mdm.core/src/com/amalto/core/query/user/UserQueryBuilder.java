@@ -14,6 +14,7 @@ package com.amalto.core.query.user;
 import com.amalto.core.query.user.metadata.MetadataField;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.metadata.MetadataUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -174,11 +175,18 @@ public class UserQueryBuilder {
     public static Condition eq(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);
         Field userField = new Field(field);
-        return eq(userField, constant);
+        if (MetadataUtils.isValueAssignable(constant, field)) {
+            return eq(userField, constant);
+        } else {
+            return UserQueryHelper.NO_OP_CONDITION;
+        }
     }
 
     public static Condition eq(Field field, String constant) {
         assertValueConditionArguments(field, constant);
+        if (!MetadataUtils.isValueAssignable(constant, field.getFieldMetadata())) {
+            return UserQueryHelper.NO_OP_CONDITION;
+        }
         if (field.getFieldMetadata() instanceof ReferenceFieldMetadata) {
             ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
             return new Compare(field, Predicate.EQUALS, new Id(fieldMetadata.getReferencedType(), constant));
@@ -687,7 +695,11 @@ public class UserQueryBuilder {
             return UserQueryHelper.NO_OP_CONDITION;
         }
         Field userField = new Field(field);
-        return contains(userField, value);
+        if (MetadataUtils.isValueAssignable(value, field)) {
+            return contains(userField, value);
+        } else {
+            return UserQueryHelper.NO_OP_CONDITION;
+        }
     }
 
     public static Condition contains(TypedExpression field, String value) {

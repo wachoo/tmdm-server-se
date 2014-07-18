@@ -275,6 +275,10 @@ public class StorageQueryTest extends StorageTestCase {
                                 employee1,
                                 "<Employee1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>1</Id><Holiday>2014-05-16T12:00:00</Holiday><birthday>2014-05-23T12:00:00</birthday><manager>[1][2014-05-01T12:00:00]</manager></Employee1>"));
 
+        allRecords.add(factory.read("1", repository, entityA,
+                "<EntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdA>100</IdA></EntityA>"));
+        allRecords.add(factory.read("1", repository, entityB,
+                "<EntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdB>B1</IdB><A_FK>[100]</A_FK></EntityB>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -3330,6 +3334,17 @@ public class StorageQueryTest extends StorageTestCase {
     public void testQueryWithFK() throws Exception {
         UserQueryBuilder qb = from(product).where(
                 and(contains(product.getField("Id"), "1"), eq(product.getField("Family"), "[2]")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testQueryWithIntFK() throws Exception {
+        UserQueryBuilder qb = from(entityB).where(
+                and(contains(entityB.getField("A_FK"), "b"), contains(entityB.getField("IdB"), "b")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
