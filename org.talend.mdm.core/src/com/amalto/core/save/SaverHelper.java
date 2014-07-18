@@ -11,6 +11,7 @@
 
 package com.amalto.core.save;
 
+import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.webservice.WSPartialPutItem;
@@ -86,6 +87,23 @@ public class SaverHelper {
                 partialPutItem.getKeyXPath(),
                 partialPutItem.getStartingPosition() != null ? partialPutItem.getStartingPosition() : -1,
                 partialPutItem.getOverwrite());
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        return saver;
+    }
+
+    public static DocumentSaver deleteItem(String[] ids, Boolean override, SaverSession session, String dataCluster, String dataModelName) {
+        SaverContextFactory contextFactory = session.getContextFactory();
+        MutableDocument userDocument = null;
+        DocumentSaverContext context = contextFactory.delete(ids,
+                override,
+                true,
+                true, // TODO Generate report
+                "MDM", // TODO Source
+                dataCluster,
+                true,
+                dataModelName,
+                false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         return saver;
