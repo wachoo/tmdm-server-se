@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
@@ -70,11 +71,13 @@ public class ActionsPanel extends FormPanel {
 
     private static final String DEFAULT_COLUMN_NUM = "defaultColNum"; //$NON-NLS-1$
 
-    private static final String CHARTS_ON = "chartsOn"; //$NON-NLS-1$
-    
+    private static final String CHARTS_ENABLED = "chartsOn"; //$NON-NLS-1$
+
     private static final String CHARTS_MESSAGE_ADD = "Enable charts"; //$NON-NLS-1$
 
     private static final String CHARTS_MESSAGE_REMOVE = "Disable charts"; //$NON-NLS-1$
+
+    private static final String COOKIES_CHARTS = "allCharts"; //$NON-NLS-1$
 
     private Set<String> allCharts;
 
@@ -97,7 +100,7 @@ public class ActionsPanel extends FormPanel {
     private Button saveBtn = new Button(MessageFactory.getMessages().save());
 
     private Button saveConfigBtn = new Button(MessageFactory.getMessages().save());
-    
+
     private ToggleButton chartsSwitcher;
 
     private boolean chartsOn;
@@ -179,7 +182,7 @@ public class ActionsPanel extends FormPanel {
 
         formData = new FormData();
         portalConfig.add(chartsSwitcher, formData);
-        
+
         RadioGroup radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("Welcome Columns"); //$NON-NLS-1$
         col2Radio = new Radio();
@@ -244,7 +247,7 @@ public class ActionsPanel extends FormPanel {
                 updateChartsConfig(chartsOn);
             }
         });
-        
+
         dataModelBox.addSelectionChangedListener(new SelectionChangedListener<ComboBoxModel>() {
 
             @Override
@@ -337,8 +340,8 @@ public class ActionsPanel extends FormPanel {
 
     public void updatePortletConfig(Map<String, Boolean> portletVisibles) {
         Map<String, Boolean> parsedConfig = parseConfig(portletVisibles.toString());
-        allCharts = new HashSet<String>(parsedConfig.keySet());
-        allCharts.retainAll(DEFAULT_CHART_NAMES);
+        List<String> temp = (List<String>) Cookies.getValue(COOKIES_CHARTS);
+        allCharts = new HashSet<String>(temp);
 
         for (CheckBox check : portletCKBoxes.values()) {
             String name = check.getName();
@@ -347,6 +350,20 @@ public class ActionsPanel extends FormPanel {
                 check.setValue(parsedConfig.get(name));
             }
         }
+
+        boolean isChartsOn = parsedConfig.get(CHARTS_ENABLED);
+        if (!isChartsOn) {
+            for (CheckBox check : portletCKBoxes.values()) {
+                String name = check.getName();
+                if (allCharts.contains(name)) {
+                    check.setVisible(false);
+                    check.setValue(false);
+                }
+            }
+            chartsSwitcher.setText(CHARTS_MESSAGE_ADD);
+            chartsSwitcher.toggle(true);
+        }
+
         if (parsedConfig.get(DEFAULT_COLUMN_NUM)) {
             col3Radio.setValue(true);
         } else {
@@ -413,7 +430,7 @@ public class ActionsPanel extends FormPanel {
             defaultColNum = false;
         }
         updates.put(DEFAULT_COLUMN_NUM, defaultColNum);
-        updates.put(CHARTS_ON, chartsOn);
+        updates.put(CHARTS_ENABLED, chartsOn);
         return updates;
     }
 

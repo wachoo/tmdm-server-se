@@ -16,9 +16,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -57,13 +59,30 @@ public class MainFramePanel extends Portal {
             WelcomePortal.ALERT, WelcomePortal.SEARCH, WelcomePortal.TASKS, WelcomePortal.CHART_DATA,
             WelcomePortal.CHART_ROUTING_EVENT, WelcomePortal.CHART_JOURNAL, WelcomePortal.CHART_MATCHING);
 
+    private static final String NAME_START = "start", NAME_PROCESS = "process", NAME_ALERT = "alert", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            NAME_SEARCH = "search", NAME_TASKS = "tasks", NAME_CHART_DATA = "chart_data", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            NAME_CHART_ROUTING_EVENT = "chart_routing_event", NAME_CHART_JOURNAL = "chart_journal", NAME_CHART_MATCHING = "chart_matching"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+    private static final Set<String> DEFAULT_CHART_NAMES = new HashSet<String>(Arrays.asList(NAME_CHART_DATA,
+            NAME_CHART_ROUTING_EVENT, NAME_CHART_JOURNAL, NAME_CHART_MATCHING));
+
     private static final String COOKIES_PORTLET_LOCATIONS = "portletLocations"; //$NON-NLS-1$
 
     private static final String COOKIES_PORTLET_VISIBILITIES = "portletVisibilities"; //$NON-NLS-1$
 
     private static final String COOKIES_PORTLET_COLUMN = "columnNum"; //$NON-NLS-1$
 
+    private static final String COOKIES_CHARTS_ENABLED = "chartsOn"; //$NON-NLS-1$
+
+    private static final String COOKIES_CHARTS = "allCharts"; //$NON-NLS-1$
+
     private static final String USING_DEFAULT_COLUMN_NUM = "defaultColNum"; //$NON-NLS-1$
+
+    private static final String CHARTS_ENABLED = "chartsOn"; //$NON-NLS-1$
+
+    private List<String> allCharts;
+
+    private boolean chartsOn;
 
     private boolean startedAsOn;
 
@@ -98,9 +117,16 @@ public class MainFramePanel extends Portal {
 
         if (config != null) {
             columnChanged = true;
+            // TODO: refactoring to remove culumnChanged
             portletToVisibilities = config;
+            chartsOn = config.get(CHARTS_ENABLED);
         } else {
             columnChanged = false;
+            if (Cookies.getValue(COOKIES_CHARTS_ENABLED) == null) {
+                chartsOn = true;
+            } else {
+                chartsOn = (Boolean) Cookies.getValue(COOKIES_CHARTS_ENABLED);
+            }
         }
 
         setBorders(true);
@@ -133,15 +159,24 @@ public class MainFramePanel extends Portal {
                     for (String name : portletToLocations.keySet()) {
                         portletToVisibilities.put(name, true);
                     }
-                    Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
-                    Cookies.setValue(COOKIES_PORTLET_VISIBILITIES, portletToVisibilities);
-                    Cookies.setValue(COOKIES_PORTLET_COLUMN, MainFramePanel.this.numColumns);
                     // now we have all available portlets, need to record them in Actions panel in General project
                     Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
                     for (String name : portletToLocations.keySet()) {
                         portletConfigs.put(name, portletToVisibilities.get(name));
                     }
+
+                    allCharts = new ArrayList<String>(portletToLocations.keySet());
+                    allCharts.retainAll(DEFAULT_CHART_NAMES);
+
+                    Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
+                    Cookies.setValue(COOKIES_PORTLET_VISIBILITIES, portletToVisibilities);
+                    Cookies.setValue(COOKIES_PORTLET_COLUMN, MainFramePanel.this.numColumns);
+                    Cookies.setValue(COOKIES_CHARTS, allCharts);
+                    Cookies.setValue(COOKIES_CHARTS_ENABLED, chartsOn);
+                    List<String> temp = (List<String>) Cookies.getValue(COOKIES_CHARTS);
+
                     portletConfigs.put(USING_DEFAULT_COLUMN_NUM, MainFramePanel.this.numColumns == 3);
+                    portletConfigs.put(CHARTS_ENABLED, chartsOn);
                     recordPortlets(portletConfigs);
                 }
             }
@@ -195,10 +230,11 @@ public class MainFramePanel extends Portal {
                 portletConfigs.put(name, portletToVisibilities.get(name));
             }
             portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == 3);
+            chartsOn = (Boolean) Cookies.getValue(COOKIES_CHARTS_ENABLED);
+            portletConfigs.put(CHARTS_ENABLED, chartsOn);
             recordPortlets(portletConfigs);
-        } else {// switch column config, get current ordering from cookies
+        } else {// switch column config/chartsSwitcher status updated, get current ordering from cookies
             portletToLocations = (Map<String, List<Integer>>) Cookies.getValue(COOKIES_PORTLET_LOCATIONS);
-
             SortedMap<List<Integer>, String> locationToPortlets = new TreeMap<List<Integer>, String>(getLocationComparator());
             for (String portletName : portletToLocations.keySet()) {
                 locationToPortlets.put(portletToLocations.get(portletName), portletName);
@@ -206,6 +242,14 @@ public class MainFramePanel extends Portal {
             List<String> portletNameOrdering = new ArrayList<String>(portletToLocations.size());
             portletNameOrdering.addAll(locationToPortlets.values());
 
+            allCharts = (List<String>) Cookies.getValue(COOKIES_CHARTS);
+            if (chartsOn) {
+                if (!portletNameOrdering.containsAll(allCharts)) {
+                    portletNameOrdering.addAll(allCharts);
+                }
+            } else {
+                portletNameOrdering.removeAll(allCharts);
+            }
             List<List<Integer>> defaultLocations = getDefaultLocations(numColumns);
             int index = 0;
             List<Integer> loc;
@@ -214,8 +258,19 @@ public class MainFramePanel extends Portal {
                 initializePortlet(name, loc, portletToVisibilities.get(name));
                 index++;
             }
+            Cookies.setValue(COOKIES_PORTLET_VISIBILITIES, portletToVisibilities);
+            Cookies.setValue(COOKIES_PORTLET_COLUMN, numColumns);
+            Cookies.setValue(COOKIES_CHARTS_ENABLED, chartsOn);
 
             updateLocations();
+
+            Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
+            for (String name : portletToLocations.keySet()) {
+                portletConfigs.put(name, portletToVisibilities.get(name));
+            }
+            portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == 3);
+            portletConfigs.put(CHARTS_ENABLED, chartsOn);
+            recordPortlets(portletConfigs);
         }
 
     }
@@ -370,7 +425,6 @@ public class MainFramePanel extends Portal {
     }
 
     private void updateLocations() {
-
         int column;
         int row;
         for (BasePortlet portlet : portlets) {
@@ -379,17 +433,18 @@ public class MainFramePanel extends Portal {
 
             portletToLocations.put(portlet.getPortletName(), Arrays.asList(column, row));
         }
-
+        if ((!chartsOn) && (portlets.size() < portletToLocations.size())) {
+            for (String name : allCharts) {
+                portletToLocations.remove(name);
+            }
+        }
         Cookies.setValue(COOKIES_PORTLET_LOCATIONS, portletToLocations);
-        Cookies.setValue(COOKIES_PORTLET_COLUMN, numColumns);
     }
 
     public void updateVisibilities() {
-
         for (BasePortlet portlet : portlets) {
             portletToVisibilities.put(portlet.getPortletName(), portlet.isVisible());
         }
-
         Cookies.setValue(COOKIES_PORTLET_VISIBILITIES, portletToVisibilities);
     }
 
@@ -400,6 +455,7 @@ public class MainFramePanel extends Portal {
     }
 
     public void refresh(Map<String, Boolean> config) {
+        chartsOn = config.get(CHARTS_ENABLED);
 
         for (BasePortlet portlet : portlets) {
 
@@ -409,6 +465,7 @@ public class MainFramePanel extends Portal {
                 portlet.hide();
             }
         }
+
         this.layout(true);
         updateVisibilities();
     }
