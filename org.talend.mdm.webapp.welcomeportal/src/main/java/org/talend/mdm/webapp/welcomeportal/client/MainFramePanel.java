@@ -102,8 +102,6 @@ public class MainFramePanel extends Portal {
 
     private int numColumns;
 
-    private boolean columnChanged = false;
-
     private Map<String, List<Integer>> portletToLocations;
 
     private Map<String, Boolean> portletToVisibilities;
@@ -120,12 +118,9 @@ public class MainFramePanel extends Portal {
         this.numColumns = numColumns;
 
         if (config != null) {
-            columnChanged = true;
-            // TODO: refactoring to remove culumnChanged
             portletToVisibilities = config;
             chartsOn = config.get(CHARTS_ENABLED);
         } else {
-            columnChanged = false;
             Object chartsOnObj = Cookies.getValue(COOKIES_CHARTS_ENABLED);
             chartsOn = (chartsOnObj == null) ? true : (Boolean) chartsOnObj;
         }
@@ -221,10 +216,9 @@ public class MainFramePanel extends Portal {
             BasePortlet portlet;
             // start portlets initialization, see ContainerEvent listener
             portlet = new StartPortlet(this);
-            checkHide(portlet);
             portlets.add(portlet);
             this.add(portlet);
-        } else if (!columnChanged) {
+        } else if (portletToVisibilities == null) {
             portletToLocations = (Map<String, List<Integer>>) Cookies.getValue(COOKIES_PORTLET_LOCATIONS);
             portletToVisibilities = (Map<String, Boolean>) Cookies.getValue(COOKIES_PORTLET_VISIBILITIES);
             initializePortlets(portletToLocations, portletToVisibilities);
@@ -369,15 +363,8 @@ public class MainFramePanel extends Portal {
         }
 
         if (portlet != null) {
-            checkHide(portlet);
             portlets.add(portlet);
             this.add(portlet);
-        }
-    }
-
-    private void checkHide(BasePortlet portlet) {
-        if (columnChanged && !portletToVisibilities.get(portlet.getPortletName())) {
-            portlet.hide();
         }
     }
 
@@ -520,7 +507,6 @@ public class MainFramePanel extends Portal {
             public void onSuccess(Boolean hideMe) {
                 if (!hideMe) {
                     BasePortlet portlet = new AlertPortlet(MainFramePanel.this);
-                    checkHide(portlet);
                     portlets.add(portlet);
                     MainFramePanel.this.add(portlet);
                 } else {
@@ -541,7 +527,6 @@ public class MainFramePanel extends Portal {
             public void onSuccess(Boolean isEnterprise) {
                 if (isEnterprise) {
                     BasePortlet portlet = new SearchPortlet(MainFramePanel.this);
-                    checkHide(portlet);
                     portlets.add(portlet);
                     MainFramePanel.this.add(portlet);
                 } else {
@@ -569,7 +554,6 @@ public class MainFramePanel extends Portal {
 
                         if (!isHiddenWorkFlowTask() || !isHiddenDSCTask()) {
                             BasePortlet portlet = new TaskPortlet(MainFramePanel.this);
-                            checkHide(portlet);
                             portlets.add(portlet);
                             MainFramePanel.this.add(portlet);
                         } else {
@@ -592,7 +576,6 @@ public class MainFramePanel extends Portal {
             public void onSuccess(Boolean isEnterprise) {
                 if (isEnterprise) {
                     BasePortlet portlet = new MatchingChart(MainFramePanel.this);
-                    checkHide(portlet);
                     portlets.add(portlet);
                     MainFramePanel.this.add(portlet);
                 }
