@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
@@ -53,7 +54,6 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.metadata.MetadataUtils;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
@@ -1076,6 +1076,26 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("code-original", oldValue);
         assertEquals("code-new", newValue);
 
+    }
+
+    public void testUpdateFKToSuperType() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata18.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("FKChangeTest", repository);
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test66_original.xml", "metadata18.xsd");
+        source.setUserName("administrator");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test66.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "FKChangeTest", "Source", recordXml, false,
+                true, true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
     }
 
     public void testProductUpdate() throws Exception {
