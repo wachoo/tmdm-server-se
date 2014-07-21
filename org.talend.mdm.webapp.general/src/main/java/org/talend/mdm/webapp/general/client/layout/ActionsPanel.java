@@ -17,6 +17,7 @@ import org.talend.mdm.webapp.general.model.ComboBoxModel;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -24,7 +25,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -91,6 +91,10 @@ public class ActionsPanel extends FormPanel {
 
     private Map<String, CheckBox> portletCKBoxes;
 
+    private Radio chartsEnableRadio;
+    
+    private Radio chartsDisableRadio;
+
     private Radio col2Radio;
 
     private Radio col3Radio;
@@ -100,8 +104,6 @@ public class ActionsPanel extends FormPanel {
     private Button saveBtn = new Button(MessageFactory.getMessages().save());
 
     private Button saveConfigBtn = new Button(MessageFactory.getMessages().save());
-
-    private ToggleButton chartsSwitcher;
 
     private boolean chartsOn;
 
@@ -178,24 +180,43 @@ public class ActionsPanel extends FormPanel {
         portalConfig.add(checkGroup, formData);
 
         chartsOn = true;
-        chartsSwitcher = new ToggleButton(CHARTS_MESSAGE_REMOVE);
 
-        formData = new FormData();
-        portalConfig.add(chartsSwitcher, formData);
+        RadioGroup chartsRadioGroup = new RadioGroup();
+        chartsRadioGroup.setFieldLabel("Chart Portlets"); //$NON-NLS-1$
+        chartsEnableRadio = new Radio(){
+            protected void onClick(ComponentEvent be) {
+                chartsOn = true;
+                updateChartsConfig(chartsOn);
+            }
+        };
+        chartsEnableRadio.setBoxLabel("Enable"); //$NON-NLS-1$
 
-        RadioGroup radioGroup = new RadioGroup();
-        radioGroup.setFieldLabel("Welcome Columns"); //$NON-NLS-1$
+        chartsDisableRadio = new Radio(){
+            protected void onClick(ComponentEvent be) {
+                chartsOn = false;
+                updateChartsConfig(chartsOn);
+            }
+        };
+        chartsDisableRadio.setBoxLabel("Disable"); //$NON-NLS-1$
+
+        chartsRadioGroup.add(chartsEnableRadio);
+        chartsRadioGroup.add(chartsDisableRadio);
+        
+        formData.setMargins(new Margins(5, -30, 5, 30));
+        portalConfig.add(chartsRadioGroup, formData);
+        
+        RadioGroup colRadioGroup = new RadioGroup();
+        colRadioGroup.setFieldLabel("Welcome Columns"); //$NON-NLS-1$
         col2Radio = new Radio();
         col2Radio.setBoxLabel("Two"); //$NON-NLS-1$
 
         col3Radio = new Radio();
         col3Radio.setBoxLabel("Three"); //$NON-NLS-1$
 
-        radioGroup.add(col2Radio);
-        radioGroup.add(col3Radio);
+        colRadioGroup.add(col2Radio);
+        colRadioGroup.add(col3Radio);
 
-        formData.setMargins(new Margins(5, -30, 5, 30));
-        portalConfig.add(radioGroup, formData);
+        portalConfig.add(colRadioGroup, formData);
 
         portalConfig.add(saveConfigBtn);
         this.add(portalConfig);
@@ -225,26 +246,6 @@ public class ActionsPanel extends FormPanel {
                 Map<String, Boolean> configUpdates = getPortalConfigUpdate();
                 refreshPortal(configUpdates);
 
-            }
-        });
-
-        chartsSwitcher.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent evt) {
-                String title;
-                ToggleButton toggleBtn = (ToggleButton) evt.getButton();
-                if (toggleBtn.isPressed()) {
-                    chartsOn = false;
-                    title = CHARTS_MESSAGE_ADD;
-                } else {
-                    chartsOn = true;
-                    title = CHARTS_MESSAGE_REMOVE;
-
-                }
-                toggleBtn.setTitle(title);
-                toggleBtn.setText(title);
-                updateChartsConfig(chartsOn);
             }
         });
 
@@ -359,8 +360,9 @@ public class ActionsPanel extends FormPanel {
                     check.setValue(false);
                 }
             }
-            chartsSwitcher.setText(CHARTS_MESSAGE_ADD);
-            chartsSwitcher.toggle(true);
+            chartsDisableRadio.setValue(true);
+        } else {
+            chartsEnableRadio.setValue(true);
         }
 
         if (parsedConfig.get(DEFAULT_COLUMN_NUM)) {
