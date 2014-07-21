@@ -222,6 +222,7 @@ public class MainFramePanel extends Portal {
         } else if (portletToVisibilities == null) {
             portletToLocations = (Map<String, List<Integer>>) Cookies.getValue(COOKIES_PORTLET_LOCATIONS);
             portletToVisibilities = (Map<String, Boolean>) Cookies.getValue(COOKIES_PORTLET_VISIBILITIES);
+            allCharts = (List<String>) Cookies.getValue(COOKIES_CHARTS);
             initializePortlets(portletToLocations, portletToVisibilities);
             Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
             for (String name : portletToLocations.keySet()) {
