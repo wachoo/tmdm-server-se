@@ -18,6 +18,8 @@ import com.amalto.core.query.user.metadata.*;
  */
 public interface Visitor<T> {
 
+    T visit(ConstantCondition constantCondition);
+
     T visit(Timestamp timestamp);
 
     T visit(TaskId taskId);

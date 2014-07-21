@@ -655,9 +655,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     // TODO Implement compound key support
                     qb.where(eq(type.getKeyFields().iterator().next(), id.toString()));
                 } else {
-                    Condition globalCondition = UserQueryHelper.NO_OP_CONDITION;
+                    Condition globalCondition = UserQueryHelper.TRUE;
                     for (String path : paths) {
-                        Condition pathCondition = UserQueryHelper.NO_OP_CONDITION;
+                        Condition pathCondition = UserQueryHelper.TRUE;
                         Set<FieldMetadata> candidateFields = Collections.singleton(type.getField(path));
                         for (FieldMetadata candidateField : candidateFields) {
                             if (candidateField instanceof ReferenceFieldMetadata

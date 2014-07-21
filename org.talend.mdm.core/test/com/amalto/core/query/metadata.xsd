@@ -1295,4 +1295,48 @@
       </xsd:extension> 
     </xsd:complexContent> 
   </xsd:complexType>
+    <xsd:element name="EntityA">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="IdA" type="xsd:integer">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="EntityA">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="IdA"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element name="EntityB">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="IdB" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="A_FK" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+                        <xsd:appinfo source="X_ForeignKey">EntityA/IdA</xsd:appinfo>
+                        <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="EntityB">
+        <xsd:selector xpath="."/>
+        <xsd:field xpath="IdB"/>
+        </xsd:unique>
+    </xsd:element>
 </xsd:schema>

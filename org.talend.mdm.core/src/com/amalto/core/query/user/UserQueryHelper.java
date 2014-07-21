@@ -15,10 +15,7 @@ package com.amalto.core.query.user;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +39,9 @@ import com.amalto.xmlserver.interfaces.WhereOr;
 
 public class UserQueryHelper {
 
-    public static final NoOpCondition NO_OP_CONDITION = new NoOpCondition();
+    public static final Condition TRUE = new TrueCondition();
+
+    public static final Condition FALSE = new FalseCondition();
 
     private static final Logger LOGGER = Logger.getLogger(UserQueryHelper.class);
 
@@ -51,11 +50,11 @@ public class UserQueryHelper {
 
     public static Condition buildCondition(UserQueryBuilder queryBuilder, IWhereItem whereItem, MetadataRepository repository) {
         if (whereItem == null) {
-            return NO_OP_CONDITION;
+            return TRUE;
         }
         if (whereItem instanceof WhereAnd || whereItem instanceof WhereOr) { // Handle ANDs and ORs
             List<IWhereItem> whereItems = ((WhereLogicOperator) whereItem).getItems();
-            Condition current = NO_OP_CONDITION;
+            Condition current = TRUE;
             for (IWhereItem item : whereItems) {
                 if (whereItem instanceof WhereAnd) {
                     current = and(current, buildCondition(queryBuilder, item, repository));
@@ -89,24 +88,18 @@ public class UserQueryHelper {
             if (leftFieldName.endsWith("xsi:type") || leftFieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
                 isPerformingTypeCheck = true;
             }
+            List<TypedExpression> fields;
             if (UserQueryBuilder.ALL_FIELD.equals(leftFieldName)) {
                 Collection<FieldMetadata> list = leftType.getFields();
-                Condition condition = NO_OP_CONDITION;
+                fields = new LinkedList<TypedExpression>();
                 for (FieldMetadata fieldMetadata : list) {
                     if (fieldMetadata instanceof SimpleTypeFieldMetadata) {
-                        condition = or(
-                                condition,
-                                buildCondition(queryBuilder, new WhereCondition(leftTypeName + '/' + fieldMetadata.getName(),
-                                        operator, value, WSStringPredicate.NONE.getValue()), repository));
+                        fields.add(new Field(fieldMetadata));
                     }
                 }
-                if (isNotCondition) {
-                    return not(condition);
-                } else {
-                    return condition;
-                }
+            } else {
+                fields = getInnerField(leftPath);
             }
-            List<TypedExpression> fields = getInnerField(leftPath);
             if (fields == null) {
                 fields = getFields(repository, leftTypeName, leftFieldName);
             }
@@ -146,35 +139,36 @@ public class UserQueryHelper {
                             Type fieldExpression = (Type) alias.getTypedExpression();
                             condition = emptyOrNull(fieldExpression);
                         }
-                    }
-                    String fieldTypeName = field.getTypeName();
-                    boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
-                    if (!isFk && !StorageMetadataUtils.isValueAssignable(value, fieldTypeName)
-                            && !WhereCondition.EMPTY_NULL.equals(operator)) {
-                        LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
-                        continue;
-                    }
-                    if (WhereCondition.CONTAINS.equals(operator) || WhereCondition.STRICTCONTAINS.equals(operator)
-                            || WhereCondition.CONTAINS_TEXT_OF.equals(operator)) {
-                        condition = add(condition, contains(field, value));
-                    } else if (WhereCondition.EQUALS.equals(operator)) {
-                        condition = add(condition, eq(field, value));
-                    } else if (WhereCondition.GREATER_THAN.equals(operator)) {
-                        condition = add(condition, gt(field, value));
-                    } else if (WhereCondition.GREATER_THAN_OR_EQUAL.equals(operator)) {
-                        condition = add(condition, gte(field, value));
-                    } else if (WhereCondition.LOWER_THAN.equals(operator)) {
-                        condition = add(condition, lt(field, value));
-                    } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
-                        condition = add(condition, lte(field, value));
-                    } else if (WhereCondition.NOT_EQUALS.equals(operator)) {
-                        condition = add(condition, neq(field, value));
-                    } else if (WhereCondition.STARTSWITH.equals(operator)) {
-                        condition = add(condition, startsWith(field, value));
-                    } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
-                        condition = add(condition, emptyOrNull(field));
                     } else {
-                        throw new NotImplementedException("'" + operator + "' support not implemented.");
+                        boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
+                        if (!isFk
+                                && (field instanceof Field && !StorageMetadataUtils.isValueAssignable(value,
+                                ((Field) field).getFieldMetadata())) && !WhereCondition.EMPTY_NULL.equals(operator)) {
+                            LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
+                            continue;
+                        }
+                        if (WhereCondition.CONTAINS.equals(operator) || WhereCondition.STRICTCONTAINS.equals(operator)
+                                || WhereCondition.CONTAINS_TEXT_OF.equals(operator)) {
+                            condition = add(condition, contains(field, value));
+                        } else if (WhereCondition.EQUALS.equals(operator)) {
+                            condition = add(condition, eq(field, value));
+                        } else if (WhereCondition.GREATER_THAN.equals(operator)) {
+                            condition = add(condition, gt(field, value));
+                        } else if (WhereCondition.GREATER_THAN_OR_EQUAL.equals(operator)) {
+                            condition = add(condition, gte(field, value));
+                        } else if (WhereCondition.LOWER_THAN.equals(operator)) {
+                            condition = add(condition, lt(field, value));
+                        } else if (WhereCondition.LOWER_THAN_OR_EQUAL.equals(operator)) {
+                            condition = add(condition, lte(field, value));
+                        } else if (WhereCondition.NOT_EQUALS.equals(operator)) {
+                            condition = add(condition, neq(field, value));
+                        } else if (WhereCondition.STARTSWITH.equals(operator)) {
+                            condition = add(condition, startsWith(field, value));
+                        } else if (WhereCondition.EMPTY_NULL.equals(operator)) {
+                            condition = add(condition, emptyOrNull(field));
+                        } else {
+                            throw new NotImplementedException("'" + operator + "' support not implemented.");
+                        }
                     }
                 } else {
                     // Right value is another field name
@@ -209,7 +203,7 @@ public class UserQueryHelper {
                 }
             }
             if (condition == null) {
-                return NO_OP_CONDITION;
+                return TRUE;
             }
             if (isNotCondition) {
                 return not(condition);
@@ -303,7 +297,7 @@ public class UserQueryHelper {
         }
     }
 
-    private static class NoOpCondition implements Condition {
+    private static class TrueCondition implements ConstantCondition {
 
         @Override
         public Expression normalize() {
@@ -319,5 +313,34 @@ public class UserQueryHelper {
         public <T> T accept(Visitor<T> visitor) {
             return visitor.visit(this);
         }
+
+        @Override
+        public boolean value() {
+            return true;
+        }
     }
+
+    private static class FalseCondition implements ConstantCondition {
+
+        @Override
+        public Expression normalize() {
+            return this;
+        }
+
+        @Override
+        public boolean cache() {
+            return false;
+        }
+
+        @Override
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+
+        @Override
+        public boolean value() {
+            return false;
+        }
+    }
+
 }

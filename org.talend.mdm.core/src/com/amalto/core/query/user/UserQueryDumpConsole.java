@@ -146,10 +146,20 @@ public class UserQueryDumpConsole implements Visitor<Void> {
     }
 
     public Void visit(Condition condition) {
-        if (condition == UserQueryHelper.NO_OP_CONDITION) {
+        if (condition == UserQueryHelper.TRUE) {
             print("[NO OP (TRUE)]"); //$NON-NLS-1$
         } else {
             print("Unvisited condition: " + condition.toString()); //$NON-NLS-1$
+        }
+        return null;
+    }
+
+    @Override
+    public Void visit(ConstantCondition constantCondition) {
+        if (constantCondition.value()) {
+            print("[NO OP (TRUE)]"); //$NON-NLS-1$
+        } else {
+            print("[NO OP (FALSE)]"); //$NON-NLS-1$
         }
         return null;
     }

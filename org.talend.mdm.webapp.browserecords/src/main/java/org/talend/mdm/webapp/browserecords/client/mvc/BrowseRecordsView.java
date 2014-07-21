@@ -43,6 +43,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.LineagePanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
@@ -382,6 +383,7 @@ public class BrowseRecordsView extends View {
 
     protected void onSearchView(final AppEvent event) {
         ViewBean viewBean = event.getData();
+        Boolean isStaging = event.getData(BrowseRecordsView.IS_STAGING);
         EntityModel entityModel = viewBean.getBindingEntityModel();
 
         // TODO update columns
@@ -399,7 +401,9 @@ public class BrowseRecordsView extends View {
                     typeModel), 200);
             if (typeModel instanceof SimpleTypeModel && !keys.contains(xpath) && !typeModel.isMultiOccurrence()) {
                 Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
-
+                if (field instanceof FKField) {
+                    ((FKField) field).setStaging(isStaging);
+                }
                 CellEditor cellEditor = CellEditorCreator.createCellEditor(field);
                 if (cellEditor != null) {
                     cc.setEditor(cellEditor);

@@ -141,7 +141,7 @@ public class MainFramePanel extends Portal {
                     for (String name : portletToLocations.keySet()) {
                         portletConfigs.put(name, portletToVisibilities.get(name));
                     }
-
+                    portletConfigs.put(USING_DEFAULT_COLUMN_NUM, MainFramePanel.this.numColumns == 3);
                     recordPortlets(portletConfigs);
                 }
             }

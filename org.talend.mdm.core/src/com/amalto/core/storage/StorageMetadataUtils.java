@@ -29,14 +29,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
-import org.talend.mdm.commmon.metadata.Types;
+import org.talend.mdm.commmon.metadata.*;
 
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
@@ -247,7 +240,7 @@ public class StorageMetadataUtils {
 
     /**
      * Checks whether <code>value</code> is valid for <code>typeName</code>.
-     * 
+     *
      * @param value The value to check.
      * @param typeName The type name of the value (should be one of {@link org.talend.mdm.commmon.metadata.Types}).
      * @return <code>true</code> if correct, <code>false</code> otherwise.
@@ -262,10 +255,78 @@ public class StorageMetadataUtils {
     }
 
     /**
+     * Checks whether <code>value</code> is valid for <code>typeName</code>.
+     * 
+     * @param value The value to check.
+     * @param field The field to receive the value.
+     * @return <code>true</code> if correct, <code>false</code> otherwise.
+     */
+    public static boolean isValueAssignable(final String value, FieldMetadata field) {
+        try {
+            List<TypeMetadata> fieldType = field.accept(new DefaultMetadataVisitor<List<TypeMetadata>>() {
+                List<TypeMetadata> fieldTypes = new LinkedList<TypeMetadata>();
+
+                @Override
+                public List<TypeMetadata> visit(ReferenceFieldMetadata referenceField) {
+                    fieldTypes.add(MetadataUtils.getSuperConcreteType(referenceField.getReferencedField().getType()));
+                    return fieldTypes;
+                }
+
+                @Override
+                public List<TypeMetadata> visit(SimpleTypeFieldMetadata simpleField) {
+                    fieldTypes.add(MetadataUtils.getSuperConcreteType(simpleField.getType()));
+                    return fieldTypes;
+                }
+
+                @Override
+                public List<TypeMetadata> visit(EnumerationFieldMetadata enumField) {
+                    fieldTypes.add(MetadataUtils.getSuperConcreteType(enumField.getType()));
+                    return fieldTypes;
+                }
+            });
+            List<String> convertValue = field.accept(new DefaultMetadataVisitor<List<String>>() {
+                List<String> values = new LinkedList<String>();
+
+                @Override
+                public List<String> visit(ReferenceFieldMetadata referenceField) {
+                    StringTokenizer tokenizer = new StringTokenizer(value, "["); //$NON-NLS-1$
+                    while (tokenizer.hasMoreTokens()) {
+                        String nextToken = tokenizer.nextToken();
+                        values.add(nextToken.substring(1, nextToken.length() - 1));
+                    }
+                    return values;
+                }
+
+                @Override
+                public List<String> visit(SimpleTypeFieldMetadata simpleField) {
+                    values.add(value);
+                    return values;
+                }
+
+                @Override
+                public List<String> visit(EnumerationFieldMetadata enumField) {
+                    values.add(value);
+                    return values;
+                }
+            });
+            for (int i = 0; i < fieldType.size(); i++) {
+                try {
+                    convert(convertValue.get(i), fieldType.get(i));
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * Creates a value from <code>dataAsString</code>. Type and/or format of the returned value depends on
      * <code>field</code>. For instance, calling this method with {@link String} with value "0" and a field typed as
      * integer returns {@link Integer} instance with value 0.
-     * 
+     *
      * @param dataAsString A {@link String} containing content to initialize a value.
      * @param field A {@link FieldMetadata} that describes type information about the field.
      * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code>
@@ -346,7 +407,7 @@ public class StorageMetadataUtils {
             }
             TypeMetadata type = field.getType();
             if (!(field instanceof ContainedTypeFieldMetadata)) { // Contained (anonymous types) values can't have
-                                                                  // values
+                // values
                 try {
                     return convert(dataAsString, type);
                 } catch (Exception e) {
@@ -452,7 +513,7 @@ public class StorageMetadataUtils {
 
     /**
      * Returns the corresponding Java type for the {@link TypeMetadata} type.
-     * 
+     *
      * @param metadata A {@link TypeMetadata} instance.
      * @return The name of Java class for the <code>metadata</code> argument. Returned string might directly be used for
      * a {@link Class#forName(String)} call.

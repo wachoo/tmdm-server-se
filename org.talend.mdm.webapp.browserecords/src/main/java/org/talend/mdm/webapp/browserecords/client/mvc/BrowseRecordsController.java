@@ -237,10 +237,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-		$wnd.setTimeout(function() {
-			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-		}, millisecond);
-    }-*/;
+                                                                      $wnd.setTimeout(function() {
+                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+                                                                      }, millisecond);
+                                                                      }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
@@ -349,8 +349,8 @@ public class BrowseRecordsController extends Controller {
     protected void onSearchView(final AppEvent event) {
         Log.info("Do view-search... ");//$NON-NLS-1$
         ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
-        AppEvent ae = new AppEvent(event.getType(), viewBean);
-        forwardToView(view, ae);
+        event.setData(viewBean);
+        forwardToView(view, event);
     }
 
     private void onExecuteVisibleRule(final AppEvent event) {

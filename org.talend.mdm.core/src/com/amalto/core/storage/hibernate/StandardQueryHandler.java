@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.amalto.core.query.user.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -50,50 +51,6 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.BigDecimalConstant;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.BooleanConstant;
-import com.amalto.core.query.user.ByteConstant;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.ComplexTypeExpression;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.ConstantCollection;
-import com.amalto.core.query.user.Count;
-import com.amalto.core.query.user.DateConstant;
-import com.amalto.core.query.user.DateTimeConstant;
-import com.amalto.core.query.user.Distinct;
-import com.amalto.core.query.user.DoubleConstant;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.FieldFullText;
-import com.amalto.core.query.user.FloatConstant;
-import com.amalto.core.query.user.FullText;
-import com.amalto.core.query.user.Id;
-import com.amalto.core.query.user.IndexedField;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.IsEmpty;
-import com.amalto.core.query.user.IsNull;
-import com.amalto.core.query.user.Isa;
-import com.amalto.core.query.user.Join;
-import com.amalto.core.query.user.LongConstant;
-import com.amalto.core.query.user.Max;
-import com.amalto.core.query.user.Min;
-import com.amalto.core.query.user.NotIsEmpty;
-import com.amalto.core.query.user.NotIsNull;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Paging;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Range;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.ShortConstant;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.TimeConstant;
-import com.amalto.core.query.user.Type;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UnaryLogicOperator;
-import com.amalto.core.query.user.UserQueryHelper;
-import com.amalto.core.query.user.VisitorAdapter;
 import com.amalto.core.query.user.metadata.GroupSize;
 import com.amalto.core.query.user.metadata.StagingBlockKey;
 import com.amalto.core.query.user.metadata.StagingError;
@@ -714,8 +671,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Criterion visit(Condition condition) {
-            if (condition == UserQueryHelper.NO_OP_CONDITION) {
-                return NO_OP_CRITERION;
+            if (condition instanceof ConstantCondition) {
+                ConstantCondition constantCondition = ((ConstantCondition) condition);
+                if (constantCondition.value()) {
+                    return TRUE_CRITERION;
+                } else {
+                    return FALSE_CRITERION;
+                }
             }
             return super.visit(condition);
         }
@@ -736,7 +698,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         public Criterion visit(Isa isa) {
             FieldCondition fieldCondition = isa.getExpression().accept(visitor);
             if (fieldCondition == null) {
-                return NO_OP_CRITERION;
+                return TRUE_CRITERION;
             }
             if (fieldCondition.criterionFieldNames.isEmpty()) {
                 // Case #1: doing a simple instance type check on main selected type.
@@ -763,7 +725,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         public Criterion visit(IsNull isNull) {
             FieldCondition fieldCondition = isNull.getField().accept(visitor);
             if (fieldCondition == null) {
-                return NO_OP_CRITERION;
+                return TRUE_CRITERION;
             }
             if (fieldCondition.isMany) {
                 throw new UnsupportedOperationException("Does not support 'is null' operation on collections.");
@@ -788,7 +750,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         public Criterion visit(IsEmpty isEmpty) {
             FieldCondition fieldCondition = isEmpty.getField().accept(visitor);
             if (fieldCondition == null) {
-                return NO_OP_CRITERION;
+                return TRUE_CRITERION;
             }
             if (fieldCondition.isMany) {
                 if (fieldCondition.criterionFieldNames.isEmpty()) {
@@ -827,7 +789,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         public Criterion visit(NotIsEmpty notIsEmpty) {
             FieldCondition fieldCondition = notIsEmpty.getField().accept(visitor);
             if (fieldCondition == null) {
-                return NO_OP_CRITERION;
+                return TRUE_CRITERION;
             }
             if (fieldCondition.isMany) {
                 if (fieldCondition.criterionFieldNames.isEmpty()) {
@@ -872,7 +834,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         public Criterion visit(NotIsNull notIsNull) {
             FieldCondition fieldCondition = notIsNull.getField().accept(visitor);
             if (fieldCondition == null) {
-                return NO_OP_CRITERION;
+                return TRUE_CRITERION;
             }
             if (fieldCondition.isMany) {
                 throw new UnsupportedOperationException("Does not support 'not is null' operation on collections.");
@@ -980,7 +942,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Query on '" + leftFieldCondition + "' is not a user set property. Ignore this condition.");
                 }
-                return NO_OP_CRITERION;
+                return TRUE_CRITERION;
             }
             if (condition.getLeft() instanceof Field) {
                 Field leftField = (Field) condition.getLeft();
@@ -1326,7 +1288,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (criterions.length == 1) {
             return criterions[0];
         }
-        Criterion current = NO_OP_CRITERION;
+        Criterion current = TRUE_CRITERION;
         for (Criterion cri : criterions) {
             current = Restrictions.and(current, cri);
         }

@@ -43,6 +43,11 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
+    @Override
+    public T visit(ConstantCondition constantCondition) {
+        throw new NotImplementedException();
+    }
+
     public T visit(Timestamp timestamp) {
         throw new NotImplementedException();
     }

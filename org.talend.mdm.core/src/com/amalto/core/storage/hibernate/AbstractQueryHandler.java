@@ -28,7 +28,7 @@ import java.util.*;
 
 abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
-    static final Criterion NO_OP_CRITERION = new Criterion() {
+    static final Criterion TRUE_CRITERION = new Criterion() {
         public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
             return "1=1"; //$NON-NLS-1$
         }
@@ -37,6 +37,17 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
             return new TypedValue[0];
         }
     };
+
+    static final Criterion FALSE_CRITERION = new Criterion() {
+        public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
+            return "1=0"; //$NON-NLS-1$
+        }
+
+        public TypedValue[] getTypedValues(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
+            return new TypedValue[0];
+        }
+    };
+
 
     static final int JDBC_FETCH_SIZE = 20;
 

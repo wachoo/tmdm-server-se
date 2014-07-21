@@ -48,9 +48,9 @@ public class Compare implements Condition {
         left = left.normalize();
         right = right.normalize();
         if (predicate == Predicate.OR) {
-            if (left == UserQueryHelper.NO_OP_CONDITION) {
+            if (left == UserQueryHelper.TRUE) {
                 return right;
-            } else if (right == UserQueryHelper.NO_OP_CONDITION) {
+            } else if (right == UserQueryHelper.TRUE) {
                 return left;
             }
         }

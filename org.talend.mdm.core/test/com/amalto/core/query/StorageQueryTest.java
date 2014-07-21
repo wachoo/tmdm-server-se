@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -82,11 +83,6 @@ import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -276,6 +272,10 @@ public class StorageQueryTest extends StorageTestCase {
                                 repository,
                                 employee1,
                                 "<Employee1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>1</Id><Holiday>2014-05-16T12:00:00</Holiday><birthday>2014-05-23T12:00:00</birthday><manager>[1][2014-05-01T12:00:00]</manager></Employee1>"));
+        allRecords.add(factory.read("1", repository, entityA,
+                "<EntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdA>100</IdA></EntityA>"));
+        allRecords.add(factory.read("1", repository, entityB,
+                "<EntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdB>B1</IdB><A_FK>[100]</A_FK></EntityB>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -313,11 +313,11 @@ public class StorageQueryTest extends StorageTestCase {
                 qb = from(e1);
                 storage.delete(qb.getSelect());
 
-                 qb = from(employee1);
-                 storage.delete(qb.getSelect());
-                
-                 qb = from(manager1);
-                 storage.delete(qb.getSelect());
+                qb = from(employee1);
+                storage.delete(qb.getSelect());
+
+                qb = from(manager1);
+                storage.delete(qb.getSelect());
             }
             storage.commit();
         } finally {
@@ -1145,12 +1145,12 @@ public class StorageQueryTest extends StorageTestCase {
             storageResults.close();
         }
     }
-    
+
     public void testContainsTextOfConditionWithAllSimpledTypeFields() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(product);
         String fieldName = "Product/../*";
-        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS_TEXT_OF, "1",
-                WhereCondition.NO_OPERATOR)));
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS_TEXT_OF,
+                "1", WhereCondition.NO_OPERATOR)));
         qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
         StorageResults storageResults = storage.fetch(qb.getSelect());
         try {
@@ -1159,7 +1159,6 @@ public class StorageQueryTest extends StorageTestCase {
             storageResults.close();
         }
     }
-    
 
     public void testConditionOr() throws Exception {
         UserQueryBuilder qb = from(person).where(
@@ -1232,7 +1231,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testJoinQueryWithId() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.NO_OP_CONDITION))
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.TRUE))
                 .join(person.getField("addresses/address"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -1243,7 +1242,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(UserQueryHelper.NO_OP_CONDITION, eq(person.getField("id"), "1")))
+                .where(and(UserQueryHelper.TRUE, eq(person.getField("id"), "1")))
                 .join(person.getField("addresses/address"));
         results = storage.fetch(qb.getSelect());
         try {
@@ -1256,21 +1255,21 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testJoinQueryNormalize() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.NO_OP_CONDITION))
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.TRUE))
                 .join(person.getField("addresses/address"));
         Select select = qb.getSelect();
         assertTrue(select.getCondition() instanceof BinaryLogicOperator);
         Select normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is
-                                                               // NO_OP_CONDITION
+                                                               // TRUE
         assertTrue(normalizedSelect.getCondition() instanceof Compare);
 
         qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(UserQueryHelper.NO_OP_CONDITION, eq(person.getField("id"), "1")))
+                .where(and(UserQueryHelper.TRUE, eq(person.getField("id"), "1")))
                 .join(person.getField("addresses/address"));
         select = qb.getSelect();
         assertTrue(select.getCondition() instanceof BinaryLogicOperator);
         normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is
-                                                        // NO_OP_CONDITION
+                                                        // TRUE
         assertTrue(normalizedSelect.getCondition() instanceof Compare);
     }
 
@@ -2059,7 +2058,7 @@ public class StorageQueryTest extends StorageTestCase {
         Condition condition = null;
         UserQueryBuilder qb = from(updateReport);
         for (FieldMetadata field : updateReport.getFields()) {
-            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field)) {
                 if (!(field instanceof ContainedTypeFieldMetadata)) {
                     if (condition == null) {
                         condition = contains(field, contentKeywords);
@@ -2126,7 +2125,7 @@ public class StorageQueryTest extends StorageTestCase {
         Condition condition = null;
         qb = from(updateReport);
         for (FieldMetadata field : updateReport.getFields()) {
-            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field.getType().getName())) {
+            if (StorageMetadataUtils.isValueAssignable(contentKeywords, field)) {
                 if (!(field instanceof ContainedTypeFieldMetadata)) {
                     if (condition == null) {
                         condition = contains(field, contentKeywords);
@@ -3380,6 +3379,34 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        qb = from(product).where(contains(product.getField("Family"), "b"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+    }
+
+    public void testQueryWithIntFK() throws Exception {
+        UserQueryBuilder qb = from(entityB).where(
+                or(contains(entityB.getField("A_FK"), "b"), contains(entityB.getField("IdB"), "b")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(entityB).where(contains(entityB.getField("A_FK"), "b"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
     }
 
     public void testMax() throws Exception {
@@ -3569,7 +3596,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testGetByIdWithCondition() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("firstname")).where(
-                and(eq(person.getField("id"), "1"), eq(person.getField("id"), "2"))); 
+                and(eq(person.getField("id"), "1"), eq(person.getField("id"), "2")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount()); // Id can't be equals to "1" AND "2"...
@@ -3581,7 +3608,7 @@ public class StorageQueryTest extends StorageTestCase {
                 or(eq(person.getField("id"), "1"), eq(person.getField("id"), "2")));
         results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(2, results.getCount()); // ... but "1" OR "2" returns 2 results. 
+            assertEquals(2, results.getCount()); // ... but "1" OR "2" returns 2 results.
         } finally {
             results.close();
         }
@@ -3603,7 +3630,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testMaxProjection() throws Exception {
         UserQueryBuilder qb = from(person).select(max(person.getField("score")));
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3627,7 +3654,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testTaskIdProjection() throws Exception {
         UserQueryBuilder qb = from(person).select(taskId());
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3639,7 +3666,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testTimestampProjection() throws Exception {
         UserQueryBuilder qb = from(person).select(timestamp());
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3652,7 +3679,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testCountProjection() throws Exception {
         UserQueryBuilder qb = from(person).select(count());
         StorageResults results = storage.fetch(qb.getSelect());

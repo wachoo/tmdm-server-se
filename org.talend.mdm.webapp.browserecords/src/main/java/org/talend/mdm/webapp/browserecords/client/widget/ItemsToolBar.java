@@ -34,6 +34,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.rest.ExplainRestServiceHandler;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -78,6 +79,7 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
@@ -585,7 +587,7 @@ public class ItemsToolBar extends ToolBar {
     }
 
     protected void addSearchPanel() {
-        simplePanel = new SimpleCriterionPanel(null, null, searchButton);
+        simplePanel = new SimpleCriterionPanel(null, null, searchButton, isStaging());
         add(simplePanel);
     }
 
@@ -598,7 +600,9 @@ public class ItemsToolBar extends ToolBar {
                 if (simplePanel.getCriteria() != null) {
                     isSimple = true;
                     String viewPk = entityCombo.getValue().get("value");//$NON-NLS-1$
-                    Dispatcher.forwardEvent(BrowseRecordsEvents.SearchView, viewPk);
+                    AppEvent event = new AppEvent(BrowseRecordsEvents.SearchView, viewPk);
+                    event.setData(BrowseRecordsView.IS_STAGING, isStaging());
+                    Dispatcher.forwardEvent(event);
                     resizeAfterSearch();
                 } else {
                     MessageBox.alert(MessagesFactory.getMessages().error_title(), MessagesFactory.getMessages()
@@ -950,7 +954,9 @@ public class ItemsToolBar extends ToolBar {
                         advancedPanel.setCriteria(arg0);
                         ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
                         String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
-                        Dispatcher.forwardEvent(BrowseRecordsEvents.SearchView, viewPk);
+                        AppEvent event = new AppEvent(BrowseRecordsEvents.SearchView, viewPk);
+                        event.setData(BrowseRecordsView.IS_STAGING, isStaging());
+                        Dispatcher.forwardEvent(event);
                         winBookmark.close();
                     }
 
@@ -987,7 +993,7 @@ public class ItemsToolBar extends ToolBar {
     private void initAdvancedPanel() {
         if (advancedPanel == null) {
             Button searchBtn = new Button(MessagesFactory.getMessages().search_btn());
-            advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), searchBtn);
+            advancedPanel = new AdvancedSearchPanel(simplePanel.getView(), searchBtn, isStaging());
             advancedPanel.setItemId("advancedPanel"); //$NON-NLS-1$
             advancedPanel.setButtonAlign(HorizontalAlignment.CENTER);
 
@@ -1003,7 +1009,9 @@ public class ItemsToolBar extends ToolBar {
                     } else {
                         isSimple = false;
                         String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
-                        Dispatcher.forwardEvent(BrowseRecordsEvents.SearchView, viewPk);
+                        AppEvent event = new AppEvent(BrowseRecordsEvents.SearchView, viewPk);
+                        event.setData(BrowseRecordsView.IS_STAGING, isStaging());
+                        Dispatcher.forwardEvent(event);
                         resizeAfterSearch();
                     }
                 }
