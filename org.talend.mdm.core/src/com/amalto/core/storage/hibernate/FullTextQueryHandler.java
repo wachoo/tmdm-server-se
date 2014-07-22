@@ -61,7 +61,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
     public StorageResults visit(Select select) {
         // TMDM-4654: Checks if entity has a composite PK.
         Set<ComplexTypeMetadata> compositeKeyTypes = new HashSet<ComplexTypeMetadata>();
-        List<ComplexTypeMetadata> types = select.getTypes();
+        // TMDM-7496: Search should include references to reused types
+        Collection<ComplexTypeMetadata> types = new HashSet<ComplexTypeMetadata>(select.accept(new SearchTransitiveClosure()));
         for (ComplexTypeMetadata type : types) {
             if (type.getKeyFields().size() > 1) {
                 compositeKeyTypes.add(type);
@@ -453,4 +454,127 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             return iterator;
         }
     }
+
+    private static class SearchTransitiveClosure extends VisitorAdapter<Collection<? extends ComplexTypeMetadata>> {
+
+        private final Set<ComplexTypeMetadata> closure = new HashSet<ComplexTypeMetadata>();
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(Select select) {
+            closure.addAll(select.getTypes());
+            if (select.getCondition() != null) {
+                select.getCondition().accept(this);
+            }
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(Alias alias) {
+            alias.getTypedExpression().accept(this);
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(Field field) {
+            closure.add(field.getFieldMetadata().getContainingType());
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(Compare condition) {
+            condition.getLeft().accept(this);
+            condition.getRight().accept(this);
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(BinaryLogicOperator condition) {
+            condition.getLeft().accept(this);
+            condition.getRight().accept(this);
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(UnaryLogicOperator condition) {
+            condition.getCondition().accept(this);
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(FullText fullText) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(FieldFullText fieldFullText) {
+            closure.add(fieldFullText.getField().getFieldMetadata().getContainingType());
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(ConstantCollection collection) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(StringConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(IntegerConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(DateConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(DateTimeConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(BooleanConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(BigDecimalConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(TimeConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(ShortConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(ByteConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(LongConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(DoubleConstant constant) {
+            return closure;
+        }
+
+        @Override
+        public Collection<? extends ComplexTypeMetadata> visit(FloatConstant constant) {
+            return closure;
+        }
+    }
+
 }
