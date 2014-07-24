@@ -92,7 +92,7 @@ public class ActionsPanel extends FormPanel {
     private Map<String, CheckBox> portletCKBoxes;
 
     private Radio chartsEnableRadio;
-    
+
     private Radio chartsDisableRadio;
 
     private Radio col2Radio;
@@ -183,7 +183,9 @@ public class ActionsPanel extends FormPanel {
 
         RadioGroup chartsRadioGroup = new RadioGroup();
         chartsRadioGroup.setFieldLabel("Chart Portlets"); //$NON-NLS-1$
-        chartsEnableRadio = new Radio(){
+        chartsEnableRadio = new Radio() {
+
+            @Override
             protected void onClick(ComponentEvent be) {
                 chartsOn = true;
                 updateChartsConfig(chartsOn);
@@ -191,7 +193,9 @@ public class ActionsPanel extends FormPanel {
         };
         chartsEnableRadio.setBoxLabel("Enable"); //$NON-NLS-1$
 
-        chartsDisableRadio = new Radio(){
+        chartsDisableRadio = new Radio() {
+
+            @Override
             protected void onClick(ComponentEvent be) {
                 chartsOn = false;
                 updateChartsConfig(chartsOn);
@@ -201,10 +205,10 @@ public class ActionsPanel extends FormPanel {
 
         chartsRadioGroup.add(chartsEnableRadio);
         chartsRadioGroup.add(chartsDisableRadio);
-        
+
         formData.setMargins(new Margins(5, -30, 5, 30));
         portalConfig.add(chartsRadioGroup, formData);
-        
+
         RadioGroup colRadioGroup = new RadioGroup();
         colRadioGroup.setFieldLabel("Welcome Columns"); //$NON-NLS-1$
         col2Radio = new Radio();
@@ -219,6 +223,7 @@ public class ActionsPanel extends FormPanel {
         portalConfig.add(colRadioGroup, formData);
 
         portalConfig.add(saveConfigBtn);
+        saveConfigBtn.disable();
         this.add(portalConfig);
     }
 
@@ -236,6 +241,9 @@ public class ActionsPanel extends FormPanel {
             public void componentSelected(ButtonEvent ce) {
                 Dispatcher dispatcher = Dispatcher.get();
                 dispatcher.dispatch(GeneralEvent.SwitchClusterAndModel);
+                if (!saveConfigBtn.isEnabled()) {
+                    saveConfigBtn.enable();
+                }
             }
         });
 
