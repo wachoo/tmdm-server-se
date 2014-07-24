@@ -378,6 +378,10 @@ public class ActionsPanel extends FormPanel {
         } else {
             col2Radio.setValue(true);
         }
+        
+        if (saveBtn.isEnabled()) {
+            saveConfigBtn.enable();
+        }
         this.layout(true);
     }
 
