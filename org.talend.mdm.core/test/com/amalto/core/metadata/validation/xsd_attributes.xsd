@@ -102,7 +102,12 @@
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
-                <xsd:element ref="orderperson"/>
+                <xsd:element ref="orderperson">
+                    <xsd:annotation>
+			            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>  
+			            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>  
+                    </xsd:annotation> 
+                </xsd:element>
                 <xsd:element ref="shipto"/>
                 <xsd:element maxOccurs="unbounded" ref="item"/>
             </xsd:sequence>
