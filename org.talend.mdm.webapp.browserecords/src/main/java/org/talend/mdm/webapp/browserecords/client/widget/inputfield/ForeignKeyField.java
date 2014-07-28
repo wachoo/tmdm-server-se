@@ -149,8 +149,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     @Override
     protected void afterRender() {
         super.afterRender();
-        if (GXT.isIE && suggestBox != null && suggestBox.getWidth() > 0) {
-            suggestBox.setWidth(suggestBox.getWidth() - 20);
+        if (GXT.isIE && suggestBox != null) {
+            suggestBox.setWidth(135);
         }
     }
 
