@@ -21,4 +21,34 @@ public class StagingConstant {
     public static final String STAGING_ERROR = "/$staging_error$"; //$NON-NLS-1$
 
     public static final String STAGING_SOURCE = "/$staging_source$"; //$NON-NLS-1$
+
+    public static final String MATCH_ROOT_NAME = "groups"; //$NON-NLS-1$
+
+    public static final String MATCH_GROUP_NAME = "group"; //$NON-NLS-1$
+
+    public static final String MATCH_GROUP_ID = "id"; //$NON-NLS-1$
+
+    public static final String MATCH_GROUP_CONFIDENCE = "confidence"; //$NON-NLS-1$
+
+    public static final String MATCH_GROUP_GID = "groupId"; //$NON-NLS-1$
+
+    public static final String MATCH_GROUP_SZIE = "groupSize"; //$NON-NLS-1$
+
+    public static final String MATCH_SCORE = "score"; //$NON-NLS-1$
+
+    public static final String MATCH_DETAILS = "details"; //$NON-NLS-1$
+
+    public static final String MATCH_FIELD = "field"; //$NON-NLS-1$
+
+    public static final String MATCH_FIELD_LIST = "matchFields"; //$NON-NLS-1$
+
+    public static final String MATCH_VALUE = "value"; //$NON-NLS-1$
+
+    public static final String MATCH_IS_GROUP = "isGroup"; //$NON-NLS-1$
+
+    public static final String MATCH_DATA = "json"; //$NON-NLS-1$
+
+    public static final String DISPLAY_NAME = "name"; //$NON-NLS-1$
+
+    public static final String VALUE_SEPARATOR = " : "; //$NON-NLS-1$
 }

@@ -82,8 +82,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -107,7 +105,6 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -447,7 +444,7 @@ public class ItemsToolBar extends ToolBar {
 
                                     @Override
                                     public void onSuccess(BaseTreeModel root) {
-                                        showExplainResult(root);
+                                        showExplainResultTable(root);
                                     }
                                 });
                     } else {
@@ -1003,7 +1000,7 @@ public class ItemsToolBar extends ToolBar {
                 @Override
                 public void componentSelected(ButtonEvent ce) {
                     String criteria = advancedPanel.getCriteria();
-                    if (criteria == null || criteria.equals("")) {
+                    if (criteria == null || criteria.equals("")) { //$NON-NLS-1$
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                                 .search_expression_notempty(), null);
                     } else {
@@ -1092,7 +1089,7 @@ public class ItemsToolBar extends ToolBar {
             @Override
             public String validate(Field<?> field, String value) {
                 if (field == bookmarkfield) {
-                    if (bookmarkfield.getValue() == null || bookmarkfield.getValue().trim().equals("")) {
+                    if (bookmarkfield.getValue() == null || bookmarkfield.getValue().trim().equals("")) { //$NON-NLS-1$
                         return MessagesFactory.getMessages().required_field();
                     }
                 }
@@ -1142,7 +1139,7 @@ public class ItemsToolBar extends ToolBar {
     }
 
     private void saveBookmark(String name, boolean shared, String curCriteria, final Window winBookmark) {
-        if (curCriteria.contains("&amp;#91;") || curCriteria.contains("&amp;#92;") || curCriteria.contains("&amp;#93;")) {
+        if (curCriteria.contains("&amp;#91;") || curCriteria.contains("&amp;#92;") || curCriteria.contains("&amp;#93;")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             curCriteria = curCriteria.replace("&", "&amp;"); //$NON-NLS-1$//$NON-NLS-2$
         }
         service.saveCriteria(entityCombo.getValue().get("value").toString(), name, shared, curCriteria, //$NON-NLS-1$
@@ -1167,26 +1164,16 @@ public class ItemsToolBar extends ToolBar {
                 });
     }
 
-    private void showExplainResult(BaseTreeModel root) {
+    private void showExplainResultTable(BaseTreeModel root) {
+        SimulateTablePanel simulateTable = new SimulateTablePanel();
         Window explainWindow = new Window();
         explainWindow.setHeading(MessagesFactory.getMessages().compare_result_title());
         explainWindow.setSize(800, 600);
         explainWindow.setLayout(new FitLayout());
         explainWindow.setScrollMode(Scroll.NONE);
-
-        TreeStore<BaseTreeModel> store = new TreeStore<BaseTreeModel>();
-        store.add(root, true);
-        TreePanel<BaseTreeModel> tree = new TreePanel<BaseTreeModel>(store);
-        tree.setDisplayProperty("name"); //$NON-NLS-1$;
-        tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
-        ContentPanel contentPanel = new ContentPanel();
-        contentPanel.setHeaderVisible(false);
-        contentPanel.setScrollMode(Scroll.AUTO);
-        contentPanel.setLayout(new FitLayout());
-        contentPanel.add(tree);
-        explainWindow.add(contentPanel);
+        simulateTable.buildTree(root);
+        explainWindow.add(simulateTable);
         explainWindow.show();
-        tree.expandAll();
     }
 
     public ItemBaseModel getCurrentModel() {
