@@ -349,7 +349,12 @@ public class UserQueryBuilder {
 
     public static Condition isNull(FieldMetadata field) {
         assertNullField(field);
-        return new IsNull(new Field(field));
+        if (field.isMany()) {
+            // Consider is null on a repeatable field as "is empty".
+            return isEmpty(field);
+        } else {
+            return new IsNull(new Field(field));
+        }
     }
 
     public static Condition isNull(TypedExpression typedExpression) {

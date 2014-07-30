@@ -1384,7 +1384,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // StandardQueryHandler.this.mappingMetadataRepository);
             Set<String> aliases = getAliases(mainType, field);
             for (String alias : aliases) {
-                condition.criterionFieldNames.add(alias + '.' + field.getFieldMetadata().getName());
+                List<FieldMetadata> path = field.getPath();
+                if (path.size() > 1) {
+                    // For path with more than 1 element, the alias for the criterion is the *containing* one(s).
+                    Set<String> containerAliases = joinFieldsToAlias.get(path.get(path.size() - 2));
+                    for (String containerAlias : containerAliases) {
+                        condition.criterionFieldNames.add(containerAlias + '.' + field.getFieldMetadata().getName());
+                    }
+                } else {
+                    // For path with size 1, code did not generate an alias for field and returned containing alias.
+                    condition.criterionFieldNames.add(alias + '.' + field.getFieldMetadata().getName());
+                }
             }
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;
