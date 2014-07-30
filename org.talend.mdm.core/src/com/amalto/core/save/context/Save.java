@@ -37,7 +37,11 @@ class Save implements DocumentSaver {
         if (!StringUtils.EMPTY.equals(context.getTaskId())) {
             databaseDocument.setTaskId(context.getTaskId());
         }
-        session.save(context.getDataCluster(), databaseDocument);
+        if (databaseDocument.isDeleted()) {
+            session.delete(context.getDataCluster(), databaseDocument, databaseDocument.getDeleteType());
+        } else {
+            session.save(context.getDataCluster(), databaseDocument);
+        }
         // Save update report (if any)
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
         if (updateReportDocument != null) {

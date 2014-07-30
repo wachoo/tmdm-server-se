@@ -23,10 +23,10 @@ import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItemsSort;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSStringArray;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSGetItemsSort;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSStringArray;
 import com.sun.xml.xsom.XSElementDecl;
 
 

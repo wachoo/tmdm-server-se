@@ -44,6 +44,8 @@ public class DOMDocument implements DOMMutableDocument {
 
     private String taskId;
 
+    private boolean isDeleted = false;
+
     public DOMDocument(org.w3c.dom.Document domDocument, ComplexTypeMetadata type, String revisionId, String dataCluster, String dataModelName) {
         this.type = type;
         this.revisionId = revisionId;
@@ -187,6 +189,16 @@ public class DOMDocument implements DOMMutableDocument {
         return taskId;
     }
 
+    @Override
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    @Override
+    public DeleteType getDeleteType() {
+        return null;
+    }
+
     public Accessor createAccessor(String path) {
         if (rootElementName != null) {
             return DOMAccessorFactory.createAccessor(rootElementName + '/' + path, this);
@@ -217,6 +229,7 @@ public class DOMDocument implements DOMMutableDocument {
     }
 
     public MutableDocument delete(DeleteType deleteType) {
+        isDeleted = true;
         return this;
     }
 

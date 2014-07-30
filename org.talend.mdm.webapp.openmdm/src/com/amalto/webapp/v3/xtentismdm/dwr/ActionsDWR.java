@@ -21,14 +21,14 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataCluster;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModel;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetDataCluster;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
-import com.amalto.webapp.util.webservices.WSRegexDataClusterPKs;
-import com.amalto.webapp.util.webservices.WSRegexDataModelPKs;
+import com.amalto.core.webservice.WSDataCluster;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModel;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetDataCluster;
+import com.amalto.core.webservice.WSGetDataModel;
+import com.amalto.core.webservice.WSRegexDataClusterPKs;
+import com.amalto.core.webservice.WSRegexDataModelPKs;
 
 public class ActionsDWR {
 

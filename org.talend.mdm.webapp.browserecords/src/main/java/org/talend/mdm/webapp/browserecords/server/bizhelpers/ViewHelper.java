@@ -32,7 +32,7 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.util.webservices.WSView;
+import com.amalto.core.webservice.WSView;
 
 /**
  * DOC HSHU class global comment. Detailled comment TODO In the further, we can migrate helper classes to spring beans

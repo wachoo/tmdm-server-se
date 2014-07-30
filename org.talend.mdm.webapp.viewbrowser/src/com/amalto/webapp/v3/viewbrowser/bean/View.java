@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
-import com.amalto.webapp.util.webservices.WSGetView;
-import com.amalto.webapp.util.webservices.WSView;
-import com.amalto.webapp.util.webservices.WSViewPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetBusinessConcepts;
+import com.amalto.core.webservice.WSGetView;
+import com.amalto.core.webservice.WSView;
+import com.amalto.core.webservice.WSViewPK;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dwr.CommonDWR;
 

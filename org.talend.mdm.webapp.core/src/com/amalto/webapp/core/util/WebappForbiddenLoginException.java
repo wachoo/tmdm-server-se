@@ -13,35 +13,10 @@
 package com.amalto.webapp.core.util;
 
 
-/**
- * DOC HSHU  class global comment. Detailled comment
- */
 public class WebappForbiddenLoginException extends Exception {
     
-    /**
-     * DOC HSHU WebappLoginException constructor comment.
-     */
-    public WebappForbiddenLoginException() {
-        super();
-    }
-    /**
-     * @param message
-     */
     public WebappForbiddenLoginException(String message) {
         super(message);
-    }
-    /**
-     * @param message
-     * @param cause
-     */
-    public WebappForbiddenLoginException(String message, Throwable cause) {
-        super(message, cause);
-    }
-    /**
-     * @param cause
-     */
-    public WebappForbiddenLoginException(Throwable cause) {
-        super(cause);
     }
 
 }

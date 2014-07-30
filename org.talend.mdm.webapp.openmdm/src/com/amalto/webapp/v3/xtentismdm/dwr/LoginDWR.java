@@ -22,10 +22,10 @@ import org.directwebremoting.WebContextFactory;
 
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSGetUniversePKs;
-import com.amalto.webapp.util.webservices.WSUniversePK;
-import com.amalto.webapp.util.webservices.WSUniversePKArray;
-import com.amalto.webapp.util.webservices.XtentisPort;
+import com.amalto.core.webservice.WSGetUniversePKs;
+import com.amalto.core.webservice.WSUniversePK;
+import com.amalto.core.webservice.WSUniversePKArray;
+import com.amalto.core.webservice.XtentisPort;
 
 public class LoginDWR {
 

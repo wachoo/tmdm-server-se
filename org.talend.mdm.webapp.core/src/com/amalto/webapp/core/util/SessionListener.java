@@ -103,7 +103,6 @@ public final class SessionListener implements ServletContextListener, HttpSessio
             if (logger.isDebugEnabled()) {
                 logger.warn("Session " + session + " is not registered with a user"); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            return;
         } else {
             registeredSessions.remove(user);
             if (logger.isDebugEnabled()) {

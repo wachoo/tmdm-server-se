@@ -283,22 +283,6 @@ public class CommonUtil {
         }
     }
 
-    public static Map<String, EntityModel> getForeignKeyEntityMap(EntityModel entityModel, List<String> viewableXpaths,
-            String language) throws Exception {
-        Map<String, EntityModel> foreignKeyEntityMap = null;
-        if (viewableXpaths != null) {
-            foreignKeyEntityMap = new HashMap<String, EntityModel>();
-            for (String xpath : viewableXpaths) {
-                TypeModel typeModel = entityModel.getMetaDataTypes().get(xpath);
-                if (typeModel != null && typeModel.getForeignkey() != null) {
-                    foreignKeyEntityMap.put(xpath, org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getEntityModel(
-                            typeModel.getForeignkey().split("/")[0], language)); //$NON-NLS-1$
-                }
-            }
-        }
-        return foreignKeyEntityMap;
-    }
-
     public static ForeignKeyBean getForeignKeyDesc(TypeModel model, String ids, boolean isNeedExceptionMessage, String modelType,
             EntityModel entityModel, boolean isStaging, String language) throws Exception {
         String xpathForeignKey = model.getForeignkey();

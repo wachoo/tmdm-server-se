@@ -71,13 +71,13 @@ import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
 import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.XmlUtil;
-import com.amalto.webapp.util.webservices.WSBoolean;
-import com.amalto.webapp.util.webservices.WSInt;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSStringArray;
-import com.amalto.webapp.util.webservices.WSView;
-import com.amalto.webapp.util.webservices.WSViewSearch;
-import com.amalto.webapp.util.webservices.XtentisPort;
+import com.amalto.core.webservice.WSBoolean;
+import com.amalto.core.webservice.WSInt;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSStringArray;
+import com.amalto.core.webservice.WSView;
+import com.amalto.core.webservice.WSViewSearch;
+import com.amalto.core.webservice.XtentisPort;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 @PrepareForTest({ Util.class, org.talend.mdm.webapp.base.server.util.CommonUtil.class, XtentisPort.class, WSViewSearch.class,

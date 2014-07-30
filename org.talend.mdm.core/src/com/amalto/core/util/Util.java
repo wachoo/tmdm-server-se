@@ -90,12 +90,7 @@ import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -221,7 +216,7 @@ public class Util {
                 }
             }
         } catch (NamingException e) {
-            Logger.getLogger(Util.class).error(e);
+            LOGGER.error(e);
         }
         return serviceJndiList;
     }
@@ -483,7 +478,7 @@ public class Util {
                 line = reader.readLine();
             }
         } catch (Exception e) {
-            Logger.getLogger(Util.class).error(e);
+            LOGGER.error(e);
         }
 
         return buffer.toString();
@@ -611,7 +606,6 @@ public class Util {
 
     public static XSDKey getBusinessConceptKey(Document xsd, String businessConceptName) throws TransformerException {
         try {
-            String schema = nodeToString(xsd);
             XSDKey key = null;
             String[] selectors;
             String[] fields;
@@ -736,7 +730,7 @@ public class Util {
             authorizations.add(user);
             authorizations.add(pwd);
         } catch (XtentisException e) {
-            Logger.getLogger(Util.class).error(e);
+            LOGGER.error(e);
             return null;
         }
         return authorizations;
@@ -1127,7 +1121,7 @@ public class Util {
             }
             token = userName + "/" + password;
         } catch (XtentisException e) {
-            Logger.getLogger(Util.class).error(e);
+            LOGGER.error(e);
         }
         return token;
     }
@@ -1367,7 +1361,7 @@ public class Util {
             return ((ConnectionFactory) (new InitialContext()).lookup(JNDIName)).getConnection();
         } catch (Exception e) {
             String err = "JNDI lookup error: " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            org.apache.log4j.Logger.getLogger(Util.class).error(err);
+            LOGGER.error(err);
             throw new XtentisException(err);
         }
     }
@@ -1461,7 +1455,7 @@ public class Util {
                 // get the inet address
                 localInetAddress = java.net.InetAddress.getLocalHost();
             } catch (java.net.UnknownHostException uhe) {
-                Logger.getLogger(Util.class).error(
+                LOGGER.error(
                         "JobUtil: Could not get the local IP address using InetAddress.getLocalHost()!", uhe);
                 // todo: find better way to get around this...
                 return null;
@@ -1562,13 +1556,13 @@ public class Util {
 
                     @Override
                     public void contentIsReady(TransformerContext context) throws XtentisException {
-                        org.apache.log4j.Logger.getLogger(this.getClass()).debug(
+                        LOGGER.debug(
                                 "XtentisWSBean.executeTransformerV2.contentIsReady() "); //$NON-NLS-1$
                     }
 
                     @Override
                     public void done(TransformerContext context) throws XtentisException {
-                        org.apache.log4j.Logger.getLogger(this.getClass()).debug("XtentisWSBean.executeTransformerV2.done() "); //$NON-NLS-1$
+                        LOGGER.debug("XtentisWSBean.executeTransformerV2.done() "); //$NON-NLS-1$
                         context.put(RUNNING, Boolean.FALSE);
                     }
                 });
@@ -1594,27 +1588,31 @@ public class Util {
                 }
                 return new OutputReport(message, item);
             } catch (Exception e) {
-                Logger.getLogger(Util.class).error(e);
+                LOGGER.error(e);
                 throw e;
             }
         }
         return null;
     }
 
+    public static class BeforeDeleteResult {
+
+        public String type;
+
+        public String message;
+    }
+
     /**
      * Executes a BeforeDeleting process if any
-     * 
-     * 
-     * 
-     * 
-     * 
+     *
      * @param clusterName A data cluster name
      * @param concept A concept/type name
      * @param ids Id of the document being deleted
+     * @param operationType
      * @throws Exception If something went wrong
      */
     @SuppressWarnings("unchecked")
-    public static String beforeDeleting(String clusterName, String concept, String[] ids) throws Exception {
+    public static BeforeDeleteResult beforeDeleting(String clusterName, String concept, String[] ids, String operationType) throws Exception {
         // check before deleting transformer
         boolean isBeforeDeletingTransformerExist = false;
         Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal().getTransformerPKs("*");
@@ -1624,7 +1622,6 @@ public class Util {
                 break;
             }
         }
-
         if (isBeforeDeletingTransformerExist) {
             try {
                 // call before deleting transformer
@@ -1656,58 +1653,69 @@ public class Util {
                 } else {
                     xml = pojo.getProjectionAsString();
                 }
-                String resultUpdateReport = Util.createUpdateReport(ids, concept,
-                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, null, "", clusterName); //$NON-NLS-1$
+                String resultUpdateReport = Util.createUpdateReport(ids, concept, operationType, null, StringUtils.EMPTY, clusterName);
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
-                final String RUNNING = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
+                final String runningKey = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
-                context.put(RUNNING, Boolean.TRUE);
+                context.put(runningKey, Boolean.TRUE);
                 TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
                 TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"), "text/xml; charset=utf-8");
-
                 ctrl.execute(context, wsTypedContent, new TransformerCallBack() {
 
                     @Override
                     public void contentIsReady(TransformerContext context) throws XtentisException {
-                        org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                                "XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
+                        LOGGER.debug("XtentisWSBean.executeTransformerV2.beforeDeleting.contentIsReady() ");
                     }
 
                     @Override
                     public void done(TransformerContext context) throws XtentisException {
-                        org.apache.log4j.Logger.getLogger(this.getClass()).debug(
-                                "XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
-                        context.put(RUNNING, Boolean.FALSE);
+                        LOGGER.debug("XtentisWSBean.executeTransformerV2.beforeDeleting.done() ");
+                        context.put(runningKey, Boolean.FALSE);
                     }
                 });
-
-                while ((Boolean) context.get(RUNNING)) {
+                while ((Boolean) context.get(runningKey)) { // TODO Poor-man synchronization here
                     Thread.sleep(100);
                 }
                 // TODO process no plug-in issue
                 String outputErrorMessage = null;
-                // Scan the entries - in priority, aka the content of the
-                // 'output_error_message' entry,
+                // Scan the entries - in priority, aka the content of the 'output_error_message' entry.
                 for (Entry<String, TypedContent> entry : context.getPipelineClone().entrySet()) {
-
                     if (ITransformerConstants.VARIABLE_OUTPUT_OF_BEFORESAVINGTRANFORMER.equals(entry.getKey())) {
                         outputErrorMessage = new String(entry.getValue().getContentBytes(), "UTF-8");
                         break;
                     }
                 }
-                // handle error message
-                if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
-                    return outputErrorMessage;
+                // handle error message 
+                BeforeDeleteResult result = new BeforeDeleteResult();
+                if (outputErrorMessage == null) {
+                    LOGGER.warn("No message generated by before delete process.");
+                    result.type = "info";
+                    result.message = StringUtils.EMPTY;
                 } else {
-                    return "<report><message type=\"error\"/></report> "; //$NON-NLS-1$
+                    if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
+                        Document doc = Util.parse(outputErrorMessage);
+                        // TODO what if multiple error nodes ?
+                        String xpath = "/report/message"; //$NON-NLS-1$
+                        Node errorNode = (Node) XPathFactory.newInstance().newXPath().evaluate(xpath, doc, XPathConstants.NODE);
+                        if (errorNode instanceof Element) {
+                            Element errorElement = (Element) errorNode;
+                            result.type = errorElement.getAttribute("type"); //$NON-NLS-1$
+                            Node child = errorElement.getFirstChild();
+                            if (child instanceof Text) {
+                                result.message = child.getTextContent();
+                            }
+                        }
+                    } else {
+                        result.type = "error";
+                        result.message = "<report><message type=\"error\"/></report>"; //$NON-NLS-1$
+                    }
                 }
+                return result;
             } catch (Exception e) {
-                Logger.getLogger(Util.class).error(e);
+                LOGGER.error(e);
                 throw e;
             }
         }
-        // TODO Scan the entries - in priority, aka the content of the specific
-        // entry
         return null;
     }
 
@@ -1752,7 +1760,7 @@ public class Util {
 
     /**
      * update the element according to updated path
-     * 
+     *
      * @throws Exception
      */
     public static Node updateElement(Node old, Map<String, UpdateReportItem> updatedPath) throws Exception {
@@ -1797,7 +1805,7 @@ public class Util {
                 revisionId = pojo.getConceptRevisionID(concept);
             }
         } catch (Exception e1) {
-            Logger.getLogger(Util.class).error(e1);
+            LOGGER.error(e1);
             throw e1;
         }
 
@@ -2112,7 +2120,7 @@ public class Util {
 
     /**
      * fix the conditions.
-     * 
+     *
      * @param conditions in workbench.
      */
 
@@ -2123,7 +2131,7 @@ public class Util {
 
                 if (condition.getRightValueOrPath() == null
                         || (condition.getRightValueOrPath().length() == 0 && !condition.getOperator().equals(
-                                WhereCondition.EMPTY_NULL))) {
+                        WhereCondition.EMPTY_NULL))) {
                     conditions.remove(i);
                 }
             }
@@ -2193,10 +2201,10 @@ public class Util {
             try {
                 deployDir = new File(jbossHomePath).getAbsolutePath();
             } catch (Exception e1) {
-                Logger.getLogger(Util.class).error(e1);
+                LOGGER.error(e1);
             }
             deployDir = deployDir + File.separator + "server" + File.separator + "default" + File.separator + "deploy";
-            Logger.getLogger(Util.class).info("deploy url:" + deployDir);
+            LOGGER.info("deploy url:" + deployDir);
             if (!new File(deployDir).exists()) {
                 throw new FileNotFoundException();
             }
@@ -2231,7 +2239,7 @@ public class Util {
                 }
             }
         } catch (Exception e) {
-            Logger.getLogger(Util.class).error(e);
+            LOGGER.error(e);
         }
         return jobs.toArray(new WSMDMJob[jobs.size()]);
     }
@@ -2369,7 +2377,7 @@ public class Util {
 
     /**
      * Escape any single quote characters that are included in the specified message string.
-     * 
+     *
      * @param string The string to be escaped
      */
     protected static String escape(String string) {

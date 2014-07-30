@@ -22,7 +22,7 @@ import org.powermock.modules.junit3.PowerMockSuite;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecordsinstaging.server.service.UploadService4Staging;
 
-import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.core.webservice.WSPutItemWithReport;
 
 public class UploadService4StagingTest extends UploadServiceTest {
 

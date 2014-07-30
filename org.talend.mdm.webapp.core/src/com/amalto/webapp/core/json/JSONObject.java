@@ -158,8 +158,8 @@ public class JSONObject {
      */
     public JSONObject(JSONObject jo, String[] sa) throws JSONException {
         this();
-        for (int i = 0; i < sa.length; i += 1) {
-            putOpt(sa[i], jo.opt(sa[i]));
+        for (String aSa : sa) {
+            putOpt(aSa, jo.opt(aSa));
         }
     }
 
@@ -250,16 +250,15 @@ public class JSONObject {
     public JSONObject(Object object, String names[]) {
     	this();
     	Class c = object.getClass();
-    	for (int i = 0; i < names.length; i += 1) {
-    		try {
-    			String name = names[i];
-    			Field field = c.getField(name);
-    			Object value = field.get(object);
-	    		this.put(name, value);
-    		} catch (Exception e) {
-    			/* forget about it */
-    		}
-    	}
+        for (String name1 : names) {
+            try {
+                Field field = c.getField(name1);
+                Object value = field.get(object);
+                this.put(name1, value);
+            } catch (Exception e) {
+                /* forget about it */
+            }
+        }
     }
 
 
@@ -410,8 +409,8 @@ public class JSONObject {
         Object o = get(key);
         try {
             return o instanceof Number ?
-                ((Number)o).doubleValue() : 
-                Double.valueOf((String)o).doubleValue();
+                ((Number)o).doubleValue() :
+                    Double.valueOf((String) o);
         } catch (Exception e) {
             throw new JSONException("JSONObject[" + quote(key) +
                 "] is not a number.");
@@ -667,7 +666,7 @@ public class JSONObject {
         try {
             Object o = opt(key);
             return o instanceof Number ? ((Number)o).doubleValue() :
-                new Double((String)o).doubleValue();
+                    new Double((String) o);
         } catch (Exception e) {
             return defaultValue;
         }
@@ -925,7 +924,7 @@ public class JSONObject {
         char         c = 0;
         int          i;
         int          len = string.length();
-        StringBuffer sb = new StringBuffer(len + 4);
+        StringBuilder sb = new StringBuilder(len + 4);
         String       t;
 
         sb.append('"');
@@ -963,7 +962,7 @@ public class JSONObject {
                 if (c < ' ' || (c >= '\u0080' && c < '\u00a0') || 
                 		       (c >= '\u2000' && c < '\u2100')) {
                     t = "000" + Integer.toHexString(c);
-                    sb.append("\\u" + t.substring(t.length() - 4));
+                    sb.append("\\u").append(t.substring(t.length() - 4));
                 } else {
                     sb.append(c);
                 }
@@ -1040,7 +1039,7 @@ public class JSONObject {
     public String toString() {
         try {
             Iterator     keys = keys();
-            StringBuffer sb = new StringBuffer("{");
+            StringBuilder sb = new StringBuilder("{");
 
             while (keys.hasNext()) {
                 if (sb.length() > 1) {
@@ -1096,7 +1095,7 @@ public class JSONObject {
             return "{}";
         }
         Iterator     keys = keys();
-        StringBuffer sb = new StringBuffer("{");
+        StringBuilder sb = new StringBuilder("{");
         int          newindent = indent + indentFactor;
         Object       o;
         if (n == 1) {

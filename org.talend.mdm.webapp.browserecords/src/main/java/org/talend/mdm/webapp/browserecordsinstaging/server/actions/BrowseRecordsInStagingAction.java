@@ -105,17 +105,6 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
     }
 
     @Override
-    protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, boolean staging, String language) throws Exception {
-        Map<String, TypeModel> metadatas = entityModel.getMetaDataTypes();
-        String concept = entityModel.getConceptName();
-        metadatas.remove(concept + StagingConstant.STAGING_TASKID);
-        metadatas.remove(concept + StagingConstant.STAGING_STATUS);
-        metadatas.remove(concept + StagingConstant.STAGING_ERROR);
-        metadatas.remove(concept + StagingConstant.STAGING_SOURCE);
-        super.dynamicAssemble(itemBean, entityModel, staging, language);
-    }
-
-    @Override
     public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
             Map<String, EntityModel> map, String language) throws Exception {
         List<String> viewableXpaths = new ArrayList<String>(viewBean.getViewableXpaths());

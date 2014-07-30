@@ -23,6 +23,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.amalto.core.util.LocalUser;
+import com.amalto.webapp.core.bean.Configuration;
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.general.model.GroupItem;
@@ -41,11 +43,11 @@ import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.SystemLocale;
 import com.amalto.webapp.core.util.SystemLocaleFactory;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSPutItem;
 
 public class Utils {
 
@@ -117,7 +119,8 @@ public class Utils {
             menuBean.setDisabledDesc(MESSAGES.getMessage(new Locale(language), "stagingarea_unavailable")); //$NON-NLS-1$
             boolean disabled = true;
             try {
-                disabled = !Util.getPort().supportStaging().is_true();
+                WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(Configuration.getConfiguration().getCluster());
+                disabled = !Util.getPort().supportStaging(wsDataClusterPK).is_true();
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
