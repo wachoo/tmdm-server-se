@@ -1,6 +1,7 @@
 package com.amalto.core.query.optimization;
 
 import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
@@ -22,7 +23,7 @@ public class IncompatibleOperators implements Optimizer {
 
     @Override
     public void optimize(Select select) {
-        VisitorAdapter<Condition> transformer = getIncompatibleOperatorTransformer(dataSource);
+        Visitor<Condition> transformer = getIncompatibleOperatorTransformer(dataSource);
         if (transformer != null) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Datasource (dialect " + dataSource.getDialectName() + ") may require operator replacements.");
@@ -34,7 +35,7 @@ public class IncompatibleOperators implements Optimizer {
         }
     }
 
-    private static VisitorAdapter<Condition> getIncompatibleOperatorTransformer(RDBMSDataSource dataSource) {
+    private static Visitor<Condition> getIncompatibleOperatorTransformer(RDBMSDataSource dataSource) {
         RDBMSDataSource.DataSourceDialect dialect = dataSource.getDialectName();
         switch (dialect) {
         case ORACLE_10G:
@@ -51,7 +52,7 @@ public class IncompatibleOperators implements Optimizer {
         }
     }
 
-    private static class SQLServerIncompatibleOperators extends VisitorAdapter<Condition> {
+    private static class SQLServerIncompatibleOperators implements Visitor<Condition> {
 
         private Field currentField;
 
@@ -145,6 +146,216 @@ public class IncompatibleOperators implements Optimizer {
         @Override
         public Condition visit(FieldFullText fieldFullText) {
             return fieldFullText;
+        }
+
+        @Override
+        public Condition visit(NativeQuery nativeQuery) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Max max) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Min min) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(ConstantCondition constantCondition) {
+            return constantCondition;
+        }
+
+        @Override
+        public Condition visit(Timestamp timestamp) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(TaskId taskId) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Type type) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Distinct distinct) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(StagingStatus stagingStatus) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(StagingError stagingError) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(StagingSource stagingSource) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(StagingBlockKey stagingBlockKey) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(GroupSize groupSize) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Join join) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Expression expression) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Predicate predicate) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Alias alias) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Id id) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(ConstantCollection collection) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(IntegerConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(DateConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(DateTimeConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(BooleanConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(BigDecimalConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(TimeConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(ShortConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(ByteConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(LongConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(DoubleConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(FloatConstant constant) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Predicate.And and) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Predicate.Or or) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Predicate.Equals equals) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Predicate.Contains contains) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(OrderBy orderBy) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Paging paging) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Count count) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Predicate.GreaterThan greaterThan) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(Predicate.LowerThan lowerThan) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(At at) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(ComplexTypeExpression expression) {
+            return null;
+        }
+
+        @Override
+        public Condition visit(IndexedField indexedField) {
+            return null;
         }
     }
 }
