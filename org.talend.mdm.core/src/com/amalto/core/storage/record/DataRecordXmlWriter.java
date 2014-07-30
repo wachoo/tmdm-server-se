@@ -104,7 +104,9 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
     private static void writeMetadataField(Writer writer, MetadataField metadataField, Object value) throws IOException {
         String fieldName = metadataField.getFieldName();
-        writer.write("<" + fieldName + ">" + String.valueOf(value) + "</" + fieldName + ">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        if (value != null) { // TMDM-7521: Don't serialize null values to XML (prevent "null" string in result).
+            writer.write("<" + fieldName + ">" + String.valueOf(value) + "</" + fieldName + ">"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        }
     }
 
     private String getRootElementName(DataRecord record) {

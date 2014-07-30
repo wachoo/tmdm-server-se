@@ -14,10 +14,8 @@
     <xsd:element name="A">
         <xsd:complexType>
             <xsd:all>
-                <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="id" type="limitedString_20"/>
                 <xsd:element maxOccurs="1" minOccurs="1" name="string20" type="limitedString_20"/>
-                <xsd:element maxOccurs="1" minOccurs="1" name="string30" type="limitedString_30"/>
-                <xsd:element maxOccurs="1" minOccurs="1" name="string40" type="limitedString_40"/>
             </xsd:all>
         </xsd:complexType>
         <xsd:unique name="A">
@@ -29,18 +27,6 @@
     <xsd:simpleType name="limitedString_20">
         <xsd:restriction base="xsd:string">
             <xsd:maxLength value="20"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="limitedString_30">
-        <xsd:restriction base="xsd:string">
-            <xsd:maxLength value="30"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:simpleType name="limitedString_40">
-        <xsd:restriction base="xsd:string">
-            <xsd:length value="40"/>
         </xsd:restriction>
     </xsd:simpleType>
 

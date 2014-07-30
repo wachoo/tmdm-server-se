@@ -492,6 +492,8 @@ public interface BrowseRecordsMessages extends Messages {
     String status_204(String dataCluser);
 
     String status_205();
+    
+    String status_206();
 
     String status_401(String dataCluser);
 

@@ -1144,6 +1144,18 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             storageResults.close();
         }
+        // Test correct translation when there's only one actual condition
+        qb = UserQueryBuilder.from(product);
+        fieldName = "Product/../*";
+        item = new WhereOr(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS_TEXT_OF, "1",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
     }
 
     public void testContainsTextOfConditionWithAllSimpledTypeFields() throws Exception {
@@ -1153,6 +1165,18 @@ public class StorageQueryTest extends StorageTestCase {
                 "1", WhereCondition.NO_OPERATOR)));
         qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
         StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+        // Test correct translation when there's only one actual condition 
+        qb = UserQueryBuilder.from(product);
+        fieldName = "Product/../*";
+        item = new WhereOr(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS_TEXT_OF, "1",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        storageResults = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, storageResults.getCount());
         } finally {
@@ -1517,6 +1541,46 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testFKSearchWithIncompatibleValue() throws Exception {
+        UserQueryBuilder qb = from(address).selectId(address).select(address.getField("country"))
+                .where(contains(address.getField("country"), "aaaa")); // Id to country is integer
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(address).selectId(address).select(address.getField("country"))
+                .where(or(contains(address.getField("country"), "aaaa"), eq(address.getField("id"), "1")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+    
+    public void testFKSearchWithIncompatibleValueAndNot() throws Exception {
+        UserQueryBuilder qb = from(address).selectId(address).select(address.getField("country"))
+                .where(not(contains(address.getField("country"), "aaaa"))); // Id to country is integer
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(address).selectId(address).select(address.getField("country"))
+                .where(or(not(contains(address.getField("country"), "aaaa")), eq(address.getField("id"), "1")));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(5, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testFKSearch() throws Exception {
         UserQueryBuilder qb = from(address).selectId(address).select(address.getField("country"))
                 .where(eq(address.getField("country"), "[1]"));
@@ -1719,6 +1783,15 @@ public class StorageQueryTest extends StorageTestCase {
         Select select = qb.getSelect();
         select = (Select) select.normalize();
         Condition condition = select.getCondition();
+        assertTrue(condition instanceof Compare);
+        assertTrue(((Compare) condition).getLeft() instanceof Timestamp);
+        // Test correct translation when there's only one actual condition
+        item = new WhereOr(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.GREATER_THAN, "1000",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        select = qb.getSelect();
+        select = (Select) select.normalize();
+        condition = select.getCondition();
         assertTrue(condition instanceof Compare);
         assertTrue(((Compare) condition).getLeft() instanceof Timestamp);
     }

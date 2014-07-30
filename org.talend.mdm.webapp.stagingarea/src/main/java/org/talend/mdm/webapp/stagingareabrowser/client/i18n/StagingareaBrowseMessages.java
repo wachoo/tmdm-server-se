@@ -61,6 +61,8 @@ public interface StagingareaBrowseMessages extends Messages {
     public String status_204(String dataCluser);
 
     public String status_205();
+    
+    public String status_206();
 
     public String status_401(String dataCluser);
 
