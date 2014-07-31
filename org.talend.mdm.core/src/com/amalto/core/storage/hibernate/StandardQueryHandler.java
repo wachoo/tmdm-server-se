@@ -367,7 +367,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(GroupSize groupSize) {
-        Projection groupSizeProjection = Projections.sqlGroupProjection("count(X_TALEND_TASK_ID) as talend_group_size", //$NON-NLS-1$
+        Projection groupSizeProjection = Projections.sqlGroupProjection(
+                "count(" + Storage.METADATA_TASK_ID.toUpperCase() + ") as talend_group_size", //$NON-NLS-1$ //$NON-NLS-2$ 
                 Storage.METADATA_TASK_ID, new String[] { "talend_group_size" }, //$NON-NLS-1$
                 new org.hibernate.type.Type[] { new IntegerType() });
         projectionList.add(groupSizeProjection);
@@ -1410,7 +1411,20 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
             // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
-            condition.criterionFieldNames.add(getFieldName(field));
+            Set<String> aliases = getAliases(mainType, field);
+            for (String alias : aliases) {
+                List<FieldMetadata> path = field.getPath();
+                if (path.size() > 1) {
+                    // For path with more than 1 element, the alias for the criterion is the *containing* one(s).
+                    Set<String> containerAliases = joinFieldsToAlias.get(path.get(path.size() - 2));
+                    for (String containerAlias : containerAliases) {
+                        condition.criterionFieldNames.add(containerAlias + '.' + field.getFieldMetadata().getName());
+                    }
+                } else {
+                    // For path with size 1, code did not generate an alias for field and returned containing alias.
+                    condition.criterionFieldNames.add(alias + '.' + field.getFieldMetadata().getName());
+                }
+            }
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;
             condition.isProperty = true;

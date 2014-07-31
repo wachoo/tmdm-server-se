@@ -3073,6 +3073,29 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testIsEmptyOrNullOnRepeatable() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(country).where(isEmpty(country.getField("notes/comment")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        for (DataRecord result : results) {
+            assertEquals("Country", result.getType().getName());
+            assertEquals(1, result.get("id"));
+        }
+
+        qb = UserQueryBuilder.from(country).where(
+                or(isEmpty(country.getField("notes/comment")), isNull(country.getField("notes/comment"))));
+        results = storage.fetch(qb.getSelect());
+        for (DataRecord result : results) {
+            assertEquals("Country", result.getType().getName());
+            assertEquals(1, result.get("id"));
+        }
+
+        qb = UserQueryBuilder.from(person).where(
+                or(isEmpty(person.getField("addresses/address")), isNull(person.getField("addresses/address"))));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(0, results.getCount());
+        results.close();
+    }
+
     public void testFullTextOnRepeatable() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(country).where(fullText("repeatable"));
         StorageResults results = storage.fetch(qb.getSelect());
