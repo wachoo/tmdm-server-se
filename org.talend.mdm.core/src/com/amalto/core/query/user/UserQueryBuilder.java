@@ -336,6 +336,9 @@ public class UserQueryBuilder {
 
     public static Condition isNull(TypedExpression typedExpression) {
         assertNullField(typedExpression);
+        if (typedExpression instanceof Field) {
+            return isNull(((Field) typedExpression).getFieldMetadata());
+        }
         return new IsNull(typedExpression);
     }
 
