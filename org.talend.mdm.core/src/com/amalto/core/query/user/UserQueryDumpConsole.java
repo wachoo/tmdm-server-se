@@ -552,26 +552,6 @@ public class UserQueryDumpConsole implements Visitor<Void> {
         return null;
     }
 
-    public Void visit(Predicate.And and) {
-        print("[PREDICATE] AND"); //$NON-NLS-1$
-        return null;
-    }
-
-    public Void visit(Predicate.Or or) {
-        print("[PREDICATE] OR"); //$NON-NLS-1$
-        return null;
-    }
-
-    public Void visit(Predicate.Equals equals) {
-        print("[PREDICATE] EQUALS"); //$NON-NLS-1$
-        return null;
-    }
-
-    public Void visit(Predicate.Contains contains) {
-        print("[PREDICATE] CONTAINS"); //$NON-NLS-1$
-        return null;
-    }
-
     public Void visit(IsEmpty isEmpty) {
         print("[IS EMPTY]"); //$NON-NLS-1$
         increaseIndent();
@@ -609,16 +589,6 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             notIsNull.getField().accept(this);
         }
         decreaseIndent();
-        return null;
-    }
-
-    public Void visit(Predicate.GreaterThan greaterThan) {
-        print("[PREDICATE] GREATER THAN"); //$NON-NLS-1$
-        return null;
-    }
-
-    public Void visit(Predicate.LowerThan lowerThan) {
-        print("[PREDICATE] LOWER THAN"); //$NON-NLS-1$
         return null;
     }
 

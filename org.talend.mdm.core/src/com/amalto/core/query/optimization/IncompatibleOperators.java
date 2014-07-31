@@ -299,26 +299,6 @@ public class IncompatibleOperators implements Optimizer {
         }
 
         @Override
-        public Condition visit(Predicate.And and) {
-            return null;
-        }
-
-        @Override
-        public Condition visit(Predicate.Or or) {
-            return null;
-        }
-
-        @Override
-        public Condition visit(Predicate.Equals equals) {
-            return null;
-        }
-
-        @Override
-        public Condition visit(Predicate.Contains contains) {
-            return null;
-        }
-
-        @Override
         public Condition visit(OrderBy orderBy) {
             return null;
         }
@@ -330,16 +310,6 @@ public class IncompatibleOperators implements Optimizer {
 
         @Override
         public Condition visit(Count count) {
-            return null;
-        }
-
-        @Override
-        public Condition visit(Predicate.GreaterThan greaterThan) {
-            return null;
-        }
-
-        @Override
-        public Condition visit(Predicate.LowerThan lowerThan) {
             return null;
         }
 

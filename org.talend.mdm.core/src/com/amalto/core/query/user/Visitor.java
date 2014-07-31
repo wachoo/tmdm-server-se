@@ -94,14 +94,6 @@ public interface Visitor<T> {
 
     T visit(FloatConstant constant);
 
-    T visit(Predicate.And and);
-
-    T visit(Predicate.Or or);
-
-    T visit(Predicate.Equals equals);
-
-    T visit(Predicate.Contains contains);
-
     T visit(IsEmpty isEmpty);
 
     T visit(NotIsEmpty notIsEmpty);
@@ -115,10 +107,6 @@ public interface Visitor<T> {
     T visit(Paging paging);
 
     T visit(Count count);
-
-    T visit(Predicate.GreaterThan greaterThan);
-
-    T visit(Predicate.LowerThan lowerThan);
 
     T visit(FullText fullText);
 

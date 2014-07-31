@@ -167,22 +167,6 @@ public class VisitorAdapter<T> implements Visitor<T> {
         throw new NotImplementedException();
     }
 
-    public T visit(Predicate.And and) {
-        throw new NotImplementedException();
-    }
-
-    public T visit(Predicate.Or or) {
-        throw new NotImplementedException();
-    }
-
-    public T visit(Predicate.Equals equals) {
-        throw new NotImplementedException();
-    }
-
-    public T visit(Predicate.Contains contains) {
-        throw new NotImplementedException();
-    }
-
     public T visit(IsEmpty isEmpty) {
         throw new NotImplementedException();
     }
@@ -208,14 +192,6 @@ public class VisitorAdapter<T> implements Visitor<T> {
     }
 
     public T visit(Count count) {
-        throw new NotImplementedException();
-    }
-
-    public T visit(Predicate.GreaterThan greaterThan) {
-        throw new NotImplementedException();
-    }
-
-    public T visit(Predicate.LowerThan lowerThan) {
         throw new NotImplementedException();
     }
 

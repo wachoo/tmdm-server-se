@@ -268,22 +268,6 @@ public class RecommendedIndexes {
             return Collections.emptySet();
         }
 
-        public Collection<FieldMetadata> visit(Predicate.And and) {
-            return Collections.emptySet();
-        }
-
-        public Collection<FieldMetadata> visit(Predicate.Or or) {
-            return Collections.emptySet();
-        }
-
-        public Collection<FieldMetadata> visit(Predicate.Equals equals) {
-            return Collections.emptySet();
-        }
-
-        public Collection<FieldMetadata> visit(Predicate.Contains contains) {
-            return Collections.emptySet();
-        }
-
         public Collection<FieldMetadata> visit(IsEmpty isEmpty) {
             return isEmpty.getField().accept(this);
         }
@@ -309,14 +293,6 @@ public class RecommendedIndexes {
         }
 
         public Collection<FieldMetadata> visit(Count count) {
-            return Collections.emptySet();
-        }
-
-        public Collection<FieldMetadata> visit(Predicate.GreaterThan greaterThan) {
-            return Collections.emptySet();
-        }
-
-        public Collection<FieldMetadata> visit(Predicate.LowerThan lowerThan) {
             return Collections.emptySet();
         }
 
