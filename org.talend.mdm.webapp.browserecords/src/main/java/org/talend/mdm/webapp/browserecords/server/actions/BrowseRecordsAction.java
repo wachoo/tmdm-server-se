@@ -1995,6 +1995,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
             String model = getCurrentDataModel();
+            EntityModel entityModel = new EntityModel();
+            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
             dynamicAssemble(itemBean, entityModel, language);
             return itemBean;
         } catch (Exception e) {
