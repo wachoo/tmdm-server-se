@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.rest;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.google.gwt.junit.client.GWTTestCase;
@@ -37,9 +38,32 @@ public class ExplainRestServiceHandlerGWTTest extends GWTTestCase {
         assertTrue(callback.isSucceed());
         BaseTreeModel root = callback.getModel();
         assertNotNull(root);
-        String value = printAllTreeByRoot(root);
-        String expectedValue = "groups : [groups : [group : [result : [id : 8] : [confidence : 1] : [related_ids : [9] : [8] : [7]] : [values : [value : [field : Name] : [value : C]]]] : [details : [detail : [id : 7] : [match : [is_match : true] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 1] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 8]] : [detail : [id : 9] : [match : [is_match : true] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 1] : [algorithm : Exact] : [threshold : 1]]]]]]]]"; //$NON-NLS-1$
-        assertEquals(expectedValue, value);
+        BaseTreeModel treeNode1 = (BaseTreeModel) root.getChild(0);
+        assertEquals("N-ValueN-ValueN-ValueN-Value", treeNode1.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("b3c570ae-d988-4536-a92e-6f2a33834253", treeNode1.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(4, treeNode1.get(StagingConstant.MATCH_GROUP_SZIE));
+        assertEquals("1", treeNode1.get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
+        assertEquals("group1", treeNode1.get(StagingConstant.MATCH_GROUP_NAME)); //$NON-NLS-1$
+        BaseTreeModel treeNode2 = (BaseTreeModel) treeNode1.getChild(0);
+        assertEquals("N-Value1", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Id 1", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("Name:1", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
+        treeNode2 = (BaseTreeModel) treeNode1.getChild(1);
+        assertEquals("N-Value4", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Id 4", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("Name:4", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
+        treeNode2 = (BaseTreeModel) treeNode1.getChild(2);
+        assertEquals("N-Value3", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Id 3", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("Name:3", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
+        treeNode2 = (BaseTreeModel) treeNode1.getChild(3);
+        assertEquals("N-ValueN-Value2", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Id 2", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("Name:2", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
     }
 
     public void testSimulateMatch() {
@@ -49,41 +73,29 @@ public class ExplainRestServiceHandlerGWTTest extends GWTTestCase {
         MockBaseTreeModelCallback callback = new MockBaseTreeModelCallback();
         handler.simulateMatch(dataCluster, concept, ids, callback);
         assertTrue(callback.isSucceed());
-        BaseTreeModel model = callback.getModel();
-        assertNotNull(model);
-        String value = printAllTreeByRoot(model);
-        String expectedValue = "groups : [groups : [group : [result : [id : 7] : [confidence : 1] : [related_ids : [7]] : [values : [value : [field : Name] : [value : C]]]] : [details : [detail : [id : 7] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 1] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 4]]]] : [group : [result : [id : 1] : [confidence : 1] : [related_ids : [1]] : [values : [value : [field : Name] : [value : A]]]] : [details : [detail : [id : 7] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 1] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 4]]]] : [group : [result : [id : 4] : [confidence : 1] : [related_ids : [4]] : [values : [value : [field : Name] : [value : B]]]] : [details : [detail : [id : 7] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 1] : [match : [is_match : false] : [scores : [score : [pair_id : 7] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 4]]]]]"; //$NON-NLS-1$
-        assertEquals(expectedValue, value);
-    }
-
-    public void testCompareRecords() {
-        String dataModel = "Product"; //$NON-NLS-1$
-        String concept = "Product"; //$NON-NLS-1$
-        String xmlRecord = "<Product><Id>11e18f27-2a8c-4ef8-b80f-5ba27d8fd103</Id><Name>C</Name><Description>8</Description><Features><Sizes/><Colors/></Features><Price>19.00</Price><Stores/></Product><Product><Id>17cd4337-6073-4778-a50d-748247249a99</Id><Name>D</Name><Description>D</Description><Features><Sizes/><Colors/></Features><Price>2222.00</Price><Stores/></Product><Product><Id>74849595-27be-4b48-9238-cca56c6e6658</Id><Name>B</Name><Description>4</Description><Features><Sizes/><Colors/></Features><Price>16.00</Price><Stores/></Product>"; //$NON-NLS-1$
-        MockBaseTreeModelCallback callback = new MockBaseTreeModelCallback();
-        handler.compareRecords(dataModel, concept, xmlRecord, callback);
-        assertTrue(callback.isSucceed());
-        BaseTreeModel model = callback.getModel();
-        assertNotNull(model);
-        String value = printAllTreeByRoot(model);
-        String expectedValue = "groups : [groups : [group : [result : [id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [confidence : 1] : [related_ids : [11e18f27-2a8c-4ef8-b80f-5ba27d8fd103]] : [values : [value : [field : Name] : [value : C]]]] : [details : [detail : [id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 74849595-27be-4b48-9238-cca56c6e6658] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 17cd4337-6073-4778-a50d-748247249a99]]]] : [group : [result : [id : 74849595-27be-4b48-9238-cca56c6e6658] : [confidence : 1] : [related_ids : [74849595-27be-4b48-9238-cca56c6e6658]] : [values : [value : [field : Name] : [value : B]]]] : [details : [detail : [id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 74849595-27be-4b48-9238-cca56c6e6658] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 17cd4337-6073-4778-a50d-748247249a99]]]] : [group : [result : [id : 17cd4337-6073-4778-a50d-748247249a99] : [confidence : 1] : [related_ids : [17cd4337-6073-4778-a50d-748247249a99]] : [values : [value : [field : Name] : [value : D]]]] : [details : [detail : [id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 74849595-27be-4b48-9238-cca56c6e6658] : [match : [is_match : false] : [scores : [score : [pair_id : 11e18f27-2a8c-4ef8-b80f-5ba27d8fd103] : [field : Name] : [value : 0] : [algorithm : Exact] : [threshold : 1]]]]] : [detail : [id : 17cd4337-6073-4778-a50d-748247249a99]]]]]"; //$NON-NLS-1$
-        assertEquals(expectedValue, value);
-    }
-
-    private String printAllTreeByRoot(BaseTreeModel root) {
-        StringBuilder treeValue = new StringBuilder();
-        treeValue.append(root.get("name")); //$NON-NLS-1$
-        retriveTree(root, treeValue);
-        return treeValue.toString();
-    }
-
-    private void retriveTree(BaseTreeModel model, StringBuilder treeValue) {
-        treeValue.append(" : ["); //$NON-NLS-1$
-        treeValue.append(model.get("name")); //$NON-NLS-1$
-        for (int i = 0; i < model.getChildCount(); i++) {
-            retriveTree((BaseTreeModel) model.getChild(i), treeValue);
-        }
-        treeValue.append("]"); //$NON-NLS-1$
+        BaseTreeModel root = callback.getModel();
+        assertNotNull(root);
+        BaseTreeModel treeNode1 = (BaseTreeModel) root.getChild(0);
+        assertEquals(null, treeNode1.get("Name")); //$NON-NLS-1$
+        assertEquals(null, treeNode1.get(StagingConstant.MATCH_GROUP_ID));
+        assertEquals(null, treeNode1.get(StagingConstant.MATCH_GROUP_SZIE));
+        assertEquals(null, treeNode1.get(StagingConstant.MATCH_GROUP_CONFIDENCE));
+        assertEquals("group1", treeNode1.get(StagingConstant.MATCH_GROUP_NAME)); //$NON-NLS-1$
+        BaseTreeModel treeNode2 = (BaseTreeModel) treeNode1.getChild(0);
+        assertEquals("1", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Simulate1", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("Name:1", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
+        treeNode2 = (BaseTreeModel) treeNode1.getChild(1);
+        assertEquals("1", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Simulate2", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("Name:1", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
+        treeNode2 = (BaseTreeModel) treeNode1.getChild(2);
+        assertEquals("1", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Simulate3", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("Name:1", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
     }
 
     private class MockBaseTreeModelCallback extends SessionAwareAsyncCallback<BaseTreeModel> {

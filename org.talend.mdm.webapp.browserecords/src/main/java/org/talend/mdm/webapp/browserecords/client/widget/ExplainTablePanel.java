@@ -19,22 +19,20 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -43,7 +41,11 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGridView;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Image;
 
 public class ExplainTablePanel extends ContentPanel {
 
@@ -53,7 +55,7 @@ public class ExplainTablePanel extends ContentPanel {
 
     public ExplainTablePanel() {
         setHeaderVisible(false);
-        setScrollMode(Scroll.AUTO);
+        setScrollMode(Scroll.NONE);
         setLayout(new FitLayout());
     }
 
@@ -62,9 +64,8 @@ public class ExplainTablePanel extends ContentPanel {
         TreeStore<ModelData> store = new TreeStore<ModelData>();
         store.add(root.getChildren(), true);
         tree = new TreeGrid<ModelData>(store, columnModel);
+        tree.setView(new ExplainTreeGridView());
         tree.setAutoExpandColumn(StagingConstant.MATCH_GROUP_NAME);
-        tree.setBorders(true);
-        tree.getView().setForceFit(true);
         tree.getView().setAutoFill(true);
         addSelectedItemListener(tree);
         add(tree);
@@ -79,41 +80,40 @@ public class ExplainTablePanel extends ContentPanel {
         groupColumn.setRenderer(new TreeGridCellRenderer<ModelData>());
         columnList.add(groupColumn);
         ColumnConfig idColumn = new ColumnConfig(StagingConstant.MATCH_GROUP_ID, MessagesFactory.getMessages()
-                .explainResult_id_header(), 50);
+                .explainResult_id_header(), 80);
         columnList.add(idColumn);
         if (matchFieldList != null) {
             for (int i = 0; i < matchFieldList.size(); i++) {
                 String fieldName = matchFieldList.get(i);
-                ColumnConfig matchFieldColumn = new ColumnConfig(fieldName, fieldName, 100);
+                ColumnConfig matchFieldColumn = new ColumnConfig(fieldName, fieldName, 80);
                 columnList.add(matchFieldColumn);
             }
         }
         ColumnConfig groupIdColumn = new ColumnConfig(StagingConstant.MATCH_GROUP_GID, MessagesFactory.getMessages()
-                .explainResult_gid_header(), 50);
+                .explainResult_gid_header(), 80);
         columnList.add(groupIdColumn);
         ColumnConfig groupSizeColumn = new ColumnConfig(StagingConstant.MATCH_GROUP_SZIE, MessagesFactory.getMessages()
-                .explainResult_gsize_header(), 100);
+                .explainResult_gsize_header(), 50);
         columnList.add(groupSizeColumn);
         ColumnConfig confidenceColumn = new ColumnConfig(StagingConstant.MATCH_GROUP_CONFIDENCE, MessagesFactory.getMessages()
-                .explainResult_confidence_header(), 100);
+                .explainResult_confidence_header(), 50);
         columnList.add(confidenceColumn);
         ColumnConfig scoreColumn = new ColumnConfig(StagingConstant.MATCH_SCORE, MessagesFactory.getMessages()
-                .explainResult_attrscore_header(), 50);
+                .explainResult_attrscore_header(), 80);
         columnList.add(scoreColumn);
         ColumnConfig detailsColumn = new ColumnConfig(StagingConstant.MATCH_DETAILS, MessagesFactory.getMessages()
-                .explainResult_details_header(), 100);
+                .explainResult_details_header(), 30);
         detailsColumn.setRenderer(new GridCellRenderer<ModelData>() {
 
             @Override
             public Object render(final ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ModelData> store, Grid<ModelData> grid) {
                 if (model.get(StagingConstant.MATCH_IS_GROUP)) {
-                    Button detailButton = new Button("..."); //$NON-NLS-1$
-                    detailButton.setSize(40, 10);
-                    detailButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                    Image detailButton = new Image(Icons.INSTANCE.link_go());
+                    detailButton.addClickHandler(new ClickHandler() {
 
                         @Override
-                        public void componentSelected(ButtonEvent ce) {
+                        public void onClick(ClickEvent event) {
                             BaseTreeModel root = model.get(StagingConstant.MATCH_DATA);
                             Window explainWindow = new Window();
                             explainWindow.setHeading(MessagesFactory.getMessages().compare_result_title());
@@ -149,16 +149,27 @@ public class ExplainTablePanel extends ContentPanel {
 
             @Override
             public void selectionChanged(SelectionChangedEvent<ModelData> event) {
-                String id = event.getSelectedItem().get(StagingConstant.MATCH_GROUP_ID);
-                boolean isGroup = event.getSelectedItem().get(StagingConstant.MATCH_IS_GROUP);
-                if (id != null && !id.isEmpty() && !isGroup) {
-                    ItemBean item = new ItemBean();
-                    item.setConcept(BrowseRecords.getSession().getCurrentEntityModel().getConceptName());
-                    item.setIds(id);
-                    AppEvent appEvent = new AppEvent(BrowseRecordsEvents.ViewLineageItem, item);
-                    Dispatcher.forwardEvent(appEvent);
+                ModelData selectedItem = event.getSelectedItem();
+                if (selectedItem != null) {
+                    String id = selectedItem.get(StagingConstant.MATCH_GROUP_ID);
+                    boolean isGroup = selectedItem.get(StagingConstant.MATCH_IS_GROUP);
+                    if (id != null && !id.isEmpty() && !isGroup) {
+                        ItemBean item = new ItemBean();
+                        item.setConcept(BrowseRecords.getSession().getCurrentEntityModel().getConceptName());
+                        item.setIds(id);
+                        AppEvent appEvent = new AppEvent(BrowseRecordsEvents.ViewLineageItem, item);
+                        Dispatcher.forwardEvent(appEvent);
+                    }
                 }
             }
         });
+    }
+
+    public class ExplainTreeGridView extends TreeGridView {
+
+        @Override
+        protected int getColumnWidth(int col) {
+            return cm.getColumnWidth(col);
+        }
     }
 }
