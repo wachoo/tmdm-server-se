@@ -17,31 +17,20 @@ import java.io.StringReader;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.save.DOMDocument;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
-import org.dom4j.Namespace;
-import org.dom4j.QName;
 import org.talend.mdm.commmon.metadata.*;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
@@ -166,6 +155,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     private final List<String> dateTypeNames = Arrays.asList(Types.DATES);
 
     private final List<String> numberTypeNames = Arrays.asList(Types.NUMBERS);
+
+    private final DocumentBuilder documentBuilder;
+
+    public BrowseRecordsAction() {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            documentBuilder = new SkipAttributeDocumentBuilder(builder, false);
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException("Unable to create DOM parser.", e);
+        }
+    }
 
     @Override
     public List<String> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
@@ -327,8 +329,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean isStaging, String language)
             throws ServiceException {
         try {
-            String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
-            String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
             String dataCluster = getCurrentDataCluster(isStaging);
             String dataModel = getCurrentDataModel();
             String concept = itemBean.getConcept();
@@ -345,8 +345,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
                 itemBean.setTaskId(wsItem.getTaskId());
             }
+            /*
             SimpleDateFormat sdf;
-
+            String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
+            String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
             org.dom4j.Document doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(itemBean.getItemXml());
 
             Map<String, String[]> formatMap = checkDisplayFormat(entityModel, language);
@@ -412,11 +414,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         }
                     }
                 }
-            }
-
+            }*/
             // dynamic Assemble
-            dynamicAssemble(itemBean, entityModel, language);
-
+            dynamicAssemble(itemBean, type, language);
             return itemBean;
         } catch (WebBaseException e) {
             throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
@@ -434,70 +434,73 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    /**
-     * This method should be only set primaryKey info and description on entity
-     * 
-     * @throws Exception
-     */
-    protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
+    protected void dynamicAssemble(final ItemBean itemBean, ComplexTypeMetadata type, final String language) throws Exception {
         if (itemBean.getItemXml() != null) {
-            Document docXml = Util.parse(itemBean.getItemXml());
-            Map<String, TypeModel> types = entityModel.getMetaDataTypes();
-            Set<String> xpaths = types.keySet();
-            for (String path : xpaths) {
-                TypeModel typeModel = types.get(path);
-                if (typeModel.isSimpleType()) {
-                    // It should getValue by XPath but not element name(ItemBean's map object is only used by
-                    // ItemsListPanel)
-                    NodeList nodes = Util.getNodeList(docXml,
-                            typeModel.getXpath().replaceFirst(entityModel.getConceptName() + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
-                    if (nodes.getLength() > 0) {
-                        if (nodes.item(0) instanceof Element) {
-                            Element value = (Element) nodes.item(0);
-                            if (typeModel.isMultiOccurrence()) {
-                                List<Serializable> list = new ArrayList<Serializable>();
-                                for (int t = 0; t < nodes.getLength(); t++) {
-                                    if (nodes.item(t) instanceof Element) {
-                                        Node node = nodes.item(t);
-                                        org.talend.mdm.webapp.browserecords.server.util.CommonUtil
-                                                .migrationMultiLingualFieldValue(itemBean, typeModel, node, path, true, null);
-                                        list.add(node.getTextContent());
-                                    }
+            Document docXml;
+            synchronized (documentBuilder) {
+                docXml = documentBuilder.parse(new InputSource(new StringReader(itemBean.getItemXml())));
+            }
+            final DOMDocument domDocument = new DOMDocument(docXml, type, null, getCurrentDataCluster(), getCurrentDataModel());
+            type.accept(new DefaultMetadataVisitor<Void>() {
+                @Override
+                public Void visit(SimpleTypeFieldMetadata simpleField) {
+                    String path = simpleField.getPath();
+                    Accessor accessor = domDocument.createAccessor(path);
+                    if (!accessor.exist()) {
+                        itemBean.set(path, StringUtils.EMPTY);
+                    } else {
+                        if (simpleField.isMany()) {
+                            List<Serializable> list = new ArrayList<Serializable>();
+                            int size = accessor.size();
+                            for (int i = 0; i < size; i++) {
+                                Accessor occurrenceAccessor = domDocument.createAccessor(path + '[' + i + ']');
+                                list.add(occurrenceAccessor.get());
+                            }
+                            itemBean.set(path, list);
+                        } else {
+                            itemBean.set(path, accessor.get());
+                        }
+                    }
+                    return null;
+                }
 
-                                }
-                                itemBean.set(path, list);
-                            } else {
-
-                                if (typeModel.getForeignkey() != null) {
-                                    String modelType = value.getAttribute("tmdm:type"); //$NON-NLS-1$
-                                    itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
-                                    itemBean.setForeignkeyDesc(
-                                            path + "-" + value.getTextContent(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, //$NON-NLS-1$
-                                                            value.getTextContent(),
-                                                            false,
-                                                            modelType,
-                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), isStaging(), language)); //$NON-NLS-1$
-
-                                } else {
-                                    itemBean.set(path, value.getTextContent());
-                                    org.talend.mdm.webapp.browserecords.server.util.CommonUtil.migrationMultiLingualFieldValue(
-                                            itemBean, typeModel, value, path, false, null);
-                                }
+                @Override
+                public Void visit(ReferenceFieldMetadata referenceField) {
+                    String path = referenceField.getPath();
+                    Accessor accessor = domDocument.createAccessor(path);
+                    if (!accessor.exist()) {
+                        itemBean.set(path, StringUtils.EMPTY);
+                    } else {
+                        String modelType = accessor.getActualType();
+                        String value = accessor.get();
+                        itemBean.set(path, path + '-' + value);
+                        if (!referenceField.getForeignKeyInfoFields().isEmpty()) {
+                            try {
+                                itemBean.setForeignkeyDesc(path + '-' + value,
+                                        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(
+                                                null, // TODO
+                                                value, false, modelType,
+                                                getEntityModel(referenceField.getReferencedType().getName(), language),
+                                                isStaging(), language)); //$NON-NLS-1$
+                            } catch (Exception e) {
+                                throw new RuntimeException("Unable to get foreign key information", e);
                             }
                         }
-                    } else {
-                        itemBean.set(path, ""); //$NON-NLS-1$
                     }
+                    return null;
                 }
+            });
+            // set primary key information
+            List<FieldMetadata> primaryKeyInfoFields = type.getPrimaryKeyInfo();
+            List<String> primaryKeyInfoPaths = new LinkedList<String>();
+            for (FieldMetadata primaryKeyInfoField : primaryKeyInfoFields) {
+                primaryKeyInfoPaths.add(primaryKeyInfoField.getPath());
             }
-            // set pkinfo and description on entity
-            TypeModel conceptTypeModel = types.get(itemBean.getConcept());
-            List<String> pkInfoList = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfoList(entityModel,
-                    conceptTypeModel, itemBean, docXml, language);
-            itemBean.setPkInfoList(pkInfoList);
-            itemBean.setLabel(conceptTypeModel.getLabel(language));
-            itemBean.setDisplayPKInfo(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfos(pkInfoList));
-            itemBean.setDescription(conceptTypeModel.getDescriptionMap().get(language));
+            itemBean.setPkInfoList(primaryKeyInfoPaths);
+            itemBean.setLabel(type.getName(new Locale(language)));
+            itemBean.setDisplayPKInfo(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getPKInfos(primaryKeyInfoPaths));
+            // ... and description for entity
+            itemBean.setDescription(StringUtils.EMPTY); // TODO
         }
     }
 
@@ -677,7 +680,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String language) throws ServiceException {
         try {
             String[] idArr = StringUtils.splitPreserveAllTokens(ids, '.'); // String.split() omits the last '' if ends
-                                                                           // with delimiter
+            // with delimiter
             String criteria = CommonUtil.buildCriteriaByIds(entityModel.getKeys(), idArr);
             Object[] result = getItemBeans(dataClusterPK, viewBean, entityModel, criteria, -1, 20,
                     ItemHelper.SEARCH_DIRECTION_ASC, null, language);
@@ -1995,9 +1998,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
             String model = getCurrentDataModel();
-            EntityModel entityModel = new EntityModel();
-            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
-            dynamicAssemble(itemBean, entityModel, language);
+            MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(model);
+            ComplexTypeMetadata type = repository.getComplexType(concept);
+            dynamicAssemble(itemBean, type, language);
             return itemBean;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
