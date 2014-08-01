@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -57,7 +58,7 @@ public class EventStatistics {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getEventStatistics() {
+    public Response getEventStatistics(@QueryParam("timeframe") Long timeFrame) { //$NON-NLS-1$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage system = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
         if (system == null) {
@@ -94,10 +95,10 @@ public class EventStatistics {
                 {
                     // Failed events
                     ComplexTypeMetadata failedRoutingOrder = repository.getComplexType("failed-routing-order-v2-pOJO"); //$NON-NLS-1$
-                    writeTo(system, triggerNameToParameter, failedRoutingOrder, writer, "failed"); //$NON-NLS-1$
+                    writeTo(system, triggerNameToParameter, failedRoutingOrder, writer, timeFrame, "failed"); //$NON-NLS-1$
                     // Completed events
                     ComplexTypeMetadata completedRoutingOrder = repository.getComplexType("completed-routing-order-v2-pOJO"); //$NON-NLS-1$
-                    writeTo(system, triggerNameToParameter, completedRoutingOrder, writer, "completed"); //$NON-NLS-1$
+                    writeTo(system, triggerNameToParameter, completedRoutingOrder, writer, timeFrame,  "completed"); //$NON-NLS-1$
                 }
                 writer.endArray();
             }
@@ -112,7 +113,7 @@ public class EventStatistics {
     }
 
     private void writeTo(Storage system, Map<String, String> triggerNameToParameter, ComplexTypeMetadata routingOrderType,
-            JSONWriter writer, String categoryName) throws JSONException {
+            JSONWriter writer, Long timeFrame, String categoryName) throws JSONException {
         FieldMetadata parameters = routingOrderType.getField("service-parameters"); //$NON-NLS-1$
         writer.object().key(categoryName);
         {
@@ -123,6 +124,10 @@ public class EventStatistics {
                         String key = entry.getKey();
                         UserQueryBuilder qb = from(routingOrderType).select(count()).where(eq(parameters, entry.getValue()))
                                 .limit(1).cache();
+                        if (timeFrame != null && timeFrame > 0) {
+                            qb.where(gte(routingOrderType.getField("time-last-run-completed"), //$NON-NLS-1$
+                                    String.valueOf(System.currentTimeMillis() - (timeFrame * 1000))));
+                        }
                         StorageResults results = system.fetch(qb.getSelect());
                         try {
                             writer.object().key(key).value(results.iterator().next().get("count")).endObject(); //$NON-NLS-1$
