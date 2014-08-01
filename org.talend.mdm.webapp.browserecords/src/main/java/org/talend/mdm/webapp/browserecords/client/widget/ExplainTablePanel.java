@@ -66,7 +66,7 @@ public class ExplainTablePanel extends ContentPanel {
         tree = new TreeGrid<ModelData>(store, columnModel);
         tree.setView(new ExplainTreeGridView());
         tree.setAutoExpandColumn(StagingConstant.MATCH_GROUP_NAME);
-        tree.getView().setAutoFill(true);
+        tree.getView().setForceFit(true);
         addSelectedItemListener(tree);
         add(tree);
         tree.expandAll();
