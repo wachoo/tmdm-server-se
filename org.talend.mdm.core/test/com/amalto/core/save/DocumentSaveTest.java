@@ -2659,6 +2659,27 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("", evaluate(committedElement, "/Contrat/detailContrat[@xsi:type]"));
     }
 
+    public void test67_update_multiOccurrenceField_SubType() throws Exception {
+        // TMDM-7407: when Subtype has field of Annonymous Type
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata19.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test", repository);
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test67_original.xml", "metadata19.xsd");
+        source.setUserName("administrator");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test67.xml");
+        DocumentSaverContext context = session.getContextFactory().create("test", "test", "genericUI", recordXml, false, true,
+                true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+    }
+
     public void testDateTypeInKey() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata16.xsd"));
