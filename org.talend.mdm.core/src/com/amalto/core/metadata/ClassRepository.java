@@ -234,7 +234,7 @@ public class ClassRepository extends MetadataRepository {
                                     STRING,
                                     Collections.<String>emptyList(),
                                     Collections.<String>emptyList(),
-                                    Collections.<String>emptyList());
+                                    Collections.<String>emptyList(), StringUtils.EMPTY);
                         }
                     }
                     typeStack.peek().addField(newField);
