@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
 
@@ -36,32 +37,32 @@ class StagingTypeMappingRepository extends InternalRepository {
             limitedStringType.setData(MetadataRepository.DATA_MAX_LENGTH, UUID.randomUUID().toString().length());
             // Time stamp
             database.addField(new SimpleTypeFieldMetadata(database, false, false, true, Storage.METADATA_TIMESTAMP, longType,
-                    Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList()));
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY));
             // Task id
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_TASK_ID,
                     limitedStringType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections
-                            .<String> emptyList()));
+                            .<String> emptyList(), StringUtils.EMPTY));
             // Staging status
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_STATUS,
-                    intType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList()));
+                    intType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY));
             // Staging source
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_SOURCE,
                     limitedStringType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections
-                            .<String> emptyList()));
+                            .<String> emptyList(), StringUtils.EMPTY));
             // Staging block key
             database.addField(new SimpleTypeFieldMetadata(database, false, false, false, Storage.METADATA_STAGING_BLOCK_KEY,
                     limitedStringType, Collections.<String> emptyList(), Collections.<String> emptyList(), Collections
-                            .<String> emptyList()));
+                            .<String> emptyList(), StringUtils.EMPTY));
             // Staging error field
             SimpleTypeFieldMetadata errorField = new SimpleTypeFieldMetadata(database, false, false, false,
                     Storage.METADATA_STAGING_ERROR, stringType, Collections.<String> emptyList(),
-                    Collections.<String> emptyList(), Collections.<String> emptyList());
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
             errorField.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
             database.addField(errorField);
             // Staging previous values field (useful for rematching)
             SimpleTypeFieldMetadata previousValuesField = new SimpleTypeFieldMetadata(database, false, false, false,
                     Storage.METADATA_STAGING_VALUES, stringType, Collections.<String> emptyList(),
-                    Collections.<String> emptyList(), Collections.<String> emptyList());
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
             previousValuesField.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
             database.addField(previousValuesField);
         }
