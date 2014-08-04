@@ -50,7 +50,7 @@ public class LineageTabPanel extends TabPanel {
         explainTabItem.setClosable(false);
         explainTabItem.add(explainTablePanel);
         add(explainTabItem);
-        setSelection(explainTabItem);
+        setSelection(listTabItem);
     }
 
     public LineageListPanel getLineageListPanel() {

@@ -187,7 +187,7 @@ public class ExplainRestServiceHandler {
                 JSONArray valueArray = getChildArrayByParent(resultArray.get(3), "values"); //$NON-NLS-1$
                 List<String> matchFieldList = parent.get(StagingConstant.MATCH_FIELD_LIST);
                 for (int i = 0; i < valueArray.size(); i++) {
-                    JSONArray childArray = getChildArrayByParent(valueArray.get(0), StagingConstant.MATCH_VALUE);
+                    JSONArray childArray = getChildArrayByParent(valueArray.get(i), StagingConstant.MATCH_VALUE);
                     if (childArray != null) {
                         matchFieldList.add(getValue(childArray.get(0), StagingConstant.MATCH_FIELD));
                         if (group.get(StagingConstant.MATCH_GROUP_ID) != null) {
@@ -224,7 +224,7 @@ public class ExplainRestServiceHandler {
                 if (scoresArray != null) {
                     StringBuilder attributebBuilder = new StringBuilder();
                     for (int i = 0; i < scoresArray.size(); i++) {
-                        JSONArray scoreArray = getChildArrayByParent(scoresArray.get(0), StagingConstant.MATCH_SCORE);
+                        JSONArray scoreArray = getChildArrayByParent(scoresArray.get(i), StagingConstant.MATCH_SCORE);
                         if (scoreArray != null) {
                             String fieldName = getValue(scoreArray.get(1), StagingConstant.MATCH_FIELD);
                             String fieldValue = getValue(scoreArray.get(2), "fieldValue"); //$NON-NLS-1$

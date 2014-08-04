@@ -60,6 +60,9 @@ public class ExplainTablePanel extends ContentPanel {
     }
 
     public void buildTree(BaseTreeModel root) {
+        if (tree != null) {
+            remove(tree);
+        }
         buildColumn((List<String>) root.get(StagingConstant.MATCH_FIELD_LIST));
         TreeStore<ModelData> store = new TreeStore<ModelData>();
         store.add(root.getChildren(), true);
@@ -153,7 +156,7 @@ public class ExplainTablePanel extends ContentPanel {
                 if (selectedItem != null) {
                     String id = selectedItem.get(StagingConstant.MATCH_GROUP_ID);
                     boolean isGroup = selectedItem.get(StagingConstant.MATCH_IS_GROUP);
-                    if (id != null && !id.isEmpty() && !isGroup) {
+                    if (id != null && !id.isEmpty()) {
                         ItemBean item = new ItemBean();
                         item.setConcept(BrowseRecords.getSession().getCurrentEntityModel().getConceptName());
                         item.setIds(id);
