@@ -150,7 +150,6 @@ public class ActionsPanel extends FormPanel {
 
         this.addDefaultPortletConfig();
         this.setScrollMode(Scroll.AUTO);
-
         initEvent();
     }
 
@@ -268,6 +267,7 @@ public class ActionsPanel extends FormPanel {
                 String selectedValue = se.getSelectedItem().get("value"); //$NON-NLS-1$
                 if (selectedValue != null && !"".equals(selectedValue.trim())) { //$NON-NLS-1$
                     saveBtn.enable();
+                    saveConfigBtn.enable();
                     if (!modelSelectFlag) {
                         modelSelectFlag = true;
                         return;
@@ -278,12 +278,14 @@ public class ActionsPanel extends FormPanel {
                             dataContainerBox.setValue(dataModel);
                             containerSelectFlag = true;
                             saveBtn.enable();
+                            saveConfigBtn.enable();
                             return;
                         }
                     }
                     containerSelectFlag = false;
                     dataContainerBox.setValue(emptyModelValue);
                     saveBtn.disable();
+                    saveConfigBtn.disable();
                 }
             }
         });
@@ -299,6 +301,7 @@ public class ActionsPanel extends FormPanel {
                 String selectedValue = se.getSelectedItem().get("value"); //$NON-NLS-1$
                 if (selectedValue != null && !"".equals(selectedValue.trim())) { //$NON-NLS-1$
                     saveBtn.enable();
+                    saveConfigBtn.enable();
                     if (!containerSelectFlag) {
                         containerSelectFlag = true;
                         return;
@@ -314,6 +317,7 @@ public class ActionsPanel extends FormPanel {
                     modelSelectFlag = false;
                     dataModelBox.setValue(emptyModelValue);
                     saveBtn.disable();
+                    saveConfigBtn.disable();
                 }
             }
         });
@@ -378,7 +382,6 @@ public class ActionsPanel extends FormPanel {
         } else {
             col2Radio.setValue(true);
         }
-        
         if (saveBtn.isEnabled()) {
             saveConfigBtn.enable();
         }

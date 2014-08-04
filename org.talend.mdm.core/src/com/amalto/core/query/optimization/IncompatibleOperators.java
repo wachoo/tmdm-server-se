@@ -13,12 +13,30 @@ public class IncompatibleOperators implements Optimizer {
     private static final Logger LOGGER = Logger.getLogger(IncompatibleOperators.class);
 
     // Transformer for SQL server incompatible operators
-    private static final SQLServerIncompatibleOperators SQL_SERVER = new SQLServerIncompatibleOperators();
+    private static final LargeColumnIncompatibleOperators LARGE_COLUMN_INCOMPATIBLE_OPERATORS = new LargeColumnIncompatibleOperators();
 
     private final RDBMSDataSource dataSource;
 
     public IncompatibleOperators(RDBMSDataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    private static Visitor<Condition> getIncompatibleOperatorTransformer(RDBMSDataSource dataSource) {
+        RDBMSDataSource.DataSourceDialect dialect = dataSource.getDialectName();
+        switch (dialect) {
+        case MYSQL:
+        case POSTGRES:
+        case H2:
+        case DB2:
+            return null;
+        case ORACLE_10G:
+        case SQL_SERVER:
+            // TMDM-7532: SQL Server does not like equals operator on large text values
+            // TMDM-7538: Oracle does not like equals operator on CLOBs.
+            return LARGE_COLUMN_INCOMPATIBLE_OPERATORS;
+        default:
+            throw new NotImplementedException("Dialect '" + dialect + "' is not implemented.");
+        }
     }
 
     @Override
@@ -35,24 +53,7 @@ public class IncompatibleOperators implements Optimizer {
         }
     }
 
-    private static Visitor<Condition> getIncompatibleOperatorTransformer(RDBMSDataSource dataSource) {
-        RDBMSDataSource.DataSourceDialect dialect = dataSource.getDialectName();
-        switch (dialect) {
-        case ORACLE_10G:
-        case MYSQL:
-        case POSTGRES:
-        case H2:
-        case DB2:
-            return null;
-        case SQL_SERVER:
-            // TMDM-7532: SQL Server does not like equals operator on large text values
-            return SQL_SERVER;
-        default:
-            throw new NotImplementedException("Dialect '" + dialect + "' is not implemented.");
-        }
-    }
-
-    private static class SQLServerIncompatibleOperators implements Visitor<Condition> {
+    private static class LargeColumnIncompatibleOperators implements Visitor<Condition> {
 
         private Field currentField;
 

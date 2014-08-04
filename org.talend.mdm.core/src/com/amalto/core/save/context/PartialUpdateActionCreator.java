@@ -201,8 +201,8 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
     protected void handleField(FieldMetadata field, Closure closure) {
         enterLeft(field);
         enterRight(field);
+        boolean isPivot = partialUpdatePivot.equals(getLeftPath());
         try {
-            boolean isPivot = partialUpdatePivot.equals(getLeftPath());
             if (!inPivot && isPivot) {
                 inPivot = true;
                 if (!field.isMany()) {
@@ -244,13 +244,13 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
                 leaveLeft();
             } else {
                 closure.execute(field);
+                leaveLeft();
+                leaveRight();
             }
+        } finally {
             if (inPivot && isPivot) {
                 inPivot = false;
             }
-        } finally {
-            leaveLeft();
-            leaveRight();
         }
     }
 

@@ -354,8 +354,6 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         public void execute(FieldMetadata field) {
             ComplexTypeMetadata type = containedField.getContainedType();
 
-            compare(field);
-
             Accessor leftAccessor = originalDocument.createAccessor(getLeftPath());
             Accessor rightAccessor = newDocument.createAccessor(getRightPath());
             if (rightAccessor.exist()) {
@@ -387,6 +385,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             }
             Action before = actions.isEmpty() ? null : actions.getLast();
             type.accept(UpdateActionCreator.this);
+
+            compare(field);
             // Way to detect if there is a change in elements below: check if last action in list changed.
             Action last = actions.isEmpty() ? null : actions.getLast();
             boolean hasActions = last != before;
