@@ -10,13 +10,20 @@
 
 package com.amalto.core.metadata.validation;
 
-import junit.framework.TestCase;
-import org.talend.mdm.commmon.metadata.*;
-import org.w3c.dom.Element;
-
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+
+import junit.framework.TestCase;
+
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
+import org.talend.mdm.commmon.metadata.ValidationError;
+import org.talend.mdm.commmon.metadata.ValidationHandler;
+import org.w3c.dom.Element;
 
 public class MetadataValidationTest extends TestCase {
 
@@ -534,11 +541,31 @@ public class MetadataValidationTest extends TestCase {
         InputStream resourceAsStream = this.getClass().getResourceAsStream("xsd_attributes.xsd");
         TestValidationHandler handler = new TestValidationHandler();
         repository.load(resourceAsStream, handler);
-        assertEquals(2, handler.getWarningCount());
+        assertEquals(6, handler.getWarningCount());
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_USE_XSD_ATTRIBUTES));
         assertTrue(handler.getLineNumbers().contains(63));
-        assertTrue(handler.getLineNumbers().contains(109));
+        assertTrue(handler.getLineNumbers().contains(114));
         assertFalse(handler.getLineNumbers().contains(null));
+    }
+
+    public void testReferenceTypeWarning1() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("ReferenceTypeElement1.xsd"); //$NON-NLS-1$
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getErrorCount());
+    }
+    
+    public void testReferenceTypeWarning2() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("ReferenceTypeElement2.xsd"); //$NON-NLS-1$
+        TestValidationHandler handler = new TestValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+            fail("Should fail validation.");
+        } catch (Exception e) {
+            // Expected
+        }
     }
 
     public void testUnusedType() throws Exception {
