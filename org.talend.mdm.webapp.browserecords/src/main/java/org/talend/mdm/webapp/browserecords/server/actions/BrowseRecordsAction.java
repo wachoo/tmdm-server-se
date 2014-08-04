@@ -454,7 +454,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             int size = accessor.size();
                             for (int i = 0; i < size; i++) {
                                 Accessor occurrenceAccessor = domDocument.createAccessor(path + '[' + i + ']');
-                                list.add(occurrenceAccessor.get());
+                                if (occurrenceAccessor.exist()) {
+                                    list.add(occurrenceAccessor.get());
+                                }
                             }
                             itemBean.set(path, list);
                         } else {
