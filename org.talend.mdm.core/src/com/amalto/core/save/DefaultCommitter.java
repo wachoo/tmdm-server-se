@@ -98,7 +98,30 @@ public class DefaultCommitter implements SaverSession.Committer {
     }
 
     @Override
-    public void delete(Document item, DeleteType type) {
-
+    public void delete(Document document, DeleteType deleteType) {
+        try {
+            ComplexTypeMetadata type = document.getType();
+            boolean putInCache = type.getSuperTypes().isEmpty() && type.getSubTypes().isEmpty();
+            Collection<FieldMetadata> keyFields = type.getKeyFields();
+            List<String> ids = new LinkedList<String>();
+            for (FieldMetadata keyField : keyFields) {
+                String keyFieldName = keyField.getName();
+                Accessor keyAccessor = ((MutableDocument)document).createAccessor(keyFieldName);
+                if (!keyAccessor.exist()) {
+                    throw new RuntimeException("Unexpected state: '"+ type +"' does not have value for key '" + keyFieldName + "'.");  //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+                }
+                ids.add(keyAccessor.get());
+            }
+            ItemPOJO item = new ItemPOJO(new DataClusterPOJOPK(document.getDataCluster()),
+                    type.getName(),
+                    ids.toArray(new String[ids.size()]), // it need to set ids value
+                    System.currentTimeMillis(),
+                    document.exportToString());
+            item.setTaskId(document.getTaskId());
+            item.setDataModelName(document.getDataModel()); // it need to set dataModelName
+            item.store(document.getRevision(), putInCache);
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
