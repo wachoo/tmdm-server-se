@@ -281,8 +281,6 @@ public interface BrowseRecordsMessages extends Messages {
 
     String explain_tip();
 
-    String explain_result_title();
-
     String no_taskid_warning_message();
 
     String compare_button();
@@ -532,4 +530,6 @@ public interface BrowseRecordsMessages extends Messages {
     String explainResult_attrscore_header();
 
     String explainResult_details_header();
+
+    String matchdetail_title();
 }
