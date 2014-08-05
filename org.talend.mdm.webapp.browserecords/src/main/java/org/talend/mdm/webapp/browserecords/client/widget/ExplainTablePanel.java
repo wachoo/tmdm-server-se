@@ -55,7 +55,7 @@ public class ExplainTablePanel extends ContentPanel {
 
     public ExplainTablePanel() {
         setHeaderVisible(false);
-        setScrollMode(Scroll.NONE);
+        setScrollMode(Scroll.AUTO);
         setLayout(new FitLayout());
     }
 
@@ -119,7 +119,7 @@ public class ExplainTablePanel extends ContentPanel {
                         public void onClick(ClickEvent event) {
                             BaseTreeModel root = model.get(StagingConstant.MATCH_DATA);
                             Window explainWindow = new Window();
-                            explainWindow.setHeading(MessagesFactory.getMessages().compare_result_title());
+                            explainWindow.setHeading(MessagesFactory.getMessages().matchdetail_title());
                             explainWindow.setSize(800, 600);
                             explainWindow.setLayout(new FitLayout());
                             explainWindow.setScrollMode(Scroll.NONE);

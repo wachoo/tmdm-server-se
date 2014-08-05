@@ -189,10 +189,12 @@ public class ExplainRestServiceHandler {
                 for (int i = 0; i < valueArray.size(); i++) {
                     JSONArray childArray = getChildArrayByParent(valueArray.get(i), StagingConstant.MATCH_VALUE);
                     if (childArray != null) {
-                        matchFieldList.add(getValue(childArray.get(0), StagingConstant.MATCH_FIELD));
+                        String fieldName = getValue(childArray.get(0), StagingConstant.MATCH_FIELD);
+                        if (!matchFieldList.contains(fieldName)) {
+                            matchFieldList.add(fieldName);
+                        }
                         if (group.get(StagingConstant.MATCH_GROUP_ID) != null) {
-                            group.set(getValue(childArray.get(0), StagingConstant.MATCH_FIELD),
-                                    getValue(childArray.get(1), StagingConstant.MATCH_VALUE));
+                            group.set(fieldName, getValue(childArray.get(1), StagingConstant.MATCH_VALUE));
                         }
                     }
                 }
@@ -235,8 +237,9 @@ public class ExplainRestServiceHandler {
                             attributebBuilder.append(","); //$NON-NLS-1$
                         }
                     }
-                    detail.set(StagingConstant.MATCH_SCORE,
-                            attributebBuilder.toString().substring(0, attributebBuilder.toString().length() - 1));
+                    String scoreValue = attributebBuilder.length() > 0 ? attributebBuilder.toString().substring(0,
+                            attributebBuilder.toString().length() - 1) : ""; //$NON-NLS-1$
+                    detail.set(StagingConstant.MATCH_SCORE, scoreValue);
                 }
             }
             parent.add(detail);
