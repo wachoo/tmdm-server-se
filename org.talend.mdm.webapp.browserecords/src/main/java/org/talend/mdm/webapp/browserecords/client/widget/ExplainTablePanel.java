@@ -79,7 +79,7 @@ public class ExplainTablePanel extends ContentPanel {
     public void buildColumn(List<String> matchFieldList) {
         List<ColumnConfig> columnList = new LinkedList<ColumnConfig>();
         ColumnConfig groupColumn = new ColumnConfig(StagingConstant.MATCH_GROUP_NAME, MessagesFactory.getMessages()
-                .explainResult_group_header(), 50);
+                .explainResult_group_header(), 60);
         groupColumn.setRenderer(new TreeGridCellRenderer<ModelData>());
         columnList.add(groupColumn);
         ColumnConfig idColumn = new ColumnConfig(StagingConstant.MATCH_GROUP_ID, MessagesFactory.getMessages()

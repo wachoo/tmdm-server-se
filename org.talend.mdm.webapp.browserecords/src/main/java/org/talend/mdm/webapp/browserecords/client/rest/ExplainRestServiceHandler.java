@@ -173,14 +173,19 @@ public class ExplainRestServiceHandler {
             if (resultArray != null) {
                 group.set(StagingConstant.MATCH_IS_GROUP, true);
                 group.set(StagingConstant.MATCH_GROUP_NAME, StagingConstant.MATCH_GROUP_NAME + (index + 1));
-
+                JSONArray relatedIdArray = resultArray.get(2).isObject().get(StagingConstant.MATCH_RELATED_IDS).isArray();
+                List<String> idList = new ArrayList<String>();
+                for (int i = 0; i < relatedIdArray.size(); i++) {
+                    idList.add(getStringValue(relatedIdArray.get(i)));
+                }
+                group.set(StagingConstant.MATCH_RELATED_IDS, idList);
                 String groupId = getValue(resultArray.get(0), StagingConstant.MATCH_GROUP_ID);
                 if (groupId != null && !groupId.isEmpty() && !groupId.equals("null")) { //$NON-NLS-1$
                     group.set(StagingConstant.MATCH_GROUP_ID, groupId);
                     group.set(StagingConstant.MATCH_GROUP_CONFIDENCE,
                             getValue(resultArray.get(1), StagingConstant.MATCH_GROUP_CONFIDENCE));
                     group.set(StagingConstant.MATCH_GROUP_GID, groupId);
-                    group.set(StagingConstant.MATCH_GROUP_SZIE, resultArray.get(2).isObject().get("related_ids").isArray().size()); //$NON-NLS-1$
+                    group.set(StagingConstant.MATCH_GROUP_SZIE, relatedIdArray.size());
                 } else {
                     group.set(StagingConstant.MATCH_GROUP_ID, null);
                 }
@@ -214,35 +219,38 @@ public class ExplainRestServiceHandler {
     private void buildDetailNode(JSONValue value, BaseTreeModel parent) {
         final JSONArray detailArray = getChildArrayByParent(value, "detail"); //$NON-NLS-1$
         if (detailArray != null) {
-            final BaseTreeModel detail = new BaseTreeModel();
-            detail.setParent(parent);
-            detail.set(StagingConstant.MATCH_IS_GROUP, false);
-            detail.set(StagingConstant.MATCH_GROUP_NAME, ""); //$NON-NLS-1$
+            List relatedIdList = parent.get(StagingConstant.MATCH_RELATED_IDS);
             String id = getValue(detailArray.get(0), StagingConstant.MATCH_GROUP_ID);
-            detail.set(StagingConstant.MATCH_GROUP_ID, id);
-            JSONArray matchArray = getChildArrayByParent(detailArray.get(1), "match"); //$NON-NLS-1$
-            if (matchArray != null) {
-                JSONArray scoresArray = getChildArrayByParent(matchArray.get(1), "scores"); //$NON-NLS-1$
-                if (scoresArray != null) {
-                    StringBuilder attributebBuilder = new StringBuilder();
-                    for (int i = 0; i < scoresArray.size(); i++) {
-                        JSONArray scoreArray = getChildArrayByParent(scoresArray.get(i), StagingConstant.MATCH_SCORE);
-                        if (scoreArray != null) {
-                            String fieldName = getValue(scoreArray.get(1), StagingConstant.MATCH_FIELD);
-                            String fieldValue = getValue(scoreArray.get(2), "fieldValue"); //$NON-NLS-1$
-                            detail.set(fieldName, fieldValue);
-                            attributebBuilder.append(fieldName);
-                            attributebBuilder.append(StagingConstant.VALUE_SEPARATOR);
-                            attributebBuilder.append(getValue(scoreArray.get(3), StagingConstant.MATCH_VALUE));
-                            attributebBuilder.append(","); //$NON-NLS-1$
+            if (relatedIdList.contains(id)) {
+                final BaseTreeModel detail = new BaseTreeModel();
+                detail.setParent(parent);
+                detail.set(StagingConstant.MATCH_IS_GROUP, false);
+                detail.set(StagingConstant.MATCH_GROUP_NAME, ""); //$NON-NLS-1$
+                detail.set(StagingConstant.MATCH_GROUP_ID, id);
+                JSONArray matchArray = getChildArrayByParent(detailArray.get(1), "match"); //$NON-NLS-1$
+                if (matchArray != null) {
+                    JSONArray scoresArray = getChildArrayByParent(matchArray.get(1), "scores"); //$NON-NLS-1$
+                    if (scoresArray != null) {
+                        StringBuilder attributebBuilder = new StringBuilder();
+                        for (int i = 0; i < scoresArray.size(); i++) {
+                            JSONArray scoreArray = getChildArrayByParent(scoresArray.get(i), StagingConstant.MATCH_SCORE);
+                            if (scoreArray != null) {
+                                String fieldName = getValue(scoreArray.get(1), StagingConstant.MATCH_FIELD);
+                                String fieldValue = getValue(scoreArray.get(2), "fieldValue"); //$NON-NLS-1$
+                                detail.set(fieldName, fieldValue);
+                                attributebBuilder.append(fieldName);
+                                attributebBuilder.append(StagingConstant.VALUE_SEPARATOR);
+                                attributebBuilder.append(getValue(scoreArray.get(3), StagingConstant.MATCH_VALUE));
+                                attributebBuilder.append(","); //$NON-NLS-1$
+                            }
                         }
+                        String scoreValue = attributebBuilder.length() > 0 ? attributebBuilder.toString().substring(0,
+                                attributebBuilder.toString().length() - 1) : ""; //$NON-NLS-1$
+                        detail.set(StagingConstant.MATCH_SCORE, scoreValue);
                     }
-                    String scoreValue = attributebBuilder.length() > 0 ? attributebBuilder.toString().substring(0,
-                            attributebBuilder.toString().length() - 1) : ""; //$NON-NLS-1$
-                    detail.set(StagingConstant.MATCH_SCORE, scoreValue);
                 }
+                parent.add(detail);
             }
-            parent.add(detail);
         }
     }
 

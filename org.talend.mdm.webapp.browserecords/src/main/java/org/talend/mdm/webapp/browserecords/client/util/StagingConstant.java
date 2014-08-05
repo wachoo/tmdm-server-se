@@ -48,6 +48,8 @@ public class StagingConstant {
 
     public static final String MATCH_DATA = "json"; //$NON-NLS-1$
 
+    public static final String MATCH_RELATED_IDS = "related_ids"; //$NON-NLS-1$
+
     public static final String DISPLAY_NAME = "name"; //$NON-NLS-1$
 
     public static final String VALUE_SEPARATOR = ":"; //$NON-NLS-1$
