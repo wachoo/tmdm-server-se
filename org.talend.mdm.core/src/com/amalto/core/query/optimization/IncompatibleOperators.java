@@ -3,6 +3,7 @@ package com.amalto.core.query.optimization;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.hibernate.MappingGenerator;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -119,11 +120,25 @@ public class IncompatibleOperators implements Optimizer {
                 left.accept(this);
                 right.accept(this);
                 TypeMetadata fieldType = currentField.getFieldMetadata().getType();
-                if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Replacing EQUALS with STARTS_WITH (can't use EQUALS on large text column).");
+                String length = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
+                if (length != null) {
+                    if (right instanceof ConstantExpression<?>) {
+                        if (Integer.parseInt(length) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Replacing EQUALS with STARTS_WITH (can't use EQUALS on large text column).");
+                            }
+                            return new Compare(left, Predicate.STARTS_WITH, right);
+                        } else {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("*NOT* replacing EQUALS with STARTS_WITH (field does not exceed max varchar size).");
+                            }
+                            return condition;
+                        }
+                    } else {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("*NOT* replacing EQUALS with STARTS_WITH (can't use STARTS_WITH with an other field).");
+                        }
                     }
-                    return new Compare(left, Predicate.STARTS_WITH, right);
                 }
             }
             return condition;
