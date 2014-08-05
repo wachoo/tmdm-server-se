@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ii>
+    <c>RTE</c>
+    <n>RTE</n>
+    <dmn>Contrat</dmn>
+    <i>1</i>
+    <t>1328544306381</t>
+    <taskId/>
+    <p>
+        <UniteAgregation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <codeUa>nnnnn</codeUa>
+            <controleCodeUA>Oui</controleCodeUA>
+            <nomUa>EP</nomUa>
+            <typeUA xsi:type="UAPointSoutirageRpd">
+                <GRDs>
+                    <GRD/>
+                </GRDs>
+                <SitesSoutirageRpd>
+                    <SiteSoutirageRpd>[46]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[51]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[52]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[53]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[54]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[56]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[55]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[79]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[57]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[84]</SiteSoutirageRpd>
+                    <SiteSoutirageRpd>[225]</SiteSoutirageRpd>
+                </SitesSoutirageRpd>
+                <crmaUa>Non</crmaUa>
+                <methodeCrma>CRMA</methodeCrma>
+            </typeUA>
+            <commentaireUa/>
+            <idUa>205</idUa>
+        </UniteAgregation>
+    </p>
+</ii>

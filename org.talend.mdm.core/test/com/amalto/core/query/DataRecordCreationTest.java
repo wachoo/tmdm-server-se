@@ -206,6 +206,34 @@ public class DataRecordCreationTest extends StorageTestCase {
 
         performInheritanceAsserts(dataRecord);
     }
+    
+    public void testCreationWithEmptyElements() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(this.getClass().getResourceAsStream("rte.xsd"));
+
+        ComplexTypeMetadata uniteAgregation = repository.getComplexType("UniteAgregation");
+        assertNotNull(uniteAgregation);
+
+        InputStream testResource = this.getClass().getResourceAsStream("DataRecordCreationTest4.xml");
+        XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+        XmlSAXDataRecordReader reader = new XmlSAXDataRecordReader();
+        XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(testResource));
+        DataRecord dataRecord = reader.read(null, repository, uniteAgregation, input);
+        assertNotNull(dataRecord);
+        assertNotNull(dataRecord.get("idUa"));
+        // Test exportToString
+        StringWriter output = new StringWriter();
+        DataRecordWriter writer = new DataRecordXmlWriter();
+        try {
+            writer.write(dataRecord, output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String actualXml = output.toString();
+        String expectedXml = "<UniteAgregation><codeUa>nnnnn</codeUa><controleCodeUA>Oui</controleCodeUA><nomUa>EP</nomUa><typeUA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"UAPointSoutirageRpd\"><GRDs></GRDs><SitesSoutirageRpd><SiteSoutirageRpd>[46]</SiteSoutirageRpd><SiteSoutirageRpd>[51]</SiteSoutirageRpd><SiteSoutirageRpd>[52]</SiteSoutirageRpd><SiteSoutirageRpd>[53]</SiteSoutirageRpd><SiteSoutirageRpd>[54]</SiteSoutirageRpd><SiteSoutirageRpd>[56]</SiteSoutirageRpd><SiteSoutirageRpd>[55]</SiteSoutirageRpd><SiteSoutirageRpd>[79]</SiteSoutirageRpd><SiteSoutirageRpd>[57]</SiteSoutirageRpd><SiteSoutirageRpd>[84]</SiteSoutirageRpd><SiteSoutirageRpd>[225]</SiteSoutirageRpd></SitesSoutirageRpd><crmaUa>Non</crmaUa><methodeCrma>CRMA</methodeCrma></typeUA><idUa>205</idUa></UniteAgregation>";
+        assertEquals(expectedXml, actualXml);
+    }
+    
 
     private void performAsserts(DataRecord dataRecord) {
         assertNotNull(dataRecord);
