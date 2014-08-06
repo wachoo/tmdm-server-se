@@ -75,13 +75,13 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
 
         private final Stack<DataRecord> dataRecordStack = new Stack<DataRecord>();
 
+        private final Stack<FieldMetadata> currentField = new Stack<FieldMetadata>();
+
         private final ResettableStringWriter charactersBuffer = new ResettableStringWriter();
 
         private final ComplexTypeMetadata mainType;
 
         private final MetadataRepository repository;
-
-        private FieldMetadata field;
 
         private boolean hasMetUserElement = false;
 
@@ -100,7 +100,6 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         public DataRecordContentHandler(ComplexTypeMetadata type, MetadataRepository repository) {
             mainType = type;
             this.repository = repository;
-            field = null;
             dataRecord = new DataRecord(type, new DataRecordMetadataImpl(0, null));
             dataRecordStack.push(dataRecord);
             hasMetUserElement = false;
@@ -142,7 +141,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             } else {
                 if (accumulateXml > 0) {
                     charactersBuffer.append('<').append(localName).append('>');
-                    if (localName.equals(field.getName())) {
+                    if (localName.equals(currentField.peek().getName())) {
                         accumulateXml++;
                     }
                     return;
@@ -151,7 +150,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                     metadataField = localName;
                     isMetadata = true;
                 } else {
-                    field = ((ComplexTypeMetadata) currentType.peek()).getField(localName);
+                    FieldMetadata field = ((ComplexTypeMetadata) currentType.peek()).getField(localName);
                     if (field instanceof ReferenceFieldMetadata) {
                         ComplexTypeMetadata actualType = ((ReferenceFieldMetadata) field).getReferencedType();
                         String mdmType = attributes.getValue(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
@@ -184,6 +183,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                         }
                         currentType.push(type);
                     }
+                    currentField.push(field);
                 }
             }
         }
@@ -192,7 +192,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         public void endElement(String uri, String localName, String qName) throws SAXException {
             if (accumulateXml > 0) {
                 charactersBuffer.append("</").append(localName).append('>');
-                if (localName.equals(field.getName())) {
+                if (localName.equals(currentField.peek().getName())) {
                     accumulateXml--;
                 }
             }
@@ -203,16 +203,14 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             if (isMetadata) {
                 DataRecordMetadataHelper.setMetadataValue(dataRecord.getRecordMetadata(), metadataField, value);
                 isMetadata = false;
-            } else if (hasMetUserElement && field != null) {
+            } else if (hasMetUserElement && !currentField.isEmpty()) {
+                FieldMetadata field = currentField.pop();
+                TypeMetadata type = currentType.pop();
                 if (!value.isEmpty()) {
-                    dataRecordStack.peek().set(field,
-                            value.isEmpty() ? null : StorageMetadataUtils.convert(value, field, currentType.peek()));
+                    dataRecordStack.peek().set(field, StorageMetadataUtils.convert(value, field, type));
                 }
-                if (!currentType.isEmpty()) {
-                    TypeMetadata typeMetadata = currentType.pop();
-                    if (!(field instanceof ReferenceFieldMetadata) && typeMetadata instanceof ComplexTypeMetadata) {
-                        dataRecordStack.pop();
-                    }
+                if (field instanceof ContainedTypeFieldMetadata) {
+                    dataRecordStack.pop();
                 }
             } else {
                 if (isReadingTimestamp) {

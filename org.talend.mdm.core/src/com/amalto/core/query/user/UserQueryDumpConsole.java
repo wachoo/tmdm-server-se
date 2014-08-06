@@ -346,6 +346,12 @@ public class UserQueryDumpConsole implements Visitor<Void> {
             print("[PREDICATE] LOWER THAN"); //$NON-NLS-1$
         } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
             print("[PREDICATE] LOWER THAN OR EQUALS"); //$NON-NLS-1$
+        } else if (predicate == Predicate.AND) {
+            print("[PREDICATE] AND"); //$NON-NLS-1$
+        } else if (predicate == Predicate.OR) {
+            print("[PREDICATE] OR"); //$NON-NLS-1$
+        } else if (predicate == Predicate.CONTAINS) {
+            print("[PREDICATE] CONTAINS"); //$NON-NLS-1$
         } else {
             print("Unvisited predicate: " + predicate.toString()); //$NON-NLS-1$
         }
