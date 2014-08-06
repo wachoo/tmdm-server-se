@@ -111,7 +111,7 @@ public class ExplainTablePanel extends ContentPanel {
             @Override
             public Object render(final ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ModelData> store, Grid<ModelData> grid) {
-                if (model.get(StagingConstant.MATCH_IS_GROUP)) {
+                if ((Boolean)(model.get(StagingConstant.MATCH_IS_GROUP))) {
                     Image detailButton = new Image(Icons.INSTANCE.link_go());
                     detailButton.addClickHandler(new ClickHandler() {
 
@@ -155,7 +155,6 @@ public class ExplainTablePanel extends ContentPanel {
                 ModelData selectedItem = event.getSelectedItem();
                 if (selectedItem != null) {
                     String id = selectedItem.get(StagingConstant.MATCH_GROUP_ID);
-                    boolean isGroup = selectedItem.get(StagingConstant.MATCH_IS_GROUP);
                     if (id != null && !id.isEmpty()) {
                         ItemBean item = new ItemBean();
                         item.setConcept(BrowseRecords.getSession().getCurrentEntityModel().getConceptName());
