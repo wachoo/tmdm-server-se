@@ -1,0 +1,126 @@
+<!--
+  ~ Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" blockDefault="" elementFormDefault="unqualified" finalDefault="">
+    <xsd:element abstract="false" name="Reporting" nillable="false" type="ReportingType">
+        <xsd:unique name="Reporting">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="ReportingName"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:element abstract="false" name="hierarchical-report" nillable="false" type="hierarchical-reportType">
+        <xsd:unique name="hierarchical-report">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="report-name"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType abstract="false" mixed="false" name="hierarchical-reportType">
+        <xsd:all maxOccurs="1" minOccurs="1">
+            <xsd:element maxOccurs="1" minOccurs="1" name="report-name" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="title-field-path" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="owner" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="filters" nillable="false">
+                <xsd:complexType mixed="false">
+                    <xsd:sequence maxOccurs="1" minOccurs="1">
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="filter-items" nillable="false">
+                            <xsd:complexType mixed="false">
+                                <xsd:all maxOccurs="1" minOccurs="1">
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="operator" nillable="false" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="0" name="field-label" nillable="false" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="field-path" nillable="false" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="value" nillable="false" type="xsd:string"/>
+                                </xsd:all>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="shared" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="limit" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="index-directions-expr" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="pivot-directions-expr" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="data-model" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="data-object-name" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="data-cluster" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="pivot-path" nillable="false" type="xsd:string"/>
+        </xsd:all>
+    </xsd:complexType>
+    <xsd:complexType abstract="false" mixed="false" name="ReportingType">
+        <xsd:all maxOccurs="1" minOccurs="1">
+            <xsd:element maxOccurs="1" minOccurs="1" name="ReportingName" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="Concept" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="Cluster" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Format" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Owner" nillable="false" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Shared" nillable="false" type="xsd:boolean"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Pivot" nillable="false">
+                <xsd:complexType mixed="false">
+                    <xsd:sequence maxOccurs="1" minOccurs="1">
+                        <xsd:element maxOccurs="1" minOccurs="0" name="Field" nillable="false" type="xsd:string"/>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="XPath" nillable="false" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="StoredProcedure" nillable="false">
+                <xsd:complexType mixed="false">
+                    <xsd:sequence maxOccurs="1" minOccurs="1">
+                        <xsd:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xsd:string"/>
+                        <xsd:element maxOccurs="1" minOccurs="0" name="ListOfParameters" nillable="false">
+                            <xsd:complexType mixed="false">
+                                <xsd:sequence maxOccurs="1" minOccurs="1">
+                                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="Parameter" nillable="false">
+                                        <xsd:complexType mixed="false">
+                                            <xsd:sequence maxOccurs="1" minOccurs="1">
+                                                <xsd:element maxOccurs="1" minOccurs="1" name="Name" nillable="false" type="xsd:string"/>
+                                                <xsd:element maxOccurs="1" minOccurs="1" name="Description" nillable="false" type="xsd:string"/>
+                                                <xsd:element maxOccurs="1" minOccurs="1" name="Type" nillable="false" type="xsd:string"/>
+                                            </xsd:sequence>
+                                        </xsd:complexType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="1" name="ListOfFields" nillable="false">
+                <xsd:complexType mixed="false">
+                    <xsd:sequence maxOccurs="1" minOccurs="1">
+                        <xsd:element maxOccurs="unbounded" minOccurs="1" name="DisplayField" nillable="false">
+                            <xsd:complexType mixed="false">
+                                <xsd:sequence maxOccurs="1" minOccurs="1">
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="Field" nillable="false" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="XPath" nillable="false" type="xsd:string"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="ListOfFilters" nillable="false">
+                <xsd:complexType mixed="false">
+                    <xsd:sequence maxOccurs="1" minOccurs="1">
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="Filter" nillable="false">
+                            <xsd:complexType mixed="false">
+                                <xsd:sequence maxOccurs="1" minOccurs="1">
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="Field" nillable="false" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="XPath" nillable="false" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="Operator" nillable="false" type="xsd:string"/>
+                                    <xsd:element maxOccurs="1" minOccurs="1" name="Value" nillable="false" type="xsd:string"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
+</xsd:schema>

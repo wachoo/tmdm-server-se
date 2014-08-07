@@ -10,16 +10,24 @@
 
 package com.amalto.core.storage.services;
 
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -85,9 +93,9 @@ public class SystemModels {
     }
 
     @GET
-    @Path("{model}")//$NON-NLS-1$
-    public String getSchema(@PathParam("model")//$NON-NLS-1$
-            String modelName) {
+    @Path("{model}")
+    public String getSchema(@PathParam("model")
+    String modelName) {
         if (!isSystemStorageAvailable()) {
             return StringUtils.EMPTY;
         }
@@ -114,10 +122,10 @@ public class SystemModels {
     }
 
     @PUT
-    @Path("{model}")//$NON-NLS-1$
-    public void updateModel(@PathParam("model")//$NON-NLS-1$
-            String modelName, @QueryParam("force")//$NON-NLS-1$
-            boolean force, InputStream dataModel) {
+    @Path("{model}")
+    public void updateModel(@PathParam("model")
+    String modelName, @QueryParam("force")
+    boolean force, InputStream dataModel) {
         if (!isSystemStorageAvailable()) { // If no system storage is available, store new schema version.
             try {
                 DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
@@ -150,7 +158,8 @@ public class SystemModels {
         if (storageAdmin.supportStaging(modelName)) {
             Storage stagingStorage = storageAdmin.get(modelName, StorageType.STAGING, null);
             if (stagingStorage != null) {
-                // TMDM-7312: Don't forget to add staging types (otherwise, staging storage will complain about removed types).
+                // TMDM-7312: Don't forget to add staging types (otherwise, staging storage will complain about removed
+                // types).
                 MetadataRepository stagingRepository = newRepository.copy();
                 stagingRepository.load(MetadataRepositoryAdmin.class.getResourceAsStream("stagingInternalTypes.xsd"));
                 stagingStorage.adapt(stagingRepository, force);
@@ -198,9 +207,9 @@ public class SystemModels {
     }
 
     @POST
-    @Path("{model}")//$NON-NLS-1$
-    public String analyzeModelChange(@PathParam("model")//$NON-NLS-1$
-            String modelName, InputStream dataModel) {
+    @Path("{model}")
+    public String analyzeModelChange(@PathParam("model")
+    String modelName, InputStream dataModel) {
         Map<ImpactAnalyzer.Impact, List<Change>> impacts;
         if (!isSystemStorageAvailable()) {
             impacts = new EnumMap<ImpactAnalyzer.Impact, List<Change>>(ImpactAnalyzer.Impact.class);
@@ -212,6 +221,11 @@ public class SystemModels {
             Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
             if (storage == null) {
                 LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change."); //$NON-NLS-1$//$NON-NLS-2$
+                return StringUtils.EMPTY;
+            }
+
+            if (storage.getType() == StorageType.SYSTEM) {
+                LOGGER.debug("No model update for system storage"); //$NON-NLS-1$
                 return StringUtils.EMPTY;
             }
             // Compare new data model with existing data model

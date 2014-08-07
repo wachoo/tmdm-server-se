@@ -35,9 +35,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import com.amalto.core.query.optimization.*;
 import net.sf.ehcache.CacheManager;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -108,6 +108,13 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
+import com.amalto.core.query.optimization.ContainsOptimizer;
+import com.amalto.core.query.optimization.IncompatibleOperators;
+import com.amalto.core.query.optimization.Optimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
+import com.amalto.core.query.optimization.RecommendedIndexes;
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -867,7 +874,21 @@ public class HibernateStorage implements Storage {
 
     @Override
     public ImpactAnalyzer getImpactAnalyzer() {
-        return new HibernateStorageImpactAnalyzer();
+        switch (storageType) {
+        case MASTER:
+        case STAGING:
+            return new HibernateStorageImpactAnalyzer();
+        case SYSTEM:
+            return new ImpactAnalyzer() {
+
+                @Override
+                public Map<Impact, List<Change>> analyzeImpacts(Compare.DiffResults diffResult) {
+                    return Collections.emptyMap();
+                }
+            };
+        default:
+            throw new NotImplementedException("No support for storage type '" + storageType + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+        }
     }
 
     // TODO Refactor method (too big)
