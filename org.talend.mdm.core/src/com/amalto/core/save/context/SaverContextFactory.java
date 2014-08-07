@@ -284,43 +284,4 @@ public class SaverContextFactory {
         }
         return context;
     }
-
-    public DocumentSaverContext delete(String[] ids, boolean overwrite, boolean invokeBeforeDeleting, boolean updateReport,
-            String changeSource, String dataCluster, boolean validate, String dataModelName, boolean autoCommit) {
-        if (invokeBeforeDeleting && !updateReport) {
-            throw new IllegalArgumentException("Must generate update report to invoke before saving.");
-        }
-        Server server = ServerContext.INSTANCE.get();
-        // Choose right user action
-        UserAction userAction = UserAction.LOGICAL_DELETE; // TODO
-        // Choose right context implementation
-        DocumentSaverContext context;
-        StorageAdmin storageAdmin = server.getStorageAdmin();
-        Storage storage = storageAdmin.get(dataCluster, storageAdmin.getType(dataCluster), null);
-        if (storage != null) {
-            // TMDM-6316: disable update report generation & before Checking for Staging data operation: creation,update
-            if (dataCluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-                invokeBeforeDeleting = false;
-                updateReport = false;
-            }
-            context = new StorageDeleter(storage, ids, overwrite, userAction, invokeBeforeDeleting);
-        } else {
-            // Deprecated code here (keep it for XML database).
-            if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX)
-                    || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, dataCluster)) {
-                context = new SystemContext(dataCluster, dataModelName, null, userAction); // TODO
-            } else {
-                context = new UserContext(dataCluster, dataModelName, null, userAction, validate, updateReport, // TODO
-                        invokeBeforeDeleting);
-            }
-        }
-        // Additional options (update report, auto commit).
-        if (updateReport) {
-            context = ReportDocumentSaverContext.decorate(context, changeSource);
-        }
-        if (autoCommit) {
-            context = AutoCommitSaverContext.decorate(context);
-        }
-        return context;
-    }
 }

@@ -42,10 +42,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.util.SynchronizedNow;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
@@ -73,6 +75,8 @@ public class RecycleBinAction implements RecycleBinService {
 
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.recyclebin.client.i18n.RecycleBinMessages", RecycleBinAction.class.getClassLoader()); //$NON-NLS-1$
+
+    private final static SynchronizedNow now = new SynchronizedNow();
 
     @Override
     public ItemBasePageLoadResult<ItemsTrashItem> getTrashItems(String regex, BasePagingLoadConfigImpl load)
@@ -118,8 +122,10 @@ public class RecycleBinAction implements RecycleBinService {
 
                     if (!Webapp.INSTANCE.isEnterpriseVersion()
                             || (DataModelAccessor.getInstance().checkReadAccess(modelName, conceptName))) {
-                        ItemsTrashItem item = WS2POJO(wsitem, repositoryMap.get(modelName), (String) load.get("language")); //$NON-NLS-1$
+                        ItemsTrashItem item = new ItemsTrashItem();
+                        item = WS2POJO(wsitem, repositoryMap.get(modelName), (String) load.get("language")); //$NON-NLS-1$
                         li.add(item);
+
                     }
                 }
             }
@@ -171,10 +177,11 @@ public class RecycleBinAction implements RecycleBinService {
         String projection = item.getProjection();
         String[] values = org.talend.mdm.webapp.recyclebin.server.actions.Util.getItemNameByProjection(item.getConceptName(),
                 projection, repository, language);
-        return new ItemsTrashItem(item.getConceptName(), values[1],
+        ItemsTrashItem pojo = new ItemsTrashItem(item.getConceptName(), values[1],
                 Util.joinStrings(item.getIds(), "."), values[0] != null ? values[0] : "", df.format(new Date(//$NON-NLS-1$ //$NON-NLS-2$
                         item.getInsertionTime())), item.getInsertionUserName(), item.getWsDataClusterPK().getPk(),
                 item.getPartPath(), item.getProjection(), item.getRevisionID(), item.getUniqueId());
+        return pojo;
     }
 
     @Override
@@ -184,7 +191,7 @@ public class RecycleBinAction implements RecycleBinService {
             if (!isDeletable) {
                 throw new NoPermissionException();
             }
-            return true;
+            return isDeletable;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -232,6 +239,10 @@ public class RecycleBinAction implements RecycleBinService {
                 WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
                 Util.getPort().removeDroppedItem(wsrdi);
 
+                String xml = createUpdateReport(clusterName, modelName, ids1, conceptName,
+                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
+                Util.persistentUpdateReport(xml, true);
+
                 if (message == null || message.isEmpty()) {
                     message = MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$
                 }
@@ -272,9 +283,28 @@ public class RecycleBinAction implements RecycleBinService {
             WSDroppedItemPK wsdipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
             WSRecoverDroppedItem wsrdi = new WSRecoverDroppedItem(wsdipk);
             Util.getPort().recoverDroppedItem(wsrdi);
+
+            // put the restore into updatereport archive
+            String xml = createUpdateReport(clusterName, modelName, ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_RESTORED);
+            Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
+    }
+
+    private String createUpdateReport(String dataClusterPK, String dataModelPK, String[] ids, String concept, String operationType)
+            throws Exception {
+
+        String revisionId = null;
+        String username = com.amalto.webapp.core.util.Util.getLoginUserName();
+        String universename = com.amalto.webapp.core.util.Util.getLoginUniverse();
+        if (universename != null && universename.length() > 0) {
+            revisionId = com.amalto.webapp.core.util.Util.getRevisionIdFromUniverse(universename, concept);
+        }
+
+        UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
+                "genericUI", now.getTime(), dataClusterPK, dataModelPK, username, revisionId, null); ////$NON-NLS-1$
+        return updateReportPOJO.serialize();
     }
 }

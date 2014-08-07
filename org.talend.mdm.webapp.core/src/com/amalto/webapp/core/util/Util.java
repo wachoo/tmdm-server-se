@@ -13,23 +13,31 @@
 package com.amalto.webapp.core.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.rmi.RemoteException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.acl.Group;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,11 +57,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.rpc.Stub;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.jxpath.AbstractFactory;
+import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.exolab.castor.types.Date;
+import org.jboss.security.Base64Encoder;
 import org.jboss.security.SimpleGroup;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -65,11 +80,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import com.amalto.commons.core.utils.XMLUtils;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
@@ -77,10 +94,13 @@ import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.bean.UpdateReportItem;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.json.JSONArray;
 import com.amalto.webapp.core.json.JSONObject;
+import com.amalto.webapp.util.webservices.WSBase64KeyValue;
 import com.amalto.webapp.util.webservices.WSConceptKey;
+import com.amalto.webapp.util.webservices.WSConnectorResponseCode;
 import com.amalto.webapp.util.webservices.WSCount;
 import com.amalto.webapp.util.webservices.WSCountItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSDataClusterPK;
@@ -91,6 +111,8 @@ import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
 import com.amalto.webapp.util.webservices.WSGetUniverse;
 import com.amalto.webapp.util.webservices.WSItem;
 import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.webapp.util.webservices.WSRouteItemV2;
 import com.amalto.webapp.util.webservices.WSStringArray;
 import com.amalto.webapp.util.webservices.WSStringPredicate;
 import com.amalto.webapp.util.webservices.WSUniverse;
@@ -215,6 +237,10 @@ public class Util {
         return xml;
     }
 
+    public static String getPackageFilePath(Class<?> c, String filename) {
+        return c.getResource(filename).getPath();
+    }
+
     /*********************************************************************
      * NODE UTILS
      *********************************************************************/
@@ -260,12 +286,28 @@ public class Util {
         return null;
     }
 
+    /**
+     * Comment method "getFieldFromPath". Returns the last part - eg. the field name - from the path
+     */
+    public static String getFieldFromPath(String path) {
+        String result = null;
+        if (path != null) {
+            if (path.endsWith("/")) { //$NON-NLS-1$
+                path = path.substring(0, path.lastIndexOf("/")); //$NON-NLS-1$
+            }
+            String[] tmps = path.split("/"); //$NON-NLS-1$
+            result = tmps[tmps.length - 1];
+        }
+        return result;
+    }
+
     public static String getForeignPathFromPath(String path) {
         int pos = path.indexOf("["); //$NON-NLS-1$
         if (pos != -1) {
             return path.substring(0, pos);
         }
         return path;
+
     }
 
     public static WSWhereCondition getConditionFromPath(String path) {
@@ -509,6 +551,101 @@ public class Util {
         return false;
     }
 
+    /**
+     * @return a specific value for Simple Type, "" for Complex Type
+     * @throws Exception
+     */
+    public static boolean findXSDSimpleTypeInDocument(Document doc, Node elem, String type, ArrayList<String> typeInfo)
+            throws Exception {
+        if (type != null && type.trim().equals("")) { //$NON-NLS-1$
+            if (Util.getNodeList(elem, ".//xsd:simpleType").getLength() > 0) { //$NON-NLS-1$
+                NodeList list = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction"); //$NON-NLS-1$
+                if (list.getLength() > 0) {
+                    if (Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration").getLength() > 0) { //$NON-NLS-1$
+                        NodeList emumList = Util.getNodeList(elem, ".//xsd:simpleType/xsd:restriction/xsd:enumeration"); //$NON-NLS-1$
+                        typeInfo.add("enumeration"); //$NON-NLS-1$
+                        for (int i = 0; i < emumList.getLength(); i++) {
+                            typeInfo.add(emumList.item(i).getAttributes().getNamedItem("value").getNodeValue()); //$NON-NLS-1$
+                        }
+                    } else {
+                        typeInfo.add(list.item(0).getAttributes().getNamedItem("base").getNodeValue()); //$NON-NLS-1$
+                    }
+                }
+                return true;
+            } else if (Util.getNodeList(elem, "/xsd:complexType").getLength() > 0) { //$NON-NLS-1$
+                return false;
+            }
+        }
+
+        String path = "//xsd:simpleType"; //$NON-NLS-1$
+        if (type != null && !type.trim().equals("")) { //$NON-NLS-1$
+            path += "[@name='" + type + "']"; //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        if (Util.getNodeList(doc, path).getLength() > 0) {
+            Node node = Util.getNodeList(doc, path).item(0);
+            if (Util.getNodeList(node, "//xsd:restriction").getLength() > 0) { //$NON-NLS-1$
+                Node resNode = Util.getNodeList(node, "//xsd:restriction").item(0); //$NON-NLS-1$
+                NodeList enumList = Util.getNodeList(resNode, "/xsd:enumeration"); //$NON-NLS-1$
+                if (enumList.getLength() > 0) {
+                    // enumeration occurs
+                    typeInfo.add("enumeration"); //$NON-NLS-1$
+                    for (int i = 0; i < enumList.getLength(); i++) {
+                        typeInfo.add(enumList.item(i).getAttributes().getNamedItem("value").getNodeValue()); //$NON-NLS-1$
+                    }
+                } else {
+                    typeInfo.add(resNode.getAttributes().getNamedItem("base").getNodeValue()); //$NON-NLS-1$
+                }
+                return true;
+            }
+            return false;
+        } else {
+            NodeList importList;
+            for (int nm = 0; nm < 2; nm++) {
+                if (nm == 0) {
+                    importList = Util.getNodeList(doc, "//xsd:import"); //$NON-NLS-1$
+                } else {
+                    importList = Util.getNodeList(doc, "//xsd:include"); //$NON-NLS-1$
+                }
+
+                for (int i = 0; i < importList.getLength(); i++) {
+                    Node schemaLocation = importList.item(i).getAttributes().getNamedItem("schemaLocation"); //$NON-NLS-1$
+                    if (schemaLocation == null) {
+                        continue;
+                    }
+                    String location = schemaLocation.getNodeValue();
+                    Document subDoc = parseImportedFile(location);
+                    return findXSDSimpleTypeInDocument(subDoc, importList.item(i), type, typeInfo);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static Document parseImportedFile(String xsdLocation) {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setValidating(false);
+
+        Pattern httpUrl = Pattern.compile("(http|https|ftp):(\\//|\\\\)(.*):(.*)"); //$NON-NLS-1$
+        Matcher match = httpUrl.matcher(xsdLocation);
+        Document d;
+        try {
+            if (match.matches()) {
+                List<String> authorizations = Util.getAuthorizationInfo();
+                String xsd = Util.getResponseFromURL(xsdLocation, authorizations.get(0), authorizations.get(1));
+                d = Util.parse(xsd);
+            } else {
+                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                d = documentBuilder.parse(new FileInputStream(xsdLocation));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return d;
+    }
+
     public static List<String> getAuthorizationInfo() {
         ArrayList<String> authorizations = new ArrayList<String>();
         String user = "", pwd = ""; //$NON-NLS-1$ //$NON-NLS-2$
@@ -590,6 +727,17 @@ public class Util {
             return com.amalto.webapp.util.webservices.WSWhereOperator.CONTAINS;
         }
         return null;
+    }
+
+    public static Document copyDocument(Document doc) throws Exception {
+
+        TransformerFactory tfactory = TransformerFactory.newInstance();
+        Transformer tx = tfactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+        DOMResult result = new DOMResult();
+        tx.transform(source, result);
+        return (Document) result.getNode();
+
     }
 
     /**
@@ -834,6 +982,19 @@ public class Util {
         return (Element) Util.getNodeList(Util.parse(userString), "//User").item(0);
     }
 
+    public static String getUserDataModel() throws Exception {
+        Element item = getLoginProvisioningFromDB();
+        NodeList nodeList = Util.getNodeList(item, "//property"); //$NON-NLS-1$
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            if ("model".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                Node fchild = Util.getNodeList(node, "value").item(0).getFirstChild(); //$NON-NLS-1$
+                return fchild.getNodeValue();
+            }
+        }
+        return null;
+    }
+
     /*********************************************************************
      * PASSWORD UTILS
      *********************************************************************/
@@ -891,6 +1052,73 @@ public class Util {
             hex.append(Character.forDigit((aByte & 0X0F), 16));
         }
         return hex.toString();
+    }
+
+    /**
+     * ****************************************************************** WEB SERVICES
+     * *******************************************************************
+     */
+
+    public static HashMap<String, Object> getMapFromKeyValues(WSBase64KeyValue[] params) throws RemoteException {
+        try {
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            if (params != null) {
+                for (WSBase64KeyValue param : params) {
+                    if (param != null) {
+                        String key = param.getKey();
+                        byte[] bytes = (new BASE64Decoder()).decodeBuffer(param.getBase64StringValue());
+                        if (bytes != null) {
+                            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+                            ObjectInputStream ois = new ObjectInputStream(bais);
+                            map.put(key, ois.readObject());
+                        } else {
+                            map.put(key, null);
+                        }
+                    }
+                }
+            }
+            return map;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
+        }
+    }
+
+    public static WSBase64KeyValue[] getKeyValuesFromMap(HashMap<String, Object> params) throws RemoteException {
+        try {
+            if (params == null) {
+                return null;
+            }
+            WSBase64KeyValue[] keyValues = new WSBase64KeyValue[params.size()];
+            Set<String> keys = params.keySet();
+            int i = 0;
+            for (String key : keys) {
+                Object value = params.get(key);
+                if (value != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(baos);
+                    oos.writeObject(value);
+                    String base64Value = Base64Encoder.encode(baos.toByteArray());
+                    keyValues[i] = new WSBase64KeyValue();
+                    keyValues[i].setKey(key);
+                    keyValues[i].setBase64StringValue(base64Value);
+                    i++;
+                }
+            }
+            return keyValues;
+        } catch (Exception e) {
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
+        }
+    }
+
+    public static String getCodeFromWSConnectorResponseCode(WSConnectorResponseCode code) {
+        if (code.equals(WSConnectorResponseCode.OK)) {
+            return "OK"; //$NON-NLS-1$
+        }
+        if (code.equals(WSConnectorResponseCode.STOPPED)) {
+            return "STOPPED"; //$NON-NLS-1$
+        }
+        return "ERROR"; //$NON-NLS-1$
     }
 
     /*********************************************************************
@@ -968,6 +1196,72 @@ public class Util {
             res = WSWhereOperator.EMPTY_NULL;
         }
         return res;
+    }
+
+    /**
+     * check the certain column is digit
+     */
+    public static boolean checkDigist(ArrayList<String[]> itemsBrowserContent, int col) {
+        if (col == -1) {
+            return false;
+        }
+        for (String[] temp : itemsBrowserContent) {
+            if (!temp[col].matches("^(-|)[0-9]+(\\.?)[0-9]*$")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * sort the ArrayList by col in direction of dir
+     */
+    public static void sortCollections(ArrayList<String[]> itemsBrowserContent, int col, String dir) {
+        System.out.println(dir);
+        if (col < 0) {
+            return;
+        }
+        if ("descending".equals(dir)) { //$NON-NLS-1$
+            for (int j = 1; j < itemsBrowserContent.size(); j++) {
+                String temp[] = itemsBrowserContent.get(j);
+                int i = j;
+                while (i > 0
+                        && (itemsBrowserContent.get(i - 1)[col].length() == 0 || (itemsBrowserContent.get(i - 1)[col].length() > 0
+                                && temp[col].length() > 0 && Double.parseDouble(itemsBrowserContent.get(i - 1)[col]) < Double
+                                .parseDouble(temp[col])))) {
+                    itemsBrowserContent.set(i, itemsBrowserContent.get(i - 1));
+                    i--;
+                }
+                itemsBrowserContent.set(i, temp);
+            }
+        } else {
+            for (int j = 1; j < itemsBrowserContent.size(); j++) {
+                String temp[] = itemsBrowserContent.get(j);
+                int i = j;
+                while ((i > 0 && itemsBrowserContent.get(i - 1)[col].length() > 0 && temp[col].length() > 0 && Double
+                        .parseDouble(itemsBrowserContent.get(i - 1)[col]) > Double.parseDouble(temp[col]))
+                        || i > 0
+                        && temp[col].length() == 0) {
+                    itemsBrowserContent.set(i, itemsBrowserContent.get(i - 1));
+                    i--;
+                }
+                itemsBrowserContent.set(i, temp);
+
+            }
+        }
+    }
+
+    /**
+     * get the column number of the certain title in Array columns
+     */
+    public static int getSortCol(String[] columns, String title) {
+        int col = -1;
+        for (int i = 0; i < columns.length; i++) {
+            if (("/" + columns[i]).equals(title)) {
+                return i;
+            }
+        }
+        return col;
     }
 
     public static List<String> getElementValues(Node n) throws Exception {
@@ -1091,7 +1385,7 @@ public class Util {
     }
 
     public static String getForeignKeyList(int start, int limit, String value, String xpathForeignKey,
-            String xpathInfoForeignKey, String fkFilter, boolean isCount) throws Exception {
+            String xpathInfoForeignKey, String fkFilter, boolean isCount) throws RemoteException, Exception {
         if (xpathForeignKey == null) {
             return null;
         }
@@ -1147,7 +1441,7 @@ public class Util {
                         if (fks != null && fks.length > 0) {
                             realXpathForeignKey = fks[0];
                             for (int i = 0; i < fks.length; i++) {
-                                ids.append(fks[i]).append(queryKeyWord).append(value);
+                                ids.append(fks[i] + queryKeyWord + value);
                                 if (i != fks.length - 1) {
                                     ids.append(" OR "); //$NON-NLS-1$
                                 }
@@ -1259,7 +1553,9 @@ public class Util {
                     }
                 }
 
-                if ((!keys.equals("[]") && !keys.equals("")) || (!infos.equals("") && !infos.equals("[]"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                if ((keys.equals("[]") || keys.equals("")) && (infos.equals("") || infos.equals("[]"))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                    // empty row
+                } else {
                     JSONObject row = new JSONObject();
                     row.put("keys", keys); //$NON-NLS-1$
                     row.put("infos", infos); //$NON-NLS-1$
@@ -1323,7 +1619,10 @@ public class Util {
                 WSWhereItem wc = buildWhereItem(criteriaCondition);
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-                whereItem = new WSWhereItem(null, and, null);
+                WSWhereItem wAnd = new WSWhereItem(null, and, null);
+                if (wAnd != null) {
+                    whereItem = wAnd;
+                }
             }
             count = getPort().count(new WSCount(new WSDataClusterPK(config.getCluster()), conceptName, whereItem,// null,
                     -1)).getValue();
@@ -1349,6 +1648,101 @@ public class Util {
         return isCustom;
     }
 
+    @SuppressWarnings("deprecation")
+    public static String outputValidateDate(String dataValue, String format) throws ParseException {
+        Pattern datePtn = Pattern
+                .compile("((\\d{1,2}\\/){2}\\d{4})?(\\d{1,2}\\/\\d{4})?(\\d{1,2})?(\\d{1,2}\\/\\d{1,2})?(\\d{4})?((\\d{1,2}\\/)(\\d{1,2}\\/)(\\d{1,4}))?");//$NON-NLS-1$
+        Matcher mtn = datePtn.matcher(dataValue);
+
+        if (mtn.matches()) {
+            if (mtn.group(1) != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat(format.equals("%tD") ? "MM/dd/yyyy" : "dd/MM/yyyy");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                java.util.Date date = sdf.parse(dataValue);
+                sdf.applyPattern("yyyy-MM-dd");//$NON-NLS-1$
+                dataValue = sdf.format(date);
+                return dataValue;
+            }
+
+            java.util.Calendar now = Calendar.getInstance();
+            now.setTime(new java.util.Date());
+
+            if (mtn.group(1) == null && mtn.group(3) != null && mtn.group(5) != null) {
+                dataValue = "01/" + dataValue;//$NON-NLS-1$
+                return outputValidateDate(dataValue, format);
+            } else if (mtn.group(3) != null) {
+                dataValue = now.get(java.util.Calendar.DAY_OF_MONTH) + "/" + dataValue;//$NON-NLS-1$
+                return outputValidateDate(dataValue, format);
+            } else if (mtn.group(6) != null) {
+                dataValue = now.get(java.util.Calendar.DAY_OF_MONTH)
+                        + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + dataValue;//$NON-NLS-1$//$NON-NLS-2$
+                return outputValidateDate(dataValue, format);
+            } else if (mtn.group(4) != null && mtn.group(5) == null && mtn.group(7) == null) {
+                dataValue = dataValue
+                        + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$//$NON-NLS-2$
+                return outputValidateDate(dataValue, format);
+            } else if (mtn.group(5) != null) {
+                dataValue += "/" + (now.get(java.util.Calendar.YEAR) + 1);//$NON-NLS-1$
+                return outputValidateDate(dataValue, format);
+            } else if (mtn.group(7) != null) {
+                String year = 2000
+                        + Integer.valueOf(mtn.group(10).startsWith("0") ? mtn.group(10).substring(1) : mtn.group(10)) + "";//$NON-NLS-1$//$NON-NLS-2$
+                dataValue = (mtn.group(4).isEmpty() ? "" : mtn.group(4)) + mtn.group(8) + mtn.group(9) + year; //$NON-NLS-1$
+                return outputValidateDate(dataValue, format);
+            }
+        }
+
+        datePtn = Pattern.compile("(\\w*)\\s+(\\w*)\\s+(\\d*)\\s+(\\d{2}:\\d{2}:\\d{2})\\s+(\\w*)\\s+(\\d{4})");//$NON-NLS-1$
+        mtn = datePtn.matcher(dataValue);
+        if (mtn.matches()) {
+            java.util.Calendar now = Calendar.getInstance();
+            now.setTimeInMillis(java.util.Date.parse(dataValue));
+            dataValue = now.get(java.util.Calendar.DAY_OF_MONTH)
+                    + "/" + (now.get(java.util.Calendar.MONTH) + 1) + "/" + (now.get(java.util.Calendar.YEAR));//$NON-NLS-1$//$NON-NLS-2$
+            return outputValidateDate(dataValue, format);
+        }
+
+        return dataValue;
+    }
+
+    /**
+     * @author ymli
+     * @param type
+     * @param value
+     * @return
+     * @throws ParseException Byte, Short, Integer, and Long Float and Double date,time
+     */
+
+    public static Object getTypeValue(String lang, String type, String value, String format) throws ParseException {
+        // time
+        if (type.equals("date") && !value.equals("")) {//$NON-NLS-1$ //$NON-NLS-2$
+            Calendar calendar;
+            try {
+                calendar = Date.parseDate(value.trim()).toCalendar();
+            } catch (Exception ex) {
+                calendar = Date.parseDate(outputValidateDate(value, format)).toCalendar();
+            }
+            return calendar;
+        } else if (type.equals("dateTime") && !value.equals("")) { //$NON-NLS-1$ //$NON-NLS-2$
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //$NON-NLS-1$
+            Calendar dateTime = Calendar.getInstance();
+            dateTime.setTime(sdf.parse(value.trim()));
+            return dateTime;
+        } else if (type.equals("byte")) {
+            return Byte.valueOf(value);
+        } else if (type.equals("short")) {
+            return Short.valueOf(value);
+        } else if (type.equals("int") || type.equals("integer")) {
+            return Integer.valueOf(value);
+        } else if (type.equals("long")) {
+            return Long.valueOf(value);
+        } else if (type.equals("float")) {
+            return Float.valueOf(value);
+        } else if (type.equals("double")) {
+            return Double.valueOf(value);
+        }
+        return null;
+    }
+
     public static boolean isTransformerExist(String transformerPK) {
         try {
             boolean isBeforeSavingTransformerExist = false;
@@ -1371,6 +1765,50 @@ public class Util {
         return false;
     }
 
+    public static void createOrUpdateNode(String xpath, String value, Document doc) {
+        JXPathContext ctx = JXPathContext.newContext(doc);
+        AbstractFactory factory = new AbstractFactory() {
+
+            @Override
+            public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index) {
+                if (parent instanceof Node) {
+                    try {
+                        Node node = (Node) parent;
+                        Document doc1 = node.getOwnerDocument();
+                        Element e = doc1.createElement(name);
+                        if (index > 0) { // list
+                            Pointer p = context.getRelativeContext(pointer).getPointer(name + "[" + (index) + "]"); //$NON-NLS-1$ //$NON-NLS-2$
+                            Node curNode = (Node) p.getNode();
+                            if (curNode != null) {
+                                if (curNode.getNextSibling() != null) {
+                                    node.insertBefore(e, curNode.getNextSibling());
+                                } else {
+                                    node.appendChild(e);
+                                }
+                            } else {
+                                node.appendChild(e);
+                            }
+                        } else {
+                            node.appendChild(e);
+                        }
+                        return true;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            public boolean declareVariable(JXPathContext context, String name) {
+                return false;
+            }
+        };
+        ctx.setFactory(factory);
+        ctx.createPathAndSetValue(xpath, value);
+    }
+
     public static boolean checkDCAndDM(String dataContainer, String dataModel) {
         Configuration config;
 
@@ -1381,6 +1819,94 @@ public class Util {
             Logger.getLogger(Util.class).error(e.getMessage(), e);
             return false;
         }
+    }
+
+    public static String createUpdateReport(String[] ids, String concept, String operationType,
+            HashMap<String, UpdateReportItem> updatedPath) throws Exception {
+
+        String revisionId = null;
+
+        Configuration config = Configuration.getInstance();
+        String dataModelPK = config.getModel() == null ? "" : config.getModel(); //$NON-NLS-1$
+        String dataClusterPK = config.getCluster() == null ? "" : config.getCluster(); //$NON-NLS-1$
+
+        String username = Util.getLoginUserName();
+        String universename = Util.getLoginUniverse();
+        if (universename != null && universename.length() > 0) {
+            revisionId = Util.getRevisionIdFromUniverse(universename, concept);
+        }
+
+        StringBuilder keyBuilder = new StringBuilder();
+        if (ids != null) {
+            for (int i = 0; i < ids.length; i++) {
+                keyBuilder.append(ids[i]);
+                if (i != ids.length - 1) {
+                    keyBuilder.append("."); //$NON-NLS-1$
+                }
+            }
+        }
+        String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$ //$NON-NLS-2$
+                .append(System.currentTimeMillis()).append("</TimeInMillis><OperationType>") //$NON-NLS-1$
+                .append(StringEscapeUtils.escapeXml(operationType)).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
+                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$
+                .append(dataModelPK).append("</DataModel><Concept>").append(StringEscapeUtils.escapeXml(concept)) //$NON-NLS-1$
+                .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
+
+        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
+            Collection<UpdateReportItem> list = updatedPath.values();
+            boolean isUpdate = false;
+            for (UpdateReportItem item : list) {
+                String oldValue = item.getOldValue() == null ? "" : item.getOldValue(); //$NON-NLS-1$
+                String newValue = item.getNewValue() == null ? "" : item.getNewValue(); //$NON-NLS-1$
+                if (newValue.equals(oldValue)) {
+                    continue;
+                }
+                sb.append("<Item>   <path>").append(StringEscapeUtils.escapeXml(item.getPath())).append("</path>   <oldValue>")//$NON-NLS-1$ //$NON-NLS-2$
+                        .append(StringEscapeUtils.escapeXml(oldValue)).append("</oldValue>   <newValue>")//$NON-NLS-1$
+                        .append(StringEscapeUtils.escapeXml(newValue)).append("</newValue></Item>");//$NON-NLS-1$
+                isUpdate = true;
+            }
+            if (!isUpdate) {
+                return null;
+            }
+        }
+        sb.append("</Update>");//$NON-NLS-1$
+        return sb.toString();
+    }
+
+    public static String persistentUpdateReport(String xml2, boolean routeAfterSaving) throws Exception {
+        if (xml2 == null) {
+            return "OK"; //$NON-NLS-1$
+        }
+
+        WSItemPK itemPK = Util.getPort().putItem(
+                new WSPutItem(new WSDataClusterPK("UpdateReport"), xml2, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
+
+        if (routeAfterSaving) {
+            Util.getPort().routeItemV2(new WSRouteItemV2(itemPK));
+        }
+
+        return "OK"; //$NON-NLS-1$
+    }
+
+    public static String stripLeadingAndTrailingQuotes(String str) {
+
+        if (str == null) {
+            return ""; //$NON-NLS-1$
+        }
+
+        if (str.startsWith("\"")) //$NON-NLS-1$
+        {
+            str = str.substring(1, str.length());
+        }
+        if (str.endsWith("\"")) //$NON-NLS-1$
+        {
+            str = str.substring(0, str.length() - 1);
+        }
+        return str;
     }
 
     @Deprecated
@@ -1447,6 +1973,21 @@ public class Util {
         return keys;
     }
 
+    public static String convertDocument2String(Document doc, boolean isContainHead) throws Exception {
+        DOMSource domSource = new DOMSource(doc);
+        StringWriter writer = new StringWriter();
+        StreamResult result = new StreamResult(writer);
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.transform(domSource, result);
+        if (isContainHead) {
+            return writer.toString();
+        } else {
+            String xmlString = writer.toString();
+            return xmlString.replaceAll("<\\?.*\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+    }
+
     public static boolean causeIs(Throwable throwable, Class<?> cls) {
         Throwable currentCause = throwable;
         while (currentCause != null) {
@@ -1458,7 +1999,7 @@ public class Util {
         return false;
     }
 
-    public static <T extends Throwable> T cause(Throwable throwable, Class<T> cls) {
+    public static <T> T cause(Throwable throwable, Class<T> cls) {
         Throwable currentCause = throwable;
         while (currentCause != null) {
             if (cls.isInstance(currentCause)) {
