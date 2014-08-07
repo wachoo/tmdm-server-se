@@ -131,7 +131,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 referenceField.getWriteUsers(),
                 referenceField.getHideUsers(),
-                referenceField.getWorkflowAccessRights());
+                referenceField.getWorkflowAccessRights(), StringUtils.EMPTY);
         newFlattenField.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH); // TODO Not very true...
         database.addField(newFlattenField);
         entityMapping.map(referenceField, newFlattenField);
@@ -225,7 +225,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                 new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                 containedField.getWriteUsers(),
                 containedField.getHideUsers(),
-                containedField.getWorkflowAccessRights());
+                containedField.getWorkflowAccessRights(), StringUtils.EMPTY);
         newFlattenField.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH);
         newFlattenField.setData(MappingGenerator.SQL_DELETE_CASCADE, Boolean.TRUE.toString());
         currentType.peek().addField(newFlattenField);

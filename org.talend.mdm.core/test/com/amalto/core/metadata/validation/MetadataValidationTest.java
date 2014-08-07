@@ -524,6 +524,18 @@ public class MetadataValidationTest extends TestCase {
         assertTrue(handler.getLineNumbers().contains(109));
         assertFalse(handler.getLineNumbers().contains(null));
     }
+    
+    public void testForeignKeyFilter() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("ForeignKeyFilter.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getErrorCount());
+        assertEquals(1, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.FOREIGN_KEY_INFO_INVALID));
+        assertTrue(handler.getLineNumbers().contains(22));
+        assertFalse(handler.getLineNumbers().contains(null));
+    }
 
     private static class TestValidationHandler implements ValidationHandler {
 
