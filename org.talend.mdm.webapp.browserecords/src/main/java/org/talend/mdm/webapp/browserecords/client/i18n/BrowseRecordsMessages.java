@@ -281,8 +281,6 @@ public interface BrowseRecordsMessages extends Messages {
 
     String explain_tip();
 
-    String explain_result_title();
-
     String no_taskid_warning_message();
 
     String compare_button();
@@ -510,4 +508,28 @@ public interface BrowseRecordsMessages extends Messages {
     String no_golden_record_in_group(String groupId);
 
     String record_not_found_msg();
+
+    String lineage_list_tab_title();
+
+    String lineage_explain_tab_title();
+
+    String explainResult_group_header();
+
+    String explainResult_id_header();
+
+    String explainResult_name_header();
+
+    String explainResult_gid_header();
+
+    String explainResult_gsize_header();
+
+    String explainResult_master_header();
+
+    String explainResult_confidence_header();
+
+    String explainResult_attrscore_header();
+
+    String explainResult_details_header();
+
+    String matchdetail_title();
 }

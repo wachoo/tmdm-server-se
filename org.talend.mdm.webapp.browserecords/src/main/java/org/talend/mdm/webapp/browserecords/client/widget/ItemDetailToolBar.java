@@ -70,7 +70,6 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -89,7 +88,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.URL;
@@ -1299,19 +1297,14 @@ public class ItemDetailToolBar extends ToolBar {
 
     private void showExplainResult(BaseTreeModel root) {
         Window explainWindow = new Window();
-        explainWindow.setHeading(MessagesFactory.getMessages().explain_result_title());
+        SimulateTablePanel simulateTable = new SimulateTablePanel();
+        explainWindow.setHeading(MessagesFactory.getMessages().lineage_explain_tab_title());
         explainWindow.setSize(800, 600);
         explainWindow.setLayout(new FitLayout());
         explainWindow.setScrollMode(Scroll.NONE);
-        TreePanel<BaseTreeModel> tree = CommonUtil.getExplainResultPanel(root);
-        ContentPanel explainTreePanel = new ContentPanel();
-        explainTreePanel.setHeaderVisible(false);
-        explainTreePanel.setScrollMode(Scroll.AUTO);
-        explainTreePanel.add(tree);
-        explainWindow.add(explainTreePanel);
+        simulateTable.buildTree(root);
+        explainWindow.add(simulateTable);
         explainWindow.show();
-        tree.expandAll();
-
     }
 
     public void setSelectItem(ItemBaseModel selectItem) {
