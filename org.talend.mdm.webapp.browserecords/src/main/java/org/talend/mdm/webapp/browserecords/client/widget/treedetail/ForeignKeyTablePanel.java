@@ -323,7 +323,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 };
             });
         }
-        final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel);
+        final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel, isStaging);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
         grid.setStateId(panelName);

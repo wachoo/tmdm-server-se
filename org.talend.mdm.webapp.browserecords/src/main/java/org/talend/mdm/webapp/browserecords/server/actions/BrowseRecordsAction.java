@@ -384,13 +384,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean isStaging, String language)
+    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean staging, String language)
             throws ServiceException {
         try {
             String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
             String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
 
-            String dataCluster = getCurrentDataCluster(isStaging);
+            String dataCluster = getCurrentDataCluster(staging);
             String dataModel = getCurrentDataModel();
             String concept = itemBean.getConcept();
             // get item
@@ -476,7 +476,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             // dynamic Assemble
-            dynamicAssemble(itemBean, entityModel, language);
+            dynamicAssemble(itemBean, entityModel, staging, language);
 
             return itemBean;
         } catch (WebBaseException e) {
@@ -503,7 +503,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * @param language
      * @throws Exception
      */
-    protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
+    protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, boolean staging, String language) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
@@ -540,7 +540,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                                             value.getTextContent(),
                                                             false,
                                                             modelType,
-                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), isStaging(), language)); //$NON-NLS-1$
+                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), staging, language)); //$NON-NLS-1$
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
@@ -2207,8 +2207,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
 
-            dynamicAssemble(itemBean, entityModel, language);
-
+            dynamicAssemble(itemBean, entityModel, isStaging(), language);
             return itemBean;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
