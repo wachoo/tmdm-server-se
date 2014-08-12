@@ -22,7 +22,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
 
-import com.amalto.webapp.util.webservices.XtentisPort;
+import com.amalto.core.webservice.XtentisPort;
 
 @PrepareForTest({ org.talend.mdm.webapp.base.server.util.CommonUtil.class, DataProvider.class })
 @SuppressWarnings("nls")

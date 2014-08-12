@@ -26,7 +26,7 @@ import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions.SmartVie
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSTransformerPK;
+import com.amalto.core.webservice.WSTransformerPK;
 
 
 /**

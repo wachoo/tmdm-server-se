@@ -28,10 +28,6 @@ public class SystemLocale implements Serializable {
 
     // TODO private String currencyFormat;
 
-    public SystemLocale() {
-
-    }
-
     public SystemLocale(String iso, String label) {
         super();
         this.iso = iso;

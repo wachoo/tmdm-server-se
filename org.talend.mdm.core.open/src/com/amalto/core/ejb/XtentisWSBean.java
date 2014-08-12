@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import javax.ejb.CreateException;
@@ -31,6 +32,7 @@ import javax.resource.cci.ConnectionFactory;
 import javax.resource.cci.Interaction;
 import javax.resource.cci.MappedRecord;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
 import org.jboss.security.Base64Encoder;
 
 import sun.misc.BASE64Decoder;
@@ -1576,6 +1578,46 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
     @Override
     public WSLong updateDigest(WSDigest wsDigest) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().updateDigest(wsDigest);
+    }
+
+    @Override
+    public WSRole getRole(WSGetRole wsGetRole) {
+        return null; // Not supported in Open version
+    }
+
+    @Override
+    public WSUniverse getUniverse(Object wsGetUniverse) {
+        return null; // Not supported in Open version
+    }
+
+    @Override
+    public WSBoolean isPagingAccurate(WSInt wsInt) {
+        return null; // TODO
+    }
+
+    @Override
+    public WSBoolean supportStaging() {
+        return null; // TODO
+    }
+
+    @Override
+    public WSUniversePKArray getUniversePKs(WSGetUniversePKs wsGetUniversePKs) {
+        return null; // TODO
+    }
+
+    @Override
+    public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) {
+        return null; // TODO
+    }
+
+    @Override
+    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) {
+        return null; // TODO
+    }
+
+    @Override
+    public WSRolePKArray getRolePKs(WSGetRolePKs ks) throws RemoteException {
+        return null; // TODO
     }
 
     /**

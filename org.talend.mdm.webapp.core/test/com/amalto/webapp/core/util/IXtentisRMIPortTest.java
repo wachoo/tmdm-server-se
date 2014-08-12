@@ -20,11 +20,11 @@ import junit.framework.TestCase;
 
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import com.amalto.webapp.util.webservices.WSBoolean;
-import com.amalto.webapp.util.webservices.WSInt;
-import com.amalto.webapp.util.webservices.WSPing;
-import com.amalto.webapp.util.webservices.WSString;
-import com.amalto.webapp.util.webservices.XtentisPort;
+import com.amalto.core.webservice.WSBoolean;
+import com.amalto.core.webservice.WSInt;
+import com.amalto.core.webservice.WSPing;
+import com.amalto.core.webservice.WSString;
+import com.amalto.core.webservice.XtentisPort;
 
 @SuppressWarnings("nls")
 public class IXtentisRMIPortTest extends TestCase {

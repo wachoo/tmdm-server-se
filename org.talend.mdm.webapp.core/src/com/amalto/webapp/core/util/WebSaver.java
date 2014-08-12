@@ -30,8 +30,8 @@ import com.amalto.core.util.OutputReportMissingException;
 import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.SchematronValidateException;
 import com.amalto.core.util.ValidateException;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSPutItemWithReport;
 
 /**
  * DOC talend2 class global comment. Detailled comment

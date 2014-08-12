@@ -24,9 +24,9 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
-import com.amalto.webapp.util.webservices.WSDataModel;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
+import com.amalto.core.webservice.WSDataModel;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetDataModel;
 
 public class DataModelAccessor {
 

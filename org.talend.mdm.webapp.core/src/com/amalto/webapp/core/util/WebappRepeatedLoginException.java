@@ -13,35 +13,10 @@
 package com.amalto.webapp.core.util;
 
 
-/**
- * DOC HSHU  class global comment. Detailled comment
- */
+
 public class WebappRepeatedLoginException extends Exception{
     
-    /**
-     * DOC HSHU WebappLoginException constructor comment.
-     */
     public WebappRepeatedLoginException() {
-        super();
-    }
-    /**
-     * @param message
-     */
-    public WebappRepeatedLoginException(String message) {
-        super(message);
-    }
-    /**
-     * @param message
-     * @param cause
-     */
-    public WebappRepeatedLoginException(String message, Throwable cause) {
-        super(message, cause);
-    }
-    /**
-     * @param cause
-     */
-    public WebappRepeatedLoginException(Throwable cause) {
-        super(cause);
     }
 
 }

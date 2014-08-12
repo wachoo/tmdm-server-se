@@ -3,10 +3,15 @@ package com.amalto.webapp.core.util;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import com.amalto.webapp.util.webservices.*;
+import com.amalto.core.webservice.*;
 
 @SuppressWarnings("nls")
-public class XtentisRMIMockPort extends IXtentisRMIPort{
+public class XtentisRMIMockPort extends IXtentisRMIPort {
+
+    @Override
+    public WSString refreshCache(WSRefreshCache refreshCache) throws RemoteException {
+        return null;
+    }
 
     public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
 			WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions)
@@ -41,12 +46,22 @@ public class XtentisRMIMockPort extends IXtentisRMIPort{
 		throw new RemoteException("Not supported exception! ");
 	}
 
-	public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
+    @Override
+    public WSString deleteItemWithReport(WSDeleteItemWithReport wsDeleteItem) throws RemoteException {
+        return null;
+    }
+
+    public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
 		
 		throw new RemoteException("Not supported exception! ");
 	}
 
-	public WSBoolean existsRole(WSExistsRole wsExistsRole)
+    @Override
+    public WSUniverse getUniverse(Object wsGetUniverse) {
+        return null;
+    }
+
+    public WSBoolean existsRole(WSExistsRole wsExistsRole)
 			throws RemoteException {
 		
 		throw new RemoteException("Not supported exception! ");
@@ -196,8 +211,7 @@ public class XtentisRMIMockPort extends IXtentisRMIPort{
 		throw new RemoteException("Not supported exception! ");
 	}
 
-	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex)
-			throws RemoteException {
+	public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
 		
 		throw new RemoteException("Not supported exception! ");
 	}
@@ -233,7 +247,12 @@ public class XtentisRMIMockPort extends IXtentisRMIPort{
 		throw new RemoteException("Not supported exception! ");
 	}
 
-	public WSSynchronizationPlan getSynchronizationPlan(
+    @Override
+    public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws RemoteException {
+        return null;
+    }
+
+    public WSSynchronizationPlan getSynchronizationPlan(
 			WSGetSynchronizationPlan wsGetSynchronizationPlan)
 			throws RemoteException {
 		
@@ -469,7 +488,22 @@ public class XtentisRMIMockPort extends IXtentisRMIPort{
 		throw new RemoteException("Not supported exception! ");
 	}
 
-	public List<String> globalSearch(String dataCluster, String keyword,
+    @Override
+    public WSBoolean isXmlDB() throws RemoteException {
+        return null;
+    }
+
+    @Override
+    public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException {
+        return null;
+    }
+
+    @Override
+    public WSLong updateDigest(WSDigest wsDigest) throws RemoteException {
+        return null;
+    }
+
+    public List<String> globalSearch(String dataCluster, String keyword,
 			int start, int end) throws RemoteException {
 		
 		throw new RemoteException("Not supported exception! ");

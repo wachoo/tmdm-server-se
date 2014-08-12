@@ -22,8 +22,6 @@ public class FieldLabel implements Serializable {
 
     private final String language;
 
-    private String value;
-
     public FieldLabel(String language) {
         super();
         this.language = normalizeLanguage(language);
@@ -38,14 +36,6 @@ public class FieldLabel implements Serializable {
 
     public String getLabelAnnotation() {
         return X_LABEL + this.language;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public String getLanguage() {

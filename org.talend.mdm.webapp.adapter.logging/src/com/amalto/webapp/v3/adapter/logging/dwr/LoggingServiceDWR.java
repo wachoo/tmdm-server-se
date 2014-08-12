@@ -11,10 +11,10 @@ import org.w3c.dom.Document;
 
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSServiceAction;
-import com.amalto.webapp.util.webservices.WSServiceActionCode;
-import com.amalto.webapp.util.webservices.WSServiceGetConfiguration;
-import com.amalto.webapp.util.webservices.WSServicePutConfiguration;
+import com.amalto.core.webservice.WSServiceAction;
+import com.amalto.core.webservice.WSServiceActionCode;
+import com.amalto.core.webservice.WSServiceGetConfiguration;
+import com.amalto.core.webservice.WSServicePutConfiguration;
 
 
 /**

@@ -2,13 +2,13 @@ package com.amalto.webapp.core.util;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.amalto.core.objects.role.ejb.RolePOJO;
 import com.amalto.core.objects.role.ejb.RolePOJOPK;
 import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
-import com.amalto.webapp.util.webservices.*;
+import com.amalto.core.util.XConverter;
+import com.amalto.core.webservice.*;
 
 /**
  * The list of web services implemented as RMI local calls
@@ -69,6 +69,11 @@ public class XtentisRMIPort extends IXtentisRMIPort {
         return null;
     }
 
+    @Override
+    public WSString refreshCache(WSRefreshCache refreshCache) throws RemoteException {
+        return null;
+    }
+
     public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
             WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
         
@@ -77,6 +82,11 @@ public class XtentisRMIPort extends IXtentisRMIPort {
 
     public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
         
+        return null;
+    }
+
+    @Override
+    public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws RemoteException {
         return null;
     }
 
@@ -105,6 +115,11 @@ public class XtentisRMIPort extends IXtentisRMIPort {
             org.apache.log4j.Logger.getLogger(this.getClass()).debug(err, e);
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public WSUniverse getUniverse(Object wsGetUniverse) {
+        return null;
     }
 
     public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
@@ -319,6 +334,11 @@ public class XtentisRMIPort extends IXtentisRMIPort {
         return null;
     }
 
+    @Override
+    public WSString deleteItemWithReport(WSDeleteItemWithReport wsDeleteItem) throws RemoteException {
+        return null;
+    }
+
     public WSBoolean putMDMJob(WSPUTMDMJob putMDMJobRequest) throws RemoteException {
         
         return null;
@@ -369,6 +389,21 @@ public class XtentisRMIPort extends IXtentisRMIPort {
 
     public WSAutoIncrement getAutoIncrement(WSAutoIncrement wsAutoIncrementRequest) throws RemoteException {
         
+        return null;
+    }
+
+    @Override
+    public WSBoolean isXmlDB() throws RemoteException {
+        return null;
+    }
+
+    @Override
+    public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException {
+        return null;
+    }
+
+    @Override
+    public WSLong updateDigest(WSDigest wsDigest) throws RemoteException {
         return null;
     }
 

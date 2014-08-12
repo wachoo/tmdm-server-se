@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.server.ServerContext;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
@@ -52,19 +53,19 @@ import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
-import com.amalto.webapp.util.webservices.WSConceptKey;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSDroppedItem;
-import com.amalto.webapp.util.webservices.WSDroppedItemPK;
-import com.amalto.webapp.util.webservices.WSDroppedItemPKArray;
-import com.amalto.webapp.util.webservices.WSExistsItem;
-import com.amalto.webapp.util.webservices.WSFindAllDroppedItemsPKs;
-import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSLoadDroppedItem;
-import com.amalto.webapp.util.webservices.WSRecoverDroppedItem;
-import com.amalto.webapp.util.webservices.WSRemoveDroppedItem;
+import com.amalto.core.webservice.WSConceptKey;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSDroppedItem;
+import com.amalto.core.webservice.WSDroppedItemPK;
+import com.amalto.core.webservice.WSDroppedItemPKArray;
+import com.amalto.core.webservice.WSExistsItem;
+import com.amalto.core.webservice.WSFindAllDroppedItemsPKs;
+import com.amalto.core.webservice.WSGetBusinessConceptKey;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSLoadDroppedItem;
+import com.amalto.core.webservice.WSRecoverDroppedItem;
+import com.amalto.core.webservice.WSRemoveDroppedItem;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -88,20 +89,14 @@ public class RecycleBinAction implements RecycleBinService {
             }
             regex = regex.replaceAll("\\*", "");//$NON-NLS-1$//$NON-NLS-2$
             regex = ".*" + regex + ".*";//$NON-NLS-1$//$NON-NLS-2$
-
             List<ItemsTrashItem> li = new ArrayList<ItemsTrashItem>();
-
             WSDroppedItemPKArray pks = Util.getPort().findAllDroppedItemsPKs(new WSFindAllDroppedItemsPKs(regex));
             WSDroppedItemPK[] items = pks.getWsDroppedItemPK();
-            Map<String, MetadataRepository> repositoryMap = new HashMap<String, MetadataRepository>();
-
             for (WSDroppedItemPK pk : items) {
                 WSDroppedItem wsitem = Util.getPort().loadDroppedItem(new WSLoadDroppedItem(pk));
-
                 String conceptName = wsitem.getConceptName();
                 String conceptXML = wsitem.getProjection();
                 String modelName = getModelNameFromConceptXML(conceptXML);
-
                 if (modelName != null) {
                     // For enterprise version we check the user roles first, if one user don't have read permission on a
                     // DataModel Object, then ignore it
@@ -109,23 +104,12 @@ public class RecycleBinAction implements RecycleBinService {
                             && !LocalUser.getLocalUser().userCanRead(DataModelPOJO.class, modelName)) {
                         continue;
                     }
-
-                    String modelXSD = DataModelAccessor.getInstance().getDataModelXSD(modelName);
-                    if (modelXSD != null && modelXSD.trim().length() > 0) {
-                        if (!repositoryMap.containsKey(modelName)) {
-                            MetadataRepository repository = new MetadataRepository();
-                            InputStream is = new ByteArrayInputStream(modelXSD.getBytes("UTF-8")); //$NON-NLS-1$
-                            repository.load(is);
-                            repositoryMap.put(modelName, repository);
-                        }
-                    }
-
                     if (!Webapp.INSTANCE.isEnterpriseVersion()
                             || (DataModelAccessor.getInstance().checkReadAccess(modelName, conceptName))) {
                         ItemsTrashItem item = new ItemsTrashItem();
-                        item = WS2POJO(wsitem, repositoryMap.get(modelName), (String) load.get("language")); //$NON-NLS-1$
+                        MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(modelName);
+                        item = WS2POJO(wsitem, repository, (String) load.get("language")); //$NON-NLS-1$
                         li.add(item);
-
                     }
                 }
             }
@@ -241,7 +225,7 @@ public class RecycleBinAction implements RecycleBinService {
 
                 String xml = createUpdateReport(clusterName, modelName, ids1, conceptName,
                         UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
-                Util.persistentUpdateReport(xml, true);
+                // Util.persistentUpdateReport(xml, true);
 
                 if (message == null || message.isEmpty()) {
                     message = MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$
@@ -286,7 +270,7 @@ public class RecycleBinAction implements RecycleBinService {
 
             // put the restore into updatereport archive
             String xml = createUpdateReport(clusterName, modelName, ids1, conceptName, UpdateReportPOJO.OPERATION_TYPE_RESTORED);
-            Util.persistentUpdateReport(xml, true);
+            // Util.persistentUpdateReport(xml, true);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

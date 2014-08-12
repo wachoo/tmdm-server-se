@@ -23,24 +23,17 @@ public class SystemLocaleFactory implements Serializable {
 
     private Map<String, SystemLocale> supportedLocales = new LinkedHashMap<String, SystemLocale>();
 
-    /**
-     * Private constuctor
-     */
     private SystemLocaleFactory() {
-        super();
     }
 
     /**
      * Get the unique instance of this class.
      */
     public static synchronized SystemLocaleFactory getInstance() {
-
         if (sInstance == null) {
             sInstance = new SystemLocaleFactory();
         }
-
         return sInstance;
-
     }
 
     public void load(SystemLocaleInitializable initializable) throws Exception {
@@ -50,21 +43,6 @@ public class SystemLocaleFactory implements Serializable {
 
     public Map<String, SystemLocale> getSupportedLocales() {
         return supportedLocales;
-    }
-
-    public SystemLocale getLocale(String iso) {
-
-        if (iso == null)
-            return null;
-
-        for (String myIso : supportedLocales.keySet()) {
-            SystemLocale myLocale = supportedLocales.get(myIso);
-            if (myLocale.getIso().equals(iso))
-                return myLocale;
-        }
-
-        return null;
-
     }
 
 }

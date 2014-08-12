@@ -16,8 +16,8 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 
-import com.amalto.webapp.util.webservices.WSMenuEntry;
-import com.amalto.webapp.util.webservices.WSMenuMenuEntriesDescriptions;
+import com.amalto.core.webservice.WSMenuEntry;
+import com.amalto.core.webservice.WSMenuMenuEntriesDescriptions;
 
 @SuppressWarnings("nls")
 public class MenuTest extends TestCase {

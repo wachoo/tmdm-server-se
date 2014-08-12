@@ -44,8 +44,8 @@ import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.util.webservices.WSPutItemWithReport;
-import com.amalto.webapp.util.webservices.WSPutItemWithReportArray;
+import com.amalto.core.webservice.WSPutItemWithReport;
+import com.amalto.core.webservice.WSPutItemWithReportArray;
 
 /**
  * 

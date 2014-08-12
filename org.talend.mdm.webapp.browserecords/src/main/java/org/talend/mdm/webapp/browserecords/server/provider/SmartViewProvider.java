@@ -15,7 +15,7 @@ package org.talend.mdm.webapp.browserecords.server.provider;
 import java.rmi.RemoteException;
 
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSTransformerPK;
+import com.amalto.core.webservice.WSTransformerPK;
 
 /**
  * DOC Administrator  class global comment. Detailled comment

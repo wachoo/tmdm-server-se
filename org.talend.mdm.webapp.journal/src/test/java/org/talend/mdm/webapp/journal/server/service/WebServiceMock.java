@@ -20,15 +20,14 @@ import java.rmi.RemoteException;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.server.util.Constants;
-import org.talend.mdm.webapp.journal.server.service.WebService;
 
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItemsSort;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSStringArray;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSGetItemsSort;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSStringArray;
 import com.sun.xml.xsom.XSElementDecl;
 
 
