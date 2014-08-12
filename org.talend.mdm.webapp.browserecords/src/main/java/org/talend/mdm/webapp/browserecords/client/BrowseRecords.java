@@ -63,6 +63,10 @@ public class BrowseRecords implements EntryPoint {
 
     public static final String BROWSERECORD_ID = "Browse Records"; //$NON-NLS-1$
 
+    public static final String ENTITY_MODEL = "EntityModel"; //$NON-NLS-1$
+
+    public static final String VIEW_BEAN = "ViewBean"; //$NON-NLS-1$
+
     private static JavaScriptObject stagingArea;
 
     public static JavaScriptObject getStagingArea() {

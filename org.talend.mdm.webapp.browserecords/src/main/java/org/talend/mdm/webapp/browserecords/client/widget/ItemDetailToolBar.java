@@ -107,6 +107,8 @@ public class ItemDetailToolBar extends ToolBar {
 
     public final static String DUPLICATE_OPERATION = "DUPLICATE_OPERATION"; //$NON-NLS-1$
 
+    public final static int SOURCE_LINEAGE = 3;
+
     private Button saveButton;
 
     private Button saveAndCloseButton;
@@ -174,6 +176,8 @@ public class ItemDetailToolBar extends ToolBar {
     protected boolean openTab;
 
     private boolean isStaging;
+
+    private int source;
 
     public ItemDetailToolBar() {
         this.setBorders(false);
@@ -1345,6 +1349,14 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void setOpenTab(boolean openTab) {
         this.openTab = openTab;
+    }
+
+    public int getSource() {
+        return this.source;
+    }
+
+    public void setSource(int source) {
+        this.source = source;
     }
 
     public void closeCurrentTabPanel() {

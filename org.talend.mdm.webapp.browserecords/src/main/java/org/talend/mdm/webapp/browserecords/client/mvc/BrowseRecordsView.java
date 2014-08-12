@@ -430,7 +430,7 @@ public class BrowseRecordsView extends View {
     private void onViewLineageItem(AppEvent event) {
         ItemBean item = (ItemBean) event.getData();
         String operation = getOperation(item);
-        ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
+        ViewBean viewBean = event.getData(BrowseRecords.VIEW_BEAN);
 
         ItemsDetailPanel lineageDetailPanel = ItemsDetailPanel.newInstance();
         lineageDetailPanel.setStaging(true);
@@ -440,6 +440,7 @@ public class BrowseRecordsView extends View {
         itemPanel.getToolBar().setOutMost(false);
         itemPanel.getToolBar().setFkToolBar(false);
         itemPanel.getToolBar().setHierarchyCall(false);
+        itemPanel.getToolBar().setSource(ItemDetailToolBar.SOURCE_LINEAGE);
 
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (item != null) {

@@ -555,6 +555,8 @@ public class LineageListPanel extends ContentPanel {
                 @Override
                 public void execute() {
                     AppEvent event = new AppEvent(BrowseRecordsEvents.ViewLineageItem, item);
+                    event.setData(BrowseRecords.ENTITY_MODEL, entityModel);
+                    event.setData(BrowseRecords.VIEW_BEAN, viewBean);
                     Dispatcher.forwardEvent(event);
                 }
             });

@@ -204,7 +204,8 @@ public class BrowseRecordsController extends Controller {
                         }
                         // TMDM-7366 If open or duplicate record in new tab,don't refresh LineageListPanel after save
                         // action.
-                        if (isStaging && !detailToolBar.isOutMost()) {
+                        if (isStaging && !detailToolBar.isOutMost()
+                                && detailToolBar.getSource() == ItemDetailToolBar.SOURCE_LINEAGE) {
                             LineageListPanel.getInstance().refresh();
                         }
                         // TMDM-3349 button 'save and close' function
@@ -380,10 +381,9 @@ public class BrowseRecordsController extends Controller {
     private void onViewLineageItem(final AppEvent event) {
         ItemBean item = (ItemBean) event.getData();
         if (item != null) {
-            UserSession userSession = BrowseRecords.getSession();
-            EntityModel entityModel = (EntityModel) userSession.get(UserSession.CURRENT_ENTITY_MODEL);
-            ViewBean viewbean = (ViewBean) userSession.get(UserSession.CURRENT_VIEW);
-            service.getItem(item, viewbean.getViewPK(), entityModel, true, Locale.getLanguage(),
+            EntityModel entityModel = event.getData(BrowseRecords.ENTITY_MODEL);
+            ViewBean viewBean = event.getData(BrowseRecords.VIEW_BEAN);
+            service.getItem(item, viewBean.getViewPK(), entityModel, true, Locale.getLanguage(),
                     new SessionAwareAsyncCallback<ItemBean>() {
 
                         @Override
