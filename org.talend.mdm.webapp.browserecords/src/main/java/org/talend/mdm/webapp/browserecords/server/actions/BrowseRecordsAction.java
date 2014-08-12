@@ -216,15 +216,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
 
                     if (outputErrorMessage == null) {
-                        message = ""; //$NON-NLS-1$
+                        message = message == null ? "" : message; //$NON-NLS-1$
                     } else if (message == null || message.length() == 0) {
                         message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
-                    } else if (size > 1) {
+                    } else if (message != null && size > 1) {
                         message = item.getIds() + ":" + message; //$NON-NLS-1$
                     }
                 } else {
                     if (outputErrorMessage == null) {
-                        message = ""; //$NON-NLS-1$
+                        message = message == null ? "" : message; //$NON-NLS-1$
                     } else if (message == null || message.length() == 0) {
                         message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
                     }
@@ -1008,6 +1008,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
+    /**
+     * DOC HSHU Comment method "replaceXpathRoot".
+     * 
+     * @param targetEntity
+     * @param xpathForeignKey
+     * @return
+     */
     private String replaceXpathRoot(String targetEntity, String xpath) {
         if (xpath.indexOf("/") != -1) { //$NON-NLS-1$
             xpath = targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
@@ -1968,7 +1975,93 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public String processItem(String concept, String[] ids, String transformerPK) throws ServiceException {
-        return null;
+
+        try {
+            String itemAlias = concept + "." + Util.joinStrings(ids, ".");//$NON-NLS-1$//$NON-NLS-2$
+            // create updateReport
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Creating update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            String updateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_ACTION, null);
+            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
+            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
+                    "text/xml; charset=utf-8");//$NON-NLS-1$
+            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
+            // check runnable transformer
+            // we can leverage the exception mechanism also
+            boolean isRunnableTransformerExist = false;
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
+            for (WSTransformerPK element : wst) {
+                if (element.getPk().equals(transformerPK)) {
+                    isRunnableTransformerExist = true;
+                    break;
+                }
+            }
+            // execute
+
+            WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
+            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0) {
+                throw new ServiceException(MESSAGES.getMessage("plugin_specs_undefined")); //$NON-NLS-1$
+            }
+
+            boolean outputReport = false;
+            String downloadUrl = "";//$NON-NLS-1$
+            if (isRunnableTransformerExist) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+                WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
+                        .getPipeline().getPipelineItem();
+                if (entries.length > 0) {
+                    WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
+                    if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
+                        byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
+                        String content = new String(bytes);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Received output_url " + content); //$NON-NLS-1$
+                        }
+                        try {
+                            Document resultDoc = Util.parse(content);
+
+                            NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
+                            if (attrList != null && attrList.getLength() > 0) {
+                                downloadUrl = attrList.item(0).getTextContent();
+                                outputReport = true;
+                            }
+                        } catch (Exception e) {
+                            LOG.error(e.getMessage(), e);
+                            throw new ServiceException(MESSAGES.getMessage("process_output_url_error")); //$NON-NLS-1$
+                        }
+                    }
+                }
+            } else {
+                throw new ServiceException(MESSAGES.getMessage("process_not_found")); //$NON-NLS-1$
+            }
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Saving update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+
+            if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {//$NON-NLS-1$
+                throw new ServiceException(MESSAGES.getMessage("store_update_report"));//$NON-NLS-1$
+            }
+            if (outputReport) {
+                return downloadUrl;
+            } else {
+                return null;
+            }
+
+        } catch (ServiceException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            String err = e.getLocalizedMessage();
+            if (err == null || err.length() == 0) {
+                err = MESSAGES.getMessage("unable_launch_process"); //$NON-NLS-1$;
+            }
+            throw new ServiceException(err);
+        }
     }
 
     @Override

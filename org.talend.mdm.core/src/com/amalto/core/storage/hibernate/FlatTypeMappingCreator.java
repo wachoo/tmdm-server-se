@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
 
@@ -72,7 +73,7 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     referenceField.getWriteUsers(),
                     referenceField.getHideUsers(),
-                    referenceField.getWorkflowAccessRights());
+                    referenceField.getWorkflowAccessRights(), StringUtils.EMPTY);
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository, context.getFieldColumn(referenceField), referenceField.getContainingType().getName());

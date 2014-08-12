@@ -45,17 +45,6 @@ public class EntityModel implements IsSerializable {
         this.conceptName = conceptName;
     }
 
-    public String getConceptLabel() {
-        Set<String> xpaths = metaDataTypes.keySet();
-        for (String path : xpaths) {
-            TypeModel typeModel = metaDataTypes.get(path);
-            if (path.endsWith(conceptName)) {
-                return typeModel.getLabel(UrlUtil.getLanguage());
-            }
-        }
-        return conceptName;
-    }
-    
     /**
      * It can be called by action class
      * @param language

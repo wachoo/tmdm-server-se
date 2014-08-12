@@ -25,15 +25,6 @@ public class Restriction extends ItemBaseModel {
 
     private String value;
 
-    public Restriction() {
-
-    }
-
-    public Restriction(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
-
     public String getName() {
         return name;
     }
