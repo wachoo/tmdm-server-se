@@ -76,7 +76,7 @@ public class MatchingChart extends ChartPortlet {
                             });
                 } else {
                     noDCAlertMsg.append(alertIcon);
-                    noDCAlertMsg.append("No Data Container available!"); //$NON-NLS-1$
+                    noDCAlertMsg.append(MessagesFactory.getMessages().no_container());
                     noDCAlertMsg.append("</span>"); //$NON-NLS-1$
                     alertHtml.setHTML(noDCAlertMsg.toString());
                     set.add(alertHtml);

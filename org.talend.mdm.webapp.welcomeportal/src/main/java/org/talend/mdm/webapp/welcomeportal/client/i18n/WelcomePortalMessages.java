@@ -63,6 +63,8 @@ public interface WelcomePortalMessages extends Messages {
 
     String autorefresh_off();
 
+    String no_container();
+
     String alerts_title();
 
     String no_tasks();

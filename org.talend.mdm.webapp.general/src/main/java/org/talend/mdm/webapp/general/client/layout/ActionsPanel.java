@@ -40,10 +40,6 @@ public class ActionsPanel extends FormPanel {
 
     private static ActionsPanel instance;
 
-    private final static String LABEL_START = "Start", LABEL_ALERT = "Alert", LABEL_TASKS = "Tasks", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            LABEL_PROCESS = "Process", LABEL_SEARCH = "Search", LABEL_DATA = "Data", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            LABEL_JOURNAL = "Journal", LABEL_ROUTING_EVENT = "Routing Event", LABEL_MATCHING = "Matching"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
     private static final String NAME_START = "start", NAME_PROCESS = "process", NAME_ALERT = "alert", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             NAME_SEARCH = "search", NAME_TASKS = "tasks", NAME_CHART_DATA = "chart_data", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             NAME_CHART_ROUTING_EVENT = "chart_routing_event", NAME_CHART_JOURNAL = "chart_journal", NAME_CHART_MATCHING = "chart_matching"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -57,20 +53,7 @@ public class ActionsPanel extends FormPanel {
     private static final Set<String> DEFAULT_CHART_NAMES = new HashSet<String>(Arrays.asList(NAME_CHART_DATA,
             NAME_CHART_ROUTING_EVENT, NAME_CHART_JOURNAL, NAME_CHART_MATCHING));
 
-    private static final Map<String, String> NAME_LABEL_MAPPER = new HashMap<String, String>(9) {
 
-        {
-            put(NAME_START, LABEL_START);
-            put(NAME_PROCESS, LABEL_PROCESS);
-            put(NAME_ALERT, LABEL_ALERT);
-            put(NAME_SEARCH, LABEL_SEARCH);
-            put(NAME_TASKS, LABEL_TASKS);
-            put(NAME_CHART_DATA, LABEL_DATA);
-            put(NAME_CHART_ROUTING_EVENT, LABEL_ROUTING_EVENT);
-            put(NAME_CHART_JOURNAL, LABEL_JOURNAL);
-            put(NAME_CHART_MATCHING, LABEL_MATCHING);
-        }
-    };
 
     private static final String DEFAULT_COLUMN_NUM = "defaultColNum"; //$NON-NLS-1$
 
@@ -121,7 +104,7 @@ public class ActionsPanel extends FormPanel {
         FieldSet domainConfig = new FieldSet();
         FormLayout formLayout = new FormLayout(LabelAlign.TOP);
         domainConfig.setLayout(formLayout);
-        domainConfig.setHeading("Domain Configuration"); //$NON-NLS-1$
+        domainConfig.setHeading(MessageFactory.getMessages().domain_configuration());
 
         dataContainerBox.setFieldLabel(MessageFactory.getMessages().data_container());
         dataContainerBox.setDisplayField("value"); //$NON-NLS-1$
@@ -161,10 +144,10 @@ public class ActionsPanel extends FormPanel {
         FormLayout formLayout = new FormLayout();
         formLayout.setLabelAlign(LabelAlign.TOP);
         portalConfig.setLayout(formLayout);
-        portalConfig.setHeading("Portal Configuration"); //$NON-NLS-1$
+        portalConfig.setHeading(MessageFactory.getMessages().portal_configuration());
         CheckBoxGroup checkGroup = new CheckBoxGroup();
         checkGroup.setName("portlets"); //$NON-NLS-1$
-        checkGroup.setFieldLabel("Portlets"); //$NON-NLS-1$
+        checkGroup.setFieldLabel(MessageFactory.getMessages().portal_portlets());
         checkGroup.setOrientation(Orientation.VERTICAL);
         CheckBox check;
 
@@ -180,6 +163,7 @@ public class ActionsPanel extends FormPanel {
 
         chartsCheck = new CheckBox() {
 
+
             @Override
             protected void onClick(ComponentEvent be) {
                 if (!this.getValue()) {
@@ -191,8 +175,7 @@ public class ActionsPanel extends FormPanel {
             }
         };
         chartsCheck.setName("charts"); //$NON-NLS-1$
-        chartsCheck.setBoxLabel("Chart Portlets:"); //$NON-NLS-1$
-        chartsCheck.setValue(true);
+        chartsCheck.setBoxLabel(MessageFactory.getMessages().portal_chart_portlets());        chartsCheck.setValue(true);
         chartsCheck.setVisible(true);
         checkGroup.add(chartsCheck);
 
@@ -218,12 +201,12 @@ public class ActionsPanel extends FormPanel {
         portalConfig.add(chartsGroup, formDataCharts);
 
         RadioGroup colRadioGroup = new RadioGroup();
-        colRadioGroup.setFieldLabel("Welcome Columns"); //$NON-NLS-1$
+        colRadioGroup.setFieldLabel(MessageFactory.getMessages().portal_columns()); 
         col2Radio = new Radio();
-        col2Radio.setBoxLabel("Two"); //$NON-NLS-1$
+        col2Radio.setBoxLabel(MessageFactory.getMessages().portal_columns_two()); 
 
         col3Radio = new Radio();
-        col3Radio.setBoxLabel("Three"); //$NON-NLS-1$
+        col3Radio.setBoxLabel(MessageFactory.getMessages().portal_columns_three()); 
 
         colRadioGroup.add(col2Radio);
         colRadioGroup.add(col3Radio);
