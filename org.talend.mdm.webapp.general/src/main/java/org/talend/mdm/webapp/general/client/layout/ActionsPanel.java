@@ -53,8 +53,6 @@ public class ActionsPanel extends FormPanel {
     private static final Set<String> DEFAULT_CHART_NAMES = new HashSet<String>(Arrays.asList(NAME_CHART_DATA,
             NAME_CHART_ROUTING_EVENT, NAME_CHART_JOURNAL, NAME_CHART_MATCHING));
 
-
-
     private static final String DEFAULT_COLUMN_NUM = "defaultColNum"; //$NON-NLS-1$
 
     private static final String CHARTS_ENABLED = "chartsOn"; //$NON-NLS-1$
@@ -154,7 +152,7 @@ public class ActionsPanel extends FormPanel {
         for (String portletName : DEFAULT_NONCHART_NAMES) {
             check = new CheckBox();
             check.setName(portletName);
-            check.setBoxLabel(NAME_LABEL_MAPPER.get(portletName));
+            check.setBoxLabel(getPortletLabel(portletName));
             check.setValue(false);
             check.setVisible(false);
             checkGroup.add(check);
@@ -162,7 +160,6 @@ public class ActionsPanel extends FormPanel {
         }
 
         chartsCheck = new CheckBox() {
-
 
             @Override
             protected void onClick(ComponentEvent be) {
@@ -175,7 +172,8 @@ public class ActionsPanel extends FormPanel {
             }
         };
         chartsCheck.setName("charts"); //$NON-NLS-1$
-        chartsCheck.setBoxLabel(MessageFactory.getMessages().portal_chart_portlets());        chartsCheck.setValue(true);
+        chartsCheck.setBoxLabel(MessageFactory.getMessages().portal_chart_portlets());
+        chartsCheck.setValue(true);
         chartsCheck.setVisible(true);
         checkGroup.add(chartsCheck);
 
@@ -186,7 +184,7 @@ public class ActionsPanel extends FormPanel {
         for (String portletName : DEFAULT_CHART_NAMES) {
             check = new CheckBox();
             check.setName(portletName);
-            check.setBoxLabel(NAME_LABEL_MAPPER.get(portletName));
+            check.setBoxLabel(getPortletLabel(portletName));
             check.setValue(false);
             check.setVisible(false);
             chartsGroup.add(check);
@@ -201,12 +199,14 @@ public class ActionsPanel extends FormPanel {
         portalConfig.add(chartsGroup, formDataCharts);
 
         RadioGroup colRadioGroup = new RadioGroup();
-        colRadioGroup.setFieldLabel(MessageFactory.getMessages().portal_columns()); 
+        colRadioGroup.setFieldLabel(MessageFactory.getMessages().portal_columns());
+        colRadioGroup.setOrientation(Orientation.VERTICAL);
+
         col2Radio = new Radio();
-        col2Radio.setBoxLabel(MessageFactory.getMessages().portal_columns_two()); 
+        col2Radio.setBoxLabel(MessageFactory.getMessages().portal_columns_two());
 
         col3Radio = new Radio();
-        col3Radio.setBoxLabel(MessageFactory.getMessages().portal_columns_three()); 
+        col3Radio.setBoxLabel(MessageFactory.getMessages().portal_columns_three());
 
         colRadioGroup.add(col2Radio);
         colRadioGroup.add(col3Radio);
@@ -225,6 +225,28 @@ public class ActionsPanel extends FormPanel {
             instance = new ActionsPanel();
         }
         return instance;
+    }
+
+    private String getPortletLabel(String portletName) {
+        if (portletName.equals(NAME_START)) {
+            return MessageFactory.getMessages().portlet_start();
+        } else if (portletName.equals(NAME_PROCESS)) {
+            return MessageFactory.getMessages().portlet_process();
+        } else if (portletName.equals(NAME_ALERT)) {
+            return MessageFactory.getMessages().portlet_alert();
+        } else if (portletName.equals(NAME_SEARCH)) {
+            return MessageFactory.getMessages().portlet_search();
+        } else if (portletName.equals(NAME_TASKS)) {
+            return MessageFactory.getMessages().portlet_tasks();
+        } else if (portletName.equals(NAME_CHART_DATA)) {
+            return MessageFactory.getMessages().portlet_data();
+        } else if (portletName.equals(NAME_CHART_ROUTING_EVENT)) {
+            return MessageFactory.getMessages().portlet_routing();
+        } else if (portletName.equals(NAME_CHART_JOURNAL)) {
+            return MessageFactory.getMessages().portlet_journal();
+        } else {
+            return MessageFactory.getMessages().portlet_matching();
+        }
     }
 
     private void initEvent() {
@@ -439,6 +461,6 @@ public class ActionsPanel extends FormPanel {
 
     // call refresh in WelcomePortal
     private native void refreshPortal(Map<String, Boolean> portalConfig)/*-{
-		$wnd.amalto.core.refreshPortal(portalConfig);
-    }-*/;
+                                                                        $wnd.amalto.core.refreshPortal(portalConfig);
+                                                                        }-*/;
 }
