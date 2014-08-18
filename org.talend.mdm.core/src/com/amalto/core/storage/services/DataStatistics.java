@@ -13,7 +13,7 @@ package com.amalto.core.storage.services;
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.StringWriter;
-import java.util.Locale;
+import java.util.*;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -37,17 +37,18 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 
-@Path("/system/stats/data")
+@Path("/system/stats/data") //$NON-NLS-1$
 public class DataStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(DataStatistics.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{container}")
-    public Response getDataStatistics(@PathParam("container")
-    String containerName, @QueryParam("lang")
-    String language) {
+    @Path("{container}") //$NON-NLS-1$
+    public Response getDataStatistics(@PathParam("container") //$NON-NLS-1$
+            String containerName, @QueryParam("lang") //$NON-NLS-1$
+            String language, @QueryParam("top") //$NON-NLS-1$
+            Integer top) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
@@ -59,42 +60,81 @@ public class DataStatistics {
             throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
         }
         // Build statistics
+        SortedSet<TypeEntry> entries = new TreeSet<TypeEntry>(new Comparator<TypeEntry>() {
+
+            @Override
+            public int compare(TypeEntry o1, TypeEntry o2) {
+                int diff = (int) (o2.count - o1.count);
+                if (diff == 0) {
+                    if (o1.typeName.equals(o2.typeName)) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+                }
+                return diff;
+            }
+        });
+        // Fill type counts (order by count)
+        try {
+            MetadataRepository repository = dataStorage.getMetadataRepository();
+            dataStorage.begin();
+            for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
+                TypeEntry entry = new TypeEntry();
+                Expression count = from(type).select(alias(count(), "count")).limit(1).cache().getExpression(); //$NON-NLS-1$
+                StorageResults typeCount = dataStorage.fetch(count);
+                long countValue = 0;
+                for (DataRecord record : typeCount) {
+                    countValue = (Long) record.get("count"); //$NON-NLS-1$
+                }
+                // Starts stats for type
+                String name;
+                if (language != null) {
+                    name = type.getName(new Locale(language));
+                } else {
+                    name = type.getName();
+                }
+                entry.typeName = name;
+                entry.count = countValue;
+                entries.add(entry);
+            }
+            dataStorage.commit();
+        } catch (Exception e) {
+            dataStorage.rollback();
+            throw new RuntimeException("Could not provide statistics.", e);
+        }
+        // Write results
+        if (top == null || top <= 0) {
+            top = Integer.MAX_VALUE; // no top parameter or top <= 0 means 'all' types.
+        }
         StringWriter stringWriter = new StringWriter();
         JSONWriter writer = new JSONWriter(stringWriter);
-        MetadataRepository repository = dataStorage.getMetadataRepository();
         try {
-            dataStorage.begin();
             writer.object().key("data"); //$NON-NLS-1$
             {
                 writer.array();
                 {
-                    for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
-                        Expression count = from(type).select(alias(count(), "count")).limit(1).cache().getExpression(); //$NON-NLS-1$
-                        StorageResults typeCount = dataStorage.fetch(count);
-                        long countValue = 0;
-                        for (DataRecord record : typeCount) {
-                            countValue = (Long) record.get("count"); //$NON-NLS-1$
-                        }
-                        // Starts stats for type
-                        String name;
-                        if (language != null) {
-                            name = type.getName(new Locale(language));
-                        } else {
-                            name = type.getName();
-                        }
-                        writer.object().key(name).value(countValue).endObject();
+                    Iterator<TypeEntry> iterator = entries.iterator();
+                    for (int i = 0; i < top && iterator.hasNext(); i++) {
+                        TypeEntry entry = iterator.next();
+                        writer.object().key(entry.typeName).value(entry.count).endObject();
                     }
                 }
                 writer.endArray();
             }
             writer.endObject();
-            dataStorage.commit();
         } catch (JSONException e) {
-            dataStorage.rollback();
-            throw new RuntimeException("Could not provide statistics.", e);
+            throw new RuntimeException("Could not write statistics.", e);
         }
         return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
                 .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    // Object to store type statistics before building JSON output
+    class TypeEntry {
+
+        String typeName;
+
+        long count;
+    }
 }
