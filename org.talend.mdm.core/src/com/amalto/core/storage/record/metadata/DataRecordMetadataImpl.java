@@ -61,7 +61,9 @@ public class DataRecordMetadataImpl implements DataRecordMetadata {
     @Override
     public DataRecordMetadata copy() {
         DataRecordMetadataImpl copy = new DataRecordMetadataImpl(lastModificationTime, taskId);
-        copy.recordProperties = new HashMap<String, String>(this.recordProperties);
+        if (recordProperties != null) {
+            copy.recordProperties = new HashMap<String, String>(this.recordProperties);
+        }
         return copy;
     }
 }

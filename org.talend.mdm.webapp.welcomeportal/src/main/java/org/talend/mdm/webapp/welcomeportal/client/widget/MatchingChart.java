@@ -18,8 +18,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -46,6 +48,13 @@ public class MatchingChart extends ChartPortlet {
     public MatchingChart(Portal portal) {
         super(WelcomePortal.CHART_MATCHING, portal);
 
+        if (Cookies.getValue(cookieskeyConfig) != null) {
+            configModel = new EntityConfigModel((String) Cookies.getValue(cookieskeyConfig));
+        } else {
+            configModel = new EntityConfigModel();
+        }
+
+        initConfigSettings();
         initChart();
     }
 
@@ -65,7 +74,7 @@ public class MatchingChart extends ChartPortlet {
                     dc = dataContainer;
                     dataContainerChanged = false;
 
-                    StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer,
+                    StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer, configModel,
                             new SessionAwareAsyncCallback<JSONArray>() {
 
                                 @Override
@@ -76,7 +85,7 @@ public class MatchingChart extends ChartPortlet {
                             });
                 } else {
                     noDCAlertMsg.append(alertIcon);
-                    noDCAlertMsg.append("No Data Container available!"); //$NON-NLS-1$
+                    noDCAlertMsg.append(MessagesFactory.getMessages().no_container());
                     noDCAlertMsg.append("</span>"); //$NON-NLS-1$
                     alertHtml.setHTML(noDCAlertMsg.toString());
                     set.add(alertHtml);
@@ -96,7 +105,7 @@ public class MatchingChart extends ChartPortlet {
                 dataContainerChanged = !dc.equals(dataContainer);
                 dc = dataContainer;
 
-                StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer,
+                StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer, configModel,
                         new SessionAwareAsyncCallback<JSONArray>() {
 
                             @Override

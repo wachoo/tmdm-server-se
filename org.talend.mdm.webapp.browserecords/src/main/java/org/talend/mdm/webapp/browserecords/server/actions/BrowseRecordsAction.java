@@ -355,13 +355,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean isStaging, String language)
+    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean staging, String language)
             throws ServiceException {
         try {
             String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
             String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
 
-            String dataCluster = getCurrentDataCluster(isStaging);
+            String dataCluster = getCurrentDataCluster(staging);
             String dataModel = getCurrentDataModel();
             String concept = itemBean.getConcept();
             // get item

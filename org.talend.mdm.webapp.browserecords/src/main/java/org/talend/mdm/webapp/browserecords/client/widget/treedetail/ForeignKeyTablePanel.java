@@ -20,7 +20,9 @@ import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyRowEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKSearchField;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.FKKeyCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor.ForeignKeyCellEditor;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -50,7 +52,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -126,6 +127,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     private VerticalPanel bottomPanel = new VerticalPanel();
 
     private boolean isStaging;
+
+    private FKKeyCellEditor keyCellEditor;
 
     public ForeignKeyTablePanel(String panelName, boolean isStaging) {
         super();
@@ -213,6 +216,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             @Override
             public Object render(final ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
+                currentNodeModel = model;
                 model.setValid(false);
                 ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
                 final String value = fkBean != null ? fkBean.getId() : ""; //$NON-NLS-1$
@@ -220,19 +224,11 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
             }
         });
-        LabelField f = new LabelField();
-        CellEditor keyCellEditor = new CellEditor(f) {
 
-            @Override
-            public Object preProcessValue(Object v) {
-                if (v != null) {
-                    ForeignKeyBean fk = (ForeignKeyBean) v;
-                    return super.preProcessValue(fk.getId());
-                }
-                return null;
-            }
+        FKSearchField f = new FKSearchField(fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo());
+        f.setUsageField("ForeignKeyTablePanel"); //$NON-NLS-1$
+        keyCellEditor = new FKKeyCellEditor(f, fkTypeModel, this);
 
-        };
         keyColumn.setEditor(keyCellEditor);
         List<String> foreignKeyInfo = fkTypeModel.getForeignKeyInfo();
         for (final String info : foreignKeyInfo) {
@@ -270,7 +266,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
             TypeModel typeModel = entityModel.getMetaDataTypes().get(fkInfo);
             Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
-
+            field.setEnabled(disabled);
             CellEditor cellEditor = new ForeignKeyCellEditor(field, typeModel);
             if (cellEditor != null) {
                 column.setEditor(cellEditor);
@@ -323,7 +319,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 };
             });
         }
-        final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel);
+        final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel, isStaging);
         grid.setSelectionModel(sm);
         grid.addPlugin(sm);
         grid.setStateId(panelName);

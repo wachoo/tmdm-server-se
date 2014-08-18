@@ -19,8 +19,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -52,6 +54,13 @@ public class JournalChart extends ChartPortlet {
 
         super(WelcomePortal.CHART_JOURNAL, portal);
 
+        if (Cookies.getValue(cookieskeyConfig) != null) {
+            configModel = new TimeframeConfigModel((String) Cookies.getValue(cookieskeyConfig));
+        } else {
+            configModel = new TimeframeConfigModel();
+        }
+        initConfigSettings();
+
         initChart();
     }
 
@@ -65,7 +74,7 @@ public class JournalChart extends ChartPortlet {
                 dataContainerChanged = !dc.equals(dataContainer);
                 dc = dataContainer;
 
-                StatisticsRestServiceHandler.getInstance().getContainerJournalStats(dataContainer,
+                StatisticsRestServiceHandler.getInstance().getContainerJournalStats(dataContainer, configModel,
                         new SessionAwareAsyncCallback<JSONArray>() {
 
                             @Override
@@ -100,7 +109,7 @@ public class JournalChart extends ChartPortlet {
                     dc = dataContainer;
                     dataContainerChanged = false;
 
-                    StatisticsRestServiceHandler.getInstance().getContainerJournalStats(dataContainer,
+                    StatisticsRestServiceHandler.getInstance().getContainerJournalStats(dataContainer, configModel,
                             new SessionAwareAsyncCallback<JSONArray>() {
 
                                 @Override
@@ -111,7 +120,7 @@ public class JournalChart extends ChartPortlet {
                             });
                 } else {
                     noDCAlertMsg.append(alertIcon);
-                    noDCAlertMsg.append("No Data Container available!"); //$NON-NLS-1$
+                    noDCAlertMsg.append(MessagesFactory.getMessages().no_container());
                     noDCAlertMsg.append("</span>"); //$NON-NLS-1$
                     alertHtml.setHTML(noDCAlertMsg.toString());
                     set.add(alertHtml);

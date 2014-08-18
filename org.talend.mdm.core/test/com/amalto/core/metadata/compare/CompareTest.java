@@ -140,10 +140,6 @@ public class CompareTest extends TestCase {
     }
 
     public void test6_SystemDMs_CONF() throws Exception {
-        LOG.info("Setting up MDM server environment...");
-        ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
-        LOG.info("Preparing storage for tests...");
         Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
 
             @Override
@@ -176,8 +172,6 @@ public class CompareTest extends TestCase {
                 }
             }
         }
-        storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
 
         MetadataRepository updated = new MetadataRepository();
@@ -192,10 +186,6 @@ public class CompareTest extends TestCase {
     }
 
     public void test6_SystemDMs_Reporting() throws Exception {
-        LOG.info("Setting up MDM server environment...");
-        ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
-        LOG.info("Preparing storage for tests...");
         Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
 
             @Override
@@ -228,8 +218,6 @@ public class CompareTest extends TestCase {
                 }
             }
         }
-        storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared.");
 
         MetadataRepository updated = new MetadataRepository();
@@ -244,10 +232,6 @@ public class CompareTest extends TestCase {
     }
 
     public void test6_SystemDMs_PROVISIONING() throws Exception {
-        LOG.info("Setting up MDM server environment...");
-        ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
-        LOG.info("Preparing storage for tests...");
         Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
 
             @Override
@@ -280,10 +264,6 @@ public class CompareTest extends TestCase {
                 }
             }
         }
-        storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
-        LOG.info("Storage prepared.");
-
         MetadataRepository updated = new MetadataRepository();
         updated.load(CompareTest.class.getResourceAsStream("schema8_2.xsd"));
         Compare.DiffResults diffResults = Compare.compare(repository, updated);
@@ -296,10 +276,6 @@ public class CompareTest extends TestCase {
     }
 
     public void test6_SystemDMs_SearchTemplate() throws Exception {
-        LOG.info("Setting up MDM server environment...");
-        ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
-        LOG.info("Preparing storage for tests...");
         Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
 
             @Override
@@ -332,10 +308,6 @@ public class CompareTest extends TestCase {
                 }
             }
         }
-        storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
-        LOG.info("Storage prepared.");
-
         MetadataRepository updated = new MetadataRepository();
         updated.load(CompareTest.class.getResourceAsStream("schema9_2.xsd"));
         Compare.DiffResults diffResults = Compare.compare(repository, updated);
@@ -357,9 +329,5 @@ public class CompareTest extends TestCase {
         }
         repository.load(objectsToParse);
         return repository;
-    }
-
-    private static DataSourceDefinition getDatasource(String dataSourceName) {
-        return ServerContext.INSTANCE.get().getDefinition(dataSourceName, "MDM");
     }
 }

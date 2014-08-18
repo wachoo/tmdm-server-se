@@ -31,6 +31,10 @@ public abstract class ServiceFactory {
         return factory;
     }
 
+    public BrowseRecordsServiceAsync getService(boolean staging) {
+        return staging ? getStagingService() : getMasterService();
+    }
+
     public abstract BrowseRecordsServiceAsync getMasterService();
 
     public abstract BrowseStagingRecordsServiceAsync getStagingService();
