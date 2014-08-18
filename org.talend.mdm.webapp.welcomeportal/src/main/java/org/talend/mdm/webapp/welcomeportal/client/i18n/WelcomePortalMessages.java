@@ -98,4 +98,20 @@ public interface WelcomePortalMessages extends Messages {
     String search_title();
 
     String search_button_text();
+
+    String chart_config_title();
+
+    String chart_config_top5();
+
+    String chart_config_top10();
+
+    String chart_config_all();
+
+    String chart_config_day();
+
+    String chart_config_week();
+
+    String chart_config_ok();
+
+    String chart_config_cancel();
 }

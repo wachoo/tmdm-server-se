@@ -79,7 +79,7 @@ public abstract class BasePortlet extends Portlet {
 
     private boolean isAuto;
 
-    private boolean startedAsOn;
+    protected boolean startedAsOn;
 
     private int interval;
 
@@ -152,10 +152,10 @@ public abstract class BasePortlet extends Portlet {
             startedAsOn = (Boolean) Cookies.getValue(cookieskey);
         }
         interval = ((MainFramePanel) portal).getInterval();
+
     }
 
     protected void initAutoRefresher() {
-
         autoRefresher = new Timer() {
 
             @Override
@@ -171,7 +171,7 @@ public abstract class BasePortlet extends Portlet {
         };
 
         // TODO: use gear image temporarily, need find a suitbale image icon for auto-refresh
-        autoRefreshBtn = new AutoRefreshButton(startedAsOn, "x-tool-gear"); //$NON-NLS-1$
+        autoRefreshBtn = new AutoRefreshButton(startedAsOn, "x-tool-pin"); //$NON-NLS-1$
         autoRefreshBtn.setTitle(MessagesFactory.getMessages().autorefresh());
 
         autoRefreshBtn.addSelectionListener(new SelectionListener<IconButtonEvent>() {
@@ -188,7 +188,6 @@ public abstract class BasePortlet extends Portlet {
 
         });
         BasePortlet.this.getHeader().addTool(autoRefreshBtn);
-
     }
 
     protected void setHeading() {
@@ -243,6 +242,6 @@ public abstract class BasePortlet extends Portlet {
     }
 
     private native void removePortlet(String name)/*-{
-		$wnd.amalto.core.unmarkPortlet(name);
-    }-*/;
+                                                  $wnd.amalto.core.unmarkPortlet(name);
+                                                  }-*/;
 }
