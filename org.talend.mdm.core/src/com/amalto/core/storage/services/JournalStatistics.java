@@ -15,7 +15,6 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -42,20 +41,18 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 
-@Path("/system/stats/journal")
+@Path("/system/stats/journal") //$NON-NLS-1$
 public class JournalStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(JournalStatistics.class);
 
-    private static final int DEFAULT_SLICE_STEP = 1;
-
-    private static final TimeUnit DEFAULT_SLICE_UNIT = TimeUnit.HOURS;
+    private static final int DEFAULT_SLICE_NUMBER = 5;
 
     private static void writeStatsTo(Storage storage, UserQueryBuilder query, String statName, JSONWriter writer)
             throws JSONException {
         Expression expression = query.getExpression();
         Field field = new Field(query.getSelect().getTypes().get(0).getField("TimeInMillis")); //$NON-NLS-1$
-        Iterator<TimeSlicer.Slice> slices = TimeSlicer.slice(expression, storage, DEFAULT_SLICE_STEP, DEFAULT_SLICE_UNIT, field);
+        Iterator<TimeSlicer.Slice> slices = TimeSlicer.slice(expression, storage, DEFAULT_SLICE_NUMBER, field);
         writer.array();
         {
             while (slices.hasNext()) {
@@ -82,10 +79,10 @@ public class JournalStatistics {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{container}")
-    public Response getJournalStatistics(@PathParam("container")
-    String containerName, @QueryParam("lang")
-    String language) {
+    @Path("{container}") //$NON-NLS-1$
+    public Response getJournalStatistics(@PathParam("container") //$NON-NLS-1$
+    String containerName, @QueryParam("lang") //$NON-NLS-1$
+    String language, @QueryParam("timeframe") Long timeFrame) { //$NON-NLS-1$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
@@ -128,6 +125,10 @@ public class JournalStatistics {
                                             .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
                                                     eq(updateType.getField("OperationType"), "CREATE") //$NON-NLS-1$ //$NON-NLS-2$
                                             )).limit(1).cache();
+                                    if (timeFrame != null && timeFrame > 0) {
+                                        createQuery.where(gte(updateType.getField("TimeInMillis"), //$NON-NLS-1$
+                                                String.valueOf(System.currentTimeMillis() - (timeFrame * 1000))));
+                                    }
                                     writeStatsTo(updateReportStorage, createQuery, "create", writer); //$NON-NLS-1$
                                 }
                                 writer.endObject();
@@ -138,6 +139,10 @@ public class JournalStatistics {
                                             .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
                                                     eq(updateType.getField("OperationType"), "UPDATE") //$NON-NLS-1$ //$NON-NLS-2$
                                             )).limit(1).cache();
+                                    if (timeFrame != null && timeFrame > 0) {
+                                        updateQuery.where(gte(updateType.getField("TimeInMillis"), //$NON-NLS-1$
+                                                String.valueOf(System.currentTimeMillis() - (timeFrame * 1000))));
+                                    }
                                     writeStatsTo(updateReportStorage, updateQuery, "update", writer); //$NON-NLS-1$
                                 }
                                 writer.endObject();

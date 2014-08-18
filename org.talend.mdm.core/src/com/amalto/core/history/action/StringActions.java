@@ -13,6 +13,7 @@ package com.amalto.core.history.action;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.FieldAction;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +22,8 @@ import java.util.List;
 
 public class StringActions {
 
-    public static FieldAction concat(FieldUpdateAction action) {
-        return new ConcatAction(action);
+    public static FieldAction concat(FieldUpdateAction action, String separator) {
+        return new ConcatAction(action, separator);
     }
 
     public static Action longest(FieldUpdateAction action) {
@@ -41,7 +42,10 @@ public class StringActions {
     }
 
     private static class ConcatAction extends FieldUpdateAction {
-        private ConcatAction(FieldUpdateAction delegate) {
+
+        private final String separator;
+
+        private ConcatAction(FieldUpdateAction delegate, String separator) {
             super(delegate.date,
                     delegate.source,
                     delegate.userName,
@@ -49,11 +53,16 @@ public class StringActions {
                     delegate.oldValue,
                     delegate.newValue,
                     delegate.updatedField);
+            this.separator = separator;
         }
 
         @Override
         public String getNewValue() {
-            return super.getOldValue() + super.getNewValue();
+            if (StringUtils.isEmpty(separator)) {
+                return super.getOldValue() + super.getNewValue();
+            } else {
+                return super.getOldValue() + separator + super.getNewValue();
+            }
         }
     }
 
