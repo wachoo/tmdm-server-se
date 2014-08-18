@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
 import org.talend.mdm.webapp.base.client.rest.ResourceSessionAwareCallbackHandler;
 import org.talend.mdm.webapp.base.client.rest.RestServiceHelper;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONValue;
@@ -57,14 +58,15 @@ public class StatisticsRestServiceHandler {
      * 
      * @param callback
      */
-    public void getContainerDataStats(String dataContainer, final SessionAwareAsyncCallback<JSONArray> callback) {
+    public void getContainerDataStats(String dataContainer, ConfigModel configModel,
+            final SessionAwareAsyncCallback<JSONArray> callback) {
         if (dataContainer == null) {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }
 
         StringBuilder uri = new StringBuilder();
         uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("data").append(RestServiceHelper.SEPARATOR) //$NON-NLS-1$
-                .append(dataContainer);
+                .append(dataContainer).append("?top=").append(configModel.getSettingValue()); //$NON-NLS-1$
         client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -82,14 +84,15 @@ public class StatisticsRestServiceHandler {
         client.request(MediaType.APPLICATION_JSON);
     }
 
-    public void getContainerJournalStats(String dataContainer, final SessionAwareAsyncCallback<JSONArray> callback) {
+    public void getContainerJournalStats(String dataContainer, ConfigModel configModel,
+            final SessionAwareAsyncCallback<JSONArray> callback) {
         if (dataContainer == null) {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }
 
         StringBuilder uri = new StringBuilder();
         uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("journal").append(RestServiceHelper.SEPARATOR) //$NON-NLS-1$
-                .append(dataContainer);
+                .append(dataContainer).append("?timeframe=").append(configModel.getSettingValue()); //$NON-NLS-1$
         client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -107,15 +110,16 @@ public class StatisticsRestServiceHandler {
         client.request(MediaType.APPLICATION_JSON);
 
     }
-    
-    public void getContainerMatchingStats(String dataContainer, final SessionAwareAsyncCallback<JSONArray> callback) {
+
+    public void getContainerMatchingStats(String dataContainer, ConfigModel configModel,
+            final SessionAwareAsyncCallback<JSONArray> callback) {
         if (dataContainer == null) {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }
 
         StringBuilder uri = new StringBuilder();
         uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("matching").append(RestServiceHelper.SEPARATOR) //$NON-NLS-1$
-                .append(dataContainer);
+                .append(dataContainer).append("?top=").append(configModel.getSettingValue()); //$NON-NLS-1$
         client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -134,9 +138,10 @@ public class StatisticsRestServiceHandler {
 
     }
 
-    public void getRoutingEventStats(final SessionAwareAsyncCallback<JSONArray> callback) {
+    public void getRoutingEventStats(ConfigModel configModel, final SessionAwareAsyncCallback<JSONArray> callback) {
         StringBuilder uri = new StringBuilder();
-        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("events"); //$NON-NLS-1$
+        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR)
+                .append("events").append("?timeframe=").append(configModel.getSettingValue()); //$NON-NLS-1$ //$NON-NLS-2$
         client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -152,6 +157,6 @@ public class StatisticsRestServiceHandler {
             }
         });
         client.request(MediaType.APPLICATION_JSON);
-        
+
     }
 }

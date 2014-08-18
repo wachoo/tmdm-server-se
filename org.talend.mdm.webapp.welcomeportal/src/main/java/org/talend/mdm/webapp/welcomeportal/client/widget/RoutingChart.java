@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -49,12 +51,19 @@ public class RoutingChart extends ChartPortlet {
     public RoutingChart(Portal portal) {
         super(WelcomePortal.CHART_ROUTING_EVENT, portal);
 
+        if (Cookies.getValue(cookieskeyConfig) != null) {
+            configModel = new TimeframeConfigModel((String) Cookies.getValue(cookieskeyConfig));
+        } else {
+            configModel = new TimeframeConfigModel();
+        }
+        initConfigSettings();
+
         initChart();
     }
 
     @Override
     public void refresh() {
-        StatisticsRestServiceHandler.getInstance().getRoutingEventStats(new SessionAwareAsyncCallback<JSONArray>() {
+        StatisticsRestServiceHandler.getInstance().getRoutingEventStats(configModel, new SessionAwareAsyncCallback<JSONArray>() {
 
             @Override
             public void onSuccess(JSONArray jsonArray) {
@@ -66,7 +75,7 @@ public class RoutingChart extends ChartPortlet {
     }
 
     private void initChart() {
-        StatisticsRestServiceHandler.getInstance().getRoutingEventStats(new SessionAwareAsyncCallback<JSONArray>() {
+        StatisticsRestServiceHandler.getInstance().getRoutingEventStats(configModel, new SessionAwareAsyncCallback<JSONArray>() {
 
             @Override
             public void onSuccess(JSONArray jsonArray) {

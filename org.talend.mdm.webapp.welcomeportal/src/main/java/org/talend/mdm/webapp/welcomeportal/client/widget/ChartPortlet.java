@@ -18,11 +18,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.talend.mdm.webapp.base.client.util.Cookies;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
+import org.talend.mdm.webapp.welcomeportal.client.widget.ChartConfigDialog.ChartConfigListener;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -40,13 +46,50 @@ public abstract class ChartPortlet extends BasePortlet {
 
     protected boolean dataContainerChanged;
 
+    protected boolean configModelChanged;
+
+    protected ConfigModel configModel;
+
+    protected String cookieskeyConfig;
+
     private int plotWidth;
 
     private int plotHeight;
 
     public ChartPortlet(String name, Portal portal) {
         super(name, portal);
+
         initAutoRefresher();
+
+        cookieskeyConfig = portletName + ".config"; //$NON-NLS-1$
+
+    }
+
+    protected void initConfigSettings() {
+        this.getHeader().addTool(new ToolButton("x-tool-gear", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
+
+                    @Override
+                    public void componentSelected(IconButtonEvent ce) {
+                        ChartConfigDialog.showConfig(configModel, new ChartConfigListener() {
+
+                            @Override
+                            public void onConfigUpdate(ConfigModel configModel) {
+                                if (!ChartPortlet.this.configModel.equals(configModel)) {
+                                    ChartPortlet.this.configModel = configModel;
+                                    configModelChanged = true;
+                                    Cookies.setValue(cookieskeyConfig, configModel.getSetting());
+                                    refresh();
+                                } else {
+                                    configModelChanged = false;
+                                    return;
+                                }
+                            }
+
+                        });
+                    }
+
+                }));
+
     }
 
     protected void initPlot() {
@@ -91,9 +134,12 @@ public abstract class ChartPortlet extends BasePortlet {
     }
 
     protected void doRefreshWith(Map<String, Object> newData) {
-        if (dataContainerChanged || isDifferentFrom(newData)) {
+        if (dataContainerChanged || configModelChanged || isDifferentFrom(newData)) {
             chartData = newData;
             refreshPlot();
+            if (configModelChanged) {
+                configModelChanged = !configModelChanged;
+            }
         }
     }
 

@@ -18,8 +18,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -44,6 +46,13 @@ public class DataChart extends ChartPortlet {
     public DataChart(Portal portal) {
         super(WelcomePortal.CHART_DATA, portal);
 
+        if (Cookies.getValue(cookieskeyConfig) != null) {
+            configModel = new EntityConfigModel((String) Cookies.getValue(cookieskeyConfig));
+        } else {
+            configModel = new EntityConfigModel();
+        }
+        initConfigSettings();
+
         initChart();
     }
 
@@ -63,7 +72,7 @@ public class DataChart extends ChartPortlet {
                     dc = dataContainer;
                     dataContainerChanged = false;
 
-                    StatisticsRestServiceHandler.getInstance().getContainerDataStats(dataContainer,
+                    StatisticsRestServiceHandler.getInstance().getContainerDataStats(dataContainer, configModel,
                             new SessionAwareAsyncCallback<JSONArray>() {
 
                                 @Override
@@ -96,7 +105,7 @@ public class DataChart extends ChartPortlet {
                 dataContainerChanged = !dc.equals(dataContainer);
                 dc = dataContainer;
 
-                StatisticsRestServiceHandler.getInstance().getContainerDataStats(dataContainer,
+                StatisticsRestServiceHandler.getInstance().getContainerDataStats(dataContainer, configModel,
                         new SessionAwareAsyncCallback<JSONArray>() {
 
                             @Override
@@ -159,7 +168,7 @@ public class DataChart extends ChartPortlet {
         Set<String> entityNames = chartData.keySet();
         List<String> entityNamesSorted = sort(entityNames);
 
-        if (!dataContainerChanged) {
+        if (!dataContainerChanged && !configModelChanged) {
             // keep SeriesHandler, just clean their data
             model.clear();
             List<? extends SeriesHandler> series = model.getHandlers();
@@ -180,7 +189,7 @@ public class DataChart extends ChartPortlet {
                 seriesMap.get(entityName).add(DataPoint.of(entityName, (Integer) chartData.get(entityName)));
             }
         } else {
-            // switched to diff dm, them dump and rebuild all Series
+            // switched to diff dm/updated config, them dump and rebuild all Series
             model.removeAllSeries();
             for (String entityName : entityNamesSorted) {
                 SeriesHandler seriesEntity = model.addSeries(Series.of(entityName));
