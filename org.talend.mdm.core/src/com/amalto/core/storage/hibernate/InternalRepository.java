@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
 
@@ -20,9 +21,11 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
 
     private static final Logger LOGGER = Logger.getLogger(InternalRepository.class);
 
+    private final MappingCreatorContext scatteredContext;
+
     private MetadataRepository userRepository;
 
-    private final MappingCreatorContext scatteredContext = new StatefulContext();
+    final RDBMSDataSource.DataSourceDialect dialect;
 
     final TypeMappingStrategy strategy;
 
@@ -30,8 +33,10 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
 
     MetadataRepository internalRepository;
 
-    InternalRepository(TypeMappingStrategy strategy) {
+    InternalRepository(TypeMappingStrategy strategy, RDBMSDataSource.DataSourceDialect dialect) {
         this.strategy = strategy;
+        this.dialect = dialect;
+        scatteredContext = new StatefulContext(dialect);
     }
 
     public MappingRepository getMappings() {
@@ -70,7 +75,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Mapping strategy: " + type.getName() + " -> FLAT");
                 }
-                return new TypeMappingCreator(internalRepository, mappings);
+                return new TypeMappingCreator(internalRepository, mappings, dialect);
             case SCATTERED:
             case SCATTERED_CLOB:
                 if (LOGGER.isDebugEnabled()) {
