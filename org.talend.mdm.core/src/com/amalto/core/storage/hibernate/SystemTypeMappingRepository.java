@@ -12,6 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
@@ -19,8 +20,8 @@ import java.util.Collections;
 
 class SystemTypeMappingRepository extends InternalRepository {
 
-    public SystemTypeMappingRepository(TypeMappingStrategy strategy) {
-        super(strategy);
+    public SystemTypeMappingRepository(TypeMappingStrategy strategy, RDBMSDataSource.DataSourceDialect dialect) {
+        super(strategy, dialect);
     }
 
     @Override
@@ -36,7 +37,7 @@ class SystemTypeMappingRepository extends InternalRepository {
     MetadataVisitor<TypeMapping> getTypeMappingCreator(TypeMetadata type, TypeMappingStrategy strategy) {
         MetadataVisitor<TypeMapping> defaultMappingCreator = super.getTypeMappingCreator(type, strategy);
         if (defaultMappingCreator instanceof ScatteredMappingCreator) {
-            MappingCreatorContext scatteredContext = new StatefulContext();
+            MappingCreatorContext scatteredContext = new StatefulContext(dialect);
             return new SystemScatteredMappingCreator(internalRepository,
                     mappings,
                     scatteredContext,

@@ -216,13 +216,13 @@ public class HibernateStorage implements Storage {
         this.storageType = type;
     }
 
-    private static boolean isIndexable(TypeMetadata fieldType) {
+    private boolean isIndexable(TypeMetadata fieldType) {
         if (Types.MULTI_LINGUAL.equals(fieldType.getName())) {
             return false;
         }
         if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
             Object maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
-            if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
+            if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > dataSource.getDialectName().getTextLimit()) {
                 return false; // Don't take into indexed fields long text fields
             }
         }
@@ -638,15 +638,16 @@ public class HibernateStorage implements Storage {
             TypeMappingStrategy mappingStrategy = getMappingStrategy();
             mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
             // TODO Not nice to setUseTechnicalFK, change this
+            RDBMSDataSource.DataSourceDialect dialect = dataSource.getDialectName();
             switch (storageType) {
             case SYSTEM:
-                typeMappingRepository = new SystemTypeMappingRepository(mappingStrategy);
+                typeMappingRepository = new SystemTypeMappingRepository(mappingStrategy, dialect);
                 break;
             case MASTER:
-                typeMappingRepository = new UserTypeMappingRepository(mappingStrategy);
+                typeMappingRepository = new UserTypeMappingRepository(mappingStrategy, dialect);
                 break;
             case STAGING:
-                typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy);
+                typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy, dialect);
                 break;
             default:
                 throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");

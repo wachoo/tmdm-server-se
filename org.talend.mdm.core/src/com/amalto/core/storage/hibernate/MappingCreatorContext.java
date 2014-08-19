@@ -14,8 +14,8 @@ package com.amalto.core.storage.hibernate;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 /**
- * A context interface used by {@link FlatTypeMappingCreator} instances to get database
- * column names.
+ * A context interface used by {@link FlatTypeMappingCreator} or
+ * {@link com.amalto.core.storage.hibernate.ScatteredMappingCreator} instances to get database column names.
  */
 public interface MappingCreatorContext {
     /**
@@ -29,4 +29,10 @@ public interface MappingCreatorContext {
      * @return The column name for the <code>fieldName</code>.
      */
     String getFieldColumn(String fieldName);
+
+    /**
+     * @return A positive integer that indicates a threshold for using clob/text field on field max length.
+     * @see com.amalto.core.storage.datasource.RDBMSDataSource.DataSourceDialect#getTextLimit()
+     */
+    int getTextLimit();
 }

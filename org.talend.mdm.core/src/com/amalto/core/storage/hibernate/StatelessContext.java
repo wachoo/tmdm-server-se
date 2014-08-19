@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 import java.util.List;
@@ -19,8 +20,11 @@ public class StatelessContext implements MappingCreatorContext {
 
     private final List<String> prefixes;
 
-    public StatelessContext(List<String> prefixes) {
+    private final RDBMSDataSource.DataSourceDialect dialect;
+
+    public StatelessContext(List<String> prefixes, RDBMSDataSource.DataSourceDialect dialect) {
         this.prefixes = prefixes;
+        this.dialect = dialect;
     }
 
     @Override
@@ -40,5 +44,10 @@ public class StatelessContext implements MappingCreatorContext {
     @Override
     public String getFieldColumn(String fieldName) {
         return "x_" + fieldName.replace('-', '_').toLowerCase(); //$NON-NLS-1$
+    }
+
+    @Override
+    public int getTextLimit() {
+        return dialect.getTextLimit();
     }
 }
