@@ -74,8 +74,10 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
         String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
         if (data != null && preferClobUse) {
-            newFlattenField.getType().setData(TypeMapping.SQL_TYPE, "clob"); //$NON-NLS-1$
-            newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.FALSE);
+            if (Integer.parseInt(data) > context.getTextLimit()) {
+                newFlattenField.getType().setData(TypeMapping.SQL_TYPE, "clob"); //$NON-NLS-1$
+                newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.FALSE);
+            }
         }
         currentType.peek().addField(newFlattenField);
         entityMapping.map(field, newFlattenField);

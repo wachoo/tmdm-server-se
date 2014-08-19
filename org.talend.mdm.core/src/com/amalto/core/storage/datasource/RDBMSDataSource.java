@@ -20,7 +20,26 @@ public class RDBMSDataSource implements DataSource {
     }
 
     public static enum DataSourceDialect {
-        H2, ORACLE_10G, MYSQL, POSTGRES, SQL_SERVER
+        H2(255),
+        ORACLE_10G(255), // Could be set to 4000 too (keep 255 for backward compatibility with older versions of MDM)
+        MYSQL(255),
+        POSTGRES(255),
+        SQL_SERVER(4000);
+
+        private final int textLimit;
+
+        DataSourceDialect(int textLimit) {
+            this.textLimit = textLimit;
+        }
+
+        /**
+         * @return A positive integer that indicates a threshold for using clob/text field on field max length.
+         * @see org.talend.mdm.commmon.metadata.MetadataRepository#DATA_MAX_LENGTH
+         * @see org.talend.mdm.commmon.metadata.FieldMetadata#getData(String)
+         */
+        public int getTextLimit() {
+            return textLimit;
+        }
     }
 
     public static enum SchemaGeneration {
