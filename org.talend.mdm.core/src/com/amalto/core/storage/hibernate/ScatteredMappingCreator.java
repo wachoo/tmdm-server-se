@@ -72,7 +72,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         }
         String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
         if (data != null && preferClobUse) {
-            if (Integer.parseInt(data) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
+            if (Integer.parseInt(data) > context.getTextLimit()) {
                 newFlattenField.getType().setData(TypeMapping.SQL_TYPE, "clob"); //$NON-NLS-1$
                 newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.FALSE);
             }

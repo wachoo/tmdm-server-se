@@ -28,7 +28,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     /**
      * Max limit for a string restriction (greater then this -> use CLOB or TEXT).
      */
-    public static final int MAX_VARCHAR_TEXT_LIMIT = 255;
+    // public static final int MAX_VARCHAR_TEXT_LIMIT = 255;
 
     public static final String DISCRIMINATOR_NAME = "x_talend_class"; //$NON-NLS-1$
 
@@ -635,14 +635,16 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             if (sqlType != null) { // SQL Type may enforce use of "CLOB" iso. "LONG VARCHAR"
                 elementTypeName = String.valueOf(sqlType);
             } else if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
+                int limit = dialect.getTextLimit();
                 Object maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
                 if (maxLength != null) {
-                    int maxLengthInt = Integer.parseInt(String.valueOf(maxLength));
-                    if (maxLengthInt > MAX_VARCHAR_TEXT_LIMIT) {
+                    String maxLengthValue = String.valueOf(maxLength);
+                    int maxLengthInt = Integer.parseInt(maxLengthValue);
+                    if (maxLengthInt > limit) {
                         elementTypeName = TEXT_TYPE_NAME;
                     } else {
                         Attr length = document.createAttribute("length"); //$NON-NLS-1$
-                        length.setValue(String.valueOf(maxLength));
+                        length.setValue(maxLengthValue);
                         propertyElement.getAttributes().setNamedItem(length);
                         elementTypeName = StorageMetadataUtils.getJavaType(fieldType);
                     }
