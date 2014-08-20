@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.storage.Storage;
 
@@ -19,8 +20,8 @@ import java.util.Collections;
 
 class UserTypeMappingRepository extends InternalRepository {
 
-    public UserTypeMappingRepository(TypeMappingStrategy mappingStrategy) {
-        super(mappingStrategy);
+    public UserTypeMappingRepository(TypeMappingStrategy mappingStrategy, RDBMSDataSource.DataSourceDialect dialect) {
+        super(mappingStrategy, dialect);
     }
 
     public MetadataRepository visit(ComplexTypeMetadata complexType) {
