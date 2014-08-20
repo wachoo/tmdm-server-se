@@ -622,4 +622,24 @@ public class CommonUtil {
         tree.getStyle().setLeafIcon(AbstractImagePrototype.create(Icons.INSTANCE.leaf()));
         return tree;
     }
+
+    public static void setForeignKeyDisplayInfo(ForeignKeyBean fkBean) {
+        if (fkBean != null) {
+            String newDisplayInfo = ""; //$NON-NLS-1$
+            if (fkBean.getDisplayInfo() != null && fkBean.getDisplayInfo().length() > 0) {
+                String[] displayInfoWords = fkBean.getDisplayInfo().split("-"); //$NON-NLS-1$
+                for (int ii = 0; ii < displayInfoWords.length; ii++) {
+                    if (displayInfoWords[ii] != null && displayInfoWords[ii].trim().length() > 0
+                            && !"null".equalsIgnoreCase(displayInfoWords[ii])) { //$NON-NLS-1$
+                        newDisplayInfo = newDisplayInfo + displayInfoWords[ii] + "-"; //$NON-NLS-1$
+                    }
+                }
+            }
+            if (newDisplayInfo.length() > 0) {
+                fkBean.setDisplayInfo(newDisplayInfo.substring(0, newDisplayInfo.length() - 1));
+            } else {
+                fkBean.setDisplayInfo(fkBean.getId());
+            }
+        }
+    }
 }
