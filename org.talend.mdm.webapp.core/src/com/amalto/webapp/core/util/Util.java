@@ -73,8 +73,6 @@ public class Util {
 
     private static Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
 
-    private static final String PROP_FILE = "/version.properties"; //$NON-NLS-1$
-
     public static int _AUTO_ = 0;
 
     public static int _FORCE_RMI_ = 1;
@@ -135,7 +133,7 @@ public class Util {
 
     private static XtentisPort getRMIEndPoint() throws XtentisWebappException {
         try {
-            return (IXtentisRMIPort) Class.forName("com.amalto.webapp.core.util.XtentisRMIPort").newInstance(); //$NON-NLS-1$
+            return (XtentisPort) Class.forName("com.amalto.core.ejb.XtentisWSBean").newInstance(); //$NON-NLS-1$
         } catch (Exception e) {
             throw new XtentisWebappException(e);
         }

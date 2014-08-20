@@ -12,7 +12,6 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
@@ -24,14 +23,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.regex.Pattern;
 
 import javax.ejb.EJBException;
 import javax.naming.InitialContext;
@@ -45,6 +41,8 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.util.*;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -74,27 +72,19 @@ import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.migration.MigrationRepository;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
 import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
 import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJOPK;
 import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJOPK;
 import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJOPK;
 import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRuleExpressionPOJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
 import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
@@ -108,11 +98,8 @@ import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
 import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
-import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJOPK;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.SaveException;
@@ -127,11 +114,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.webservice.*;
-import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereOr;
 
 public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
@@ -334,10 +317,16 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSConceptKey getBusinessConceptKey(WSGetBusinessConceptKey wsGetBusinessConceptKey) throws RemoteException {
         try {
-            String schema = Util.getDataModelCtrlLocal()
-                    .getDataModel(new DataModelPOJOPK(wsGetBusinessConceptKey.getWsDataModelPK().getPk())).getSchema();
-            XSDKey xsdKey = Util.getBusinessConceptKey(Util.parse(schema), wsGetBusinessConceptKey.getConcept());
-            return new WSConceptKey(xsdKey.getSelector(), xsdKey.getFields());
+            MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+            MetadataRepository repository = metadataRepositoryAdmin.get(wsGetBusinessConceptKey.getWsDataModelPK().getPk());
+            ComplexTypeMetadata type = repository.getComplexType(wsGetBusinessConceptKey.getConcept());
+            Collection<FieldMetadata> keyFields = type.getKeyFields();
+            String[] fields = new String[keyFields.size()];
+            int i = 0;
+            for (FieldMetadata keyField : keyFields) {
+                fields[i++] = keyField.getName();
+            }
+            return new WSConceptKey(".", fields); //$NON-NLS-1$
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -2617,5 +2606,42 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSMatchRulePK deleteMatchRule(WSDeleteMatchRule wsDeleteMatchRule) throws RemoteException {
         return null; // Supported only in EE.
+    }
+
+    public WSBoolean isPagingAccurate(WSInt currentTotalSize) {
+        List<String> noSupportAccurateDbs = Arrays.asList("qizx");//$NON-NLS-1$
+        Properties props = MDMConfiguration.getConfiguration();
+        String dbName = props.getProperty("xmldb.type");//$NON-NLS-1$
+        WSBoolean result = new WSBoolean(true);
+        if (noSupportAccurateDbs.contains(dbName)) {
+            String countSampleSize = props.getProperty("xmldb.qizx.ecountsamplesize"); //$NON-NLS-1$
+            if (countSampleSize != null && countSampleSize.trim().length() > 0) {
+                int size = Integer.parseInt(countSampleSize);
+                if (currentTotalSize.getValue() > size) {
+                    result.set_true(false);
+                }
+            }
+        }
+        return result;
+    }
+
+    public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) {
+        try {
+            WSItemPK wsItemPK = deleteItem.getWsItemPK();
+            String dataClusterName = wsItemPK.getWsDataClusterPK().getPk();
+            String conceptName = wsItemPK.getConceptName();
+            String[] ids = wsItemPK.getIds();
+            return Util.getItemCtrl2Local().checkFKIntegrity(dataClusterName, conceptName, ids);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) {
+        try {
+            return Util.getXmlServerCtrlLocal().globalSearch(dataCluster, keyword, start, end);
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

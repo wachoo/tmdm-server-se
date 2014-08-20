@@ -311,7 +311,5 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) throws RemoteException;
 
-    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws RemoteException;
-
     public WSRolePKArray getRolePKs(WSGetRolePKs ks) throws RemoteException;
 }

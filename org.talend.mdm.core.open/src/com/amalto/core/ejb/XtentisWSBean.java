@@ -44,8 +44,6 @@ import com.amalto.core.delegator.impl.DefaultXtentisWSDelegator;
 import com.amalto.core.webservice.*;
 
 /**
- * @author Bruno Grieder
- * 
  * @ejb.bean name="XtentisWS" display-name="The Xtentis" description="The Xtentis WebServices"
  * jndi-name="amalto/ws/xtentis" type="Stateless" view-type="service-endpoint"
  * 
@@ -61,11 +59,7 @@ import com.amalto.core.webservice.*;
 @SuppressWarnings({ "deprecation", "unchecked" })
 public class XtentisWSBean implements SessionBean, XtentisPort {
 
-    /**
-	 *  
-	 */
     public XtentisWSBean() {
-        super();
     }
 
     @Override
@@ -1585,7 +1579,6 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
         return null; // Not supported in Open version
     }
 
-    @Override
     public WSUniverse getUniverse(Object wsGetUniverse) {
         return null; // Not supported in Open version
     }
@@ -1607,11 +1600,6 @@ public class XtentisWSBean implements SessionBean, XtentisPort {
 
     @Override
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) {
-        return null; // TODO
-    }
-
-    @Override
-    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) {
         return null; // TODO
     }
 
