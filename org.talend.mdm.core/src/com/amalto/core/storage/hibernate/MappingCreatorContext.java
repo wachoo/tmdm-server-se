@@ -29,4 +29,10 @@ public interface MappingCreatorContext {
      * @return The column name for the <code>fieldName</code>.
      */
     String getFieldColumn(String fieldName);
+
+    /**
+     * @return A positive integer that indicates a threshold for using clob/text field on field max length.
+     * @see com.amalto.core.storage.datasource.RDBMSDataSource.DataSourceDialect#getTextLimit()
+     */
+    int getTextLimit();
 }

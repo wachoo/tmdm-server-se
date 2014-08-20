@@ -473,13 +473,13 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    private static boolean isIndexable(TypeMetadata fieldType) {
+    private boolean isIndexable(TypeMetadata fieldType) {
         if (Types.MULTI_LINGUAL.equals(fieldType.getName())) {
             return false;
         }
         if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
             Object maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
-            if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
+            if (maxLength != null && Integer.parseInt(String.valueOf(maxLength)) > dataSource.getDialectName().getTextLimit()) {
                 return false; // Don't take into indexed fields long text fields
             }
         }
@@ -514,6 +514,7 @@ public class HibernateStorage implements Storage {
         if (typeMappingRepository == null) {
             TypeMappingStrategy mappingStrategy;
             // TODO Not nice to setUseTechnicalFK, change this
+            RDBMSDataSource.DataSourceDialect dialect = dataSource.getDialectName();
             switch (storageType) {
                 case SYSTEM:
                     switch (dataSource.getDialectName()) {
@@ -525,17 +526,17 @@ public class HibernateStorage implements Storage {
                             break;
                     }
                     mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
-                    typeMappingRepository = new SystemTypeMappingRepository(mappingStrategy);
+                    typeMappingRepository = new SystemTypeMappingRepository(mappingStrategy, dialect);
                     break;
                 case MASTER:
                     mappingStrategy = TypeMappingStrategy.AUTO;
                     mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
-                    typeMappingRepository = new UserTypeMappingRepository(mappingStrategy);
+                    typeMappingRepository = new UserTypeMappingRepository(mappingStrategy, dialect);
                     break;
                 case STAGING:
                     mappingStrategy = TypeMappingStrategy.AUTO;
                     mappingStrategy.setUseTechnicalFK(dataSource.generateTechnicalFK());
-                    typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy);
+                    typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy, dialect);
                     break;
                 default:
                     throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");

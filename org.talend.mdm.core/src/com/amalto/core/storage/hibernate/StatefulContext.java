@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.*;
 
@@ -23,6 +24,12 @@ public class StatefulContext implements MappingCreatorContext {
     private final Map<FieldMetadata, String> enforcedUniqueNames = new HashMap<FieldMetadata, String>();
 
     private final AtomicInteger uniqueInheritanceCounter = new AtomicInteger();
+
+    private final RDBMSDataSource.DataSourceDialect dialect;
+
+    public StatefulContext(RDBMSDataSource.DataSourceDialect dialect) {
+        this.dialect = dialect;
+    }
 
     public String getFieldColumn(FieldMetadata field) {
         if (!field.getContainingType().getSuperTypes().isEmpty() && !field.getContainingType().isInstantiable()) {
@@ -112,5 +119,10 @@ public class StatefulContext implements MappingCreatorContext {
 
     public String getFieldColumn(String name) {
         return "x_" + name.replace('-', '_').toLowerCase(); //$NON-NLS-1$
+    }
+
+    @Override
+    public int getTextLimit() {
+        return dialect.getTextLimit();
     }
 }
