@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.widget.ComboBoxEx;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKField;
 
@@ -209,10 +210,7 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
             for (int i = 0; i < suggestionList.size(); i++) {
                 ForeignKeyBean bean = suggestionList.get(i);
                 if (bean != null) {
-                    if (bean.getDisplayInfo() == null
-                            || "".equals(bean.getDisplayInfo().trim()) || "null".equals(bean.getDisplayInfo())) { //$NON-NLS-1$ //$NON-NLS-2$
-                        bean.setDisplayInfo(bean.getId());
-                    }
+                    CommonUtil.setForeignKeyDisplayInfo(bean);
                     foreignKeyStore.add(bean);
                 }
             }
