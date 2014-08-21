@@ -12,17 +12,15 @@
 // ============================================================================
 package org.talend.mdm.webapp.recyclebin.server.actions;
 
-import java.io.StringReader;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import com.amalto.core.server.ServerContext;
+import com.amalto.webapp.core.bean.Configuration;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
@@ -32,12 +30,6 @@ import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.recyclebin.client.RecycleBinService;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
-import org.w3c.dom.CharacterData;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.util.LocalUser;
@@ -83,9 +75,9 @@ public class RecycleBinAction implements RecycleBinService {
             for (WSDroppedItemPK pk : items) {
                 WSDroppedItem wsItem = Util.getPort().loadDroppedItem(new WSLoadDroppedItem(pk));
                 String conceptName = wsItem.getConceptName();
-                String conceptXML = wsItem.getProjection();
-                String modelName = getModelNameFromConceptXML(conceptXML);
+                String modelName = Configuration.getInstance().getCluster();
                 if (modelName != null) {
+                    // TODO Remove isEnterprise
                     // For enterprise version we check the user roles first, if one user don't have read permission on a
                     // DataModel Object, then ignore it
                     if (Webapp.INSTANCE.isEnterpriseVersion()
@@ -114,35 +106,11 @@ public class RecycleBinAction implements RecycleBinService {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-
     }
 
-    private static String getModelNameFromConceptXML(String conceptXML) {
-        String result = null;
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            InputSource is = new InputSource();
-            is.setCharacterStream(new StringReader(conceptXML));
-
-            Document doc = db.parse(is);
-            NodeList nodes = doc.getElementsByTagName("dmn"); //$NON-NLS-1$
-            if (nodes.getLength() > 0) {
-                Element element = (Element) nodes.item(0);
-                Node child = element.getFirstChild();
-                if (child instanceof CharacterData) {
-                    CharacterData cd = (CharacterData) child;
-                    result = cd.getData();
-                }
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return result;
-    }
-
-    private ItemsTrashItem WS2POJO(WSDroppedItem item, MetadataRepository repository, String language) throws Exception {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");//$NON-NLS-1$
+    // TODO Move to XConverter
+    private static ItemsTrashItem WS2POJO(WSDroppedItem item, MetadataRepository repository, String language) throws Exception {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss"); //$NON-NLS-1$
         String projection = item.getProjection();
         String[] values = org.talend.mdm.webapp.recyclebin.server.actions.Util.getItemNameByProjection(item.getConceptName(),
                 projection, repository, language);
@@ -167,47 +135,22 @@ public class RecycleBinAction implements RecycleBinService {
         }
     }
 
-    // TODO Code duplication (should be server side).
     @Override
     public String removeDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
             String ids, String language) throws ServiceException {
         try {
-            Locale locale = new Locale(language);
-            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName));
+            WSGetBusinessConceptKey conceptKey = new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName);
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(conceptKey);
             String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
-            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(clusterName, conceptName, ids1);
-            String message = null;
-            String errorCode = null;
-            if (outputErrorMessage != null) {
-                Document doc = Util.parse(outputErrorMessage);
-                String xpath = "//report/message"; //$NON-NLS-1$
-                Node errorNode = Util.getNodeList(doc, xpath).item(0);
-                if (errorNode instanceof Element) {
-                    Element errorElement = (Element) errorNode;
-                    errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$                    
-                    message = errorElement.getTextContent();
-                }
-            }
-            if (outputErrorMessage != null && !"info".equals(errorCode)) { //$NON-NLS-1$
-                if (message == null || message.isEmpty()) {
-                    if ("error".equals(errorCode)) { //$NON-NLS-1$
-                        message = MESSAGES.getMessage(locale, "delete_process_validation_failure"); //$NON-NLS-1$
-                    } else {
-                        message = MESSAGES.getMessage(locale, "delete_record_failure"); //$NON-NLS-1$
-                    }
-                }
-                throw new ServiceException(message);
-            } else {
-                WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
-                WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
-                WSDroppedItemPK wddipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
-                WSRemoveDroppedItem wsrdi = new WSRemoveDroppedItem(wddipk);
-                Util.getPort().removeDroppedItem(wsrdi);
-                if (message == null || message.isEmpty()) {
-                    message = MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$
-                }
-                return "info".equals(errorCode) ? message : null; //$NON-NLS-1$
-            }
+            WSDataClusterPK dataClusterPK = new WSDataClusterPK(clusterName);
+            WSItemPK wsItemPK = new WSItemPK(dataClusterPK, conceptName, ids1);
+            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, partPath, revisionId);
+            WSRemoveDroppedItem wsRemoveDroppedItem = new WSRemoveDroppedItem(wsDroppedItemPK);
+            Util.getPort().removeDroppedItem(wsRemoveDroppedItem);
+            Locale locale = new Locale(language);
+            return MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$;
+        } catch (RemoteException e) {
+            return e.getMessage();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -218,8 +161,8 @@ public class RecycleBinAction implements RecycleBinService {
     public boolean checkConflict(String clusterName, String conceptName, String id) throws ServiceException {
         try {
             String ids[] = { id };
-            WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
-            return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(wddcpk, conceptName, ids))).is_true();
+            WSDataClusterPK dataClusterPK = new WSDataClusterPK(clusterName);
+            return Util.getPort().existsItem(new WSExistsItem(new WSItemPK(dataClusterPK, conceptName, ids))).is_true();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -234,14 +177,14 @@ public class RecycleBinAction implements RecycleBinService {
                     && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName)) {
                 throw new NoPermissionException();
             }
-            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
-                    new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName));
+            WSGetBusinessConceptKey conceptKey = new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName);
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(conceptKey);
             String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
-            WSDataClusterPK wddcpk = new WSDataClusterPK(clusterName);
-            WSItemPK wdipk = new WSItemPK(wddcpk, conceptName, ids1);
-            WSDroppedItemPK wsdipk = new WSDroppedItemPK(wdipk, partPath, revisionId);
-            WSRecoverDroppedItem wsrdi = new WSRecoverDroppedItem(wsdipk);
-            Util.getPort().recoverDroppedItem(wsrdi);
+            WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(clusterName);
+            WSItemPK wsItemPK = new WSItemPK(wsDataClusterPK, conceptName, ids1);
+            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, partPath, revisionId);
+            WSRecoverDroppedItem recoverDroppedItem = new WSRecoverDroppedItem(wsDroppedItemPK);
+            Util.getPort().recoverDroppedItem(recoverDroppedItem);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

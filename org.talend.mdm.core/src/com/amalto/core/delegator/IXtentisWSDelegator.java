@@ -41,8 +41,10 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.ejb.local.DroppedItemCtrlLocal;
 import com.amalto.core.ejb.local.ItemCtrl2Local;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.objects.routing.v2.ejb.*;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.util.*;
 import org.apache.log4j.Logger;
@@ -54,9 +56,7 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.DroppedItemPOJO;
@@ -80,13 +80,6 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
@@ -1081,15 +1074,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    private void pushToUpdateReport(WSDeleteItemWithReport wsDeleteItem, String dataClusterPK, String dataModelPK,
-            String concept, String[] ids, boolean trigger) throws Exception {
+    private void pushToUpdateReport(String dataClusterPK, String dataModelPK, String concept, String[] ids, boolean trigger,
+            String source, String operationType, String deleteUser) throws Exception {
         ILocalUser user = LocalUser.getLocalUser();
-        String source = wsDeleteItem.getSource();
-        String operationType = wsDeleteItem.getOperateType();
         Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
         String userName;
-        if (wsDeleteItem.getUser() != null && wsDeleteItem.getUser().length() > 0) {
-            userName = wsDeleteItem.getUser();
+        if (deleteUser != null && deleteUser.length() > 0) {
+            userName = deleteUser;
         } else {
             userName = user.getUsername();
         }
@@ -1112,7 +1103,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String dataClusterPK = wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk();
             String concept = wsDeleteItem.getWsItemPK().getConceptName();
             String[] ids = wsDeleteItem.getWsItemPK().getIds();
-
             ItemPOJOPK pk = new ItemPOJOPK(new DataClusterPOJOPK(dataClusterPK), concept, ids);
             ItemPOJO pojo = Util.getItemCtrl2Local().getItem(pk);
             if (pojo == null) {
@@ -1122,56 +1112,32 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(wsDeleteItem.getOperateType())) {
                 Util.getItemCtrl2Local().dropItem(pk, "/", wsDeleteItem.getOverride()); //$NON-NLS-1$
                 if (wsDeleteItem.getPushToUpdateReport()) {
-                    pushToUpdateReport(wsDeleteItem, dataClusterPK, dataModelPK, concept, ids,
-                            wsDeleteItem.getInvokeBeforeSaving());
+                    pushToUpdateReport(dataClusterPK, dataModelPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving(),
+                            wsDeleteItem.getSource(), wsDeleteItem.getOperateType(), wsDeleteItem.getUser());
                 }
                 return new WSString("logical delete item successful!");
             } else { // Physical delete
-                String outputErrorMessage = null;
-                String errorCode = null;
-                String message = ""; //$NON-NLS-1$
+                String message;
                 if (wsDeleteItem.getInvokeBeforeSaving()) {
-                    outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
-                    if (outputErrorMessage != null) {
-                        Document doc = Util.parse(outputErrorMessage);
-                        // TODO what if multiple error nodes ?
-                        String xpath = "/report/message"; //$NON-NLS-1$
-                        Node errorNode = (Node) XPathFactory.newInstance().newXPath().evaluate(xpath, doc, XPathConstants.NODE);
-                        if (errorNode instanceof Element) {
-                            Element errorElement = (Element) errorNode;
-                            errorCode = errorElement.getAttribute("type"); //$NON-NLS-1$
-                            Node child = errorElement.getFirstChild();
-                            if (child instanceof Text) {
-                                message = child.getTextContent();
-                            }
-                        }
-                    }
-                }
-                if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$
-                    if (ids != null) {
+                    Util.BeforeDeleteResult result = Util.beforeDeleting(dataClusterPK, concept, ids,
+                            wsDeleteItem.getOperateType());
+                    if (ids != null && !"error".equals(result.type)) { //$NON-NLS-1$
                         ItemPOJOPK deleteItem = Util.getItemCtrl2Local().deleteItem(pk, wsDeleteItem.getOverride());
                         if (deleteItem != null && !UpdateReportPOJO.DATA_CLUSTER.equals(dataClusterPK)) {
                             if (wsDeleteItem.getPushToUpdateReport()) {
-                                pushToUpdateReport(wsDeleteItem, dataClusterPK, dataModelPK, concept, ids,
-                                        wsDeleteItem.getInvokeBeforeSaving());
+                                pushToUpdateReport(dataClusterPK, dataModelPK, concept, ids,
+                                        wsDeleteItem.getInvokeBeforeSaving(), wsDeleteItem.getSource(),
+                                        wsDeleteItem.getOperateType(), wsDeleteItem.getUser());
                             }
+                            message = result.message;
                         } else {
                             message = "ERROR - Unable to delete item";
                         }
-                        if (outputErrorMessage != null) {
-                            message = "The validation process completed successfully. The record was deleted successfully.";
-                        }
                     } else {
-                        if (outputErrorMessage != null) {
-                            message = "Could not retrieve the validation process result. An error might have occurred. The record was not deleted.";
-                        }
-                        return new WSString(message + " - No update report was produced");
-                    }
-                } else {
-                    // Anything but 0 is unsuccessful
-                    if (message == null || message.length() == 0) {
                         message = "Could not retrieve the validation process result. An error might have occurred. The record was not deleted.";
                     }
+                } else {
+                    message = "logical delete item successful!";
                 }
                 return new WSString(message);
             }
@@ -1740,8 +1706,17 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSItemPK recoverDroppedItem(WSRecoverDroppedItem wsRecoverDroppedItem) throws RemoteException {
         try {
-            ItemPOJOPK itemPOJOPK = Util.getDroppedItemCtrlLocal().recoverDroppedItem(
-                    XConverter.WS2POJO(wsRecoverDroppedItem.getWsDroppedItemPK()));
+            // Restore record
+            DroppedItemPOJOPK droppedItemPOJOPK = XConverter.WS2POJO(wsRecoverDroppedItem.getWsDroppedItemPK());
+            ItemPOJOPK itemPOJOPK = Util.getDroppedItemCtrlLocal().recoverDroppedItem(droppedItemPOJOPK);
+            // Generate journal event (after restore operation's completed).
+            WSItemPK itemPK = wsRecoverDroppedItem.getWsDroppedItemPK().getWsItemPK();
+            String operationType = UpdateReportPOJO.OPERATION_TYPE_RESTORED;
+            String clusterName = itemPK.getWsDataClusterPK().getPk();
+            String dataModelName = clusterName; // TODO Missing data model name
+            String conceptName = itemPK.getConceptName();
+            String[] ids = itemPK.getIds();
+            pushToUpdateReport(clusterName, dataModelName, conceptName, ids, true, "genericUI", operationType, null); //$NON-NLS-1$
             return XConverter.POJO2WS(itemPOJOPK);
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -1752,8 +1727,23 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSDroppedItemPK removeDroppedItem(WSRemoveDroppedItem wsRemoveDroppedItem) throws RemoteException {
         try {
-            DroppedItemPOJOPK droppedItemPOJOPK = Util.getDroppedItemCtrlLocal().removeDroppedItem(
-                    XConverter.WS2POJO(wsRemoveDroppedItem.getWsDroppedItemPK()));
+            WSItemPK itemPK = wsRemoveDroppedItem.getWsDroppedItemPK().getWsItemPK();
+            String clusterName = itemPK.getWsDataClusterPK().getPk();
+            String dataModelName = clusterName; // TODO Missing data model name
+            String conceptName = itemPK.getConceptName();
+            String[] ids = itemPK.getIds();
+            String operationType = UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE;
+            // Call beforeDelete process (if any).
+            Util.BeforeDeleteResult result = Util.beforeDeleting(clusterName, conceptName, ids, operationType);
+            if (result != null && "error".equals(result.type)) { //$NON-NLS-1$
+                throw new RemoteException(result.message);
+            }
+            // Generate physical delete event in journal
+            WSDroppedItemPK droppedItemPK = wsRemoveDroppedItem.getWsDroppedItemPK();
+            pushToUpdateReport(clusterName, dataModelName, conceptName, ids, true,"genericUI", operationType, null); //$NON-NLS-1$ 
+            // Removes item from recycle bin
+            DroppedItemCtrlLocal droppedItemCtrlLocal = Util.getDroppedItemCtrlLocal();
+            DroppedItemPOJOPK droppedItemPOJOPK = droppedItemCtrlLocal.removeDroppedItem(XConverter.WS2POJO(droppedItemPK));
             return XConverter.POJO2WS(droppedItemPOJOPK);
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -1764,12 +1754,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSRoutingRule getRoutingRule(WSGetRoutingRule wsRoutingRuleGet) throws RemoteException {
         try {
-            if (Util.getRoutingRuleCtrlLocal().existsRoutingRule(
-                    new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())) == null) {
+            RoutingRuleCtrlLocal routingRuleCtrlLocal = Util.getRoutingRuleCtrlLocal();
+            RoutingRulePOJOPK pk = new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk());
+            if (routingRuleCtrlLocal.existsRoutingRule(pk) == null) {
                 return null;
             }
-            return XConverter.VO2WS(Util.getRoutingRuleCtrlLocal().getRoutingRule(
-                    new RoutingRulePOJOPK(wsRoutingRuleGet.getWsRoutingRulePK().getPk())));
+            return XConverter.VO2WS(routingRuleCtrlLocal.getRoutingRule(pk));
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -1779,8 +1769,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSBoolean existsRoutingRule(WSExistsRoutingRule wsExistsRoutingRule) throws RemoteException {
         try {
-            return new WSBoolean(Util.getRoutingRuleCtrlLocal().existsRoutingRule(
-                    new RoutingRulePOJOPK(wsExistsRoutingRule.getWsRoutingRulePK().getPk())) != null);
+            RoutingRuleCtrlLocal routingRuleCtrlLocal = Util.getRoutingRuleCtrlLocal();
+            RoutingRulePOJOPK pk = new RoutingRulePOJOPK(wsExistsRoutingRule.getWsRoutingRulePK().getPk());
+            return new WSBoolean(routingRuleCtrlLocal.existsRoutingRule(pk) != null);
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -1790,8 +1781,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSRoutingRulePK deleteRoutingRule(WSDeleteRoutingRule wsDeleteRoutingRule) throws RemoteException {
         try {
-            return new WSRoutingRulePK(Util.getRoutingRuleCtrlLocal()
-                    .removeRoutingRule(new RoutingRulePOJOPK(wsDeleteRoutingRule.getWsRoutingRulePK().getPk())).getUniqueId());
+            RoutingRuleCtrlLocal routingRuleCtrlLocal = Util.getRoutingRuleCtrlLocal();
+            RoutingRulePOJOPK pk = new RoutingRulePOJOPK(wsDeleteRoutingRule.getWsRoutingRulePK().getPk());
+            return new WSRoutingRulePK(routingRuleCtrlLocal.removeRoutingRule(pk).getUniqueId());
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -1801,8 +1793,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSRoutingRulePK putRoutingRule(WSPutRoutingRule wsRoutingRule) throws RemoteException {
         try {
-            return new WSRoutingRulePK(Util.getRoutingRuleCtrlLocal().putRoutingRule(XConverter.WS2VO(wsRoutingRule.getWsRoutingRule()))
-                    .getUniqueId());
+            RoutingRuleCtrlLocal routingRuleCtrlLocal = Util.getRoutingRuleCtrlLocal();
+            RoutingRulePOJO routingRule = XConverter.WS2VO(wsRoutingRule.getWsRoutingRule());
+            return new WSRoutingRulePK(routingRuleCtrlLocal.putRoutingRule(routingRule).getUniqueId());
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
         } catch (Exception e) {
@@ -1841,8 +1834,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSTransformerV2 getTransformerV2(WSGetTransformerV2 wsGetTransformerV2) throws RemoteException {
         try {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
-            TransformerV2POJO pojo = ctrl.getTransformer(new TransformerV2POJOPK(wsGetTransformerV2.getWsTransformerV2PK()
-                    .getPk()));
+            String pk = wsGetTransformerV2.getWsTransformerV2PK().getPk();
+            TransformerV2POJO pojo = ctrl.getTransformer(new TransformerV2POJOPK(pk));
             return XConverter.POJO2WS(pojo);
         } catch (Exception e) {
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
@@ -1852,8 +1845,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSBoolean existsTransformerV2(WSExistsTransformerV2 wsExistsTransformerV2) throws RemoteException {
         try {
             TransformerV2CtrlLocal ctrl = Util.getTransformerV2CtrlLocal();
-            TransformerV2POJO pojo = ctrl.existsTransformer(new TransformerV2POJOPK(wsExistsTransformerV2.getWsTransformerV2PK()
-                    .getPk()));
+            String pk = wsExistsTransformerV2.getWsTransformerV2PK().getPk();
+            TransformerV2POJO pojo = ctrl.existsTransformer(new TransformerV2POJOPK(pk));
             return new WSBoolean(pojo != null);
         } catch (Exception e) {
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
