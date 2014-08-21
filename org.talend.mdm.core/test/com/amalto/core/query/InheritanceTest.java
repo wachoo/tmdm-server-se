@@ -89,6 +89,7 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testTypeOrdering() throws Exception {
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
+
         String[] expectedOrder = { "Product", "Store", "A", "Update", "B", "D", "C", "Employee1", "Manager1", "Country",
                 "Persons", "Employee", "Concurrent", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "Group", "SS",
                 "Supplier", "ProductFamily", "E2", "ff", "E1", "Manager", "Address", "a1", "EntityB", "a2", "TypeA", "EntityA",
