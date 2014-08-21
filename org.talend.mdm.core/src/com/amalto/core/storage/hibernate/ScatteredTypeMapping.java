@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.collection.PersistentList;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
@@ -68,51 +69,75 @@ class ScatteredTypeMapping extends TypeMapping {
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
                 if (!field.isMany()) {
                     DataRecord referencedObject = (DataRecord) readValue(from, field, mappedDatabaseField, session);
+                    Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
                     if (referencedObject != null) {
-                        Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
-                        Wrapper object = createObject(contextClassLoader, referencedObject);
-                        to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, object));
-                        if (existingValue == null) {
+                        if (existingValue != null) {
+                            to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, existingValue));
+                        } else {
+                            Wrapper object = createObject(contextClassLoader, referencedObject);
+                            to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, object));
                             session.persist(object);
                         }
                     } else {
                         to.set(referenceFieldMetadata.getName(), null);
+                        if (existingValue != null) {
+                            session.delete(existingValue);
+                        }
                     }
                 } else {
                     List<DataRecord> dataRecords = (List<DataRecord>) readValue(from, field, mappedDatabaseField, session);
                     Object value = to.get(getDatabase(field).getName());
+                    List<Wrapper> existingValue = (List<Wrapper>) value;
                     if (dataRecords != null) {
-                        List<Wrapper> existingValue = (List<Wrapper>) value;
                         if (existingValue != null) {
                             ((PersistentList) existingValue).forceInitialization();
                         }
                         List<Wrapper> objects = existingValue == null ? new ArrayList<Wrapper>(dataRecords.size())
                                 : existingValue;
+                        List<Wrapper> newValue = new ArrayList<Wrapper>();
                         int i = 0;
                         for (DataRecord dataRecord : dataRecords) {
                             if (i < objects.size() && objects.get(i) != null) {
                                 ComplexTypeMetadata existingType = ((StorageClassLoader) contextClassLoader)
                                         .getTypeFromClass(objects.get(i).getClass());
-                                if (!existingType.equals(dataRecord.getType())) {
+                                TypeMapping mapping = mappings.getMappingFromDatabase(existingType);
+                                if (mapping == null) {
+                                    throw new IllegalStateException("Type '" + existingType.getName() + "' has no mapping."); //$NON-NLS-1$ //$NON-NLS-2$
+                                }
+                                Boolean isSameType = mapping.getUser().equals(dataRecord.getType());
+                                if (mapping.getUser() instanceof ContainedComplexTypeMetadata
+                                        && dataRecord.getType() instanceof ContainedComplexTypeMetadata) {
+                                    isSameType = ((ContainedComplexTypeMetadata) mapping.getUser()).getContainedType().equals(
+                                            ((ContainedComplexTypeMetadata) dataRecord.getType()).getContainedType());
+                                }
+                                if (!isSameType) {
                                     Wrapper object = createObject(contextClassLoader, dataRecord);
-                                    objects.set(i, (Wrapper) _setValues(session, dataRecord, object));
+                                    newValue.add((Wrapper) _setValues(session, dataRecord, object));
                                 } else {
-                                    objects.set(i, (Wrapper) _setValues(session, dataRecord, objects.get(i)));
+                                    newValue.add((Wrapper) _setValues(session, dataRecord, objects.get(i)));
                                 }
                             } else {
                                 Wrapper object = createObject(contextClassLoader, dataRecord);
-                                objects.add((Wrapper) _setValues(session, dataRecord, object));
+                                newValue.add((Wrapper) _setValues(session, dataRecord, object));
                                 session.persist(object);
                             }
                             i++;
                         }
-                        // TMDM-5257: Remove the deleted items
-                        while (objects.size() > dataRecords.size()) {
-                            objects.remove(objects.size() - 1);
+                        // TMDM-7590: Remove the deleted items
+                        if (objects.size() > newValue.size()) {
+                            for (i = objects.size() - 1; i >= newValue.size(); i--) {
+                                session.delete(objects.get(i));
+                                objects.remove(i);
+                            }
                         }
+                        objects = newValue;
                         to.set(referenceFieldMetadata.getName(), objects);
                     } else {
-                        if (value != null && value instanceof List) {
+                        if (value != null) {
+                            List<Wrapper> objects = (List<Wrapper>) value;
+                            for (Wrapper object : objects) {
+                                session.delete(object);
+                            }
                             ((List) value).clear();
                         }
                     }

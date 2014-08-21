@@ -35,7 +35,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -83,6 +82,12 @@ import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereOr;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -276,6 +281,26 @@ public class StorageQueryTest extends StorageTestCase {
                 "<EntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdA>100</IdA></EntityA>"));
         allRecords.add(factory.read("1", repository, entityB,
                 "<EntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdB>B1</IdB><A_FK>[100]</A_FK></EntityB>"));
+        allRecords
+                .add(factory
+                        .read("1", repository, ContainedEntityB,
+                                "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record1</id></ContainedEntityB>"));
+        allRecords
+                .add(factory
+                        .read("1", repository, ContainedEntityB,
+                                "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record2</id></ContainedEntityB>"));
+        allRecords
+                .add(factory
+                        .read("1", repository, ContainedEntityB,
+                                "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record3</id></ContainedEntityB>"));
+        allRecords
+                .add(factory
+                        .read("1", repository, ContainedEntityB,
+                                "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record4</id></ContainedEntityB>"));
+        allRecords
+                .add(factory
+                        .read("1", repository, ContainedEntityB,
+                                "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record5</id></ContainedEntityB>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -3787,6 +3812,118 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+
+    public void testManyRelationToRecordChange() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        // Update 'FKtoMultiB' list records (record1..record5)
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ContainedEntityA,
+                                "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid>[B_record1]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record2]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record3]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record4]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record5]</Bid></FKtoMultiB></ContainedEntityA>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        // Delete last 'FKtoMultiB' list record (record1..record4)
+        allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ContainedEntityA,
+                                "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid>[B_record1]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record2]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record3]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record4]</Bid></FKtoMultiB></ContainedEntityA>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        // Delete 'record5' which is no longer used
+        UserQueryBuilder qb = from(ContainedEntityB).where(contains(ContainedEntityB.getField("id"), "B_record5"));
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+        // Test actual deletion of 'record5'.
+        storage.begin();
+        qb = from(ContainedEntityB).select(ContainedEntityB.getField("id"));
+        StorageResults records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(4, records.getCount());
+        } finally {
+            storage.commit();
+        }
+        // Delete all 'FKtoMultiB' list records ()
+        allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ContainedEntityA,
+                                "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid></Bid></FKtoMultiB></ContainedEntityA>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        // Delete all remaining records
+        qb = from(ContainedEntityB).where(startsWith(ContainedEntityB.getField("id"), "B_record"));
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+        // Test actual deletion of remaining 'recordN'.
+        storage.begin();
+        qb = from(ContainedEntityB).select(ContainedEntityB.getField("id"));
+        records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, records.getCount());
+        } finally {
+            storage.commit();
+        }
+    }
+
+    public void testSingleRelationRecordsChangeWithFK() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        // Add 'record1'
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ContainedEntityA,
+                                "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid>[B_record1]</Bid></FKtoB></ContainedEntityA>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        // Update 'record1' to 'record2'
+        allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ContainedEntityA,
+                                "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid>[B_record2]</Bid></FKtoB></ContainedEntityA>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        // Delete 'record1' which is no longer used
+        UserQueryBuilder qb = from(ContainedEntityB).where(contains(ContainedEntityB.getField("id"), "B_record1"));
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
+        // Update 'FKtoB' field to null
+        allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ContainedEntityA,
+                                "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid></Bid></FKtoB><FKtoMultiB><Bid/></FKtoMultiB></ContainedEntityA>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        // Delete 'record2' which is no longer used
+        qb = from(ContainedEntityB).where(contains(ContainedEntityB.getField("id"), "B_record2"));
+        storage.begin();
+        storage.delete(qb.getSelect());
+        storage.commit();
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
