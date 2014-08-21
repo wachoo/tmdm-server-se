@@ -127,14 +127,14 @@ public class Util {
         item.setSkip(start);
         item.setMaxItems(limit);
         item.setWsDataClusterPK(new WSDataClusterPK(XSystemObjects.DC_UPDATE_PREPORT.getName()));
-        item.setSort(sort);
-        item.setDir(getOrderXPath(dir));
+        item.setSort(getOrderXPath(sort));
+        item.setDir(dir);
         return item;
     }
     
     private static String getOrderXPath(String fieldName) {
         if (fieldName != null && fieldName.length() > 0) {
-            String elementName = ""; //$NON-NLS-1$
+            String elementName;
             if ("dataContainer".equals(fieldName)) { //$NON-NLS-1$
                 elementName = "DataCluster"; //$NON-NLS-1$
             } else if ("dataModel".equals(fieldName)) { //$NON-NLS-1$

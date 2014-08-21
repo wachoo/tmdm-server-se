@@ -77,7 +77,7 @@ public class JournalDBService {
             sortDir = Constants.SEARCH_DIRECTION_DESC;
         }
         WSStringArray resultsArray = webService.getItemsBySort(org.talend.mdm.webapp.journal.server.util.Util.buildGetItemsSort(
-                conditions, start, limit, sortDir, field));
+                conditions, start, limit, field, sortDir));
         String[] results = resultsArray == null ? new String[0] : resultsArray.getStrings();
         Document document = Util.parse(results[0]);
         totalSize = Integer.parseInt(document.getDocumentElement().getTextContent());
