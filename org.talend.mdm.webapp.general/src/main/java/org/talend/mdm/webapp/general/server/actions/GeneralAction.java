@@ -280,7 +280,8 @@ public class GeneralAction implements GeneralService {
     @Override
     public boolean supportStaging(String dataCluster) throws ServiceException {
         try {
-            return Util.getPort().supportStaging().is_true();
+            WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(Configuration.getConfiguration().getCluster());
+            return Util.getPort().supportStaging(wsDataClusterPK).is_true();
         } catch (Exception e) {
             throw new ServiceException(e.getMessage());
         }

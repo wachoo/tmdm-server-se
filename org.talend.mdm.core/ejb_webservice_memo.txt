@@ -1,3 +1,6 @@
+Note:
+Document is obsolete following 5.6 refactoring for TMDM-7192.
+
 ## PREREQUISITES ##
 
 1. JWSDP
@@ -14,7 +17,7 @@ You'll also need XDoclet (version 1.2.3.patched). This isn't on SVN so you'll ne
 1.add/modify a webservice method in tom ( for MDM Open edition)
   (1) add/modify the webservice method in org.talend.mdm.core.open/src/META-INF/wsdl
   (2) run org.talend.mdm.core.open/wsdl_compile.xml "default" target to generate webservice skeleton classes.
-  (3) implement the method in org.talend.mdm.core.open/com.amalto.core.ejb.XtentisWSBean
+  (3) implement the method in org.talend.mdm.core.open/com.amalto.core.ejb.local.XtentisWSBean
   (4) run org.talend.mdm.core.open/xdoclet_generate.xml/xdoclet-generation target(this step is necessary only when you add a method) to generate ejb skeleton classes
   (5) run org.talend.mdm.core.open/merge_with_core.xml "default" target. to move the webservice classes to org.talend.mdm.core project.
     

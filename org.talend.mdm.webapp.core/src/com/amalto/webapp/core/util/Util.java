@@ -32,7 +32,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import com.amalto.core.util.XConverter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.jboss.security.SimpleGroup;
@@ -47,7 +46,6 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
@@ -663,12 +661,6 @@ public class Util {
 
     public static String getLoginRoles() throws Exception {
         return getPrincipalMember("Roles"); //$NON-NLS-1$
-    }
-
-    public static String getRevisionIdFromUniverse(String universeName, String conceptName) throws Exception {
-        WSUniverse wsUniverse = Util.getPort().getUniverse(new WSGetUniverse(new WSUniversePK(universeName)));
-        UniversePOJO universe = XConverter.WS2POJO(wsUniverse);
-        return universe.getConceptRevisionID(conceptName);
     }
 
     public static Element getLoginProvisioningFromDB() throws Exception {
