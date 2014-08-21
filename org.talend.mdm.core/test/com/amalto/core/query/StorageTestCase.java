@@ -92,6 +92,10 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata entityB;
 
+    protected static final ComplexTypeMetadata ContainedEntityA;
+
+    protected static final ComplexTypeMetadata ContainedEntityB;
+
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
     public static final String DATABASE = "H2";
@@ -131,6 +135,9 @@ public class StorageTestCase extends TestCase {
         company = repository.getComplexType("Company");
         entityA = repository.getComplexType("EntityA");
         entityB = repository.getComplexType("EntityB");
+
+        ContainedEntityA = repository.getComplexType("ContainedEntityA");
+        ContainedEntityB = repository.getComplexType("ContainedEntityB");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
