@@ -121,25 +121,27 @@ public class IncompatibleOperators implements Optimizer {
                 Expression right = condition.getRight();
                 left.accept(this);
                 right.accept(this);
-                TypeMetadata fieldType = currentField.getFieldMetadata().getType();
-                String length = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
-                if (length != null) {
-                    if (right instanceof ConstantExpression<?>) {
-                        if (Integer.parseInt(length) > dialect.getTextLimit()) {
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Replacing EQUALS with STARTS_WITH (can't use EQUALS on large text column).");
+                if (currentField != null) { // null may happen for fields that needs no check
+                    TypeMetadata fieldType = currentField.getFieldMetadata().getType();
+                    String length = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
+                    if (length != null) {
+                        if (right instanceof ConstantExpression<?>) {
+                            if (Integer.parseInt(length) > dialect.getTextLimit()) {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Replacing EQUALS with STARTS_WITH (can't use EQUALS on large text column).");
+                                }
+                                return new Compare(left, Predicate.STARTS_WITH, right);
+                            } else {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("*NOT* replacing EQUALS with STARTS_WITH (field does not exceed max varchar size of "
+                                            + dialect.getTextLimit() + ").");
+                                }
+                                return condition;
                             }
-                            return new Compare(left, Predicate.STARTS_WITH, right);
                         } else {
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("*NOT* replacing EQUALS with STARTS_WITH (field does not exceed max varchar size of "
-                                        + dialect.getTextLimit() + ").");
+                                LOGGER.debug("*NOT* replacing EQUALS with STARTS_WITH (can't use STARTS_WITH with an other field).");
                             }
-                            return condition;
-                        }
-                    } else {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("*NOT* replacing EQUALS with STARTS_WITH (can't use STARTS_WITH with an other field).");
                         }
                     }
                 }
