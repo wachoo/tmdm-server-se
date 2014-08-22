@@ -29,7 +29,10 @@ public class WSConnectorFunction {
     public static final WSConnectorFunction STOP = new WSConnectorFunction(_STOP);
     public static final WSConnectorFunction PULL = new WSConnectorFunction(_PULL);
     public static final WSConnectorFunction PUSH = new WSConnectorFunction(_PUSH);
-    
+
+    public WSConnectorFunction() {
+    }
+
     protected WSConnectorFunction(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

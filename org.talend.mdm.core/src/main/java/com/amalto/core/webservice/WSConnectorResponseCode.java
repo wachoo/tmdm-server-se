@@ -23,7 +23,10 @@ public class WSConnectorResponseCode {
     public static final WSConnectorResponseCode OK = new WSConnectorResponseCode(_OK);
     public static final WSConnectorResponseCode STOPPED = new WSConnectorResponseCode(_STOPPED);
     public static final WSConnectorResponseCode ERROR = new WSConnectorResponseCode(_ERROR);
-    
+
+    public WSConnectorResponseCode() {
+    }
+
     protected WSConnectorResponseCode(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

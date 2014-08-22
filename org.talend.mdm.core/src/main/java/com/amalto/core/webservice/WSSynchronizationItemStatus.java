@@ -26,7 +26,10 @@ public class WSSynchronizationItemStatus {
     public static final WSSynchronizationItemStatus MANUAL = new WSSynchronizationItemStatus(_MANUAL);
     public static final WSSynchronizationItemStatus RESOLVED = new WSSynchronizationItemStatus(_RESOLVED);
     public static final WSSynchronizationItemStatus EXECUTED = new WSSynchronizationItemStatus(_EXECUTED);
-    
+
+    public WSSynchronizationItemStatus() {
+    }
+
     protected WSSynchronizationItemStatus(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

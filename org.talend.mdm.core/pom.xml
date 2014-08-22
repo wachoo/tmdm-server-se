@@ -296,8 +296,22 @@
             <artifactId>org.talend.mdm.core.enterprise</artifactId>
             <version>5.6-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.talend.dataquality</groupId>
+            <artifactId>org.talend.dataquality.matchmerge</artifactId>
+            <version>5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.dataquality</groupId>
+            <artifactId>org.talend.dataquality.record.linkage</artifactId>
+            <version>5.6</version>
+        </dependency>
 
         <!-- 6.0 dependencies -->
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
@@ -540,7 +554,7 @@
             <artifactId>hibernate-search</artifactId>
         </dependency>
         <dependency>
-            <groupId>javassist</groupId>
+            <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
         <dependency>

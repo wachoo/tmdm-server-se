@@ -23,7 +23,10 @@ public class WSOperatorType {
     public static final WSOperatorType UPDATE = new WSOperatorType(_UPDATE);
     public static final WSOperatorType INSERT = new WSOperatorType(_INSERT);
     public static final WSOperatorType DELETE = new WSOperatorType(_DELETE);
-    
+
+    public WSOperatorType() {
+    }
+
     protected WSOperatorType(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

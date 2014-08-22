@@ -1,12 +1,14 @@
-package com.amalto.core.objects.menu.ejb;
-
-import java.util.ArrayList;
-import java.util.Collection;
+package com.amalto.core.objects.menu.ejb.local;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.objects.menu.ejb.MenuPOJO;
+import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class DefaultMenu implements Menu {
 

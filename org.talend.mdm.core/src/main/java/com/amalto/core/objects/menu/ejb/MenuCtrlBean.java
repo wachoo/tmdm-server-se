@@ -3,12 +3,12 @@ package com.amalto.core.objects.menu.ejb;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 
+import com.amalto.core.objects.menu.ejb.local.Menu;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.ejb.ObjectPOJO;

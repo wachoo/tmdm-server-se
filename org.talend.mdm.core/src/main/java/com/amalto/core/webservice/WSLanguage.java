@@ -20,7 +20,10 @@ public class WSLanguage {
     
     public static final WSLanguage FR = new WSLanguage(_FR);
     public static final WSLanguage EN = new WSLanguage(_EN);
-    
+
+    public WSLanguage() {
+    }
+
     protected WSLanguage(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

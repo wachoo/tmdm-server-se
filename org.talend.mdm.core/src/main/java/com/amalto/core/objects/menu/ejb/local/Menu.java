@@ -1,5 +1,7 @@
-package com.amalto.core.objects.menu.ejb;
+package com.amalto.core.objects.menu.ejb.local;
 
+import com.amalto.core.objects.menu.ejb.MenuPOJO;
+import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.util.XtentisException;
 
 import java.util.Collection;

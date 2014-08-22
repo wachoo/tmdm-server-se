@@ -56,7 +56,10 @@ public class WSWhereOperator {
     public static final WSWhereOperator NO_OPERATOR = new WSWhereOperator(_NO_OPERATOR);
     public static final WSWhereOperator FULLTEXTSEARCH = new WSWhereOperator(_FULLTEXTSEARCH);
     public static final WSWhereOperator EMPTY_NULL = new WSWhereOperator(_EMPTY_NULL);
-    
+
+    public WSWhereOperator() {
+    }
+
     protected WSWhereOperator(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

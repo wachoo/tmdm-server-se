@@ -32,7 +32,10 @@ public class BackgroundJobStatusType {
     public static final BackgroundJobStatusType SUSPENDED = new BackgroundJobStatusType(_SUSPENDED);
     public static final BackgroundJobStatusType CANCEL_REQUESTED = new BackgroundJobStatusType(_CANCEL_REQUESTED);
     public static final BackgroundJobStatusType STOPPED = new BackgroundJobStatusType(_STOPPED);
-    
+
+    public BackgroundJobStatusType() {
+    }
+
     protected BackgroundJobStatusType(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

@@ -20,7 +20,10 @@ public class WSGetUniverseByRevisionType {
     
     public static final WSGetUniverseByRevisionType ITEM = new WSGetUniverseByRevisionType(_ITEM);
     public static final WSGetUniverseByRevisionType OBJECT = new WSGetUniverseByRevisionType(_OBJECT);
-    
+
+    public WSGetUniverseByRevisionType() {
+    }
+
     protected WSGetUniverseByRevisionType(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

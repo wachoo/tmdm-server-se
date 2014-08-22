@@ -3,8 +3,6 @@
  */
 package com.amalto.core.objects.menu.ejb.local;
 
-import com.amalto.core.objects.menu.ejb.Menu;
-
 /**
  * Local interface for MenuCtrl.
  * @xdoclet-generated

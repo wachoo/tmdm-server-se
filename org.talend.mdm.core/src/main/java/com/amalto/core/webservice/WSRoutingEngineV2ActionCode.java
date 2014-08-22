@@ -29,7 +29,10 @@ public class WSRoutingEngineV2ActionCode {
     public static final WSRoutingEngineV2ActionCode SUSPEND = new WSRoutingEngineV2ActionCode(_SUSPEND);
     public static final WSRoutingEngineV2ActionCode RESUME = new WSRoutingEngineV2ActionCode(_RESUME);
     public static final WSRoutingEngineV2ActionCode STATUS = new WSRoutingEngineV2ActionCode(_STATUS);
-    
+
+    public WSRoutingEngineV2ActionCode() {
+    }
+
     protected WSRoutingEngineV2ActionCode(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);
