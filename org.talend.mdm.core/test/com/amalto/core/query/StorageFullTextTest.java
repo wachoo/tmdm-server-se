@@ -101,7 +101,7 @@ public class StorageFullTextTest extends StorageTestCase {
 
     @Override
     public void tearDown() throws Exception {
-        storage.begin();
+        /*storage.begin();
         {
             UserQueryBuilder qb = from(product);
             storage.delete(qb.getSelect());
@@ -116,7 +116,7 @@ public class StorageFullTextTest extends StorageTestCase {
             storage.delete(qb.getSelect());
         }
         storage.commit();
-        storage.end();
+        storage.end();*/
     }
 
     @Override
@@ -677,6 +677,18 @@ public class StorageFullTextTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testFullTextAndRangeTimeQuery() throws Exception {
+        UserQueryBuilder qb = from(product).where(
+                and(fullText(product.getField("ShortDescription"), "description"),
+                        and(gte(timestamp(), "0"), lte(timestamp(), String.valueOf(System.currentTimeMillis()))))).limit(20);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
         } finally {
             results.close();
         }

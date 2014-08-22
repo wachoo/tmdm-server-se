@@ -482,6 +482,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         private final Set<ComplexTypeMetadata> closure = new HashSet<ComplexTypeMetadata>();
 
         @Override
+        public Collection<? extends ComplexTypeMetadata> visit(Range range) {
+            return closure;
+        }
+
+        @Override
         public Collection<? extends ComplexTypeMetadata> visit(Select select) {
             closure.addAll(select.getTypes());
             if (select.getCondition() != null) {

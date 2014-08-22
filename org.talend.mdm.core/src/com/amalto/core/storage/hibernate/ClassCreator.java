@@ -36,13 +36,8 @@ import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.AnnotationMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
 
-import org.apache.lucene.document.NumericField;
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.DocumentId;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.ProvidedId;
+import javassist.bytecode.annotation.EnumMemberValue;
+import org.hibernate.search.annotations.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
@@ -485,11 +480,12 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 || Types.TIME.equals(type.getName()) || Types.DURATION.equals(type.getName())
                 || Types.BYTE.equals(type.getName()) || Types.UNSIGNED_BYTE.equals(type.getName()));
         if (!metadata.isMany() && validType) {
-            if (Types.INTEGER.equals(type.getName()) || Types.DOUBLE.equals(type.getName())) {
-                return new NumericSearchIndexHandler();
-            } else {
-                return new BasicSearchIndexHandler();
+            for (String numberTypeName : Types.NUMBERS) {
+                if (numberTypeName.equals(type.getName())) {
+                    return new NumericSearchIndexHandler();
+                }
             }
+            return new BasicSearchIndexHandler();
         } else if (!validType) {
             return new ToStringIndexHandler();
         } else { // metadata.isMany() returned true
@@ -506,8 +502,24 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
         @Override
         public void handle(AnnotationsAttribute annotations, ConstPool pool) {
-            Annotation fieldAnnotation = new Annotation(NumericField.class.getName(), pool);
+            Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
+            // store = Store.YES
+            EnumMemberValue storeValue = new EnumMemberValue(pool);
+            storeValue.setType(Store.class.getName());
+            storeValue.setValue(Store.YES.name());
+            fieldAnnotation.addMemberValue("store", storeValue); //$NON-NLS-1$
+            // index = UN_TOKENIZED
+            EnumMemberValue indexValue = new EnumMemberValue(pool);
+            indexValue.setType(Index.class.getName());
+            indexValue.setValue(Index.UN_TOKENIZED.name());
+            fieldAnnotation.addMemberValue("index", indexValue); //$NON-NLS-1$
+            // Add annotation
             annotations.addAnnotation(fieldAnnotation);
+            // Code below is for Hibernate Search > 3.2
+            /*
+            Annotation fieldAnnotation = new Annotation(org.hibernate.search.annotations.NumericField.class.getName(), pool);
+            annotations.addAnnotation(fieldAnnotation);
+            */
         }
     }
 

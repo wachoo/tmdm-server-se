@@ -22,11 +22,7 @@ import org.apache.lucene.analysis.KeywordAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.Version;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
@@ -166,7 +162,11 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         Long currentRangeStart = ((Long) currentValue) == Long.MIN_VALUE ? null : (Long) currentValue;
         range.getEnd().accept(this);
         Long currentRangeEnd = ((Long) currentValue) == Long.MAX_VALUE ? null : (Long) currentValue;
+        return new TermRangeQuery(currentFieldName, String.valueOf(currentRangeStart), String.valueOf(currentRangeEnd), true, true);
+        // Need Hibernate Search > 3.2 (+ @NumericField annotation in class ClassCreator)
+        /*
         return NumericRangeQuery.newLongRange(currentFieldName, currentRangeStart, currentRangeEnd, true, true);
+        */
     }
 
     @Override
