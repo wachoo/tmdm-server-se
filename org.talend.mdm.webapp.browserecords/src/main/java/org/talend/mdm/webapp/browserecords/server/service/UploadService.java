@@ -47,10 +47,10 @@ import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XmlUtil;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSPutItem;
-import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSPutItem;
+import com.amalto.core.webservice.WSPutItemWithReport;
 
 public class UploadService {
 

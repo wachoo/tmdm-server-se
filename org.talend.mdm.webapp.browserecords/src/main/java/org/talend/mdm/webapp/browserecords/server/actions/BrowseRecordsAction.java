@@ -41,12 +41,16 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.amalto.core.server.ServerContext;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -107,7 +111,6 @@ import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.FieldNotFoundException;
@@ -120,46 +123,46 @@ import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSBoolean;
-import com.amalto.webapp.util.webservices.WSByteArray;
-import com.amalto.webapp.util.webservices.WSConceptKey;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSDeleteItem;
-import com.amalto.webapp.util.webservices.WSDropItem;
-import com.amalto.webapp.util.webservices.WSDroppedItemPK;
-import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
-import com.amalto.webapp.util.webservices.WSExistsItem;
-import com.amalto.webapp.util.webservices.WSGetBusinessConceptKey;
-import com.amalto.webapp.util.webservices.WSGetBusinessConcepts;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetTransformer;
-import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
-import com.amalto.webapp.util.webservices.WSGetView;
-import com.amalto.webapp.util.webservices.WSGetViewPKs;
-import com.amalto.webapp.util.webservices.WSInt;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSPutItem;
-import com.amalto.webapp.util.webservices.WSPutItemWithReport;
-import com.amalto.webapp.util.webservices.WSStringArray;
-import com.amalto.webapp.util.webservices.WSStringPredicate;
-import com.amalto.webapp.util.webservices.WSTransformer;
-import com.amalto.webapp.util.webservices.WSTransformerContext;
-import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
-import com.amalto.webapp.util.webservices.WSTransformerPK;
-import com.amalto.webapp.util.webservices.WSTransformerV2PK;
-import com.amalto.webapp.util.webservices.WSTypedContent;
-import com.amalto.webapp.util.webservices.WSView;
-import com.amalto.webapp.util.webservices.WSViewPK;
-import com.amalto.webapp.util.webservices.WSViewSearch;
-import com.amalto.webapp.util.webservices.WSWhereAnd;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
-import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSWhereOperator;
-import com.amalto.webapp.util.webservices.WSWhereOr;
-import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.amalto.core.webservice.WSBoolean;
+import com.amalto.core.webservice.WSByteArray;
+import com.amalto.core.webservice.WSConceptKey;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSDeleteItem;
+import com.amalto.core.webservice.WSDropItem;
+import com.amalto.core.webservice.WSDroppedItemPK;
+import com.amalto.core.webservice.WSExecuteTransformerV2;
+import com.amalto.core.webservice.WSExistsItem;
+import com.amalto.core.webservice.WSGetBusinessConceptKey;
+import com.amalto.core.webservice.WSGetBusinessConcepts;
+import com.amalto.core.webservice.WSGetDataModel;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSGetTransformer;
+import com.amalto.core.webservice.WSGetTransformerPKs;
+import com.amalto.core.webservice.WSGetView;
+import com.amalto.core.webservice.WSGetViewPKs;
+import com.amalto.core.webservice.WSInt;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSPutItem;
+import com.amalto.core.webservice.WSPutItemWithReport;
+import com.amalto.core.webservice.WSStringArray;
+import com.amalto.core.webservice.WSStringPredicate;
+import com.amalto.core.webservice.WSTransformer;
+import com.amalto.core.webservice.WSTransformerContext;
+import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
+import com.amalto.core.webservice.WSTransformerPK;
+import com.amalto.core.webservice.WSTransformerV2PK;
+import com.amalto.core.webservice.WSTypedContent;
+import com.amalto.core.webservice.WSView;
+import com.amalto.core.webservice.WSViewPK;
+import com.amalto.core.webservice.WSViewSearch;
+import com.amalto.core.webservice.WSWhereAnd;
+import com.amalto.core.webservice.WSWhereCondition;
+import com.amalto.core.webservice.WSWhereItem;
+import com.amalto.core.webservice.WSWhereOperator;
+import com.amalto.core.webservice.WSWhereOr;
+import com.amalto.core.webservice.WSXPathsSearch;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
@@ -185,87 +188,55 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private final List<String> numberTypeNmes = Arrays.asList("double", "float", "decimal", "int", "integer", "long", "short"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ 
 
-    public String deleteItemBean(ItemBean item, boolean override, String language, int size) throws ServiceException {
-        try {
-            String dataClusterPK = getCurrentDataCluster();
-            String concept = item.getConcept();
-            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
-                    new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
-            String[] ids = CommonUtil.extractIdWithDots(key.getFields(), item.getIds());
-            String outputErrorMessage = com.amalto.core.util.Util.beforeDeleting(dataClusterPK, concept, ids);
-
-            String message = null;
-            String errorCode = null;
-            if (outputErrorMessage != null) {
-                Map<String, String> processMap = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.handleProcessMessage(
-                        outputErrorMessage, language);
-                errorCode = processMap.get("typeCode"); //$NON-NLS-1$
-                message = processMap.get("message"); //$NON-NLS-1$
-            }
-
-            if (outputErrorMessage == null || "info".equals(errorCode)) { //$NON-NLS-1$                
-                if (ids != null && !item.isReadOnly()) {
-                    WSItemPK wsItem = CommonUtil.getPort().deleteItem(
-                            new WSDeleteItem(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids), override));
-                    if (wsItem != null && !dataClusterPK.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-                        pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
-                    } else if (wsItem != null && dataClusterPK.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-                        // do nothing
-                    } else {
-                        throw new ServiceException(MESSAGES.getMessage("delete_record_failure")); //$NON-NLS-1$
-                    }
-
-                    if (outputErrorMessage == null) {
-                        message = message == null ? "" : message; //$NON-NLS-1$
-                    } else if (message == null || message.length() == 0) {
-                        message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
-                    } else if (message != null && size > 1) {
-                        message = item.getIds() + ":" + message; //$NON-NLS-1$
-                    }
-                } else {
-                    if (outputErrorMessage == null) {
-                        message = message == null ? "" : message; //$NON-NLS-1$
-                    } else if (message == null || message.length() == 0) {
-                        message = MESSAGES.getMessage("delete_process_validation_success"); //$NON-NLS-1$
-                    }
-                    return MESSAGES.getMessage("delete_item_record_successNoupdate", message); //$NON-NLS-1$
-                }
-            } else {
-                // Anything but 0 is unsuccessful
-                if (message == null || message.length() == 0) {
-                    message = MESSAGES.getMessage("delete_process_validation_failure"); //$NON-NLS-1$
-                }
-                throw new ServiceException(message);
-            }
-
-            return message;
-        } catch (ServiceException e) {
-            LOG.error(e.getMessage(), e);
-            throw e;
-        } catch (WebBaseException e) {
-            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
-        } catch (Exception exception) {
-            String errorMessage;
-            if (WebCoreException.class.isInstance(exception.getCause())) {
-                errorMessage = getErrorMessageFromWebCoreException(((WebCoreException) exception.getCause()), item.getConcept(),
-                        item.getIds(), new Locale(language));
-            } else {
-                errorMessage = exception.getMessage();
-            }
-            LOG.error(errorMessage, exception);
-            throw new ServiceException(errorMessage);
-        }
-    }
-
     @Override
     public List<String> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
         List<String> itemResults = new ArrayList<String>();
-        int size = items.size();
+        MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(getCurrentDataModel());
         for (ItemBean item : items) {
-            String itemResult = deleteItemBean(item, override, language, size);
-            itemResults.add(itemResult);
+            Locale locale = new Locale(language);
+            try {
+                String dataClusterPK = getCurrentDataCluster();
+                String concept = item.getConcept();
+                String[] ids = getItemId(repository, item, concept);
+                if (ids != null && !item.isReadOnly()) {
+                    WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
+                    WSDeleteItem wsDeleteItem = new WSDeleteItem(itemPK, override);
+                    WSItemPK wsItem = CommonUtil.getPort().deleteItem(wsDeleteItem);
+                    if (wsItem == null) {
+                        throw new ServiceException(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
+                    }
+                    itemResults.add(MESSAGES.getMessage("delete_process_validation_success", locale)); //$NON-NLS-1$
+                } else {
+                    itemResults.add(MESSAGES.getMessage("delete_item_record_successNoupdate", locale)); //$NON-NLS-1$
+                }
+            } catch (ServiceException e) {
+                LOG.error(e.getMessage(), e);
+                throw e;
+            } catch (WebBaseException e) {
+                throw new ServiceException(BASEMESSAGE.getMessage(locale, e.getMessage(), e.getArgs()));
+            } catch (Exception exception) {
+                String errorMessage;
+                if (WebCoreException.class.isInstance(exception.getCause())) {
+                    errorMessage = getErrorMessageFromWebCoreException(((WebCoreException) exception.getCause()),
+                            item.getConcept(), item.getIds(), locale);
+                } else {
+                    errorMessage = exception.getMessage();
+                }
+                LOG.error(errorMessage, exception);
+                throw new ServiceException(errorMessage);
+            }
         }
         return itemResults;
+    }
+
+    private String[] getItemId(MetadataRepository repository, ItemBean item, String concept) throws WebBaseException {
+        ComplexTypeMetadata itemType = repository.getComplexType(concept);
+        String[] keyPaths = new String[itemType.getKeyFields().size()];
+        int i = 0;
+        for (FieldMetadata keyField : itemType.getKeyFields()) {
+            keyPaths[i++] = keyField.getPath();
+        }
+        return CommonUtil.extractIdWithDots(keyPaths, item.getIds());
     }
 
     @Override
@@ -329,7 +300,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws ServiceException {
         try {
-            String fkEntityType = null;
+            String fkEntityType;
             ReusableType entityReusableType = null;
             List<Restriction> ret = new ArrayList<Restriction>();
 
@@ -337,8 +308,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
                     xpathForeignKey = xpathForeignKey.substring(1);
                 }
-                String fkEntity = "";//$NON-NLS-1$
-                if (xpathForeignKey.indexOf("/") != -1) {//$NON-NLS-1$
+                String fkEntity; //$NON-NLS-1$
+                if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
                     fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
                 } else {
                     fkEntity = xpathForeignKey;
@@ -476,7 +447,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             // dynamic Assemble
-            dynamicAssemble(itemBean, entityModel, staging, language);
+            dynamicAssemble(itemBean, entityModel, language);
 
             return itemBean;
         } catch (WebBaseException e) {
@@ -495,15 +466,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    /**
-     * This method should be only set primaryKey info and description on entity
-     * 
-     * @param itemBean
-     * @param entityModel
-     * @param language
-     * @throws Exception
-     */
-    protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, boolean staging, String language) throws Exception {
+    protected void dynamicAssemble(ItemBean itemBean, EntityModel entityModel, String language) throws Exception {
         if (itemBean.getItemXml() != null) {
             Document docXml = Util.parse(itemBean.getItemXml());
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
@@ -540,7 +503,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                                             value.getTextContent(),
                                                             false,
                                                             modelType,
-                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), staging, language)); //$NON-NLS-1$
+                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), isStaging(), language)); //$NON-NLS-1$
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
@@ -593,7 +556,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public ViewBean getView(String viewPk, String language) throws ServiceException {
-
         String model = getCurrentDataModel();
         String concept = ViewHelper.getConceptFromDefaultViewName(viewPk);
         if (concept != null) {
@@ -606,8 +568,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 LOG.error(e.getMessage(), e);
             }
         }
-
-        WSView wsView = null;
+        WSView wsView;
         ViewBean vb = new ViewBean();
         vb.setViewPK(viewPk);
         try {
@@ -628,14 +589,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Locale locale = new Locale(language);
             throw new ServiceException(MESSAGES.getMessage(locale, "parse_model_error")); //$NON-NLS-1$
         }
-
         SimpleTypeModel stagingTaskidType = new SimpleTypeModel(StagingConstant.STAGING_TASKID, DataTypeConstants.STRING);
         stagingTaskidType.setXpath(concept + StagingConstant.STAGING_TASKID);
         entityModel.getMetaDataTypes().put(concept + StagingConstant.STAGING_TASKID, stagingTaskidType);
-
         // DisplayRulesUtil.setRoot(DataModelHelper.getEleDecl());
         vb.setBindingEntityModel(entityModel);
-
         // viewables
         String[] viewables = ViewHelper.getViewables(wsView);
         // FIXME remove viewableXpath
@@ -645,10 +603,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
         }
         vb.setViewables(viewables);
-
         // searchables
         vb.setSearchables(ViewHelper.getSearchables(wsView, model, language, entityModel));
-
         // bind layout model
         vb.setColumnLayoutModel(getColumnTreeLayout(concept));
         return vb;
@@ -662,20 +618,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
                     new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
             String[] ids = CommonUtil.extractIdWithDots(key.getFields(), item.getIds());
-
             WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
             WSItem item1 = CommonUtil.getPort().getItem(new WSGetItem(wsItemPK));
             String xml = item1.getContent();
-
             WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(new WSDropItem(wsItemPK, path, override));
-
-            if (wsItem != null && xml != null) {
-                if ("/".equalsIgnoreCase(path)) { //$NON-NLS-1$
-                    pushUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE);
-                } else {
-                    throw new ServiceException(MESSAGES.getMessage("dropItem_null")); //$NON-NLS-1$
-                }
-            }
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
@@ -817,11 +763,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
         }
-
         // TODO change ids to array?
         List<String> idsArray = new ArrayList<String>();
         for (int i = 0; i < results.length; i++) {
-
             if (i == 0) {
                 try {
                     // Qizx doesn't wrap the count in a XML element, so try to parse it
@@ -832,9 +776,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
                 continue;
             }
-
             Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$
-
             idsArray.clear();
             for (String key : entityModel.getKeys()) {
                 String id = Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
@@ -842,11 +784,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     idsArray.add(id);
                 }
             }
-
             Set<String> keySet = formatMap.keySet();
             Map<String, Object> originalMap = new HashMap<String, Object>();
             Map<String, String> formateValueMap = new HashMap<String, String>();
-
             for (String key : keySet) {
                 String[] value = formatMap.get(key);
                 TypeModel tm = entityModel.getMetaDataTypes().get(key);
@@ -960,16 +900,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return doc;
     }
 
-    /**
-     * DOC HSHU Comment method "switchForeignKeyType".
-     * 
-     * @param targetEntity
-     * @param xpathForeignKey
-     * @param xpathInfoForeignKey
-     * @param fkFilter
-     * @return
-     * @throws Exception
-     */
     @Override
     public ForeignKeyDrawer switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
             String fkFilter) throws ServiceException {
@@ -1008,15 +938,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
-    /**
-     * DOC HSHU Comment method "replaceXpathRoot".
-     * 
-     * @param targetEntity
-     * @param xpathForeignKey
-     * @return
-     */
     private String replaceXpathRoot(String targetEntity, String xpath) {
-        if (xpath.indexOf("/") != -1) { //$NON-NLS-1$
+        if (xpath.contains("/")) { //$NON-NLS-1$
             xpath = targetEntity + xpath.substring(xpath.indexOf("/"));//$NON-NLS-1$
         } else {
             xpath = targetEntity;
@@ -1034,12 +957,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
                                     "BrowseItem",//$NON-NLS-1$
                                     new String[] { bookmark }))).getContent().trim();
-            if (result != null) {
-                if (result.indexOf("<SearchCriteria>") != -1) { //$NON-NLS-1$
-                    criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$
-                    if (criteria.contains("&amp;")) { //$NON-NLS-1$
-                        criteria = criteria.replace("&amp;", "&"); //$NON-NLS-1$ //$NON-NLS-2$
-                    }
+            if (!result.contains("<SearchCriteria>")) { //$NON-NLS-1$
+                criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$
+                if (criteria.contains("&amp;")) { //$NON-NLS-1$
+                    criteria = criteria.replace("&amp;", "&"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
             return criteria;
@@ -1080,8 +1001,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     private String[] getSearchTemplateNames(String view, boolean isShared, int start, int limit) throws Exception {
-        int localStart = 0;
-        int localLimit = 0;
+        int localStart;
+        int localLimit;
         if (start == limit && limit == 0) {
             localStart = 0;
             localLimit = Integer.MAX_VALUE;
@@ -1091,10 +1012,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         }
         WSWhereItem wi = new WSWhereItem();
-
         WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$
                 WSStringPredicate.NONE, false);
-
         WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,//$NON-NLS-1$
                 RoleHelper.getCurrentUserName(), WSStringPredicate.OR, false);
         WSWhereCondition wc4;
@@ -1215,16 +1134,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public boolean isExistCriteria(String dataObjectLabel, String id) throws ServiceException {
         try {
             WSItemPK wsItemPK = new WSItemPK();
-            wsItemPK.setConceptName("BrowseItem");//$NON-NLS-1$
-
+            wsItemPK.setConceptName("BrowseItem"); //$NON-NLS-1$
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK();
             wsDataClusterPK.setPk(XSystemObjects.DC_SEARCHTEMPLATE.getName());
             wsItemPK.setWsDataClusterPK(wsDataClusterPK);
-
             String[] ids = new String[1];
             ids[0] = id;
             wsItemPK.setIds(ids);
-
             WSExistsItem wsExistsItem = new WSExistsItem(wsItemPK);
             WSBoolean wsBoolean = CommonUtil.getPort().existsItem(wsExistsItem);
             return wsBoolean.is_true();
@@ -1244,11 +1160,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             searchTemplate.setShared(isShared);
             searchTemplate.setOwner(owner);
             searchTemplate.setCriteria(criteriaString);
-
             WSItemPK pk = CommonUtil.getPort().putItem(
                     new WSPutItem(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()), searchTemplate
                             .marshal2String(), new WSDataModelPK(XSystemObjects.DM_SEARCHTEMPLATE.getName()), false));
-
             if (pk == null) {
                 throw new ServiceException();
             }
@@ -1305,66 +1219,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-    }
-
-    private void pushUpdateReport(String[] ids, String concept, String operationType) throws Exception {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("pushUpdateReport() concept " + concept + " operation " + operationType);//$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        if (!(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(operationType) || UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE
-                .equals(operationType))) {
-            throw new UnsupportedOperationException();
-        }
-
-        String updateReportXML = createUpdateReport(ids, concept, operationType);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("pushUpdateReport() " + updateReportXML);//$NON-NLS-1$
-        }
-
-        CommonUtil.getPort().putItem(
-                new WSPutItem(new WSDataClusterPK("UpdateReport"), updateReportXML, new WSDataModelPK("UpdateReport"), false)); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    private String createUpdateReport(String[] ids, String concept, String operationType) throws Exception {
-
-        String revisionId = null;
-        String dataModelPK = getCurrentDataModel() == null ? "" : getCurrentDataModel();//$NON-NLS-1$
-        String dataClusterPK = getCurrentDataCluster() == null ? "" : getCurrentDataCluster();//$NON-NLS-1$
-
-        String username = com.amalto.webapp.core.util.Util.getLoginUserName();
-        String universename = com.amalto.webapp.core.util.Util.getLoginUniverse();
-        if (universename != null && universename.length() > 0) {
-            revisionId = com.amalto.webapp.core.util.Util.getRevisionIdFromUniverse(universename, concept);
-        }
-
-        StringBuilder keyBuilder = new StringBuilder();
-        if (ids != null) {
-            for (int i = 0; i < ids.length; i++) {
-                keyBuilder.append(ids[i]);
-                if (i != ids.length - 1) {
-                    keyBuilder.append("."); //$NON-NLS-1$
-                }
-            }
-        }
-        String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
-
-        StringBuilder sb = new StringBuilder();
-        // TODO what is StringEscapeUtils.escapeXml used for
-        sb.append("<Update><UserName>").append(username).append("</UserName><Source>genericUI</Source><TimeInMillis>") //$NON-NLS-1$ //$NON-NLS-2$
-                .append(System.currentTimeMillis()).append("</TimeInMillis><OperationType>") //$NON-NLS-1$
-                .append(operationType).append("</OperationType><RevisionID>").append(revisionId) //$NON-NLS-1$
-                .append("</RevisionID><DataCluster>").append(dataClusterPK).append("</DataCluster><DataModel>") //$NON-NLS-1$ //$NON-NLS-2$
-                .append(dataModelPK).append("</DataModel><Concept>").append(concept) //$NON-NLS-1$
-                .append("</Concept><Key>").append(StringEscapeUtils.escapeXml(key)).append("</Key>"); //$NON-NLS-1$ //$NON-NLS-2$
-
-        if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
-            // Important: Leave update report creation to MDM server
-            throw new UnsupportedOperationException();
-        }
-        sb.append("</Update>");//$NON-NLS-1$
-        return sb.toString();
     }
 
     @Override
@@ -1594,7 +1448,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Integer index = multiNodeIndex.get(realXPath);
             if (index == null) {
                 nodeModel.setIndex(1);
-                multiNodeIndex.put(realXPath, new Integer(1));
+                multiNodeIndex.put(realXPath, 1);
             } else {
                 nodeModel.setIndex(index + 1);
                 multiNodeIndex.put(realXPath, nodeModel.getIndex());
@@ -1625,7 +1479,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String fkNotFoundMessage = fkBean.get("foreignKeyDeleteMessage"); //$NON-NLS-1$
                 if (fkNotFoundMessage != null) {// fix bug TMDM-2757
                     if (foreignKeyDeleteMessage.indexOf(fkNotFoundMessage) == -1) {
-                        foreignKeyDeleteMessage.append(fkNotFoundMessage + "\r\n"); //$NON-NLS-1$
+                        foreignKeyDeleteMessage.append(fkNotFoundMessage).append("\r\n"); //$NON-NLS-1$
                     }
                     return nodeModel;
                 }
@@ -1642,7 +1496,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         NodeList children = el.getChildNodes();
         if (children != null && !model.isSimpleType()) {
-            List<TypeModel> childModels = null;
+            List<TypeModel> childModels;
             if (nodeModel.getRealType() != null && nodeModel.getRealType().trim().length() > 0) {
                 childModels = ((ComplexTypeModel) model).getRealType(nodeModel.getRealType()).getSubTypes();
             } else {
@@ -1975,93 +1829,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public String processItem(String concept, String[] ids, String transformerPK) throws ServiceException {
-
-        try {
-            String itemAlias = concept + "." + Util.joinStrings(ids, ".");//$NON-NLS-1$//$NON-NLS-2$
-            // create updateReport
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Creating update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-            String updateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_ACTION, null);
-            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
-            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
-                    "text/xml; charset=utf-8");//$NON-NLS-1$
-            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
-            // check runnable transformer
-            // we can leverage the exception mechanism also
-            boolean isRunnableTransformerExist = false;
-            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
-            for (WSTransformerPK element : wst) {
-                if (element.getPk().equals(transformerPK)) {
-                    isRunnableTransformerExist = true;
-                    break;
-                }
-            }
-            // execute
-
-            WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
-            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0) {
-                throw new ServiceException(MESSAGES.getMessage("plugin_specs_undefined")); //$NON-NLS-1$
-            }
-
-            boolean outputReport = false;
-            String downloadUrl = "";//$NON-NLS-1$
-            if (isRunnableTransformerExist) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-                WSTransformerContextPipelinePipelineItem[] entries = Util.getPort().executeTransformerV2(wsExecuteTransformerV2)
-                        .getPipeline().getPipelineItem();
-                if (entries.length > 0) {
-                    WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
-                    if (item.getVariable().equals("output_url")) {//$NON-NLS-1$
-                        byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
-                        String content = new String(bytes);
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Received output_url " + content); //$NON-NLS-1$
-                        }
-                        try {
-                            Document resultDoc = Util.parse(content);
-
-                            NodeList attrList = Util.getNodeList(resultDoc, "//attr");//$NON-NLS-1$
-                            if (attrList != null && attrList.getLength() > 0) {
-                                downloadUrl = attrList.item(0).getTextContent();
-                                outputReport = true;
-                            }
-                        } catch (Exception e) {
-                            LOG.error(e.getMessage(), e);
-                            throw new ServiceException(MESSAGES.getMessage("process_output_url_error")); //$NON-NLS-1$
-                        }
-                    }
-                }
-            } else {
-                throw new ServiceException(MESSAGES.getMessage("process_not_found")); //$NON-NLS-1$
-            }
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Saving update-report for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-
-            if (!Util.persistentUpdateReport(updateReport, true).equals("OK")) {//$NON-NLS-1$
-                throw new ServiceException(MESSAGES.getMessage("store_update_report"));//$NON-NLS-1$
-            }
-            if (outputReport) {
-                return downloadUrl;
-            } else {
-                return null;
-            }
-
-        } catch (ServiceException e) {
-            LOG.error(e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            String err = e.getLocalizedMessage();
-            if (err == null || err.length() == 0) {
-                err = MESSAGES.getMessage("unable_launch_process"); //$NON-NLS-1$;
-            }
-            throw new ServiceException(err);
-        }
+        return null;
     }
 
     @Override
@@ -2134,23 +1902,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     /**
-     ********************************* Registry style****************************************
-     * 
-     * @param concept
-     * @param ids
-     * @param dataModelPK
-     * @param dataClusterPK
-     * @param map
-     * @param wsItem
-     * @throws RemoteException
-     * @throws XtentisWebappException
-     * @throws UnsupportedEncodingException
-     * @throws Exception
-     * @throws XPathExpressionException
-     * @throws TransformerFactoryConfigurationError
-     * @throws TransformerConfigurationException
-     * @throws TransformerException
-     * 
      * 1.see if there is a job in the view 2.invoke the job. 3.convert the job's return value into xml doc, 4.convert
      * the wsItem's xml String value into xml doc, 5.cover wsItem's xml with job's xml value. step 6 and 7 must do
      * first. 6.add properties into ViewPOJO. 7.add properties into webservice parameter.
@@ -2300,7 +2051,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
 
-            dynamicAssemble(itemBean, entityModel, isStaging(), language);
+            dynamicAssemble(itemBean, entityModel, language);
+
             return itemBean;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

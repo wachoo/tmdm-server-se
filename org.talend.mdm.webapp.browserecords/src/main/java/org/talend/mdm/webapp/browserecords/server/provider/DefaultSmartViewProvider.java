@@ -16,10 +16,10 @@ import java.rmi.RemoteException;
 
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSGetTransformer;
-import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
-import com.amalto.webapp.util.webservices.WSTransformer;
-import com.amalto.webapp.util.webservices.WSTransformerPK;
+import com.amalto.core.webservice.WSGetTransformer;
+import com.amalto.core.webservice.WSGetTransformerPKs;
+import com.amalto.core.webservice.WSTransformer;
+import com.amalto.core.webservice.WSTransformerPK;
 
 
 /**

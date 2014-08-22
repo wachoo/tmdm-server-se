@@ -73,28 +73,12 @@ public class DataModelWebPool {
         return map.get(dataModelID);
     }
 
-    public synchronized Collection<Map.Entry<DataModelID, DataModelBean>> getAll() {
-        return new ArrayList<Map.Entry<DataModelID, DataModelBean>>(map.entrySet());
-    }
-
     public synchronized void put(DataModelID dataModelID, DataModelBean dataModelBean) {
         map.put(dataModelID, dataModelBean);
     }
 
     public synchronized DataModelBean remove(DataModelID dataModelID) {
         return map.remove(dataModelID);
-    }
-
-    public synchronized void clear() {
-        map.clear();
-    }
-
-    public synchronized int allEntries() {
-        return poolSize;
-    }
-
-    public synchronized int usedEntries() {
-        return map.size();
     }
 
 }

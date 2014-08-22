@@ -3,40 +3,40 @@
  */
 package com.amalto.core.ejb.local;
 
-/**
- * Session layer for XtentisWS.
- * @xdoclet-generated
- * @copyright The XDoclet Team
- * @author XDoclet
- * @version ${version}
- */
-public class XtentisWSSession
-   extends com.amalto.core.ejb.XtentisWSBean
-   implements javax.ejb.SessionBean
-{
-   public void ejbActivate() throws javax.ejb.EJBException, java.rmi.RemoteException
-   {
+import javax.ejb.CreateException;
+import javax.ejb.EJBException;
+import javax.ejb.SessionContext;
+import java.rmi.RemoteException;
 
-      super.ejbActivate();
-   }
+public class XtentisWSSession extends XtentisWSBean implements javax.ejb.SessionBean {
 
-   public void ejbPassivate() throws javax.ejb.EJBException, java.rmi.RemoteException
-   {
-      super.ejbPassivate();
-   }
+    @Override
+    public void setSessionContext(SessionContext ctx) throws EJBException, RemoteException {
+        // do nothing
+    }
 
-   public void setSessionContext(javax.ejb.SessionContext ctx) throws javax.ejb.EJBException, java.rmi.RemoteException
-   {
-      super.setSessionContext(ctx);
-   }
+    @Override
+    public void ejbRemove() throws EJBException, RemoteException {
+        // do nothing
+    }
 
-   public void unsetSessionContext() 
-   {
-   }
+    @Override
+    public void ejbActivate() throws EJBException, RemoteException {
+        // do nothing
+    }
 
-   public void ejbRemove() throws javax.ejb.EJBException, java.rmi.RemoteException
-   {
-      super.ejbRemove();
-   }
+    @Override
+    public void ejbPassivate() throws EJBException, RemoteException {
+        // do nothing
+    }
+
+    /**
+     * Default create method
+     *
+     * @throws javax.ejb.CreateException
+     * @ejb.create-method
+     */
+    public void ejbCreate() throws CreateException {
+    }
 
 }

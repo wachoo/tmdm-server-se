@@ -8,5 +8,5 @@ package com.amalto.core.webservice;
 import javax.xml.rpc.*;
 
 public interface XtentisService extends javax.xml.rpc.Service {
-    public com.amalto.core.webservice.XtentisPort getXtentisPort() throws ServiceException;
+    public XtentisPort getXtentisPort() throws ServiceException;
 }

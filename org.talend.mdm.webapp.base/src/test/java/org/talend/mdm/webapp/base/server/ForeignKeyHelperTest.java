@@ -36,10 +36,10 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.w3c.dom.Element;
 
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSStringPredicate;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
-import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSWhereOperator;
+import com.amalto.core.webservice.WSStringPredicate;
+import com.amalto.core.webservice.WSWhereCondition;
+import com.amalto.core.webservice.WSWhereItem;
+import com.amalto.core.webservice.WSWhereOperator;
 
 @SuppressWarnings("nls")
 public class ForeignKeyHelperTest extends TestCase {

@@ -34,11 +34,11 @@ import org.talend.mdm.webapp.browserecords.server.util.DownloadUtil;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSGetItems;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSGetItems;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
 
 public class DownloadData extends HttpServlet {
 

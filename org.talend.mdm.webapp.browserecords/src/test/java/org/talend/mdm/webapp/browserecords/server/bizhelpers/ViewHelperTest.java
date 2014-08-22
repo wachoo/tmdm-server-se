@@ -24,7 +24,7 @@ import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 
-import com.amalto.webapp.util.webservices.WSView;
+import com.amalto.core.webservice.WSView;
 
 @SuppressWarnings("nls")
 public class ViewHelperTest extends TestCase {

@@ -10,8 +10,8 @@ import org.w3c.dom.Document;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.dwr.ExtJSFormResponse;
 import com.amalto.webapp.core.util.dwr.ExtJSFormSuccessResponse;
-import com.amalto.webapp.util.webservices.WSServiceGetConfiguration;
-import com.amalto.webapp.util.webservices.WSServicePutConfiguration;
+import com.amalto.core.webservice.WSServiceGetConfiguration;
+import com.amalto.core.webservice.WSServicePutConfiguration;
 
 
 

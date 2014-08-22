@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.amalto.webapp.core.util.GxtFactory;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSLogout;
+import com.amalto.core.webservice.WSLogout;
 
 public abstract class GenericControllerServlet extends HttpServlet {
 
@@ -26,11 +25,6 @@ public abstract class GenericControllerServlet extends HttpServlet {
 
     /** a reference to the factory used to create Gxt instances */
     public static final GxtFactory gxtFactory = new GxtFactory(GXT_PROPERTIES, EXCLUDING_PROPERTIES);
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-    }
 
     @Override
     protected void doGet(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
@@ -118,10 +112,10 @@ public abstract class GenericControllerServlet extends HttpServlet {
         boolean isItemsbrowserExist = false;
         boolean isItemsbrowser2Exist = false;
         for (String importMenu : imports) {
-            if (importMenu.indexOf("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"") != -1) { //$NON-NLS-1$
+            if (importMenu.contains("src=\"/itemsbrowser/secure/js/ItemsBrowser.js\"")) { //$NON-NLS-1$
                 isItemsbrowserExist = true;
             }
-            if (importMenu.indexOf("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"") != -1) { //$NON-NLS-1$
+            if (importMenu.contains("src=\"/itemsbrowser2/secure/js/ItemsBrowser2.js\"")) { //$NON-NLS-1$
                 isItemsbrowser2Exist = true;
             }
         }
@@ -131,7 +125,7 @@ public abstract class GenericControllerServlet extends HttpServlet {
         }
     }
 
-    private int getJavascriptImportDetail(Menu menu, ArrayList<String> imports, int level, int i) throws Exception {
+    private int getJavascriptImportDetail(Menu menu, ArrayList<String> imports, int level, int i) {
 
         for (String key : menu.getSubMenus().keySet()) {
             Menu subMenu = menu.getSubMenus().get(key);
@@ -243,10 +237,6 @@ public abstract class GenericControllerServlet extends HttpServlet {
                 "<div id=\"statusdiv\"></div>\n" + "<input type=\"hidden\" id=\"contextPath\" value=" + request.getContextPath()
                 + "/>\n" + "<input type=\"hidden\" id=\"serverPath\" value=" + request.getScheme() + "://"
                 + request.getLocalAddr() + ":" + request.getLocalPort() + "/>\n" + "</body>";
-    }
-
-    protected String getDefaultHtml() {
-        return ""; //$NON-NLS-1$
     }
 
     protected String getDefaultLanguage() throws Exception {

@@ -93,6 +93,16 @@ public class EmptyDocument implements MutableDocument {
         return taskId;
     }
 
+    @Override
+    public boolean isDeleted() {
+        return false;
+    }
+
+    @Override
+    public DeleteType getDeleteType() {
+        return null;
+    }
+
     public MutableDocument create(MutableDocument content) {
         return this;
     }

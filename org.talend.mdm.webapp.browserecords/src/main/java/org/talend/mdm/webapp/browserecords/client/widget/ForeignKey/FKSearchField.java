@@ -63,6 +63,8 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
 
     private List<String> foreignKeyInfo;
 
+    private String usageField;
+
     public boolean isRetrieveFKinfos() {
         return retrieveFKinfos;
     }
@@ -129,8 +131,9 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
         Element tdIcon = DOM.createTD();
 
         fktr.appendChild(tdInput);
-        fktr.appendChild(tdIcon);
-
+        if (!"ForeignKeyTablePanel".equals(usageField)) { //$NON-NLS-1$
+            fktr.appendChild(tdIcon);
+        }
         wrap.appendChild(foreignTable.dom);
 
         final SelectionListener<ButtonEvent> closer = new SelectionListener<ButtonEvent>() {
@@ -167,7 +170,11 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
     @Override
     protected void onResize(int width, int height) {
         super.onResize(width, height);
-        suggestBox.setWidth(width - foreignBtn.getWidth() - 18);
+        if ("SearchFieldCreator".equals(usageField)) { //$NON-NLS-1$
+            suggestBox.setWidth(width - foreignBtn.getWidth() - 20);
+        } else {
+            suggestBox.setWidth(width - foreignBtn.getWidth());
+        }
     }
 
     @Override
@@ -246,6 +253,10 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
     @Override
     public boolean isStaging() {
         return this.staging;
+    }
+
+    public void setUsageField(String usageField) {
+        this.usageField = usageField;
     }
 
 }

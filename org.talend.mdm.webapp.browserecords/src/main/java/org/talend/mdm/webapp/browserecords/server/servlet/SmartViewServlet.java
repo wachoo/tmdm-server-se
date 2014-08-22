@@ -24,11 +24,11 @@ import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
 
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSExtractThroughTransformerV2;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
-import com.amalto.webapp.util.webservices.WSTransformerV2PK;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSExtractThroughTransformerV2;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
+import com.amalto.core.webservice.WSTransformerV2PK;
 
 public class SmartViewServlet extends HttpServlet {
 

@@ -3,7 +3,6 @@ package com.amalto.core.query.optimization;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.hibernate.MappingGenerator;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -12,9 +11,6 @@ import org.talend.mdm.commmon.metadata.TypeMetadata;
 public class IncompatibleOperators implements Optimizer {
 
     private static final Logger LOGGER = Logger.getLogger(IncompatibleOperators.class);
-
-    // Transformer for SQL server incompatible operators
-    private static final LargeColumnIncompatibleOperators LARGE_COLUMN_INCOMPATIBLE_OPERATORS = new LargeColumnIncompatibleOperators();
 
     private final RDBMSDataSource dataSource;
 
@@ -34,7 +30,7 @@ public class IncompatibleOperators implements Optimizer {
         case SQL_SERVER:
             // TMDM-7532: SQL Server does not like equals operator on large text values
             // TMDM-7538: Oracle does not like equals operator on CLOBs.
-            return LARGE_COLUMN_INCOMPATIBLE_OPERATORS;
+            return new LargeColumnIncompatibleOperators(dataSource.getDialectName());
         default:
             throw new NotImplementedException("Dialect '" + dialect + "' is not implemented.");
         }
@@ -56,7 +52,13 @@ public class IncompatibleOperators implements Optimizer {
 
     private static class LargeColumnIncompatibleOperators implements Visitor<Condition> {
 
+        private final RDBMSDataSource.DataSourceDialect dialect;
+
         private Field currentField;
+
+        public LargeColumnIncompatibleOperators(RDBMSDataSource.DataSourceDialect dialect) {
+            this.dialect = dialect;
+        }
 
         @Override
         public Condition visit(Select select) {
@@ -123,14 +125,15 @@ public class IncompatibleOperators implements Optimizer {
                 String length = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
                 if (length != null) {
                     if (right instanceof ConstantExpression<?>) {
-                        if (Integer.parseInt(length) > MappingGenerator.MAX_VARCHAR_TEXT_LIMIT) {
+                        if (Integer.parseInt(length) > dialect.getTextLimit()) {
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("Replacing EQUALS with STARTS_WITH (can't use EQUALS on large text column).");
                             }
                             return new Compare(left, Predicate.STARTS_WITH, right);
                         } else {
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("*NOT* replacing EQUALS with STARTS_WITH (field does not exceed max varchar size).");
+                                LOGGER.debug("*NOT* replacing EQUALS with STARTS_WITH (field does not exceed max varchar size of "
+                                        + dialect.getTextLimit() + ").");
                             }
                             return condition;
                         }

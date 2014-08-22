@@ -63,4 +63,8 @@ public interface Document {
      * & merge (see staging area).
      */
     String getTaskId();
+
+    boolean isDeleted();
+
+    DeleteType getDeleteType();
 }

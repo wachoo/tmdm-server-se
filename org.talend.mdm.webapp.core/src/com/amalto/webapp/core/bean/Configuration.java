@@ -14,7 +14,6 @@ package com.amalto.webapp.core.bean;
 
 import java.util.Date;
 
-import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
@@ -28,15 +27,14 @@ import org.w3c.dom.NodeList;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.SessionListener;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSBoolean;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSExistsDataCluster;
-import com.amalto.webapp.util.webservices.WSExistsDataModel;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSPutItem;
+import com.amalto.core.webservice.WSBoolean;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSExistsDataCluster;
+import com.amalto.core.webservice.WSExistsDataModel;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSPutItem;
 
 public class Configuration {
 
@@ -175,14 +173,10 @@ public class Configuration {
             }
             Node node = Util.getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
             node.appendChild(d.createElement("name")).appendChild(d.createTextNode("cluster")); //$NON-NLS-1$ //$NON-NLS-2$
-            ;
             node.appendChild(d.createElement("value")).appendChild(d.createTextNode(cluster)); //$NON-NLS-1$
-            ;
             Node node2 = Util.getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
             node2.appendChild(d.createElement("name")).appendChild(d.createTextNode("model")); //$NON-NLS-1$ //$NON-NLS-2$
-            ;
             node2.appendChild(d.createElement("value")).appendChild(d.createTextNode(model)); //$NON-NLS-1$
-            ;
         }
 
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -231,8 +225,7 @@ public class Configuration {
         return loadConfigurationFromDB();
     }
 
-    private static synchronized Configuration loadConfigurationFromDB() throws PolicyContextException, Exception,
-            XtentisWebappException {
+    private static synchronized Configuration loadConfigurationFromDB() throws Exception {
         Configuration configuration = new Configuration();
 
         Element user = null;

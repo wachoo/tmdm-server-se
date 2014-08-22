@@ -47,6 +47,8 @@ public class StorageDocument implements MutableDocument {
 
     private DataRecord previousDataRecord;
 
+    private boolean isDeleted = false;
+
     public StorageDocument(String dataModelName, MetadataRepository repository, DataRecord dataRecord) {
         this.dataModelName = dataModelName;
         this.repository = repository;
@@ -110,6 +112,7 @@ public class StorageDocument implements MutableDocument {
 
     @Override
     public MutableDocument delete(DeleteType deleteType) {
+        isDeleted = true;
         previousDataRecord = dataRecord;
         dataRecord = new DataRecord(dataRecord.getType(), new DataRecordMetadataImpl(System.currentTimeMillis(), null));
         return this;
@@ -217,6 +220,16 @@ public class StorageDocument implements MutableDocument {
     @Override
     public String getTaskId() {
         return taskId;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    @Override
+    public DeleteType getDeleteType() {
+        return null;
     }
 
     public DataRecord getDataRecord() {

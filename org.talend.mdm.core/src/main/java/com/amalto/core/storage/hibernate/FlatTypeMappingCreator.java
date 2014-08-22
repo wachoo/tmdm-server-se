@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
@@ -36,10 +37,10 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private boolean forceKey = false;
 
-    public FlatTypeMappingCreator(MetadataRepository repository, MappingRepository mappings) {
+    public FlatTypeMappingCreator(MetadataRepository repository, MappingRepository mappings, RDBMSDataSource.DataSourceDialect dialect) {
         this.mappings = mappings;
         this.internalRepository = repository;
-        this.context = new StatelessContext(prefix);
+        this.context = new StatelessContext(prefix, dialect);
     }
 
     private static boolean isDatabaseMandatory(FieldMetadata field, TypeMetadata declaringType) {

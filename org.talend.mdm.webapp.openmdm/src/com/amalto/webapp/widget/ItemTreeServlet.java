@@ -22,10 +22,10 @@ import com.amalto.webapp.core.json.JSONException;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
 
 /**
  * @author starkey
