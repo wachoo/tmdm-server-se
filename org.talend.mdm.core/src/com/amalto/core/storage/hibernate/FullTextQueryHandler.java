@@ -12,8 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.metadata.TaskId;
-import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;
@@ -235,22 +234,44 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             return null;
                         }
 
-                        @Override
-                        public Void visit(Timestamp timestamp) {
+                        private Void handleMetadataField(MetadataField field) {
                             SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
-                            SimpleTypeFieldMetadata aliasField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList());
+                            SimpleTypeFieldMetadata aliasField = new SimpleTypeFieldMetadata(explicitProjectionType, false,
+                                    false, false, aliasName, fieldType, Collections.<String> emptyList(),
+                                    Collections.<String> emptyList(), Collections.<String> emptyList());
                             explicitProjectionType.addField(aliasField);
-                            nextRecord.set(aliasField, next.getRecordMetadata().getLastModificationTime());
+                            nextRecord.set(aliasField, field.getReader().readValue(next));
                             return null;
                         }
 
                         @Override
+                        public Void visit(Timestamp timestamp) {
+                            return handleMetadataField(timestamp);
+                        }
+
+                        @Override
                         public Void visit(TaskId taskId) {
-                            SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
-                            SimpleTypeFieldMetadata aliasField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList());
-                            explicitProjectionType.addField(aliasField);
-                            nextRecord.set(aliasField, next.getRecordMetadata().getTaskId());
-                            return null;
+                            return handleMetadataField(taskId);
+                        }
+
+                        @Override
+                        public Void visit(StagingStatus stagingStatus) {
+                            return handleMetadataField(stagingStatus);
+                        }
+
+                        @Override
+                        public Void visit(StagingError stagingError) {
+                            return handleMetadataField(stagingError);
+                        }
+
+                        @Override
+                        public Void visit(StagingSource stagingSource) {
+                            return handleMetadataField(stagingSource);
+                        }
+
+                        @Override
+                        public Void visit(StagingBlockKey stagingBlockKey) {
+                            return handleMetadataField(stagingBlockKey);
                         }
 
                         @Override
@@ -331,6 +352,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             } else if(typedExpression instanceof Type) {
                                 FieldMetadata fieldMetadata = ((Type) typedExpression).getField().getFieldMetadata();
                                 nextRecord.set(newField, ((DataRecord) next.get(fieldMetadata.getName())).getType().getName());
+                            } else if (typedExpression instanceof MetadataField) {
+                                nextRecord.set(newField, ((MetadataField) typedExpression).getReader().readValue(next));
                             } else {
                                 throw new IllegalArgumentException("Aliased expression '" + typedExpression + "' is not supported.");
                             }

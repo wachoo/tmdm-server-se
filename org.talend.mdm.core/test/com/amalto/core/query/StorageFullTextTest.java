@@ -14,6 +14,7 @@
 package com.amalto.core.query;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserStagingQueryBuilder.error;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
@@ -676,6 +677,34 @@ public class StorageFullTextTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testTaskIdProjection() throws Exception {
+        UserQueryBuilder qb = from(product).select(alias(taskId(), "taskId")).select(alias(error(), "error"))
+                .where(fullText(product.getField("ShortDescription"), "description"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNull(result.get("taskId"));
+                assertNull(result.get("error"));
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = from(product).select(alias(taskId(), "taskId")).select(alias(error(), "error"))
+                .where(fullText(product.getField("ShortDescription"), "description")).limit(20);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNull(result.get("taskId"));
+                assertNull(result.get("error"));
+            }
         } finally {
             results.close();
         }

@@ -1,23 +1,24 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query.user.metadata;
+
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+
+import org.talend.mdm.commmon.metadata.Types;
 
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.query.user.Visitor;
-import org.talend.mdm.commmon.metadata.Types;
-
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import com.amalto.core.storage.Storage;
 
 public class StagingStatus implements TypedExpression, MetadataField {
 
@@ -25,7 +26,9 @@ public class StagingStatus implements TypedExpression, MetadataField {
 
     public static final String STAGING_STATUS_ALIAS = "staging_status"; //$NON-NLS-1$
 
-    private static final String[] STAGING_STATUS_FIELD = new String[]{"$staging_status$", "metadata:staging_status"}; //$NON-NLS-1$ //$NON-NLS-2$
+    private static final String[] STAGING_STATUS_FIELD = new String[] { "$staging_status$", "metadata:staging_status" }; //$NON-NLS-1$ //$NON-NLS-2$
+
+    private final PropertyReader propertyReader = new PropertyReader(Storage.METADATA_STAGING_STATUS);
 
     private StagingStatus() {
     }
@@ -75,5 +78,10 @@ public class StagingStatus implements TypedExpression, MetadataField {
     @Override
     public TypedExpression getProjectionExpression() {
         return alias(UserStagingQueryBuilder.status(), STAGING_STATUS_ALIAS);
+    }
+
+    @Override
+    public Reader getReader() {
+        return propertyReader;
     }
 }
