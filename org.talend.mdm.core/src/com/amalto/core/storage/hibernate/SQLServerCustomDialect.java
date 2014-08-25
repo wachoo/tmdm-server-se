@@ -22,6 +22,8 @@ public class SQLServerCustomDialect extends SQLServer2008Dialect {
      * ensures they're stored in a UTF-8 friendly type.
      */
     public SQLServerCustomDialect() {
+        registerColumnType(Types.LONGVARCHAR, "nvarchar(max)"); //$NON-NLS-1$
+        registerColumnType(Types.LONGNVARCHAR, "nvarchar(max)"); //$NON-NLS-1$
         registerColumnType(Types.CLOB, "nvarchar(max)"); //$NON-NLS-1$
         registerColumnType(Types.VARCHAR, 4000, "nvarchar($l)"); //$NON-NLS-1$
         registerColumnType(Types.CHAR, "nchar(1)"); //$NON-NLS-1$
