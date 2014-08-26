@@ -30,16 +30,16 @@ import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.dwr.WebappInfo;
-import com.amalto.webapp.util.webservices.WSByteArray;
-import com.amalto.webapp.util.webservices.WSExecuteTransformerV2;
-import com.amalto.webapp.util.webservices.WSGetTransformer;
-import com.amalto.webapp.util.webservices.WSGetTransformerPKs;
-import com.amalto.webapp.util.webservices.WSTransformer;
-import com.amalto.webapp.util.webservices.WSTransformerContext;
-import com.amalto.webapp.util.webservices.WSTransformerContextPipelinePipelineItem;
-import com.amalto.webapp.util.webservices.WSTransformerPK;
-import com.amalto.webapp.util.webservices.WSTransformerV2PK;
-import com.amalto.webapp.util.webservices.WSTypedContent;
+import com.amalto.core.webservice.WSByteArray;
+import com.amalto.core.webservice.WSExecuteTransformerV2;
+import com.amalto.core.webservice.WSGetTransformer;
+import com.amalto.core.webservice.WSGetTransformerPKs;
+import com.amalto.core.webservice.WSTransformer;
+import com.amalto.core.webservice.WSTransformerContext;
+import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
+import com.amalto.core.webservice.WSTransformerPK;
+import com.amalto.core.webservice.WSTransformerV2PK;
+import com.amalto.core.webservice.WSTypedContent;
 
 /**
  * The server side implementation of the RPC service.

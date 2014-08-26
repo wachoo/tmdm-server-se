@@ -35,7 +35,11 @@ public class SaverSession {
 
     private final SaverContextFactory contextFactory = new SaverContextFactory();
 
-    private final Map<String, List<Document>> itemsPerDataCluster = new HashMap<String, List<Document>>();
+    private final Map<String, List<Document>> itemsToUpdate = new HashMap<String, List<Document>>();
+    
+    private final Map<String, List<Document>> itemsToLogicDelete = new HashMap<String, List<Document>>();
+    
+    private final Map<String, List<Document>> itemsToPhysicalDelete = new HashMap<String, List<Document>>();
 
     private final SaverSource dataSource;
 
@@ -79,7 +83,7 @@ public class SaverSession {
 
     /**
      * To check whether this item's concept model is "AutoIncrement" or not.
-     * 
+     *
      * @param item The item to be checked.
      * @return <code>true</code> if item is an AutoIncrement document, <code>false</code> otherwise.
      */
@@ -118,10 +122,10 @@ public class SaverSession {
      * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
      */
     public void begin(String dataCluster, Committer committer) {
-        synchronized (itemsPerDataCluster) {
+        synchronized (itemsToUpdate) {
             committer.begin(dataCluster);
-            if (!itemsPerDataCluster.containsKey(dataCluster)) {
-                itemsPerDataCluster.put(dataCluster, new ArrayList<Document>());
+            if (!itemsToUpdate.containsKey(dataCluster)) {
+                itemsToUpdate.put(dataCluster, new ArrayList<Document>());
             }
         }
     }
@@ -139,10 +143,35 @@ public class SaverSession {
      * @param committer A {@link Committer} committer to use when committing transactions on underlying storage.
      */
     public void end(Committer committer) {
-        synchronized (itemsPerDataCluster) {
-            SaverSource saverSource = getSaverSource();
+        SaverSource saverSource = getSaverSource();
+        // Physical delete
+        synchronized (itemsToPhysicalDelete) {
+            for (Map.Entry<String, List<Document>> currentTransaction : itemsToPhysicalDelete.entrySet()) {
+                String dataCluster = currentTransaction.getKey();
+                committer.begin(dataCluster);
+                for (Document currentItemToCommit : currentTransaction.getValue()) {
+                    // Don't do clean up in case of exception here: rollback (abort()) takes care of the clean up.
+                    committer.delete(currentItemToCommit, DeleteType.PHYSICAL);
+                }
+                committer.commit(dataCluster);
+            }
+        }
+        // Logical delete
+        synchronized (itemsToLogicDelete) {
+            for (Map.Entry<String, List<Document>> currentTransaction : itemsToLogicDelete.entrySet()) {
+                String dataCluster = currentTransaction.getKey();
+                committer.begin(dataCluster);
+                for (Document currentItemToCommit : currentTransaction.getValue()) {
+                    // Don't do clean up in case of exception here: rollback (abort()) takes care of the clean up.
+                    committer.delete(currentItemToCommit, DeleteType.LOGICAL);
+                }
+                committer.commit(dataCluster);
+            }
+        }
+        // Items to update
+        synchronized (itemsToUpdate) {
             boolean needResetAutoIncrement = false;
-            for (Map.Entry<String, List<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
+            for (Map.Entry<String, List<Document>> currentTransaction : itemsToUpdate.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 committer.begin(dataCluster);
                 Iterator<Document> iterator = currentTransaction.getValue().iterator();
@@ -161,7 +190,7 @@ public class SaverSession {
                 committer.commit(dataCluster);
             }
             // If any change was made to data cluster "UpdateReport", route committed update reports.
-            List<Document> updateReport = itemsPerDataCluster.get(XSystemObjects.DC_UPDATE_PREPORT.getName());
+            List<Document> updateReport = itemsToUpdate.get(XSystemObjects.DC_UPDATE_PREPORT.getName());
             if (updateReport != null) {
                 Iterator<Document> iterator = updateReport.iterator();
                 while (iterator.hasNext()) {
@@ -205,7 +234,7 @@ public class SaverSession {
      * @param document The item to save.
      */
     public void save(String dataCluster, Document document) {
-        synchronized (itemsPerDataCluster) {
+        synchronized (itemsToUpdate) {
             if (!this.hasMetAutoIncrement) {
                 Collection<FieldMetadata> keyFields = document.getType().getKeyFields();
                 boolean hasAutoincrementKey = false;
@@ -215,10 +244,10 @@ public class SaverSession {
                 this.hasMetAutoIncrement = hasAutoincrementKey;
             }
 
-            List<Document> documentsToSave = itemsPerDataCluster.get(dataCluster);
+            List<Document> documentsToSave = itemsToUpdate.get(dataCluster);
             if (documentsToSave == null) {
                 documentsToSave = new ArrayList<Document>();
-                itemsPerDataCluster.put(dataCluster, documentsToSave);
+                itemsToUpdate.put(dataCluster, documentsToSave);
             }
             documentsToSave.add(document);
         }
@@ -229,14 +258,25 @@ public class SaverSession {
      * @param dataCluster Data cluster where the record should be saved.
      * @param document The item to save.
      */
-    public void delete(String dataCluster, Document document) {
-        synchronized (itemsPerDataCluster) {
-            List<Document> documentsToSave = itemsPerDataCluster.get(dataCluster);
-            if (documentsToSave == null) {
-                documentsToSave = new ArrayList<Document>();
-                itemsPerDataCluster.put(dataCluster, documentsToSave);
+    public void delete(String dataCluster, Document document, DeleteType deleteType) {
+        Map<String, List<Document>> itemList;
+        switch (deleteType) {
+        case LOGICAL:
+            itemList = itemsToLogicDelete;
+            break;
+        case PHYSICAL:
+            itemList = itemsToPhysicalDelete;
+            break;
+        default:
+            throw new IllegalArgumentException("Delete type '" + deleteType + "' is not supported.");
+        }
+        synchronized (itemList) {
+            List<Document> documentsToDelete = itemList.get(dataCluster);
+            if (documentsToDelete == null) {
+                documentsToDelete = new ArrayList<Document>();
+                itemList.put(dataCluster, documentsToDelete);
             }
-            documentsToSave.add(document);
+            documentsToDelete.add(document);
         }
     }
 
@@ -260,12 +300,27 @@ public class SaverSession {
      * @param committer A {@link Committer} committer for interaction between save session and underlying storage.
      */
     public void abort(Committer committer) {
-        synchronized (itemsPerDataCluster) {
-            for (Map.Entry<String, List<Document>> currentTransaction : itemsPerDataCluster.entrySet()) {
+        // TODO not pretty here!
+        synchronized (itemsToUpdate) {
+            for (Map.Entry<String, List<Document>> currentTransaction : itemsToUpdate.entrySet()) {
                 String dataCluster = currentTransaction.getKey();
                 committer.rollback(dataCluster);
             }
-            itemsPerDataCluster.clear();
+            itemsToUpdate.clear();
+        }
+        synchronized (itemsToLogicDelete) {
+            for (Map.Entry<String, List<Document>> currentTransaction : itemsToLogicDelete.entrySet()) {
+                String dataCluster = currentTransaction.getKey();
+                committer.rollback(dataCluster);
+            }
+            itemsToLogicDelete.clear();
+        }
+        synchronized (itemsToPhysicalDelete) {
+            for (Map.Entry<String, List<Document>> currentTransaction : itemsToPhysicalDelete.entrySet()) {
+                String dataCluster = currentTransaction.getKey();
+                committer.rollback(dataCluster);
+            }
+            itemsToPhysicalDelete.clear();
         }
     }
 
@@ -304,11 +359,11 @@ public class SaverSession {
         /**
          * Deletes a MDM record.
          * 
-         * @param item The item to delete.
-         * @param type The type of delete to perform (either {@link com.amalto.core.history.DeleteType#LOGICAL logical}
-         * or {@link com.amalto.core.history.DeleteType#PHYSICAL physical}).
+         * @param document The item to delete.
+         * @param deleteType The type of delete to perform (either {@link com.amalto.core.history.DeleteType#LOGICAL
+         * logical} or {@link com.amalto.core.history.DeleteType#PHYSICAL physical}).
          */
-        void delete(Document item, DeleteType type);
+        void delete(Document document, DeleteType deleteType);
 
         /**
          * Rollbacks changes done on a data cluster.

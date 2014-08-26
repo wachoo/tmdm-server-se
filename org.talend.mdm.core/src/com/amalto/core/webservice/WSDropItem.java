@@ -10,7 +10,10 @@ public class WSDropItem {
     protected com.amalto.core.webservice.WSItemPK wsItemPK;
     protected java.lang.String partPath;
     protected java.lang.Boolean override;
-    
+    protected java.lang.Boolean withReport = false;
+    protected java.lang.String source = ""; //$NON-NLS-1$
+    protected java.lang.Boolean invokeBeforeSaving = false;
+
     public WSDropItem() {
     }
     
@@ -19,7 +22,31 @@ public class WSDropItem {
         this.partPath = partPath;
         this.override = override;
     }
-    
+
+    public java.lang.String getSource() {
+        return source;
+    }
+
+    public void setSource(java.lang.String source) {
+        this.source = source;
+    }
+
+    public Boolean getWithReport() {
+        return withReport;
+    }
+
+    public void setWithReport(Boolean withReport) {
+        this.withReport = withReport;
+    }
+
+    public Boolean getInvokeBeforeSaving() {
+        return invokeBeforeSaving;
+    }
+
+    public void setInvokeBeforeSaving(Boolean invokeBeforeSaving) {
+        this.invokeBeforeSaving = invokeBeforeSaving;
+    }
+
     public com.amalto.core.webservice.WSItemPK getWsItemPK() {
         return wsItemPK;
     }

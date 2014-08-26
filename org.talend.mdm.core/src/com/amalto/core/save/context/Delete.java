@@ -37,7 +37,7 @@ class Delete implements DocumentSaver {
         if (!StringUtils.EMPTY.equals(context.getTaskId())) {
             databaseDocument.setTaskId(context.getTaskId());
         }
-        session.delete(context.getDataCluster(), databaseDocument);
+        session.delete(context.getDataCluster(), databaseDocument, databaseDocument.getDeleteType());
         // Save update report (if any)
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
         if (updateReportDocument != null) {

@@ -24,18 +24,9 @@ import org.dom4j.io.DocumentResult;
 import org.dom4j.io.DocumentSource;
 
 
-/**
- * DOC HSHU  class global comment. Detailled comment
- */
 public class XmlUtil {
     
-    /**
-     * DOC HSHU Comment method "parseDocument".
-     * @param doc
-     * @return
-     * @throws Exception
-     */
-    public static Document parseDocument(org.w3c.dom.Document doc) throws Exception {
+    public static Document parseDocument(org.w3c.dom.Document doc) {
         if (doc == null) {
             return (null);
         }
@@ -43,22 +34,7 @@ public class XmlUtil {
         return (xmlReader.read(doc));
     }
     
-    public static Document styleDocument(org.w3c.dom.Document document, String stylesheet) throws Exception  {
-        
-        Document parsedDocument=parseDocument(document);
-        return styleDocument(parsedDocument,stylesheet);
-        
-    }
-    
-    /**
-     * DOC HSHU Comment method "styleDocument".
-     * @param document
-     * @param stylesheet
-     * @return
-     * @throws Exception
-     */
     public static Document styleDocument(Document document, String stylesheet) throws Exception {
-        
         TransformerFactory factory = TransformerFactory.newInstance(
                 "net.sf.saxon.TransformerFactoryImpl", Thread.currentThread().getContextClassLoader()); //$NON-NLS-1$
         Transformer transformer = factory.newTransformer(new StreamSource(new StringReader(stylesheet)));
@@ -67,44 +43,22 @@ public class XmlUtil {
         DocumentResult result = new DocumentResult();
         transformer.transform(source, result);
         // return the transformed document
-        Document transformedDoc = result.getDocument();
-        return transformedDoc;
+        return result.getDocument();
     }
-    
-    /**
-     * DOC HSHU Comment method "normalizeXpath".
-     * @param xpath
-     */
-    public static String normalizeXpath(String xpath) {
-        if (xpath.startsWith("/")) //$NON-NLS-1$
-            xpath = xpath.substring(1);
-        return xpath;
-    }
-    
-    public static String toXml(Document document) {
 
-        String text = document.asXML();
-
-        return text;
-    }
-    
-    public static void print(Document document) {
-
-        String text = toXml(document);
-
-        System.out.println(text);
-    }
-    
     public static String escapeXml(String value) {
         if (value == null)
             return null;
         boolean isEscaped=false;
-        if (value.indexOf("&quot;") != -1 || //$NON-NLS-1$
-                value.indexOf("&amp;") != -1 || //$NON-NLS-1$
-                value.indexOf("&lt;") != -1 || //$NON-NLS-1$
-                value.indexOf("&gt;") != -1)isEscaped = true; //$NON-NLS-1$
-        
-        if(!isEscaped)value=StringEscapeUtils.escapeXml(value);
+        if (value.contains("&quot;") || //$NON-NLS-1$
+                value.contains("&amp;") || //$NON-NLS-1$
+                value.contains("&lt;") || //$NON-NLS-1$
+                value.contains("&gt;")) { //$NON-NLS-1$
+            isEscaped = true;
+        }
+        if(!isEscaped) {
+            value=StringEscapeUtils.escapeXml(value);
+        }
         return value;
     }
 

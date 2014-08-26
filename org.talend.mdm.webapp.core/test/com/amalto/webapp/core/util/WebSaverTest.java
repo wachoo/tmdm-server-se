@@ -17,10 +17,10 @@ import com.amalto.core.util.OutputReportMissingException;
 import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.SchematronValidateException;
 import com.amalto.core.util.ValidateException;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSPutItem;
-import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSPutItem;
+import com.amalto.core.webservice.WSPutItemWithReport;
 
 /**
  * DOC talend2 class global comment. Detailled comment

@@ -40,15 +40,15 @@ import com.amalto.webapp.core.util.SystemLocaleFactory;
 import com.amalto.webapp.core.util.SystemLocaleInitializable;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
-import com.amalto.webapp.util.webservices.WSDataCluster;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSDataModel;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetDataCluster;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
-import com.amalto.webapp.util.webservices.WSLogout;
-import com.amalto.webapp.util.webservices.WSRegexDataClusterPKs;
-import com.amalto.webapp.util.webservices.WSRegexDataModelPKs;
+import com.amalto.core.webservice.WSDataCluster;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModel;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetDataCluster;
+import com.amalto.core.webservice.WSGetDataModel;
+import com.amalto.core.webservice.WSLogout;
+import com.amalto.core.webservice.WSRegexDataClusterPKs;
+import com.amalto.core.webservice.WSRegexDataModelPKs;
 
 public class GeneralAction implements GeneralService {
 
@@ -280,7 +280,8 @@ public class GeneralAction implements GeneralService {
     @Override
     public boolean supportStaging(String dataCluster) throws ServiceException {
         try {
-            return Util.getPort().supportStaging().is_true();
+            WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(Configuration.getConfiguration().getCluster());
+            return Util.getPort().supportStaging(wsDataClusterPK).is_true();
         } catch (Exception e) {
             throw new ServiceException(e.getMessage());
         }

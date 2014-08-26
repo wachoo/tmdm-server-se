@@ -46,14 +46,14 @@ import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XmlUtil;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItemsByCustomFKFilters;
-import com.amalto.webapp.util.webservices.WSInt;
-import com.amalto.webapp.util.webservices.WSStringArray;
-import com.amalto.webapp.util.webservices.WSWhereAnd;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
-import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSXPathsSearch;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSGetItemsByCustomFKFilters;
+import com.amalto.core.webservice.WSInt;
+import com.amalto.core.webservice.WSStringArray;
+import com.amalto.core.webservice.WSWhereAnd;
+import com.amalto.core.webservice.WSWhereCondition;
+import com.amalto.core.webservice.WSWhereItem;
+import com.amalto.core.webservice.WSXPathsSearch;
 import com.extjs.gxt.ui.client.Style.SortDir;
 
 public class ForeignKeyHelper {

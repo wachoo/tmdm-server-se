@@ -30,10 +30,10 @@ import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItemPKsByCriteria;
-import com.amalto.webapp.util.webservices.WSGetItemPKsByFullCriteria;
-import com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponse;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSGetItemPKsByCriteria;
+import com.amalto.core.webservice.WSGetItemPKsByFullCriteria;
+import com.amalto.core.webservice.WSItemPKsByCriteriaResponse;
 
 /**
  * cluster

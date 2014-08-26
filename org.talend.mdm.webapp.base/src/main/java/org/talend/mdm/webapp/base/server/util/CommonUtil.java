@@ -35,15 +35,15 @@ import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSStringPredicate;
-import com.amalto.webapp.util.webservices.WSViewPK;
-import com.amalto.webapp.util.webservices.WSViewSearch;
-import com.amalto.webapp.util.webservices.WSWhereAnd;
-import com.amalto.webapp.util.webservices.WSWhereCondition;
-import com.amalto.webapp.util.webservices.WSWhereItem;
-import com.amalto.webapp.util.webservices.WSWhereOr;
-import com.amalto.webapp.util.webservices.XtentisPort;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSStringPredicate;
+import com.amalto.core.webservice.WSViewPK;
+import com.amalto.core.webservice.WSViewSearch;
+import com.amalto.core.webservice.WSWhereAnd;
+import com.amalto.core.webservice.WSWhereCondition;
+import com.amalto.core.webservice.WSWhereItem;
+import com.amalto.core.webservice.WSWhereOr;
+import com.amalto.core.webservice.XtentisPort;
 
 public class CommonUtil {
 

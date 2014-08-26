@@ -2820,7 +2820,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public void delete(com.amalto.core.history.Document item, DeleteType type) {
+        public void delete(com.amalto.core.history.Document document, DeleteType deleteType) {
             // TODO
         }
 

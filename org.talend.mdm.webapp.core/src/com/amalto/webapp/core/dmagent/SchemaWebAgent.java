@@ -31,12 +31,12 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.webapp.util.webservices.WSDataModel;
-import com.amalto.webapp.util.webservices.WSDataModelPK;
-import com.amalto.webapp.util.webservices.WSGetCurrentUniverse;
-import com.amalto.webapp.util.webservices.WSGetDataModel;
-import com.amalto.webapp.util.webservices.WSUniverse;
-import com.amalto.webapp.util.webservices.WSUniverseXtentisObjectsRevisionIDs;
+import com.amalto.core.webservice.WSDataModel;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetCurrentUniverse;
+import com.amalto.core.webservice.WSGetDataModel;
+import com.amalto.core.webservice.WSUniverse;
+import com.amalto.core.webservice.WSUniverseXtentisObjectsRevisionIDs;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
@@ -215,7 +215,7 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
         return revision;
     }
 
-    public Map<String, String> getReferenceEntities(ReusableType reusableType, String entityName) throws Exception {
+    public Map<String, String> getReferenceEntities(ReusableType reusableType, String entityName) {
         Map<String, String> references = new HashMap<String, String>();
         XSParticle xsparticle = reusableType.getXsParticle();
         List<XSParticle> xsps = reusableType.getAllChildren(xsparticle);

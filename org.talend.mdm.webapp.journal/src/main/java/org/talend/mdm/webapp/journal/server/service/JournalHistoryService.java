@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.server.service;
 
-import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +19,7 @@ import java.util.Locale;
 
 import javax.servlet.ServletException;
 
+import com.amalto.core.server.ServerContext;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
@@ -40,61 +40,46 @@ import com.amalto.core.history.EmptyDocument;
 import com.amalto.core.history.ModificationMarker;
 import com.amalto.core.history.UniqueIdTransformer;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 
-
-/**
- * created by talend2 on 2013-1-31
- * Detailled comment
- *
- */
 public class JournalHistoryService {
-    
-    private DocumentHistory doucmentHistory;
-    
+
     private static final String CURRENT_ACTION = "current"; //$NON-NLS-1$
 
-    private static final String PREVIOUS_ACTION = "before";  //$NON-NLS-1$
+    private static final String PREVIOUS_ACTION = "before"; //$NON-NLS-1$
 
-    private static final String NEXT_ACTION = "next";  //$NON-NLS-1$    
-    
+    private static final String NEXT_ACTION = "next"; //$NON-NLS-1$
+
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.journal.client.i18n.JournalMessages", JournalHistoryService.class.getClassLoader()); //$NON-NLS-1$
-    
-    private MetadataRepository metadataRepository = null;
-    
+
+    private static JournalHistoryService service;
+
+    private DocumentHistory documentHistory;
+
     private JournalHistoryService() {
-        doucmentHistory = DocumentHistoryFactory.getInstance().create();
-        metadataRepository = new MetadataRepository();
+        documentHistory = DocumentHistoryFactory.getInstance().create();
     }
-    
-    private static JournalHistoryService service;    
-    
-    public static synchronized JournalHistoryService getInstance(){    
+
+    public static synchronized JournalHistoryService getInstance() {
         if (service == null) {
             service = new JournalHistoryService();
-        }             
-        return service;           
+        }
+        return service;
     }
-    
+
     public String getComparisionTreeString(JournalParameters parameter) throws Exception {
-        DocumentHistoryNavigator navigator = doucmentHistory.getHistory(parameter.getDataClusterName(), parameter.getDataModelName(),
-                parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
+        DocumentHistoryNavigator navigator = documentHistory.getHistory(parameter.getDataClusterName(),
+                parameter.getDataModelName(), parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
+        MetadataRepository metadataRepository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin()
+                .get(parameter.getDataModelName());
+        if (metadataRepository == null) {
+            throw new IllegalArgumentException("Data model '" + parameter.getDataModelName() + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         TypeMetadata documentTypeMetadata = metadataRepository.getType(parameter.getConceptName());
         if (documentTypeMetadata == null) {
             try {
-                DataModelPOJO dataModel = com.amalto.core.util.Util.getDataModelCtrlLocal().getDataModel(
-                        new DataModelPOJOPK(parameter.getDataModelName()));
-                if (dataModel == null) {
-                    throw new IllegalArgumentException("Data model '" + parameter.getDataModelName() + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-
-                String schemaString = dataModel.getSchema();
-                metadataRepository.load(new ByteArrayInputStream(schemaString.getBytes("UTF-8"))); //$NON-NLS-1$
-
                 documentTypeMetadata = metadataRepository.getType(parameter.getConceptName());
                 if (documentTypeMetadata == null) {
                     throw new IllegalArgumentException(
@@ -104,7 +89,6 @@ public class JournalHistoryService {
                 throw new ServletException("Could not initialize type information", e); //$NON-NLS-1$
             }
         }
-
         navigator.goTo(new Date(parameter.getDate()));
         Action modificationMarkersAction = navigator.currentAction();
         com.amalto.core.history.Document document = EmptyDocument.INSTANCE;
@@ -121,39 +105,40 @@ public class JournalHistoryService {
         } else {
             throw new ServletException(new IllegalArgumentException("Action '" + parameter.getAction() + " is not supported.")); //$NON-NLS-1$ //$NON-NLS-2$
         }
-
-        ForeignKeyInfoTransformer foreignKeyInfoTransformer = new ForeignKeyInfoTransformer(documentTypeMetadata, parameter.getDataClusterName());
+        ForeignKeyInfoTransformer foreignKeyInfoTransformer = new ForeignKeyInfoTransformer(documentTypeMetadata,
+                parameter.getDataClusterName());
         foreignKeyInfoTransformer.setMetadataRepository(metadataRepository);
-        
-        List<DocumentTransformer> transformers = Arrays.asList(
-                foreignKeyInfoTransformer, new UniqueIdTransformer(),
-                new ModificationMarker(modificationMarkersAction));
+        ModificationMarker modificationMarker = new ModificationMarker(modificationMarkersAction);
+        UniqueIdTransformer idTransformer = new UniqueIdTransformer();
+        List<DocumentTransformer> transformers = Arrays.asList(foreignKeyInfoTransformer, idTransformer, modificationMarker);
         com.amalto.core.history.Document transformedDocument = document;
         for (DocumentTransformer transformer : transformers) {
             transformedDocument = document.transform(transformer);
         }
-
         return transformedDocument.exportToString();
     }
-    
-    public void restoreRecord(JournalParameters parameter,String language) throws Exception {
+
+    public void restoreRecord(JournalParameters parameter, String language) throws Exception {
         if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(parameter.getOperationType())) {
-            ItemPOJOPK refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(parameter.getDataClusterName()), parameter.getConceptName(), parameter.getId());
-            DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(parameter.getRevisionId(), refItemPOJOPK, "/");  //$NON-NLS-1$
+            ItemPOJOPK refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(parameter.getDataClusterName()),
+                    parameter.getConceptName(), parameter.getId());
+            DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(parameter.getRevisionId(), refItemPOJOPK, "/"); //$NON-NLS-1$
             if (DroppedItemPOJO.load(droppedItemPOJOPK) == null) {
                 throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_logic_delete_fail")); //$NON-NLS-1$              
-            }      
+            }
         } else if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(parameter.getOperationType())) {
-            ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(parameter.getDataClusterName()), parameter.getConceptName(), parameter.getId());
+            ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(parameter.getDataClusterName()),
+                    parameter.getConceptName(), parameter.getId());
             if (ItemPOJO.load(itemPOJOPK) == null) {
                 throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_update_fail")); //$NON-NLS-1$
-            }   
+            }
         } else {
-            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_not_support",parameter.getOperationType())); //$NON-NLS-1$
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language),
+                    "restore_not_support", parameter.getOperationType())); //$NON-NLS-1$
         }
         Date historyDate = new Date(parameter.getDate());
-        DocumentHistoryNavigator navigator = doucmentHistory.getHistory(parameter.getDataClusterName(), parameter.getDataModelName(),
-                parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
+        DocumentHistoryNavigator navigator = documentHistory.getHistory(parameter.getDataClusterName(),
+                parameter.getDataModelName(), parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
         navigator.goTo(historyDate);
         com.amalto.core.history.Document document = EmptyDocument.INSTANCE;
         if (CURRENT_ACTION.equalsIgnoreCase(parameter.getAction())) {
@@ -167,7 +152,7 @@ public class JournalHistoryService {
                 document = navigator.next();
             }
         } else {
-            throw new ServiceException(MESSAGES.getMessage(new Locale(language),"action_not_supported",parameter.getAction())); //$NON-NLS-1$
+            throw new ServiceException(MESSAGES.getMessage(new Locale(language), "action_not_supported", parameter.getAction())); //$NON-NLS-1$
         }
         document.restore();
     }

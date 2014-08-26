@@ -39,12 +39,12 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSGetItem;
-import com.amalto.webapp.util.webservices.WSItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
-import com.amalto.webapp.util.webservices.WSStringArray;
-import com.amalto.webapp.util.webservices.WSWhereItem;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSStringArray;
+import com.amalto.core.webservice.WSWhereItem;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.sun.xml.xsom.XSElementDecl;
 

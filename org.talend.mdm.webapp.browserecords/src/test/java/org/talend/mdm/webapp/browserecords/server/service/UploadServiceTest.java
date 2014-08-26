@@ -36,7 +36,7 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.SchemaMockAgent;
 
 import com.amalto.core.util.Util;
-import com.amalto.webapp.util.webservices.WSPutItemWithReport;
+import com.amalto.core.webservice.WSPutItemWithReport;
 
 /**
  * created by talend2 on 2013-12-18 Detailled comment

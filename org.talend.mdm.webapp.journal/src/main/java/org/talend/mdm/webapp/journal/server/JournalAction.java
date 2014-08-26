@@ -16,17 +16,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
-import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
 import org.talend.mdm.webapp.journal.server.service.JournalHistoryService;
@@ -36,7 +33,6 @@ import org.talend.mdm.webapp.journal.shared.JournalParameters;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
-import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.exception.UnsupportedUndoPhysicalDeleteException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
@@ -44,10 +40,9 @@ import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
-import com.amalto.webapp.util.webservices.WSBoolean;
-import com.amalto.webapp.util.webservices.WSDataClusterPK;
-import com.amalto.webapp.util.webservices.WSExistsItem;
-import com.amalto.webapp.util.webservices.WSItemPK;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSExistsItem;
+import com.amalto.core.webservice.WSItemPK;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -66,12 +61,10 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     @Override
     public ItemBasePageLoadResult<JournalGridModel> getJournalList(JournalSearchCriteria criteria, BasePagingLoadConfigImpl load)
             throws ServiceException {
-
         int start = load.getOffset();
         int limit = load.getLimit();
-        String sort = load.getSortDir().toString();
+        String sort = load.getSortDir();
         String field = load.getSortField();
-
         try {
             Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field);
             int totalSize = Integer.parseInt(result[0].toString());
@@ -91,8 +84,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     public JournalTreeModel getDetailTreeModel(String ids) throws ServiceException {
         String[] idsArr = ids.split("\\."); //$NON-NLS-1$
         try {
-            JournalTreeModel root = service.getDetailTreeModel(idsArr);
-            return root;
+            return service.getDetailTreeModel(idsArr);
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
@@ -104,7 +96,6 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
 
     @Override
     public JournalTreeModel getComparisionTree(JournalParameters parameter, String language) throws ServiceException {
-
         try {
             JournalTreeModel root;
             if (parameter.isAuth()) {
@@ -175,8 +166,7 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field);
             @SuppressWarnings("unchecked")
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
-            String reportString = this.generateEventString(resultList, language, criteria.getStartDate());
-            return reportString;
+            return this.generateEventString(resultList, language, criteria.getStartDate());
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
@@ -261,24 +251,19 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
                     .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.dataContainer")).append(":").append(model.getDataContainer()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
                     .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.dataModel")).append(":").append(model.getDataModel()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
                     .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.key")).append(":").append(model.getKey()).append("<br>"); //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
-
             sb.append("'}"); //$NON-NLS-1$
-
             if (i != resultList.size()) {
                 sb.append(","); //$NON-NLS-1$
             }
         }
-
         sb.append("]}"); //$NON-NLS-1$
         sb.append("@||@"); //$NON-NLS-1$
-
         if (resultList.size() >= 1) {
             JournalGridModel obj = resultList.get(0);
             sb.append(this.changeDataFormat(obj.getOperationDate()));
         } else {
             sb.append(this.getDateStringPlusGMT(startDate));
         }
-
         sb.append("@||@"); //$NON-NLS-1$
         if (resultList.size() > 0) {
             sb.append("true"); //$NON-NLS-1$
