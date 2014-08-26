@@ -179,7 +179,10 @@ public class ItemDetailToolBar extends ToolBar {
     private boolean isStaging;
 
     private int source;
-    private ReturnCriteriaFK returnCriteriaFK;    public ItemDetailToolBar() {
+
+    private ReturnCriteriaFK returnCriteriaFK;
+
+    public ItemDetailToolBar() {
         this.setBorders(false);
         this.setLayout(new ToolBarExLayout());
     }
@@ -1051,9 +1054,9 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initDSC(String taskId)/*-{
-		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-		return true;
-    }-*/;
+                                                 $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+                                                 return true;
+                                                 }-*/;
 
     protected void initSmartViewToolBar() {
         addGeneratedViewButton();
@@ -1187,19 +1190,19 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native boolean initJournal(String ids, String concept)/*-{
-		$wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
-				true);
-		return true;
-    }-*/;
+                                                                  $wnd.amalto.journal.Journal.browseJournalWithCriteria(ids, concept,
+                                                                  true);
+                                                                  return true;
+                                                                  }-*/;
 
     // Please note that this method is duplicated in
     // org.talend.mdm.webapp.browserecords.client.widget.integrity.SingletonDeleteStrategy.initSearchEntityPanel()
     private native boolean initSearchEntityPanel(String arrStr, String ids, String dataObject)/*-{
-		var lineageEntities = arrStr.split(",");
-		$wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
-				dataObject);
-		return true;
-    }-*/;
+                                                                                              var lineageEntities = arrStr.split(",");
+                                                                                              $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem(lineageEntities, ids,
+                                                                                              dataObject);
+                                                                                              return true;
+                                                                                              }-*/;
 
     public void saveItemAndClose(final boolean isClose) {
         if (itemBean.getIds().trim().equals("")) { //$NON-NLS-1$
@@ -1382,14 +1385,14 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     public native void closeOutTabPanel()/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		tabPanel.closeCurrentTab();
-    }-*/;
+                                         var tabPanel = $wnd.amalto.core.getTabPanel();
+                                         tabPanel.closeCurrentTab();
+                                         }-*/;
 
     public native void updateOutTabPanel(String tabText)/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		tabPanel.updateCurrentTabText(tabText);
-    }-*/;
+                                                        var tabPanel = $wnd.amalto.core.getTabPanel();
+                                                        tabPanel.updateCurrentTabText(tabText);
+                                                        }-*/;
 
     class MenuEx extends Menu {
 
@@ -1450,8 +1453,8 @@ public class ItemDetailToolBar extends ToolBar {
         }
 
         private native El getExtrasTr()/*-{
-			return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
-        }-*/;
+                                       return this.@com.extjs.gxt.ui.client.widget.layout.ToolBarLayout::extrasTr;
+                                       }-*/;
 
         @Override
         @SuppressWarnings("unchecked")
@@ -1574,8 +1577,8 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     private native void openWindow(String url)/*-{
-		window.open(url);
-    }-*/;
+                                              window.open(url);
+                                              }-*/;
 
     protected void openDebugLineagePanel(String ids, LineagePanel panel) {
         Window window = new Window();
@@ -1588,47 +1591,47 @@ public class ItemDetailToolBar extends ToolBar {
     }
 
     protected native void openLineagePanel(String ids, LineagePanel lineagePanel)/*-{
-		var tabPanel = $wnd.amalto.core.getTabPanel();
-		var browseStagingRecordsPanel = tabPanel.getItem(ids);
-		if (browseStagingRecordsPanel == undefined) {
-			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::convertLineagePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/LineagePanel;)(lineagePanel);
-			tabPanel.add(panel);
-		}
-		tabPanel.setSelection(ids);
-    }-*/;
+                                                                                 var tabPanel = $wnd.amalto.core.getTabPanel();
+                                                                                 var browseStagingRecordsPanel = tabPanel.getItem(ids);
+                                                                                 if (browseStagingRecordsPanel == undefined) {
+                                                                                 var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar::convertLineagePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/LineagePanel;)(lineagePanel);
+                                                                                 tabPanel.add(panel);
+                                                                                 }
+                                                                                 tabPanel.setSelection(ids);
+                                                                                 }-*/;
 
     private native static JavaScriptObject convertLineagePanel(LineagePanel lineagePanel)/*-{
-		var panel = {
-			// imitate extjs's render method, really call gxt code.
-			render : function(el) {
-				var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
-				rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(lineagePanel);
-			},
-			// imitate extjs's setSize method, really call gxt code.
-			setSize : function(width, height) {
-				lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::setSize(II)(width, height);
-			},
-			// imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
-			getItemId : function() {
-				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getItemId()();
-			},
-			// imitate El object of extjs
-			getEl : function() {
-				var el = lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getElement()();
-				return {
-					dom : el
-				};
-			},
-			// imitate extjs's doLayout method, really call gxt code.
-			doLayout : function() {
-				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::doLayout()();
-			},
-			title : function() {
-				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getHeading()();
-			}
-		};
-		return panel;
-    }-*/;
+                                                                                         var panel = {
+                                                                                         // imitate extjs's render method, really call gxt code.
+                                                                                         render : function(el) {
+                                                                                         var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+                                                                                         rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(lineagePanel);
+                                                                                         },
+                                                                                         // imitate extjs's setSize method, really call gxt code.
+                                                                                         setSize : function(width, height) {
+                                                                                         lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::setSize(II)(width, height);
+                                                                                         },
+                                                                                         // imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+                                                                                         getItemId : function() {
+                                                                                         return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getItemId()();
+                                                                                         },
+                                                                                         // imitate El object of extjs
+                                                                                         getEl : function() {
+                                                                                         var el = lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getElement()();
+                                                                                         return {
+                                                                                         dom : el
+                                                                                         };
+                                                                                         },
+                                                                                         // imitate extjs's doLayout method, really call gxt code.
+                                                                                         doLayout : function() {
+                                                                                         return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::doLayout()();
+                                                                                         },
+                                                                                         title : function() {
+                                                                                         return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.LineagePanel::getHeading()();
+                                                                                         }
+                                                                                         };
+                                                                                         return panel;
+                                                                                         }-*/;
 
     public boolean isFkToolBar() {
         return isFkToolBar;
