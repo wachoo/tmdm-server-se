@@ -193,6 +193,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
             public void onClick(ClickEvent arg0) {
                 Dispatcher dispatch = Dispatcher.get();
                 AppEvent event = new AppEvent(BrowseRecordsEvents.CreateForeignKeyView, foreignKeyName);
+                event.setData(BrowseRecordsView.FK_SOURCE_WIDGET, ForeignKeyField.this);
                 event.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
                 event.setData(BrowseRecordsView.IS_STAGING, itemsDetailPanel.isStaging());
                 dispatch.dispatch(event);

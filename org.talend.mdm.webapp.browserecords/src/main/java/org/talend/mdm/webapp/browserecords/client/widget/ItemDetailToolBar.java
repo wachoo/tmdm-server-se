@@ -36,6 +36,7 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseLineageTabPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.CloseTabPostDeleteAction;
@@ -178,8 +179,7 @@ public class ItemDetailToolBar extends ToolBar {
     private boolean isStaging;
 
     private int source;
-
-    public ItemDetailToolBar() {
+    private ReturnCriteriaFK returnCriteriaFK;    public ItemDetailToolBar() {
         this.setBorders(false);
         this.setLayout(new ToolBarExLayout());
     }
@@ -1662,6 +1662,14 @@ public class ItemDetailToolBar extends ToolBar {
                     new ContainerUpdate(ItemDetailToolBar.this, NoOpPostDeleteAction.INSTANCE)));
         }
 
+    }
+
+    public void setReturnCriteriaFK(ReturnCriteriaFK returnCriteriaFK) {
+        this.returnCriteriaFK = returnCriteriaFK;
+    }
+
+    public ReturnCriteriaFK getReturnCriteriaFK() {
+        return this.returnCriteriaFK;
     }
 
     public boolean isStaging() {

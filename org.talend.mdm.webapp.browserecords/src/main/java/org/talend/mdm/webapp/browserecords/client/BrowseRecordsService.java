@@ -122,6 +122,9 @@ public interface BrowseRecordsService extends RemoteService {
 
     ForeignKeyModel getForeignKeyModel(String concept, String ids, boolean isStaging, String language) throws ServiceException;
 
+    ForeignKeyBean getForeignKeyBean(String ids, String concept, List<String> foreignKeyInfo, boolean staging, String language)
+            throws ServiceException;
+
     List<ItemBaseModel> getRunnableProcessList(String concept, String language) throws ServiceException;
 
     String processItem(String concept, String[] ids, String transformerPK) throws ServiceException;

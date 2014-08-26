@@ -68,8 +68,8 @@ public class ForeignKeyHelper {
         schemaManager = _schemaManager;
     }
 
-    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,EntityModel entityModel,
-            String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
+    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+            EntityModel entityModel, String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
 
         ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
                 (String) config.get("currentXpath"), model, ifFKFilter, value); //$NON-NLS-1$
@@ -93,7 +93,8 @@ public class ForeignKeyHelper {
 
             if (sortDir != null) {
                 if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0) {
-                    // TMDM-5276: use substringBeforeLast in case sort field is a contained field (Entity/field1/.../fieldN)
+                    // TMDM-5276: use substringBeforeLast in case sort field is a contained field
+                    // (Entity/field1/.../fieldN)
                     xpath = StringUtils.substringBeforeLast(xPaths.get(0), "/") + "/" + config.getSortField(); //$NON-NLS-1$ //$NON-NLS-2$
                 } else {
                     xpath = StringUtils.substringBefore(xPaths.get(0), "/") + "/../../i"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -144,7 +145,7 @@ public class ForeignKeyHelper {
                     List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(fkReusableType, true);
                     List<ReusableType> parentTypes = SchemaWebAgent.getInstance().getMyParents(fkReusableType);
                     isPolymorphismFK = subTypes.size() > 0 || parentTypes.size() > 0;
-                }   
+                }
             }
 
             for (int currentResult = 1; currentResult < results.length; currentResult++) { // TMDM-2834: first
@@ -171,7 +172,9 @@ public class ForeignKeyHelper {
                 }
 
                 if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
-                    initFKBean(dataClusterPK,entityModel,resultAsDOM, bean, fk, model.getForeignKeyInfo(), businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null, (String) config.get("language")); //$NON-NLS-1$
+                    initFKBean(dataClusterPK, entityModel, resultAsDOM, bean, fk, model.getForeignKeyInfo(),
+                            businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null,
+                            (String) config.get("language")); //$NON-NLS-1$
                     convertFKInfo2DisplayInfo(bean, model.getForeignKeyInfo());
                 } else {
                     bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
@@ -194,6 +197,47 @@ public class ForeignKeyHelper {
         }
 
         return new ItemBasePageLoadResult<ForeignKeyBean>(fkBeans, config.getOffset(), 0);
+    }
+
+    public static ForeignKeyBean getForeignKeyBean(EntityModel entityModel, String dataClusterPK, String concept,
+            List<String> foreignKeyInfo, String xml, String language) throws Exception {
+        ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
+        BusinessConcept businessConcept = schemaManager.getBusinessConcept(concept);
+        // init foreignKey info type
+        if (foreignKeyInfo != null && foreignKeyInfo.size() > 0 && businessConcept != null) {
+            businessConcept.load();
+        }
+        // Polymorphism FK
+        boolean isPolymorphismFK = false;
+        if (businessConcept != null) {
+            String fkReusableType = businessConcept.getCorrespondTypeName();
+            if (fkReusableType != null) {
+                List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(fkReusableType, true);
+                List<ReusableType> parentTypes = SchemaWebAgent.getInstance().getMyParents(fkReusableType);
+                isPolymorphismFK = subTypes.size() > 0 || parentTypes.size() > 0;
+            }
+        }
+        if (businessConcept != null && isPolymorphismFK) {
+            foreignKeyBean.setTypeName(businessConcept.getCorrespondTypeName());
+            foreignKeyBean.setConceptName(concept);
+        }
+
+        Element resultAsDOM = Util.parse(xml).getDocumentElement();
+        String id = ""; //$NON-NLS-1$
+        String[] keys = entityModel.getKeys();
+        for (String key : keys) {
+            NodeList nodes = Util.getNodeList(resultAsDOM, key.replaceFirst(entityModel.getConceptName() + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+            if (nodes != null) {
+                if (nodes.item(0) instanceof Element) {
+                    id += "[" + (nodes.item(0).getTextContent() == null ? "" : nodes.item(0).getTextContent()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
+                }
+            }
+        }
+        initFKBean(dataClusterPK, entityModel, resultAsDOM, foreignKeyBean, concept, foreignKeyInfo,
+                businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null, language);
+        convertFKInfo2DisplayInfo(foreignKeyBean, foreignKeyInfo);
+        foreignKeyBean.setId(id);
+        return foreignKeyBean;
     }
 
     protected static class ForeignKeyHolder {
@@ -274,7 +318,7 @@ public class ForeignKeyHelper {
                 if (whereItem != null) {
                     condition.add(whereItem);
                 }
-                
+
                 String fkWhere = initxpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
                 if (xpathInfoForeignKey.trim().length() > 0) {
                     StringBuffer ids = new StringBuffer();
@@ -346,18 +390,19 @@ public class ForeignKeyHelper {
         return null;
     }
 
-    protected static void initFKBean(String dataClusterPK,EntityModel entityModel,Element ele, ForeignKeyBean bean, String fk, List<String> getForeignKeyInfos, Map<String, String> xpathTypeMap, String language) throws Exception {
+    protected static void initFKBean(String dataClusterPK, EntityModel entityModel, Element ele, ForeignKeyBean bean, String fk,
+            List<String> getForeignKeyInfos, Map<String, String> xpathTypeMap, String language) throws Exception {
         int positionIndex = 0;
         for (int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if (ele.getChildNodes().item(i) instanceof Element) {
                 positionIndex++;
                 Element curEle = (Element) ele.getChildNodes().item(i);
-                String value = curEle.getTextContent().trim();                
+                String value = curEle.getTextContent().trim();
                 String nodeName = curEle.getNodeName();
                 String fkInfo;
-                int keyInfoIndex = positionIndex-1;
-                
-                if (positionIndex <= getForeignKeyInfos.size()) {                    
+                int keyInfoIndex = positionIndex - 1;
+
+                if (positionIndex <= getForeignKeyInfos.size()) {
                     fkInfo = getForeignKeyInfos.get(keyInfoIndex);
                     while (!fkInfo.endsWith(nodeName) && keyInfoIndex < getForeignKeyInfos.size() - 1) {
                         fkInfo = getForeignKeyInfos.get(++keyInfoIndex);
@@ -368,32 +413,35 @@ public class ForeignKeyHelper {
                 } else {
                     fkInfo = fk + "/" + curEle.getNodeName(); //$NON-NLS-1$
                 }
-                
+
                 if (getForeignKeyInfos != null && getForeignKeyInfos.contains(fkInfo)) {
                     if (entityModel != null) {
-                        value = getDisplayValue(curEle.getTextContent().trim(),fkInfo,dataClusterPK,entityModel,language);
+                        value = getDisplayValue(curEle.getTextContent().trim(), fkInfo, dataClusterPK, entityModel, language);
                     }
-                    if (xpathTypeMap != null && xpathTypeMap.containsKey(fkInfo) && xpathTypeMap.get(fkInfo).equals("xsd:MULTI_LINGUAL")) { //$NON-NLS-1$
+                    if (xpathTypeMap != null && xpathTypeMap.containsKey(fkInfo)
+                            && xpathTypeMap.get(fkInfo).equals("xsd:MULTI_LINGUAL")) { //$NON-NLS-1$
                         bean.getForeignKeyInfo().put(fkInfo, MultilanguageMessageParser.getValueByLanguage(value, language));
                     } else {
-                        bean.getForeignKeyInfo().put(fkInfo, value);    
+                        bean.getForeignKeyInfo().put(fkInfo, value);
                     }
                 }
                 bean.set(curEle.getNodeName(), value);
-                initFKBean(dataClusterPK,entityModel,curEle, bean, fk, getForeignKeyInfos, xpathTypeMap, language);
+                initFKBean(dataClusterPK, entityModel, curEle, bean, fk, getForeignKeyInfos, xpathTypeMap, language);
             }
         }
     }
-    
-    public static String getDisplayValue(String value,String path,String dataClusterPK,EntityModel entityModel,String language) throws Exception {        
+
+    public static String getDisplayValue(String value, String path, String dataClusterPK, EntityModel entityModel, String language)
+            throws Exception {
         List<String> subFKInfoList = null;
         String subFKInfo = ""; //$NON-NLS-1$
         TypeModel subModel = entityModel.getTypeModel(path);
-        if (subModel != null && subModel.getForeignKeyInfo() != null && subModel.getForeignKeyInfo().size() >0 && !"".equals(value)) { //$NON-NLS-1$
-            subFKInfoList =  subModel.getForeignKeyInfo();
+        if (subModel != null && subModel.getForeignKeyInfo() != null && subModel.getForeignKeyInfo().size() > 0
+                && !"".equals(value)) { //$NON-NLS-1$
+            subFKInfoList = subModel.getForeignKeyInfo();
         }
-        
-        if (subFKInfoList != null) {            
+
+        if (subFKInfoList != null) {
             ItemPOJOPK pk = new ItemPOJOPK();
             String[] ids = CommonUtil.extractFKRefValue(value, language);
             for (String id : ids) {

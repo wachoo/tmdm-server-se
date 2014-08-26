@@ -1900,7 +1900,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
             ViewBean viewBean = getView(viewPk, language);
-
             ItemBean itemBean = new ItemBean(concept, ids, null);
             itemBean = getItem(itemBean, viewPk, viewBean.getBindingEntityModel(), isStaging, language);
             if (checkSmartViewExistsByLang(concept, language)) {
@@ -1910,6 +1909,23 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), isStaging, language);
             return new ForeignKeyModel(viewBean, itemBean, nodeModel);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public ForeignKeyBean getForeignKeyBean(String idsString, String concept, List<String> foreignKeyInfo, boolean staging,
+            String language) throws ServiceException {
+        try {
+            String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
+            ViewBean viewBean = getView(viewPk, language);
+            EntityModel entityModel = viewBean.getBindingEntityModel();
+            String[] ids = CommonUtil.extractIdWithDots(entityModel.getKeys(), idsString);
+            ItemBean itemBean = getItemBeanById(concept, ids, language);
+            return ForeignKeyHelper.getForeignKeyBean(entityModel, getCurrentDataCluster(staging), concept, foreignKeyInfo,
+                    itemBean.getItemXml(), language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

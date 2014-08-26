@@ -44,6 +44,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsSearchContainer;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.LineagePanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKSearchField;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.FieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
@@ -81,6 +82,8 @@ public class BrowseRecordsView extends View {
     public static final String LINEAGE_ITEMVIEW = "lineageItemView"; //$NON-NLS-1$
 
     public static final String ITEMS_DETAIL_PANEL = "itemsDetailPanel"; //$NON-NLS-1$
+
+    public static final String FK_SOURCE_WIDGET = "foreignKeySourceWidget"; //$NON-NLS-1$
 
     public static final String IS_STAGING = "isStaging"; //$NON-NLS-1$
 
@@ -344,6 +347,7 @@ public class BrowseRecordsView extends View {
         panel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
         itemPanel.initTreeDetail(viewBean, itemBean, ItemDetailToolBar.CREATE_OPERATION, isStaging);
         itemPanel.getToolBar().setFkToolBar(true);
+        itemPanel.getToolBar().setReturnCriteriaFK((ReturnCriteriaFK) event.getData(BrowseRecordsView.FK_SOURCE_WIDGET));
         itemPanel.getToolBar().setOutMost(detailPanel.isLineage() ? true : itemPanelWidget.getToolBar().isOutMost());
         itemPanel.getToolBar().setHierarchyCall(itemPanelWidget.getToolBar().isHierarchyCall());
         if (itemPanel.getToolBar().isOutMost()) {

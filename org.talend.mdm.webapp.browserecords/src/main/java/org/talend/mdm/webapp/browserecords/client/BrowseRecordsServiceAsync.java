@@ -108,6 +108,9 @@ public interface BrowseRecordsServiceAsync {
     void getForeignKeyModel(String concept, String ids, boolean isStaging, String language,
             AsyncCallback<ForeignKeyModel> callback);
 
+    void getForeignKeyBean(String ids, String concept, List<String> foreignKeyInfo, boolean staging, String language,
+            AsyncCallback<ForeignKeyBean> callback);
+
     void getRunnableProcessList(String concept, String language, AsyncCallback<List<ItemBaseModel>> callback);
 
     void processItem(String concept, String[] ids, String transformerPK, AsyncCallback<String> callback);

@@ -606,6 +606,12 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 String dataClusterPK, boolean ifFKFilter, String input, String language,
                 AsyncCallback<List<ForeignKeyBean>> callback) {
         }
+
+        @Override
+        public void getForeignKeyBean(String ids, String concept, List<String> foreignKeyInfo, boolean staging, String language,
+                AsyncCallback<ForeignKeyBean> callback) {
+
+        }
     }
 
     @Override

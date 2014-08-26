@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.XmlUtil;
 import org.talend.mdm.webapp.base.client.widget.CallbackAction;
@@ -38,6 +39,9 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.LineageListPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
+import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTablePanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
@@ -133,16 +137,15 @@ public class BrowseRecordsController extends Controller {
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
         final MessageBox progressBar = MessageBox.wait(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory
                 .getMessages().save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
-        BrowseRecordsServiceAsync saveService;
+        final BrowseRecordsServiceAsync browseRecordsService;
         if (isStaging) {
-            saveService = ServiceFactory.getInstance().getStagingService();
+            browseRecordsService = ServiceFactory.getInstance().getStagingService();
         } else {
-            saveService = ServiceFactory.getInstance().getMasterService();
+            browseRecordsService = ServiceFactory.getInstance().getMasterService();
         }
-
-        saveService.saveItem(viewBean, itemBean.getIds(),
-                (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate,
-                Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
+        browseRecordsService.saveItem(viewBean, itemBean.getIds(), (new ItemTreeHandler(model, viewBean,
+                ItemTreeHandlingStatus.ToSave)).serializeItem(), isCreate, Locale.getLanguage(),
+                new SessionAwareAsyncCallback<ItemResult>() {
 
                     @Override
                     protected void doOnFailure(Throwable caught) {
@@ -226,6 +229,36 @@ public class BrowseRecordsController extends Controller {
                         // TMDM-4814, TMDM-4815 (reload data to refresh ui)
                         if ((detailToolBar.isFkToolBar() || detailToolBar.isOutMost()) && !isClose) {
                             detailToolBar.refresh(result.getReturnValue());
+                        }
+
+                        // TMDM-7372 refresh fk panel after create fk record.
+                        if (detailToolBar.isFkToolBar() && detailToolBar.getReturnCriteriaFK() != null) {
+                            ReturnCriteriaFK returnCriteriaFK = detailToolBar.getReturnCriteriaFK();
+                            if (returnCriteriaFK instanceof ForeignKeyTablePanel) {
+                                ForeignKeyTablePanel foreignKeyTablePanel = (ForeignKeyTablePanel) returnCriteriaFK;
+                                browseRecordsService.getForeignKeyBean(result.getReturnValue(), itemBean.getConcept(),
+                                        foreignKeyTablePanel.getFkTypeModel().getForeignKeyInfo(), isStaging,
+                                        Locale.getLanguage(), new SessionAwareAsyncCallback<ForeignKeyBean>() {
+
+                                            @Override
+                                            public void onSuccess(ForeignKeyBean model) {
+                                                detailToolBar.getReturnCriteriaFK().setCriteriaFK(model);
+                                            }
+                                        });
+                            } else if (returnCriteriaFK instanceof ForeignKeyField) {
+                                ForeignKeyField foreignKeyField = (ForeignKeyField) returnCriteriaFK;
+                                browseRecordsService.getForeignKeyBean(result.getReturnValue(), itemBean.getConcept(),
+                                        foreignKeyField.getForeignKeyInfo(), isStaging, Locale.getLanguage(),
+                                        new SessionAwareAsyncCallback<ForeignKeyBean>() {
+
+                                            @Override
+                                            public void onSuccess(ForeignKeyBean model) {
+                                                detailToolBar.getReturnCriteriaFK().setCriteriaFK(model);
+                                            }
+
+                                        });
+                            }
+
                         }
                         // Only Hierarchy call the next method
                         // TMDM-4112 : JavaScript Error on IE8
@@ -314,6 +347,7 @@ public class BrowseRecordsController extends Controller {
                 AppEvent ae = new AppEvent(event.getType(), viewBean);
                 ae.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, detailPanel);
                 ae.setData(BrowseRecordsView.IS_STAGING, event.getData(BrowseRecordsView.IS_STAGING));
+                ae.setData(BrowseRecordsView.FK_SOURCE_WIDGET, event.getData(BrowseRecordsView.FK_SOURCE_WIDGET));
                 forwardToView(view, ae);
             }
         });
