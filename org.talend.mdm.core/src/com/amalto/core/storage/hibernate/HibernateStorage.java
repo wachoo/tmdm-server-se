@@ -620,6 +620,7 @@ public class HibernateStorage implements Storage {
         switch (storageType) {
         case SYSTEM:
             switch (dataSource.getDialectName()) {
+            case DB2: // DB2 needs to store long string values to CLOBs.
             case ORACLE_10G: // Oracle needs to store long string values to CLOBs.
                 return TypeMappingStrategy.SCATTERED_CLOB;
             default:
