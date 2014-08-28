@@ -21,9 +21,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -380,7 +378,22 @@ public class UserQueryBuilder {
     }
 
     public static Condition fullText(FieldMetadata field, String constant) {
-        return new FieldFullText(new Field(field), constant);
+        if (field.getType() instanceof ComplexTypeMetadata) {
+            // TMDM-5126: Full text on contained type -> perform search on all elements defined in type
+            List<FieldMetadata> fields = field.getType().accept(new ContainedFieldFullTextSearch());
+            if (fields.isEmpty()) {
+                return UserQueryHelper.FALSE;
+            } else {
+                Iterator<FieldMetadata> iterator = fields.iterator();
+                Condition condition = new FieldFullText(new Field(iterator.next()), constant);
+                while (iterator.hasNext()) {
+                    condition = or(condition, new FieldFullText(new Field(iterator.next()), constant));
+                }
+                return condition;
+            }
+        } else {
+            return new FieldFullText(new Field(field), constant);
+        }
     }
 
     public static TypedExpression count() {
@@ -414,12 +427,12 @@ public class UserQueryBuilder {
         expressionAsSelect().setForUpdate(true);
         return this;
     }
-    
+
     public UserQueryBuilder cache() {
         expressionAsSelect().setCache(true);
         return this;
     }
-    
+
     public UserQueryBuilder nocache() {
         expressionAsSelect().setCache(false);
         return this;
@@ -817,5 +830,46 @@ public class UserQueryBuilder {
 
     public static TypedExpression distinct(TypedExpression expression) {
         return new Distinct(expression);
+    }
+
+    private static class ContainedFieldFullTextSearch extends DefaultMetadataVisitor<List<FieldMetadata>> {
+
+        private final List<FieldMetadata> fields = new ArrayList<FieldMetadata>();
+
+        @Override
+        public List<FieldMetadata> visit(ComplexTypeMetadata complexType) {
+            super.visit(complexType);
+            return fields;
+        }
+
+        @Override
+        public List<FieldMetadata> visit(ContainedComplexTypeMetadata containedType) {
+            super.visit(containedType);
+            return fields;
+        }
+
+        @Override
+        public List<FieldMetadata> visit(ContainedTypeFieldMetadata containedField) {
+            super.visit(containedField);
+            return fields;
+        }
+
+        @Override
+        public List<FieldMetadata> visit(ReferenceFieldMetadata referenceField) {
+            return fields; // No search on FK fields.
+        }
+
+        @Override
+        public List<FieldMetadata> visit(SimpleTypeFieldMetadata simpleField) {
+            fields.add(simpleField);
+            return fields;
+        }
+
+        @Override
+        public List<FieldMetadata> visit(EnumerationFieldMetadata enumField) {
+            fields.add(enumField);
+            return fields;
+        }
+
     }
 }

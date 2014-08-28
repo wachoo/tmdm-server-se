@@ -721,4 +721,20 @@ public class StorageFullTextTest extends StorageTestCase {
             results.close();
         }
     }
+
+    public void testSearchOnContainedType() throws Exception {
+        UserQueryBuilder qb = from(product).where(fullText(product.getField("Features"), "klein"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object object = result.get("Features/Colors/Color");
+                assertTrue(object instanceof List);
+                assertEquals(3, ((List) object).size());
+                assertEquals("Klein blue2", ((List) object).get(2));
+            }
+        } finally {
+            results.close();
+        }
+    }
 }
