@@ -101,7 +101,7 @@ public class StorageFullTextTest extends StorageTestCase {
 
     @Override
     public void tearDown() throws Exception {
-        /*storage.begin();
+        storage.begin();
         {
             UserQueryBuilder qb = from(product);
             storage.delete(qb.getSelect());
@@ -116,7 +116,7 @@ public class StorageFullTextTest extends StorageTestCase {
             storage.delete(qb.getSelect());
         }
         storage.commit();
-        storage.end();*/
+        storage.end();
     }
 
     @Override
