@@ -62,6 +62,8 @@ public class StagingStorage implements Storage {
         updateActions.put(StagingConstants.SUCCESS_VALIDATE, new StagingUpdateAction(StagingConstants.SUCCESS_MERGED_RECORD,
                 false));
         updateActions.put(StagingConstants.DELETED, new StagingUpdateAction(StagingConstants.DELETED, false));
+        updateActions.put(StagingConstants.FAIL_DELETE_CONSTRAINTS, new StagingUpdateAction(
+                StagingConstants.FAIL_DELETE_CONSTRAINTS, false));
         updateActions.put(StagingConstants.FAIL_VALIDATE_VALIDATION, new StagingUpdateAction(
                 StagingConstants.SUCCESS_MERGED_RECORD, false));
         updateActions.put(StagingConstants.FAIL_VALIDATE_CONSTRAINTS, new StagingUpdateAction(

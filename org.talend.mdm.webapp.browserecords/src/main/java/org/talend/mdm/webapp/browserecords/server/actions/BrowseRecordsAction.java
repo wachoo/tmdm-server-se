@@ -429,6 +429,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
+                if (path.indexOf('$') > 0) {
+                    continue; // Skip paths like $stating_status$
+                }
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
                     // It should getValue by XPath but not element name(ItemBean's map object is only used by
@@ -457,10 +460,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
                                             path + "-" + value.getTextContent(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, //$NON-NLS-1$
-                                                            value.getTextContent(),
-                                                            false,
-                                                            modelType,
-                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), isStaging(), language)); //$NON-NLS-1$
+                                                    value.getTextContent(),
+                                                    false,
+                                                    modelType,
+                                                    getEntityModel(typeModel.getForeignkey().split("/")[0], language), isStaging(), language)); //$NON-NLS-1$
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());

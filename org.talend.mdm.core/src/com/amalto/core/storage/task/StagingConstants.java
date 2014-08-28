@@ -82,6 +82,10 @@ public interface StagingConstants {
      */
     String FAIL_VALIDATE_CONSTRAINTS = "404"; //$NON-NLS-1$
     /**
+     * Failed MDM delete due to constraints issues.
+     */
+    String FAIL_DELETE_CONSTRAINTS = "405"; //$NON-NLS-1$
+    /**
      * Constant to indicate a record source when created by MDM.
      */
     String STAGING_MDM_SOURCE = "MDM"; //$NON-NLS-1$

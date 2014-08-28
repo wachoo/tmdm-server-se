@@ -54,4 +54,5 @@ public interface BrowseRecordsInStagingMessages extends Messages {
 
     String status_404();
 
+    String status_405();
 }

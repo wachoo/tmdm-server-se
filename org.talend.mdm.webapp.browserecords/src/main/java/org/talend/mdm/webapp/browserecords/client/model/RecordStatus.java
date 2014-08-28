@@ -30,9 +30,10 @@ public enum RecordStatus implements IsSerializable {
     FAIL_MERGE_CLUSTERS(Integer.parseInt(StagingConstants.FAIL_MERGE_CLUSTERS)),
     FAIL_VALIDATE_VALIDATION(Integer.parseInt(StagingConstants.FAIL_VALIDATE_VALIDATION)),
     FAIL_VALIDATE_CONSTRAINTS(Integer.parseInt(StagingConstants.FAIL_VALIDATE_CONSTRAINTS)),
+    FAIL_DELETE_CONSTRAINTS(Integer.parseInt(StagingConstants.FAIL_DELETE_CONSTRAINTS)),
     UNKNOWN(999);
     
-    private int statusCode;
+    private final int statusCode;
 
     RecordStatus(int statusCode) {
         this.statusCode = statusCode;

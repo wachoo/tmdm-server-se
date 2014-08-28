@@ -501,6 +501,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String status_404();
 
+    String status_405();
+
     String mark_as_deleted();
 
     String mark_deleted_confirm();

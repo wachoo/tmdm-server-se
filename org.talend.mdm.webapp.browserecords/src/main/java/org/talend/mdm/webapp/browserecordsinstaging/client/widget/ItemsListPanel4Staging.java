@@ -75,6 +75,7 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
         errorTitles.put(RecordStatus.FAIL_MERGE_CLUSTERS.getStatusCode(), messages.status_402(ucx.getDataContainer()));
         errorTitles.put(RecordStatus.FAIL_VALIDATE_VALIDATION.getStatusCode(), messages.status_403());
         errorTitles.put(RecordStatus.FAIL_VALIDATE_CONSTRAINTS.getStatusCode(), messages.status_404());
+        errorTitles.put(RecordStatus.FAIL_DELETE_CONSTRAINTS.getStatusCode(), messages.status_405());
     }
 
     @Override

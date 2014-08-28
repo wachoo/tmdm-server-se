@@ -236,6 +236,7 @@ public class LineageListPanel extends ContentPanel {
         errorTitles.put(RecordStatus.FAIL_MERGE_CLUSTERS.getStatusCode(), messages.status_402(ucx.getDataContainer()));
         errorTitles.put(RecordStatus.FAIL_VALIDATE_VALIDATION.getStatusCode(), messages.status_403());
         errorTitles.put(RecordStatus.FAIL_VALIDATE_CONSTRAINTS.getStatusCode(), messages.status_404());
+        errorTitles.put(RecordStatus.FAIL_DELETE_CONSTRAINTS.getStatusCode(), messages.status_405());
     }
 
     private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
@@ -365,27 +366,11 @@ public class LineageListPanel extends ContentPanel {
         columnConfigList.add(statusColumn);
 
         ListStore<ModelData> statusListFilterStore = new ListStore<ModelData>();
-        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.NEW.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath,
-                String.valueOf(RecordStatus.SUCCESS_IDENTIFIED_CLUSTERS.getStatusCode())));
-        statusListFilterStore
-                .add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS_MERGE_CLUSTERS.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath,
-                String.valueOf(RecordStatus.SUCCESS_MERGE_CLUSTER_TO_RESOLVE.getStatusCode())));
-        statusListFilterStore
-                .add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS_MERGED_RECORD.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS_VALIDATE.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.SUCCESS_DELETED.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.FAIL.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath,
-                String.valueOf(RecordStatus.FAIL_IDENTIFIED_CLUSTERS.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.FAIL_MERGE_CLUSTERS.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath,
-                String.valueOf(RecordStatus.FAIL_VALIDATE_VALIDATION.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath,
-                String.valueOf(RecordStatus.FAIL_VALIDATE_CONSTRAINTS.getStatusCode())));
-        statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(RecordStatus.UNKNOWN.getStatusCode())));
+        for (RecordStatus recordStatus : RecordStatus.values()) {
+            if (recordStatus != RecordStatus.UNKNOWN) { // UNKNOWN state exists only in web UI.
+                statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(recordStatus.getStatusCode())));
+            }
+        }
         ListFilter statusFilter = new ListFilter(statusPath, statusListFilterStore);
         statusFilter.setDisplayProperty(statusPath);
         filters.addFilter(statusFilter);
