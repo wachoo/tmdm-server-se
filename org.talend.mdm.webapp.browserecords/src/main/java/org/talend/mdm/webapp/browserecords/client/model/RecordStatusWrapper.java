@@ -44,7 +44,7 @@ public class RecordStatusWrapper implements IsSerializable {
             icon = null;
             color = null;
         } else if (statusCode == Integer.parseInt(StagingConstants.DELETED)
-                && statusCode == Integer.parseInt(StagingConstants.FAIL_DELETE_CONSTRAINTS)) {
+                || statusCode == Integer.parseInt(StagingConstants.FAIL_DELETE_CONSTRAINTS)) {
             isValid = true;
             icon = Resources.ICONS.statusDeleted();
             color = "red"; //$NON-NLS-1$ 
