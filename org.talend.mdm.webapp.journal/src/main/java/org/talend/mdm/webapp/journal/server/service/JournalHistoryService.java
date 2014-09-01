@@ -19,7 +19,7 @@ import java.util.Locale;
 
 import javax.servlet.ServletException;
 
-import com.amalto.core.server.ServerContext;
+import org.talend.mdm.server.ServerContext;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;

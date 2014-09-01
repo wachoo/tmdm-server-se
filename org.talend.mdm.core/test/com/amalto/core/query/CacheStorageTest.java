@@ -15,7 +15,7 @@ import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.storage.CacheStorage;
+import org.talend.mdm.storage.CacheStorage;
 
 @SuppressWarnings("nls")
 public class CacheStorageTest extends StorageTestCase {

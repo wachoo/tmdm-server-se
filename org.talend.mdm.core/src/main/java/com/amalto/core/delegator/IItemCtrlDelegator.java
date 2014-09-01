@@ -1,28 +1,8 @@
 package com.amalto.core.delegator;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.amalto.core.server.XmlServer;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.role.ejb.RolePOJO;
@@ -34,26 +14,29 @@ import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.ViewSearchResultsWriter;
-import com.amalto.core.util.ArrayListHolder;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.RoleSpecification;
-import com.amalto.core.util.RoleWhereCondition;
+import org.talend.mdm.server.Server;
+import org.talend.mdm.server.ServerContext;
+import org.talend.mdm.server.StorageAdmin;
+import org.talend.mdm.server.api.XmlServer;
+import org.talend.mdm.storage.Storage;
+import org.talend.mdm.storage.StorageResults;
+import org.talend.mdm.storage.record.DataRecord;
+import org.talend.mdm.storage.record.DataRecordWriter;
+import org.talend.mdm.storage.record.DataRecordXmlWriter;
+import org.talend.mdm.storage.record.ViewSearchResultsWriter;
+import com.amalto.core.util.*;
 import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereOr;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import com.amalto.xmlserver.interfaces.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDelegatorService {
 
@@ -588,7 +571,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
 
     @Override
     public ViewPOJO getViewPOJO(ViewPOJOPK viewPOJOPK) throws Exception {
-        return Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
+        return Util.getViewCtrlLocal().getView(viewPOJOPK);
     }
 
     @Override

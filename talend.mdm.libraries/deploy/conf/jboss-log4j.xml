@@ -200,7 +200,7 @@
         <priority value="INFO"/>
     </category>
 
-    <category name="com.amalto.core.storage.task" additivity="false">
+    <category name="org.talend.mdm.storage.task" additivity="false">
         <appender-ref ref="MATCH_LOG_FILE"/>
         <priority value="INFO"/>
     </category>

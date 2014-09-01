@@ -16,11 +16,10 @@ import java.util.Properties;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.jobox.properties.ThreadIsolatedSystemProperties;
 import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
-import com.amalto.core.server.ConfigurationInfo;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.ConfigurationInfo;
+import org.talend.mdm.server.api.XmlServer;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 

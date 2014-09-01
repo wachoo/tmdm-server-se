@@ -12,7 +12,7 @@ import java.util.Map;
 
 import com.amalto.core.metadata.LongString;
 import com.amalto.core.schema.manage.SchemaCoreAgent;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import com.amalto.core.util.Util;
 
 import org.apache.commons.lang.StringUtils;
@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
-import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
@@ -29,7 +28,6 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;

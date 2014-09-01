@@ -1,42 +1,15 @@
 package com.amalto.core.ejb;
 
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.*;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.XMLEvent;
-
-import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.server.XmlServer;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.commons.collections.map.LRUMap;
-import org.apache.log4j.Logger;
-import org.exolab.castor.xml.Marshaller;
-import org.exolab.castor.xml.Unmarshaller;
-import org.talend.mdm.commmon.util.bean.ItemCacheKey;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.xml.sax.InputSource;
-
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
+import com.amalto.core.objects.routing.v2.ejb.*;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJO;
@@ -50,6 +23,26 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import org.apache.commons.collections.map.LRUMap;
+import org.apache.log4j.Logger;
+import org.exolab.castor.xml.Marshaller;
+import org.exolab.castor.xml.Unmarshaller;
+import org.talend.mdm.commmon.util.bean.ItemCacheKey;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.server.api.Item;
+import org.talend.mdm.server.api.XmlServer;
+import org.xml.sax.InputSource;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.XMLEvent;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.*;
 
 public abstract class ObjectPOJO implements Serializable {
 
@@ -97,7 +90,7 @@ public abstract class ObjectPOJO implements Serializable {
                     {"Data Model", DataModelPOJO.class}, //$NON-NLS-1$
                     {"Role", RolePOJO.class}, //$NON-NLS-1$
                     {"Routing Rule", RoutingRulePOJO.class}, //$NON-NLS-1$
-                    {"Service", ServiceBean.class}, //$NON-NLS-1$
+                    {"Service", Service.class}, //$NON-NLS-1$
                     {"Stored Procedure", StoredProcedurePOJO.class}, //$NON-NLS-1$
                     {"Transformer Plugin V2", TransformerPluginV2POJO.class}, //$NON-NLS-1$
                     {"Transformer V2", TransformerV2POJO.class}, //$NON-NLS-1$
@@ -622,7 +615,7 @@ public abstract class ObjectPOJO implements Serializable {
             }
             // get the xml server wrapper
             String clusterName = getCluster(getObjectClass(objectName));
-            ItemCtrl2Local itemCtrl2Bean = Util.getItemCtrl2Local();
+            Item itemCtrl2Bean = Util.getItemCtrl2Local();
             List<IWhereItem> conditions = new LinkedList<IWhereItem>();
             if (instancePattern != null && !".*".equals(instancePattern)) {
                 WhereCondition idCondition = new WhereCondition(objectName + "/i", //$NON-NLS-1$
@@ -700,7 +693,7 @@ public abstract class ObjectPOJO implements Serializable {
                 throw new XtentisException(err);
             }
             // Get the values from databases
-            ItemCtrl2Local itemCtrl = Util.getItemCtrl2Local();
+            Item itemCtrl = Util.getItemCtrl2Local();
             DataClusterPOJOPK dataCluster = new DataClusterPOJOPK(ObjectPOJO.getCluster(objectClass));
             ArrayList<String> xPaths = new ArrayList<String>(Arrays.asList(idsPaths));
             ArrayList<String> results = itemCtrl.xPathsSearch(dataCluster,

@@ -28,9 +28,8 @@ import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
 import com.amalto.core.query.user.metadata.MetadataField;
-import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.storage.StorageMetadataUtils;
 import com.amalto.core.util.FieldNotFoundException;
-import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;

@@ -14,7 +14,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import com.amalto.core.util.XSDKey;
 
 import java.io.InputStream;

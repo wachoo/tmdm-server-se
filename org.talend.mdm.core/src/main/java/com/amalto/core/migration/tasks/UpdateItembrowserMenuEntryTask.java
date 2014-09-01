@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.migration.AbstractMigrationTask;
-import com.amalto.core.objects.menu.ejb.local.Menu;
+import org.talend.mdm.server.api.Menu;
 import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJOPK;

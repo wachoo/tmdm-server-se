@@ -18,7 +18,7 @@ import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.context.UUIDIdGenerator;
 import com.amalto.core.load.io.XMLRootInputStream;
 import com.amalto.core.save.SaverSession;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;

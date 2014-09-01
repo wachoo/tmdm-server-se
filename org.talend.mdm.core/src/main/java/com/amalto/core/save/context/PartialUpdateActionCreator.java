@@ -13,7 +13,7 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.history.DOMMutableDocument;
 import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.storage.StorageMetadataUtils;
 import org.w3c.dom.Node;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;

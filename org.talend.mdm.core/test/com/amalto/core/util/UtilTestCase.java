@@ -12,41 +12,32 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
-import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
-import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
-import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import com.amalto.core.ejb.DroppedItemPOJO;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.v2.util.TransformerContext;
 import com.amalto.core.save.SaveException;
-import com.amalto.core.storage.DispatchWrapper;
+import org.talend.mdm.storage.DispatchWrapper;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DOC achen class global comment. Detailled comment
@@ -326,64 +317,4 @@ public class UtilTestCase extends TestCase {
             assertTrue("bj".equals(condition4.getRightValueOrPath()));
         }
     }
-
-    public void testExtractCharset() {
-        String messages[] = { "text/xml; charset  =   'utf-8' ;  ", "text/xml; charset  =   utf-8  ",
-                "text/xml; charset  =  \"utf-8\" ;  ", "text/xml; charset  =   utf-8  ; abc = charset ",
-                "text/xml; charset  =   'utf-8'  ; abc = charset ", "text/xml; charset  =   \"utf-8\"  ; abc = charset " };
-        for (String m : messages) {
-            assertTrue("UTF-8".equals(Util.extractCharset(m, "iso-8891")));
-        }
-    }
-
-    class SchemaTestAgent extends SchemaManager {
-
-        public SchemaTestAgent() {
-
-        }
-
-        @Override
-        protected boolean existInPool(DataModelID dataModelID) {
-            return false;
-        }
-
-        @Override
-        protected void removeFromPool(DataModelID dataModelID) {
-            throw new RuntimeException("Not supported! ");
-        }
-
-        @Override
-        protected void addToPool(DataModelID dataModelID, DataModelBean dataModelBean) {
-            throw new RuntimeException("Not supported! ");
-        }
-
-        @Override
-        protected DataModelBean getFromPool(DataModelID dataModelID) throws Exception {
-            throw new RuntimeException("Not supported! ");
-        }
-
-        @Override
-        public BusinessConcept getBusinessConceptForCurrentUser(String conceptName) throws Exception {
-
-            BusinessConcept bizConcept = new MyBuissnesConcept();
-            bizConcept.setName("BusinessType");
-
-            Map<String, String> xpathTypeMap = new HashMap<String, String>();
-            xpathTypeMap.put("BusinessType/Id", "xsd:string");
-            xpathTypeMap.put("BusinessType/ZthesId", "xsd:string");
-            bizConcept.setXpathTypeMap(xpathTypeMap);
-
-            return bizConcept;
-        }
-
-    }
-
-    class MyBuissnesConcept extends BusinessConcept {
-
-        @Override
-        public void load() {
-            // do nothing
-        }
-    }
-
 }

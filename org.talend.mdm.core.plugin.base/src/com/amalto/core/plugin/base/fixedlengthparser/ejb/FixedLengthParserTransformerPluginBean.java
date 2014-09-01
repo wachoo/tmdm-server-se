@@ -1,21 +1,18 @@
 package com.amalto.core.plugin.base.fixedlengthparser.ejb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
-import org.apache.commons.lang.StringEscapeUtils;
-
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.apache.commons.lang.StringEscapeUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <h1>Fixed Length Parser Plugin</h1>
@@ -91,7 +88,7 @@ import com.amalto.core.util.XtentisException;
  *
  *
  */
-public class FixedLengthParserTransformerPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class FixedLengthParserTransformerPluginBean extends Plugin {
 
 	public static final String PARAMETERS ="com.amalto.core.plugin.fixedlengthparser.parameters";
 
@@ -216,8 +213,6 @@ public class FixedLengthParserTransformerPluginBean extends TransformerPluginV2C
 			if (!configurationLoaded) loadConfiguration();
 			context.put(PARAMETERS, compiledParameters);
 
-		} catch (XtentisException xe) {
-			throw (xe);
 		} catch (Exception e) {
 			String err = "Could not init the Fixed Length Parser plugin:"+
 				e.getClass().getName()+": "+e.getLocalizedMessage();
@@ -226,6 +221,11 @@ public class FixedLengthParserTransformerPluginBean extends TransformerPluginV2C
 		}
 
 	}
+
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
 
 
     /**
@@ -411,9 +411,7 @@ public class FixedLengthParserTransformerPluginBean extends TransformerPluginV2C
     		}
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the Fixed Length Parser Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Category.getInstance(this.getClass()).error(err);
@@ -432,7 +430,6 @@ public class FixedLengthParserTransformerPluginBean extends TransformerPluginV2C
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 

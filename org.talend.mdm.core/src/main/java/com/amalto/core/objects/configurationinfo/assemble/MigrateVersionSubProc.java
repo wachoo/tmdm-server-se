@@ -3,7 +3,7 @@ package com.amalto.core.objects.configurationinfo.assemble;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import com.amalto.core.server.ConfigurationInfo;
+import org.talend.mdm.server.api.ConfigurationInfo;
 import com.amalto.core.util.Util;
 
 public class MigrateVersionSubProc extends AssembleSubProc {

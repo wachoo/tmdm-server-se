@@ -12,39 +12,9 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.CreateException;
-import javax.naming.NamingException;
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
-import org.jboss.security.SimpleGroup;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
-import org.w3c.dom.*;
-import org.xml.sax.InputSource;
-
 import com.amalto.commons.core.utils.XMLUtils;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.LocalUser;
@@ -58,6 +28,32 @@ import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSElementDecl;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+import org.jboss.security.SimpleGroup;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.server.api.XmlServer;
+import org.w3c.dom.*;
+import org.xml.sax.InputSource;
+
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Util {
 
@@ -728,7 +724,7 @@ public class Util {
      * store the info of datacluster and datamodel to PROVISIONING.
      */
     public static void storeProvisioning(String username, String xmlString) throws Exception {
-        XmlServerSLWrapperLocal server = com.amalto.core.util.Util.getXmlServerCtrlLocal();
+        XmlServer server = com.amalto.core.util.Util.getXmlServerCtrlLocal();
         server.start("PROVISIONING"); //$NON-NLS-1$
         server.putDocumentFromString(xmlString, "PROVISIONING" + "." + "User" + "." + username, "PROVISIONING", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
         server.commit("PROVISIONING"); //$NON-NLS-1$
@@ -1143,11 +1139,9 @@ public class Util {
             }
             return isBeforeSavingTransformerExist;
         } catch (XtentisException e) {
-            e.printStackTrace();
-        } catch (NamingException e) {
-            e.printStackTrace();
-        } catch (CreateException e) {
-            e.printStackTrace();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e);
+            }
         }
         return false;
     }

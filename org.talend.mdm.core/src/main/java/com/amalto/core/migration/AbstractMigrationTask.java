@@ -4,8 +4,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Unmarshaller;
 

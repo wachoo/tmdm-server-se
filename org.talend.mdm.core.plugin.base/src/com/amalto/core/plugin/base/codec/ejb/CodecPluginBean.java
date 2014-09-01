@@ -1,26 +1,22 @@
 package com.amalto.core.plugin.base.codec.ejb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.w3c.dom.Document;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.plugin.base.codec.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.w3c.dom.Document;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -47,7 +43,7 @@ import com.amalto.core.util.XtentisException;
  */
      
 
-public class CodecPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class CodecPluginBean extends Plugin {
 	/**
 	 * 
 	 */
@@ -306,8 +302,13 @@ public class CodecPluginBean extends TransformerPluginV2CtrlBean  implements Ses
 		}
 		
 	}
-	
-	/**
+
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
+
+    /**
      * @throws XtentisException
      *
      * @ejb.interface-method view-type = "local"

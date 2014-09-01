@@ -14,7 +14,7 @@ package com.amalto.core.load.context;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import com.amalto.core.util.AutoIncrementGenerator;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;

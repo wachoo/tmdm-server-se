@@ -11,33 +11,28 @@
 
 package com.amalto.core.save;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import com.amalto.core.history.DeleteType;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.server.api.XmlServer;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 public class DefaultCommitter implements SaverSession.Committer {
 
     private final XmlServer xmlServerCtrlLocal;
 
     public DefaultCommitter() {
-        try {
-            xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
-        } catch (XtentisException e) {
-            throw new RuntimeException(e);
-        }
+        xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
     }
 
     public void begin(String dataCluster) {

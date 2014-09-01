@@ -9,36 +9,24 @@
  */
 package org.talend.mdm.ext.publish.resource;
 
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
+import org.apache.log4j.Logger;
+import org.restlet.Context;
+import org.restlet.data.*;
+import org.restlet.resource.*;
+import org.talend.mdm.ext.publish.model.PicturePojo;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.ejb.CreateException;
-import javax.naming.NamingException;
-
-import org.apache.log4j.Logger;
-import org.restlet.Context;
-import org.restlet.data.CharacterSet;
-import org.restlet.data.MediaType;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
-import org.restlet.data.Status;
-import org.restlet.resource.DomRepresentation;
-import org.restlet.resource.Representation;
-import org.restlet.resource.Resource;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.Variant;
-import org.talend.mdm.ext.publish.model.PicturePojo;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
 
 /**
  * Base resource class that supports common behaviours or attributes shared by all resources.
@@ -261,10 +249,6 @@ public abstract class BaseResource extends Resource {
             // use local bean without security check
             dataModelPOJO = Util.getDataModelCtrlLocal().getDataModel(new DataModelPOJOPK(dataModelName));
         } catch (XtentisException e) {
-            log.error(e.getLocalizedMessage(), e);
-        } catch (NamingException e) {
-            log.error(e.getLocalizedMessage(), e);
-        } catch (CreateException e) {
             log.error(e.getLocalizedMessage(), e);
         }
         return dataModelPOJO;

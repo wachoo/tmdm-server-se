@@ -14,7 +14,7 @@ package com.amalto.core.query.user;
 import com.amalto.core.query.user.metadata.MetadataField;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
-import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.storage.StorageMetadataUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;

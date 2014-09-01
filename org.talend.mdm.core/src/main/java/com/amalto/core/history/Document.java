@@ -40,9 +40,9 @@ public interface Document {
     ComplexTypeMetadata getType();
 
     /**
-     * @return The data model name in which type information is defined. A call to {@link com.amalto.core.server.MetadataRepositoryAdmin#get(String, com.amalto.core.storage.StorageType)}
+     * @return The data model name in which type information is defined. A call to {@link org.talend.mdm.server.MetadataRepositoryAdmin#get(String, org.talend.mdm.storage.StorageType)}
      * <b>MUST</b> return a non-null value.
-     * @see com.amalto.core.server.MetadataRepositoryAdmin
+     * @see org.talend.mdm.server.MetadataRepositoryAdmin
      */
     String getDataModel();
 
@@ -54,7 +54,7 @@ public interface Document {
     /**
      * @return The name of the data cluster for this document. If document comes from staging area it <b>MUST</b> include
      * the staging suffix.
-     * @see com.amalto.core.server.StorageAdmin#STAGING_SUFFIX
+     * @see org.talend.mdm.server.StorageAdmin#STAGING_SUFFIX
      */
     String getDataCluster();
 

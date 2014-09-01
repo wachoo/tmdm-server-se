@@ -23,7 +23,7 @@
     <category name="com.amalto.core">
         <priority value="INFO"/>
     </category>
-    <category name="com.amalto.core.storage.hibernate">
+    <category name="org.talend.mdm.storage.hibernate">
         <priority value="INFO"/>
     </category>
     <category name="org.talend.mdm.server">

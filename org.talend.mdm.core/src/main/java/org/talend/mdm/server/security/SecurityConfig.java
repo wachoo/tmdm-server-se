@@ -11,12 +11,12 @@
 package org.talend.mdm.server.security;
 
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.record.DataRecord;
+import org.talend.mdm.server.ServerContext;
+import org.talend.mdm.server.StorageAdmin;
+import org.talend.mdm.storage.Storage;
+import org.talend.mdm.storage.StorageResults;
+import org.talend.mdm.storage.StorageType;
+import org.talend.mdm.storage.record.DataRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;

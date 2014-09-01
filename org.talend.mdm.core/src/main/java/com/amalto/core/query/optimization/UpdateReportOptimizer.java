@@ -17,8 +17,8 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import com.amalto.core.query.user.*;
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
+import org.talend.mdm.server.Server;
+import org.talend.mdm.server.ServerContext;
 import org.apache.log4j.Logger;
 
 import java.util.List;

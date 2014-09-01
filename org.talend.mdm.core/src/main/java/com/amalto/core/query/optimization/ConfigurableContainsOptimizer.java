@@ -24,7 +24,7 @@ import com.amalto.core.query.user.metadata.StagingSource;
 import com.amalto.core.query.user.metadata.StagingStatus;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
+import org.talend.mdm.storage.datasource.RDBMSDataSource;
 
 public class ConfigurableContainsOptimizer implements Optimizer {
 

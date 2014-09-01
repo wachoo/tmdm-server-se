@@ -15,7 +15,7 @@ package com.amalto.core.objects.configurationinfo.assemble;
 import java.util.Collection;
 
 import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
-import com.amalto.core.server.DataModel;
+import org.talend.mdm.server.api.DataModel;
 import com.amalto.core.util.Util;
 
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;

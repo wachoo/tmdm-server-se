@@ -39,7 +39,7 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
-import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.storage.StorageMetadataUtils;
 
 public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
 

@@ -1,10 +1,9 @@
 package com.amalto.core.objects.configurationinfo.assemble;
 
+import org.talend.mdm.server.api.RoutingEngine;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 
 public class StartEngineSubProc extends AssembleSubProc{
 
@@ -19,7 +18,7 @@ public class StartEngineSubProc extends AssembleSubProc{
 			"true"
 		));
 		if (autostart) {
-            RoutingEngineV2CtrlLocal routingEngine;
+            RoutingEngine routingEngine;
             try {
                 routingEngine = Util.getRoutingEngineV2CtrlLocal();
                 routingEngine.start();

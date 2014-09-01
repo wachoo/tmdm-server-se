@@ -26,7 +26,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.amalto.core.storage.task.StagingConstants;
+import org.talend.mdm.storage.task.StagingConstants;
 import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.junit.client.GWTTestCase;

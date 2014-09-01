@@ -12,7 +12,7 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import com.amalto.core.server.StorageAdminImpl;
+import org.talend.mdm.server.StorageAdminImpl;
 import org.apache.commons.lang.StringUtils;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;

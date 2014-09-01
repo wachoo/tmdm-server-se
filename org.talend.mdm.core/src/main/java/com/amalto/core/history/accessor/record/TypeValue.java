@@ -11,8 +11,8 @@
 
 package com.amalto.core.history.accessor.record;
 
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.talend.mdm.storage.record.DataRecord;
+import org.talend.mdm.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;

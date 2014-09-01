@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.history.Action;

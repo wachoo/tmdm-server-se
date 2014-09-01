@@ -15,9 +15,9 @@ import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.UserAction;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
+import org.talend.mdm.server.StorageAdmin;
+import org.talend.mdm.storage.Storage;
+import org.talend.mdm.storage.StorageType;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 

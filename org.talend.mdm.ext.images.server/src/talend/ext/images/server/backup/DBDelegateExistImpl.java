@@ -1,10 +1,9 @@
 package talend.ext.images.server.backup;
 
+import org.talend.mdm.server.api.XmlServer;
 import com.amalto.core.util.Util;
-import org.apache.log4j.Logger;
-
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.util.XtentisException;
+import org.apache.log4j.Logger;
 
 public class DBDelegateExistImpl implements DBDelegate {
 
@@ -12,7 +11,7 @@ public class DBDelegateExistImpl implements DBDelegate {
 
     private static final Logger logger = Logger.getLogger(DBDelegateExistImpl.class);
 
-    private XmlServerSLWrapperLocal server;
+    private XmlServer server;
 
     public DBDelegateExistImpl() {
         try {

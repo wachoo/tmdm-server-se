@@ -1,17 +1,23 @@
 package com.amalto.core.plugin.base.xslt.ejb;
 
-import java.io.ByteArrayOutputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.amalto.core.ejb.Plugin;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.plugin.base.xslt.CompiledParameters;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import net.sf.saxon.FeatureKeys;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import javax.ejb.SessionBean;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.ErrorListener;
@@ -22,26 +28,11 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
-import net.sf.saxon.FeatureKeys;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.plugin.base.xslt.CompiledParameters;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
 * <h1>XSLT Plugin</h1>
@@ -136,7 +127,7 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
  *
  *
  */
-public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class XSLTTransformerPluginBean extends Plugin {
 
 	private static final long serialVersionUID = 22487085713480L;
 
@@ -359,7 +350,10 @@ public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  impl
 
 	}
 
-
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
 
 
     /**
@@ -613,7 +607,7 @@ public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  impl
 			}
 
 			ArrayList<String> resList =
-				Util.getItemCtrl2LocalHome().create().xPathsSearch(
+				Util.getItemCtrl2Local().xPathsSearch(
 					new DataClusterPOJOPK(xrefcluster),
 					null,
 					new ArrayList<String>(Arrays.asList(new String[]{xrefOut})),
@@ -781,9 +775,7 @@ public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  impl
 //    		Document d = Util.parse(configuration);
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the XSLT Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
@@ -802,7 +794,6 @@ public class XSLTTransformerPluginBean extends TransformerPluginV2CtrlBean  impl
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 

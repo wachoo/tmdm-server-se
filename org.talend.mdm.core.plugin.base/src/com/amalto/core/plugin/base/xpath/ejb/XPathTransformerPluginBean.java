@@ -1,23 +1,20 @@
 package com.amalto.core.plugin.base.xpath.ejb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.plugin.base.xpath.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.regex.Pattern;
 
 
 
@@ -91,7 +88,7 @@ import com.amalto.core.util.XtentisException;
  *
  *
  */
-public class XPathTransformerPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class XPathTransformerPluginBean extends Plugin {
 
 	private static final String PARAMETERS = "com.amalto.core.plugin.xpath.parameters";
 
@@ -236,8 +233,6 @@ public class XPathTransformerPluginBean extends TransformerPluginV2CtrlBean  imp
 			CompiledParameters parameters = CompiledParameters.deserialize(compiledParameters);
 			context.put( PARAMETERS, parameters);
 
-		} catch (XtentisException xe) {
-			throw (xe);
 		} catch (Exception e) {
 			String err = "Could not init the xPath plugin:"+
 				e.getClass().getName()+": "+e.getLocalizedMessage();
@@ -246,6 +241,11 @@ public class XPathTransformerPluginBean extends TransformerPluginV2CtrlBean  imp
 		}
 
 	}
+
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
 
 
     /**
@@ -383,9 +383,7 @@ public class XPathTransformerPluginBean extends TransformerPluginV2CtrlBean  imp
     		}
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the XPath Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
@@ -404,7 +402,6 @@ public class XPathTransformerPluginBean extends TransformerPluginV2CtrlBean  imp
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 

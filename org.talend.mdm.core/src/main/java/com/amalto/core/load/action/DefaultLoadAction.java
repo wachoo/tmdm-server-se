@@ -15,7 +15,7 @@ import com.amalto.core.load.io.XMLStreamTokenizer;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.SaverContextFactory;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;

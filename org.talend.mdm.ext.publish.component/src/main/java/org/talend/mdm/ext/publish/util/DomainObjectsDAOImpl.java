@@ -9,10 +9,9 @@
  */
 package org.talend.mdm.ext.publish.util;
 
-import org.apache.log4j.Logger;
-
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import org.talend.mdm.server.api.XmlServer;
 import com.amalto.core.util.XtentisException;
+import org.apache.log4j.Logger;
 
 public class DomainObjectsDAOImpl implements DomainObjectsDAO {
 
@@ -20,18 +19,14 @@ public class DomainObjectsDAOImpl implements DomainObjectsDAO {
 
     private static final String CLUSTER_NAME = "MDMDomainObjects"; //$NON-NLS-1$
 
-    private XmlServerSLWrapperLocal server;
+    private XmlServer server;
 
-    public DomainObjectsDAOImpl(XmlServerSLWrapperLocal server) {
+    public DomainObjectsDAOImpl(XmlServer server) {
         this.server = server;
-
     }
 
     public String[] getAllPKs() throws XtentisException {
-
-        String[] pks = server.getAllDocumentsUniqueID(null, CLUSTER_NAME);
-        return pks;
-
+        return server.getAllDocumentsUniqueID(null, CLUSTER_NAME);
     }
 
     public boolean putResource(String domainObjectName, String xmlContent) {

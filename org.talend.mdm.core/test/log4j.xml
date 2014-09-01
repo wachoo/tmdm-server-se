@@ -58,7 +58,7 @@
     <category name="org.hibernate">
         <priority value="ERROR"/>
     </category>
-    <category name="com.amalto.core.storage.hibernate">
+    <category name="org.talend.mdm.storage.hibernate">
         <priority value="DEBUG"/>
     </category>
     <category name="com.amalto.core.query">

@@ -15,11 +15,11 @@ package com.amalto.core.integrity;
 
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.storage.StorageMetadataUtils;
+import org.talend.mdm.storage.StorageMetadataUtils;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
+import org.talend.mdm.server.ServerContext;
+import org.talend.mdm.server.StorageAdmin;
+import org.talend.mdm.storage.Storage;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;

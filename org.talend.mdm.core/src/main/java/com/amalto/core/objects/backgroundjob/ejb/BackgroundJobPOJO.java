@@ -1,22 +1,15 @@
 package com.amalto.core.objects.backgroundjob.ejb;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.ejb.TransformerCtrlBean;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.util.Util;
 import com.amalto.core.webservice.WSByteArray;
 import com.amalto.core.webservice.WSExtractedContent;
 import com.amalto.core.webservice.WSPipeline;
 import com.amalto.core.webservice.WSPipelineTypedContentEntry;
 
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -48,17 +41,13 @@ public class BackgroundJobPOJO extends ObjectPOJO{
      * 
      */
     public BackgroundJobPOJO() {
-    	this.id = Util.generateGUID(this);
+    	this.id = UUID.randomUUID().toString();
     }    
 	public BackgroundJobPOJO(String id) {
 		super();
 		this.id = id;
 	}
-	
 
-	
-	
-	
 	public String getDescription() {
 		return description;
 	}

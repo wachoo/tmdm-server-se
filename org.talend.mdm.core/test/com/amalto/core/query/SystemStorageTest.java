@@ -30,7 +30,7 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import com.amalto.core.storage.*;
+import org.talend.mdm.storage.*;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
@@ -54,17 +54,17 @@ import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.MockServerLifecycle;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.hibernate.TypeMappingStrategy;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlDOMDataRecordReader;
-import com.amalto.core.storage.record.XmlSAXDataRecordReader;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import org.talend.mdm.server.server.MockServerLifecycle;
+import org.talend.mdm.server.ServerContext;
+import org.talend.mdm.storage.datasource.DataSourceDefinition;
+import org.talend.mdm.storage.hibernate.HibernateStorage;
+import org.talend.mdm.storage.hibernate.TypeMappingStrategy;
+import org.talend.mdm.storage.record.DataRecord;
+import org.talend.mdm.storage.record.DataRecordReader;
+import org.talend.mdm.storage.record.SystemDataRecordXmlWriter;
+import org.talend.mdm.storage.record.XmlDOMDataRecordReader;
+import org.talend.mdm.storage.record.XmlSAXDataRecordReader;
+import org.talend.mdm.storage.record.XmlStringDataRecordReader;
 
 public class SystemStorageTest extends TestCase {
 

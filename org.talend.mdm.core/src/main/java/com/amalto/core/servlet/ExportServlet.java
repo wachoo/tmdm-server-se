@@ -13,7 +13,11 @@
 
 package com.amalto.core.servlet;
 
-import java.io.IOException;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.server.api.XmlServer;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -21,12 +25,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.amalto.core.server.XmlServer;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import java.io.IOException;
 
 public class ExportServlet extends HttpServlet {
 
@@ -53,13 +52,7 @@ public class ExportServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException {
-        XmlServer server;
-        try {
-            server = Util.getXmlServerCtrlLocal();
-        } catch (XtentisException e) {
-            throw new ServletException(e);
-        }
-
+        XmlServer server = Util.getXmlServerCtrlLocal();
         String revisionId = getParameter(request, PARAMETER_REVISION, true);
         String clusterName = getParameter(request, PARAMETER_CLUSTER, true);
         int start = Integer.parseInt(getParameter(request, PARAMETER_START, true));

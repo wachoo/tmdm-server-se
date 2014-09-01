@@ -24,8 +24,8 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import org.talend.mdm.storage.record.DataRecord;
+import org.talend.mdm.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 public class DataRecordAccessor implements Accessor {
 

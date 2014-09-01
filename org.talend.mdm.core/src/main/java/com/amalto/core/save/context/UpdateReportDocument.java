@@ -14,8 +14,8 @@ import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.save.DOMDocument;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.ServerContext;
+import org.talend.mdm.server.MetadataRepositoryAdmin;
+import org.talend.mdm.server.ServerContext;
 
 class UpdateReportDocument extends DOMDocument {
 

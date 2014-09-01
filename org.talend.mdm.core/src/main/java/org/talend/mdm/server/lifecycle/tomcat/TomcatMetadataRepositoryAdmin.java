@@ -14,25 +14,22 @@ import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.record.DataRecord;
+import org.talend.mdm.server.MetadataRepositoryAdmin;
+import org.talend.mdm.server.Server;
+import org.talend.mdm.server.ServerContext;
+import org.talend.mdm.server.StorageAdmin;
+import org.talend.mdm.storage.Storage;
+import org.talend.mdm.storage.StorageResults;
+import org.talend.mdm.storage.StorageType;
+import org.talend.mdm.storage.record.DataRecord;
 
 class TomcatMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
 

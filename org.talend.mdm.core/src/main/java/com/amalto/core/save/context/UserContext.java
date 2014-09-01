@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.UserAction;
-import com.amalto.core.server.StorageAdmin;
+import org.talend.mdm.server.StorageAdmin;
 
 class UserContext implements DocumentSaverContext {
 

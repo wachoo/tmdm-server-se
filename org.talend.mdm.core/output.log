@@ -1,0 +1,223 @@
+Warning: JAVA_HOME environment variable is not set.
+[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for org.talend.mdm:org.talend.mdm.core:war:5.6-SNAPSHOT
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.codehaus.jettison:jettison:jar -> duplicate declaration of version (?) @ line 560, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.eclipse.emf:org.eclipse.emf.ecore:jar -> duplicate declaration of version (?) @ line 654, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.eclipse.emf:org.eclipse.emf.common:jar -> duplicate declaration of version (?) @ line 658, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.eclipse.xsd:org.eclipse.xsd:jar -> duplicate declaration of version (?) @ line 662, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: commons-collections:commons-collections:jar -> duplicate declaration of version (?) @ line 670, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: commons-jxpath:commons-jxpath:jar -> version 1.3 vs (?) @ line 682, column 21
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: commons-lang:commons-lang:jar -> duplicate declaration of version (?) @ line 694, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building org.talend.mdm.core 5.6-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] >>> tomcat-maven-plugin:1.1:run-war (default-cli) @ org.talend.mdm.core >>>
+[WARNING] The POM for org.talend.mdm:org.talend.mdm.core.enterprise:jar:5.6-SNAPSHOT is invalid, transitive dependencies (if any) will not be available, enable debug logging for more details
+[WARNING] The POM for org.talend.mdm:org.talend.mdm.commmon:jar:5.6-SNAPSHOT is invalid, transitive dependencies (if any) will not be available, enable debug logging for more details
+[WARNING] The POM for org.talend.mdm:org.talend.mdm.commons.core:jar:5.6-SNAPSHOT is invalid, transitive dependencies (if any) will not be available, enable debug logging for more details
+[WARNING] The POM for org.talend.mdm:org.talend.mdm.xmlserver.interfaces:jar:5.6-SNAPSHOT is invalid, transitive dependencies (if any) will not be available, enable debug logging for more details
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4:resources (default-resources) @ org.talend.mdm.core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 44 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:2.5.1:compile (default-compile) @ org.talend.mdm.core ---
+[INFO] Compiling 1142 source files to /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4:testResources (default-testResources) @ org.talend.mdm.core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 145 resources
+[INFO] Copying 169 resources
+[INFO] 
+[INFO] --- build-helper-maven-plugin:1.7:reserve-network-port (reserve-network-port) @ org.talend.mdm.core ---
+[INFO] Reserved port 52768 for test.server.port
+[INFO] 
+[INFO] --- maven-compiler-plugin:2.5.1:testCompile (default-testCompile) @ org.talend.mdm.core ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.9:test (default-test) @ org.talend.mdm.core ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-war-plugin:2.3:war (default-war) @ org.talend.mdm.core ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [org.talend.mdm.core] in [/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT]
+[INFO] Processing war project
+[INFO] Copying webapp resources [/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/src/main/webapp]
+[INFO] Webapp assembled in [9101 msecs]
+[INFO] Building war: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT.war
+[INFO] 
+[INFO] --- maven-jar-plugin:2.3.1:jar (jar-ejbs) @ org.talend.mdm.core ---
+[INFO] Building jar: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT-ejbs.jar
+[INFO] 
+[INFO] --- maven-jar-plugin:2.3.1:jar (jar-lib) @ org.talend.mdm.core ---
+[INFO] Building jar: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT-lib.jar
+[INFO] 
+[INFO] --- maven-jar-plugin:2.3.1:jar (jar-ejbs-client) @ org.talend.mdm.core ---
+[INFO] Building jar: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT-ejbs-client.jar
+[INFO] 
+[INFO] --- maven-jar-plugin:2.3.1:jar (jar-service) @ org.talend.mdm.core ---
+[INFO] Building jar: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT-service.jar
+[INFO] 
+[INFO] --- maven-jar-plugin:2.3.1:jar (jar-jaas) @ org.talend.mdm.core ---
+[INFO] Building jar: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT-jaas.jar
+[INFO] 
+[INFO] --- maven-jar-plugin:2.3.1:jar (jar-util) @ org.talend.mdm.core ---
+[INFO] Building jar: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT-util.jar
+[INFO] 
+[INFO] <<< tomcat-maven-plugin:1.1:run-war (default-cli) @ org.talend.mdm.core <<<
+[INFO] 
+[INFO] --- tomcat-maven-plugin:1.1:run-war (default-cli) @ org.talend.mdm.core ---
+[INFO] Running war on http://localhost:8080/org.talend.mdm.core
+[INFO] Using existing Tomcat server configuration at /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/tomcat
+16:18:27,336 INFO  [ContextLoader] (main:) Root WebApplicationContext: initialization started
+16:18:27,501 INFO  [XmlWebApplicationContext] (main:) Refreshing Root WebApplicationContext: startup date [Fri Aug 22 16:18:27 CEST 2014]; root of context hierarchy
+16:18:27,548 INFO  [XmlBeanDefinitionReader] (main:) Loading XML bean definitions from ServletContext resource [/WEB-INF/beans.xml]
+16:18:27,763 INFO  [XmlBeanDefinitionReader] (main:) Loading XML bean definitions from class path resource [META-INF/cxf/cxf.xml]
+16:18:28,999 INFO  [AutowiredAnnotationBeanPostProcessor] (main:) JSR-330 'javax.inject.Inject' annotation found and supported for autowiring
+16:18:29,459 INFO  [Initialization] (main:) =======================================================
+16:18:29,459 INFO  [Initialization] (main:) Talend MDM v6.0.99999-99999
+16:18:29,460 INFO  [Initialization] (main:) =======================================================
+16:18:29,460 INFO  [Initialization] (main:) Setting home directory to: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/
+16:18:29,721 INFO  [Initialization] (main:) Starting system storage...
+16:18:29,757 INFO  [MDMConfiguration] (main:) MDM Configuration: found in '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/mdm.conf'.
+16:18:32,291 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:32,410 WARN  [HibernateStorage] (main:) Datasource 'H2-Default' (for storage type: SYSTEM) is shared with at least another one other storage type, please review datasource configuration.
+16:18:32,605 INFO  [HibernateStorage] (main:) *NOT* cleaning existing database content.
+16:18:32,605 INFO  [HibernateStorage] (main:) Preparing database before schema generation.
+16:18:33,225 INFO  [HibernateStorage] (main:) Database is already prepared.
+16:18:34,113 WARN  [MappingGenerator] (main:) Field 'x_name' is mandatory and a collection. Constraint can not be expressed in database schema.
+16:18:34,114 WARN  [MappingGenerator] (main:) Field 'x_role' is mandatory and a collection. Constraint can not be expressed in database schema.
+16:18:34,115 WARN  [MappingGenerator] (main:) Field 'x_labelxpath' is mandatory and a collection. Constraint can not be expressed in database schema.
+16:18:34,418 INFO  [MLog] (main:) MLog clients using log4j logging.
+16:18:34,474 INFO  [C3P0Registry] (main:) Initializing c3p0-0.9.1 [built 16-January-2007 14:46:42; debug? true; trace: 10]
+16:18:34,553 INFO  [AbstractPoolBackedDataSource] (main:) Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@b0aea5b5 [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@369af61e [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 2tj1rq931yhys7d8nxh8v|39041b0c, idleConnectionTestPeriod -> 300, initialPoolSize -> 5, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 500, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 50, maxStatementsPerConnection -> 0, minPoolSize -> 5, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@53d6390 [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|7d9bf2d, jdbcUrl -> jdbc:h2:/tmp/data/h2_default;MVCC=TRUE, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|6f161575, numHelperThreads -> 3 ]
+16:18:34,996 INFO  [AbstractPoolBackedDataSource] (main:) Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@b4c9dc84 [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@9ad8adcb [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 2tj1rq931yhys7d8nxh8v|615eaf1b, idleConnectionTestPeriod -> 300, initialPoolSize -> 5, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 500, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 50, maxStatementsPerConnection -> 0, minPoolSize -> 5, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@f1a7c6a5 [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|cb06ab3, jdbcUrl -> jdbc:h2:/tmp/data/h2_default;MVCC=TRUE, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|22f18203, numHelperThreads -> 3 ]
+16:18:37,171 INFO  [HibernateStorage] (main:) Storage '__SYSTEM' (SYSTEM) is ready.
+16:18:37,176 INFO  [Initialization] (main:) System storage started.
+16:18:37,176 INFO  [Initialization] (main:) Initialization and migration of system database...
+16:18:37,192 INFO  [AssembleProc] (main:) ----Starting com.amalto.core.objects.configurationinfo.assemble.CleanJobSubProc... 
+16:18:37,238 INFO  [LoginModuleDelegator] (main:) Initializing delegate LoginModule classloader..
+16:18:37,366 INFO  [AssembleProc] (main:) ----Done com.amalto.core.objects.configurationinfo.assemble.CleanJobSubProc. 
+16:18:37,366 INFO  [AssembleProc] (main:) ----Starting com.amalto.core.objects.configurationinfo.assemble.InitDataSubProc... 
+16:18:37,371 INFO  [InitDBUtil] (main:) Use Extension...
+16:18:37,968 INFO  [ConfigurationHelper] (main:) Inserted document CONF to data cluster amaltoOBJECTSDataModel
+16:18:37,992 INFO  [ConfigurationHelper] (main:) Inserted document Reporting to data cluster amaltoOBJECTSDataModel
+16:18:38,024 INFO  [ConfigurationHelper] (main:) Inserted document UpdateReport to data cluster amaltoOBJECTSDataModel
+16:18:38,037 INFO  [ConfigurationHelper] (main:) Inserted document SearchTemplate to data cluster amaltoOBJECTSDataModel
+16:18:38,051 INFO  [ConfigurationHelper] (main:) Inserted document PROVISIONING to data cluster amaltoOBJECTSDataModel
+16:18:38,092 INFO  [ConfigurationHelper] (main:) Inserted document CONF to data cluster amaltoOBJECTSDataCluster
+16:18:38,131 INFO  [ConfigurationHelper] (main:) Inserted document Inbox to data cluster amaltoOBJECTSDataCluster
+16:18:38,141 INFO  [ConfigurationHelper] (main:) Inserted document Reporting to data cluster amaltoOBJECTSDataCluster
+16:18:38,151 INFO  [ConfigurationHelper] (main:) Inserted document UpdateReport to data cluster amaltoOBJECTSDataCluster
+16:18:38,173 INFO  [ConfigurationHelper] (main:) Inserted document SearchTemplate to data cluster amaltoOBJECTSDataCluster
+16:18:38,187 INFO  [ConfigurationHelper] (main:) Inserted document MDMItemsTrash to data cluster amaltoOBJECTSDataCluster
+16:18:38,233 INFO  [ConfigurationHelper] (main:) Inserted document PROVISIONING.User.administrator to data cluster PROVISIONING
+16:18:38,271 INFO  [ConfigurationHelper] (main:) Inserted document PROVISIONING.User.user to data cluster PROVISIONING
+16:18:38,272 INFO  [StorageAdminImpl] (main:) Container 'UpdateReport' does not exist in revision 'null', creating it.
+16:18:38,272 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:38,314 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:38,340 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:38,393 WARN  [HibernateStorage] (main:) Storage 'UpdateReport' (MASTER) is not configured to support full text queries.
+16:18:38,473 INFO  [HibernateStorage] (main:) *NOT* cleaning existing database content.
+16:18:38,473 INFO  [HibernateStorage] (main:) Preparing database before schema generation.
+16:18:38,474 INFO  [HibernateStorage] (main:) Database is already prepared.
+16:18:38,594 INFO  [AbstractPoolBackedDataSource] (main:) Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@58cec04c [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@4cc0214d [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 2tj1rq931yhys7d8nxh8v|32f447f5, idleConnectionTestPeriod -> 300, initialPoolSize -> 5, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 500, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 50, maxStatementsPerConnection -> 0, minPoolSize -> 5, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@7b727a9c [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|b081816, jdbcUrl -> jdbc:h2:/tmp/data/h2_default;MVCC=TRUE, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|1c00589d, numHelperThreads -> 3 ]
+16:18:38,667 INFO  [AbstractPoolBackedDataSource] (main:) Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@4892c5 [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@da16f014 [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 2tj1rq931yhys7d8nxh8v|1500ed0e, idleConnectionTestPeriod -> 300, initialPoolSize -> 5, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 500, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 50, maxStatementsPerConnection -> 0, minPoolSize -> 5, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@b059ed3e [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|4e42d0d7, jdbcUrl -> jdbc:h2:/tmp/data/h2_default;MVCC=TRUE, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|4bb7a2b5, numHelperThreads -> 3 ]
+16:18:38,682 INFO  [HibernateStorage] (main:) Storage 'UpdateReport' (MASTER) is ready.
+16:18:39,045 INFO  [ConfigurationHelper] (main:) Inserted document BrowseRecords to data cluster amaltoOBJECTSMenu
+16:18:39,091 INFO  [ConfigurationHelper] (main:) Inserted document Browse views to data cluster amaltoOBJECTSMenu
+16:18:39,109 INFO  [ConfigurationHelper] (main:) Inserted document RecycleBin to data cluster amaltoOBJECTSMenu
+16:18:39,138 INFO  [ConfigurationHelper] (main:) Inserted document logging to data cluster amaltoOBJECTSMenu
+16:18:39,155 INFO  [ConfigurationHelper] (main:) Inserted document Reporting to data cluster amaltoOBJECTSMenu
+16:18:39,175 INFO  [ConfigurationHelper] (main:) Inserted document smtp to data cluster amaltoOBJECTSMenu
+16:18:39,194 INFO  [ConfigurationHelper] (main:) Inserted document UpdateReport to data cluster amaltoOBJECTSMenu
+16:18:39,221 INFO  [ConfigurationHelper] (main:) Inserted document WelcomePortal to data cluster amaltoOBJECTSMenu
+16:18:39,244 INFO  [ConfigurationHelper] (main:) Inserted document StagingArea to data cluster amaltoOBJECTSMenu
+16:18:39,304 INFO  [ConfigurationHelper] (main:) Inserted document System_Admin to data cluster amaltoOBJECTSRole
+16:18:39,348 INFO  [ConfigurationHelper] (main:) Inserted document System_Interactive to data cluster amaltoOBJECTSRole
+16:18:39,390 INFO  [ConfigurationHelper] (main:) Inserted document System_Web to data cluster amaltoOBJECTSRole
+16:18:39,404 INFO  [ConfigurationHelper] (main:) Inserted document crossreferencing to data cluster amaltoOBJECTSDataModel
+16:18:39,418 INFO  [ConfigurationHelper] (main:) Inserted document PROVISIONING to data cluster amaltoOBJECTSDataCluster
+16:18:39,433 INFO  [ConfigurationHelper] (main:) Inserted document crossreferencing to data cluster amaltoOBJECTSDataCluster
+16:18:39,444 INFO  [ConfigurationHelper] (main:) Inserted document JCAAdapters to data cluster amaltoOBJECTSDataCluster
+16:18:39,445 INFO  [StorageAdminImpl] (main:) Container 'crossreferencing' does not exist in revision 'null', creating it.
+16:18:39,445 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:39,492 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:39,510 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:39,545 WARN  [HibernateStorage] (main:) Datasource 'H2-Default' (for storage type: MASTER) is shared with at least another one other storage type, please review datasource configuration.
+16:18:39,554 INFO  [HibernateStorage] (main:) *NOT* cleaning existing database content.
+16:18:39,554 INFO  [HibernateStorage] (main:) Preparing database before schema generation.
+16:18:39,554 INFO  [HibernateStorage] (main:) Database is already prepared.
+16:18:39,629 INFO  [AbstractPoolBackedDataSource] (main:) Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@71f9f0a5 [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@85e6a49b [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 2tj1rq931yhys7d8nxh8v|6b06a27e, idleConnectionTestPeriod -> 300, initialPoolSize -> 5, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 500, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 50, maxStatementsPerConnection -> 0, minPoolSize -> 5, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@41f1e5fc [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|7f55b4d3, jdbcUrl -> jdbc:h2:/tmp/data/h2_default;MVCC=TRUE, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|5d9fd483, numHelperThreads -> 3 ]
+16:18:39,680 INFO  [AbstractPoolBackedDataSource] (main:) Initializing c3p0 pool... com.mchange.v2.c3p0.PoolBackedDataSource@f92601ed [ connectionPoolDataSource -> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource@f8d5ec01 [ acquireIncrement -> 3, acquireRetryAttempts -> 30, acquireRetryDelay -> 1000, autoCommitOnClose -> false, automaticTestTable -> null, breakAfterAcquireFailure -> false, checkoutTimeout -> 0, connectionCustomizerClassName -> null, connectionTesterClassName -> com.mchange.v2.c3p0.impl.DefaultConnectionTester, debugUnreturnedConnectionStackTraces -> false, factoryClassLocation -> null, forceIgnoreUnresolvedTransactions -> false, identityToken -> 2tj1rq931yhys7d8nxh8v|7ae12dcf, idleConnectionTestPeriod -> 300, initialPoolSize -> 5, maxAdministrativeTaskTime -> 0, maxConnectionAge -> 0, maxIdleTime -> 500, maxIdleTimeExcessConnections -> 0, maxPoolSize -> 50, maxStatements -> 50, maxStatementsPerConnection -> 0, minPoolSize -> 5, nestedDataSource -> com.mchange.v2.c3p0.DriverManagerDataSource@44b5c3ee [ description -> null, driverClass -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|3d90c009, jdbcUrl -> jdbc:h2:/tmp/data/h2_default;MVCC=TRUE, properties -> {user=******, password=******} ], preferredTestQuery -> null, propertyCycle -> 0, testConnectionOnCheckin -> false, testConnectionOnCheckout -> false, unreturnedConnectionTimeout -> 0, usesTraditionalReflectiveProxies -> false; userOverrides: {} ], dataSourceName -> null, factoryClassLocation -> null, identityToken -> 2tj1rq931yhys7d8nxh8v|27901598, numHelperThreads -> 3 ]
+16:18:39,687 INFO  [HibernateStorage] (main:) Storage 'crossreferencing' (MASTER) is ready.
+16:18:39,742 INFO  [ConfigurationHelper] (main:) Inserted document System_View to data cluster amaltoOBJECTSRole
+16:18:39,762 INFO  [ConfigurationHelper] (main:) Inserted document BrowseRecordsStaging to data cluster amaltoOBJECTSMenu
+16:18:39,779 INFO  [ConfigurationHelper] (main:) Inserted document Search to data cluster amaltoOBJECTSMenu
+16:18:39,795 INFO  [ConfigurationHelper] (main:) Inserted document CrossReference to data cluster amaltoOBJECTSMenu
+16:18:39,824 INFO  [ConfigurationHelper] (main:) Inserted document Hierarchy to data cluster amaltoOBJECTSMenu
+16:18:39,840 INFO  [ConfigurationHelper] (main:) Inserted document UserManager to data cluster amaltoOBJECTSMenu
+16:18:39,871 INFO  [ConfigurationHelper] (main:) Inserted document Service Schedule to data cluster amaltoOBJECTSMenu
+16:18:39,897 INFO  [ConfigurationHelper] (main:) Inserted document SynchronizationAction to data cluster amaltoOBJECTSMenu
+16:18:39,933 INFO  [ConfigurationHelper] (main:) Inserted document SynchronizationItem to data cluster amaltoOBJECTSMenu
+16:18:39,958 INFO  [ConfigurationHelper] (main:) Inserted document Universe Manager to data cluster amaltoOBJECTSMenu
+16:18:39,977 INFO  [ConfigurationHelper] (main:) Inserted document BonitaWorkflowTasks to data cluster amaltoOBJECTSMenu
+16:18:39,992 INFO  [ConfigurationHelper] (main:) Inserted document WorkflowTasks to data cluster amaltoOBJECTSMenu
+16:18:40,010 INFO  [ConfigurationHelper] (main:) Inserted document LicenseManager to data cluster amaltoOBJECTSMenu
+16:18:40,037 INFO  [ConfigurationHelper] (main:) Inserted document Datastewardship to data cluster amaltoOBJECTSMenu
+16:18:40,066 INFO  [StoreLicenseExtJob] (main:) Init db: unable to find the license in '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/license'.
+16:18:40,066 INFO  [StoreLicenseExtJob] (main:) Init db: trying in '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/bin/license'.
+16:18:40,081 INFO  [AssembleProc] (main:) ----Done com.amalto.core.objects.configurationinfo.assemble.InitDataSubProc. 
+16:18:40,081 INFO  [AssembleProc] (main:) ----Starting com.amalto.core.objects.configurationinfo.assemble.MigrateVersionSubProc... 
+16:18:40,119 INFO  [BeanDelegatorContainer] (main:) Init instance:com.amalto.core.delegator.impl.DefaultValidationDelegator
+16:18:40,178 INFO  [BeanDelegatorContainer] (main:) Init instance:com.amalto.core.delegator.impl.DefaultXtentisWSDelegator
+16:18:40,186 INFO  [BeanDelegatorContainer] (main:) Init instance:com.amalto.core.delegator.impl.DefaultLocalUserDelegator
+16:18:40,190 INFO  [BeanDelegatorContainer] (main:) Init instance:com.amalto.core.delegator.impl.DefaultItemCtrlDelegator
+16:18:40,215 INFO  [MDMConfiguration] (main:) MDM Configuration: found in '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/mdm.conf'.
+16:18:40,242 INFO  [CoreUpgrades] (main:) This Core version is v6.0.99999-99999 1970-01-01 : Tomcat based Talend MDM version...
+16:18:40,242 INFO  [ConfigurationHelper] (main:) Deleted a data cluster MDMMigration
+16:18:40,242 INFO  [CoreUpgrades] (main:) Reset migration history records...
+16:18:40,243 INFO  [StoreLicenseExtJob] (main:) Init db: unable to find the license in '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/license'.
+16:18:40,243 INFO  [StoreLicenseExtJob] (main:) Init db: trying in '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/bin/license'.
+16:18:40,245 ERROR [MigrationRepository] (main:) 
+16:18:40,245 INFO  [CoreUpgrades] (main:) Done upgrade from -1.0.0 to current version. 
+16:18:40,245 INFO  [CoreUpgrades] (main:) Core upgrades completed. 
+16:18:40,333 INFO  [Marshaller] (main:) Marshaller called using one of the *static*  marshal(Object, *) methods. This will ignore any  mapping files as specified. Please consider switching to  using Marshaller instances and calling one of the marshal(*) methods.
+16:18:40,402 INFO  [AssembleProc] (main:) ----Done com.amalto.core.objects.configurationinfo.assemble.MigrateVersionSubProc. 
+16:18:40,402 INFO  [AssembleProc] (main:) ----Starting com.amalto.core.objects.configurationinfo.assemble.StartEngineSubProc... 
+16:18:40,403 ERROR [StartEngineSubProc] (main:) Auto Configuration in the background completed but unable to start the routing engine.
+16:18:40,403 INFO  [AssembleProc] (main:) ----Done com.amalto.core.objects.configurationinfo.assemble.StartEngineSubProc. 
+16:18:40,403 INFO  [AssembleProc] (main:) ----Starting com.amalto.core.objects.configurationinfo.assemble.ResendFaildMessageSubProc... 
+16:18:40,403 INFO  [AssembleProc] (main:) ----Done com.amalto.core.objects.configurationinfo.assemble.ResendFaildMessageSubProc. 
+16:18:40,403 INFO  [AssembleProc] (main:) ----Starting com.amalto.core.objects.configurationinfo.assemble.StartServiceSubProc... 
+16:18:40,403 INFO  [AssembleProc] (main:) ----Done com.amalto.core.objects.configurationinfo.assemble.StartServiceSubProc. 
+16:18:40,403 INFO  [AssembleProc] (main:) ----Starting com.amalto.core.objects.configurationinfo.assemble.InitJoboxSubProc... 
+16:18:40,433 INFO  [JobContainer] (main:) Jobox Home is: /Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/jobox
+16:18:40,470 ERROR [InitJoboxSubProc] (main:) Could not start job container.
+16:18:40,470 INFO  [AssembleProc] (main:) ----Done com.amalto.core.objects.configurationinfo.assemble.InitJoboxSubProc. 
+16:18:40,470 INFO  [AssembleProc] (main:) ----Starting com.amalto.core.objects.configurationinfo.assemble.InitDataModelPoolsSubProc... 
+16:18:40,615 INFO  [AssembleProc] (main:) ----Done com.amalto.core.objects.configurationinfo.assemble.InitDataModelPoolsSubProc. 
+16:18:40,615 INFO  [Initialization] (main:) Initialization and migration done.
+16:18:40,622 INFO  [Initialization] (main:) Container to initialize (2 found) : [ crossreferencing UpdateReport ]
+16:18:40,622 INFO  [Initialization] (main:) Starting storage crossreferencing(1 of 2) ...
+16:18:40,622 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:40,637 WARN  [StorageAdminImpl] (main:) Storage for 'crossreferencing' already exists. This is probably normal. If you want MDM to recreate it from scratch, delete the container and restart.
+16:18:40,637 INFO  [Initialization] (main:) Storage crossreferencing started.
+16:18:40,637 INFO  [Initialization] (main:) Starting storage UpdateReport(2 of 2) ...
+16:18:40,637 INFO  [DataSourceFactory] (main:) Reading from datasource file at '/Users/francois/Dev/talend/git/tmdm-server-se/org.talend.mdm.core/target/org.talend.mdm.core-5.6-SNAPSHOT/WEB-INF/classes/conf/datasources.xml'.
+16:18:40,665 WARN  [StorageAdminImpl] (main:) Storage for 'UpdateReport' already exists. This is probably normal. If you want MDM to recreate it from scratch, delete the container and restart.
+16:18:40,665 INFO  [Initialization] (main:) Storage UpdateReport started.
+16:18:40,665 INFO  [Initialization] (main:) Talend MDM v6.0.99999-99999 started.
+16:18:41,903 INFO  [ServerImpl] (main:) Setting the server's publish address to be /
+16:18:43,268 INFO  [ReflectionServiceFactoryBean] (main:) Creating Service {http://tomcat.lifecycle.server.mdm.talend.org/}datamanager from class org.talend.mdm.server.lifecycle.tomcat.LegacyServices
+16:18:45,860 INFO  [ServerImpl] (main:) Setting the server's publish address to be /datamanager
+16:18:46,144 INFO  [DefaultSecurityFilterChain] (main:) Creating filter chain: org.springframework.security.web.util.matcher.AnyRequestMatcher@1, [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@34967d5f, org.springframework.security.web.context.SecurityContextPersistenceFilter@19cab9ee, org.springframework.security.web.header.HeaderWriterFilter@e53bd7d, org.springframework.security.web.csrf.CsrfFilter@68c97dc3, org.springframework.security.web.authentication.logout.LogoutFilter@77a2873c, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@678f564a, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@304cc1dd, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@22419f6a, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6e451bcb, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@12275c1a, org.springframework.security.web.session.SessionManagementFilter@6683bf84, org.springframework.security.web.access.ExceptionTranslationFilter@3d055f19, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@4c8c4d9b]
+16:18:46,197 INFO  [ContextLoader] (main:) Root WebApplicationContext: initialization completed in 18860 ms

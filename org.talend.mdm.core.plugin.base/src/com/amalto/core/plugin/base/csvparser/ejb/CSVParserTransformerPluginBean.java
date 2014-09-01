@@ -1,5 +1,15 @@
 package com.amalto.core.plugin.base.csvparser.ejb;
 
+import com.amalto.core.ejb.Plugin;
+import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.objects.transformers.v2.util.TypedContent_Do_Not_Process;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.w3c.dom.Element;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,19 +17,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.w3c.dom.Element;
-
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.objects.transformers.v2.util.TypedContent_Do_Not_Process;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
 
 /**
  * <h1>CSV Parser Plugin</h1>
@@ -140,7 +137,7 @@ import com.amalto.core.util.XtentisException;
  *
  *
  */
-public class CSVParserTransformerPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class CSVParserTransformerPluginBean extends Plugin {
 
 //	public static final String CALLBACK = "com.amalto.core.plugin.csvparser.callback";
 //	public static final String HANDLE =  "com.amalto.core.plugin.csvparser.handle";
@@ -171,7 +168,7 @@ public class CSVParserTransformerPluginBean extends TransformerPluginV2CtrlBean 
 
 
 	/* (non-Javadoc)
-	 * @see com.amalto.core.ejb.ServiceCtrlBean#getJNDIName()
+	 * @see com.amalto.core.ejb.ServiceCtrlBean#getServiceId()
 	 */
     /**
      * @throws XtentisException
@@ -354,6 +351,11 @@ public class CSVParserTransformerPluginBean extends TransformerPluginV2CtrlBean 
 		}
 
 	}
+
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
 
 
 	/* (non-Javadoc)
@@ -574,9 +576,7 @@ public class CSVParserTransformerPluginBean extends TransformerPluginV2CtrlBean 
     		}
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the CSV Parser Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
@@ -597,7 +597,6 @@ public class CSVParserTransformerPluginBean extends TransformerPluginV2CtrlBean 
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 

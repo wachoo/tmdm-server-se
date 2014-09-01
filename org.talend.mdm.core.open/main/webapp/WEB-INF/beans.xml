@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://cxf.apache.org/jaxrs
+http://cxf.apache.org/schemas/jaxrs.xsd
+http://cxf.apache.org/jaxws
+http://cxf.apache.org/schemas/jaxws.xsd">
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <context:property-placeholder/>
+    <context:annotation-config/>
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
+    <bean class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer"/>
+    <!-- Indicates a Tomcat environment -->
+    <bean class="org.talend.mdm.server.lifecycle.tomcat.TomcatServerLifecycle"/>
+    <!-- Server initialization -->
+    <bean class="org.talend.mdm.server.Initialization"/>
+    <!-- Security authentication manager -->
+    <bean class="org.talend.mdm.server.security.SecurityConfig"/>
+    <!-- CXF Services -->
+    <jaxrs:server id="services" address="/">
+        <jaxrs:serviceBeans>
+            <!-- MDM Transaction service -->
+            <bean class="org.talend.mdm.storage.transaction.TransactionService"/>
+            <!-- Staging validation service -->
+            <bean class="org.talend.mdm.storage.task.staging.StagingTaskService"/>
+            <!-- Data related services -->
+            <bean class="org.talend.mdm.storage.services.SystemModels"/>
+            <!-- Statistics services -->
+            <bean class="org.talend.mdm.storage.services.JournalStatistics"/>
+            <bean class="org.talend.mdm.storage.services.DataStatistics"/>
+            <bean class="org.talend.mdm.storage.services.EventStatistics"/>
+
+            <!-- Enterprise services -->
+            <!--
+            <bean class="com.amalto.core.storage.services.DataService"/>
+            <bean class="com.amalto.core.storage.services.MatchingStatistics"/>
+            <bean class="com.amalto.core.storage.task.matching.ExplainTaskService"/>
+            <bean class="com.amalto.core.storage.task.matching.SimilarTaskService"/>
+            -->
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+    <!-- Legacy services -->
+    <!--<bean class="org.talend.mdm.server.lifecycle.tomcat.LegacyServices" name="#legacy"/>-->
+    <jaxws:endpoint implementor="org.talend.mdm.server.lifecycle.tomcat.LegacyServices"
+                    address="/datamanager"/>
+    <!--<jaxws:server serviceClass="com.amalto.core.webservice.XtentisPort" address="/datamanager" serviceBean="#legacy"/>-->
+</beans>

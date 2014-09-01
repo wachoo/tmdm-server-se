@@ -30,11 +30,11 @@
   <servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet</servlet-class>
   <init-param>
    <param-name>jaxrs.serviceClasses</param-name>
-   <param-value>com.amalto.core.storage.task.staging.StagingTaskService</param-value>
+   <param-value>org.talend.mdm.storage.task.staging.StagingTaskService</param-value>
   </init-param>
   <init-param>
    <param-name>jaxrs.providers</param-name>
-   <param-value>com.amalto.core.storage.task.staging.SerializableListWriter</param-value>
+   <param-value>org.talend.mdm.storage.task.staging.SerializableListWriter</param-value>
   </init-param>
 
   <load-on-startup>1</load-on-startup>

@@ -18,12 +18,12 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
-import com.amalto.core.server.*;
-import com.amalto.core.storage.*;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.dispatch.CompositeStorage;
-import com.amalto.core.storage.hibernate.HibernateStorage;
+import org.talend.mdm.server.*;
+import org.talend.mdm.storage.*;
+import org.talend.mdm.storage.datasource.DataSourceDefinition;
+import org.talend.mdm.storage.datasource.RDBMSDataSource;
+import org.talend.mdm.storage.dispatch.CompositeStorage;
+import org.talend.mdm.storage.hibernate.HibernateStorage;
 
 public class TomcatServerLifecycle implements ServerLifecycle {
 

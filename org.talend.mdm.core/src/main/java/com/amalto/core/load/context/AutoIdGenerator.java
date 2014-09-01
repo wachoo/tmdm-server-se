@@ -11,7 +11,7 @@
 
 package com.amalto.core.load.context;
 
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 
 /**
  *

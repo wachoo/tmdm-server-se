@@ -1,0 +1,86 @@
+/*
+ * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
+package org.talend.mdm.storage.transaction;
+
+import org.talend.mdm.storage.Storage;
+
+/**
+ * A MDM transaction: it composed of multiple underlying {@link StorageTransaction}, each of them handles {@link Storage}
+ * specific transaction operations.
+ * @see StorageTransaction
+ */
+public interface Transaction {
+    /**
+     * Configures what is the transaction "life time": how long it should remain active in MDM server.
+     */
+    public enum Lifetime {
+        /**
+         * A short life transaction: usually life time is bound to the HTTP request life time.
+         */
+        AD_HOC,
+        /**
+         * A "long" transaction: transaction was externally started and must remain active till commit/rollback actions
+         * are called.
+         */
+        LONG
+    }
+
+    /**
+     * @return A unique identifier for this MDM transaction.
+     */
+    String getId();
+
+    /**
+     * Begin the transaction: all underlying {@link StorageTransaction#begin()} get also called.
+     */
+    void begin();
+
+    /**
+     * Commit the transaction: all underlying {@link StorageTransaction#commit()} get also called.
+     */
+    void commit();
+
+    /**
+     * Rollback the transaction: all underlying {@link StorageTransaction#rollback()} get also called.
+     */
+    void rollback();
+
+    /**
+     * Includes a {@link Storage} inside the scope of this transaction.
+     *
+     * @param storage A storage implementation.
+     * @return The {@link StorageTransaction} instance that handles all operations relative to the <code>storage</code>
+     *         in this transaction.
+     * @see #exclude(org.talend.mdm.storage.Storage)
+     * @throws IllegalArgumentException If <code>storage</code> parameter does not support transactions.
+     * @see org.talend.mdm.storage.Storage#getCapabilities()
+     */
+    StorageTransaction include(Storage storage);
+
+    /**
+     * Excludes a {@link Storage} inside the scope of this transaction. If transaction lifetime is {@link Lifetime#AD_HOC}
+     * transaction <b>MUST</b> be removed from the active transactions in {@link TransactionManager}.
+     *
+     * @param storage A storage implementation.
+     * @return The {@link StorageTransaction} instance that handles all operations relative to the <code>storage</code>
+     *         in this transaction.
+     * @see #include(org.talend.mdm.storage.Storage)
+     */
+    StorageTransaction exclude(Storage storage);
+
+    /**
+     * @return <code>true</code> if any of the contained storage transaction has failed. <code>false</code> otherwise.
+     * @see StorageTransaction#hasFailed()
+     */
+    boolean hasFailed();
+
+}

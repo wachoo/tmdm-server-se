@@ -7,7 +7,7 @@ import java.util.Set;
 import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
 import com.amalto.core.metadata.LongString;
 import com.amalto.core.query.user.Expression;
-import com.amalto.core.storage.StorageType;
+import org.talend.mdm.storage.StorageType;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.Change;
@@ -19,11 +19,11 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
+import org.talend.mdm.server.MetadataRepositoryAdmin;
+import org.talend.mdm.server.Server;
+import org.talend.mdm.server.ServerContext;
+import org.talend.mdm.server.StorageAdmin;
+import org.talend.mdm.storage.Storage;
 import com.amalto.core.util.XtentisException;
 
 public class DataModelPOJO extends ObjectPOJO{

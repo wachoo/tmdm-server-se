@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.amalto.core.server.ServerContext;
+import org.talend.mdm.server.ServerContext;
 import com.amalto.core.util.XtentisException;
 import org.talend.mdm.commmon.metadata.*;
 

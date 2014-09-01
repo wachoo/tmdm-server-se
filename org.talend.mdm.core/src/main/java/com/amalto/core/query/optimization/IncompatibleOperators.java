@@ -2,7 +2,7 @@ package com.amalto.core.query.optimization;
 
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.*;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
+import org.talend.mdm.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;

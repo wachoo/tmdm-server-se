@@ -1,30 +1,25 @@
 package talend.core.transformer.plugin.v2.tiscall.ejb;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-
+import com.amalto.core.ejb.Plugin;
+import com.amalto.core.jobox.JobContainer;
+import com.amalto.core.jobox.JobInvokeConfig;
+import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.objects.transformers.v2.util.TransformerContext;
+import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.log4j.Logger;
+import org.talend.mdm.server.api.Transformer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import talend.core.transformer.plugin.v2.tiscall.CompiledParameters;
 import talend.core.transformer.plugin.v2.tiscall.ConceptMappingParam;
 import talend.core.transformer.plugin.v2.tiscall.ContextParam;
@@ -35,16 +30,13 @@ import talend.core.transformer.plugin.v2.tiscall.webservices.ArrayOfXsdString;
 import talend.core.transformer.plugin.v2.tiscall.webservices.WSxml;
 import talend.core.transformer.plugin.v2.tiscall.webservices.WSxmlService;
 
-import com.amalto.core.jobox.JobContainer;
-import com.amalto.core.jobox.JobInvokeConfig;
-import com.amalto.core.jobox.component.MDMJobInvoker;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Bruno Grieder
@@ -62,7 +54,7 @@ import com.amalto.core.util.XtentisException;
  * 
  * 
  */
-public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean implements SessionBean {
+public class TISCallTransformerPluginBean extends Plugin {
 
     private static final String CONTENT_TYPE = "com.amalto.core.plugin.TISCall.content.type";
 
@@ -233,6 +225,11 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
 
     }
 
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
+
     /**
      * @throws XtentisException
      * @ejb.interface-method view-type = "local"
@@ -304,7 +301,7 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
             if (invokeConfig != null) { // Local test job invocation
 
                 argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER,
-                        new String(context.getFromPipeline(TransformerV2CtrlBean.DEFAULT_VARIABLE).getContentBytes(), charset));
+                        new String(context.getFromPipeline(Transformer.DEFAULT_VARIABLE).getContentBytes(), charset));
                 String[][] result = JobContainer.getUniqueInstance()
                         .getJobInvoker(invokeConfig.getJobName(), invokeConfig.getJobVersion()).call(argsMap);
 
@@ -387,14 +384,8 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
         }
     }
 
-    /**
-     * @throws XtentisException
-     * @ejb.interface-method view-type = "local"
-     * @ejb.facade-method
-     */
-    @Override
-    public void end(TransformerPluginContext context) throws XtentisException {
-        context.removeAll();
+    private TransformerContext getGlobalContext() {
+        throw new NotImplementedException();
     }
 
     /**
@@ -451,7 +442,6 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-    @Override
     public String getConfiguration(String optionalParameters) throws XtentisException {
         try {
             String configuration = loadConfiguration();
@@ -460,8 +450,6 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
             }
             configurationLoaded = true;
             return configuration;
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
             String err = "Unable to deserialize the configuration of the TISCall Transformer Plugin" + ": "
                     + e.getClass().getName() + ": " + e.getLocalizedMessage();
@@ -475,10 +463,8 @@ public class TISCallTransformerPluginBean extends TransformerPluginV2CtrlBean im
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-    @Override
     public void putConfiguration(String configuration) throws XtentisException {
         configurationLoaded = false;
-        super.putConfiguration(configuration);
     }
 
     /**

@@ -33,7 +33,7 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.amalto.core.server.StorageAdmin;
+import org.talend.mdm.server.StorageAdmin;
 
 public class BrowseStagingRecordsAction extends BrowseRecordsAction implements BrowseStagingRecordsService {
 

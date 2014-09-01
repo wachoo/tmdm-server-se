@@ -1,0 +1,91 @@
+package org.talend.mdm.server;
+
+import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.objects.role.ejb.RolePOJO;
+import com.amalto.core.objects.role.ejb.RolePOJOPK;
+import com.amalto.core.util.XtentisException;
+import org.apache.log4j.Logger;
+import org.talend.mdm.server.api.Role;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+public class DefaultRole implements Role {
+
+    private static final Logger LOGGER = Logger.getLogger(DefaultRole.class);
+
+    public RolePOJOPK putRole(RolePOJO role) throws XtentisException {
+        LOGGER.trace("putRole() ");
+        try {
+            ObjectPOJOPK pk = role.store();
+            if (pk == null) {
+                throw new XtentisException("Check the XML Server logs");
+            }
+            return new RolePOJOPK(pk);
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to create/update the Role " + role.getName() + ": " + e.getClass().getName() + ": "
+                    + e.getLocalizedMessage();
+            LOGGER.error(err);
+            throw new XtentisException(err, e);
+        }
+    }
+
+    public RolePOJO getRole(RolePOJOPK pk) throws XtentisException {
+
+        try {
+            RolePOJO sp = ObjectPOJO.load(RolePOJO.class, pk);
+            if (sp == null) {
+                String err = "The Role " + pk.getUniqueId() + " does not exist.";
+                LOGGER.error(err);
+                throw new XtentisException(err);
+            }
+            return sp;
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to get the Role " + pk.toString() + ": " + e.getClass().getName() + ": "
+                    + e.getLocalizedMessage();
+            LOGGER.error(err);
+            throw new XtentisException(err, e);
+        }
+    }
+
+    public RolePOJO existsRole(RolePOJOPK pk) throws XtentisException {
+        try {
+            return ObjectPOJO.load(RolePOJO.class, pk);
+        } catch (XtentisException e) {
+            return null;
+        } catch (Exception e) {
+            String info = "Could not check whether this Role exists:  " + pk.getUniqueId() + ": " + e.getClass().getName() + ": "
+                    + e.getLocalizedMessage();
+            LOGGER.debug(info, e);
+            return null;
+        }
+    }
+
+    public RolePOJOPK removeRole(RolePOJOPK pk) throws XtentisException {
+        LOGGER.trace("Removing " + pk.getUniqueId());
+        try {
+            return new RolePOJOPK(ObjectPOJO.remove(RolePOJO.class, pk));
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to remove the Role " + pk.toString() + ": " + e.getClass().getName() + ": "
+                    + e.getLocalizedMessage();
+            LOGGER.error(err);
+            throw new XtentisException(err, e);
+        }
+    }
+
+    public Collection<RolePOJOPK> getRolePKs(String regex) throws XtentisException {
+        Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(RolePOJO.class, regex);
+        ArrayList<RolePOJOPK> l = new ArrayList<RolePOJOPK>();
+        for (ObjectPOJOPK currentObject : c) {
+            l.add(new RolePOJOPK(currentObject));
+        }
+        return l;
+    }
+}

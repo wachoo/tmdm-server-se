@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 import com.amalto.core.query.user.metadata.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
+import org.talend.mdm.storage.Storage;
+import org.talend.mdm.storage.StorageResults;
 
 /**
  * A utility to slice a query into time slots (based on timestamp).

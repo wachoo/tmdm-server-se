@@ -11,11 +11,11 @@
 
 package org.talend.mdm.server.lifecycle.tomcat;
 
-import com.amalto.core.server.*;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.datasource.DataSourceFactory;
-import com.amalto.core.storage.transaction.TransactionManager;
+import org.talend.mdm.server.*;
+import org.talend.mdm.storage.StorageType;
+import org.talend.mdm.storage.datasource.DataSourceDefinition;
+import org.talend.mdm.storage.datasource.DataSourceFactory;
+import org.talend.mdm.storage.transaction.TransactionManager;
 import org.apache.commons.lang.NotImplementedException;
 
 class TomcatServer implements Server {

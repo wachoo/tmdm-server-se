@@ -1,28 +1,11 @@
 package com.amalto.core.plugin.base.partialupdate.ejb;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.regex.Pattern;
-
-import javax.ejb.CreateException;
-import javax.ejb.SessionBean;
-import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
@@ -31,6 +14,20 @@ import com.amalto.core.plugin.base.partialupdate.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import com.amalto.core.util.XtentisException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.ejb.CreateException;
+import javax.naming.NamingException;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * <h1>Partial Update Plugin</h1>
@@ -119,7 +116,7 @@ import com.amalto.core.util.XtentisException;
  *
  *
  */
-public class PartialUpdateTransformerPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class PartialUpdateTransformerPluginBean extends Plugin {
 
 //	private final static Pattern declarationPattern = Pattern.compile("<\\?.*?\\?>",Pattern.DOTALL);
 
@@ -313,8 +310,6 @@ public class PartialUpdateTransformerPluginBean extends TransformerPluginV2CtrlB
 			context.put( PARAMETERS, parameters);
 			clearCaches(context);
 
-		} catch (XtentisException xe) {
-			throw (xe);
 		} catch (Exception e) {
 			String err = "Could not init the PartialUpdate plugin:"+
 				e.getClass().getName()+": "+e.getLocalizedMessage();
@@ -324,6 +319,10 @@ public class PartialUpdateTransformerPluginBean extends TransformerPluginV2CtrlB
 
 	}
 
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
 
 
     /**
@@ -399,7 +398,7 @@ public class PartialUpdateTransformerPluginBean extends TransformerPluginV2CtrlB
 			}
 
 			//retrieve the original Item
-			ItemPOJO originalItemPOJO = getItemCtrl2Local().existsItem(pk);
+			ItemPOJO originalItemPOJO = Util.getItemCtrl2Local().existsItem(pk);
 			if (originalItemPOJO==null) {
 				String err = "The orginal item "+pk.getUniqueID()+" was not found in the cluster";
 				org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
@@ -523,7 +522,7 @@ public class PartialUpdateTransformerPluginBean extends TransformerPluginV2CtrlB
 
 			//now write back updates
 			originalItemPOJO.setProjection(originalItem);
-			pk = getItemCtrl2Local().putItem(
+			pk = Util.getItemCtrl2Local().putItem(
 					originalItemPOJO,
 					dataModelPOJO
 			);
@@ -638,9 +637,7 @@ public class PartialUpdateTransformerPluginBean extends TransformerPluginV2CtrlB
     		}
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the PartialUpdate Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
@@ -659,7 +656,6 @@ public class PartialUpdateTransformerPluginBean extends TransformerPluginV2CtrlB
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 

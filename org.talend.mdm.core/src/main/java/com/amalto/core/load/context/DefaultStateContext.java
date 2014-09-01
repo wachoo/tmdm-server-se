@@ -21,7 +21,7 @@ import com.amalto.core.load.path.PathMatch;
 import com.amalto.core.load.path.PathMatcher;
 import com.amalto.core.load.payload.EndPayload;
 import com.amalto.core.load.payload.StartPayload;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;

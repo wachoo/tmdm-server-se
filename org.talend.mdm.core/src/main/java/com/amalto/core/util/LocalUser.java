@@ -1,18 +1,12 @@
 package com.amalto.core.util;
 
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+
+import javax.security.auth.Subject;
+import java.util.HashSet;
 
 public class LocalUser {
     /*
@@ -25,6 +19,9 @@ public class LocalUser {
     private static ILocalUser findLocalUser() {
         if (localUser == null) {
             localUser = BeanDelegatorContainer.getInstance().getLocalUserDelegator();
+        }
+        if(localUser == null) {
+            throw new IllegalStateException("Unable to access user management interface.");
         }
         return localUser;
     }
@@ -54,19 +51,6 @@ public class LocalUser {
     }
 
     /**
-     * The User in XML form as stored in the DB
-     *
-     * @return The user in the DB XML form
-     */
-    public String getUserXML() {
-        return findLocalUser().getUserXML();
-    }
-
-    public void setUserXML(String userXML) {
-        findLocalUser().setUserXML(userXML);
-    }
-
-    /**
      * Fetch the current user and its roles -  check XtentisLoginModule
      *
      * @return The Local User
@@ -91,12 +75,6 @@ public class LocalUser {
     public void logout() throws XtentisException {
         findLocalUser().logout();
     }
-
-    /*****************************************************************************************
-     *
-     * Roles Checking
-     *
-     * ****************************************************************************************/
 
     /**
      * Check is the user is Admin wrt the Object Type
@@ -127,46 +105,10 @@ public class LocalUser {
      */
     public boolean userCanRead(Class<?> objectTypeClass, String instanceId) throws XtentisException {
         return findLocalUser().userCanRead(objectTypeClass, instanceId);
-
-    }
-
-    public Subject getICurrentSubject() throws XtentisException {
-        // No need to implement this method.
-        return null;
     }
 
     public ILocalUser getILocalUser() throws XtentisException {
         // No need to implement this method.
         return null;
     }
-
-    public void resetILocalUsers() throws XtentisException {
-        // No need to implement this method.
-    }
-
-    public static String getPrincipalMember(String key) throws Exception {
-        String result = "";
-        // Get the Authenticated Subject
-        Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
-        // Now look for a Group
-        Set principals = subject.getPrincipals(Principal.class);
-        for (Object principal : principals) {
-            Principal p = (Principal) principal;
-            if (p instanceof Group) {
-                Group sg = (Group) p;
-                if (key.equals(sg.getName())) {
-                    Enumeration en = sg.members();
-                    while (en.hasMoreElements()) {
-                        String info = en.nextElement().toString();
-                        result = result + "," + info;
-                    }
-                }
-            }
-        }
-        if (result.length() > 0) {
-            result = result.substring(1);
-        }
-        return result;
-    }
-
 }

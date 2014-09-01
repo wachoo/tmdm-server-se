@@ -35,7 +35,7 @@ import com.amalto.core.load.context.AutoIdGenerator;
 import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.exception.ParserCallbackException;
 import com.amalto.core.load.io.XMLRootInputStream;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 
 /**
  *

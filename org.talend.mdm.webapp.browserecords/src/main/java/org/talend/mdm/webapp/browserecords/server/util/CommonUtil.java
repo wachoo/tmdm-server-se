@@ -51,7 +51,7 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.server.StorageAdmin;
+import org.talend.mdm.server.StorageAdmin;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;

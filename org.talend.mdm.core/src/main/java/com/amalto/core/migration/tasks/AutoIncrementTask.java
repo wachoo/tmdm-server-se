@@ -5,8 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 

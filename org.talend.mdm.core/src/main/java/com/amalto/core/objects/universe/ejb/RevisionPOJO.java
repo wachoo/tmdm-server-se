@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amalto.core.server.XmlServer;
+import org.talend.mdm.server.api.XmlServer;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
@@ -21,7 +21,6 @@ import org.w3c.dom.NodeList;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;

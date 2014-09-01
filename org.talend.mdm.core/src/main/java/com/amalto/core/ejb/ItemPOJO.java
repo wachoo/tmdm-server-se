@@ -12,22 +12,25 @@
 // ============================================================================
 package com.amalto.core.ejb;
 
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.EJBException;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
-import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.server.XmlServer;
+import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
+import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.schema.manage.AppinfoSourceHolder;
+import com.amalto.core.schema.manage.AppinfoSourceHolderPK;
+import com.amalto.core.schema.manage.SchemaCoreAgent;
+import org.talend.mdm.server.api.Item;
+import org.talend.mdm.server.api.XmlServer;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
@@ -41,21 +44,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.schema.manage.AppinfoSourceHolder;
-import com.amalto.core.schema.manage.AppinfoSourceHolderPK;
-import com.amalto.core.schema.manage.SchemaCoreAgent;
-import org.apache.commons.collections.map.LRUMap;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ItemPOJO implements Serializable {
 
@@ -436,7 +432,7 @@ public class ItemPOJO implements Serializable {
             String err = "Unable to load the item  " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new EJBException(err, e);
+            throw new RuntimeException(err, e);
         }
     }
 
@@ -841,7 +837,7 @@ public class ItemPOJO implements Serializable {
                 throw new XtentisException(err);
             }
             // query the xml server wrapper
-            ItemCtrl2Local itemCtrl2Bean = Util.getItemCtrl2Local();
+            Item itemBean = Util.getItemCtrl2Local();
             List<IWhereItem> conditions = new LinkedList<IWhereItem>();
             if (instancePattern != null && !".*".equals(instancePattern)) {
                 IWhereItem idCondition = new WhereCondition(conceptName + "/i", //$NON-NLS-1$
@@ -860,7 +856,7 @@ public class ItemPOJO implements Serializable {
             IWhereItem whereItem = new WhereAnd(conditions);
             ArrayList<String> elements = new ArrayList<String>();
             elements.add(conceptName + "/i"); //$NON-NLS-1$
-            ArrayList<String> ids = itemCtrl2Bean.xPathsSearch(dataClusterPOJOPK,
+            ArrayList<String> ids = itemBean.xPathsSearch(dataClusterPOJOPK,
                     null,
                     elements,
                     whereItem,

@@ -11,10 +11,10 @@
 
 package com.amalto.core.servlet;
 
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.transaction.Transaction;
-import com.amalto.core.storage.transaction.TransactionManager;
+import org.talend.mdm.server.Server;
+import org.talend.mdm.server.ServerContext;
+import org.talend.mdm.storage.transaction.Transaction;
+import org.talend.mdm.storage.transaction.TransactionManager;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

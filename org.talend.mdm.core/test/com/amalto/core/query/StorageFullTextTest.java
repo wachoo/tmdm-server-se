@@ -27,16 +27,16 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.storage.FullTextResultsWriter;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.ViewSearchResultsWriter;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import org.talend.mdm.storage.FullTextResultsWriter;
+import org.talend.mdm.storage.Storage;
+import org.talend.mdm.storage.StorageResults;
+import org.talend.mdm.storage.exception.FullTextQueryCompositeKeyException;
+import org.talend.mdm.storage.hibernate.HibernateStorage;
+import org.talend.mdm.storage.record.DataRecord;
+import org.talend.mdm.storage.record.DataRecordReader;
+import org.talend.mdm.storage.record.DataRecordWriter;
+import org.talend.mdm.storage.record.ViewSearchResultsWriter;
+import org.talend.mdm.storage.record.XmlStringDataRecordReader;
 
 @SuppressWarnings("nls")
 public class StorageFullTextTest extends StorageTestCase {

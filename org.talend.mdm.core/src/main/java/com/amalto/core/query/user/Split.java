@@ -1,8 +1,8 @@
 package com.amalto.core.query.user;
 
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.record.DataRecord;
+import org.talend.mdm.storage.Storage;
+import org.talend.mdm.storage.StorageResults;
+import org.talend.mdm.storage.record.DataRecord;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * Provides a way to split a query (as {@link com.amalto.core.query.user.Select select}) into multiple sub-queries (one
  * sub query per type). Returned result for consumer is same as
- * {@link com.amalto.core.storage.Storage#fetch(Expression) fetch}).
+ * {@link org.talend.mdm.storage.Storage#fetch(Expression) fetch}).
  */
 public class Split {
 
@@ -21,7 +21,7 @@ public class Split {
     /**
      * <p>
      * Splits the <code>select</code> into sub queries (one sub query per type in {@link Select#getTypes() select types}
-     * ), but still returns a {@link com.amalto.core.storage.StorageResults} implementation that performs on-the-fly
+     * ), but still returns a {@link org.talend.mdm.storage.StorageResults} implementation that performs on-the-fly
      * merge of sub queries results.
      * </p>
      * <p>
