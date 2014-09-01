@@ -16,11 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -209,7 +205,7 @@ public class SystemModels {
     @POST
     @Path("{model}")
     public String analyzeModelChange(@PathParam("model")
-    String modelName, InputStream dataModel) {
+    String modelName, @QueryParam("lang") String locale, InputStream dataModel) {
         Map<ImpactAnalyzer.Impact, List<Change>> impacts;
         if (!isSystemStorageAvailable()) {
             impacts = new EnumMap<ImpactAnalyzer.Impact, List<Change>>(ImpactAnalyzer.Impact.class);
@@ -251,7 +247,13 @@ public class SystemModels {
                         {
                             writer.writeStartElement("message"); //$NON-NLS-1$
                             {
-                                writer.writeCharacters(change.getMessage());
+                                Locale messageLocale;
+                                if (StringUtils.isEmpty(locale)) {
+                                    messageLocale = Locale.getDefault();
+                                } else {
+                                    messageLocale = new Locale(locale);
+                                }
+                                writer.writeCharacters(change.getMessage(messageLocale));
                             }
                             writer.writeEndElement();
                         }

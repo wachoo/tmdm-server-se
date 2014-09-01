@@ -36,18 +36,12 @@ public class MessagesFactory {
         return resourceBundleLocator;
     }
 
-    public static synchronized void setLocator(ResourceBundleLocator locator) {
-        if (resourceBundleLocator != null) {
-            throw new IllegalStateException();
-        }
-        resourceBundleLocator = locator;
-    }
-
     private static class DefaultResourceBundleLocator implements ResourceBundleLocator {
 
         public ResourceBundle getBundle(String baseName, Locale locale, ClassLoader loader) {
-            if (locale == null)
+            if (locale == null) {
                 locale = getLocale();
+            }
             return ResourceBundle.getBundle(baseName, locale, loader);
         }
 
@@ -57,8 +51,9 @@ public class MessagesFactory {
             if (request != null) {
                 locale = LocaleUtil.getLocale(request);
             }
-            if (locale == null)
+            if (locale == null) {
                 locale = Locale.getDefault();
+            }
             return locale;
         }
 

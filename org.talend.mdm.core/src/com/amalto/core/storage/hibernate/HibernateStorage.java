@@ -22,18 +22,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.*;
 
 import net.sf.ehcache.CacheManager;
 
@@ -924,7 +913,7 @@ public class HibernateStorage implements Storage {
                                 typesToDrop.add((ComplexTypeMetadata) element);
                             }
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Change '" + change.getMessage() + "' requires a database schema update.");
+                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault()) + "' requires a database schema update.");
                             }
                         }
                     } else {
@@ -943,7 +932,7 @@ public class HibernateStorage implements Storage {
                                 typesToDrop.add((ComplexTypeMetadata) element);
                             }
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Change '" + change.getMessage() + "' requires a database schema update.");
+                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault()) + "' requires a database schema update.");
                             }
                         }
                     }
@@ -953,7 +942,7 @@ public class HibernateStorage implements Storage {
             case LOW:
                 if (LOGGER.isTraceEnabled()) {
                     for (Change change : impactCategory.getValue()) {
-                        LOGGER.trace("Change '" + change.getMessage() + "' does NOT require a database schema update.");
+                        LOGGER.trace("Change '" + change.getMessage(Locale.getDefault()) + "' does NOT require a database schema update.");
                     }
                     break;
                 }
