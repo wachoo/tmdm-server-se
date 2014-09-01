@@ -1437,14 +1437,6 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
-    public WSRolePKArray getRolePKs(WSGetRolePKs ks) throws RemoteException {
-        return null; // TODO Not supported in Open version
-    }
-
-    /**
-     * @ejb.interface-method view-type = "service-endpoint"
-     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
-     */
     public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
         return (BeanDelegatorContainer.getInstance().getXtentisWSDelegator()).updateItemMetadata(wsUpdateMetadataItem);
     }

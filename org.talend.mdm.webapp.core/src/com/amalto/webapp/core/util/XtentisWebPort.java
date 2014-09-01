@@ -759,11 +759,6 @@ public class XtentisWebPort implements XtentisPort {
         return delegate.checkFKIntegrity(deleteItem);
     }
 
-    @Override
-    public WSRolePKArray getRolePKs(WSGetRolePKs ks) throws RemoteException {
-        return delegate.getRolePKs(ks);
-    }
-    
     protected static RemoteException handleException(Throwable throwable) {
         WebCoreException webCoreException;
         if (WebCoreException.class.isInstance(throwable)) {
