@@ -612,6 +612,11 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 AsyncCallback<ForeignKeyBean> callback) {
 
         }
+
+        @Override
+        public void checkTask(String dataClusterPK, String viewPK, String concept, String groupId, AsyncCallback<Boolean> callback) {
+
+        }
     }
 
     @Override

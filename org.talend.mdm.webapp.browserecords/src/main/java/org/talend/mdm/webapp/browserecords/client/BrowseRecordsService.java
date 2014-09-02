@@ -144,6 +144,8 @@ public interface BrowseRecordsService extends RemoteService {
     String getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId)
             throws ServiceException;
 
+    boolean checkTask(String dataClusterPK, String viewPK, String concept, String groupId) throws ServiceException;
+
     List<ItemBean> getRecords(String concept, List<String> idsList) throws ServiceException;
 
     Map<ViewBean, Map<String, List<String>>> getForeignKeyValues(String concept, String[] ids, String language)

@@ -546,7 +546,8 @@ public class ItemDetailToolBar extends ToolBar {
             moreActionsButton.setToolTip(MessagesFactory.getMessages().moreActions_tip());
             if (subActionsMenu == null) {
                 subActionsMenu = new Menu();
-                boolean notFKAndHasTaskId = !isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty();
+                boolean notFKAndHasTaskId = !isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()
+                        && !"null".equalsIgnoreCase(itemBean.getTaskId().trim()); //$NON-NLS-1$
 
                 if (openTab && openTabMenuItem == null) {
                     openTabMenuItem = new MenuItem(MessagesFactory.getMessages().openitem_tab());
@@ -696,52 +697,67 @@ public class ItemDetailToolBar extends ToolBar {
                     }
                 }
 
-                if (openTaskMenuItem == null) {
-                    if (openTaskMenuItem == null && itemBean.getTaskId() != null && itemBean.getTaskId().trim().length() > 0
-                            && !"null".equalsIgnoreCase(itemBean.getTaskId().trim())) { //$NON-NLS-1$
-                        openTaskMenuItem = new MenuItem(MessagesFactory.getMessages().open_task());
-                        openTaskMenuItem.setId("openTaskMenuItem"); //$NON-NLS-1$
-                        openTaskMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
-                        openTaskMenuItem.setToolTip(MessagesFactory.getMessages().open_task_tooltip());
-                        openTaskMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+                if (notFKAndHasTaskId) {
+                    if (explainMenuItem == null) {
+                        explainMenuItem = new MenuItem(MessagesFactory.getMessages().explain_button());
+                        explainMenuItem.setId("explainMenuItem"); //$NON-NLS-1$
+                        explainMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+                        explainMenuItem.setToolTip(MessagesFactory.getMessages().explain_tip());
+                        explainMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                             @Override
                             public void componentSelected(MenuEvent menuEvent) {
-                                initDSC(itemBean.getTaskId());
+                                String taskId = itemBean.getTaskId();
+                                if (taskId != null && !taskId.isEmpty()) {
+                                    ExplainRestServiceHandler.get().explainGroupResult(
+                                            BrowseRecords.getSession().getAppHeader().getMasterDataCluster(),
+                                            itemBean.getConcept(), taskId, new SessionAwareAsyncCallback<BaseTreeModel>() {
+
+                                                @Override
+                                                public void onSuccess(BaseTreeModel root) {
+                                                    showExplainResult(root);
+                                                }
+                                            });
+                                } else {
+                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                            .no_taskid_warning_message(), null);
+                                }
                             }
                         });
-                        subActionsMenu.add(openTaskMenuItem);
+                        subActionsMenu.add(explainMenuItem);
+                    }
+
+                    if (openTaskMenuItem == null) {
+                        getBrowseRecordsService().checkTask(BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
+                                BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
+                                itemBean.getTaskId(), new SessionAwareAsyncCallback<Boolean>() {
+
+                                    @Override
+                                    public void onSuccess(Boolean result) {
+                                        if (result) {
+                                            openTaskMenuItem = new MenuItem(MessagesFactory.getMessages().open_task());
+                                            openTaskMenuItem.setId("openTaskMenuItem"); //$NON-NLS-1$
+                                            openTaskMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
+                                            openTaskMenuItem.setToolTip(MessagesFactory.getMessages().open_task_tooltip());
+                                            openTaskMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                                                @Override
+                                                public void componentSelected(MenuEvent menuEvent) {
+                                                    initDSC(itemBean.getTaskId());
+                                                }
+                                            });
+                                            int explainMenuItemIndex = subActionsMenu.indexOf(explainMenuItem);
+                                            if (explainMenuItemIndex != -1) {
+                                                subActionsMenu.insert(openTaskMenuItem, explainMenuItemIndex + 1);
+                                            } else {
+                                                subActionsMenu.add(openTaskMenuItem);
+                                            }
+                                        }
+                                    }
+                                });
                     }
                 }
 
-                if (notFKAndHasTaskId && explainMenuItem == null) {
-                    explainMenuItem = new MenuItem(MessagesFactory.getMessages().explain_button());
-                    explainMenuItem.setId("explainMenuItem"); //$NON-NLS-1$
-                    explainMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
-                    explainMenuItem.setToolTip(MessagesFactory.getMessages().explain_tip());
-                    explainMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-                        @Override
-                        public void componentSelected(MenuEvent menuEvent) {
-                            String taskId = itemBean.getTaskId();
-                            if (taskId != null && !taskId.isEmpty()) {
-                                ExplainRestServiceHandler.get().explainGroupResult(
-                                        BrowseRecords.getSession().getAppHeader().getMasterDataCluster(), itemBean.getConcept(),
-                                        taskId, new SessionAwareAsyncCallback<BaseTreeModel>() {
-
-                                            @Override
-                                            public void onSuccess(BaseTreeModel root) {
-                                                showExplainResult(root);
-                                            }
-                                        });
-                            } else {
-                                MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                        .no_taskid_warning_message(), null);
-                            }
-                        }
-                    });
-                    subActionsMenu.add(explainMenuItem);
-                }
                 if (subActionsMenu.indexOf(dataLineageMenuItem) != -1 || subActionsMenu.indexOf(openTaskMenuItem) != -1
                         || subActionsMenu.indexOf(explainMenuItem) != -1) {
                     subActionsMenu.insert(new SeparatorMenuItem(), separatorIndex);
