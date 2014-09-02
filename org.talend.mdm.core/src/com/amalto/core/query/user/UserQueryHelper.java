@@ -74,23 +74,28 @@ public class UserQueryHelper {
             String operator = whereCondition.getOperator();
             String value = whereCondition.getRightValueOrPath();
             boolean isNotCondition = WhereCondition.PRE_NOT.equals(whereCondition.getStringPredicate());
+            // Get metadata information for building query
+            String leftPath = whereCondition.getLeftPath();
+            String leftTypeName = leftPath.substring(0, leftPath.indexOf('/'));
+            if (".".equals(leftTypeName)) { //$NON-NLS-1$
+                // When using ".", uses first type in select
+                leftTypeName = queryBuilder.getSelect().getTypes().get(0).getName();
+            }
+            String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
+            ComplexTypeMetadata leftType = repository.getComplexType(leftTypeName);
             // Special case for full text: left path is actually the keyword for full text search.
             if (WhereCondition.FULLTEXTSEARCH.equals(operator)) {
-                return fullText(value);
+                if (StringUtils.isEmpty(leftPath) || "/".equals(leftPath)) { //$NON-NLS-1$
+                    return fullText(value);
+                } else {
+                    return fullText(leftType.getField(leftFieldName), value);
+                }
             }
-            String leftPath = whereCondition.getLeftPath();
             if (leftPath.indexOf('/') == -1) {
                 throw new IllegalArgumentException(
                         "Incorrect XPath '" + leftPath + "'. An XPath like 'Entity/element' was expected."); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            String leftTypeName = leftPath.substring(0, leftPath.indexOf('/'));
-            if (".".equals(leftTypeName)) { //$NON-NLS-1$
-                leftTypeName = queryBuilder.getSelect().getTypes().get(0).getName(); // When using ".", uses first type
-                                                                                     // in select
-            }
-            String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
             boolean isPerformingTypeCheck = false;
-            ComplexTypeMetadata leftType = repository.getComplexType(leftTypeName);
             if (leftFieldName.endsWith("xsi:type") || leftFieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
                 isPerformingTypeCheck = true;
             }
@@ -146,10 +151,11 @@ public class UserQueryHelper {
                             condition = emptyOrNull(fieldExpression);
                         }
                     } else {
-                        boolean isFk = field instanceof Field && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
+                        boolean isFk = field instanceof Field
+                                && ((Field) field).getFieldMetadata() instanceof ReferenceFieldMetadata;
                         if (!isFk
                                 && (field instanceof Field && !StorageMetadataUtils.isValueAssignable(value,
-                                ((Field) field).getFieldMetadata())) && !WhereCondition.EMPTY_NULL.equals(operator)) {
+                                        ((Field) field).getFieldMetadata())) && !WhereCondition.EMPTY_NULL.equals(operator)) {
                             LOGGER.warn("Skip '" + leftFieldName + "' because it can't accept value '" + value + "'");
                             continue;
                         }

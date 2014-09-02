@@ -18,16 +18,18 @@ import static com.amalto.core.query.user.UserStagingQueryBuilder.error;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.amalto.core.query.user.*;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.FullTextResultsWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -725,6 +727,28 @@ public class StorageFullTextTest extends StorageTestCase {
     public void testSearchOnContainedType() throws Exception {
         UserQueryBuilder qb = from(product).where(fullText(product.getField("Features"), "klein"));
         StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                Object object = result.get("Features/Colors/Color");
+                assertTrue(object instanceof List);
+                assertEquals(3, ((List) object).size());
+                assertEquals("Klein blue2", ((List) object).get(2));
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = UserQueryBuilder.from(product);
+        String fieldName = "Product/Features";
+        IWhereItem item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.FULLTEXTSEARCH,
+                "klein", WhereCondition.NO_OPERATOR)));
+        Condition condition = UserQueryHelper.buildCondition(qb, item, repository);
+        Expression normalizedCondition = condition.normalize();
+        assertTrue(normalizedCondition instanceof BinaryLogicOperator);
+        assertTrue(((BinaryLogicOperator) normalizedCondition).getLeft() instanceof FieldFullText);
+        qb = qb.where(condition);
+        results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
             for (DataRecord result : results) {
