@@ -87,6 +87,8 @@ public class BrowseRecordsView extends View {
 
     public static final String IS_STAGING = "isStaging"; //$NON-NLS-1$
 
+    public static final int LINEAGE_VIEW_CODE = 1;
+
     public BrowseRecordsView(Controller controller) {
         super(controller);
     }
@@ -444,7 +446,7 @@ public class BrowseRecordsView extends View {
         itemPanel.getToolBar().setOutMost(false);
         itemPanel.getToolBar().setFkToolBar(false);
         itemPanel.getToolBar().setHierarchyCall(false);
-        itemPanel.getToolBar().setSource(ItemDetailToolBar.SOURCE_LINEAGE);
+        itemPanel.getToolBar().setViewCode(LINEAGE_VIEW_CODE);
 
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (item != null) {
@@ -456,7 +458,9 @@ public class BrowseRecordsView extends View {
         lineageDetailPanel.setId(item.getIds());
         lineageDetailPanel.initBanner(item.getPkInfoList(), item.getDescription());
         lineageDetailPanel.addTabItem(item.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
-        lineageDetailPanel.initBreadCrumb(new BreadCrumb(breads, lineageDetailPanel));
+        lineageDetailPanel.initBreadCrumb(new BreadCrumb(breads, lineageDetailPanel, LINEAGE_VIEW_CODE));
         LineagePanel.getInstance().updateDetailPanel(lineageDetailPanel);
+        CommonUtil.setCurrentCachedEntity(LINEAGE_ITEMVIEW + item.getConcept() + item.getIds() + lineageDetailPanel.isOutMost(),
+                itemPanel);
     }
 }
