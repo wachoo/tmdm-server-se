@@ -54,11 +54,6 @@ public class StartPortlet extends BasePortlet {
     }
 
     @Override
-    protected void initAutoRefresher() {
-        return;
-    }
-
-    @Override
     public void refresh() {
         // same content, no need to refresh
         return;

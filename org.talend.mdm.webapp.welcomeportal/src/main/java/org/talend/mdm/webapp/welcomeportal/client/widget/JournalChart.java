@@ -57,7 +57,7 @@ public class JournalChart extends ChartPortlet {
         if (setting != null) {
             configModel = new TimeframeConfigModel(setting);
         } else {
-            configModel = new TimeframeConfigModel();
+            configModel = new TimeframeConfigModel(startedAsOn);
         }
 
         initConfigSettings();
