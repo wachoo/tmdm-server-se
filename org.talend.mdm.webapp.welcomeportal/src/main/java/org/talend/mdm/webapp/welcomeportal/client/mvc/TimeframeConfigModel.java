@@ -12,15 +12,27 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client.mvc;
 
-public class TimeframeConfigModel implements ConfigModel {
+public class TimeframeConfigModel extends BaseConfigModel implements ConfigModel {
 
     private String timeFrame;
 
     public TimeframeConfigModel() {
+        super();
+        this.timeFrame = "all"; //$NON-NLS-1$
+    }
+
+    public TimeframeConfigModel(Boolean auto) {
+        super(auto);
         this.timeFrame = "all"; //$NON-NLS-1$
     }
 
     public TimeframeConfigModel(String timeFrame) {
+        super();
+        this.timeFrame = timeFrame;
+    }
+
+    public TimeframeConfigModel(Boolean auto, String timeFrame) {
+        super(auto);
         this.timeFrame = timeFrame;
     }
 
@@ -30,36 +42,6 @@ public class TimeframeConfigModel implements ConfigModel {
 
     public void setTimeFrame(String timeFrame) {
         this.timeFrame = timeFrame;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((this.timeFrame == null) ? 0 : this.timeFrame.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        TimeframeConfigModel other = (TimeframeConfigModel) obj;
-        if (this.timeFrame == null) {
-            if (other.timeFrame != null) {
-                return false;
-            }
-        } else if (!this.timeFrame.equals(other.timeFrame)) {
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -77,6 +59,36 @@ public class TimeframeConfigModel implements ConfigModel {
         }
 
         return configValue;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((this.timeFrame == null) ? 0 : this.timeFrame.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        TimeframeConfigModel other = (TimeframeConfigModel) obj;
+        if (this.timeFrame == null) {
+            if (other.timeFrame != null) {
+                return false;
+            }
+        } else if (!this.timeFrame.equals(other.timeFrame)) {
+            return false;
+        }
+        return true;
     }
 
 }

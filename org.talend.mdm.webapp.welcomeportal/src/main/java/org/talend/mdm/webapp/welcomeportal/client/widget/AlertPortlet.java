@@ -35,6 +35,8 @@ public class AlertPortlet extends BasePortlet {
     public AlertPortlet(Portal portal) {
         super(WelcomePortal.ALERT, portal);
 
+        initConfigSettings();
+
         label.setText(MessagesFactory.getMessages().loading_alert_msg());
 
         initLinks();
@@ -147,7 +149,7 @@ public class AlertPortlet extends BasePortlet {
                 });
                 set.add(alertHtml);
                 set.layout(true);
-                autoRefresh(autoRefreshBtn.isOn());
+                autoRefresh(configModel.isAutoRefresh());
             }
         });
 

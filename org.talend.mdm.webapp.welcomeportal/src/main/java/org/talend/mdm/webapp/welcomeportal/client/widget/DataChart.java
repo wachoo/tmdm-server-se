@@ -49,7 +49,7 @@ public class DataChart extends ChartPortlet {
         if (setting != null) {
             configModel = new EntityConfigModel(setting);
         } else {
-            configModel = new EntityConfigModel();
+            configModel = new EntityConfigModel(startedAsOn);
         }
         initConfigSettings();
 

@@ -14,6 +14,8 @@ package org.talend.mdm.webapp.welcomeportal.client.mvc;
 
 public interface ConfigModel {
 
+    Boolean isAutoRefresh();
+
     String getSetting();
 
     Object getSettingValue();

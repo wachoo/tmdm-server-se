@@ -36,6 +36,8 @@ public class ProcessPortlet extends BasePortlet {
     public ProcessPortlet(Portal portal) {
         super(WelcomePortal.PROCESS, portal);
 
+        initConfigSettings();
+
         label.setText(MessagesFactory.getMessages().process_desc());
 
         initLinks();
@@ -56,7 +58,7 @@ public class ProcessPortlet extends BasePortlet {
 
                 buildLinks(list);
 
-                autoRefresh(autoRefreshBtn.isOn());
+                autoRefresh(configModel.isAutoRefresh());
             }
 
         });
