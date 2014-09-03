@@ -18,8 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.talend.mdm.webapp.base.client.util.Cookies;
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.welcomeportal.client.widget.ChartConfigDialog.ChartConfigListener;
 
@@ -50,18 +51,12 @@ public abstract class ChartPortlet extends BasePortlet {
 
     protected ConfigModel configModel;
 
-    protected String cookieskeyConfig;
-
     private int plotWidth;
 
     private int plotHeight;
 
     public ChartPortlet(String name, Portal portal) {
         super(name, portal);
-
-        initAutoRefresher();
-
-        cookieskeyConfig = portletName + ".config"; //$NON-NLS-1$
 
     }
 
@@ -73,12 +68,24 @@ public abstract class ChartPortlet extends BasePortlet {
                         ChartConfigDialog.showConfig(configModel, new ChartConfigListener() {
 
                             @Override
-                            public void onConfigUpdate(ConfigModel configModel) {
-                                if (!ChartPortlet.this.configModel.equals(configModel)) {
-                                    ChartPortlet.this.configModel = configModel;
+                            public void onConfigUpdate(ConfigModel config) {
+                                if (!ChartPortlet.this.configModel.equals(config)) {
+                                    ChartPortlet.this.configModel = config;
                                     configModelChanged = true;
-                                    Cookies.setValue(cookieskeyConfig, configModel.getSetting());
                                     refresh();
+                                    portalConfigs.add(PortalProperties.KEY_CHART_SETTINGS, portletName, config.getSetting());
+                                    service.savePortalConfig(portalConfigs, new SessionAwareAsyncCallback<Void>() {
+
+                                        @Override
+                                        public void onSuccess(Void result) {
+                                            return;
+                                        }
+
+                                        @Override
+                                        protected void doOnFailure(Throwable caught) {
+                                            super.doOnFailure(caught);
+                                        }
+                                    });
                                 } else {
                                     configModelChanged = false;
                                     return;

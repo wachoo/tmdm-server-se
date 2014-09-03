@@ -57,8 +57,6 @@ public interface WelcomePortalMessages extends Messages {
 
     String chart_mathcing_title();
 
-    String autorefresh();
-
     String autorefresh_on();
 
     String autorefresh_off();
@@ -98,6 +96,10 @@ public interface WelcomePortalMessages extends Messages {
     String search_title();
 
     String search_button_text();
+
+    String save_portal_config_failed();
+
+    String retrieve_portal_config_failed();
 
     String chart_config_title();
 

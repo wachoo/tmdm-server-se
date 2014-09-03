@@ -38,6 +38,11 @@ public class SearchPortlet extends BasePortlet {
     }
 
     @Override
+    protected void initAutoRefresher() {
+        return;
+    }
+
+    @Override
     public void refresh() {
         // stay the same, no need to refresh
         return;

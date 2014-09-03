@@ -24,8 +24,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client.mvc;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalEvents;
+import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalServiceAsync;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
@@ -36,6 +40,10 @@ import com.extjs.gxt.ui.client.mvc.Controller;
 public class WelcomePortalController extends Controller {
 
     private WelcomePortalView view;
+
+    private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
+
+    PortalProperties portalConfig = null;
 
     public WelcomePortalController() {
         registerEventTypes(WelcomePortalEvents.InitFrame);
@@ -50,7 +58,15 @@ public class WelcomePortalController extends Controller {
     public void handleEvent(AppEvent event) {
         EventType type = event.getType();
         if (type == WelcomePortalEvents.InitFrame) {
-            forwardToView(view, event);
+            service.getPortalConfig(new SessionAwareAsyncCallback<PortalProperties>() {
+
+                @Override
+                public void onSuccess(PortalProperties portalConfig) {
+                    AppEvent event = new AppEvent(WelcomePortalEvents.InitFrame, portalConfig);
+                    forwardToView(view, event);
+                }
+
+            });
         } else if (type == WelcomePortalEvents.RefreshPortlet) {
             forwardToView(view, event);
         } else if (type == WelcomePortalEvents.RefreshPortal) {

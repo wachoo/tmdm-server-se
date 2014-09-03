@@ -35,8 +35,6 @@ public class AlertPortlet extends BasePortlet {
     public AlertPortlet(Portal portal) {
         super(WelcomePortal.ALERT, portal);
 
-        initAutoRefresher();
-
         label.setText(MessagesFactory.getMessages().loading_alert_msg());
 
         initLinks();

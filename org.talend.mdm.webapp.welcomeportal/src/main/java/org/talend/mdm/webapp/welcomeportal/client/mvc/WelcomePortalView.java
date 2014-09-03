@@ -15,12 +15,14 @@ package org.talend.mdm.webapp.welcomeportal.client.mvc;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.welcomeportal.client.GenerateContainer;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
+import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalEvents;
+import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalServiceAsync;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
@@ -36,10 +38,6 @@ public class WelcomePortalView extends View {
 
     private static final String USING_DEFAULT_COLUMN_NUM = "defaultColNum"; //$NON-NLS-1$
 
-    private static final String COOKIES_PORTLET_COLUMN = "columnNum"; //$NON-NLS-1$
-
-    private static final String COOKIES_CHARTS_ENABLED = "chartsOn"; //$NON-NLS-1$
-
     private static final String CHARTS_ENABLED = "chartsOn"; //$NON-NLS-1$
 
     private static final int DEFAULT_COLUMN_NUM = 3;
@@ -53,6 +51,10 @@ public class WelcomePortalView extends View {
     private Portal portal;
 
     private boolean chartsSwitcherUpdated;
+
+    private static PortalProperties portalConfigDb;
+
+    private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
 
     public WelcomePortalView(Controller controller) {
         super(controller);
@@ -70,8 +72,7 @@ public class WelcomePortalView extends View {
     }
 
     private void onRefreshPortal(AppEvent event) {
-        Map<String, Boolean> portalConfig = (Map<String, Boolean>) event.getData();
-        String dataString = portalConfig.toString();
+        String dataString = event.getData().toString();
 
         Map<String, Boolean> parsedConfig = parseConfig(dataString);
         Boolean defaultColConfig = parsedConfig.get(USING_DEFAULT_COLUMN_NUM);
@@ -101,11 +102,10 @@ public class WelcomePortalView extends View {
         return config;
     }
 
-    private void updatePortal(Map<String, Boolean> config) {
+    private void updatePortal(final Map<String, Boolean> config) {
         if (Log.isInfoEnabled()) {
             Log.info("Refresh with different column number... ");//$NON-NLS-1$
         }
-
         ContentPanel container = GenerateContainer.getContentPanel();
         numColumns = config.get(USING_DEFAULT_COLUMN_NUM) ? DEFAULT_COLUMN_NUM : ALTERNATIVE_COLUMN_NUM;
         chartsOn = config.get(CHARTS_ENABLED);
@@ -113,7 +113,7 @@ public class WelcomePortalView extends View {
             ((MainFramePanel) portal).stopChartsAutoRefresh();
         }
         container.remove(portal);
-        portal = new MainFramePanel(numColumns, config);
+        portal = new MainFramePanel(numColumns, portalConfigDb, config);
         container.add(portal);
         container.layout(true);
     }
@@ -127,19 +127,20 @@ public class WelcomePortalView extends View {
         if (Log.isInfoEnabled()) {
             Log.info("Init frame... ");//$NON-NLS-1$
         }
-
-        ContentPanel container = GenerateContainer.getContentPanel();
+        PortalProperties config = (PortalProperties) event.getData();
+        portalConfigDb = config;
+        final ContentPanel container = GenerateContainer.getContentPanel();
         container.setHeaderVisible(false);
         container.setLayout(new FitLayout());
         container.setStyleAttribute("height", "100%");//$NON-NLS-1$ //$NON-NLS-2$
 
-        Object numColumnsObj = Cookies.getValue(COOKIES_PORTLET_COLUMN);
-        numColumns = (numColumnsObj == null) ? DEFAULT_COLUMN_NUM : (Integer) numColumnsObj;
+        Integer numColumnsObj = config.getColumnNum();
+        numColumns = (numColumnsObj == null) ? DEFAULT_COLUMN_NUM : numColumnsObj;
 
-        Object chartsOnObj = Cookies.getValue(COOKIES_CHARTS_ENABLED);
-        chartsOn = (chartsOnObj == null) ? true : (Boolean) chartsOnObj;
-
-        portal = new MainFramePanel(numColumns);
+        Boolean chartsOnObj = config.getChartsOn();
+        chartsOn = (chartsOnObj == null) ? true : chartsOnObj;
+        portal = new MainFramePanel(numColumns, config);
         container.add(portal);
+        container.layout(true);
     }
 }

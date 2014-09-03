@@ -15,11 +15,12 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.talend.mdm.webapp.base.client.util.Cookies;
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalServiceAsync;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -76,6 +77,8 @@ public abstract class BasePortlet extends Portlet {
     protected AutoRefreshButton autoRefreshBtn;
 
     protected ToolButton refreshBtn;
+
+    protected PortalProperties portalConfigs;
 
     private boolean isAuto;
 
@@ -144,15 +147,18 @@ public abstract class BasePortlet extends Portlet {
         this.setHeading();
         this.setIcon();
 
-        cookieskey = portletName + ".autoOnOff"; //$NON-NLS-1$
-
-        if (Cookies.getValue(cookieskey) == null) {
+        portalConfigs = ((MainFramePanel) portal).getProps();
+        Boolean autoRefreshOn = portalConfigs.getAutoRefreshStatus(portletName);
+        if (autoRefreshOn == null) {
             startedAsOn = ((MainFramePanel) portal).getStartedAsOn();
         } else {
-            startedAsOn = (Boolean) Cookies.getValue(cookieskey);
+            startedAsOn = autoRefreshOn;
         }
+
+        // TODO: should we store 'interval' into db too ?
         interval = ((MainFramePanel) portal).getInterval();
 
+        initAutoRefresher();
     }
 
     protected void initAutoRefresher() {
@@ -171,8 +177,12 @@ public abstract class BasePortlet extends Portlet {
         };
 
         // TODO: use gear image temporarily, need find a suitbale image icon for auto-refresh
-        autoRefreshBtn = new AutoRefreshButton(startedAsOn, "x-tool-pin"); //$NON-NLS-1$
-        autoRefreshBtn.setTitle(MessagesFactory.getMessages().autorefresh());
+        autoRefreshBtn = new AutoRefreshButton(startedAsOn, "x-tool-pin"); //$NON-NLS-1$\
+        if (startedAsOn) {
+            autoRefreshBtn.setTitle(MessagesFactory.getMessages().autorefresh_on());
+        } else {
+            autoRefreshBtn.setTitle(MessagesFactory.getMessages().autorefresh_off());
+        }
 
         autoRefreshBtn.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 
@@ -182,8 +192,20 @@ public abstract class BasePortlet extends Portlet {
                 autoRefreshBtn.setTitle(autoRefreshBtn.isOn() ? MessagesFactory.getMessages().autorefresh_on() : MessagesFactory
                         .getMessages().autorefresh_off());
                 BasePortlet.this.autoRefresh(autoRefreshBtn.isOn());
-                Cookies.setValue(cookieskey, autoRefreshBtn.isOn());
-                return;
+
+                portalConfigs.add(PortalProperties.KEY_AUTO_ONOFFS, portletName, ((Boolean) autoRefreshBtn.isOn()).toString());
+                service.savePortalConfig(portalConfigs, new SessionAwareAsyncCallback<Void>() {
+
+                    @Override
+                    public void onSuccess(Void result) {
+                        return;
+                    }
+
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        super.doOnFailure(caught);
+                    }
+                });
             }
 
         });

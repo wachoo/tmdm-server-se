@@ -59,7 +59,6 @@ public class TaskPortlet extends BasePortlet {
 
         isHiddenWorkFlowTask = ((MainFramePanel) portal).isHiddenWorkFlowTask();
         isHiddenDSCTask = ((MainFramePanel) portal).isHiddenDSCTask();
-        initAutoRefresher();
 
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
