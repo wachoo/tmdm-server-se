@@ -660,7 +660,7 @@ public class XConverter {
         ArrayList<TransformerVariablesMapping> outputMappings = new ArrayList<TransformerVariablesMapping>();
         if (wsProcessStep.getOutputMappings() != null) {
             for (int i = 0; i < wsProcessStep.getOutputMappings().length; i++) {
-                inputMappings.add(WS2POJO(wsProcessStep.getOutputMappings()[i]));
+                outputMappings.add(WS2POJO(wsProcessStep.getOutputMappings()[i]));
             }
         }
         processStep.setOutputMappings(outputMappings);

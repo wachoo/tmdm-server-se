@@ -196,7 +196,7 @@ public final class BaseMessagesImpl implements BaseMessages {
     }
 
     @Override
-    public String service_rest_error_no_matchrule() {
-        return MESSAGES.getMessage("service_rest_error_no_matchrule");
+    public String matching_failed(String concept) {
+        return MESSAGES.getMessage("matching_failed");
     }
 }

@@ -78,5 +78,5 @@ public interface BaseMessages extends Messages {
 
     String underlying_cause();
 
-    String service_rest_error_no_matchrule();
+    String matching_failed(String concept);
 }
