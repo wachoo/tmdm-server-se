@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyTabModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemDetailTabPanelContentHandle;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyRender;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyUtil;
@@ -35,10 +36,12 @@ import com.google.gwt.user.client.ui.HTML;
 public class BreadCrumb extends Composite {
 
     private BreadCrumbBar pWidget = new BreadCrumbBar();
-    
+
     private ItemsDetailPanel itemsDetailPanel;
 
-    public static String DEFAULTNAME = "Talend MDM", DEFAULTLINK = "../talendmdm/secure"; //$NON-NLS-1$ //$NON-NLS-2$    
+    public static String DEFAULTNAME = "Talend MDM", DEFAULTLINK = "../talendmdm/secure"; //$NON-NLS-1$ //$NON-NLS-2$
+
+    private int viewCode;
 
     public BreadCrumb(List<BreadCrumbModel> list, ItemsDetailPanel itemsDetailPanel) {
         this.itemsDetailPanel = itemsDetailPanel;
@@ -54,19 +57,27 @@ public class BreadCrumb extends Composite {
         initWidget(pWidget);
     }
 
+    public BreadCrumb(List<BreadCrumbModel> list, ItemsDetailPanel itemsDetailPanel, int viewCode) {
+        this(list, itemsDetailPanel);
+        this.viewCode = viewCode;
+    }
+
     public void appendBreadCrumb(String concept, String label, String ids, String pkInfo) {
         if (pWidget != null) {
             String title;
             if (label != null) {
-                if (ids != null)
+                if (ids != null) {
                     title = label + " " + ids; //$NON-NLS-1$
-                else
+                } else {
                     title = label;
-            } else
+                }
+            } else {
                 title = ids;
+            }
             HTML tmph = new HTML("&nbsp;&gt;&nbsp;<a>" + title + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$    
-            if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML()))
+            if (pWidget.getWidget(pWidget.getWidgetCount() - 1).getElement().getInnerHTML().equals(tmph.getHTML())) {
                 return;
+            }
             HTML h = initBreadCrumb(concept, label, ids, pkInfo, true, false);
             pWidget.add(h);
         }
@@ -77,17 +88,19 @@ public class BreadCrumb extends Composite {
         HTML h = null;
         String title;
         if (label != null) {
-            if (ids != null)
+            if (ids != null) {
                 title = label + " " + ids; //$NON-NLS-1$
-            else
+            } else {
                 title = label;
-        }
-        else
+            }
+        } else {
             title = ids;
+        }
         if (ifLink) {
             h = new HTML("&nbsp;&gt;&nbsp;<a>" + title + "</a><input value=\"" + concept + "\"' type=\"hidden\">");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$             
             h.addClickHandler(new ClickHandler() {
 
+                @Override
                 public void onClick(ClickEvent event) {
                     displayCachedEntity(concept, label, ids);
                     if (pWidget != null) {
@@ -108,9 +121,10 @@ public class BreadCrumb extends Composite {
 
     private void displayCachedEntity(String concept, String label, String ids) {
         HashMap<String, ItemPanel> map = BrowseRecords.getSession().getCurrentCachedEntity();
-        String key = concept + (ids == null ? "" : ids) + itemsDetailPanel.isOutMost(); //$NON-NLS-1$
-        if (map != null && map.containsKey(key)) {
-            ItemPanel itemPanel = map.get(key);
+        String key = concept + (ids == null ? "" : ids) + itemsDetailPanel.isOutMost(); //$NON-NLS-1$ 
+        String panelKey = ((this.viewCode == BrowseRecordsView.LINEAGE_VIEW_CODE) ? BrowseRecordsView.LINEAGE_ITEMVIEW : "") + key; //$NON-NLS-1$
+        if (map != null && map.containsKey(panelKey)) {
+            ItemPanel itemPanel = map.get(panelKey);
             if (itemPanel != null) {
                 itemsDetailPanel.clearContent();
                 itemsDetailPanel.clearBanner();
