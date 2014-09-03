@@ -208,7 +208,7 @@ public class BrowseRecordsController extends Controller {
                         // TMDM-7366 If open or duplicate record in new tab,don't refresh LineageListPanel after save
                         // action.
                         if (isStaging && !detailToolBar.isOutMost()
-                                && detailToolBar.getSource() == ItemDetailToolBar.SOURCE_LINEAGE) {
+                                && detailToolBar.getViewCode() == BrowseRecordsView.LINEAGE_VIEW_CODE) {
                             LineageListPanel.getInstance().refresh();
                         }
                         // TMDM-3349 button 'save and close' function
@@ -271,10 +271,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-                                                                      $wnd.setTimeout(function() {
-                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-                                                                      }, millisecond);
-                                                                      }-*/;
+		$wnd.setTimeout(function() {
+			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+		}, millisecond);
+    }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
