@@ -590,6 +590,22 @@ public class MetadataValidationTest extends TestCase {
         assertTrue(handler.getLineNumbers().contains(22));
         assertFalse(handler.getLineNumbers().contains(null));
     }
+    
+    public void testInheritanceOverride() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("InheritanceOverride.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(2, handler.getErrorCount());
+        assertEquals(0, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.FIELD_CANNOT_OVERRIDE_INHERITED_ELEMENT));
+        assertTrue(handler.getLineNumbers().contains(359));
+        assertFalse(handler.getLineNumbers().contains(null));
+    }
 
     private static class TestValidationHandler implements ValidationHandler {
 
