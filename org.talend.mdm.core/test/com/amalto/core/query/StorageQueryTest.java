@@ -783,7 +783,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
         //
         qb = from(address).selectId(address);
-        List<TypedExpression> sortFields = UserQueryHelper.getFields(repository, "Address", "../../i");
+        List<TypedExpression> sortFields = UserQueryHelper.getFields(address, "../../i");
         for (TypedExpression sortField : sortFields) {
             qb.orderBy(sortField, OrderBy.Direction.DESC);
         }
@@ -2411,7 +2411,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testSortOnXPath() throws Exception {
         UserQueryBuilder qb = from(person).selectId(person);
-        TypedExpression sortField = UserQueryHelper.getFields(repository, "Person", "../../i").get(0);
+        TypedExpression sortField = UserQueryHelper.getFields(person, "../../i").get(0);
         qb.orderBy(sortField, OrderBy.Direction.DESC);
 
         StorageResults storageResults = storage.fetch(qb.getSelect());
@@ -2822,7 +2822,7 @@ public class StorageQueryTest extends StorageTestCase {
         for (String viewableBusinessElement : viewables) {
             String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
             String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
-            qb.select(UserQueryHelper.getFields(repository, viewableTypeName, viewablePath).get(0));
+            qb.select(UserQueryHelper.getFields(repository.getComplexType(viewableTypeName), viewablePath).get(0));
         }
 
         StorageResults results = storage.fetch(qb.getSelect());
@@ -2855,15 +2855,15 @@ public class StorageQueryTest extends StorageTestCase {
         ComplexTypeMetadata type = repository.getComplexType("Product");
         UserQueryBuilder qb = UserQueryBuilder.from(type);
 
-        List<TypedExpression> fields = UserQueryHelper.getFields(repository, "Product", "Id");
+        List<TypedExpression> fields = UserQueryHelper.getFields(product, "Id");
         for (TypedExpression field : fields) {
             qb.select(field);
         }
-        fields = UserQueryHelper.getFields(repository, "Product", "Name");
+        fields = UserQueryHelper.getFields(product, "Name");
         for (TypedExpression field : fields) {
             qb.select(field);
         }
-        fields = UserQueryHelper.getFields(repository, "ProductFamily", "Name");
+        fields = UserQueryHelper.getFields(productFamily, "Name");
         for (TypedExpression field : fields) {
             TypedExpression typeExpression = new Alias(field, "ProductFamily_Name");
             qb.select(typeExpression);

@@ -526,7 +526,7 @@ public class ItemCtrl2Bean implements SessionBean {
                 qb.start(start);
                 qb.limit(limit);
                 if (orderBy != null) {
-                    List<TypedExpression> fields = UserQueryHelper.getFields(repository, typeName, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                    List<TypedExpression> fields = UserQueryHelper.getFields(type, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
                     if (fields == null) {
                         throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                     }
