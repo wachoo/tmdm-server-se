@@ -232,7 +232,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                         throw new IllegalArgumentException("View element '" + viewableBusinessElement
                                 + "' is invalid: no path to element.");
                     }
-                    List<TypedExpression> typeExpressions = UserQueryHelper.getFields(repository, viewableTypeName, viewablePath);
+                    ComplexTypeMetadata viewableType = repository.getComplexType(viewableTypeName);
+                    List<TypedExpression> typeExpressions = UserQueryHelper.getFields(viewableType, viewablePath);
                     for (TypedExpression typeExpression : typeExpressions) {
                         qb.select(typeExpression);
                     }
@@ -249,9 +250,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 qb.limit(limit);
                 // Order by
                 if (orderBy != null) {
-                    List<TypedExpression> fields = UserQueryHelper.getFields(repository,
-                            StringUtils.substringBefore(orderBy, "/"), //$NON-NLS-1$
-                            StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                    ComplexTypeMetadata orderByType = repository.getComplexType(StringUtils.substringBefore(orderBy, "/")); //$NON-NLS-1$
+                    String orderByFieldName = StringUtils.substringAfter(orderBy, "/"); //$NON-NLS-1$
+                    List<TypedExpression> fields = UserQueryHelper.getFields(orderByType, orderByFieldName);
                     OrderBy.Direction queryDirection;
                     if ("ascending".equals(direction) //$NON-NLS-1$
                             || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
@@ -473,8 +474,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             qb.limit(limit);
             // Order by
             if (orderBy != null) {
-                List<TypedExpression> fields = UserQueryHelper.getFields(repository, type.getName(),
-                        StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                String orderByFieldName = StringUtils.substringAfter(orderBy, "/"); //$NON-NLS-1$
+                List<TypedExpression> fields = UserQueryHelper.getFields(type, orderByFieldName);
                 if (fields == null) {
                     throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                 }

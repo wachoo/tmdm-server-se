@@ -30,7 +30,6 @@ import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 import com.amalto.core.query.user.metadata.MetadataField;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.util.FieldNotFoundException;
-import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -76,16 +75,22 @@ public class UserQueryHelper {
             boolean isNotCondition = WhereCondition.PRE_NOT.equals(whereCondition.getStringPredicate());
             // Get metadata information for building query
             String leftPath = whereCondition.getLeftPath();
-            String leftTypeName = leftPath.substring(0, leftPath.indexOf('/'));
-            if (".".equals(leftTypeName)) { //$NON-NLS-1$
-                // When using ".", uses first type in select
-                leftTypeName = queryBuilder.getSelect().getTypes().get(0).getName();
+            ComplexTypeMetadata leftType;
+            if (leftPath.contains("/")) { //$NON-NLS-1$
+                String leftTypeName = leftPath.substring(0, leftPath.indexOf('/'));
+                if (".".equals(leftTypeName)) { //$NON-NLS-1$
+                    // When using ".", uses first type in select
+                    leftTypeName = queryBuilder.getSelect().getTypes().get(0).getName();
+                }
+                leftType = repository.getComplexType(leftTypeName);
+            } else {
+                leftType = queryBuilder.getSelect().getTypes().get(0);
             }
             String leftFieldName = StringUtils.substringAfter(leftPath, "/"); //$NON-NLS-1$
-            ComplexTypeMetadata leftType = repository.getComplexType(leftTypeName);
-            // Special case for full text: left path is actually the keyword for full text search.
+            // Full text query handling
             if (WhereCondition.FULLTEXTSEARCH.equals(operator)) {
-                if (StringUtils.isEmpty(leftPath) || "/".equals(leftPath)) { //$NON-NLS-1$
+                if (StringUtils.isEmpty(leftPath) || "/".equals(leftPath) || StringUtils.isEmpty(leftFieldName)) { //$NON-NLS-1$
+                    // Special case for full text: left path is actually the keyword for full text search.
                     return fullText(value);
                 } else {
                     return fullText(leftType.getField(leftFieldName), value);
@@ -112,7 +117,7 @@ public class UserQueryHelper {
                 fields = getInnerField(leftPath);
             }
             if (fields == null) {
-                fields = getFields(repository, leftTypeName, leftFieldName);
+                fields = getFields(leftType, leftFieldName);
             }
             Condition condition = null;
             for (TypedExpression field : fields) {
@@ -244,7 +249,10 @@ public class UserQueryHelper {
         return null;
     }
 
-    public static List<TypedExpression> getFields(MetadataRepository repository, String typeName, String fieldName) {
+    public static List<TypedExpression> getFields(ComplexTypeMetadata type, String fieldName) {
+        if (type == null) {
+            throw new IllegalArgumentException("Type cannot be null."); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         // Considers attributes as elements
         // TODO This is assuming attributes are elements... which is true when these line were written.
         if (fieldName.startsWith("@")) { //$NON-NLS-1$
@@ -262,15 +270,11 @@ public class UserQueryHelper {
         // Additional trim() (in case XPath is like "Entity/FieldName  ").
         fieldName = fieldName.trim();
         MetadataField metadataField = MetadataField.Factory.getMetadataField(fieldName);
-        ComplexTypeMetadata type = repository.getComplexType(typeName);
-        if (type == null) {
-            throw new IllegalArgumentException("Type '" + typeName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
-        }
         if (metadataField != null) {
             return Collections.singletonList(metadataField.getConditionExpression());
         }
         if (fieldName.endsWith("xsi:type") || fieldName.endsWith("tmdm:type")) { //$NON-NLS-1$ //$NON-NLS-2$
-            FieldMetadata field = repository.getComplexType(typeName).getField(StringUtils.substringBeforeLast(fieldName, "/")); //$NON-NLS-1$
+            FieldMetadata field = type.getField(StringUtils.substringBeforeLast(fieldName, "/")); //$NON-NLS-1$
             if (fieldName.endsWith("xsi:type")) { //$NON-NLS-1$
                 return Collections.singletonList(alias(type(field), "xsi:type")); //$NON-NLS-1$
             } else {
@@ -279,7 +283,7 @@ public class UserQueryHelper {
         } else if (UserQueryBuilder.ID_FIELD.equals(fieldName)) {
             Collection<FieldMetadata> keyFields = type.getKeyFields();
             if (keyFields.isEmpty()) {
-                throw new IllegalArgumentException("Can not query id on type '" + typeName + "' because type has no id field."); //$NON-NLS-1$//$NON-NLS-2$
+                throw new IllegalArgumentException("Can not query id on type '" + type.getName() + "' because type has no id field."); //$NON-NLS-1$//$NON-NLS-2$
             }
             List<TypedExpression> expressions = new LinkedList<TypedExpression>();
             for (FieldMetadata keyField : keyFields) {
@@ -295,7 +299,7 @@ public class UserQueryHelper {
         }
         FieldMetadata field = type.getField(fieldName);
         if (field == null) {
-            throw new FieldNotFoundException("Field '" + fieldName + "' does not exist in type '" + typeName + "'."); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+            throw new FieldNotFoundException("Field '" + fieldName + "' does not exist in type '" + type.getName() + "'."); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
         }
         if (field instanceof ContainedTypeFieldMetadata) {
             // Field does not contain a value, expected behavior is to return empty string.

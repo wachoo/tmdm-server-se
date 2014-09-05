@@ -463,7 +463,7 @@ public class InheritanceTest extends StorageTestCase {
         }
         // Test 3
         qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"));
-        List<TypedExpression> fields = UserQueryHelper.getFields(repository, "A", "nestedB/@xsi:type");
+        List<TypedExpression> fields = UserQueryHelper.getFields(a, "nestedB/@xsi:type");
         for (TypedExpression field : fields) {
             qb.orderBy(field, OrderBy.Direction.ASC);
         }
@@ -615,7 +615,7 @@ public class InheritanceTest extends StorageTestCase {
         }
         // Test 3
         qb = UserQueryBuilder.from(ss).select(alias(type(ss.getField("nestedB")), "type"));
-        List<TypedExpression> fields = UserQueryHelper.getFields(repository, "SS", "nestedB/@xsi:type");
+        List<TypedExpression> fields = UserQueryHelper.getFields(ss, "nestedB/@xsi:type");
         for (TypedExpression field : fields) {
             qb.orderBy(field, OrderBy.Direction.ASC);
         }
