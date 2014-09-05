@@ -37,8 +37,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.webservice.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -106,11 +104,52 @@ import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.FieldNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.webservice.WSBoolean;
+import com.amalto.core.webservice.WSByteArray;
+import com.amalto.core.webservice.WSConceptKey;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSDeleteItem;
+import com.amalto.core.webservice.WSDropItem;
+import com.amalto.core.webservice.WSExecuteTransformerV2;
+import com.amalto.core.webservice.WSExistsItem;
+import com.amalto.core.webservice.WSGetBusinessConceptKey;
+import com.amalto.core.webservice.WSGetBusinessConcepts;
+import com.amalto.core.webservice.WSGetDataModel;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSGetTransformer;
+import com.amalto.core.webservice.WSGetTransformerPKs;
+import com.amalto.core.webservice.WSGetView;
+import com.amalto.core.webservice.WSGetViewPKs;
+import com.amalto.core.webservice.WSInt;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSPutItem;
+import com.amalto.core.webservice.WSPutItemWithReport;
+import com.amalto.core.webservice.WSStringArray;
+import com.amalto.core.webservice.WSStringPredicate;
+import com.amalto.core.webservice.WSTransformer;
+import com.amalto.core.webservice.WSTransformerContext;
+import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
+import com.amalto.core.webservice.WSTransformerPK;
+import com.amalto.core.webservice.WSTransformerV2PK;
+import com.amalto.core.webservice.WSTypedContent;
+import com.amalto.core.webservice.WSView;
+import com.amalto.core.webservice.WSViewPK;
+import com.amalto.core.webservice.WSViewSearch;
+import com.amalto.core.webservice.WSWhereAnd;
+import com.amalto.core.webservice.WSWhereCondition;
+import com.amalto.core.webservice.WSWhereItem;
+import com.amalto.core.webservice.WSWhereOperator;
+import com.amalto.core.webservice.WSWhereOr;
+import com.amalto.core.webservice.WSXPathsSearch;
+import com.amalto.core.webservice.XtentisPort;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
@@ -162,8 +201,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (wsItem == null) {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
                     }
+                    itemResults.add(MESSAGES.getMessage("message_success", locale)); //$NON-NLS-1$
                     itemResults.add(MESSAGES.getMessage("delete_process_validation_success", locale)); //$NON-NLS-1$
                 } else {
+                    itemResults.add(MESSAGES.getMessage("message_fail", locale)); //$NON-NLS-1$
                     itemResults.add(MESSAGES.getMessage("delete_item_record_successNoupdate", locale)); //$NON-NLS-1$
                 }
             } catch (ServiceException e) {
@@ -265,7 +306,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
                     xpathForeignKey = xpathForeignKey.substring(1);
                 }
-                String fkEntity; //$NON-NLS-1$
+                String fkEntity; 
                 if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
                     fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
                 } else {
