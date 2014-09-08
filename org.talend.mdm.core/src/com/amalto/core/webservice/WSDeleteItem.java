@@ -11,7 +11,7 @@ public class WSDeleteItem {
     protected java.lang.Boolean override;
     protected java.lang.Boolean withReport = false;
     protected java.lang.String source = ""; //$NON-NLS-1$
-    protected java.lang.Boolean invokeBeforeSaving = false;
+    protected java.lang.Boolean invokeBeforeDeleting = false;
 
     public WSDeleteItem() {
     }
@@ -28,11 +28,11 @@ public class WSDeleteItem {
     public void setWsItemPK(com.amalto.core.webservice.WSItemPK wsItemPK) {
         this.wsItemPK = wsItemPK;
     }
-    
+
     public java.lang.Boolean getOverride() {
         return override;
     }
-    
+
     public void setOverride(java.lang.Boolean override) {
         this.override = override;
     }
@@ -53,11 +53,11 @@ public class WSDeleteItem {
         this.source = source;
     }
 
-    public java.lang.Boolean getInvokeBeforeSaving() {
-            return invokeBeforeSaving;
+    public java.lang.Boolean getInvokeBeforeDeleting() {
+            return invokeBeforeDeleting;
         }
 
-    public void setInvokeBeforeSaving(java.lang.Boolean invokeBeforeSaving) {
-            this.invokeBeforeSaving = invokeBeforeSaving;
-        }
+    public void setInvokeBeforeDeleting(java.lang.Boolean invokeBeforeDeleting) {
+        this.invokeBeforeDeleting = invokeBeforeDeleting;
+    }
 }
