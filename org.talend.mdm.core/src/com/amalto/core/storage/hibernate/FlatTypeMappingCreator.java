@@ -59,7 +59,7 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         FieldMetadata referencedField = new SoftIdFieldRef(internalRepository, typeName);
 
         FieldMetadata newFlattenField;
-        if (referenceField.getContainingType() == referenceField.getDeclaringType()) {
+        if (referenceField.getContainingType().equals(referenceField.getDeclaringType())) {
             ComplexTypeMetadata database = typeMapping.getDatabase();
             newFlattenField = new ReferenceFieldMetadata(database,
                     referenceField.isKey(),
