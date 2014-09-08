@@ -195,7 +195,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
                     WSDeleteItem wsDeleteItem = new WSDeleteItem(itemPK, override);
                     wsDeleteItem.setWithReport(true);
-                    wsDeleteItem.setInvokeBeforeSaving(true);
+                    wsDeleteItem.setInvokeBeforeDeleting(true);
                     wsDeleteItem.setSource("genericUI"); //$NON-NLS-1$
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(wsDeleteItem);
                     if (wsItem == null) {
