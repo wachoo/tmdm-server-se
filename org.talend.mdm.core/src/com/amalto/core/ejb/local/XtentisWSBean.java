@@ -880,7 +880,6 @@ public class XtentisWSBean implements XtentisPort {
      * @ejb.interface-method view-type = "service-endpoint"
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
-    @Override
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsputjob) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putBackgroundJob(wsputjob);
     }
