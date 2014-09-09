@@ -32,7 +32,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jboss.security.SimpleGroup;
 import org.talend.mdm.commmon.util.core.EDBType;
@@ -1330,5 +1333,32 @@ public class Util {
             }
         }
         return defaultLanguage;
+    }
+
+    // Should only be used for non-data related changes (leave to core modules creation of UPDATE update reports).
+    public static String createUpdateReport(String[] ids, String concept, String operationType) throws Exception {
+        if (!operationType.equals(UpdateReportPOJO.OPERATION_TYPE_ACTION)) {
+            // This method should never implement anything but update reports for "ACTION" type (no UPDATE nor DELETE in here).
+            throw new IllegalArgumentException("Only '" + UpdateReportPOJO.OPERATION_TYPE_ACTION + "' action is supported.");
+        }
+        Configuration config = Configuration.getInstance();
+        String dataModelPK = config.getModel() == null ? StringUtils.EMPTY : config.getModel();
+        String dataClusterPK = config.getCluster() == null ? StringUtils.EMPTY : config.getCluster();
+        String username = Util.getLoginUserName();
+        StringBuilder keyBuilder = new StringBuilder();
+        if (ids != null) {
+            for (int i = 0; i < ids.length; i++) {
+                keyBuilder.append(ids[i]);
+                if (i != ids.length - 1) {
+                    keyBuilder.append('.');
+                }
+            }
+        }
+        String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
+        return "<Update><UserName>" + username + "</UserName><Source>genericUI</Source><TimeInMillis>" //$NON-NLS-1$ //$NON-NLS-2$
+                + System.currentTimeMillis() + "</TimeInMillis><OperationType>" + operationType //$NON-NLS-1$
+                + "</OperationType><RevisionID>null</RevisionID><DataCluster>" + dataClusterPK  //$NON-NLS-1$
+                + "</DataCluster><DataModel>" + dataModelPK + "</DataModel><Concept>" + StringEscapeUtils.escapeXml(concept) //$NON-NLS-1$ //$NON-NLS-2$
+                + "</Concept><Key>" + StringEscapeUtils.escapeXml(key) + "</Key>" + "</Update>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 }
