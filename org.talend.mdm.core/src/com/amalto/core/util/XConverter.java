@@ -372,6 +372,7 @@ public class XConverter {
         s.setWsRoutingRuleExpressions(routingExpressions);
         s.setCondition(vo.getCondition());
         s.setDeactive(vo.isDeActive());
+        s.setExecuteOrder(vo.getExecuteOrder());
         return s;
     }
 
@@ -393,7 +394,8 @@ public class XConverter {
         }
         vo.setRoutingExpressions(l);
         vo.setCondition(ws.getCondition());
-        vo.setDeActive(vo.isDeActive());
+        vo.setDeActive(ws.getDeactive());
+        vo.setExecuteOrder(ws.getExecuteOrder());
         return vo;
     }
 
