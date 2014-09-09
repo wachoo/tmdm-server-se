@@ -17,26 +17,14 @@ import java.io.StringReader;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -1862,7 +1850,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null,
                     null);
-            WSTypedContent wsTypedContent = new WSTypedContent();
+            String updateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_ACTION);
+            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
+                    "text/xml; charset=utf-8");//$NON-NLS-1$
             WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
             WSTransformerContextPipelinePipelineItem[] entries = port.executeTransformerV2(wsExecuteTransformerV2)
                     .getPipeline().getPipelineItem();
@@ -1887,6 +1877,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             }
+            // Save update report
+            WSDataClusterPK updateReportCluster = new WSDataClusterPK("UpdateReport"); //$NON-NLS-1$
+            WSDataModelPK updateReportDataModel = new WSDataModelPK("UpdateReport"); //$NON-NLS-1$
+            Util.getPort().putItem(new WSPutItem(updateReportCluster, updateReport, updateReportDataModel, false));
             if (outputReport) {
                 return downloadUrl;
             } else {

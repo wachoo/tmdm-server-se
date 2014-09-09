@@ -596,9 +596,10 @@ public class XConverter {
     }
 
     public static TypedContent WS2POJO(WSTypedContent wsContent) {
-        TypedContent content = null;
-        if (wsContent == null)
+        TypedContent content;
+        if (wsContent == null) {
             return null;
+        }
         if (wsContent.getUrl() == null) {
             content = new TypedContent(wsContent.getWsBytes().getBytes(), wsContent.getContentType());
         } else {
