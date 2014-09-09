@@ -1066,7 +1066,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE,
                     "/", //$NON-NLS-1$
                     LocalUser.getLocalUser().getUsername(),
-                    wsDeleteItem.getInvokeBeforeSaving(),
+                    wsDeleteItem.getInvokeBeforeDeleting(),
                     wsDeleteItem.getWithReport(),
                     wsDeleteItem.getOverride()));
             return itemPK;

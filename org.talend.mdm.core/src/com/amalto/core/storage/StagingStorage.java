@@ -123,8 +123,9 @@ public class StagingStorage implements Storage {
 
     @Override
     public void update(Iterable<DataRecord> records) {
-        if (delegate instanceof HibernateStorage) {
-            ((HibernateStorage) delegate).getClassLoader().bind(Thread.currentThread());
+        Storage storage = delegate.asInternal();
+        if (storage instanceof HibernateStorage) {
+            ((HibernateStorage) storage).getClassLoader().bind(Thread.currentThread());
         }
         try {
             final TransformIterator iterator = new TransformIterator(records.iterator(), new Transformer() {
@@ -172,8 +173,8 @@ public class StagingStorage implements Storage {
             };
             delegate.update(transformedRecords);
         } finally {
-            if (delegate instanceof HibernateStorage) {
-                ((HibernateStorage) delegate).getClassLoader().unbind(Thread.currentThread());
+            if (storage instanceof HibernateStorage) {
+                ((HibernateStorage) storage).getClassLoader().unbind(Thread.currentThread());
             }
         }
     }

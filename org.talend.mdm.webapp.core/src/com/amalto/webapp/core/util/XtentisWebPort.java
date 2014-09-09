@@ -1,9 +1,11 @@
 package com.amalto.webapp.core.util;
 
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.storage.exception.ConstraintViolationException;
 import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
-import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.*;
+import com.amalto.core.util.RoutingException;
 import com.amalto.core.webservice.*;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.ObjectNotFoundException;
@@ -12,13 +14,40 @@ import java.rmi.RemoteException;
 
 public class XtentisWebPort implements XtentisPort {
 
+    // validate not null field is null
+    public static final String VALIDATE_EXCEPTION_MESSAGE = "save_validationrule_fail"; //$NON-NLS-1$
+
+    // don't exist job was called
+    public static final String JOB_NOT_FOUND_EXCEPTION_MESSAGE = "save_failure_job_notfound"; //$NON-NLS-1$
+
+    // don't exist job was called
+    public static final String JOBOX_EXCEPTION_MESSAGE = "save_failure_job_ox"; //$NON-NLS-1$
+
+    // call by core util.defaultValidate,but it will be wrap as ValidateException
+    public static final String CVC_EXCEPTION_MESSAGE = "save_fail_cvc_exception"; //$NON-NLS-1$
+
+    // default save exception message
+    public static final String SAVE_EXCEPTION_MESSAGE = "save_fail"; //$NON-NLS-1$
+
+    // define before saving report in error level
+    public static final String SAVE_PROCESS_BEFORE_SAVING_FAILURE_MESSAGE = "save_failure_beforesaving_validate_error"; //$NON-NLS-1$ 
+
+    // define before saving report xml format error in studio
+    public static final String BEFORE_SAVING_FORMAT_ERROR_MESSAGE = "save_failure_beforesaving_format_error"; //$NON-NLS-1$ 
+
+    // define trigger to execute process error in studio
+    public static final String ROUTING_ERROR_MESSAGE = "save_success_rounting_fail"; //$NON-NLS-1$
+
+    // missing output report (before saving)
+    public static final String OUTPUT_REPORT_MISSING_ERROR_MESSAGE = "output_report_missing"; //$NON-NLS-1$
+
     private static final String INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE = "delete_failure_constraint_violation"; //$NON-NLS-1$
 
     // full text query entity include composite key
-    private static final String FULLTEXT_QUERY_COMPOSITE_KEY_EXCEPTION_MESSAGE = "fulltext_query_compositekey_fail"; //$NON-NLS-1$
+    public static final String FULLTEXT_QUERY_COMPOSITE_KEY_EXCEPTION_MESSAGE = "fulltext_query_compositekey_fail"; //$NON-NLS-1$
 
     // default remote error
-    private static final String DEFAULT_REMOTE_ERROR_MESSAGE = "default_remote_error_message"; //$NON-NLS-1$
+    public static final String DEFAULT_REMOTE_ERROR_MESSAGE = "default_remote_error_message"; //$NON-NLS-1$
 
     private final XtentisPort delegate;
 
@@ -28,6 +57,49 @@ public class XtentisWebPort implements XtentisPort {
 
     public static XtentisPort wrap(XtentisPort port) {
         return new XtentisWebPort(port);
+    }
+
+    /**
+     * Handle the <code>throwable</code> parameter and returns a web ui exception (with potentially less technical information
+     * but better suited for end-user display).
+     *
+     * @param throwable The throwable to process.
+     * @param errorMessage A default error message if exception does not have a message.
+     * @return A {@link java.rmi.RemoteException exception} suited for Web UI display.
+     */
+    public static RemoteException handleException(Throwable throwable, String errorMessage) {
+        WebCoreException webCoreException;
+        if (WebCoreException.class.isInstance(throwable)) {
+            webCoreException = (WebCoreException) throwable;
+        } else if (ValidateException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(VALIDATE_EXCEPTION_MESSAGE, throwable);
+        } else if (SchematronValidateException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(VALIDATE_EXCEPTION_MESSAGE, throwable.getMessage(), WebCoreException.INFO);
+        } else if (CVCException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(CVC_EXCEPTION_MESSAGE, throwable);
+        } else if (JobNotFoundException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(JOB_NOT_FOUND_EXCEPTION_MESSAGE, throwable);
+        } else if (com.amalto.core.jobox.util.JoboxException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(JOBOX_EXCEPTION_MESSAGE, throwable);
+        } else if (BeforeSavingErrorException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(SAVE_PROCESS_BEFORE_SAVING_FAILURE_MESSAGE, throwable);
+        } else if (BeforeSavingFormatException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(BEFORE_SAVING_FORMAT_ERROR_MESSAGE, throwable);
+            webCoreException.setClient(true);
+        } else if (OutputReportMissingException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(OUTPUT_REPORT_MISSING_ERROR_MESSAGE, throwable);
+        } else if (RoutingException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(ROUTING_ERROR_MESSAGE, throwable);
+        } else if (FullTextQueryCompositeKeyException.class.isInstance(throwable)) {
+            webCoreException = new WebCoreException(FULLTEXT_QUERY_COMPOSITE_KEY_EXCEPTION_MESSAGE, throwable);
+        } else {
+            if (throwable.getCause() != null) {
+                return handleException(throwable.getCause(), errorMessage);
+            } else {
+                webCoreException = new WebCoreException(errorMessage, throwable);
+            }
+        }
+        return new RemoteException(StringUtils.EMPTY, webCoreException);
     }
 
     @Override
@@ -151,7 +223,8 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
+    public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
+            WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
         return delegate.getConceptsInDataClusterWithRevisions(wsGetConceptsInDataClusterWithRevisions);
     }
 
@@ -228,17 +301,20 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria) throws RemoteException {
+    public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria)
+            throws RemoteException {
         return delegate.getItemPKsByFullCriteria(wsGetItemPKsByFullCriteria);
     }
 
     @Override
-    public WSString countItemsByCustomFKFilters(WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters) throws RemoteException {
+    public WSString countItemsByCustomFKFilters(WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters)
+            throws RemoteException {
         return delegate.countItemsByCustomFKFilters(wsCountItemsByCustomFKFilters);
     }
 
     @Override
-    public WSStringArray getItemsByCustomFKFilters(WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters) throws RemoteException {
+    public WSStringArray getItemsByCustomFKFilters(WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters)
+            throws RemoteException {
         return delegate.getItemsByCustomFKFilters(wsGetItemsByCustomFKFilters);
     }
 
@@ -247,7 +323,7 @@ public class XtentisWebPort implements XtentisPort {
         try {
             return delegate.viewSearch(wsViewSearch);
         } catch (RemoteException e) {
-            throw handleException(e);
+            throw handleException(e, DEFAULT_REMOTE_ERROR_MESSAGE);
         }
     }
 
@@ -298,12 +374,20 @@ public class XtentisWebPort implements XtentisPort {
 
     @Override
     public WSItemPKArray putItemWithReportArray(WSPutItemWithReportArray wsPutItemWithReportArray) throws RemoteException {
-        return delegate.putItemWithReportArray(wsPutItemWithReportArray);
+        try {
+            return delegate.putItemWithReportArray(wsPutItemWithReportArray);
+        } catch (RemoteException e) {
+            throw handleException(e, SAVE_EXCEPTION_MESSAGE);
+        }
     }
 
     @Override
     public WSItemPK putItemWithReport(WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
-        return delegate.putItemWithReport(wsPutItemWithReport);
+        try {
+            return delegate.putItemWithReport(wsPutItemWithReport);
+        } catch (RemoteException e) {
+            throw handleException(e, SAVE_EXCEPTION_MESSAGE);
+        }
     }
 
     @Override
@@ -322,7 +406,8 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSPipeline extractUsingTransformerThruView(WSExtractUsingTransformerThruView wsExtractUsingTransformerThruView) throws RemoteException {
+    public WSPipeline extractUsingTransformerThruView(WSExtractUsingTransformerThruView wsExtractUsingTransformerThruView)
+            throws RemoteException {
         return delegate.extractUsingTransformerThruView(wsExtractUsingTransformerThruView);
     }
 
@@ -333,7 +418,8 @@ public class XtentisWebPort implements XtentisPort {
         } catch (RemoteException e) {
             if (Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
                 ConstraintViolationException cause = Util.cause(e, ConstraintViolationException.class);
-                throw new RemoteException(StringUtils.EMPTY, new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, cause));
+                throw new RemoteException(StringUtils.EMPTY, new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE,
+                        cause));
             }
             throw new RemoteException(e.getLocalizedMessage(), e);
         }
@@ -350,7 +436,8 @@ public class XtentisWebPort implements XtentisPort {
             return delegate.deleteItems(wsDeleteItems);
         } catch (RemoteException e) {
             if (Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
-                throw new RemoteException(StringUtils.EMPTY, new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, e.getCause()));
+                throw new RemoteException(StringUtils.EMPTY, new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE,
+                        e.getCause()));
             }
             throw new RemoteException(e.getLocalizedMessage(), e);
         }
@@ -363,7 +450,8 @@ public class XtentisWebPort implements XtentisPort {
         } catch (RemoteException e) {
             if (Util.causeIs(e, com.amalto.core.storage.exception.ConstraintViolationException.class)) {
                 ConstraintViolationException cause = Util.cause(e, ConstraintViolationException.class);
-                throw new RemoteException(StringUtils.EMPTY, new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE, cause));
+                throw new RemoteException(StringUtils.EMPTY, new WebCoreException(INTEGRITY_CONSTRAINT_CHECK_FAILED_MESSAGE,
+                        cause));
             }
             throw new RemoteException(e.getLocalizedMessage(), e);
         }
@@ -375,7 +463,8 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSConnectorInteractionResponse connectorInteraction(WSConnectorInteraction wsConnectorInteraction) throws RemoteException {
+    public WSConnectorInteractionResponse connectorInteraction(WSConnectorInteraction wsConnectorInteraction)
+            throws RemoteException {
         return delegate.connectorInteraction(wsConnectorInteraction);
     }
 
@@ -460,22 +549,26 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSPipeline processBytesUsingTransformer(WSProcessBytesUsingTransformer wsProcessBytesUsingTransformer) throws RemoteException {
+    public WSPipeline processBytesUsingTransformer(WSProcessBytesUsingTransformer wsProcessBytesUsingTransformer)
+            throws RemoteException {
         return delegate.processBytesUsingTransformer(wsProcessBytesUsingTransformer);
     }
 
     @Override
-    public WSPipeline processFileUsingTransformer(WSProcessFileUsingTransformer wsProcessFileUsingTransformer) throws RemoteException {
+    public WSPipeline processFileUsingTransformer(WSProcessFileUsingTransformer wsProcessFileUsingTransformer)
+            throws RemoteException {
         return delegate.processFileUsingTransformer(wsProcessFileUsingTransformer);
     }
 
     @Override
-    public WSBackgroundJobPK processBytesUsingTransformerAsBackgroundJob(WSProcessBytesUsingTransformerAsBackgroundJob wsProcessBytesUsingTransformerAsBackgroundJob) throws RemoteException {
+    public WSBackgroundJobPK processBytesUsingTransformerAsBackgroundJob(
+            WSProcessBytesUsingTransformerAsBackgroundJob wsProcessBytesUsingTransformerAsBackgroundJob) throws RemoteException {
         return delegate.processBytesUsingTransformerAsBackgroundJob(wsProcessBytesUsingTransformerAsBackgroundJob);
     }
 
     @Override
-    public WSBackgroundJobPK processFileUsingTransformerAsBackgroundJob(WSProcessFileUsingTransformerAsBackgroundJob wsProcessFileUsingTransformerAsBackgroundJob) throws RemoteException {
+    public WSBackgroundJobPK processFileUsingTransformerAsBackgroundJob(
+            WSProcessFileUsingTransformerAsBackgroundJob wsProcessFileUsingTransformerAsBackgroundJob) throws RemoteException {
         return delegate.processFileUsingTransformerAsBackgroundJob(wsProcessFileUsingTransformerAsBackgroundJob);
     }
 
@@ -610,12 +703,14 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSBackgroundJobPK executeTransformerV2AsJob(WSExecuteTransformerV2AsJob wsExecuteTransformerV2AsJob) throws RemoteException {
+    public WSBackgroundJobPK executeTransformerV2AsJob(WSExecuteTransformerV2AsJob wsExecuteTransformerV2AsJob)
+            throws RemoteException {
         return delegate.executeTransformerV2AsJob(wsExecuteTransformerV2AsJob);
     }
 
     @Override
-    public WSTransformerContext extractThroughTransformerV2(WSExtractThroughTransformerV2 wsExtractThroughTransformerV2) throws RemoteException {
+    public WSTransformerContext extractThroughTransformerV2(WSExtractThroughTransformerV2 wsExtractThroughTransformerV2)
+            throws RemoteException {
         return delegate.extractThroughTransformerV2(wsExtractThroughTransformerV2);
     }
 
@@ -625,22 +720,26 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration) throws RemoteException {
+    public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration)
+            throws RemoteException {
         return delegate.getTransformerPluginV2Configuration(wsGetConfiguration);
     }
 
     @Override
-    public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration) throws RemoteException {
+    public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration)
+            throws RemoteException {
         return delegate.putTransformerPluginV2Configuration(wsPutConfiguration);
     }
 
     @Override
-    public WSTransformerPluginV2Details getTransformerPluginV2Details(WSGetTransformerPluginV2Details wsGetTransformerPluginV2Details) throws RemoteException {
+    public WSTransformerPluginV2Details getTransformerPluginV2Details(
+            WSGetTransformerPluginV2Details wsGetTransformerPluginV2Details) throws RemoteException {
         return delegate.getTransformerPluginV2Details(wsGetTransformerPluginV2Details);
     }
 
     @Override
-    public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginV2SList) throws RemoteException {
+    public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginV2SList)
+            throws RemoteException {
         return delegate.getTransformerPluginV2SList(wsGetTransformerPluginV2SList);
     }
 
@@ -660,27 +759,32 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
+    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
+            WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
         return delegate.executeRoutingOrderV2Asynchronously(wsExecuteRoutingOrderAsynchronously);
     }
 
     @Override
-    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously) throws RemoteException {
+    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
+            throws RemoteException {
         return delegate.executeRoutingOrderV2Synchronously(wsExecuteRoutingOrderSynchronously);
     }
 
     @Override
-    public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
+    public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(
+            WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
         return delegate.getRoutingOrderV2PKsByCriteria(wsGetRoutingOrderV2PKsByCriteria);
     }
 
     @Override
-    public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria) throws RemoteException {
+    public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria)
+            throws RemoteException {
         return delegate.getRoutingOrderV2SByCriteria(wsGetRoutingOrderV2SByCriteria);
     }
 
     @Override
-    public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws RemoteException {
+    public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(
+            WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws RemoteException {
         return delegate.getRoutingOrderV2ByCriteriaWithPaging(wsGetRoutingOrderV2ByCriteriaWithPaging);
     }
 
@@ -757,21 +861,5 @@ public class XtentisWebPort implements XtentisPort {
     @Override
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) throws RemoteException {
         return delegate.checkFKIntegrity(deleteItem);
-    }
-
-    protected static RemoteException handleException(Throwable throwable) {
-        WebCoreException webCoreException;
-        if (WebCoreException.class.isInstance(throwable)) {
-            webCoreException = (WebCoreException) throwable;
-        } else if (FullTextQueryCompositeKeyException.class.isInstance(throwable)) {
-            webCoreException = new WebCoreException(FULLTEXT_QUERY_COMPOSITE_KEY_EXCEPTION_MESSAGE, throwable);
-        } else {
-            if (throwable.getCause() != null) {
-                return handleException(throwable.getCause());
-            } else {
-                webCoreException = new WebCoreException(DEFAULT_REMOTE_ERROR_MESSAGE, throwable);
-            }
-        }
-        return new RemoteException("", webCoreException); //$NON-NLS-1$       
     }
 }
