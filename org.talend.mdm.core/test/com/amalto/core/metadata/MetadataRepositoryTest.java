@@ -340,4 +340,33 @@ public class MetadataRepositoryTest extends TestCase {
         TypeMetadata string30Field = entityType.getField("id").getType();
         assertEquals("20", string30Field.getData(MetadataRepository.DATA_MAX_LENGTH));
     }
+
+    public void test28() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema28.xsd");
+        repository.load(stream);
+        // Assert on composite key
+        ComplexTypeMetadata entityType = repository.getComplexType("qq");
+        assertNotNull(entityType);
+        assertEquals(3, entityType.getKeyFields().size());
+        String[] names = new String[3];
+        int i = 0;
+        for (FieldMetadata keyField : entityType.getKeyFields()) {
+            names[i++] = keyField.getName();
+        }
+        // Assert on composite key (using copy).
+        MetadataRepository copy = repository.copy();
+        ComplexTypeMetadata entityTypeCopy = copy.getComplexType("qq");
+        assertNotNull(entityTypeCopy);
+        assertEquals(3, entityTypeCopy.getKeyFields().size());
+        String[] copyNames = new String[3];
+        i = 0;
+        for (FieldMetadata keyField : entityTypeCopy.getKeyFields()) {
+            copyNames[i++] = keyField.getName();
+        }
+        // Assert order is same
+        for (int j = 0; j < names.length; j++) {
+            assertEquals(names[j], copyNames[j]);
+        }
+    }
 }
