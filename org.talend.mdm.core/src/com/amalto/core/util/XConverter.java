@@ -372,6 +372,7 @@ public class XConverter {
         s.setWsRoutingRuleExpressions(routingExpressions);
         s.setCondition(vo.getCondition());
         s.setDeactive(vo.isDeActive());
+        s.setExecuteOrder(vo.getExecuteOrder());
         return s;
     }
 
@@ -393,7 +394,8 @@ public class XConverter {
         }
         vo.setRoutingExpressions(l);
         vo.setCondition(ws.getCondition());
-        vo.setDeActive(vo.isDeActive());
+        vo.setDeActive(ws.getDeactive());
+        vo.setExecuteOrder(ws.getExecuteOrder());
         return vo;
     }
 
@@ -594,9 +596,10 @@ public class XConverter {
     }
 
     public static TypedContent WS2POJO(WSTypedContent wsContent) {
-        TypedContent content = null;
-        if (wsContent == null)
+        TypedContent content;
+        if (wsContent == null) {
             return null;
+        }
         if (wsContent.getUrl() == null) {
             content = new TypedContent(wsContent.getWsBytes().getBytes(), wsContent.getContentType());
         } else {
