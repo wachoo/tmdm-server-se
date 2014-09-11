@@ -538,7 +538,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             storage.begin();
             if (typeName != null && !typeName.isEmpty()) {
                 totalCount = getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
-                itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage));
+                itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage, repository.getComplexType(typeName).getName()));
             } else {
                 // TMDM-4651: Returns type in correct dependency order.
                 Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
@@ -552,7 +552,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     totalCount += count;
                     if(itemPKResults.size() < maxCount) {
                         if(count > criteria.getSkip()) {
-                            currentInstanceResults = getTypeItems(criteria, type, storage);
+                            currentInstanceResults = getTypeItems(criteria, type, storage, type.getName());
                             int n = maxCount - itemPKResults.size();
                             if (n <= currentInstanceResults.size()){
                                 itemPKResults.addAll(currentInstanceResults.subList(0, n));
@@ -580,7 +580,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
     }
 
-    private int getTypeItemCount(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) {        
+    protected int getTypeItemCount(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) {
         StorageResults results = storage.fetch(buildQueryBuilder(from(type).selectId(type), criteria, type).getSelect());
         try {
             return results.getCount();
@@ -589,7 +589,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
     
-    private List<String> getTypeItems(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage) throws XmlServerException {
+    protected List<String> getTypeItems(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage, String resultElementName) throws XmlServerException {
         // Build base query
         UserQueryBuilder qb = from(type)
                 .select(alias(timestamp(), "timestamp")) //$NON-NLS-1$
@@ -600,7 +600,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
         List<String> list = new LinkedList<String>();
         StorageResults results = storage.fetch(buildQueryBuilder(qb, criteria, type).getSelect());
-        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(type.getName(), type);
+        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(resultElementName, type);
         ResettableStringWriter stringWriter = new ResettableStringWriter();
         for (DataRecord result : results) {
             try {
