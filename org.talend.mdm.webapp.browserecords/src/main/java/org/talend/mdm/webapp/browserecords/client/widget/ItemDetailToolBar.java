@@ -108,6 +108,10 @@ public class ItemDetailToolBar extends ToolBar {
 
     public final static String DUPLICATE_OPERATION = "DUPLICATE_OPERATION"; //$NON-NLS-1$
 
+    public final static int TYPE_DEFAULT = 0;
+
+    public final static int TYPE_CREATE_FOREIGNKEY_ENTITY = 3;
+
     private Button saveButton;
 
     private Button saveAndCloseButton;
@@ -179,6 +183,8 @@ public class ItemDetailToolBar extends ToolBar {
     private int viewCode;
 
     private ReturnCriteriaFK returnCriteriaFK;
+
+    private int type = TYPE_DEFAULT;
 
     public ItemDetailToolBar() {
         this.setBorders(false);
@@ -1680,5 +1686,13 @@ public class ItemDetailToolBar extends ToolBar {
 
     public boolean isStaging() {
         return isStaging;
+    }
+
+    public int getType() {
+        return this.type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }
