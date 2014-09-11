@@ -15,14 +15,12 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -96,7 +94,11 @@ public class SystemStorageWrapper extends StorageWrapper {
         if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
             return repository.getComplexType(DROPPED_ITEM_TYPE);
         } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
-            return repository.getComplexType("User"); //$NON-NLS-1$
+            String typeName = getTypeName(uniqueId);
+            if ("Role".equals(typeName)) { //$NON-NLS-1$
+                return repository.getComplexType("role-pOJO"); //$NON-NLS-1$
+            }
+            return repository.getComplexType(typeName);
         } else if ("MDMDomainObjects".equals(clusterName) || "MDMItemImages".equals(clusterName) || "FailedAutoCommitSvnMessage".equals(clusterName)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             return null; // Documents for these clusters don't have a predefined structure.
         }
@@ -106,6 +108,61 @@ public class SystemStorageWrapper extends StorageWrapper {
         }
         // MIGRATION.completed.record
         return repository.getComplexType(getTypeName(uniqueId));
+    }
+
+    @Override
+    public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
+        String clusterName = criteria.getClusterName();
+        Storage storage = getStorage(clusterName, criteria.getRevisionId());
+        MetadataRepository repository = storage.getMetadataRepository();
+
+        int totalCount = 0;
+        List<String> itemPKResults = new LinkedList<String>();
+        String typeName = criteria.getConceptName();
+
+        try {
+            storage.begin();
+            if (typeName != null && !typeName.isEmpty()) {
+                String internalTypeName = typeName;
+                String objectRootElementName = ObjectPOJO.getObjectRootElementName(typeName);
+                if(objectRootElementName != null) {
+                    internalTypeName = objectRootElementName;
+                }
+                totalCount = getTypeItemCount(criteria, repository.getComplexType(internalTypeName), storage);
+                itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(internalTypeName), storage, typeName));
+            } else {
+                // TMDM-4651: Returns type in correct dependency order.
+                Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
+                int maxCount = criteria.getMaxItems();
+                if(criteria.getSkip() < 0) { // MDM Studio may send negative values
+                    criteria.setSkip(0);
+                }
+                List<String> currentInstanceResults;
+                for (ComplexTypeMetadata type : types) {
+                    int count = getTypeItemCount(criteria, type, storage);
+                    totalCount += count;
+                    if(itemPKResults.size() < maxCount) {
+                        if(count > criteria.getSkip()) {
+                            currentInstanceResults = getTypeItems(criteria, type, storage, typeName);
+                            int n = maxCount - itemPKResults.size();
+                            if (n <= currentInstanceResults.size()){
+                                itemPKResults.addAll(currentInstanceResults.subList(0, n));
+                            } else {
+                                itemPKResults.addAll(currentInstanceResults);
+                            }
+                            criteria.setMaxItems(criteria.getMaxItems() - currentInstanceResults.size());
+                            criteria.setSkip(0);
+                        } else {
+                            criteria.setSkip(criteria.getSkip() - count);
+                        }
+                    }
+                }
+            }
+            itemPKResults.add(0, "<totalCount>" + totalCount + "</totalCount>");  //$NON-NLS-1$ //$NON-NLS-2$
+        } finally {
+            storage.commit();
+        }
+        return itemPKResults;
     }
 
     @Override
