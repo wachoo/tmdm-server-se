@@ -203,13 +203,24 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } catch (Exception exception) {
                 String errorMessage;
                 if (WebCoreException.class.isInstance(exception.getCause())) {
+                    WebCoreException webCoreException = (WebCoreException) exception.getCause();
                     errorMessage = getErrorMessageFromWebCoreException(((WebCoreException) exception.getCause()),
                             item.getConcept(), item.getIds(), locale);
+                    if (webCoreException.isClient()) {
+                        throw new ServiceException(errorMessage);
+                    }
+                    if (webCoreException.getLevel() == WebCoreException.INFO) {
+                        LOG.info(errorMessage);
+                    } else {
+                        LOG.error(errorMessage, exception);
+                    }
                 } else {
                     errorMessage = exception.getMessage();
+                    LOG.error(errorMessage, exception);
                 }
-                LOG.error(errorMessage, exception);
-                throw new ServiceException(errorMessage);
+                itemResults.add(MESSAGES.getMessage("message_error", locale)); //$NON-NLS-1$
+                itemResults.add(errorMessage);
+                return itemResults;
             }
         }
         return itemResults;

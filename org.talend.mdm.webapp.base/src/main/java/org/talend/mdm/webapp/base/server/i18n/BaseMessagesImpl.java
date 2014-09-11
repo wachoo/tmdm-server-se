@@ -141,6 +141,11 @@ public final class BaseMessagesImpl implements BaseMessages {
     }
 
     @Override
+    public String message_error() {
+        return MESSAGES.getMessage("message_error");
+    }
+
+    @Override
     public String edititem() {
         return MESSAGES.getMessage("edititem");
     }
@@ -199,4 +204,5 @@ public final class BaseMessagesImpl implements BaseMessages {
     public String matching_failed(String concept) {
         return MESSAGES.getMessage("matching_failed");
     }
+
 }
