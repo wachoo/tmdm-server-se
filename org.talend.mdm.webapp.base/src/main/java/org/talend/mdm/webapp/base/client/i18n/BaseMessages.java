@@ -54,6 +54,8 @@ public interface BaseMessages extends Messages {
 
     String message_success();
 
+    String message_error();
+
     String message_fail();
 
     String edititem();

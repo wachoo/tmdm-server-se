@@ -45,9 +45,14 @@ public class PhysicalDeleteAction implements DeleteAction {
                         }
                         String msg = sb.toString().trim();
                         if (msg.length() > 0) {
-                            msgBox = MessageBox.info(message.info_title(), msg, null);
-                            if (msgBox != null && msgTitle.equals(BaseMessagesFactory.getMessages().message_success())) {
-                                setTimeout(msgBox, 1000);
+                            if (msgTitle.equals(BaseMessagesFactory.getMessages().message_error())) {
+                                msgBox = MessageBox.alert(message.error_title(), msg, null);
+                                return;
+                            } else {
+                                msgBox = MessageBox.info(message.info_title(), msg, null);
+                                if (msgBox != null && msgTitle.equals(BaseMessagesFactory.getMessages().message_success())) {
+                                    setTimeout(msgBox, 1000);
+                                }
                             }
                         }
                     }
