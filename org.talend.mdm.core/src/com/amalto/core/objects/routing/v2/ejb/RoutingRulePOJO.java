@@ -28,7 +28,7 @@ public class RoutingRulePOJO extends ObjectPOJO implements Comparable<RoutingRul
 
     private String condition;
 
-    private Integer executeOrder;
+    private int executeOrder;
 
     private boolean deActive;
 
@@ -142,7 +142,7 @@ public class RoutingRulePOJO extends ObjectPOJO implements Comparable<RoutingRul
      * 
      * @return the executeOrder
      */
-    public Integer getExecuteOrder() {
+    public int getExecuteOrder() {
         return this.executeOrder;
     }
 
@@ -151,7 +151,7 @@ public class RoutingRulePOJO extends ObjectPOJO implements Comparable<RoutingRul
      * 
      * @param executeOrder the executeOrder to set
      */
-    public void setExecuteOrder(Integer executeOrder) {
+    public void setExecuteOrder(int executeOrder) {
         this.executeOrder = executeOrder;
     }
 
@@ -161,9 +161,7 @@ public class RoutingRulePOJO extends ObjectPOJO implements Comparable<RoutingRul
             return 1;
         }
         // ascending order
-        int thisValue = this.executeOrder == null ? 0 : this.executeOrder.intValue();
-        int thatValue = routingRule.getExecuteOrder() == null ? 0 : routingRule.getExecuteOrder().intValue();
-        return thisValue - thatValue;
+        return this.executeOrder - routingRule.executeOrder;
     }
 
 }

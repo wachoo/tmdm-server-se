@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
@@ -51,11 +50,13 @@ public class RoutingChart extends ChartPortlet {
     public RoutingChart(Portal portal) {
         super(WelcomePortal.CHART_ROUTING_EVENT, portal);
 
-        if (Cookies.getValue(cookieskeyConfig) != null) {
-            configModel = new TimeframeConfigModel((String) Cookies.getValue(cookieskeyConfig));
+        String setting = portalConfigs.getChartSetting(portletName);
+        if (setting != null) {
+            configModel = new TimeframeConfigModel(setting);
         } else {
-            configModel = new TimeframeConfigModel();
+            configModel = new TimeframeConfigModel(startedAsOn);
         }
+
         initConfigSettings();
 
         initChart();

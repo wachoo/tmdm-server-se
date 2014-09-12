@@ -41,15 +41,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.ejb.local.DroppedItemCtrlLocal;
-import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.role.ejb.RolePOJOPK;
-import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.*;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.util.*;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -72,8 +63,11 @@ import com.amalto.core.ejb.TransformerPOJO;
 import com.amalto.core.ejb.TransformerPOJOPK;
 import com.amalto.core.ejb.UpdateReportItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.ejb.local.DroppedItemCtrlLocal;
+import com.amalto.core.ejb.local.ItemCtrl2Local;
 import com.amalto.core.ejb.local.TransformerCtrlLocal;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
@@ -83,6 +77,17 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
 import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
+import com.amalto.core.objects.role.ejb.RolePOJO;
+import com.amalto.core.objects.role.ejb.RolePOJOPK;
+import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
+import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
+import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
+import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
 import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
@@ -103,6 +108,7 @@ import com.amalto.core.save.SaveException;
 import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
+import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
@@ -110,6 +116,18 @@ import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.util.BeforeDeletingErrorException;
+import com.amalto.core.util.DigestHelper;
+import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.RemoteExceptionFactory;
+import com.amalto.core.util.TransformerPluginContext;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.ValidateException;
+import com.amalto.core.util.Version;
+import com.amalto.core.util.WhereConditionForcePivotFilter;
+import com.amalto.core.util.XConverter;
+import com.amalto.core.util.XtentisException;
 import com.amalto.core.webservice.*;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 
@@ -1066,7 +1084,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE,
                     "/", //$NON-NLS-1$
                     LocalUser.getLocalUser().getUsername(),
-                    wsDeleteItem.getInvokeBeforeSaving(),
+                    wsDeleteItem.getInvokeBeforeDeleting(),
                     wsDeleteItem.getWithReport(),
                     wsDeleteItem.getOverride()));
             return itemPK;
@@ -1129,9 +1147,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                             message = result.message;
                         } else {
                             if (result.message == null) {
-                                return new WSString("Could not retrieve the validation process result. An error might have occurred. The record was not deleted.");
+                                return new WSString(
+                                        "Could not retrieve the validation process result. An error might have occurred. The record was not deleted."); //$NON-NLS-1$
                             } else {
-                                return new WSString("The validation process completed successfully. The record was deleted successfully.");
+                                throw new BeforeDeletingErrorException(result.message);
                             }
                         }
                     }
@@ -1149,7 +1168,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 return new WSString(message);
             }
         } catch (Exception e) {
-            throw new RemoteException(e.getLocalizedMessage(), e);
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
 

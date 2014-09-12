@@ -75,6 +75,11 @@ public class ClassRepository extends MetadataRepository {
         registeredSubClasses.put(ServiceBean.class, Arrays.<Class>asList(ServiceBMP.class));
     }
 
+    @Override
+    protected ValidationHandler getValidationHandler() {
+        return NoOpValidationHandler.INSTANCE;
+    }
+
     public void load(Class... classes) {
         // Parse classes
         for (Class clazz : classes) {

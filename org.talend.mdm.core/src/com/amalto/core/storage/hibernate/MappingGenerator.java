@@ -656,9 +656,6 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 } else {
                     elementTypeName = StorageMetadataUtils.getJavaType(fieldType);
                 }
-            } else if (dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && Types.DATE.equals(fieldType.getName())) {
-                // TMDM-5792: Prefer "Date" type for Oracle instead of "Timestamp"
-                elementTypeName = "date"; //$NON-NLS-1$
             } else {
                 elementTypeName = StorageMetadataUtils.getJavaType(fieldType);
             }

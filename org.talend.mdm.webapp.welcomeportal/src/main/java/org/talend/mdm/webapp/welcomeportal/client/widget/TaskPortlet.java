@@ -59,7 +59,8 @@ public class TaskPortlet extends BasePortlet {
 
         isHiddenWorkFlowTask = ((MainFramePanel) portal).isHiddenWorkFlowTask();
         isHiddenDSCTask = ((MainFramePanel) portal).isHiddenDSCTask();
-        initAutoRefresher();
+
+        initConfigSettings();
 
         label.setText(MessagesFactory.getMessages().loading_task_msg());
 
@@ -98,7 +99,7 @@ public class TaskPortlet extends BasePortlet {
                     numOfWorkflowTask = num;
 
                     buildAndShowWorkflowTasksOnly();
-                    autoRefresh(autoRefreshBtn.isOn());
+                    autoRefresh(configModel.isAutoRefresh());
                 }
 
             });
@@ -112,7 +113,7 @@ public class TaskPortlet extends BasePortlet {
                     numOfDSCTasks = dscTasks;
 
                     buildAndShowDSCTasksOnly();
-                    autoRefresh(autoRefreshBtn.isOn());
+                    autoRefresh(configModel.isAutoRefresh());
                 }
             });
         }
@@ -130,7 +131,7 @@ public class TaskPortlet extends BasePortlet {
                             numOfWorkflowTask = workflowNum;
                             numOfDSCTasks = dscTasks;
                             buildAndShowWorkflowTasksAndDSCTasks();
-                            autoRefresh(autoRefreshBtn.isOn());
+                            autoRefresh(configModel.isAutoRefresh());
                         }
                     });
                 }

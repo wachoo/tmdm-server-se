@@ -15,12 +15,16 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.talend.mdm.webapp.base.client.util.Cookies;
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalServiceAsync;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.BaseConfigModel;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
+import org.talend.mdm.webapp.welcomeportal.client.widget.PortletConfigDialog.PortletConfigListener;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
@@ -73,9 +77,9 @@ public abstract class BasePortlet extends Portlet {
 
     protected Timer autoRefresher;
 
-    protected AutoRefreshButton autoRefreshBtn;
-
     protected ToolButton refreshBtn;
+
+    protected PortalProperties portalConfigs;
 
     private boolean isAuto;
 
@@ -83,7 +87,13 @@ public abstract class BasePortlet extends Portlet {
 
     private int interval;
 
-    private String cookieskey;
+    protected String cookieskey;
+
+    protected ConfigModel configModel;
+
+    protected boolean configModelChanged;
+
+    protected boolean autoRefreshSwithced;
 
     public BasePortlet() {
         super();
@@ -144,18 +154,56 @@ public abstract class BasePortlet extends Portlet {
         this.setHeading();
         this.setIcon();
 
-        cookieskey = portletName + ".autoOnOff"; //$NON-NLS-1$
-
-        if (Cookies.getValue(cookieskey) == null) {
+        portalConfigs = ((MainFramePanel) portal).getProps();
+        Boolean autoRefreshOn = portalConfigs.getAutoRefreshStatus(portletName);
+        if (autoRefreshOn == null) {
             startedAsOn = ((MainFramePanel) portal).getStartedAsOn();
         } else {
-            startedAsOn = (Boolean) Cookies.getValue(cookieskey);
+            startedAsOn = autoRefreshOn;
         }
         interval = ((MainFramePanel) portal).getInterval();
 
+        // TODO: should we store 'interval' into db too ?
+        interval = ((MainFramePanel) portal).getInterval();
+
+        configModel = new BaseConfigModel(startedAsOn); // init and used for non-chart portlets, overwritten in chart
+        // portlets
+
     }
 
-    protected void initAutoRefresher() {
+    protected PortletConfigListener initConfigListener() {
+        PortletConfigListener configListener = new PortletConfigListener() {
+
+            @Override
+            public void onConfigUpdate(ConfigModel configModelFromUser) {
+                if (!BasePortlet.this.configModel.equals(configModelFromUser)) {
+                    BasePortlet.this.configModel = configModelFromUser;
+                    BasePortlet.this.autoRefresh(configModelFromUser.isAutoRefresh());
+                    service.savePortalConfig(portalConfigs, new SessionAwareAsyncCallback<Void>() {
+
+                        @Override
+                        public void onSuccess(Void result) {
+                            return;
+                        }
+
+                        @Override
+                        protected void doOnFailure(Throwable caught) {
+                            super.doOnFailure(caught);
+                        }
+                    });
+                    return;
+                } else {
+                    return;
+                }
+            }
+
+        };
+
+        return configListener;
+    }
+
+    protected void initConfigSettings() {
+
         autoRefresher = new Timer() {
 
             @Override
@@ -170,24 +218,15 @@ public abstract class BasePortlet extends Portlet {
 
         };
 
-        // TODO: use gear image temporarily, need find a suitbale image icon for auto-refresh
-        autoRefreshBtn = new AutoRefreshButton(startedAsOn, "x-tool-pin"); //$NON-NLS-1$
-        autoRefreshBtn.setTitle(MessagesFactory.getMessages().autorefresh());
+        this.getHeader().addTool(new ToolButton("x-tool-gear", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
 
-        autoRefreshBtn.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+                    @Override
+                    public void componentSelected(IconButtonEvent ce) {
+                        PortletConfigDialog.showConfig(configModel, initConfigListener());
+                    }
 
-            @Override
-            public void componentSelected(IconButtonEvent ce) {
-                autoRefreshBtn.flip();
-                autoRefreshBtn.setTitle(autoRefreshBtn.isOn() ? MessagesFactory.getMessages().autorefresh_on() : MessagesFactory
-                        .getMessages().autorefresh_off());
-                BasePortlet.this.autoRefresh(autoRefreshBtn.isOn());
-                Cookies.setValue(cookieskey, autoRefreshBtn.isOn());
-                return;
-            }
+                }));
 
-        });
-        BasePortlet.this.getHeader().addTool(autoRefreshBtn);
     }
 
     protected void setHeading() {
@@ -210,38 +249,11 @@ public abstract class BasePortlet extends Portlet {
 
     abstract public void refresh();
 
-    protected class AutoRefreshButton extends ToolButton {
-
-        private boolean on;
-
-        public AutoRefreshButton(boolean on, String style) {
-            super(style);
-            this.on = on;
-        }
-
-        public AutoRefreshButton(String style, SelectionListener<IconButtonEvent> listener) {
-            super(style, listener);
-        }
-
-        public AutoRefreshButton(boolean on, String style, SelectionListener<IconButtonEvent> listener) {
-            this(style, listener);
-            this.on = on;
-        }
-
-        public boolean isOn() {
-            return this.on;
-        }
-
-        public void flip() {
-            this.on = !on;
-        }
-    }
-
     public String getPortletName() {
         return this.portletName;
     }
 
     private native void removePortlet(String name)/*-{
-                                                  $wnd.amalto.core.unmarkPortlet(name);
-                                                  }-*/;
+        $wnd.amalto.core.unmarkPortlet(name);
+    }-*/;
 }

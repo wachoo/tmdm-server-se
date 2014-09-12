@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
 import org.talend.mdm.webapp.general.client.mvc.GeneralEvent;
@@ -60,8 +59,6 @@ public class ActionsPanel extends FormPanel {
     private static final String CHARTS_MESSAGE_ADD = "Enable charts"; //$NON-NLS-1$
 
     private static final String CHARTS_MESSAGE_REMOVE = "Disable charts"; //$NON-NLS-1$
-
-    private static final String COOKIES_CHARTS = "allCharts"; //$NON-NLS-1$
 
     private Set<String> allCharts;
 
@@ -367,9 +364,8 @@ public class ActionsPanel extends FormPanel {
         return dataModelBox.getValue().getValue();
     }
 
-    public void updatePortletConfig(Map<String, Boolean> portletVisibles) {
-        Map<String, Boolean> parsedConfig = parseConfig(portletVisibles.toString());
-
+    public void updatePortletConfig(Map<String, Boolean> boolenConfigs, Set<String> charts) {
+        Map<String, Boolean> parsedConfig = parseConfig(boolenConfigs.toString());
         for (CheckBox check : portletCKBoxes.values()) {
             String name = check.getName();
             if (parsedConfig.containsKey(name)) {
@@ -379,7 +375,8 @@ public class ActionsPanel extends FormPanel {
         }
 
         boolean isChartsOn = parsedConfig.get(CHARTS_ENABLED);
-        allCharts = new HashSet<String>((List<String>) Cookies.getValue(COOKIES_CHARTS));
+
+        allCharts = charts;
         if (!isChartsOn) {
             chartsCheck.setValue(false);
             for (CheckBox check : portletCKBoxes.values()) {
@@ -461,6 +458,6 @@ public class ActionsPanel extends FormPanel {
 
     // call refresh in WelcomePortal
     private native void refreshPortal(Map<String, Boolean> portalConfig)/*-{
-                                                                        $wnd.amalto.core.refreshPortal(portalConfig);
-                                                                        }-*/;
+		$wnd.amalto.core.refreshPortal(portalConfig);
+    }-*/;
 }

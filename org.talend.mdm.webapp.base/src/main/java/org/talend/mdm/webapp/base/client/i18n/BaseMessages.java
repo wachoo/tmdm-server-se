@@ -54,6 +54,8 @@ public interface BaseMessages extends Messages {
 
     String message_success();
 
+    String message_error();
+
     String message_fail();
 
     String edititem();
@@ -78,5 +80,5 @@ public interface BaseMessages extends Messages {
 
     String underlying_cause();
 
-    String service_rest_error_no_matchrule();
+    String matching_failed(String concept);
 }

@@ -239,6 +239,9 @@ public class ItemsDetailPanel extends ContentPanel {
     }
 
     public ItemDetailTabPanelContentHandle addTabItem(String title, ContentPanel panel, String pattern, String id) {
+        if (itemsDetailTabPanel.getTabTitles().contains(title)) {
+            itemsDetailTabPanel.closeTabPanelWithTitle(title);
+        }
         return itemsDetailTabPanel.addTabItem(title, panel, pattern, id);
     }
 
@@ -319,6 +322,9 @@ public class ItemsDetailPanel extends ContentPanel {
 
         // Internal state, saves id's and panels corresponding to each tab
         private Vector<String> tabIds = new Vector<String>();
+
+        // Saves tab titles so that avoid duplicate tab title
+        private Vector<String> tabTitles = new Vector<String>();
 
         private Vector<ContentPanel> tabPanels = new Vector<ContentPanel>();
 
@@ -480,6 +486,9 @@ public class ItemsDetailPanel extends ContentPanel {
                     // Save the ID
                     this.tabIds.add(id);
 
+                    // Save the ID
+                    this.tabTitles.add(title);
+
                     // Save the panel
                     this.tabPanels.add(panel);
 
@@ -492,6 +501,9 @@ public class ItemsDetailPanel extends ContentPanel {
 
                     // Save the ID
                     this.tabIds.add(id);
+
+                    // Save the ID
+                    this.tabTitles.add(title);
 
                     // Save the panel
                     this.tabPanels.add(panel);
@@ -517,6 +529,9 @@ public class ItemsDetailPanel extends ContentPanel {
 
                     // Save the ID
                     this.tabIds.add(id);
+
+                    // Save the ID
+                    this.tabTitles.add(title);
 
                     // Save the panel
                     this.tabPanels.add(panel);
@@ -607,6 +622,7 @@ public class ItemsDetailPanel extends ContentPanel {
 
                 this.tabBar.removeTab(index);
                 this.tabIds.remove(index);
+                this.tabTitles.remove(index);
                 this.tabPanels.remove(index);
             }
         }
@@ -627,6 +643,18 @@ public class ItemsDetailPanel extends ContentPanel {
          */
         public void closeTabPanelWithId(String tabItemId) {
             int index = tabIds.indexOf(tabItemId);
+            if (index >= 0) {
+                this.closeTabAtIndex(index);
+            }
+        }
+
+        /**
+         * Close tab with title. This does nothing if no tab title.
+         * 
+         * @param tabTitle
+         */
+        public void closeTabPanelWithTitle(String tabTitle) {
+            int index = this.tabTitles.indexOf(tabTitle);
             if (index >= 0) {
                 this.closeTabAtIndex(index);
             }
@@ -659,6 +687,7 @@ public class ItemsDetailPanel extends ContentPanel {
         public void clear() {
             this.buildNewTabBar();
             this.tabIds.removeAllElements();
+            this.tabTitles.removeAllElements();
             this.tabPanels.removeAllElements();
             this.tabContent.removeAll();
         }
@@ -732,6 +761,10 @@ public class ItemsDetailPanel extends ContentPanel {
             }
 
             return null;
+        }
+
+        public Vector<String> getTabTitles() {
+            return this.tabTitles;
         }
     }
 

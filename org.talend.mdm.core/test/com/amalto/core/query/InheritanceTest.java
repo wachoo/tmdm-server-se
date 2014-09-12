@@ -97,10 +97,11 @@ public class InheritanceTest extends StorageTestCase {
 
     public void testTypeOrdering() throws Exception {
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
-        String[] expectedOrder = { "Product", "Store", "A", "Update", "B", "D", "E", "C", "Employee1", "Manager1", "Country",
-                "Persons", "Employee", "Concurrent", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "Group", "SS",
-                "Supplier", "ProductFamily", "E2", "ff", "E1", "Manager", "Address", "a1", "EntityB", "a2", "TypeA", "EntityA",
-                "Company", "Person" };
+        String[] expectedOrder = { "A", "Store", "B", "D", "E", "Update", "C",
+                "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "Group", "SS", "ContainedEntityB", "E2",
+                "ContainedEntityA", "ff", "E1", "EntityB", "a1", "a2", "EntityA", "Company", "Product", "Employee1", "Country",
+                "Manager1", "Concurrent", "Persons", "Employee", "Manager", "Supplier", "ProductFamily", "Address", "TypeA",
+                "Person" };
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());
@@ -462,7 +463,7 @@ public class InheritanceTest extends StorageTestCase {
         }
         // Test 3
         qb = UserQueryBuilder.from(a).select(alias(type(a.getField("nestedB")), "type"));
-        List<TypedExpression> fields = UserQueryHelper.getFields(repository, "A", "nestedB/@xsi:type");
+        List<TypedExpression> fields = UserQueryHelper.getFields(a, "nestedB/@xsi:type");
         for (TypedExpression field : fields) {
             qb.orderBy(field, OrderBy.Direction.ASC);
         }
@@ -614,7 +615,7 @@ public class InheritanceTest extends StorageTestCase {
         }
         // Test 3
         qb = UserQueryBuilder.from(ss).select(alias(type(ss.getField("nestedB")), "type"));
-        List<TypedExpression> fields = UserQueryHelper.getFields(repository, "SS", "nestedB/@xsi:type");
+        List<TypedExpression> fields = UserQueryHelper.getFields(ss, "nestedB/@xsi:type");
         for (TypedExpression field : fields) {
             qb.orderBy(field, OrderBy.Direction.ASC);
         }

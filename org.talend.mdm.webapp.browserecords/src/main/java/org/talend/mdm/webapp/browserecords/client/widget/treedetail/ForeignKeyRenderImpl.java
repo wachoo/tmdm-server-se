@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyTabModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
@@ -122,7 +123,9 @@ public class ForeignKeyRenderImpl implements ForeignKeyRender {
             HashMap<String, ItemPanel> cachedEntityMap = BrowseRecords.getSession().getCurrentCachedEntity();
             String ids = toolBar.getItemBean().getIds() != null ? toolBar.getItemBean().getIds() : ""; //$NON-NLS-1$
             String key = toolBar.getItemBean().getConcept() + ids + detailPanel.isOutMost();
-            if (cachedEntityMap != null && cachedEntityMap.containsKey(key)) {
+            String panelKey = ((toolBar.getViewCode() == BrowseRecordsView.LINEAGE_VIEW_CODE) ? BrowseRecordsView.LINEAGE_ITEMVIEW
+                    : "") + key; //$NON-NLS-1$
+            if (cachedEntityMap != null && cachedEntityMap.containsKey(panelKey)) {
                 ForeignKeyTabModel fkTabModel = new ForeignKeyTabModel(parentModel, xpathLabel, itemPanel, handler);
                 HashMap<String, LinkedHashMap<String, ForeignKeyTabModel>> cachedFkPanels = BrowseRecords.getSession()
                         .getCurrentCachedFKTabs();

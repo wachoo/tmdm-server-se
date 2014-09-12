@@ -213,24 +213,11 @@ public abstract class ObjectPOJO implements Serializable {
         }
     }
 
-    public static HashMap<String, String> getObjectsNames2RootNamesMap() {
+    public static String getObjectRootElementName(String name) {
         if (OBJECTS_NAMES_TO_ROOT_NAMES_MAP.size() == 0) {
             initObjectsNames2RootNamesMap();
         }
-        return new HashMap<String, String>(OBJECTS_NAMES_TO_ROOT_NAMES_MAP);
-    }
-
-    public static String getObjectRootElementName(String name) throws XtentisException {
-        if (OBJECTS_NAMES_TO_ROOT_NAMES_MAP.size() == 0) {
-            initObjectsNames2RootNamesMap();
-        }
-        try {
-            return OBJECTS_NAMES_TO_ROOT_NAMES_MAP.get(name);
-        } catch (Exception e) {
-            String err = "No element name found for Object " + name;
-            LOG.error(err, e);
-            throw new XtentisException(err, e);
-        }
+        return OBJECTS_NAMES_TO_ROOT_NAMES_MAP.get(name);
     }
 
     public ObjectPOJO() {

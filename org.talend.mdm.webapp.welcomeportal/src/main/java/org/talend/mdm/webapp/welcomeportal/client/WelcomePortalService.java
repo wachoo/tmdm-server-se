@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -29,13 +30,13 @@ public interface WelcomePortalService extends RemoteService {
     public boolean isHiddenLicense() throws ServiceException;
 
     public boolean isHiddenWorkFlowTask() throws ServiceException;
-    
-    public boolean isHiddenDSCTask() throws ServiceException;    
+
+    public boolean isHiddenDSCTask() throws ServiceException;
 
     public String getAlertMsg(String language) throws ServiceException;
 
     public int getWorkflowTaskMsg() throws ServiceException;
-    
+
     public Map<String, Integer> getDSCTaskMsg() throws ServiceException;
 
     public List<String> getStandaloneProcess(String language) throws ServiceException;
@@ -53,4 +54,9 @@ public interface WelcomePortalService extends RemoteService {
     public String getCurrentDataContainer() throws ServiceException;
 
     public Map<Boolean, Integer> getWelcomePortletConfig() throws Exception;
+
+    public PortalProperties getPortalConfig() throws ServiceException;
+
+    public void savePortalConfig(PortalProperties config) throws ServiceException;
+
 }

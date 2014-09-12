@@ -259,6 +259,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String message_fail();
 
+    String message_error();
+
     String data_model_not_specified();
 
     String delete_process_validation_failure();
@@ -490,7 +492,7 @@ public interface BrowseRecordsMessages extends Messages {
     String status_204(String dataCluser);
 
     String status_205();
-    
+
     String status_206();
 
     String status_401(String dataCluser);

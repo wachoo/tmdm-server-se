@@ -18,17 +18,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.talend.mdm.webapp.base.client.util.Cookies;
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
-import org.talend.mdm.webapp.welcomeportal.client.widget.ChartConfigDialog.ChartConfigListener;
+import org.talend.mdm.webapp.welcomeportal.client.widget.PortletConfigDialog.PortletConfigListener;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -46,12 +44,6 @@ public abstract class ChartPortlet extends BasePortlet {
 
     protected boolean dataContainerChanged;
 
-    protected boolean configModelChanged;
-
-    protected ConfigModel configModel;
-
-    protected String cookieskeyConfig;
-
     private int plotWidth;
 
     private int plotHeight;
@@ -59,37 +51,51 @@ public abstract class ChartPortlet extends BasePortlet {
     public ChartPortlet(String name, Portal portal) {
         super(name, portal);
 
-        initAutoRefresher();
-
-        cookieskeyConfig = portletName + ".config"; //$NON-NLS-1$
-
     }
 
-    protected void initConfigSettings() {
-        this.getHeader().addTool(new ToolButton("x-tool-gear", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
+    @Override
+    protected PortletConfigListener initConfigListener() {
+        PortletConfigListener configListener = new PortletConfigListener() {
 
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        ChartConfigDialog.showConfig(configModel, new ChartConfigListener() {
-
-                            @Override
-                            public void onConfigUpdate(ConfigModel configModel) {
-                                if (!ChartPortlet.this.configModel.equals(configModel)) {
-                                    ChartPortlet.this.configModel = configModel;
-                                    configModelChanged = true;
-                                    Cookies.setValue(cookieskeyConfig, configModel.getSetting());
-                                    refresh();
-                                } else {
-                                    configModelChanged = false;
-                                    return;
-                                }
-                            }
-
-                        });
+            @Override
+            public void onConfigUpdate(ConfigModel configModel) {
+                if (!ChartPortlet.this.configModel.equals(configModel)) {
+                    configModelChanged = true;
+                    if (ChartPortlet.this.configModel.isAutoRefresh().equals(configModel.isAutoRefresh())) {
+                        ChartPortlet.this.configModel = configModel;
+                        // Cookies.setValue(cookieskeyConfig, configModel.getSetting());
+                        refresh();
+                    } else {
+                        ChartPortlet.this.configModel = configModel;
+                        // Cookies.setValue(cookieskey, configModel.isAutoRefresh());
+                        // Cookies.setValue(cookieskeyConfig, configModel.getSetting());
+                        ChartPortlet.this.autoRefresh(configModel.isAutoRefresh());
                     }
 
-                }));
+                    //
+                    portalConfigs.add(PortalProperties.KEY_AUTO_ONOFFS, portletName, configModel.isAutoRefresh().toString());
+                    portalConfigs.add(PortalProperties.KEY_CHART_SETTINGS, portletName, configModel.getSetting());
 
+                    service.savePortalConfig(portalConfigs, new SessionAwareAsyncCallback<Void>() {
+
+                        @Override
+                        public void onSuccess(Void result) {
+                            return;
+                        }
+
+                        @Override
+                        protected void doOnFailure(Throwable caught) {
+                            super.doOnFailure(caught);
+                        }
+                    });
+                } else {
+                    configModelChanged = false;
+                    return;
+                }
+            }
+        };
+
+        return configListener;
     }
 
     protected void initPlot() {
@@ -120,7 +126,7 @@ public abstract class ChartPortlet extends BasePortlet {
         set.removeAll();
         set.add(plot);
         set.layout(true);
-        this.autoRefresh(autoRefreshBtn.isOn());
+        this.autoRefresh(configModel.isAutoRefresh());
 
         this.addListener(Events.Resize, new Listener<BaseEvent>() {
 

@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.Cookies;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
@@ -46,10 +45,11 @@ public class DataChart extends ChartPortlet {
     public DataChart(Portal portal) {
         super(WelcomePortal.CHART_DATA, portal);
 
-        if (Cookies.getValue(cookieskeyConfig) != null) {
-            configModel = new EntityConfigModel((String) Cookies.getValue(cookieskeyConfig));
+        String setting = portalConfigs.getChartSetting(portletName);
+        if (setting != null) {
+            configModel = new EntityConfigModel(setting);
         } else {
-            configModel = new EntityConfigModel();
+            configModel = new EntityConfigModel(startedAsOn);
         }
         initConfigSettings();
 

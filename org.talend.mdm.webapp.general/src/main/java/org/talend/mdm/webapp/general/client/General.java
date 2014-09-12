@@ -63,28 +63,28 @@ public class General implements EntryPoint {
     }
 
     private native void preventSelecStart()/*-{
-        $doc.body.onselectstart = function() {
-            return false;
-        };
+		$doc.body.onselectstart = function() {
+			return false;
+		};
     }-*/;
 
     public native void recordStatus()/*-{
-        var instance = this;
-        $wnd.onunload = function() {
-            instance.@org.talend.mdm.webapp.general.client.General::recordPanelStatus()();
-        };
+		var instance = this;
+		$wnd.onunload = function() {
+			instance.@org.talend.mdm.webapp.general.client.General::recordPanelStatus()();
+		};
     }-*/;
 
     public native void registerPortalConfigService()/*-{
-        var actionsPanel = @org.talend.mdm.webapp.general.client.layout.ActionsPanel::getInstance()();
+		var actionsPanel = @org.talend.mdm.webapp.general.client.layout.ActionsPanel::getInstance()();
 
-        $wnd.amalto.core.markPortlets = function(configs) {
-            actionsPanel.@org.talend.mdm.webapp.general.client.layout.ActionsPanel::updatePortletConfig(Ljava/util/Map;)(configs);
-        };
+		$wnd.amalto.core.markPortlets = function(configs, allCharts) {
+			actionsPanel.@org.talend.mdm.webapp.general.client.layout.ActionsPanel::updatePortletConfig(Ljava/util/Map;Ljava/util/Set;)(configs, allCharts);
+		};
 
-        $wnd.amalto.core.unmarkPortlet = function(name) {
-            actionsPanel.@org.talend.mdm.webapp.general.client.layout.ActionsPanel::uncheckPortlet(Ljava/lang/String;)(name);
-        };
+		$wnd.amalto.core.unmarkPortlet = function(name) {
+			actionsPanel.@org.talend.mdm.webapp.general.client.layout.ActionsPanel::uncheckPortlet(Ljava/lang/String;)(name);
+		};
     }-*/;
 
     public void recordPanelStatus() {
