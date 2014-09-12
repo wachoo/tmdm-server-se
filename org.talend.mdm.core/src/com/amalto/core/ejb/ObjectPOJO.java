@@ -41,6 +41,7 @@ import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
 import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJO;
+import com.amalto.core.objects.synchronization.ejb.SynchronizationObjectPOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2POJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
@@ -116,6 +117,7 @@ public abstract class ObjectPOJO implements Serializable {
                     {"Universe", UniversePOJO.class}, //$NON-NLS-1$
                     {"Synchronization Plan", SynchronizationPlanPOJO.class}, //$NON-NLS-1$
                     {"Synchronization Conflict", SynchronizationItemPOJO.class}, //$NON-NLS-1$
+                    {"Synchronization Object", SynchronizationObjectPOJO.class}, //$NON-NLS-1$
                     {"Custom Layout", CustomFormPOJO.class}, //$NON-NLS-1$
                     {"Item", ItemPOJO.class} //$NON-NLS-1$
             };
@@ -625,17 +627,20 @@ public abstract class ObjectPOJO implements Serializable {
             }
             // get the xml server wrapper
             String clusterName = getCluster(getObjectClass(objectName));
+            String rootElementName = getObjectRootElementName(objectName);
+            
+            
             ItemCtrl2Local itemCtrl2Bean = Util.getItemCtrl2Local();
             List<IWhereItem> conditions = new LinkedList<IWhereItem>();
             if (instancePattern != null && !".*".equals(instancePattern)) {
-                WhereCondition idCondition = new WhereCondition(objectName + "/i", //$NON-NLS-1$
+                WhereCondition idCondition = new WhereCondition(rootElementName + "/../../i", //$NON-NLS-1$
                         WhereCondition.CONTAINS,
                         instancePattern,
                         WhereCondition.PRE_NONE);
                 conditions.add(idCondition);
             }
             if (synchronizationPlanName != null && !synchronizationPlanName.isEmpty()) {
-                WhereCondition planCondition = new WhereCondition(objectName + "/last-synch", //$NON-NLS-1$
+                WhereCondition planCondition = new WhereCondition(rootElementName + "/../../last-synch", //$NON-NLS-1$
                         WhereCondition.EQUALS,
                         synchronizationPlanName,
                         WhereCondition.PRE_NOT);
@@ -643,7 +648,7 @@ public abstract class ObjectPOJO implements Serializable {
             }
             IWhereItem whereItem = new WhereAnd(conditions);
             ArrayList<String> elements = new ArrayList<String>();
-            elements.add(objectName + "/i"); //$NON-NLS-1$
+            elements.add(rootElementName + "/../../i"); //$NON-NLS-1$
             return itemCtrl2Bean.xPathsSearch(new DataClusterPOJOPK(clusterName),
                     null,
                     elements,
