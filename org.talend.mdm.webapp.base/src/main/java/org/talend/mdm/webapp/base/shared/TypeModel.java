@@ -248,7 +248,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     public List<String> getForeignKeyInfo() {
         Iterator<String> iterator = foreignKeyInfo.iterator();
         while (iterator.hasNext()) {
-            if (StringUtils.isEmpty(iterator.next())) {
+            String next = iterator.next();
+            if (next == null || next.isEmpty()) {
                 iterator.remove();
             }
         }
