@@ -627,7 +627,7 @@ public abstract class ObjectPOJO implements Serializable {
                 conditions.add(idCondition);
             }
             if (synchronizationPlanName != null && !synchronizationPlanName.isEmpty()) {
-                WhereCondition planCondition = new WhereCondition(rootElementName + "/../../last-synch", //$NON-NLS-1$
+                WhereCondition planCondition = new WhereCondition(rootElementName + "/last-synch", //$NON-NLS-1$
                         WhereCondition.EQUALS,
                         synchronizationPlanName,
                         WhereCondition.PRE_NOT);
