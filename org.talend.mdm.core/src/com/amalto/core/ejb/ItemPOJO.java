@@ -843,14 +843,14 @@ public class ItemPOJO implements Serializable {
             ItemCtrl2Local itemCtrl2Bean = Util.getItemCtrl2Local();
             List<IWhereItem> conditions = new LinkedList<IWhereItem>();
             if (instancePattern != null && !".*".equals(instancePattern)) {
-                IWhereItem idCondition = new WhereCondition(conceptName + "/i", //$NON-NLS-1$
+                IWhereItem idCondition = new WhereCondition(conceptName + "/../../i", //$NON-NLS-1$
                         WhereCondition.CONTAINS,
                         instancePattern,
                         WhereCondition.PRE_NONE);
                 conditions.add(idCondition);
             }
             if (planPK != null && planPK.getIds() != null) {
-                IWhereItem planCondition = new WhereCondition(conceptName + "/sp", //$NON-NLS-1$
+                IWhereItem planCondition = new WhereCondition(conceptName + "/../../sp", //$NON-NLS-1$
                         WhereCondition.EQUALS,
                         planPK.getUniqueId(),
                         WhereCondition.PRE_NOT);
@@ -858,7 +858,7 @@ public class ItemPOJO implements Serializable {
             }
             IWhereItem whereItem = new WhereAnd(conditions);
             ArrayList<String> elements = new ArrayList<String>();
-            elements.add(conceptName + "/i"); //$NON-NLS-1$
+            elements.add(conceptName + "/../../i"); //$NON-NLS-1$
             ArrayList<String> ids = itemCtrl2Bean.xPathsSearch(dataClusterPOJOPK,
                     null,
                     elements,
@@ -869,7 +869,9 @@ public class ItemPOJO implements Serializable {
                     false);
             ArrayList<ItemPOJOPK> results = new ArrayList<ItemPOJOPK>(ids.size());
             for (String id : ids) {
-                results.add(new ItemPOJOPK(dataClusterPOJOPK, conceptName, id.split("."))); //$NON-NLS-1$
+                Document remoteDocId = Util.parse(id);
+                String[] itemIds = Util.getTextNodes(remoteDocId, "result/i"); //$NON-NLS-1$
+                results.add(new ItemPOJOPK(dataClusterPOJOPK, conceptName, itemIds));
             }
             return results;
         } catch (Exception e) {

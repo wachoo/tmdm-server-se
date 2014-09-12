@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.metadata.LongString;
 
 /**
  * @author Bruno Grieder
@@ -92,7 +93,7 @@ public class SynchronizationObjectPOJO extends ObjectPOJO{
     	this.status = status;
     }
 
-
+	@LongString
 	public String getResolvedXML() {
     	return resolvedXML;
     }
