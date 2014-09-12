@@ -13,11 +13,9 @@
 package org.talend.mdm.webapp.base.shared;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.webapp.base.client.model.DataType;
 import org.talend.mdm.webapp.base.client.model.SubTypeBean;
 
@@ -248,7 +246,13 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     }
 
     public List<String> getForeignKeyInfo() {
-        return foreignKeyInfo;
+        Iterator<String> iterator = foreignKeyInfo.iterator();
+        while (iterator.hasNext()) {
+            if (StringUtils.isEmpty(iterator.next())) {
+                iterator.remove();
+            }
+        }
+        return Collections.unmodifiableList(foreignKeyInfo);
     }
 
     public void setForeignKeyInfo(List<String> foreignKeyInfo) {
