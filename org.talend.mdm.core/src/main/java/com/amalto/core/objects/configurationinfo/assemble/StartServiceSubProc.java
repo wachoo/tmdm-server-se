@@ -1,9 +1,7 @@
 package com.amalto.core.objects.configurationinfo.assemble;
 
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
 import com.amalto.core.util.Util;
-
+import org.apache.log4j.Logger;
 
 
 public class StartServiceSubProc extends AssembleSubProc{
@@ -21,13 +19,16 @@ public class StartServiceSubProc extends AssembleSubProc{
 					null, 
 					"amalto/local/service/workflow"
 				);
-			
-			com.amalto.core.util.Util.getMethod(workflowService, "start").invoke(
-					workflowService,
-					new Object[] {}
-				);
-			
-		}
+
+            try {
+                Util.getMethod(workflowService, "start").invoke(
+                        workflowService,
+                        new Object[] {}
+                    );
+            } catch (Exception e) {
+                Logger.getLogger(StartServiceSubProc.class).error("Could not start workflow service.", e);
+            }
+        }
 		
 	}
 	

@@ -24,7 +24,7 @@ http://cxf.apache.org/schemas/jaxws.xsd">
     <!-- Security authentication manager -->
     <bean class="org.talend.mdm.server.security.SecurityConfig"/>
     <!-- CXF Services -->
-    <jaxrs:server id="services" address="/">
+    <jaxrs:server id="services" address="/services">
         <jaxrs:serviceBeans>
             <!-- MDM Transaction service -->
             <bean class="org.talend.mdm.storage.transaction.TransactionService"/>
@@ -36,19 +36,9 @@ http://cxf.apache.org/schemas/jaxws.xsd">
             <bean class="org.talend.mdm.storage.services.JournalStatistics"/>
             <bean class="org.talend.mdm.storage.services.DataStatistics"/>
             <bean class="org.talend.mdm.storage.services.EventStatistics"/>
-
-            <!-- Enterprise services -->
-            <!--
-            <bean class="com.amalto.core.storage.services.DataService"/>
-            <bean class="com.amalto.core.storage.services.MatchingStatistics"/>
-            <bean class="com.amalto.core.storage.task.matching.ExplainTaskService"/>
-            <bean class="com.amalto.core.storage.task.matching.SimilarTaskService"/>
-            -->
         </jaxrs:serviceBeans>
     </jaxrs:server>
     <!-- Legacy services -->
-    <!--<bean class="org.talend.mdm.server.lifecycle.tomcat.LegacyServices" name="#legacy"/>-->
     <jaxws:endpoint implementor="org.talend.mdm.server.lifecycle.tomcat.LegacyServices"
                     address="/datamanager"/>
-    <!--<jaxws:server serviceClass="com.amalto.core.webservice.XtentisPort" address="/datamanager" serviceBean="#legacy"/>-->
 </beans>

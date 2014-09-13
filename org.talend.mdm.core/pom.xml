@@ -5,21 +5,13 @@
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
         <version>5.6-SNAPSHOT</version>
-        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.core</artifactId>
     <name>org.talend.mdm.core</name>
-    <packaging>war</packaging>
 
     <properties>
-        <war>zz.30.core</war>
-        <ejbs>zz.20.core</ejbs>
-        <lib>z.mdm.core</lib>
-        <service>org.talend.mdm.jullog4jservice</service>
-        <jaas>org.talend.mdm.jaas</jaas>
-        <util>org.talend.mdm.util</util>
         <version.properties>product_version.properties</version.properties>
         <jackson.version>1.8.6</jackson.version>
     </properties>

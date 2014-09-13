@@ -41,7 +41,7 @@ import java.util.*;
 
 public class StorageAdminImpl implements StorageAdmin {
 
-    public static final String MATCH_RULE_POJO_CLASS = "com.amalto.core.storage.task.config.MatchRulePOJO"; //$NON-NLS-1$
+    public static final String MATCH_RULE_POJO_CLASS = "org.talend.mdm.storage.task.config.MatchRulePOJO"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(StorageAdminImpl.class);
 

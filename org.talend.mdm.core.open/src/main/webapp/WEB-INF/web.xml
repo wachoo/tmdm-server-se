@@ -1,9 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
-
-<web-app>
-
+<?xml version="1.0" encoding="utf-8"?>
+<web-app
+        xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+        version="2.4">
+    <display-name>Talend MDM</display-name>
+    <description>Talend MDM server</description>
+    <!-- Spring initialization -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>WEB-INF/beans.xml</param-value>
+    </context-param>
+    <listener>
+        <listener-class>
+            org.springframework.web.context.ContextLoaderListener
+        </listener-class>
+    </listener>
+    <!-- Additional MDM filters -->
     <filter>
         <filter-name>errorFilter</filter-name>
         <filter-class>com.amalto.core.servlet.ErrorFilter</filter-class>
@@ -12,7 +25,15 @@
         <filter-name>transactionFilter</filter-name>
         <filter-class>com.amalto.core.servlet.TransactionFilter</filter-class>
     </filter>
-
+    <!-- Spring security -->
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <!-- Enable bulk load servlet to print out full exception stack trace in case of error/exception -->
     <filter-mapping>
         <filter-name>errorFilter</filter-name>
@@ -23,11 +44,7 @@
         <filter-name>transactionFilter</filter-name>
         <url-pattern>/loadServlet</url-pattern>
     </filter-mapping>
-
-    <listener>
-        <listener-class>com.amalto.core.servlet.ContextListener</listener-class>
-    </listener>
-
+    <!-- Web services -->
     <servlet>
         <servlet-name>runServlet</servlet-name>
         <display-name>run Servlet</display-name>
@@ -72,25 +89,9 @@
 
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
-        <display-name>CXF Servlet</display-name>
-        <servlet-class>com.amalto.core.servlet.CXFServlet</servlet-class>
-        <init-param>
-            <param-name>jaxrs.serviceClasses</param-name>
-            <param-value>
-                org.talend.mdm.storage.task.staging.StagingTaskService
-                org.talend.mdm.storage.transaction.TransactionService
-                org.talend.mdm.storage.task.matching.ExplainTaskService
-                org.talend.mdm.storage.task.matching.SimilarTaskService org.talend.mdm.storage.services.SystemModels
-                org.talend.mdm.storage.services.DataService org.talend.mdm.storage.services.JournalStatistics
-                org.talend.mdm.storage.services.MatchingStatistics org.talend.mdm.storage.services.DataStatistics
-                org.talend.mdm.storage.services.EventStatistics
-            </param-value>
-        </init-param>
-        <init-param>
-            <param-name>jaxrs.providers</param-name>
-            <param-value>org.talend.mdm.storage.task.staging.SerializableListWriter</param-value>
-        </init-param>
-
+        <servlet-class>
+            org.apache.cxf.transport.servlet.CXFServlet
+        </servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
@@ -148,69 +149,4 @@
         <servlet-name>MatchingLogViewerServlet</servlet-name>
         <url-pattern>/logviewer/match</url-pattern>
     </servlet-mapping>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Run</web-resource-name>
-            <url-pattern>/run</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>administration</role-name>
-        </auth-constraint>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>UploadFile</web-resource-name>
-            <url-pattern>/uploadFile</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>authenticated</role-name>
-        </auth-constraint>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>LoadServlet</web-resource-name>
-            <url-pattern>/loadServlet</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>administration</role-name>
-            <role-name>authenticated</role-name>
-        </auth-constraint>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Services</web-resource-name>
-            <url-pattern>/services/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>administration</role-name>
-            <role-name>authenticated</role-name>
-        </auth-constraint>
-    </security-constraint>
-
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Log viewer service</web-resource-name>
-            <url-pattern>/logviewer/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>administration</role-name>
-        </auth-constraint>
-    </security-constraint>
-
-    <login-config>
-        <auth-method>BASIC</auth-method>
-        <realm-name>xtentisSecurity</realm-name>
-    </login-config>
-
-    <security-role>
-        <role-name>administration</role-name>
-    </security-role>
-    <security-role>
-        <role-name>authenticated</role-name>
-    </security-role>
-
 </web-app>

@@ -82,9 +82,9 @@ public class HibernateStorage implements Storage {
 
     public static final HibernateStorage.LocalEntityResolver ENTITY_RESOLVER = new HibernateStorage.LocalEntityResolver();
 
-    private static final String CLASS_LOADER = "com.amalto.core.storage.hibernate.DefaultStorageClassLoader"; //$NON-NLS-1$
+    private static final String CLASS_LOADER = "org.talend.mdm.storage.hibernate.DefaultStorageClassLoader"; //$NON-NLS-1$
 
-    private static final String ALTERNATE_CLASS_LOADER = "com.amalto.core.storage.hibernate.FullStorageClassLoader"; //$NON-NLS-1$
+    private static final String ALTERNATE_CLASS_LOADER = "org.talend.mdm.storage.hibernate.FullStorageClassLoader"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorage.class);
 

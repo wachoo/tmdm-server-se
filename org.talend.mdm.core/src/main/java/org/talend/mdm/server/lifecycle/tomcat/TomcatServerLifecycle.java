@@ -10,20 +10,19 @@
 
 package org.talend.mdm.server.lifecycle.tomcat;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ServiceLoader;
-
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
-
 import org.talend.mdm.server.*;
 import org.talend.mdm.storage.*;
 import org.talend.mdm.storage.datasource.DataSourceDefinition;
 import org.talend.mdm.storage.datasource.RDBMSDataSource;
 import org.talend.mdm.storage.dispatch.CompositeStorage;
 import org.talend.mdm.storage.hibernate.HibernateStorage;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ServiceLoader;
 
 public class TomcatServerLifecycle implements ServerLifecycle {
 
@@ -46,6 +45,7 @@ public class TomcatServerLifecycle implements ServerLifecycle {
 
     @Override
     public Server createServer() {
+        LOGGER.info("Using MDM in Tomcat context.");
         return new TomcatServer();
     }
 

@@ -69,7 +69,7 @@ public class DefaultSaverSource implements SaverSource {
 
     private static boolean isFullSQL() {
         return MDMConfiguration.isSqlDataBase()
-                && "com.amalto.core.storage.SQLWrapper".equals(MDMConfiguration.getConfiguration().get("xmlserver.class"));  //$NON-NLS-1$ //$NON-NLS-2$
+                && "org.talend.mdm.storage.SQLWrapper".equals(MDMConfiguration.getConfiguration().get("xmlserver.class"));  //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public static SaverSource getDefault(String userName) {

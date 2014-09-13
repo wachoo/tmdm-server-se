@@ -10,45 +10,6 @@
 
 package com.amalto.core.save;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.bean.ItemCacheKey;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.DeleteType;
@@ -62,25 +23,47 @@ import com.amalto.core.save.context.StorageDocument;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
+import com.amalto.core.util.OutputReport;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.ValidateException;
+import com.amalto.xmlserver.interfaces.XmlServerException;
+import junit.framework.TestCase;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.bean.ItemCacheKey;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.server.ServerContext;
 import org.talend.mdm.server.server.MockMetadataRepositoryAdmin;
 import org.talend.mdm.server.server.MockServerLifecycle;
-import org.talend.mdm.server.ServerContext;
-import org.talend.mdm.storage.ItemPKCriteriaResultsWriter;
-import org.talend.mdm.storage.SecuredStorage;
-import org.talend.mdm.storage.StagingStorage;
-import org.talend.mdm.storage.Storage;
-import org.talend.mdm.storage.StorageMetadataUtils;
-import org.talend.mdm.storage.StorageResults;
-import org.talend.mdm.storage.StorageType;
+import org.talend.mdm.storage.*;
 import org.talend.mdm.storage.hibernate.HibernateStorage;
 import org.talend.mdm.storage.record.DataRecord;
 import org.talend.mdm.storage.record.DataRecordReader;
 import org.talend.mdm.storage.record.DataRecordWriter;
 import org.talend.mdm.storage.record.XmlStringDataRecordReader;
-import com.amalto.core.util.OutputReport;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.ValidateException;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.*;
+
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -94,7 +77,7 @@ public class DocumentSaveTest extends TestCase {
     static {
         LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        MDMConfiguration.getConfiguration().setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
+        MDMConfiguration.getConfiguration().setProperty("xmlserver.class", "org.talend.mdm.storage.DispatchWrapper");
         SaverSession.setDefaultCommitter(new MockCommitter());
         LOG.info("MDM server environment set.");
     }

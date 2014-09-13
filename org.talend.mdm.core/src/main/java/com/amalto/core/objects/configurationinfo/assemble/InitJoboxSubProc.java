@@ -1,12 +1,12 @@
 package com.amalto.core.objects.configurationinfo.assemble;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Properties;
-
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.util.JoboxConfig;
 import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Properties;
 
 public class InitJoboxSubProc extends AssembleSubProc{
 
@@ -26,7 +26,7 @@ public class InitJoboxSubProc extends AssembleSubProc{
         try {
             jobContainer.init(props);
         } catch (Exception e) {
-            LOGGER.error("Could not start job container.");
+            LOGGER.error("Could not start job container.", e);
         }
     }
 }

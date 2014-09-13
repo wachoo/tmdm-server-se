@@ -38,7 +38,7 @@ public class TaskFactory {
         List<Task> tasks = new ArrayList<Task>();
         // Adds match & merge (if available)
         try {
-            Class<?> clazz = Class.forName("com.amalto.core.storage.task.MatchMergeTask"); //$NON-NLS-1$
+            Class<?> clazz = Class.forName("org.talend.mdm.storage.task.MatchMergeTask"); //$NON-NLS-1$
             Constructor<?> constructor = clazz.getConstructor(Storage.class,
                     Storage.class,
                     MetadataRepository.class,

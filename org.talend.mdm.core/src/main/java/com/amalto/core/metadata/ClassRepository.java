@@ -290,8 +290,7 @@ public class ClassRepository extends MetadataRepository {
         Class superClass = clazz.getSuperclass();
         if (!Object.class.equals(superClass)) {
             try {
-                superClass.getMethod(declaredMethod.getName(), declaredMethod.getParameterTypes());
-                return false;
+                return superClass.getMethod(declaredMethod.getName(), declaredMethod.getParameterTypes()) != null;
             } catch (NoSuchMethodException e) {
                 return true;
             }

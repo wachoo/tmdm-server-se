@@ -400,6 +400,9 @@ public class Util {
      * Get the method of a component by its name
      */
     public static Method getMethod(Object component, String methodName) {
+        if(component == null) {
+            return null;
+        }
         Method[] methods = component.getClass().getMethods();
         for (Method method : methods) {
             if (methodName.equals(method.getName())) {

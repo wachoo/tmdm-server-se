@@ -58,7 +58,11 @@ public class CoreUpgrades {
         previousCoreConf.setBuild(thisVersion.getBuild());
         previousCoreConf.setReleaseNote(thisVersion.getDescription());
         previousCoreConf.setDate(thisVersion.getDate());
-        ctrl.putConfigurationInfo(previousCoreConf);
+        try {
+            ctrl.putConfigurationInfo(previousCoreConf);
+        } catch (XtentisException e) {
+            LOGGER.error("Could not upgrade configuration.", e);
+        }
     }
 
     /**
