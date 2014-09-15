@@ -257,7 +257,9 @@ public class MultipleCriteriaPanel extends SimplePanel {
             Widget widget = rightPanel.getWidget(i);
             if (widget instanceof SimpleCriterionPanel) {
                 SimpleCriterionPanel criterionPanel = (SimpleCriterionPanel) widget;
-                toReturn.add(criterionPanel.getCriteria());
+                if (criterionPanel.getCriteria() != null) {
+                    toReturn.add(criterionPanel.getCriteria());
+                }
             } else if (widget instanceof MultipleCriteriaPanel) {
                 MultipleCriteriaPanel filterPanel = (MultipleCriteriaPanel) widget;
                 toReturn.add(filterPanel.getCriteria());
