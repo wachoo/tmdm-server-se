@@ -352,6 +352,7 @@ public class BrowseRecordsView extends View {
         itemPanel.getToolBar().setReturnCriteriaFK((ReturnCriteriaFK) event.getData(BrowseRecordsView.FK_SOURCE_WIDGET));
         itemPanel.getToolBar().setOutMost(detailPanel.isLineage() ? true : itemPanelWidget.getToolBar().isOutMost());
         itemPanel.getToolBar().setHierarchyCall(itemPanelWidget.getToolBar().isHierarchyCall());
+        itemPanel.getToolBar().setType(ItemDetailToolBar.TYPE_CREATE_FOREIGNKEY_ENTITY);
         if (itemPanel.getToolBar().isOutMost()) {
             panel.setHeading(itemBean.getLabel());
             panel.setItemId(itemBean.getLabel());
