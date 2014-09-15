@@ -42,7 +42,7 @@ class ScatteredTypeMapping extends TypeMapping {
 
     private static final Logger LOGGER = Logger.getLogger(ScatteredTypeMapping.class);
 
-    private Map<String, FieldMetadata> userToDatabase = new HashMap<String, FieldMetadata>();
+    private Map<FieldMetadata, FieldMetadata> userToDatabase = new HashMap<FieldMetadata, FieldMetadata>();
 
     private Map<FieldMetadata, FieldMetadata> databaseToUser = new HashMap<FieldMetadata, FieldMetadata>();
 
@@ -453,13 +453,13 @@ class ScatteredTypeMapping extends TypeMapping {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Map '" + userFullPath + "' to '" + database.getEntityTypeName() + '/' + database.getPath());
         }
-        userToDatabase.put(userFullPath, database);
+        userToDatabase.put(user, database);
         databaseToUser.put(database, user);
     }
 
     @Override
     public FieldMetadata getDatabase(FieldMetadata from) {
-        return userToDatabase.get(from.getEntityTypeName() + '/' + from.getPath());
+        return userToDatabase.get(from);
     }
 
     @Override
@@ -479,8 +479,8 @@ class ScatteredTypeMapping extends TypeMapping {
             database.freeze();
             user.freeze();
             // Freeze field mappings.
-            Map<String, FieldMetadata> frozenUser = new HashMap<String, FieldMetadata>();
-            for (Map.Entry<String, FieldMetadata> entry : userToDatabase.entrySet()) {
+            Map<FieldMetadata, FieldMetadata> frozenUser = new HashMap<FieldMetadata, FieldMetadata>();
+            for (Map.Entry<FieldMetadata, FieldMetadata> entry : userToDatabase.entrySet()) {
                 frozenUser.put(entry.getKey(), entry.getValue().freeze());
             }
             userToDatabase = frozenUser;
