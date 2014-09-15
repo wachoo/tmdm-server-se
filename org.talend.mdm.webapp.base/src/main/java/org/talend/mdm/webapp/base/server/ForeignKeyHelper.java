@@ -42,10 +42,6 @@ import org.w3c.dom.NodeList;
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSGetItemsByCustomFKFilters;
 import com.amalto.core.webservice.WSInt;
@@ -54,6 +50,10 @@ import com.amalto.core.webservice.WSWhereAnd;
 import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSXPathsSearch;
+import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
 import com.extjs.gxt.ui.client.Style.SortDir;
 
 public class ForeignKeyHelper {
@@ -482,20 +482,21 @@ public class ForeignKeyHelper {
     }
 
     public static void convertFKInfo2DisplayInfo(ForeignKeyBean bean, List<String> foreignKeyInfos) {
-        if (foreignKeyInfos.size() == 0) {
-            return;
-        }
-
-        String infoStr = ""; //$NON-NLS-1$
-        for (String str : foreignKeyInfos) {
-            if (infoStr.equals("")) {
-                infoStr += bean.getForeignKeyInfo().get(str);
-            } else {
-                infoStr += "-" + bean.getForeignKeyInfo().get(str); //$NON-NLS-1$
+        if (foreignKeyInfos.size() != 0) {
+            StringBuilder displayInfo = new StringBuilder();
+            Map<String, String> foreignKeyInfoMap = bean.getForeignKeyInfo();
+            for (String info : foreignKeyInfos) {
+                if (!info.isEmpty() && foreignKeyInfoMap.get(info) != null) {
+                    if (displayInfo.length() == 0) {
+                        displayInfo.append(foreignKeyInfoMap.get(info));
+                    } else {
+                        displayInfo.append("-"); //$NON-NLS-1$
+                        displayInfo.append(foreignKeyInfoMap.get(info));
+                    }
+                }
             }
+            bean.setDisplayInfo(displayInfo.toString());
         }
-
-        bean.setDisplayInfo(infoStr);
     }
 
     private static String parseForeignKeyFilter(String xml, String dataObject, String fkFilter, String currentXpath)
