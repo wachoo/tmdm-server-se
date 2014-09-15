@@ -183,9 +183,10 @@ public class BrowseRecordsController extends Controller {
 
                         if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
                             if (!ItemsListPanel.getInstance().isSaveCurrentChangeBeforeSwitching()) {
-                                if (ItemsListPanel.getInstance().getCurrentQueryModel() != null
+                                if ((ItemsListPanel.getInstance().getCurrentQueryModel() != null
                                         && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
-                                                .equals(itemBean.getConcept()) || isClose) {
+                                                .equals(itemBean.getConcept()) && detailToolBar.getType() == ItemDetailToolBar.TYPE_DEFAULT)
+                                        || isClose) {
                                     ItemsMainTabPanel.getInstance().remove(ItemsMainTabPanel.getInstance().getSelectedItem());
                                 }
                             }
@@ -221,9 +222,9 @@ public class BrowseRecordsController extends Controller {
                                         .equals(itemBean.getConcept());
 
                         // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
-                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {
-                            if (isSameConcept) {
-                                itemBean.setIds(result.getReturnValue());
+						if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {
+							if (isSameConcept && detailToolBar.getType() == ItemDetailToolBar.TYPE_DEFAULT) {
+                                 itemBean.setIds(result.getReturnValue());
                                 ItemsListPanel.getInstance().refreshGrid(itemBean);
                             }
                         }
