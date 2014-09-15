@@ -67,12 +67,27 @@ class ScatteredTypeMapping extends TypeMapping {
                     throw new IllegalStateException("Contained elements are expected to be mapped to reference.");
                 }
                 ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) mappedDatabaseField;
+                StorageClassLoader classLoader = (StorageClassLoader) contextClassLoader;
                 if (!field.isMany()) {
                     DataRecord referencedObject = (DataRecord) readValue(from, field, mappedDatabaseField, session);
                     Wrapper existingValue = (Wrapper) to.get(referenceFieldMetadata.getName());
                     if (referencedObject != null) {
+                        // Update existing value or update existing
                         if (existingValue != null) {
-                            to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, existingValue));
+                            // Check for type change
+                            ComplexTypeMetadata existingType = classLoader.getTypeFromClass(existingValue.getClass());
+                            TypeMapping mapping = mappings.getMappingFromDatabase(existingType);
+                            if (mapping == null) {
+                                throw new IllegalStateException("Type '" + existingType.getName() + "' has no mapping."); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
+                            boolean isSameType = mapping.getUser().equals(referencedObject.getType());
+                            if (isSameType) {
+                                to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, existingValue));
+                            } else {
+                                session.delete(existingValue);
+                                Wrapper newValue = createObject(contextClassLoader, referencedObject);
+                                to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, newValue));
+                            }
                         } else {
                             Wrapper object = createObject(contextClassLoader, referencedObject);
                             to.set(referenceFieldMetadata.getName(), _setValues(session, referencedObject, object));
@@ -98,13 +113,13 @@ class ScatteredTypeMapping extends TypeMapping {
                         int i = 0;
                         for (DataRecord dataRecord : dataRecords) {
                             if (i < objects.size() && objects.get(i) != null) {
-                                ComplexTypeMetadata existingType = ((StorageClassLoader) contextClassLoader)
+                                ComplexTypeMetadata existingType = classLoader
                                         .getTypeFromClass(objects.get(i).getClass());
                                 TypeMapping mapping = mappings.getMappingFromDatabase(existingType);
                                 if (mapping == null) {
                                     throw new IllegalStateException("Type '" + existingType.getName() + "' has no mapping."); //$NON-NLS-1$ //$NON-NLS-2$
                                 }
-                                Boolean isSameType = mapping.getUser().equals(dataRecord.getType());
+                                boolean isSameType = mapping.getUser().equals(dataRecord.getType());
                                 if (mapping.getUser() instanceof ContainedComplexTypeMetadata
                                         && dataRecord.getType() instanceof ContainedComplexTypeMetadata) {
                                     isSameType = ((ContainedComplexTypeMetadata) mapping.getUser()).getContainedType().equals(
