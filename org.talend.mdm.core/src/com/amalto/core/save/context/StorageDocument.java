@@ -21,6 +21,7 @@ import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import org.apache.commons.collections.map.LRUMap;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.w3c.dom.Document;
@@ -137,7 +138,11 @@ public class StorageDocument implements MutableDocument {
 
     @Override
     public void clean() {
-        clean(dataRecord);
+        try {
+            clean(dataRecord);
+        } finally {
+            accessorCache.clear();
+        }
     }
 
     private DataRecord clean(DataRecord dataRecord) {
@@ -150,7 +155,12 @@ public class StorageDocument implements MutableDocument {
                 List list = (List) fieldData;
                 Iterator iterator = list.iterator();
                 while (iterator.hasNext()) {
-                    if (iterator.next() == null) {
+                    Object next = iterator.next();
+                    if (entityField.getType() instanceof ContainedComplexTypeMetadata) {
+                        if (clean((DataRecord) next) == null) {
+                            iterator.remove();
+                        }
+                    } else if (next == null) {
                         iterator.remove();
                     }
                 }

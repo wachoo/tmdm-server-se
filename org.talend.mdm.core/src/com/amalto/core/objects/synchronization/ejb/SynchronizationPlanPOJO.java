@@ -6,6 +6,7 @@ import java.util.TreeSet;
 
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.metadata.LongString;
 import com.amalto.core.util.ArrayListHolder;
 
 /**
@@ -225,6 +226,7 @@ public class SynchronizationPlanPOJO extends ObjectPOJO{
     }
 
 
+	@LongString
 	public String getCurrentStatusMessage() {
     	return currentStatusMessage;
     }

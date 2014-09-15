@@ -216,18 +216,20 @@ public class BrowseRecordsController extends Controller {
                             ItemsListPanel.getInstance().setDefaultSelectionModel(!isClose);
                         }
 
+                        boolean isSameConcept = ItemsListPanel.getInstance().getCurrentQueryModel() != null
+                                && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
+                                        .equals(itemBean.getConcept());
+
                         // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
-                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
-                            if (ItemsListPanel.getInstance().getCurrentQueryModel() != null
-                                    && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
-                                            .equals(itemBean.getConcept())) {
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {
+                            if (isSameConcept) {
                                 itemBean.setIds(result.getReturnValue());
                                 ItemsListPanel.getInstance().refreshGrid(itemBean);
                             }
                         }
 
                         // TMDM-4814, TMDM-4815 (reload data to refresh ui)
-                        if ((detailToolBar.isFkToolBar() || detailToolBar.isOutMost()) && !isClose) {
+                        if ((detailToolBar.isFkToolBar() || detailToolBar.isOutMost()) && !isSameConcept && !isClose) {
                             detailToolBar.refresh(result.getReturnValue());
                         }
 
@@ -271,10 +273,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-		$wnd.setTimeout(function() {
-			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-		}, millisecond);
-    }-*/;
+                                                                      $wnd.setTimeout(function() {
+                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+                                                                      }, millisecond);
+                                                                      }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
