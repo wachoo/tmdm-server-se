@@ -316,9 +316,14 @@ public class AdvancedSearchPanel extends FormPanel {
                     @Override
                     public void componentSelected(ButtonEvent ce) {
                         MultipleCriteria mutilCriteria = multiCriteria.getCriteria();
-                        BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE, mutilCriteria);
-                        setCriteria(mutilCriteria.toString());
-                        winFilter.close();
+                        if (mutilCriteria != null && mutilCriteria.getChildren().size() > 0) {
+                            BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE, mutilCriteria);
+                            setCriteria(mutilCriteria.toString());
+                            winFilter.close();
+                        } else {
+                            MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
+                                    .advsearch_lessinfo(), null);
+                        }
                     }
 
                 });

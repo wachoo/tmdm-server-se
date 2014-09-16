@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import com.amalto.core.webservice.*;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -98,9 +99,6 @@ import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.FieldNotFoundException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.core.webservice.WSBoolean;
-import com.amalto.core.webservice.WSByteArray;
-import com.amalto.core.webservice.WSConceptKey;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSDeleteItem;
@@ -305,8 +303,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
                     xpathForeignKey = xpathForeignKey.substring(1);
                 }
-                String fkEntity; 
-                if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
+                String fkEntity; //$NON-NLS-1$                
+				if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
                     fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
                 } else {
                     fkEntity = xpathForeignKey;
@@ -500,10 +498,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     itemBean.set(path, path + "-" + value.getTextContent()); //$NON-NLS-1$
                                     itemBean.setForeignkeyDesc(
                                             path + "-" + value.getTextContent(), org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel, //$NON-NLS-1$
-                                                    value.getTextContent(),
-                                                    false,
-                                                    modelType,
-                                                    getEntityModel(typeModel.getForeignkey().split("/")[0], language), isStaging(), language)); //$NON-NLS-1$
+                                                            value.getTextContent(),
+                                                            false,
+                                                            modelType,
+                                                            getEntityModel(typeModel.getForeignkey().split("/")[0], language), isStaging(), language)); //$NON-NLS-1$
 
                                 } else {
                                     itemBean.set(path, value.getTextContent());
@@ -1859,14 +1857,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String itemAlias = concept + '.' + Util.joinStrings(ids, "."); //$NON-NLS-1$
                 LOG.debug("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null,
-                    null);
+            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
             String updateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_ACTION);
             WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
                     "text/xml; charset=utf-8");//$NON-NLS-1$
             WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
-            WSTransformerContextPipelinePipelineItem[] entries = port.executeTransformerV2(wsExecuteTransformerV2)
-                    .getPipeline().getPipelineItem();
+            WSTransformerContextPipelinePipelineItem[] entries = port.executeTransformerV2(wsExecuteTransformerV2).getPipeline()
+                    .getPipelineItem();
             if (entries.length > 0) {
                 WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
                 if (item.getVariable().equals("output_url")) { //$NON-NLS-1$
@@ -1962,7 +1959,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * the wsItem's xml String value into xml doc, 5.cover wsItem's xml with job's xml value. step 6 and 7 must do
      * first. 6.add properties into ViewPOJO. 7.add properties into webservice parameter.
      */
-    private void extractUsingTransformerThroughView(String viewName, XSElementDecl elementDecl, WSItem wsItem) throws Exception, TransformerFactoryConfigurationError, TransformerException {
+    private void extractUsingTransformerThroughView(String viewName, XSElementDecl elementDecl, WSItem wsItem) throws Exception,
+            TransformerFactoryConfigurationError, TransformerException {
         if (viewName == null || viewName.length() == 0) {
             return;
         }
@@ -2197,6 +2195,28 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
             return ids.toString();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public boolean checkTask(String dataClusterPK, String viewPK, String concept, String taskId) throws ServiceException {
+        WSWhereCondition whereCondition_Status_SUCCESS_VALIDATE = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
+                WSWhereOperator.EQUALS, StagingConstants.SUCCESS_MERGE_CLUSTERS, WSStringPredicate.NONE, false);
+        WSWhereItem whereItem_Status_SUCCESS_VALIDATE = new WSWhereItem(whereCondition_Status_SUCCESS_VALIDATE, null, null);
+        WSWhereCondition whereCondition_TaskID = new WSWhereCondition(StagingConstant.STAGING_TASKID.substring(1),
+                WSWhereOperator.EQUALS, taskId, WSStringPredicate.NONE, false);
+        WSWhereItem whereItem_TaskID = new WSWhereItem(whereCondition_TaskID, null, null);
+        WSWhereItem[] whereItem_Array = { whereItem_TaskID, whereItem_Status_SUCCESS_VALIDATE };
+        WSWhereAnd whereAnd = new WSWhereAnd(whereItem_Array);
+        WSWhereItem whereItem = new WSWhereItem(null, whereAnd, null);
+        try {
+            WSString results = CommonUtil.getPort()
+                    .count(new WSCount(new WSDataClusterPK(dataClusterPK), concept, whereItem, -1));
+            int resultSize = Integer.parseInt(results.getValue());
+            return resultSize > 1 ? true : false;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
