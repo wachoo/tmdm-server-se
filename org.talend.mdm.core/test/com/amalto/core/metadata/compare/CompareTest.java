@@ -175,7 +175,7 @@ public class CompareTest extends TestCase {
         updated.load(CompareTest.class.getResourceAsStream("schema6_2.xsd"));
         Compare.DiffResults diffResults = Compare.compare(repository, updated);
 
-        assertEquals(53, diffResults.getActions().size());
+        assertEquals(54, diffResults.getActions().size());
 
         ImpactAnalyzer analyzer = storage.getImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
@@ -221,7 +221,7 @@ public class CompareTest extends TestCase {
         updated.load(CompareTest.class.getResourceAsStream("schema7_2.xsd"));
         Compare.DiffResults diffResults = Compare.compare(repository, updated);
 
-        assertEquals(53, diffResults.getActions().size());
+        assertEquals(54, diffResults.getActions().size());
 
         ImpactAnalyzer analyzer = storage.getImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
@@ -265,7 +265,7 @@ public class CompareTest extends TestCase {
         updated.load(CompareTest.class.getResourceAsStream("schema8_2.xsd"));
         Compare.DiffResults diffResults = Compare.compare(repository, updated);
 
-        assertEquals(53, diffResults.getActions().size());
+        assertEquals(54, diffResults.getActions().size());
 
         ImpactAnalyzer analyzer = storage.getImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
@@ -309,7 +309,7 @@ public class CompareTest extends TestCase {
         updated.load(CompareTest.class.getResourceAsStream("schema9_2.xsd"));
         Compare.DiffResults diffResults = Compare.compare(repository, updated);
 
-        assertEquals(53, diffResults.getActions().size());
+        assertEquals(54, diffResults.getActions().size());
 
         ImpactAnalyzer analyzer = storage.getImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
