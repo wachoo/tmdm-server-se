@@ -23,4 +23,24 @@ public class WSViewPK {
     public void setPk(java.lang.String pk) {
         this.pk = pk;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof WSViewPK))
+            return false;
+
+        WSViewPK wsViewPK = (WSViewPK) o;
+
+        if (pk != null ? !pk.equals(wsViewPK.pk) : wsViewPK.pk != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return pk != null ? pk.hashCode() : 0;
+    }
 }

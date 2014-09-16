@@ -43,4 +43,31 @@ public class WSWhereItem {
     public void setWhereOr(com.amalto.core.webservice.WSWhereOr whereOr) {
         this.whereOr = whereOr;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof WSWhereItem))
+            return false;
+
+        WSWhereItem that = (WSWhereItem) o;
+
+        if (whereAnd != null ? !whereAnd.equals(that.whereAnd) : that.whereAnd != null)
+            return false;
+        if (whereCondition != null ? !whereCondition.equals(that.whereCondition) : that.whereCondition != null)
+            return false;
+        if (whereOr != null ? !whereOr.equals(that.whereOr) : that.whereOr != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = whereCondition != null ? whereCondition.hashCode() : 0;
+        result = 31 * result + (whereAnd != null ? whereAnd.hashCode() : 0);
+        result = 31 * result + (whereOr != null ? whereOr.hashCode() : 0);
+        return result;
+    }
 }
