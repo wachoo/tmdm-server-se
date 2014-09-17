@@ -63,4 +63,37 @@ public class WSWhereCondition {
     public void setSpellCheck(boolean spellCheck) {
         this.spellCheck = spellCheck;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof WSWhereCondition))
+            return false;
+
+        WSWhereCondition that = (WSWhereCondition) o;
+
+        if (spellCheck != that.spellCheck)
+            return false;
+        if (leftPath != null ? !leftPath.equals(that.leftPath) : that.leftPath != null)
+            return false;
+        if (operator != null ? !operator.equals(that.operator) : that.operator != null)
+            return false;
+        if (rightValueOrPath != null ? !rightValueOrPath.equals(that.rightValueOrPath) : that.rightValueOrPath != null)
+            return false;
+        if (stringPredicate != null ? !stringPredicate.equals(that.stringPredicate) : that.stringPredicate != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = leftPath != null ? leftPath.hashCode() : 0;
+        result = 31 * result + (operator != null ? operator.hashCode() : 0);
+        result = 31 * result + (rightValueOrPath != null ? rightValueOrPath.hashCode() : 0);
+        result = 31 * result + (stringPredicate != null ? stringPredicate.hashCode() : 0);
+        result = 31 * result + (spellCheck ? 1 : 0);
+        return result;
+    }
 }
