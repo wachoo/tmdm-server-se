@@ -113,13 +113,13 @@ public class UtilTest extends TestCase {
             sort = Constants.SEARCH_DIRECTION_DESC;
         }
         assertEquals(Constants.SEARCH_DIRECTION_ASC, sort);
-        WSGetItemsSort itemSort = Util.buildGetItemsSort(conditions, 0, 20, sort, "key");
+        WSGetItemsSort itemSort = Util.buildGetItemsSort(conditions, 0, 20, "key", sort);
         assertNotNull(itemSort.getConceptName());
         assertEquals(true, itemSort.getTotalCountOnFirstResult().booleanValue());
         assertEquals(0, itemSort.getSkip());
         assertEquals(20, itemSort.getMaxItems());
-        assertEquals(Constants.SEARCH_DIRECTION_ASC,itemSort.getSort());
-        assertEquals("Update/Key",itemSort.getDir());
+        assertEquals(Constants.SEARCH_DIRECTION_ASC,itemSort.getDir());
+        assertEquals("Update/Key",itemSort.getSort());
     }
     
     public void testGetOrderXPath() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {

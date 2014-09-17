@@ -6,6 +6,8 @@
 package com.amalto.core.webservice;
 
 
+import java.util.Arrays;
+
 public class WSWhereAnd {
     protected com.amalto.core.webservice.WSWhereItem[] whereItems;
     
@@ -22,5 +24,25 @@ public class WSWhereAnd {
     
     public void setWhereItems(com.amalto.core.webservice.WSWhereItem[] whereItems) {
         this.whereItems = whereItems;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof WSWhereAnd))
+            return false;
+
+        WSWhereAnd that = (WSWhereAnd) o;
+
+        if (!Arrays.equals(whereItems, that.whereItems))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return whereItems != null ? Arrays.hashCode(whereItems) : 0;
     }
 }

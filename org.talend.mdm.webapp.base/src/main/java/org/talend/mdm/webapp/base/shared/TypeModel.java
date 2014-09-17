@@ -245,6 +245,10 @@ public abstract class TypeModel implements Serializable, IsSerializable {
     }
 
     public List<String> getForeignKeyInfo() {
+        return foreignKeyInfo;
+    }
+
+    public void setForeignKeyInfo(List<String> foreignKeyInfo) {
         Iterator<String> iterator = foreignKeyInfo.iterator();
         while (iterator.hasNext()) {
             String next = iterator.next();
@@ -252,10 +256,6 @@ public abstract class TypeModel implements Serializable, IsSerializable {
                 iterator.remove();
             }
         }
-        return Collections.unmodifiableList(foreignKeyInfo);
-    }
-
-    public void setForeignKeyInfo(List<String> foreignKeyInfo) {
         this.foreignKeyInfo = foreignKeyInfo;
     }
 
