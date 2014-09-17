@@ -151,6 +151,16 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(Types.STRING, field.getType().getSuperTypes().iterator().next().getName());
     }
 
+    public void testVisibility1() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("Visibility_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getErrorCount());
+        assertEquals(2, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.MANDATORY_FIELD_MAY_NOT_BE_VISIBLE));
+    }
+
     public void testFKPointToNonPK() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("FKCheck.xsd");

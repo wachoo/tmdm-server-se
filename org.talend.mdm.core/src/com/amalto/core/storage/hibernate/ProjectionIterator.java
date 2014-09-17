@@ -21,35 +21,10 @@ import javax.xml.XMLConstants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollableResults;
-import org.talend.mdm.commmon.metadata.AliasedFieldMetadata;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadataImpl;
-import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.SimpleTypeMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
-import org.talend.mdm.commmon.metadata.Types;
+import org.talend.mdm.commmon.metadata.*;
 
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.Count;
-import com.amalto.core.query.user.Distinct;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.Max;
-import com.amalto.core.query.user.Min;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.Type;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.VisitorAdapter;
-import com.amalto.core.query.user.metadata.GroupSize;
-import com.amalto.core.query.user.metadata.StagingBlockKey;
-import com.amalto.core.query.user.metadata.StagingError;
-import com.amalto.core.query.user.metadata.StagingSource;
-import com.amalto.core.query.user.metadata.StagingStatus;
-import com.amalto.core.query.user.metadata.TaskId;
-import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -194,13 +169,13 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
 
     private class ProjectionElementCreator extends VisitorAdapter<ProjectionElement> {
 
-        int currentIndex = 0;
-
-        boolean isAlias;
-
         private final ComplexTypeMetadata explicitProjectionType;
 
         private final Object[] values;
+
+        int currentIndex = 0;
+
+        boolean isAlias;
 
         private ProjectionElement currentElement;
 
@@ -213,7 +188,8 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
         private void createElement(String typeName, String fieldName) {
             SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
             FieldMetadata field = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, fieldName, fieldType,
-                    Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList());
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
+                    StringUtils.EMPTY);
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
@@ -231,7 +207,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     fieldMetadata.getName(), fieldMetadata.getReferencedType(), fieldMetadata.getReferencedField(),
                     fieldMetadata.getForeignKeyInfoFields(), false, false, new SimpleTypeMetadata(
                             XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING), Collections.<String> emptyList(),
-                    Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY, StringUtils.EMPTY);
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
