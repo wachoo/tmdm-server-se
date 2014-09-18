@@ -151,6 +151,16 @@ public class MetadataValidationTest extends TestCase {
         assertEquals(Types.STRING, field.getType().getSuperTypes().iterator().next().getName());
     }
 
+    public void testVisibility1() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("Visibility_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getErrorCount());
+        assertEquals(2, handler.getWarningCount());
+        assertTrue(handler.getMessages().contains(ValidationError.MANDATORY_FIELD_MAY_NOT_BE_VISIBLE));
+    }
+
     public void testFKPointToNonPK() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("FKCheck.xsd");
@@ -568,14 +578,23 @@ public class MetadataValidationTest extends TestCase {
         }
     }
 
-    public void testUnusedType() throws Exception {
+    public void testUnusedType1() throws Exception {
         MetadataRepository repository = new MetadataRepository();
-        InputStream resourceAsStream = this.getClass().getResourceAsStream("UnusedType_0.1.xsd");
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("UnusedType1_0.1.xsd");
         TestValidationHandler handler = new TestValidationHandler();
         repository.load(resourceAsStream, handler);
         assertEquals(1, handler.getWarningCount());
         assertTrue(handler.getMessages().contains(ValidationError.UNUSED_REUSABLE_TYPE));
         assertTrue(handler.getLineNumbers().contains(50));
+        assertFalse(handler.getLineNumbers().contains(null));
+    }
+    
+    public void testUnusedType2() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("UnusedType2_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getWarningCount());
         assertFalse(handler.getLineNumbers().contains(null));
     }
     

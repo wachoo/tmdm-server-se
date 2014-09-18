@@ -74,7 +74,9 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
                     referenceField.getWriteUsers(),
                     referenceField.getHideUsers(),
-                    referenceField.getWorkflowAccessRights(), StringUtils.EMPTY);
+                    referenceField.getWorkflowAccessRights(),
+                    StringUtils.EMPTY,
+                    StringUtils.EMPTY);
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository, context.getFieldColumn(referenceField), referenceField.getContainingType().getName());
@@ -123,7 +125,8 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
                     simpleField.getHideUsers(),
-                    simpleField.getWorkflowAccessRights());
+                    simpleField.getWorkflowAccessRights(),
+                    StringUtils.EMPTY);
             database.addField(newFlattenField);
         } else {
             SoftTypeRef internalDeclaringType;
@@ -140,7 +143,8 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     simpleField.getType(),
                     simpleField.getWriteUsers(),
                     simpleField.getHideUsers(),
-                    simpleField.getWorkflowAccessRights());
+                    simpleField.getWorkflowAccessRights(),
+                    StringUtils.EMPTY);
             newFlattenField.setDeclaringType(internalDeclaringType);
             database.addField(newFlattenField);
         }
@@ -163,7 +167,8 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     enumField.getType(),
                     enumField.getWriteUsers(),
                     enumField.getHideUsers(),
-                    enumField.getWorkflowAccessRights());
+                    enumField.getWorkflowAccessRights(),
+                    StringUtils.EMPTY);
             database.addField(newFlattenField);
         } else {
             newFlattenField = new SoftFieldRef(internalRepository,
@@ -203,7 +208,8 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     type,
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList(),
-                    Collections.<String>emptyList());
+                    Collections.<String>emptyList(),
+                    StringUtils.EMPTY);
             database.addField(fieldMetadata);
         }
         return typeMapping;
