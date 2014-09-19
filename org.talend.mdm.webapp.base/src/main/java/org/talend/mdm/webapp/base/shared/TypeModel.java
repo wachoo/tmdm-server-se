@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.base.shared;
 import java.io.Serializable;
 import java.util.*;
 
-import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.webapp.base.client.model.DataType;
 import org.talend.mdm.webapp.base.client.model.SubTypeBean;
 
