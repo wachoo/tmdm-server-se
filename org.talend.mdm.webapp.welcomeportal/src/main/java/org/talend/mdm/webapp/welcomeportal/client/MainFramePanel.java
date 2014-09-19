@@ -43,6 +43,8 @@ import com.extjs.gxt.ui.client.event.ContainerEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.PortalEvent;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 
@@ -74,6 +76,9 @@ public class MainFramePanel extends Portal {
 
     private static final String CHARTS_ENABLED = "chartsOn"; //$NON-NLS-1$
 
+    private static final Set<String> nonAutoedPortlets = new HashSet<String>(Arrays.asList(WelcomePortal.START,
+            WelcomePortal.SEARCH));
+
     private Set<String> allCharts;
 
     private boolean chartsOn;
@@ -96,6 +101,8 @@ public class MainFramePanel extends Portal {
 
     private Map<String, Boolean> portletToVisibilities;
 
+    private Map<String, Boolean> portletToAutoOnOffs;
+
     private Map<String, Boolean> configFromActionsPanel;
 
     private PortalProperties props;
@@ -117,6 +124,7 @@ public class MainFramePanel extends Portal {
             portletToVisibilities = null;
             configFromActionsPanel = config;
             chartsOn = config.get(CHARTS_ENABLED);
+
         } else {
             Boolean chartsOnObj = portalConfig.getChartsOn();
             chartsOn = (chartsOnObj == null) ? true : chartsOnObj;
@@ -149,8 +157,12 @@ public class MainFramePanel extends Portal {
                 } else {
                     // Store portal config values after all portlet initialized
                     portletToVisibilities = new HashMap<String, Boolean>();
+                    portletToAutoOnOffs = new HashMap<String, Boolean>();
                     for (String name : portletToLocations.keySet()) {
                         portletToVisibilities.put(name, true);
+                        if (!name.equals(WelcomePortal.START) && !name.equals(WelcomePortal.SEARCH)) {
+                            portletToAutoOnOffs.put(name, false);
+                        }
                     }
                     // now we have all available portlets, need to record them in Actions panel in General project
                     Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
@@ -166,6 +178,7 @@ public class MainFramePanel extends Portal {
                     props.add(PortalProperties.KEY_COLUMN_NUM, ((Integer) MainFramePanel.this.numColumns).toString());
                     props.add(PortalProperties.KEY_ALL_CHARTS, allCharts.toString());
                     props.add(PortalProperties.KEY_CHARTS_ON, ((Boolean) chartsOn).toString());
+                    props.add(PortalProperties.KEY_AUTO_ONOFFS, portletToAutoOnOffs.toString());
 
                     service.savePortalConfig(props, new SessionAwareAsyncCallback<Void>() {
 
@@ -183,7 +196,7 @@ public class MainFramePanel extends Portal {
 
                     portletConfigs.put(USING_DEFAULT_COLUMN_NUM, MainFramePanel.this.numColumns == DEFAULT_COLUMN_NUM);
                     portletConfigs.put(CHARTS_ENABLED, chartsOn);
-                    recordPortlets(portletConfigs, allCharts);
+                    recordPortalConfigs(portletConfigs.toString(), allCharts.toString());
                 }
             }
         });
@@ -192,20 +205,24 @@ public class MainFramePanel extends Portal {
 
             @Override
             public void handleEvent(PortalEvent pe) {
+
                 updateLocations();
-                props.add(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString());
-                service.savePortalConfig(props, new SessionAwareAsyncCallback<Void>() {
+                service.savePortalConfig(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString(),
+                        new SessionAwareAsyncCallback<Void>() {
 
-                    @Override
-                    public void onSuccess(Void result) {
-                        return;
-                    }
+                            @Override
+                            public void onSuccess(Void result) {
+                                props.add(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString());
+                                return;
+                            }
 
-                    @Override
-                    protected void doOnFailure(Throwable caught) {
-                        super.doOnFailure(caught);
-                    }
-                });
+                            @Override
+                            protected void doOnFailure(Throwable caught) {
+                                super.doOnFailure(caught);
+                                portletToLocations = props.getPortletToLocations();
+                                revertPortletsToLocations(portletToLocations);
+                            }
+                        });
             }
         });
 
@@ -248,17 +265,12 @@ public class MainFramePanel extends Portal {
             chartsOn = props.getChartsOn();
 
             initializePortlets(portletToLocations, portletToVisibilities);
-            Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
-            for (String name : portletToLocations.keySet()) {
-                portletConfigs.put(name, portletToVisibilities.get(name));
-            }
 
-            portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == DEFAULT_COLUMN_NUM);
-            portletConfigs.put(CHARTS_ENABLED, chartsOn);
-            recordPortlets(portletConfigs, allCharts);
+            recordPortalSettings();
         } else {
             // switch column config/chartsSwitcher status updated, get current ordering from database, other configs
             // from Actions Panel
+            final PortalProperties portalPropertiesCp = new PortalProperties(props);
             portletToLocations = props.getPortletToLocations();
             SortedMap<List<Integer>, String> locationToPortlets = new TreeMap<List<Integer>, String>(getLocationComparator());
             for (String portletName : portletToLocations.keySet()) {
@@ -275,6 +287,7 @@ public class MainFramePanel extends Portal {
                 }
             } else {
                 orderedPortletNames.removeAll(allCharts);
+                props.disableAutoRefresh(allCharts);
             }
 
             List<List<Integer>> defaultLocations = getDefaultLocations(numColumns);
@@ -285,6 +298,9 @@ public class MainFramePanel extends Portal {
             for (String name : orderedPortletNames) {
                 loc = defaultLocations.get(index);
                 visible = configFromActionsPanel.get(name);
+                if (!visible) {
+                    props.add(PortalProperties.KEY_AUTO_ONOFFS, name, ((Boolean) false).toString());
+                }
                 initializePortlet(name, loc, visible);
                 portletToVisibilities.put(name, visible);
                 index++;
@@ -292,33 +308,39 @@ public class MainFramePanel extends Portal {
 
             updateLocations();
 
-            // Store updated config values due to actions: switching column num or charts status
             props.add(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString());
             props.add(PortalProperties.KEY_PORTLET_VISIBILITIES, portletToVisibilities.toString());
             props.add(PortalProperties.KEY_COLUMN_NUM, ((Integer) MainFramePanel.this.numColumns).toString());
-            props.add(PortalProperties.KEY_ALL_CHARTS, allCharts.toString());
             props.add(PortalProperties.KEY_CHARTS_ON, ((Boolean) chartsOn).toString());
 
             service.savePortalConfig(props, new SessionAwareAsyncCallback<Void>() {
 
                 @Override
                 public void onSuccess(Void result) {
+                    recordPortalSettings();
                     return;
                 }
 
                 @Override
                 protected void doOnFailure(Throwable caught) {
                     super.doOnFailure(caught);
+                    AppEvent appEvent = new AppEvent(WelcomePortalEvents.RevertRefreshPortal, portalPropertiesCp);
+                    Dispatcher.forwardEvent(appEvent);
                 }
             });
-            Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
-            for (String name : portletToLocations.keySet()) {
-                portletConfigs.put(name, portletToVisibilities.get(name));
-            }
-            portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == DEFAULT_COLUMN_NUM);
-            portletConfigs.put(CHARTS_ENABLED, chartsOn);
-            recordPortlets(portletConfigs, allCharts);
+
         }
+    }
+
+    private void recordPortalSettings() {
+        Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
+        for (String name : portletToLocations.keySet()) {
+            portletConfigs.put(name, portletToVisibilities.get(name));
+        }
+
+        portletConfigs.put(USING_DEFAULT_COLUMN_NUM, numColumns == DEFAULT_COLUMN_NUM);
+        portletConfigs.put(CHARTS_ENABLED, chartsOn);
+        recordPortalConfigs(portletConfigs.toString(), allCharts.toString());
     }
 
     private Comparator<List<Integer>> getLocationComparator() {
@@ -445,6 +467,36 @@ public class MainFramePanel extends Portal {
         }
     }
 
+    // called when db saving fails for 'Drop' event
+    private void revertPortletsToLocations(Map<String, List<Integer>> locs) {
+
+        SortedMap<List<Integer>, String> locationToPortlets = new TreeMap<List<Integer>, String>(getLocationComparator());
+        for (String portletName : locs.keySet()) {
+            locationToPortlets.put(locs.get(portletName), portletName);
+        }
+
+        for (BasePortlet portlet : portlets) {
+            this.remove(portlet);
+
+        }
+
+        for (List<Integer> loc : locationToPortlets.keySet()) {
+            Portlet portlet = getPortlet(locationToPortlets.get(loc));
+            assert (portlet != null);
+            this.add(portlet, loc);
+        }
+    }
+
+    private Portlet getPortlet(String name) {
+        Portlet result = null;
+        for (BasePortlet portlet : portlets) {
+            if (name.equals(portlet.getPortletName())) {
+                result = portlet;
+            }
+        }
+        return result;
+    }
+
     private void add(Portlet portlet) {
         this.add(portlet, pos % numColumns);
         pos++;
@@ -492,29 +544,77 @@ public class MainFramePanel extends Portal {
         }
     }
 
-    public void stopChartsAutoRefresh() {
+    public void stopAutoRefresh() {
         for (BasePortlet portlet : portlets) {
-            if (allCharts.contains(portlet.getPortletName())) {
-                portlet.autoRefresh(false);
+            if (!nonAutoedPortlets.contains(portlet.getPortletName()) && portlet.isAutoOn()) {
+                portlet.resetAutofresh(false);
             }
         }
     }
 
-    public void refresh(Map<String, Boolean> config) {
-        chartsOn = config.get(CHARTS_ENABLED);
+    public Set<String> getAllPortletNames() {
+        return portletToLocations.keySet();
+    }
 
+    public void removeAllPortlets() {
+        this.removeAll();
+    }
+
+    // called for basic config change (portlets visibilities changes, except 'charts'/column number updates) triggered
+    // from Action Panel
+    public void refresh(Map<String, Boolean> config) {
+        final Map<String, Boolean> portletToAutoOnOffsCp = props.getAutoRefreshStatus();
+        final Map<String, Boolean> portletToVisibilitiesCp = props.getPortletToVisibilities();
         for (BasePortlet portlet : portlets) {
 
             if (config.get(portlet.getPortletName())) {
                 portlet.show();
             } else {
                 portlet.hide();
+                portlet.resetAutofresh(false);
+                props.add(PortalProperties.KEY_AUTO_ONOFFS, portlet.getPortletName(), ((Boolean) false).toString());
             }
         }
-
-        this.layout(true);
         updateVisibilities();
-        props.add(PortalProperties.KEY_PORTLET_VISIBILITIES, portletToVisibilities.toString());
+
+        List<String> configUpdates = Arrays.asList(portletToVisibilities.toString(), props.getAutoRefreshStatus().toString());
+
+        service.savePortalConfig(configUpdates, new SessionAwareAsyncCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                // props already synched for autoOnOffs in the above
+                props.add(PortalProperties.KEY_PORTLET_VISIBILITIES, portletToVisibilities.toString());
+                MainFramePanel.this.layout(true);
+                return;
+            }
+
+            @Override
+            protected void doOnFailure(Throwable caught) {
+                // revert to previous auto state on portlets and visible marks on Action Panel
+                super.doOnFailure(caught);
+                portletToVisibilities = portletToVisibilitiesCp;
+                portletToAutoOnOffs = portletToAutoOnOffsCp;
+                props.add(PortalProperties.KEY_PORTLET_VISIBILITIES, portletToVisibilitiesCp.toString());
+                props.add(PortalProperties.KEY_AUTO_ONOFFS, portletToAutoOnOffsCp.toString());
+                String portletName;
+
+                for (BasePortlet portlet : portlets) {
+                    portletName = portlet.getPortletName();
+                    if (portletToVisibilities.get(portletName)) {
+                        portlet.show();
+                        if (!nonAutoedPortlets.contains(portletName) && portletToAutoOnOffs.get(portletName)) {
+                            portlet.resetAutofresh(true);
+                        }
+                    } else {
+                        portlet.hide();
+                    }
+                }
+
+                MainFramePanel.this.layout(true);
+                recordPortalSettings();
+            }
+        });
     }
 
     public PortalProperties getProps() {
@@ -653,7 +753,7 @@ public class MainFramePanel extends Portal {
     }-*/;
 
     // record available portlets in Actions panel
-    private native void recordPortlets(Map<String, Boolean> configs, Set<String> charts)/*-{
+    private native void recordPortalConfigs(String configs, String charts)/*-{
 		$wnd.amalto.core.markPortlets(configs, charts);
     }-*/;
 }

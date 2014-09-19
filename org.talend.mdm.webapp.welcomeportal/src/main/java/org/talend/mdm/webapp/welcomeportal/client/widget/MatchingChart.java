@@ -49,7 +49,7 @@ public class MatchingChart extends ChartPortlet {
 
         String setting = portalConfigs.getChartSetting(portletName);
         if (setting != null) {
-            configModel = new EntityConfigModel(setting);
+            configModel = new EntityConfigModel(startedAsOn, setting);
         } else {
             configModel = new EntityConfigModel(startedAsOn);
         }

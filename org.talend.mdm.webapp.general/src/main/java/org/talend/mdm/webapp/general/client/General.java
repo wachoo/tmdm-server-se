@@ -79,7 +79,7 @@ public class General implements EntryPoint {
 		var actionsPanel = @org.talend.mdm.webapp.general.client.layout.ActionsPanel::getInstance()();
 
 		$wnd.amalto.core.markPortlets = function(configs, allCharts) {
-			actionsPanel.@org.talend.mdm.webapp.general.client.layout.ActionsPanel::updatePortletConfig(Ljava/util/Map;Ljava/util/Set;)(configs, allCharts);
+			actionsPanel.@org.talend.mdm.webapp.general.client.layout.ActionsPanel::updatePortletConfig(Ljava/lang/String;Ljava/lang/String;)(configs, allCharts);
 		};
 
 		$wnd.amalto.core.unmarkPortlet = function(name) {

@@ -55,7 +55,7 @@ public class JournalChart extends ChartPortlet {
 
         String setting = portalConfigs.getChartSetting(portletName);
         if (setting != null) {
-            configModel = new TimeframeConfigModel(setting);
+            configModel = new TimeframeConfigModel(startedAsOn, setting);
         } else {
             configModel = new TimeframeConfigModel(startedAsOn);
         }

@@ -264,7 +264,7 @@ public class ActionsPanel extends FormPanel {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 Map<String, Boolean> configUpdates = getPortalConfigUpdate();
-                refreshPortal(configUpdates);
+                refreshPortal(configUpdates.toString());
 
             }
         });
@@ -364,8 +364,9 @@ public class ActionsPanel extends FormPanel {
         return dataModelBox.getValue().getValue();
     }
 
-    public void updatePortletConfig(Map<String, Boolean> boolenConfigs, Set<String> charts) {
-        Map<String, Boolean> parsedConfig = parseConfig(boolenConfigs.toString());
+    public void updatePortletConfig(String boolenConfigs, String charts) {
+        Map<String, Boolean> parsedConfig = parseConfig(boolenConfigs);
+        Set<String> parsedCharts = parseSetString(charts);
         for (CheckBox check : portletCKBoxes.values()) {
             String name = check.getName();
             if (parsedConfig.containsKey(name)) {
@@ -376,7 +377,7 @@ public class ActionsPanel extends FormPanel {
 
         boolean isChartsOn = parsedConfig.get(CHARTS_ENABLED);
 
-        allCharts = charts;
+        allCharts = parsedCharts;
         if (!isChartsOn) {
             chartsCheck.setValue(false);
             for (CheckBox check : portletCKBoxes.values()) {
@@ -416,6 +417,13 @@ public class ActionsPanel extends FormPanel {
         return config;
     }
 
+    private Set<String> parseSetString(String dataString) {
+        String temp = dataString.substring(1, dataString.length() - 1);
+        String[] names = temp.split(", "); //$NON-NLS-1$
+
+        return new HashSet<String>(Arrays.asList(names));
+    }
+
     public void uncheckPortlet(String portletName) {
         portletCKBoxes.get(portletName).setValue(false);
         this.layout(true);
@@ -423,8 +431,7 @@ public class ActionsPanel extends FormPanel {
 
     private void updateChartsConfig(boolean isChartsOn) {
         for (CheckBox check : portletCKBoxes.values()) {
-            String name = check.getName();
-            if (allCharts.contains(name)) {
+            if (allCharts.contains(check.getName())) {
                 if (isChartsOn) {
                     check.setVisible(true);
                     check.setValue(true);
@@ -457,7 +464,7 @@ public class ActionsPanel extends FormPanel {
     }
 
     // call refresh in WelcomePortal
-    private native void refreshPortal(Map<String, Boolean> portalConfig)/*-{
+    private native void refreshPortal(String portalConfig)/*-{
 		$wnd.amalto.core.refreshPortal(portalConfig);
     }-*/;
 }
