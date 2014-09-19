@@ -5,6 +5,7 @@ import java.util.*;
 import javax.xml.XMLConstants;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
@@ -179,6 +180,18 @@ public class InMemoryStorage implements Storage {
     @Override
     public void adapt(MetadataRepository newRepository, boolean force) {
         this.repository = newRepository;
+    }
+
+    private static interface ValueBuilder {
+
+        Object getValue(DataRecord record);
+
+    }
+
+    private static interface AggregateValueBuilder {
+
+        Collection<Object> getValues(List<DataRecord> records);
+
     }
 
     private static class InMemoryImpactAnalyzer implements ImpactAnalyzer {
@@ -381,18 +394,6 @@ public class InMemoryStorage implements Storage {
         }
     }
 
-    private static interface ValueBuilder {
-
-        Object getValue(DataRecord record);
-
-    }
-
-    private static interface AggregateValueBuilder {
-
-        Collection<Object> getValues(List<DataRecord> records);
-
-    }
-
     private static class Filter extends VisitorAdapter<List<DataRecord>> {
 
         private final List<DataRecord> records;
@@ -464,7 +465,7 @@ public class InMemoryStorage implements Storage {
             alias.getTypedExpression().accept(this);
             FieldMetadata aliasField = new SimpleTypeFieldMetadata(explicitProjection, false, lastField.isMany(),
                     lastField.isMandatory(), alias.getAliasName(), lastField.getType(), Collections.<String> emptyList(),
-                    Collections.<String> emptyList(), Collections.<String> emptyList());
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
             ValueBuilder previousValueBuilder = recordProjection.remove(lastField);
             if (previousValueBuilder == null) {
                 AggregateValueBuilder previous = aggregateProjection.remove(lastField);
@@ -480,7 +481,7 @@ public class InMemoryStorage implements Storage {
             FieldMetadata blockField = new SimpleTypeFieldMetadata(explicitProjection, false, false, false,
                     "blockKey", //$NON-NLS-1$
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING), Collections.<String> emptyList(),
-                    Collections.<String> emptyList(), Collections.<String> emptyList());
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
             lastField = blockField;
             recordProjection.put(blockField, new ValueBuilder() {
 
