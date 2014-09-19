@@ -12,49 +12,24 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.util.XtentisException;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
+import javax.security.auth.Subject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.XtentisException;
-
 public abstract class ILocalUser implements IBeanDelegator {
 
-    private static final Logger logger = Logger.getLogger(ILocalUser.class);
-
-    protected static LinkedHashMap<String,String> onlineUsers = new LinkedHashMap<String,String>();
-
     public Subject getICurrentSubject() throws XtentisException {
-        String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container"; //$NON-NLS-1$     		
-        Subject subject;
-        try {
-            subject = (Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
-        } catch (PolicyContextException e1) {
-            String err = "Unable find the local user: the JACC Policy Context cannot be accessed: " + e1.getMessage(); //$NON-NLS-1$
-            logger.error(err, e1);
-            throw new XtentisException(err);
-        }
-        return subject;
+        return null; // TODO
     }
 
     public ILocalUser getILocalUser() throws XtentisException {
         return null;
-    }
-
-    public static LinkedHashMap<String, String> getOnlineUsers() {
-        return onlineUsers;
     }
 
     public HashSet<String> getRoles() {
@@ -77,25 +52,11 @@ public abstract class ILocalUser implements IBeanDelegator {
     }
 
     public String getUsername() {
-        String username = null;
-        try {
-            username = LocalUser.getPrincipalMember("Username"); //$NON-NLS-1$
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        return username == null ? MDMConfiguration.getAdminUser() : username;
+        return MDMConfiguration.getAdminUser(); // TODO
     }
 
     public String getPassword() {
-        String passwd = null;
-        try {
-            passwd = LocalUser.getPrincipalMember("Password"); //$NON-NLS-1$
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-
-        return passwd;
+        return MDMConfiguration.getAdminUser(); // TODO
     }
 
     public boolean isAdmin(Class<?> objectTypeClass) throws XtentisException {
@@ -103,17 +64,7 @@ public abstract class ILocalUser implements IBeanDelegator {
     }
 
     public void logout() throws XtentisException {
-        String SERVLET_CONTEXT_KEY = "javax.servlet.http.HttpServletRequest"; //$NON-NLS-1$
-        HttpServletRequest request;
-        try {
-            request = (HttpServletRequest) PolicyContext.getContext(SERVLET_CONTEXT_KEY);
-        } catch (PolicyContextException e1) {
-            String err = "Unable find the local servlet request: the JACC Policy Context cannot be accessed: " + e1.getMessage(); //$NON-NLS-1$
-            logger.error(err, e1);
-            throw new XtentisException(err);
-        }
-        if (request != null)
-            request.getSession().invalidate();
+        // TODO
     }
 
     public void resetILocalUsers() throws XtentisException {
@@ -123,9 +74,6 @@ public abstract class ILocalUser implements IBeanDelegator {
     }
 
     public void setUniverse(UniversePOJO universe) {
-    }
-
-    public void setUserXML(String userXML) {
     }
 
     public void setUsername(String username) {
@@ -143,15 +91,8 @@ public abstract class ILocalUser implements IBeanDelegator {
         return true;
     }
 
-    public boolean userItemCanRead(ItemPOJOPK item) throws XtentisException {
-        return true;
-    }
-
     public boolean userItemCanWrite(ItemPOJO item, String datacluster, String concept) throws XtentisException {
         return true;
     }
 
-    public boolean userItemCanWrite(ItemPOJOPK item, String datacluster, String concept) throws XtentisException {
-        return true;
-    }
 }

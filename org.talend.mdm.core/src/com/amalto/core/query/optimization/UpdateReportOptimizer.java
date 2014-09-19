@@ -45,6 +45,8 @@ public class UpdateReportOptimizer implements Optimizer {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Could not access current user data model.", e);
                         }
+                    } catch (NoClassDefFoundError e) {
+                        LOGGER.error("Could not get current user data model (missing class issue).");
                     }
                 }
                 if (dataModelName != null) {

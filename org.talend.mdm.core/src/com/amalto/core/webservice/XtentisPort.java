@@ -5,10 +5,9 @@
 
 package com.amalto.core.webservice;
 
-import java.rmi.RemoteException;
-import java.util.List;
-
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+
+import java.rmi.RemoteException;
 
 public interface XtentisPort extends java.rmi.Remote {
 
@@ -138,9 +137,6 @@ public interface XtentisPort extends java.rmi.Remote {
     public WSDroppedItemPK dropItem(WSDropItem wsDropItem) throws RemoteException;
 
     public WSStringArray runQuery(WSRunQuery wsRunQuery) throws RemoteException;
-
-    public WSConnectorInteractionResponse connectorInteraction(WSConnectorInteraction wsConnectorInteraction)
-            throws RemoteException;
 
     public WSString serviceAction(WSServiceAction wsServiceAction) throws RemoteException;
 
@@ -309,4 +305,5 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) throws RemoteException;
 
+    public WSRolePKArray getRolePKs(WSGetRolePKs ks) throws RemoteException;
 }

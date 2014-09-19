@@ -1,26 +1,7 @@
 package com.amalto.core.plugin.base.crossreferencing.ejb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.CreateException;
-import javax.ejb.SessionBean;
-import javax.naming.NamingException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.amalto.core.ejb.local.ItemCtrl2Local;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
@@ -29,6 +10,15 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.core.server.api.Item;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.rmi.RemoteException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <h1>Cross Referencing Plugin</h1>
@@ -154,7 +144,7 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
  *
  *
  */
-public class CrossReferencingTransformerPluginBean extends TransformerPluginV2CtrlBean implements SessionBean {
+public class CrossReferencingTransformerPluginBean extends Plugin {
 	private static final long serialVersionUID = 62487085713480L;
 
     private transient boolean configurationLoaded = false;
@@ -275,8 +265,6 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
 
 			//Insert all this in the context
 			context.put( PARAMETERS, parameters);
-		} catch (XtentisException xe) {
-			throw (xe);
 		} catch (Exception e) {
 			e.printStackTrace();
 			String err = "Could not init the CrossReferencing Plugin: "+
@@ -287,7 +275,10 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
 
 	}
 
-
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
 
 
     /**
@@ -376,7 +367,6 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
 
 	/**
      * Process the mappings after xsl transformation
-     * @param xrefElement
      */
     private void processMappings(Document xmlDoc, Node crossRef) throws XtentisException{
     	String xrefName = "";
@@ -532,32 +522,24 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
 		}
 
 		//Retrieve the Item Controller
-		ItemCtrl2Local itemCtrl = null;
-		try {
-			itemCtrl = Util.getItemCtrl2Local();
-		} catch (NamingException e) {
-			String err = "Unable to get the cross referenced value for xrefcluster = "+ xrefcluster+" xrefOutPath = "+xrefOutPath+". Unable to find the Items controller: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-			throw new XtentisException(err);
-		} catch (CreateException e) {
-			String err = "Unable to get the cross referenced value for xrefcluster = "+ xrefcluster+" xrefOutPath = "+xrefOutPath+". Unable to create the Items controller: "+e.getMessage();
-			org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
-			throw new XtentisException(err);
-		}
+		Item itemCtrl = Util.getItemCtrl2Local();
+		ArrayList<String> resList = null;
+        try {
+            resList = itemCtrl.xPathsSearch(
+                    new DataClusterPOJOPK(xrefcluster),
+                    null,
+                    new ArrayList<String>(Arrays.asList(new String[]{xrefOutPath})),
+                    wAnd,
+                    -1,    //spell
+                    0,        //start
+                    1,        //limit
+                    false
+            );
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
 
-		ArrayList<String> resList =
-			itemCtrl.xPathsSearch(
-				new DataClusterPOJOPK(xrefcluster),
-				null,
-				new ArrayList<String>(Arrays.asList(new String[]{xrefOutPath})),
-				wAnd,
-				-1, 	//spell
-				0,		//start
-				1,		//limit
-                false
-		);
-
-		String val = "";
+        String val = "";
 
         if ((resList==null)||(resList.size()==0)) {
         	if (xrefIgnore) {
@@ -665,12 +647,9 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
     		if (configuration == null) {
     			configuration = getDefaultConfiguration();
     		}
-//    		Document d = Util.parse(configuration);
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the CrossReferencing Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err);
@@ -689,7 +668,6 @@ public class CrossReferencingTransformerPluginBean extends TransformerPluginV2Ct
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 

@@ -13,22 +13,23 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.IWhereItem;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import com.amalto.core.server.api.DataModel;
+import com.amalto.core.server.api.View;
 
 import java.io.ByteArrayInputStream;
 import java.util.*;
@@ -75,7 +76,7 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
             ViewPOJO view = null;
             try {
                 MetadataRepository repository = get(dataModelName);
-                ViewCtrlLocal viewCtrlLocal = Util.getViewCtrlLocal();
+                View viewCtrlLocal = Util.getViewCtrlLocal();
                 Set<Expression> indexedExpressions = new HashSet<Expression>();
                 for (Object viewAsObject : viewCtrlLocal.getAllViews(".*")) { //$NON-NLS-1$
                     UserQueryBuilder qb = null;

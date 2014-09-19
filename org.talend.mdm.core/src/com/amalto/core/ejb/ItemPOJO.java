@@ -12,21 +12,25 @@
 // ============================================================================
 package com.amalto.core.ejb;
 
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.EJBException;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
-import com.amalto.core.ejb.local.ItemCtrl2Local;
+import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
+import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.schema.manage.AppinfoSourceHolder;
+import com.amalto.core.schema.manage.AppinfoSourceHolderPK;
+import com.amalto.core.schema.manage.SchemaCoreAgent;
+import com.amalto.core.server.api.Item;
+import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
@@ -40,21 +44,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJOPK;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.schema.manage.AppinfoSourceHolder;
-import com.amalto.core.schema.manage.AppinfoSourceHolderPK;
-import com.amalto.core.schema.manage.SchemaCoreAgent;
-import org.apache.commons.collections.map.LRUMap;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ItemPOJO implements Serializable {
 
@@ -338,7 +335,7 @@ public class ItemPOJO implements Serializable {
      * @return the {@link ItemPOJO}
      */
     public static ItemPOJO load(String revisionID, ItemPOJOPK itemPOJOPK, boolean checkRights) throws XtentisException {
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
 
         try {
             // retrieve the item
@@ -435,7 +432,7 @@ public class ItemPOJO implements Serializable {
             String err = "Unable to load the item  " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
                     + e.getLocalizedMessage();
             LOG.error(err, e);
-            throw new EJBException(err, e);
+            throw new RuntimeException(err, e);
         }
     }
 
@@ -452,7 +449,7 @@ public class ItemPOJO implements Serializable {
         // get the universe and revision ID
         UniversePOJO universe = getNonNullUniverse(user);
         String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         try {
             // remove the doc
             String clusterName = itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
@@ -485,7 +482,7 @@ public class ItemPOJO implements Serializable {
         UniversePOJO universe = getNonNullUniverse(user);
         String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
         // get XmlServerSLWrapperLocal
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         try {
             // init MDMItemsTrash Cluster
             if (ObjectPOJO.load(null, DataClusterPOJO.class, new DataClusterPOJOPK("MDMItemsTrash")) == null) { //$NON-NLS-1$
@@ -677,7 +674,7 @@ public class ItemPOJO implements Serializable {
             }
             String uniqueId = itemPK.getUniqueID();
             String clusterId = getDataClusterPOJOPK().getUniqueId();
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+            XmlServer server = Util.getXmlServerCtrlLocal();
             if (-1 == server.putDocumentFromString(xml,uniqueId ,clusterId, revisionID)) {
                 return null;
             }
@@ -840,17 +837,17 @@ public class ItemPOJO implements Serializable {
                 throw new XtentisException(err);
             }
             // query the xml server wrapper
-            ItemCtrl2Local itemCtrl2Bean = Util.getItemCtrl2Local();
+            Item itemBean = Util.getItemCtrl2Local();
             List<IWhereItem> conditions = new LinkedList<IWhereItem>();
             if (instancePattern != null && !".*".equals(instancePattern)) {
-                IWhereItem idCondition = new WhereCondition(conceptName + "/../../i", //$NON-NLS-1$
+                IWhereItem idCondition = new WhereCondition(conceptName + "/i", //$NON-NLS-1$
                         WhereCondition.CONTAINS,
                         instancePattern,
                         WhereCondition.PRE_NONE);
                 conditions.add(idCondition);
             }
             if (planPK != null && planPK.getIds() != null) {
-                IWhereItem planCondition = new WhereCondition(conceptName + "/../../sp", //$NON-NLS-1$
+                IWhereItem planCondition = new WhereCondition(conceptName + "/sp", //$NON-NLS-1$
                         WhereCondition.EQUALS,
                         planPK.getUniqueId(),
                         WhereCondition.PRE_NOT);
@@ -858,8 +855,8 @@ public class ItemPOJO implements Serializable {
             }
             IWhereItem whereItem = new WhereAnd(conditions);
             ArrayList<String> elements = new ArrayList<String>();
-            elements.add(conceptName + "/../../i"); //$NON-NLS-1$
-            ArrayList<String> ids = itemCtrl2Bean.xPathsSearch(dataClusterPOJOPK,
+            elements.add(conceptName + "/i"); //$NON-NLS-1$
+            ArrayList<String> ids = itemBean.xPathsSearch(dataClusterPOJOPK,
                     null,
                     elements,
                     whereItem,
@@ -869,9 +866,7 @@ public class ItemPOJO implements Serializable {
                     false);
             ArrayList<ItemPOJOPK> results = new ArrayList<ItemPOJOPK>(ids.size());
             for (String id : ids) {
-                Document remoteDocId = Util.parse(id);
-                String[] itemIds = Util.getTextNodes(remoteDocId, "result/i"); //$NON-NLS-1$
-                results.add(new ItemPOJOPK(dataClusterPOJOPK, conceptName, itemIds));
+                results.add(new ItemPOJOPK(dataClusterPOJOPK, conceptName, id.split("."))); //$NON-NLS-1$
             }
             return results;
         } catch (Exception e) {

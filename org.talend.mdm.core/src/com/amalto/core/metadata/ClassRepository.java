@@ -12,8 +12,6 @@
 package com.amalto.core.metadata;
 
 import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ServiceBean;
-import com.amalto.core.ejb.local.ServiceBMP;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringUtils;
@@ -21,7 +19,10 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class ClassRepository extends MetadataRepository {
@@ -72,7 +73,6 @@ public class ClassRepository extends MetadataRepository {
                 WhereCondition.class,
                 WhereLogicOperator.class,
                 WhereOr.class));
-        registeredSubClasses.put(ServiceBean.class, Arrays.<Class>asList(ServiceBMP.class));
     }
 
     @Override
@@ -129,8 +129,6 @@ public class ClassRepository extends MetadataRepository {
                     StringUtils.EMPTY);
             keyField.setData(LINK, "PK/unique-id"); //$NON-NLS-1$
             classType.addField(keyField);
-        } else if (isEntity && ServiceBean.class.isAssignableFrom(clazz)) {
-            keyFieldName = "service-name"; //$NON-NLS-1$
         } else if (isEntity) {
             keyFieldName = "unique-id"; //$NON-NLS-1$
         }
@@ -300,17 +298,13 @@ public class ClassRepository extends MetadataRepository {
 
     // TODO Make it non specific to ServiceBean
     private static boolean isClassMethod(Class clazz, Method declaredMethod) {
-        if (ServiceBean.class.isAssignableFrom(clazz)) {
-            Class superClass = clazz.getSuperclass();
-            if (!Object.class.equals(superClass)) {
-                try {
-                    superClass.getMethod(declaredMethod.getName(), declaredMethod.getParameterTypes());
-                    return false;
-                } catch (NoSuchMethodException e) {
-                    return true;
-                }
+        Class superClass = clazz.getSuperclass();
+        if (!Object.class.equals(superClass)) {
+            try {
+                return superClass.getMethod(declaredMethod.getName(), declaredMethod.getParameterTypes()) != null;
+            } catch (NoSuchMethodException e) {
+                return true;
             }
-            return true;
         }
         return true;
     }

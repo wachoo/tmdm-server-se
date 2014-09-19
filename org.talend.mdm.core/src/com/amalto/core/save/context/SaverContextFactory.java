@@ -18,7 +18,7 @@ import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.server.XmlServer;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;

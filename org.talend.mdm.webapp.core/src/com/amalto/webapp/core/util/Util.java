@@ -12,42 +12,9 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.CreateException;
-import javax.naming.NamingException;
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import com.amalto.core.ejb.UpdateReportPOJO;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jboss.security.SimpleGroup;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
-import org.w3c.dom.*;
-import org.xml.sax.InputSource;
-
 import com.amalto.commons.core.utils.XMLUtils;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
 import com.amalto.core.util.LocalUser;
@@ -61,6 +28,32 @@ import com.sun.org.apache.xpath.internal.XPathAPI;
 import com.sun.org.apache.xpath.internal.objects.XObject;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSElementDecl;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+import org.jboss.security.SimpleGroup;
+import org.talend.mdm.commmon.util.core.EDBType;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import com.amalto.core.server.api.XmlServer;
+import org.w3c.dom.*;
+import org.xml.sax.InputSource;
+
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Util {
 
@@ -120,22 +113,21 @@ public class Util {
 
     public static XtentisPort getPort(String endpointAddress, String username, String password, int force)
             throws XtentisWebappException {
-        XtentisPort xtentisPort;
         if (force == _FORCE_RMI_) {
-            xtentisPort = getRMIEndPoint();
-        } else if (force == _FORCE_WEB_SERVICE_) {
-            throw new org.apache.commons.lang.NotImplementedException();
-        } else if (endpointAddress.contains("localhost")) { //$NON-NLS-1$
-            xtentisPort = getRMIEndPoint();
-        } else {
-            xtentisPort = getRMIEndPoint();
+            return getRMIEndPoint();
         }
-        return XtentisWebPort.wrap(xtentisPort);
+        if (force == _FORCE_WEB_SERVICE_) {
+            throw new org.apache.commons.lang.NotImplementedException();
+        }
+        if (endpointAddress.contains("localhost")) { //$NON-NLS-1$
+            return getRMIEndPoint();
+        }
+        throw new org.apache.commons.lang.NotImplementedException();
     }
 
     private static XtentisPort getRMIEndPoint() throws XtentisWebappException {
         try {
-            return (XtentisPort) Class.forName("com.amalto.core.ejb.local.XtentisWSBean").newInstance(); //$NON-NLS-1$
+            return (XtentisPort) Class.forName("com.amalto.core.ejb.XtentisWSBean").newInstance(); //$NON-NLS-1$
         } catch (Exception e) {
             throw new XtentisWebappException(e);
         }
@@ -732,7 +724,7 @@ public class Util {
      * store the info of datacluster and datamodel to PROVISIONING.
      */
     public static void storeProvisioning(String username, String xmlString) throws Exception {
-        XmlServerSLWrapperLocal server = com.amalto.core.util.Util.getXmlServerCtrlLocal();
+        XmlServer server = com.amalto.core.util.Util.getXmlServerCtrlLocal();
         server.start("PROVISIONING"); //$NON-NLS-1$
         server.putDocumentFromString(xmlString, "PROVISIONING" + "." + "User" + "." + username, "PROVISIONING", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
         server.commit("PROVISIONING"); //$NON-NLS-1$
@@ -1147,11 +1139,9 @@ public class Util {
             }
             return isBeforeSavingTransformerExist;
         } catch (XtentisException e) {
-            e.printStackTrace();
-        } catch (NamingException e) {
-            e.printStackTrace();
-        } catch (CreateException e) {
-            e.printStackTrace();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e);
+            }
         }
         return false;
     }
@@ -1333,32 +1323,5 @@ public class Util {
             }
         }
         return defaultLanguage;
-    }
-
-    // Should only be used for non-data related changes (leave to core modules creation of UPDATE update reports).
-    public static String createUpdateReport(String[] ids, String concept, String operationType) throws Exception {
-        if (!operationType.equals(UpdateReportPOJO.OPERATION_TYPE_ACTION)) {
-            // This method should never implement anything but update reports for "ACTION" type (no UPDATE nor DELETE in here).
-            throw new IllegalArgumentException("Only '" + UpdateReportPOJO.OPERATION_TYPE_ACTION + "' action is supported.");
-        }
-        Configuration config = Configuration.getInstance();
-        String dataModelPK = config.getModel() == null ? StringUtils.EMPTY : config.getModel();
-        String dataClusterPK = config.getCluster() == null ? StringUtils.EMPTY : config.getCluster();
-        String username = Util.getLoginUserName();
-        StringBuilder keyBuilder = new StringBuilder();
-        if (ids != null) {
-            for (int i = 0; i < ids.length; i++) {
-                keyBuilder.append(ids[i]);
-                if (i != ids.length - 1) {
-                    keyBuilder.append('.');
-                }
-            }
-        }
-        String key = keyBuilder.length() == 0 ? "null" : keyBuilder.toString(); //$NON-NLS-1$
-        return "<Update><UserName>" + username + "</UserName><Source>genericUI</Source><TimeInMillis>" //$NON-NLS-1$ //$NON-NLS-2$
-                + System.currentTimeMillis() + "</TimeInMillis><OperationType>" + operationType //$NON-NLS-1$
-                + "</OperationType><RevisionID>null</RevisionID><DataCluster>" + dataClusterPK  //$NON-NLS-1$
-                + "</DataCluster><DataModel>" + dataModelPK + "</DataModel><Concept>" + StringEscapeUtils.escapeXml(concept) //$NON-NLS-1$ //$NON-NLS-2$
-                + "</Concept><Key>" + StringEscapeUtils.escapeXml(key) + "</Key>" + "</Update>"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 }

@@ -1,20 +1,18 @@
 package com.amalto.core.plugin.base.route.ejb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
 import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.plugin.base.route.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.regex.Pattern;
 
 
 
@@ -59,7 +57,7 @@ import com.amalto.core.util.XtentisException;
  *
  *
  */
-public class RouteTransformerPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class RouteTransformerPluginBean extends Plugin {
 
 	//private final static Pattern declarationPattern = Pattern.compile("<\\?.*?\\?>",Pattern.DOTALL);
 
@@ -190,8 +188,6 @@ public class RouteTransformerPluginBean extends TransformerPluginV2CtrlBean  imp
 			CompiledParameters parameters = CompiledParameters.deserialize(compiledParameters);
 			context.put( PARAMETERS, parameters);
 
-		} catch (XtentisException xe) {
-			throw (xe);
 		} catch (Exception e) {
 			String err = "Could not init the Route plugin:"+
 				e.getClass().getName()+": "+e.getLocalizedMessage();
@@ -201,6 +197,10 @@ public class RouteTransformerPluginBean extends TransformerPluginV2CtrlBean  imp
 
 	}
 
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
 
 
     /**
@@ -294,9 +294,7 @@ public class RouteTransformerPluginBean extends TransformerPluginV2CtrlBean  imp
     		}
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the Route Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
@@ -315,7 +313,6 @@ public class RouteTransformerPluginBean extends TransformerPluginV2CtrlBean  imp
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 

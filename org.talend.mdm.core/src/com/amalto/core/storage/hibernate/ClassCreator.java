@@ -10,49 +10,21 @@
 
 package com.amalto.core.storage.hibernate;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewConstructor;
-import javassist.CtNewMethod;
-import javassist.LoaderClassPath;
-import javassist.Modifier;
-import javassist.NotFoundException;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
+import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.AnnotationMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
-
 import javassist.bytecode.annotation.EnumMemberValue;
 import org.hibernate.search.annotations.*;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
-import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
-import org.talend.mdm.commmon.metadata.Types;
+import org.talend.mdm.commmon.metadata.*;
 
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageMetadataUtils;
+import java.io.Serializable;
+import java.util.*;
 
 class ClassCreator extends DefaultMetadataVisitor<Void> {
 

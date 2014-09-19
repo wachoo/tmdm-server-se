@@ -41,11 +41,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.ws.commons.schema</groupId>
-            <artifactId>XmlSchema</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
             <scope>test</scope>

@@ -14,26 +14,23 @@
 package org.talend.mdm.service.calljob.ejb;
 
 
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.ejb.EJBException;
-import javax.ejb.SessionBean;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.Service;
+import com.amalto.core.jobox.JobContainer;
+import com.amalto.core.jobox.JobInvokeConfig;
+import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.api.Item;
 import org.talend.mdm.service.calljob.CompiledParameters;
 import org.talend.mdm.service.calljob.ContextParam;
 import org.talend.mdm.service.calljob.webservices.Args;
@@ -41,17 +38,13 @@ import org.talend.mdm.service.calljob.webservices.WSxml;
 import org.talend.mdm.service.calljob.webservices.WSxmlService;
 import org.w3c.dom.Element;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ServiceCtrlBean;
-import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.jobox.JobContainer;
-import com.amalto.core.jobox.JobInvokeConfig;
-import com.amalto.core.jobox.component.MDMJobInvoker;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
+import javax.ejb.EJBException;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
 
 /**
  * @author achen
@@ -75,7 +68,7 @@ import com.amalto.core.util.XtentisException;
  * 
  * 
  */
-public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
+public class CallJobServiceBean extends Service {
 
 	private static final String LTJ_PROTOCOL = "ltj";
 
@@ -99,13 +92,18 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
 		throw new XtentisException("The callJob service is not meant to interact with adapters");
 	}
 
+    @Override
+    public void putConfiguration(String configuration) {
+
+    }
+
     /**
      * @throws EJBException
      *
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String getDescription(String twoLettersLanguageCode) throws XtentisException {
+	public String getDescription(String twoLettersLanguageCode) {
         // TODO Missing i18n like thing
 		return "The service call job";
 	}
@@ -116,7 +114,7 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String getJNDIName() throws XtentisException {
+	public String getServiceId() {
 		return JNDI_NAME;
 	}
 
@@ -125,7 +123,7 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
      * @ejb.interface-method view-type = "both"
      * @ejb.facade-method 
      */
-    public  String getDocumentation(String twoLettersLanguageCode) throws XtentisException{
+    public  String getDocumentation(String twoLettersLanguageCode) {
 		return
 		"CallJob Service\n" +
 		"\n" +
@@ -187,12 +185,11 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String getStatus() throws XtentisException {
+	public String getStatus() {
 		return "OK";
 	}
     /**
     *
-    * @see com.amalto.core.ejb.ServiceCtrlBean#getConfiguration(java.lang.String)
     * @throws EJBException
     *
     * @ejb.interface-method view-type = "local"
@@ -201,6 +198,11 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
    public String getConfiguration(String optionalParameters) throws XtentisException{
    		return getDefaultConfiguration();
    }
+
+    @Override
+    public String getDefaultConfiguration() {
+        return null;
+    }
 
     /**
      * @throws EJBException
@@ -314,7 +316,7 @@ public class CallJobServiceBean extends ServiceCtrlBean  implements SessionBean{
         //get item string from itempojopk
         String value;
         try {
-            ItemCtrl2Local itemCtrl2Local = Util.getItemCtrl2Local();
+            Item itemCtrl2Local = Util.getItemCtrl2Local();
             ItemPOJO pojo = itemCtrl2Local.getItem(itemPK);
             String updateReportXml = pojo.getProjectionAsString();
             

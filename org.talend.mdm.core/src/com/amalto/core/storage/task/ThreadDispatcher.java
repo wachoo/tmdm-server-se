@@ -15,7 +15,6 @@ import com.amalto.core.storage.record.DataRecord;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import javax.resource.spi.work.*;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -29,6 +28,8 @@ class ThreadDispatcher implements Closure {
     private final BlockingQueue<DataRecord> queue = new LinkedBlockingQueue<DataRecord>();
 
     private final Set<ConsumerRunnable> childClosures = new HashSet<ConsumerRunnable>();
+
+    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(4, 4, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(10));
 
     private long startTime;
 
@@ -46,18 +47,18 @@ class ThreadDispatcher implements Closure {
         }
     }
 
-    private WorkManager getManager() {
-        return new SimpleWorkManager();
+    private ExecutorService getManager() {
+        return executor;
     }
 
     public void begin() {
         startTime = System.currentTimeMillis();
-        WorkManager workManager = getManager();
+        ExecutorService workManager = getManager();
         try {
             for (ConsumerRunnable childThread : childClosures) {
-                workManager.doWork(childThread);
+                workManager.submit(childThread);
             }
-        } catch (WorkException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -123,37 +124,6 @@ class ThreadDispatcher implements Closure {
     public static class EndDataRecord extends DataRecord {
         public EndDataRecord() {
             super(null, null);
-        }
-    }
-
-    private static class SimpleWorkManager implements WorkManager {
-
-        private final ExecutorService pool = new ThreadPoolExecutor(4, 4, 1000, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(10));
-
-        public void doWork(Work work) throws WorkException {
-            pool.submit(work);
-        }
-
-        public void doWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException {
-            pool.submit(work);
-        }
-
-        public long startWork(Work work) throws WorkException {
-            pool.submit(work);
-            return 0;
-        }
-
-        public long startWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException {
-            pool.submit(work);
-            return 0;
-        }
-
-        public void scheduleWork(Work work) throws WorkException {
-            pool.submit(work);
-        }
-
-        public void scheduleWork(Work work, long l, ExecutionContext executionContext, WorkListener workListener) throws WorkException {
-            pool.submit(work);
         }
     }
 }

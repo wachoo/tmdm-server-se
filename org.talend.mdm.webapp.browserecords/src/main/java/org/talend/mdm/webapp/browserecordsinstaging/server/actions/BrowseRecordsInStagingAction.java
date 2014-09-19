@@ -105,18 +105,6 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
     }
 
     @Override
-    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
-            Map<String, EntityModel> map, String language) throws Exception {
-        List<String> viewableXpaths = new ArrayList<String>(viewBean.getViewableXpaths());
-        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_TASKID);
-        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_STATUS);
-        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_ERROR);
-        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_SOURCE);
-        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpaths,
-                entityModel, map, language, true);
-    }
-
-    @Override
     protected boolean isStaging() {
         return true;
     }

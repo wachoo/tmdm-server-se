@@ -19,8 +19,8 @@ import com.amalto.core.storage.transaction.TransactionManager;
 
 /**
  * Represents a MDM Server with all needed basics services (Storage, Metadata, Datasource, Transaction management).
- * This interface only represents the server, for convenience all server current state is handled in {@link com.amalto.core.server.ServerContext}.
- * @see com.amalto.core.server.ServerContext#INSTANCE
+ * This interface only represents the server, for convenience all server current state is handled in {@link ServerContext}.
+ * @see ServerContext#INSTANCE
  * @see ServerContext#get()
  */
 public interface Server {
@@ -63,19 +63,19 @@ public interface Server {
     DataSourceDefinition getDefinition(String dataSourceName, String container, String revisionId);
 
     /**
-     * @return The {@link com.amalto.core.server.StorageAdmin admin} that takes care of all {@link com.amalto.core.storage.Storage storage}
+     * @return The {@link StorageAdmin admin} that takes care of all {@link com.amalto.core.storage.Storage storage}
      * related admin operations (creation / removal...).
      */
     StorageAdmin getStorageAdmin();
 
     /**
-     * @return The {@link com.amalto.core.server.MetadataRepositoryAdmin admin} that takes care of all {@link org.talend.mdm.commmon.metadata.MetadataRepository data model}
+     * @return The {@link MetadataRepositoryAdmin admin} that takes care of all {@link org.talend.mdm.commmon.metadata.MetadataRepository data model}
      * related admin operations (parse new data model, update existing...).
      */
     MetadataRepositoryAdmin getMetadataRepositoryAdmin();
 
     /**
-     * Free all resources managed by this MDM server. It's usually better to call {@link com.amalto.core.server.ServerContext#close()}
+     * Free all resources managed by this MDM server. It's usually better to call {@link ServerContext#close()}
      * when you want to clean up everything when the whole container is being shut down.
      * @see ServerContext#close()
      */

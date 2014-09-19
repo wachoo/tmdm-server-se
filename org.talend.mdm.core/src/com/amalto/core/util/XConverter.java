@@ -1,20 +1,8 @@
 package com.amalto.core.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.regex.Pattern;
-
-import com.amalto.core.ejb.*;
+import com.amalto.core.ejb.DroppedItemPOJO;
+import com.amalto.core.ejb.DroppedItemPOJOPK;
+import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
@@ -22,34 +10,26 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRuleExpressionPOJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
+import com.amalto.core.objects.routing.v2.ejb.*;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJO;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanItemLine;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanObjectLine;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJO;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationRemoteInstance;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
+import com.amalto.core.objects.synchronization.ejb.*;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
-import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
+import com.amalto.core.objects.transformers.v2.util.*;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.objects.view.ejb.ViewPOJO;
+import com.amalto.core.server.api.Transformer;
 import com.amalto.core.webservice.*;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class XConverter {
 
@@ -328,28 +308,6 @@ public class XConverter {
                 .getIds());
     }
 
-    public static WSPipeline POJO2WSOLD(HashMap<String, com.amalto.core.util.TypedContent> pipeline) throws Exception {
-        ArrayList<WSPipelineTypedContentEntry> entries = new ArrayList<WSPipelineTypedContentEntry>();
-        Set keys = pipeline.keySet();
-        for (Object key : keys) {
-            String output = (String) key;
-            com.amalto.core.util.TypedContent content = pipeline.get(output);
-            byte[] bytes = content.getBytes();
-            if (bytes == null) {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                int c;
-                while ((c = content.getStream().read()) != -1)
-                    bos.write(c);
-                bytes = bos.toByteArray();
-            }
-            WSExtractedContent wsContent = new WSExtractedContent(new WSByteArray(bytes), content.getContentType());
-            WSPipelineTypedContentEntry wsEntry = new WSPipelineTypedContentEntry(TransformerV2CtrlBean.DEFAULT_VARIABLE
-                    .equals(output) ? "" : output, wsContent);
-            entries.add(wsEntry);
-        }
-        return new WSPipeline(entries.toArray(new WSPipelineTypedContentEntry[entries.size()]));
-    }
-
     public static WSRoutingRule VO2WS(RoutingRulePOJO vo) {
         WSRoutingRule s = new WSRoutingRule();
         s.setDescription(vo.getDescription());
@@ -491,41 +449,6 @@ public class XConverter {
         return pojo;
     }
 
-    public static WSTransformer POJO2WS(TransformerPOJO transformerPOJO) {
-        WSTransformer ws = new WSTransformer();
-        ws.setName(transformerPOJO.getName());
-        ws.setDescription(transformerPOJO.getDescription());
-        ArrayList<WSTransformerPluginSpec> wsSpecs = new ArrayList<WSTransformerPluginSpec>();
-        ArrayList<TransformerPluginSpec> pluginSpecs = transformerPOJO.getPluginSpecs();
-        if (pluginSpecs != null) {
-            for (TransformerPluginSpec pluginSpec : pluginSpecs) {
-                WSTransformerPluginSpec wsSpec = new WSTransformerPluginSpec(pluginSpec.getPluginJNDI(), pluginSpec
-                        .getDescription(), pluginSpec.getInput(), pluginSpec.getOutput(), pluginSpec.getParameters());
-                wsSpecs.add(wsSpec);
-            }
-        }
-        ws.setPluginSpecs(wsSpecs.toArray(new WSTransformerPluginSpec[wsSpecs.size()]));
-        return ws;
-    }
-
-    public static TransformerPOJO WS2POJO(WSTransformer wsTransformer) {
-        TransformerPOJO pojo = new TransformerPOJO();
-        pojo.setName(wsTransformer.getName());
-        pojo.setDescription(wsTransformer.getDescription());
-        ArrayList<TransformerPluginSpec> specs = new ArrayList<TransformerPluginSpec>();
-        WSTransformerPluginSpec[] wsSpecs = wsTransformer.getPluginSpecs();
-        if (wsSpecs != null) {
-            for (WSTransformerPluginSpec wsSpec : wsSpecs) {
-                TransformerPluginSpec spec = new TransformerPluginSpec(wsSpec.getPluginJNDI(), wsSpec.getDescription(),
-                        wsSpec.getInput(), wsSpec.getOutput(), wsSpec.getParameters());
-                specs.add(spec);
-            }
-        }
-        pojo.setPluginSpecs(specs);
-
-        return pojo;
-    }
-
     public static HashMap<String, String> WS2POJO(WSOutputDecisionTable table) {
         HashMap<String, String> decisions = new HashMap<String, String>();
         if ((table == null) || (table.getDecisions() == null) || (table.getDecisions().length == 0))
@@ -596,7 +519,7 @@ public class XConverter {
     }
 
     public static TypedContent WS2POJO(WSTypedContent wsContent) {
-        TypedContent content;
+        TypedContent content = null;
         if (wsContent == null) {
             return null;
         }
@@ -1349,7 +1272,7 @@ public class XConverter {
                     bytes = bos.toByteArray();
                 }
                 WSExtractedContent wsContent = new WSExtractedContent(new WSByteArray(bytes), content.getContentType());
-                WSPipelineTypedContentEntry wsEntry = new WSPipelineTypedContentEntry(TransformerCtrlBean.DEFAULT_VARIABLE.equals(output) ? "" : output, wsContent);
+                WSPipelineTypedContentEntry wsEntry = new WSPipelineTypedContentEntry(Transformer.DEFAULT_VARIABLE.equals(output) ? "" : output, wsContent);
                 entries.add(wsEntry);
             }
             return new WSPipeline(entries.toArray(new WSPipelineTypedContentEntry[entries.size()]));

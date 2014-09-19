@@ -13,7 +13,7 @@
 package com.amalto.core.migration.tasks;
 
 import com.amalto.core.ejb.UpdateReportPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.server.api.XmlServer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,7 +22,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import com.amalto.core.migration.AbstractDataModelMigrationTask;
-import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
+import com.amalto.core.objects.configurationinfo.ConfigurationHelper;
 import com.amalto.core.util.Util;
 
 public class UpdateActionTypeWithNewTypeStrategy extends AbstractDataModelMigrationTask {
@@ -65,7 +65,7 @@ public class UpdateActionTypeWithNewTypeStrategy extends AbstractDataModelMigrat
                 Node elem = doc.importNode(Util.parse(newSchema).getDocumentElement(), true);
                 doc.getDocumentElement().replaceChild(elem, oldChild);
 
-                XmlServerSLWrapperLocal server = ConfigurationHelper.getServer();
+                XmlServer server = ConfigurationHelper.getServer();
                 server.start(cluster);
                 server.putDocumentFromString(Util.nodeToString(doc), getDataModel(), cluster, null);
                 server.commit(cluster);

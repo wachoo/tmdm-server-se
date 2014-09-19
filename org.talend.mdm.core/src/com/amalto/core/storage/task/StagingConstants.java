@@ -42,7 +42,10 @@ public interface StagingConstants {
     /**
      * Passed successfully merge cluster (created a golden record, and confidence value allowed automatic
      * creation in master database).
-     * @see #SUCCESS_MERGED_RECORD_TO_RESOLVE
+     * @see
+     *
+     *
+     * #SUCCESS_MERGED_RECORD_TO_RESOLVE
      */
     String SUCCESS_MERGED_RECORD = "204"; //$NON-NLS-1$
     /**

@@ -26,7 +26,10 @@ public class WSServiceActionCode {
     public static final WSServiceActionCode STOP = new WSServiceActionCode(_STOP);
     public static final WSServiceActionCode STATUS = new WSServiceActionCode(_STATUS);
     public static final WSServiceActionCode EXECUTE = new WSServiceActionCode(_EXECUTE);
-    
+
+    public WSServiceActionCode() {
+    }
+
     protected WSServiceActionCode(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

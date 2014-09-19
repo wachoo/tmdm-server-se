@@ -20,11 +20,11 @@ import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
+import com.amalto.core.server.api.DataModel;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-// TODO This is same as EJB!
 public class DefaultDataModel implements DataModel {
 
     private static final Logger LOGGER = Logger.getLogger(DefaultDataModel.class);

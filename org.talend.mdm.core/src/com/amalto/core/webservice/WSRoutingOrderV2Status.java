@@ -23,7 +23,10 @@ public class WSRoutingOrderV2Status {
     public static final WSRoutingOrderV2Status ACTIVE = new WSRoutingOrderV2Status(_ACTIVE);
     public static final WSRoutingOrderV2Status FAILED = new WSRoutingOrderV2Status(_FAILED);
     public static final WSRoutingOrderV2Status COMPLETED = new WSRoutingOrderV2Status(_COMPLETED);
-    
+
+    public WSRoutingOrderV2Status() {
+    }
+
     protected WSRoutingOrderV2Status(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

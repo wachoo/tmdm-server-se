@@ -41,7 +41,7 @@ import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.metadata.StagingStatus;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.save.SaverSession;
-import com.amalto.core.server.MockServerLifecycle;
+import com.amalto.core.server.server.MockServerLifecycle;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;

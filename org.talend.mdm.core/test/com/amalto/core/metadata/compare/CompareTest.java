@@ -13,7 +13,6 @@ package com.amalto.core.metadata.compare;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,13 +32,9 @@ import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.query.StorageTestCase;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.server.MockServerLifecycle;
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 
 @SuppressWarnings("nls")

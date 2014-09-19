@@ -9,29 +9,23 @@
  */
 package org.talend.mdm.ext.publish.util;
 
-import javax.naming.InitialContext;
-
+import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
-
 public class DAOFactory {
+
+    private static final Logger logger = Logger.getLogger(DAOFactory.class);
 
     /** unique instance */
     private static DAOFactory sInstance = null;
 
-    private XmlServerSLWrapperLocal server;
+    private XmlServer server;
 
-    private Logger logger = Logger.getLogger(this.getClass());
-
-    /**
-     * Private constuctor
-     */
     private DAOFactory() {
         super();
         try {
-            server = ((XmlServerSLWrapperLocalHome) new InitialContext().lookup(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
+            server = Util.getXmlServerCtrlLocal();
         } catch (Exception e) {
             String err = "Unable to access the XML Server wrapper";
             logger.error(err, e);

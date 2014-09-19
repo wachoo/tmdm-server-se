@@ -5,42 +5,25 @@
         <groupId>org.talend.mdm</groupId>
         <artifactId>mdm-base</artifactId>
         <version>5.6-SNAPSHOT</version>
-        <relativePath>../org.talend.mdm.base/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.core</artifactId>
     <name>org.talend.mdm.core</name>
-    <packaging>war</packaging>
 
     <properties>
-        <war>zz.30.core</war>
-        <ejbs>zz.20.core</ejbs>
-        <lib>z.mdm.core</lib>
-        <service>org.talend.mdm.jullog4jservice</service>
-        <jaas>org.talend.mdm.jaas</jaas>
-        <util>org.talend.mdm.util</util>
         <version.properties>product_version.properties</version.properties>
+        <jackson.version>1.8.6</jackson.version>
     </properties>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>test</testSourceDirectory>
         <resources>
             <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.conf</include>
-                    <include>**/**.xsd</include>
-                    <include>**/**.xml</include>
-                    <include>**/**.dtd</include>
-                    <include>**/**.txt</include>
-                    <include>**/initdb/data/**</include>
-                    <include>**/util/phonet-utf8.*</include>
-                    <include>**/util/*.properties</include>                                
-                </includes>
+                <directory>resources</directory>
             </resource>
         </resources>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
         <testResources>
             <testResource>
                 <directory>test</directory>
@@ -63,183 +46,49 @@
 
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>jar-ejbs</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <classifier>ejbs</classifier>
-                            <includes>
-                                <include>**</include>
-                                <include>${version.properties}</include>
-                            </includes>
-                            <excludes>
-                                <exclude>com/amalto/core/util/LoginModuleDelegator.class</exclude>
-                            </excludes>
-                        </configuration>
+                        <id>reserve-network-port</id>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>reserve-network-port</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>jar-lib</id>
-                        <phase>package</phase>
+                        <phase>process-test-resources</phase>
                         <configuration>
-                            <classifier>lib</classifier>
-                            <includes>
-                                <include>**/util/*.class</include>
-                                <include>**/*POJO*.class</include>
-                                <include>${version.properties}</include>
-                            </includes>
-                            <excludes>
-                                <exclude>com/amalto/core/util/LoginModuleDelegator.class</exclude>
-                            </excludes>
-                        </configuration>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jar-ejbs-client</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <classifier>ejbs-client</classifier>
-                            <includes>
-                                <include>**/util/*.class</include>
-                                <include>**/util/*.properties</include>
-                                <include>**/*POJO*.class</include>
-                                <include>**/SchemaCoreAgent.class</include>
-                                <include>**/remote/*.class</include>
-                                <include>**/server/*.class</include>
-                                <include>**/integrity/*.class</include>
-                                <include>**/ejb/ServiceBean.class</include>
-                                <include>${version.properties}</include>
-                            </includes>
-                            <excludes>
-                                <exclude>com/amalto/core/util/LoginModuleDelegator.class</exclude>
-                            </excludes>
-                        </configuration>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jar-service</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <classifier>service</classifier>
-                            <includes>
-                                <include>com/amalto/core/util/JULLog4j*.class</include>
-                                <include>${version.properties}</include>
-                            </includes>
-                        </configuration>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jar-jaas</id>
-                        <phase>package</phase>                        
-                        <configuration>
-                            <classifier>jaas</classifier>
-                            <includes>
-                                <include>com/amalto/core/util/LoginModuleDelegator.class</include>
-                                <include>${version.properties}</include>
-                            </includes>
-                        </configuration>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>                        
-                    </execution>
-                    <execution>
-                        <id>jar-util</id>
-                        <phase>package</phase>                        
-                        <configuration>
-                            <classifier>util</classifier>
-                            <includes>
-                                <include>com/amalto/core/util/LocaleUtil.class</include>
-                            </includes>
-                        </configuration>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>                        
-                    </execution>                                                                        
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <webXml>${basedir}/war/WEB-INF/web.xml</webXml>
-                    <packagingIncludes>logviewer/**,META-INF/**,WEB-INF/*,WEB-INF/classes/**/servlet/*.class,WEB-INF/classes/${version.properties}</packagingIncludes>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-jboss-dev-libs</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <includeArtifactIds>mysql-connector-java,ojdbc6,sqljdbc4,postgresql</includeArtifactIds>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>deploy-extra-libs</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>mysql-connector-java,ojdbc6,sqljdbc4,postgresql</includeArtifactIds>
+                            <portNames>
+                                <portName>test.server.port</portName>
+                            </portNames>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>deploy-jboss</id>
+                        <id>start-tomcat</id>
+                        <goals>
+                            <goal>run-war</goal>
+                        </goals>
+                        <phase>pre-integration-test</phase>
                         <configuration>
-                            <tasks>
-                                <delete file="${jboss.lib.dir}/${lib}.jar" />
-                                <delete file="${jboss.lib.dir}/${service}.jar" />
-                                <delete file="${jboss.lib.dir}/${jaas}.jar" />
-                                <delete file="${jboss.deploy.dir}/${ejbs}.jar" />
-                                <delete file="${jboss.deploy.dir}/${war}.war" />
-                                <delete file="${jboss.conf.dir}/mdm.conf" />
-                                <delete file="${jboss.conf.dir}/mdm.conf.template" />
-                                <delete file="${jboss.conf.dir}/datasources.xml.template" />
-
-                                <copy
-                                    file="${project.build.directory}/${project.build.finalName}-lib.jar"
-                                    tofile="${jboss.lib.dir}/${lib}.jar" />
-                                <copy
-                                    file="${project.build.directory}/${project.build.finalName}-service.jar"
-                                    tofile="${jboss.lib.dir}/${service}.jar" />
-                                <copy
-                                    file="${project.build.directory}/${project.build.finalName}-jaas.jar"
-                                    tofile="${jboss.lib.dir}/${jaas}.jar" />
-                                <copy
-                                    file="${project.build.directory}/${project.build.finalName}-ejbs.jar"
-                                    tofile="${jboss.deploy.dir}/${ejbs}.jar" />
-                                <copy file="${project.build.directory}/${project.build.finalName}.war"
-                                    tofile="${jboss.deploy.dir}/${war}.war" />
-                                <copy file="mdm.conf" tofile="${jboss.conf.dir}/mdm.conf" />
-                                <copy file="mdm.conf.template" tofile="${jboss.conf.dir}/mdm.conf.template" />
-                                <copy file="war/default-datasources.xml" tofile="${jboss.conf.dir}/datasources.xml.template" />
-                                
-                                <echo message="Remove commons-codec library" />
-                                <delete file="${jboss.lib.dir}/commons-codec.jar" verbose="true" />
-                            </tasks>
+                            <port>${test.server.port}</port>
+                            <path>/jaxrs-service</path>
+                            <fork>true</fork>
+                            <warDirectory>${project.build.directory}/${project.build.finalName}</warDirectory>
+                            <useSeparateTomcatClassLoader>true</useSeparateTomcatClassLoader>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-tomcat</id>
+                        <goals>
+                            <goal>shutdown</goal>
+                        </goals>
+                        <phase>post-integration-test</phase>
+                        <configuration>
+                            <path>/jaxrs-service</path>
                         </configuration>
                     </execution>
                 </executions>
@@ -248,17 +97,89 @@
     </build>
 
     <dependencies>
+        <!-- 6.0 dependencies -->
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.neethi</groupId>
+            <artifactId>neethi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>2.7.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>2.7.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>4.0.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>4.0.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>3.2.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>3.2.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>3.2.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.castor</groupId>
+            <artifactId>castor-xml</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xsom</groupId>
+            <artifactId>xsom</artifactId>
+            <version>20110809</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -272,7 +193,6 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
         </dependency>
-
         <!-- 3rd dependencies -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -382,7 +302,7 @@
             <artifactId>hibernate-search</artifactId>
         </dependency>
         <dependency>
-            <groupId>javassist</groupId>
+            <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
         <dependency>
@@ -462,11 +382,6 @@
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>net.sf.jazzy</groupId>
-            <artifactId>jazzy-core</artifactId>
-        </dependency>
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor-xml</artifactId>
@@ -516,10 +431,6 @@
             <artifactId>xercesImpl</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.xsom</groupId>
-            <artifactId>xsom</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
@@ -538,26 +449,6 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2ee</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jbosssx</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-system</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-jmx</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss.jbossws</groupId>
-            <artifactId>jboss-jaxrpc</artifactId>
         </dependency>
         <dependency>
             <groupId>groovy</groupId>

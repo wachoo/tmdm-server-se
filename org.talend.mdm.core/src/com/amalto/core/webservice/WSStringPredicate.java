@@ -32,7 +32,10 @@ public class WSStringPredicate {
     public static final WSStringPredicate STRICTAND = new WSStringPredicate(_STRICTAND);
     public static final WSStringPredicate EXACTLY = new WSStringPredicate(_EXACTLY);
     public static final WSStringPredicate NOT = new WSStringPredicate(_NOT);
-    
+
+    public WSStringPredicate() {
+    }
+
     protected WSStringPredicate(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

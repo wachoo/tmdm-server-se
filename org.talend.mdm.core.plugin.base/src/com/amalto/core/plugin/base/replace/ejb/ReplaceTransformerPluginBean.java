@@ -1,22 +1,19 @@
 package com.amalto.core.plugin.base.replace.ejb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
-import org.w3c.dom.Element;
-
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.plugin.base.replace.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.w3c.dom.Element;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <h1>Replace Plugin</h1>
@@ -84,7 +81,7 @@ import com.amalto.core.util.XtentisException;
  *
  *
  */
-public class ReplaceTransformerPluginBean extends TransformerPluginV2CtrlBean implements SessionBean {
+public class ReplaceTransformerPluginBean extends Plugin {
 
 	private static final String PARAMETERS = "com.amalto.core.plugin.replace.parameters";
 
@@ -211,8 +208,6 @@ public class ReplaceTransformerPluginBean extends TransformerPluginV2CtrlBean im
 			CompiledParameters parameters = CompiledParameters.deserialize(compiledParameters);
 			context.put( PARAMETERS, parameters);
 
-		} catch (XtentisException xe) {
-			throw (xe);
 		} catch (Exception e) {
 			String err = "Could not init the Replace plugin:"+
 				e.getClass().getName()+": "+e.getLocalizedMessage();
@@ -221,6 +216,11 @@ public class ReplaceTransformerPluginBean extends TransformerPluginV2CtrlBean im
 		}
 
 	}
+
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
 
 
     /**
@@ -346,9 +346,7 @@ public class ReplaceTransformerPluginBean extends TransformerPluginV2CtrlBean im
     		}
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the Replace Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Logger.getLogger(this.getClass()).error(err,e);
@@ -367,7 +365,6 @@ public class ReplaceTransformerPluginBean extends TransformerPluginV2CtrlBean im
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 

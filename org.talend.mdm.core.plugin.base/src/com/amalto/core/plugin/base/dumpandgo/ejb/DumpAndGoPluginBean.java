@@ -1,19 +1,16 @@
 package com.amalto.core.plugin.base.dumpandgo.ejb;
 
-import java.util.ArrayList;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.regex.Pattern;
 /**
  *
  * @author Starkey Shu
@@ -40,7 +37,7 @@ import com.amalto.core.util.XtentisException;
  */
      
 
-public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class DumpAndGoPluginBean extends Plugin {
 
 	private static final long serialVersionUID = 6927070668734342292L;
 
@@ -60,7 +57,8 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String getJNDIName() throws XtentisException {
+	@Override
+    public String getJNDIName() throws XtentisException {
 		return "amalto/local/transformer/plugin/dumpandgo";
 	}
 	
@@ -70,7 +68,8 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String getDescription(String twoLettersLanguageCode)
+	@Override
+    public String getDescription(String twoLettersLanguageCode)
 			throws XtentisException {
 		String description="";
 		if(twoLettersLanguageCode.toLowerCase().equals("en")){
@@ -87,7 +86,8 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String getDocumentation(String twoLettersLanguageCode)
+	@Override
+    public String getDocumentation(String twoLettersLanguageCode)
 			throws XtentisException {
 		return
 		"The DumpAndGo plugin can dump your input text to console and pass it to the next step. \n" +
@@ -103,8 +103,9 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public ArrayList<TransformerPluginVariableDescriptor> getInputVariableDescriptors(
-			String twoLettersLanguageCode) throws XtentisException {
+	@Override
+    public ArrayList<TransformerPluginVariableDescriptor> getInputVariableDescriptors(
+            String twoLettersLanguageCode) throws XtentisException {
 		 ArrayList<TransformerPluginVariableDescriptor> inputDescriptors = new ArrayList<TransformerPluginVariableDescriptor>();
 		
 		 TransformerPluginVariableDescriptor descriptor = new TransformerPluginVariableDescriptor();
@@ -133,8 +134,9 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public ArrayList<TransformerPluginVariableDescriptor> getOutputVariableDescriptors(
-			String twoLettersLanguageCode) throws XtentisException {
+	@Override
+    public ArrayList<TransformerPluginVariableDescriptor> getOutputVariableDescriptors(
+            String twoLettersLanguageCode) throws XtentisException {
 		 ArrayList<TransformerPluginVariableDescriptor> outputDescriptors = new ArrayList<TransformerPluginVariableDescriptor>();
 
 		 //descriptor
@@ -163,7 +165,8 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String getParametersSchema() throws XtentisException {
+	@Override
+    public String getParametersSchema() throws XtentisException {
 		// Is this feature in use now?
 		return null;
 	}
@@ -174,7 +177,8 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public String compileParameters(String parameters) throws XtentisException {
+	@Override
+    public String compileParameters(String parameters) throws XtentisException {
 		return parameters;
 	}
 
@@ -186,7 +190,8 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public void init(TransformerPluginContext context, String compiledParameters)
+	@Override
+    public void init(TransformerPluginContext context, String compiledParameters)
 			throws XtentisException {
 
 		try {
@@ -201,14 +206,20 @@ public class DumpAndGoPluginBean extends TransformerPluginV2CtrlBean  implements
 		}
 		
 	}
-	
-	/**
+
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
+
+    /**
      * @throws XtentisException
      *
      * @ejb.interface-method view-type = "local"
      * @ejb.facade-method
      */
-	public void execute(TransformerPluginContext context)
+	@Override
+    public void execute(TransformerPluginContext context)
 			throws XtentisException {
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("execute() DumpAndGo");
 		

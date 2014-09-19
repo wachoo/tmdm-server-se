@@ -12,20 +12,21 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
-import java.io.Serializable;
-import java.io.StringReader;
-import java.net.URLEncoder;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
+import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.FieldNotFoundException;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.webservice.*;
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.*;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.sun.xml.xsom.*;
+import com.sun.xml.xsom.parser.XSOMParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -37,12 +38,10 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.task.StagingConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
-import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
-import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
-import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
-import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.*;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
@@ -53,102 +52,37 @@ import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
-import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
-import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
-import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
+import org.talend.mdm.webapp.browserecords.client.model.*;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
-import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
-import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
-import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
-import org.talend.mdm.webapp.browserecords.client.model.Restriction;
-import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
-import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.TypeModelNotFoundException;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.*;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.ruleengine.DisplayRuleEngine;
 import org.talend.mdm.webapp.browserecords.server.util.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
-import org.talend.mdm.webapp.browserecords.shared.AppHeader;
-import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
-import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
-import org.talend.mdm.webapp.browserecords.shared.ViewBean;
-import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
+import org.talend.mdm.webapp.browserecords.shared.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.task.StagingConstants;
-import com.amalto.core.util.EntityNotFoundException;
-import com.amalto.core.util.FieldNotFoundException;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
-import com.amalto.core.webservice.WSDataClusterPK;
-import com.amalto.core.webservice.WSDataModelPK;
-import com.amalto.core.webservice.WSDeleteItem;
-import com.amalto.core.webservice.WSDropItem;
-import com.amalto.core.webservice.WSExecuteTransformerV2;
-import com.amalto.core.webservice.WSExistsItem;
-import com.amalto.core.webservice.WSGetBusinessConceptKey;
-import com.amalto.core.webservice.WSGetBusinessConcepts;
-import com.amalto.core.webservice.WSGetDataModel;
-import com.amalto.core.webservice.WSGetItem;
-import com.amalto.core.webservice.WSGetTransformer;
-import com.amalto.core.webservice.WSGetTransformerPKs;
-import com.amalto.core.webservice.WSGetView;
-import com.amalto.core.webservice.WSGetViewPKs;
-import com.amalto.core.webservice.WSInt;
-import com.amalto.core.webservice.WSItem;
-import com.amalto.core.webservice.WSItemPK;
-import com.amalto.core.webservice.WSPutItem;
-import com.amalto.core.webservice.WSPutItemWithReport;
-import com.amalto.core.webservice.WSStringArray;
-import com.amalto.core.webservice.WSStringPredicate;
-import com.amalto.core.webservice.WSTransformer;
-import com.amalto.core.webservice.WSTransformerContext;
-import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
-import com.amalto.core.webservice.WSTransformerPK;
-import com.amalto.core.webservice.WSTransformerV2PK;
-import com.amalto.core.webservice.WSTypedContent;
-import com.amalto.core.webservice.WSView;
-import com.amalto.core.webservice.WSViewPK;
-import com.amalto.core.webservice.WSViewSearch;
-import com.amalto.core.webservice.WSWhereAnd;
-import com.amalto.core.webservice.WSWhereCondition;
-import com.amalto.core.webservice.WSWhereItem;
-import com.amalto.core.webservice.WSWhereOperator;
-import com.amalto.core.webservice.WSWhereOr;
-import com.amalto.core.webservice.WSXPathsSearch;
-import com.amalto.core.webservice.XtentisPort;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.DataModelAccessor;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.WebCoreException;
-import com.amalto.webapp.core.util.Webapp;
-import com.amalto.webapp.core.util.XmlUtil;
-import com.extjs.gxt.ui.client.Style.SortDir;
-import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSComplexType;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.parser.XSOMParser;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.rmi.RemoteException;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -180,17 +114,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (ids != null && !item.isReadOnly()) {
                     WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
                     WSDeleteItem wsDeleteItem = new WSDeleteItem(itemPK, override);
-                    wsDeleteItem.setWithReport(true);
-                    wsDeleteItem.setInvokeBeforeDeleting(true);
-                    wsDeleteItem.setSource("genericUI"); //$NON-NLS-1$
                     WSItemPK wsItem = CommonUtil.getPort().deleteItem(wsDeleteItem);
                     if (wsItem == null) {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
                     }
-                    itemResults.add(MESSAGES.getMessage("message_success", locale)); //$NON-NLS-1$
                     itemResults.add(MESSAGES.getMessage("delete_process_validation_success", locale)); //$NON-NLS-1$
                 } else {
-                    itemResults.add(MESSAGES.getMessage("message_fail", locale)); //$NON-NLS-1$
                     itemResults.add(MESSAGES.getMessage("delete_item_record_successNoupdate", locale)); //$NON-NLS-1$
                 }
             } catch (ServiceException e) {
@@ -201,24 +130,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } catch (Exception exception) {
                 String errorMessage;
                 if (WebCoreException.class.isInstance(exception.getCause())) {
-                    WebCoreException webCoreException = (WebCoreException) exception.getCause();
                     errorMessage = getErrorMessageFromWebCoreException(((WebCoreException) exception.getCause()),
                             item.getConcept(), item.getIds(), locale);
-                    if (webCoreException.isClient()) {
-                        throw new ServiceException(errorMessage);
-                    }
-                    if (webCoreException.getLevel() == WebCoreException.INFO) {
-                        LOG.info(errorMessage);
-                    } else {
-                        LOG.error(errorMessage, exception);
-                    }
                 } else {
                     errorMessage = exception.getMessage();
-                    LOG.error(errorMessage, exception);
                 }
-                itemResults.add(MESSAGES.getMessage("message_error", locale)); //$NON-NLS-1$
-                itemResults.add(errorMessage);
-                return itemResults;
+                LOG.error(errorMessage, exception);
+                throw new ServiceException(errorMessage);
             }
         }
         return itemResults;
@@ -303,8 +221,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
                     xpathForeignKey = xpathForeignKey.substring(1);
                 }
-                String fkEntity; //$NON-NLS-1$                
-				if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
+                String fkEntity; //$NON-NLS-1$
+                if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
                     fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
                 } else {
                     fkEntity = xpathForeignKey;
@@ -350,13 +268,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean isStaging, String language)
+    public ItemBean getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean staging, String language)
             throws ServiceException {
         try {
             String dateFormat = "yyyy-MM-dd"; //$NON-NLS-1$
             String dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"; //$NON-NLS-1$
 
-            String dataCluster = getCurrentDataCluster(isStaging);
+            String dataCluster = getCurrentDataCluster(staging);
             String dataModel = getCurrentDataModel();
             String concept = itemBean.getConcept();
             // get item
@@ -368,7 +286,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             WSItem wsItem = CommonUtil.getPort()
                     .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
-            extractUsingTransformerThroughView(viewPK, DataModelHelper.getEleDecl(), wsItem);
+            extractUsingTransformerThroughView(concept, viewPK, ids, dataModel, dataCluster, DataModelHelper.getEleDecl(), wsItem);
             itemBean.setItemXml(wsItem.getContent());
             itemBean.set("time", wsItem.getInsertionTime()); //$NON-NLS-1$
             if (wsItem.getTaskId() != null && !"".equals(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId())) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -467,9 +385,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
-                if (path.indexOf('$') > 0) {
-                    continue; // Skip paths like $stating_status$
-                }
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
                     // It should getValue by XPath but not element name(ItemBean's map object is only used by
@@ -617,11 +532,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
             String[] ids = CommonUtil.extractIdWithDots(key.getFields(), item.getIds());
             WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
-            WSDropItem wsDropItem = new WSDropItem(wsItemPK, path, override);
-            wsDropItem.setSource("genericUI"); //$NON-NLS-1$
-            wsDropItem.setInvokeBeforeSaving(true);
-            wsDropItem.setWithReport(true);
-            CommonUtil.getPort().dropItem(wsDropItem);
+            WSItem item1 = CommonUtil.getPort().getItem(new WSGetItem(wsItemPK));
+            String xml = item1.getContent();
+            WSDroppedItemPK wsItem = CommonUtil.getPort().dropItem(new WSDropItem(wsItemPK, path, override));
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
             throw e;
@@ -1754,6 +1667,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
             ViewBean viewBean = getView(viewPk, language);
+
             ItemBean itemBean = new ItemBean(concept, ids, null);
             itemBean = getItem(itemBean, viewPk, viewBean.getBindingEntityModel(), isStaging, language);
             if (checkSmartViewExistsByLang(concept, language)) {
@@ -1763,23 +1677,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), isStaging, language);
             return new ForeignKeyModel(viewBean, itemBean, nodeModel);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
-    @Override
-    public ForeignKeyBean getForeignKeyBean(String idsString, String concept, List<String> foreignKeyInfo, boolean staging,
-            String language) throws ServiceException {
-        try {
-            String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
-            ViewBean viewBean = getView(viewPk, language);
-            EntityModel entityModel = viewBean.getBindingEntityModel();
-            String[] ids = CommonUtil.extractIdWithDots(entityModel.getKeys(), idsString);
-            ItemBean itemBean = getItemBeanById(concept, ids, language);
-            return ForeignKeyHelper.getForeignKeyBean(entityModel, getCurrentDataCluster(staging), concept, foreignKeyInfo,
-                    itemBean.getItemXml(), language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -1824,6 +1721,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     private boolean isMyRunnableProcess(String transformerName, String ownerConcept, String[] businessConcepts) {
+
         String possibleConcept = "";//$NON-NLS-1$
         if (businessConcepts != null) {
             for (String businessConcept : businessConcepts) {
@@ -1834,70 +1732,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
         }
-        return ownerConcept != null && ownerConcept.equals(possibleConcept);
+
+        if (ownerConcept != null && ownerConcept.equals(possibleConcept)) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public String processItem(String concept, String[] ids, String transformerPK) throws ServiceException {
-        try {
-            // Find runnable transformer
-            XtentisPort port = Util.getPort();
-            WSTransformerPK[] wst = port.getTransformerPKs(new WSGetTransformerPKs(transformerPK)).getWsTransformerPK();
-            if (wst.length == 0) {
-                return null;
-            }
-            // execute
-            WSTransformer wsTransformer = port.getTransformer(new WSGetTransformer(wst[0]));
-            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0) {
-                throw new ServiceException(MESSAGES.getMessage("plugin_specs_undefined")); //$NON-NLS-1$
-            }
-            boolean outputReport = false;
-            String downloadUrl = StringUtils.EMPTY;
-            if (LOG.isDebugEnabled()) {
-                String itemAlias = concept + '.' + Util.joinStrings(ids, "."); //$NON-NLS-1$
-                LOG.debug("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
-            String updateReport = Util.createUpdateReport(ids, concept, UpdateReportPOJO.OPERATION_TYPE_ACTION);
-            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
-                    "text/xml; charset=utf-8");//$NON-NLS-1$
-            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
-            WSTransformerContextPipelinePipelineItem[] entries = port.executeTransformerV2(wsExecuteTransformerV2).getPipeline()
-                    .getPipelineItem();
-            if (entries.length > 0) {
-                WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
-                if (item.getVariable().equals("output_url")) { //$NON-NLS-1$
-                    byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
-                    String content = new String(bytes);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Received output_url " + content); //$NON-NLS-1$
-                    }
-                    try {
-                        Document resultDoc = Util.parse(content);
-                        NodeList attrList = Util.getNodeList(resultDoc, "//attr"); //$NON-NLS-1$
-                        if (attrList != null && attrList.getLength() > 0) {
-                            downloadUrl = attrList.item(0).getTextContent();
-                            outputReport = true;
-                        }
-                    } catch (Exception e) {
-                        LOG.error(e.getMessage(), e);
-                        throw new ServiceException(MESSAGES.getMessage("process_output_url_error")); //$NON-NLS-1$
-                    }
-                }
-            }
-            // Save update report
-            WSDataClusterPK updateReportCluster = new WSDataClusterPK("UpdateReport"); //$NON-NLS-1$
-            WSDataModelPK updateReportDataModel = new WSDataModelPK("UpdateReport"); //$NON-NLS-1$
-            Util.getPort().putItem(new WSPutItem(updateReportCluster, updateReport, updateReportDataModel, false));
-            if (outputReport) {
-                return downloadUrl;
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
+        return null;
     }
 
     @Override
@@ -1910,6 +1755,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
     }
 
+    /**
+     ********** Smart View**********
+     **/
     private boolean checkSmartViewExistsByLang(String concept, String language) throws Exception {
         return SmartViewUtil.checkSmartViewExistsByLangAndOptName(concept, language, null, true);
     }
@@ -1917,10 +1765,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     private boolean checkSmartViewExistsByOpt(String concept, String language) throws Exception {
         SmartViewProvider provider = new DefaultSmartViewProvider();
         SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
+
         Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
+
         // Add the no language Smart Views too
         smDescSet.addAll(smDescs.get(null));
-        return !smDescSet.isEmpty();
+
+        if (!smDescSet.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -1930,16 +1785,20 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             if (regex == null || regex.length() == 0) {
                 return smartViewList;
             }
+
             String[] inputParams = regex.split("&");//$NON-NLS-1$
             String concept = inputParams[0];
             String language = inputParams[1];
+
             // Get SmartViews from processes
             SmartViewProvider provider = new DefaultSmartViewProvider();
             SmartViewDescriptions smDescs = SmartViewUtil.build(provider, concept, language);
+
             // Get the lang Smart Views first : Smart_view_<entity>_<ISO> and Smart_view_<entity>_<ISO>#<option>
             Set<SmartViewDescriptions.SmartViewDescription> smDescSet = smDescs.get(language);
             // Add the fallback noLang Smart Views too : Smart_view_<entity> and Smart_view_<entity>#<option>
             smDescSet.addAll(smDescs.get(null));
+
             for (SmartViewDescriptions.SmartViewDescription smDesc : smDescSet) {
                 String value = URLEncoder.encode(smDesc.getName(), "UTF-8"); //$NON-NLS-1$
                 ItemBaseModel itemBaseModel = new ItemBaseModel();
@@ -1948,6 +1807,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 smartViewList.add(itemBaseModel);
             }
             return smartViewList;
+
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(MESSAGES.getMessage("unable_getsmart_viewlist")); //$NON-NLS-1$
@@ -1959,8 +1819,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * the wsItem's xml String value into xml doc, 5.cover wsItem's xml with job's xml value. step 6 and 7 must do
      * first. 6.add properties into ViewPOJO. 7.add properties into webservice parameter.
      */
-    private void extractUsingTransformerThroughView(String viewName, XSElementDecl elementDecl, WSItem wsItem) throws Exception,
-            TransformerFactoryConfigurationError, TransformerException {
+    private void extractUsingTransformerThroughView(String concept, String viewName, String[] ids, String dataModelPK,
+            String dataClusterPK, XSElementDecl elementDecl, WSItem wsItem) throws RemoteException, XtentisWebappException,
+            UnsupportedEncodingException, Exception, XPathExpressionException, TransformerFactoryConfigurationError,
+            TransformerConfigurationException, TransformerException {
         if (viewName == null || viewName.length() == 0) {
             return;
         }
@@ -2195,28 +2057,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
             return ids.toString();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
-    @Override
-    public boolean checkTask(String dataClusterPK, String viewPK, String concept, String taskId) throws ServiceException {
-        WSWhereCondition whereCondition_Status_SUCCESS_VALIDATE = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
-                WSWhereOperator.EQUALS, StagingConstants.SUCCESS_MERGE_CLUSTERS, WSStringPredicate.NONE, false);
-        WSWhereItem whereItem_Status_SUCCESS_VALIDATE = new WSWhereItem(whereCondition_Status_SUCCESS_VALIDATE, null, null);
-        WSWhereCondition whereCondition_TaskID = new WSWhereCondition(StagingConstant.STAGING_TASKID.substring(1),
-                WSWhereOperator.EQUALS, taskId, WSStringPredicate.NONE, false);
-        WSWhereItem whereItem_TaskID = new WSWhereItem(whereCondition_TaskID, null, null);
-        WSWhereItem[] whereItem_Array = { whereItem_TaskID, whereItem_Status_SUCCESS_VALIDATE };
-        WSWhereAnd whereAnd = new WSWhereAnd(whereItem_Array);
-        WSWhereItem whereItem = new WSWhereItem(null, whereAnd, null);
-        try {
-            WSString results = CommonUtil.getPort()
-                    .count(new WSCount(new WSDataClusterPK(dataClusterPK), concept, whereItem, -1));
-            int resultSize = Integer.parseInt(results.getValue());
-            return resultSize > 1 ? true : false;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

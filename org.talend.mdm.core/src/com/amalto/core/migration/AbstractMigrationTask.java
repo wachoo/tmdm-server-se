@@ -4,7 +4,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.server.api.XmlServer;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Unmarshaller;
 
@@ -74,7 +74,7 @@ public abstract class AbstractMigrationTask {
 		}
 		try {
 			MigrationTaskBox newBox=new MigrationTaskBox(handlerMap);
-            XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
+            XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             xmlServerCtrlLocal.start(CLUSTER_MIGRATION);
             xmlServerCtrlLocal.putDocumentFromString(newBox.toString(), UNIQUE_MIGRATION, CLUSTER_MIGRATION, null);
             xmlServerCtrlLocal.commit(CLUSTER_MIGRATION);

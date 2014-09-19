@@ -1,31 +1,28 @@
 package com.amalto.core.plugin.base.batchproject.ejb;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
-import org.apache.commons.io.FileUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.plugin.base.batchproject.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -52,7 +49,7 @@ import com.amalto.core.util.XtentisException;
  */
      
 
-public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class BatchProjectTransformerPluginBean extends Plugin {
 	
 	/**
 	 * 
@@ -324,8 +321,6 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 
 			context.put(PARAMETERS, parameters);
 			
-		} catch (XtentisException xe) {
-			throw (xe);
 		} catch (Exception e) {
 			String err = "Could not init the BatchProject plugin:"+
 				e.getClass().getName()+": "+e.getLocalizedMessage();
@@ -334,8 +329,13 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 		}
 		
 	}
-	
-	/**
+
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
+
+    /**
      * @throws XtentisException
      *
      * @ejb.interface-method view-type = "local"
@@ -406,7 +406,7 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 					
 					//check exist
 					if(!isOverwrite){
-						ItemPOJO check = getItemCtrl2Local().existsItem(pk);
+						ItemPOJO check = Util.getItemCtrl2Local().existsItem(pk);
 						if (check!=null) {
 							org.apache.log4j.Logger.getLogger(this.getClass()).warn("execute() BatchProject:Item "+pk.getUniqueID()+" already exists and overwrite is set to false --> skipping");
 							resultContent+=(selectedConceptXml+br);
@@ -417,7 +417,7 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 					//now perform updates
 					ItemPOJOPK puttedItemPOJOPK=null;
 					try {
-						puttedItemPOJOPK=getItemCtrl2Local().putItem(
+						puttedItemPOJOPK=Util.getItemCtrl2Local().putItem(
 								newItemPOJO,
 								dataModelPOJO
 						);
@@ -454,12 +454,6 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
 		org.apache.log4j.Logger.getLogger(this.getClass()).trace("execute() BatchProject done");
 	}
 
-//	@Override
-//	public void end(TransformerPluginContext context) throws XtentisException {
-//		// TODO release connect etc.
-//		super.end(context);
-//	}
-	
 	private String getDefaultConfiguration(){
     	return
     		"<configuration>"+
@@ -483,9 +477,7 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
     		}
     		configurationLoaded = true;
     		return configuration;
-        } catch (XtentisException e) {
-    		throw (e);
-	    } catch (Exception e) {
+        } catch (Exception e) {
     	    String err = "Unable to deserialize the configuration of the BatchProject Transformer Plugin"
     	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();
     	    org.apache.log4j.Category.getInstance(this.getClass()).error(err);
@@ -501,7 +493,6 @@ public class BatchProjectTransformerPluginBean extends TransformerPluginV2CtrlBe
      */
 	public void putConfiguration(String configuration) throws XtentisException {
 		configurationLoaded = false;
-		super.putConfiguration(configuration);
 	}
 
 	

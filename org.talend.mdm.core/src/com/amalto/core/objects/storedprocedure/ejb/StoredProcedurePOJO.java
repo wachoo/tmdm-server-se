@@ -1,18 +1,16 @@
 package com.amalto.core.objects.storedprocedure.ejb;
 
-import java.util.Collection;
-
-import javax.ejb.EJBException;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.metadata.LongString;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
+
+import java.util.Collection;
 
 
 public class StoredProcedurePOJO extends ObjectPOJO {
@@ -76,7 +74,7 @@ public class StoredProcedurePOJO extends ObjectPOJO {
             if (refreshCache) {
                 ItemPOJO.clearCache();
             }
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+            XmlServer server = Util.getXmlServerCtrlLocal();
             String cluster = null;
             if (dataClusterPOJOPK != null) {
                 cluster = dataClusterPOJOPK.getUniqueId();
@@ -86,7 +84,7 @@ public class StoredProcedurePOJO extends ObjectPOJO {
             String err = "Unable to execute the Stored Procedure " + getPK().getUniqueId()
                     + ": " + e.getLocalizedMessage();
             LOGGER.error(err);
-            throw new EJBException(err, e);
+            throw new RuntimeException(err, e);
         }
     }
 

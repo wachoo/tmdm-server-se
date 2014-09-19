@@ -30,7 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.server.DataSourceExtension;
+import com.amalto.core.server.api.DataSourceExtension;
 
 public class DataSourceFactory {
 

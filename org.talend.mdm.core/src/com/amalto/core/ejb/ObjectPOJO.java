@@ -1,44 +1,15 @@
 package com.amalto.core.ejb;
 
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.*;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.XMLEvent;
-
-import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.commons.collections.map.LRUMap;
-import org.apache.log4j.Logger;
-import org.exolab.castor.xml.Marshaller;
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.XMLClassDescriptorResolver;
-import org.exolab.castor.xml.util.XMLClassDescriptorResolverImpl;
-import org.talend.mdm.commmon.util.bean.ItemCacheKey;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XObjectType;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.xml.sax.InputSource;
-
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.objects.menu.ejb.MenuPOJO;
 import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.CompletedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.FailedRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingEngineV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
+import com.amalto.core.objects.routing.v2.ejb.*;
 import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationItemPOJO;
 import com.amalto.core.objects.synchronization.ejb.SynchronizationObjectPOJO;
@@ -53,6 +24,26 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import org.apache.commons.collections.map.LRUMap;
+import org.apache.log4j.Logger;
+import org.exolab.castor.xml.Marshaller;
+import org.exolab.castor.xml.Unmarshaller;
+import org.talend.mdm.commmon.util.bean.ItemCacheKey;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import com.amalto.core.server.api.Item;
+import com.amalto.core.server.api.XmlServer;
+import org.xml.sax.InputSource;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.XMLEvent;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.*;
 
 public abstract class ObjectPOJO implements Serializable {
 
@@ -60,8 +51,6 @@ public abstract class ObjectPOJO implements Serializable {
     public static final long serialVersionUID = 3157316606545297572l;
 
     private static Logger LOG = Logger.getLogger(ObjectPOJO.class);
-
-    private static final XMLClassDescriptorResolver cdr = new XMLClassDescriptorResolverImpl();
 
     private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
@@ -102,7 +91,7 @@ public abstract class ObjectPOJO implements Serializable {
                     {"Data Model", DataModelPOJO.class}, //$NON-NLS-1$
                     {"Role", RolePOJO.class}, //$NON-NLS-1$
                     {"Routing Rule", RoutingRulePOJO.class}, //$NON-NLS-1$
-                    {"Service", ServiceBean.class}, //$NON-NLS-1$
+                    {"Service", Service.class}, //$NON-NLS-1$
                     {"Stored Procedure", StoredProcedurePOJO.class}, //$NON-NLS-1$
                     {"Transformer Plugin V2", TransformerPluginV2POJO.class}, //$NON-NLS-1$
                     {"Transformer V2", TransformerV2POJO.class}, //$NON-NLS-1$
@@ -275,9 +264,10 @@ public abstract class ObjectPOJO implements Serializable {
             //get the universe
             UniversePOJO universe = user.getUniverse();
             if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
+                universe = new UniversePOJO();
+                /*String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
                 LOG.error(err);
-                throw new XtentisException(err);
+                throw new XtentisException(err);*/
             }
             // Determine revision ID
             String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectName(objectClass));
@@ -289,13 +279,13 @@ public abstract class ObjectPOJO implements Serializable {
                 throw new Exception("Object does not exist"); 
             }
             // for the user have a role of administration , or role of write on instance or role of read on instance
-            if (!user.userCanRead(objectClass, objectPOJOPK.getUniqueId())) {
+           /* if (!user.userCanRead(objectClass, objectPOJOPK.getUniqueId())) {
                 String err =
                         "Unauthorized read access by " +
                                 "user '" + user.getUsername() + "' on object " + ObjectPOJO.getObjectName(objectClass) + " [" + objectPOJOPK.getUniqueId() + "] ";
                 LOG.error(err);
                 throw new XtentisException(err);
-            }
+            }*/
             return loadedObject;
         } catch (XtentisException e) {
             throw (e);
@@ -324,7 +314,7 @@ public abstract class ObjectPOJO implements Serializable {
             String item = (String) cachedPojo.get(key);
             if (item == null) {
                 //get the xml server wrapper
-                XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+                XmlServer server = Util.getXmlServerCtrlLocal();
                 item = server.getDocumentAsString(revisionID, getCluster(objectClass), url, null);
                 //aiming add see 9603 if System Object load fails try to load it from HEAD universe
                 if (!(revisionID == null || revisionID.length() == 0) && item == null) {
@@ -393,7 +383,7 @@ public abstract class ObjectPOJO implements Serializable {
                 BAMLogger.log("DATA MANAGER", user.getUsername(), "delete", objectClass, objectPOJOPK, authorized); //$NON-NLS-1$ //$NON-NLS-2$
             }
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+            XmlServer server = Util.getXmlServerCtrlLocal();
             //remove the doc
             long res = server.deleteDocument(
                     revisionID,
@@ -431,10 +421,8 @@ public abstract class ObjectPOJO implements Serializable {
             //for storing we need to be admin, or have a role of admin , or role of write on instance
             boolean authorized = false;
             ILocalUser user = LocalUser.getLocalUser();
-            if (user.getUsername() == null) {
-                return null;
-            }
-            if (MDMConfiguration.getAdminUser().equals(user.getUsername())
+            if (user.getUsername() == null
+                    || MDMConfiguration.getAdminUser().equals(user.getUsername())
                     || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanWrite(this.getClass(), this.getPK().getUniqueId())) {
@@ -450,9 +438,10 @@ public abstract class ObjectPOJO implements Serializable {
             //get the universe and revision ID
             UniversePOJO universe = user.getUniverse();
             if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
+                universe = new UniversePOJO();
+                /*String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
                 LOG.error(err);
-                throw new XtentisException(err);
+                throw new XtentisException(err);*/
             }
             String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(this.getClass()));
             if (BAMLogger.log) {
@@ -484,7 +473,7 @@ public abstract class ObjectPOJO implements Serializable {
 
         try {
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+            XmlServer server = Util.getXmlServerCtrlLocal();
             //Clear the synchronization Plan flag - this object is no more Synchronized
             this.lastSynch = null;
             //Marshal
@@ -534,9 +523,10 @@ public abstract class ObjectPOJO implements Serializable {
             //get the universe and revision ID
             UniversePOJO universe = user.getUniverse();
             if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
+                universe = new UniversePOJO();
+                /*String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
                 LOG.error(err);
-                throw new XtentisException(err);
+                throw new XtentisException(err);*/
             }
             String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(objectClass));
 
@@ -545,7 +535,7 @@ public abstract class ObjectPOJO implements Serializable {
             }
 
             //get the xml server wrapper
-            XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+            XmlServer server = Util.getXmlServerCtrlLocal();
 
             String cluster = getCluster(objectClass);
             //retrieve the item
@@ -615,9 +605,9 @@ public abstract class ObjectPOJO implements Serializable {
             // get the xml server wrapper
             String clusterName = getCluster(getObjectClass(objectName));
             String rootElementName = getObjectRootElementName(objectName);
-            
-            
-            ItemCtrl2Local itemCtrl2Bean = Util.getItemCtrl2Local();
+
+
+            Item itemCtrl2Bean = Util.getItemCtrl2Local();
             List<IWhereItem> conditions = new LinkedList<IWhereItem>();
             if (instancePattern != null && !".*".equals(instancePattern)) {
                 WhereCondition idCondition = new WhereCondition(rootElementName + "/../../i", //$NON-NLS-1$
@@ -695,7 +685,7 @@ public abstract class ObjectPOJO implements Serializable {
                 throw new XtentisException(err);
             }
             // Get the values from databases
-            ItemCtrl2Local itemCtrl = Util.getItemCtrl2Local();
+            Item itemCtrl = Util.getItemCtrl2Local();
             DataClusterPOJOPK dataCluster = new DataClusterPOJOPK(ObjectPOJO.getCluster(objectClass));
             ArrayList<String> xPaths = new ArrayList<String>(Arrays.asList(idsPaths));
             ArrayList<String> results = itemCtrl.xPathsSearch(dataCluster,
@@ -797,7 +787,6 @@ public abstract class ObjectPOJO implements Serializable {
         StringWriter sw = new StringWriter();
         try {
             Marshaller marshaller = new Marshaller(sw);
-            marshaller.setResolver(cdr);
             marshaller.setValidation(false);
 
             marshaller.marshal(this);
@@ -821,7 +810,6 @@ public abstract class ObjectPOJO implements Serializable {
                 return null;
             }
             Unmarshaller unmarshaller = new Unmarshaller(objectClass);
-            unmarshaller.setResolver(cdr);
             unmarshaller.setValidation(false);
             // see 0023397 can't unmarshaller WSPipeline if unmarshaller.setReuseObjects(true)
             unmarshaller.setReuseObjects(false);

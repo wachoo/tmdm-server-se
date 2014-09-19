@@ -22,33 +22,24 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
-import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
-import com.amalto.core.util.User;
+import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.util.Menu;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
+import com.amalto.webapp.core.util.dwr.WebappInfo;
 import com.amalto.core.webservice.WSByteArray;
-import com.amalto.core.webservice.WSDataClusterPK;
-import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSExecuteTransformerV2;
 import com.amalto.core.webservice.WSGetTransformer;
 import com.amalto.core.webservice.WSGetTransformerPKs;
-import com.amalto.core.webservice.WSPutItem;
 import com.amalto.core.webservice.WSTransformer;
 import com.amalto.core.webservice.WSTransformerContext;
 import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
 import com.amalto.core.webservice.WSTransformerPK;
 import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.core.webservice.WSTypedContent;
-import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.util.Menu;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.Webapp;
-import com.amalto.webapp.core.util.dwr.WebappInfo;
 
 /**
  * The server side implementation of the RPC service.
@@ -58,15 +49,6 @@ public class WelcomePortalAction implements WelcomePortalService {
     private static final Logger LOG = Logger.getLogger(WelcomePortalAction.class);
 
     private static final String STANDALONE_PROCESS_PREFIX = "Runnable#"; //$NON-NLS-1$
-
-    private static final Messages MESSAGES = MessagesFactory.getMessages(
-            "org.talend.mdm.webapp.welcomeportal.client.i18n.WelcomePortalMessages", WelcomePortalAction.class.getClassLoader()); //$NON-NLS-1$
-
-    private PortalProperties portalConfig;
-
-    private String autoRefreshes;
-
-    private String chartSettings;
 
     /**
      * check if is show license link.
@@ -87,7 +69,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     public boolean isHiddenWorkFlowTask() throws ServiceException {
         return isHiddenMenu(WelcomePortal.WORKFLOW_TASKAPP);
     }
-
+    
     /**
      * check if is show dsc task link.
      * 
@@ -96,7 +78,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     @Override
     public boolean isHiddenDSCTask() throws ServiceException {
         return isHiddenMenu(WelcomePortal.DSC_TASKAPP);
-    }
+    }    
 
     /**
      * check if is it standalong process.
@@ -285,51 +267,9 @@ public class WelcomePortalAction implements WelcomePortalService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
-
+    
     @Override
     public Map<Boolean, Integer> getWelcomePortletConfig() throws Exception {
         return Webapp.INSTANCE.getWelcomePortletConfig();
-    }
-
-    @Override
-    public PortalProperties getPortalConfig() throws ServiceException {
-
-        Map<String, String> temp;
-        try {
-            ILocalUser user = LocalUser.getLocalUser();
-            User parse = User.parse(user.getUserXML());
-            temp = parse.getProperties();
-            portalConfig = new PortalProperties(temp);
-            return portalConfig;
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(MESSAGES.getMessage("retrieve_portal_config_failed")); //$NON-NLS-1$
-        }
-    }
-
-    @Override
-    public void savePortalConfig(PortalProperties config) throws ServiceException {
-        try {
-            ILocalUser user = LocalUser.getLocalUser();
-            User parsedUser = User.parse(user.getUserXML());
-            Map<String, String> properties = parsedUser.getProperties();
-            String value;
-            for (String name : config.getKeys()) {
-                value = config.get(name);
-                properties.put(name, value);
-            }
-
-            Util.getPort()
-                    .putItem(
-                            new WSPutItem(
-                                    new WSDataClusterPK("PROVISIONING"), parsedUser.serialize(), new WSDataModelPK("PROVISIONING"), false)); //$NON-NLS-1$ //$NON-NLS-2$
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            String details = e.getMessage();
-            // ignore failure caused by license since user will be notified more specifically in 'Alert' portlet
-            if (!details.contains("com.amalto.core.util.license.LicenseValidationException")) { //$NON-NLS-1$
-                throw new ServiceException(MESSAGES.getMessage("save_portal_config_failed")); //$NON-NLS-1$
-            }
-        }
     }
 }

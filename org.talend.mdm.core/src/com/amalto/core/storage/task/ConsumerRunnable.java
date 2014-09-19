@@ -14,11 +14,10 @@ package com.amalto.core.storage.task;
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.log4j.Logger;
 
-import javax.resource.spi.work.Work;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class ConsumerRunnable implements Work {
+class ConsumerRunnable implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(ConsumerRunnable.class);
 

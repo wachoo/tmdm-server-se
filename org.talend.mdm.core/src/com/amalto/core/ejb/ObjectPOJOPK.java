@@ -32,7 +32,7 @@ public class ObjectPOJOPK implements Serializable{
 	}
 
 	public String toString() {
-		return Util.joinStrings(ids, "..");
+		return Util.joinStrings(ids, "");
 	}
 
 	public String getUniqueId() {

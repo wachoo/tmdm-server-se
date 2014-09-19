@@ -15,9 +15,6 @@ package com.amalto.core.util;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.security.jacc.PolicyContext;
-import javax.servlet.http.HttpServletRequest;
-
 public class MessagesFactory {
 
     private static ResourceBundleLocator resourceBundleLocator;
@@ -39,32 +36,13 @@ public class MessagesFactory {
     private static class DefaultResourceBundleLocator implements ResourceBundleLocator {
 
         public ResourceBundle getBundle(String baseName, Locale locale, ClassLoader loader) {
-            if (locale == null) {
+            if (locale == null)
                 locale = getLocale();
-            }
             return ResourceBundle.getBundle(baseName, locale, loader);
         }
 
         private static Locale getLocale() {
-            Locale locale = null;
-            HttpServletRequest request = getHttpServletRequest();
-            if (request != null) {
-                locale = LocaleUtil.getLocale(request);
-            }
-            if (locale == null) {
-                locale = Locale.getDefault();
-            }
-            return locale;
-        }
-
-        private static HttpServletRequest getHttpServletRequest() {
-            HttpServletRequest request = null;
-            try {
-                request = (HttpServletRequest) PolicyContext.getContext("javax.servlet.http.HttpServletRequest"); //$NON-NLS-1$
-            } catch (Exception e) {
-                // do nothing
-            }
-            return request;
+            return Locale.getDefault();
         }
     }
 }

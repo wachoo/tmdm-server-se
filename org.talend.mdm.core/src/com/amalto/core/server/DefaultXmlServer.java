@@ -11,6 +11,7 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.util.XtentisException;

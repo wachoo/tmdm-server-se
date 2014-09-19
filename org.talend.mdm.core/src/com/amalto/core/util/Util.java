@@ -12,59 +12,51 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.Principal;
-import java.security.acl.Group;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.MissingResourceException;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.delegator.IXtentisWSDelegator;
+import com.amalto.core.ejb.*;
+import com.amalto.core.jobox.JobContainer;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
+import com.amalto.core.objects.transformers.v2.util.TransformerContext;
+import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.schema.manage.SchemaCoreAgent;
+import com.amalto.core.server.*;
+import com.amalto.core.webservice.WSMDMJob;
+import com.amalto.core.webservice.WSVersion;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereLogicOperator;
+import com.amalto.xmlserver.interfaces.XmlServerException;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSSchema;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.XSType;
+import com.sun.xml.xsom.parser.XSOMParser;
+import com.sun.xml.xsom.util.DomAnnotationParserFactory;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.jxpath.AbstractFactory;
+import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.jxpath.Pointer;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.ITransformerConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
+import com.amalto.core.server.api.*;
+import org.w3c.dom.*;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJBException;
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.resource.cci.Connection;
-import javax.resource.cci.ConnectionFactory;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -78,101 +70,23 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.jxpath.AbstractFactory;
-import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.jxpath.Pointer;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.ITransformerConstants;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
-import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
-import org.w3c.dom.*;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.amalto.core.delegator.BeanDelegatorContainer;
-import com.amalto.core.delegator.IXtentisWSDelegator;
-import com.amalto.core.ejb.DroppedItemPOJO;
-import com.amalto.core.ejb.DroppedItemPOJOPK;
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.UpdateReportPOJO;
-import com.amalto.core.ejb.local.DroppedItemCtrlLocal;
-import com.amalto.core.ejb.local.DroppedItemCtrlLocalHome;
-import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.ejb.local.ItemCtrl2LocalHome;
-import com.amalto.core.ejb.local.ServiceLocalHome;
-import com.amalto.core.ejb.local.TransformerCtrlLocal;
-import com.amalto.core.ejb.local.TransformerCtrlLocalHome;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocalHome;
-import com.amalto.core.ejb.remote.ItemCtrl2;
-import com.amalto.core.ejb.remote.ItemCtrl2Home;
-import com.amalto.core.ejb.remote.XmlServerSLWrapper;
-import com.amalto.core.ejb.remote.XmlServerSLWrapperHome;
-import com.amalto.core.jobox.JobContainer;
-import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocal;
-import com.amalto.core.objects.backgroundjob.ejb.local.BackgroundJobCtrlLocalHome;
-import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocal;
-import com.amalto.core.objects.configurationinfo.ejb.local.ConfigurationInfoCtrlLocalHome;
-import com.amalto.core.objects.customform.ejb.local.CustomFormCtrlLocal;
-import com.amalto.core.objects.customform.ejb.local.CustomFormCtrlLocalHome;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
-import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocalHome;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocalHome;
-import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocal;
-import com.amalto.core.objects.menu.ejb.local.MenuCtrlLocalHome;
-import com.amalto.core.objects.role.ejb.local.RoleCtrlLocal;
-import com.amalto.core.objects.role.ejb.local.RoleCtrlLocalHome;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocalHome;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingOrderV2CtrlLocalHome;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingRuleCtrlLocalHome;
-import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocal;
-import com.amalto.core.objects.storedprocedure.ejb.local.StoredProcedureCtrlLocalHome;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
-import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalHome;
-import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.view.ejb.local.ViewCtrlLocal;
-import com.amalto.core.objects.view.ejb.local.ViewCtrlLocalHome;
-import com.amalto.core.schema.manage.SchemaCoreAgent;
-import com.amalto.core.webservice.WSMDMJob;
-import com.amalto.core.webservice.WSVersion;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereLogicOperator;
-import com.amalto.xmlserver.interfaces.XmlServerException;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSSchema;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.XSType;
-import com.sun.xml.xsom.parser.XSOMParser;
-import com.sun.xml.xsom.util.DomAnnotationParserFactory;
+import java.io.*;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @SuppressWarnings("deprecation")
 public class Util {
-
-    /*********************************************************************
-     * System wide properties
-     *********************************************************************/
-    /**
-     * Home Cache speeds up execution but make deployment debugging
-     */
-    public final static boolean USE_HOME_CACHES = Boolean.getBoolean("com.amalto.use.home.caches"); //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(Util.class);
 
@@ -195,39 +109,37 @@ public class Util {
         SCRIPTFACTORY = new ScriptEngineManager();
     }
 
-    /**
-     * helper class
-     */
-    public static List<String> getRuntimeServiceJndiList(boolean withPrefix) {
-        List<String> serviceJndiList = new ArrayList<String>();
-        String serviceJndiPrefix = "amalto/local/service"; //$NON-NLS-1$
-        try {
-            InitialContext ctx = new InitialContext();
-            NamingEnumeration<NameClassPair> list = ctx.list(serviceJndiPrefix);
-            while (list.hasMore()) {
-                NameClassPair nc;
+    private static DefaultXmlServer defaultXmlServer;
 
-                nc = list.next();
+    private static DataModel defaultDataModel;
 
-                if (withPrefix) {
-                    serviceJndiList.add(serviceJndiPrefix + "/" + nc.getName()); //$NON-NLS-1$
-                } else {
-                    serviceJndiList.add(nc.getName());
-                }
-            }
-        } catch (NamingException e) {
-            LOGGER.error(e);
-        }
-        return serviceJndiList;
-    }
+    private static DefaultConfigurationInfo configurationInfo;
 
-    public static List<String> getRuntimeServiceJndiList() {
-        return getRuntimeServiceJndiList(true);
-    }
+    private static DefaultMenu menu;
 
-    /*********************************************************************
-     * Parsing Stuff
-     *********************************************************************/
+    private static DefaultRole role;
+
+    private static DefaultDataCluster defaultDataCluster;
+
+    private static DefaultCustomForm defaultCustomForm;
+
+    private static DefaultBackgroundJob defaultBackgroundJob;
+
+    private static DefaultView defaultView;
+
+    private static DefaultStoredProcedure defaultStoredProcedure;
+
+    private static DefaultItem defaultItem;
+
+    private static DefaultDroppedItem defaultDroppedItem;
+
+    private static DefaultRoutingRule defaultRoutingRule;
+
+    private static DefaultRoutingEngine defaultRoutingEngine;
+
+    private static DefaultRoutingOrder defaultRoutingOrder;
+
+    private static DefaultTransformer defaultTransformer;
 
     public static Document parse(String xmlString) throws ParserConfigurationException, IOException, SAXException {
         return parse(xmlString, null);
@@ -478,123 +390,19 @@ public class Util {
                 line = reader.readLine();
             }
         } catch (Exception e) {
-            LOGGER.error(e);
+            Logger.getLogger(Util.class).error(e);
         }
 
         return buffer.toString();
     }
 
     /**
-     * Check if a local or remote component for the JNDI Name exists
-     */
-    public static boolean existsComponent(String RMIProviderURL, String jndiName) throws XtentisException {
-
-        if ((RMIProviderURL == null) || (RMIProviderURL.equals(""))) {
-            RMIProviderURL = "LOCAL";
-        }
-
-        Hashtable<String, String> env = null;
-        if (!"LOCAL".equals(RMIProviderURL)) {
-            // FIXME: JBoss specific
-            env = new Hashtable<String, String>(3);
-            env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jnp.interfaces.NamingContextFactory");
-            env.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
-            env.put(Context.PROVIDER_URL, RMIProviderURL);
-        }
-
-        Object home = null;
-        InitialContext initialContext = null;
-        try {
-            initialContext = new InitialContext(env);
-            home = initialContext.lookup(jndiName);
-        } catch (NamingException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("existsComponent error.", e);
-            }
-        } finally {
-            try {
-                if (initialContext != null) {
-                    initialContext.close();
-                }
-            } catch (Exception e) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("existsComponent error.", e);
-                }
-            }
-        }
-
-        return (home != null);
-    }
-
-    /**
-     * Retrieve the local (if RMIProvideURL is null) or remote component for the particular local JNDI Name
-     */
-    public static Object retrieveComponent(String RMIProviderURL, String jndiName) throws XtentisException {
-
-        if ((RMIProviderURL == null) || (RMIProviderURL.equals(""))) {
-            RMIProviderURL = "LOCAL";
-        }
-
-        Hashtable<String, String> env = null;
-        if (!"LOCAL".equals(RMIProviderURL)) {
-            // FIXME: JBoss specific
-            env = new Hashtable<String, String>(3);
-            env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jnp.interfaces.NamingContextFactory");
-            env.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
-            env.put(Context.PROVIDER_URL, RMIProviderURL);
-
-        }
-
-        Object home = null;
-        InitialContext initialContext = null;
-        try {
-            initialContext = new InitialContext(env);
-            home = initialContext.lookup(jndiName);
-        } catch (NamingException e) {
-            String err = "Unable to lookup \"" + jndiName + "\"" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            throw new XtentisException(err);
-        } finally {
-            try {
-                if (initialContext != null) {
-                    initialContext.close();
-                }
-            } catch (Exception e) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("retrieveComponent error.", e);
-                }
-            }
-        }
-
-        // find create and call it
-        Method[] m = home.getClass().getMethods();
-        Method create = null;
-        for (Method currentMethod : m) {
-            if ("create".equals(currentMethod.getName())) {
-                create = currentMethod;
-                break;
-            }
-        }
-        if (create == null) {
-            String err = "Unable to find create method on home of component \"" + jndiName + "\"";
-            throw new XtentisException(err);
-        }
-        Object component;
-        try {
-            component = create.invoke(home, (Object[]) null);
-        } catch (Exception e) {
-            String err = "Unable to call the create method of remote component \"" + jndiName + "\"" + ": "
-                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            throw new XtentisException(err);
-        }
-
-        return component;
-
-    }
-
-    /**
      * Get the method of a component by its name
      */
-    public static Method getMethod(Object component, String methodName) throws EJBException {
+    public static Method getMethod(Object component, String methodName) {
+        if(component == null) {
+            return null;
+        }
         Method[] methods = component.getClass().getMethods();
         for (Method method : methods) {
             if (methodName.equals(method.getName())) {
@@ -730,7 +538,7 @@ public class Util {
             authorizations.add(user);
             authorizations.add(pwd);
         } catch (XtentisException e) {
-            LOGGER.error(e);
+            Logger.getLogger(Util.class).error(e);
             return null;
         }
         return authorizations;
@@ -780,24 +588,6 @@ public class Util {
             mapForAll.putAll(map);
         }
         return mapForAll;
-    }
-
-    public static String[] getTargetSystemsFromSchema(Document schema, String concept) throws Exception {
-        String[] targetSystems = null;
-
-        Element rootNS = Util.getRootElement("nsholder", schema.getDocumentElement().getNamespaceURI(), "xsd");
-        String xpath = "//xsd:element[@name='" + concept + "']//xsd:appinfo[@source='X_TargetSystem']";
-        NodeList tsList = Util.getNodeList(schema.getDocumentElement(), xpath, rootNS.getNamespaceURI(), "xsd");
-
-        if (tsList != null) {
-            targetSystems = new String[tsList.getLength()];
-            for (int i = 0; i < tsList.getLength(); i++) {
-                Node tsNode = tsList.item(i);
-                targetSystems[i] = tsNode.getTextContent();
-            }
-        }
-
-        return targetSystems;
     }
 
     public static String[] getKeyValuesFromItem(Element item, XSDKey key) throws TransformerException {
@@ -1011,62 +801,8 @@ public class Util {
         return res.toString();
     }
 
-    private static Pattern conceptFromPathPattern = Pattern.compile("^/*(.*?)[\\[|/].*");
-
-    /**
-     * Returns the first part - eg. the concept - from the path
-     * 
-     * @return The concept extracted from the path
-     */
-    public static String getConceptFromPath(String path) {
-        if (!path.endsWith("/")) {
-            path += "/";
-        }
-        Matcher m = conceptFromPathPattern.matcher(path);
-        if (m.matches()) {
-            return m.group(1);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Returns the list of items that look like parts numbers
-     * 
-     * @param value The value to match
-     * @return The list
-     */
-    public static Collection<String> getAllPartNumbers(String value) {
-        ArrayList<String> l = new ArrayList<String>();
-        l.add(value);
-        Pattern p = Pattern.compile("([0-9]+[\\*]?)[\\p{Punct}]"); // -_'#~`\\\\\\/
-        Matcher m = p.matcher(value);
-        try {
-            String s = m.replaceAll("$1 ");
-            if (!s.equals(value)) {
-                l.add(s.trim());
-                l.add(s.trim().replaceAll(" ", ""));
-            }
-        } catch (Exception e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("getAllPartNumbers error.", e);
-            }
-        }
-        return l;
-    }
-
-    /*********************************************************************
-     * SUBJECT - AUTHENTICATION
-     *********************************************************************/
-
     public static Subject getActiveSubject() throws XtentisException {
-        // Get active Subject
-        try {
-            String SUBJECT_CONTEXT_KEY = "javax.security.auth.Subject.container";
-            return (Subject) PolicyContext.getContext(SUBJECT_CONTEXT_KEY);
-        } catch (Exception e) {
-            throw new XtentisException(e.getMessage(), e);
-        }
+        return null; // TODO
     }
 
     /**
@@ -1121,14 +857,10 @@ public class Util {
             }
             token = userName + "/" + password;
         } catch (XtentisException e) {
-            LOGGER.error(e);
+            Logger.getLogger(Util.class).error(e);
         }
         return token;
     }
-
-    /*********************************************************************
-     * DATES
-     *********************************************************************/
 
     public static String getTimestamp() {
         return getTimestamp(new Date());
@@ -1139,236 +871,117 @@ public class Util {
         return sdf.format(d);
     }
 
-    /*********************************************************************
-     * XML STUFF
-     *********************************************************************/
-    private static Pattern regexLT = Pattern.compile("&lt;");
-
-    private static Pattern regexGT = Pattern.compile("&gt;");
-
-    private static Pattern regexAMP = Pattern.compile("&amp;");
-
-    public static String xmlDecode(String string) {
-        if (string == null) {
-            return null;
+    public static com.amalto.core.server.api.Role getRoleCtrlLocal() {
+        if (role == null) {
+            role = new DefaultRole();
         }
-        string = regexLT.matcher(string).replaceAll("<");
-        string = regexGT.matcher(string).replaceAll(">");
-        string = regexAMP.matcher(string).replaceAll("&");
-        return string;
+        return role;
     }
 
-    /*********************************************************************
-     * 
-     * LOCAL HOME GETTERS This cache system requires a JBoss restart on every core deployment
-     * 
-     *********************************************************************/
-
-    // The only Static HashMap around (hopefully)
-    private static HashMap<String, EJBLocalHome> localHomes = new HashMap<String, javax.ejb.EJBLocalHome>();
-
-    public static void flushLocalHomes() throws NamingException {
-        localHomes = new HashMap<String, javax.ejb.EJBLocalHome>();
-    }
-
-    public static EJBLocalHome getLocalHome(String jndi) throws NamingException {
-        EJBLocalHome localHome;
-        localHome = localHomes.get(jndi);
-        if (localHome == null) {
-            localHome = (EJBLocalHome) new InitialContext().lookup(jndi);
-            localHomes.put(jndi, localHome);
+    public static CustomForm getCustomFormCtrlLocal() {
+        if (defaultCustomForm == null) {
+            defaultCustomForm = new DefaultCustomForm();
         }
-        return localHome;
+        return defaultCustomForm;
     }
 
-    public static RoleCtrlLocalHome getRoleCtrlLocalHome() throws NamingException {
-        return (RoleCtrlLocalHome) getLocalHome(RoleCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static RoleCtrlLocal getRoleCtrlLocal() throws NamingException, CreateException {
-        return getRoleCtrlLocalHome().create();
-    }
-
-    public static CustomFormCtrlLocalHome getCustomFormCtrlLocalHome() throws NamingException {
-        return (CustomFormCtrlLocalHome) getLocalHome(CustomFormCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static CustomFormCtrlLocal getCustomFormCtrlLocal() throws NamingException, CreateException {
-        return getCustomFormCtrlLocalHome().create();
-    }
-
-    public static RoutingOrderV2CtrlLocal getRoutingOrderV2CtrlLocal() throws NamingException, CreateException {
-        return getRoutingOrderV2CtrlLocalHome().create();
-    }
-
-    public static RoutingRuleCtrlLocalHome getRoutingRuleCtrlLocalHome() throws NamingException {
-        return (RoutingRuleCtrlLocalHome) getLocalHome(RoutingRuleCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static RoutingRuleCtrlLocal getRoutingRuleCtrlLocal() throws NamingException, CreateException {
-        return getRoutingRuleCtrlLocalHome().create();
-    }
-
-    public static RoutingOrderV2CtrlLocalHome getRoutingOrderV2CtrlLocalHome() throws NamingException {
-        return (RoutingOrderV2CtrlLocalHome) getLocalHome(RoutingOrderV2CtrlLocalHome.JNDI_NAME);
-    }
-
-    public static StoredProcedureCtrlLocalHome getStoredProcedureCtrlLocalHome() throws NamingException {
-        return (StoredProcedureCtrlLocalHome) getLocalHome(StoredProcedureCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static StoredProcedureCtrlLocal getStoredProcedureCtrlLocal() throws NamingException, CreateException {
-        return getStoredProcedureCtrlLocalHome().create();
-    }
-
-    public static ServiceLocalHome getServiceLocalHome() throws NamingException {
-        return (ServiceLocalHome) getLocalHome(ServiceLocalHome.JNDI_NAME);
-    }
-
-    public static ItemCtrl2LocalHome getItemCtrl2LocalHome() throws NamingException {
-        return (ItemCtrl2LocalHome) getLocalHome(ItemCtrl2LocalHome.JNDI_NAME);
-    }
-
-    public static ItemCtrl2Local getItemCtrl2Local() throws NamingException, CreateException {
-        return getItemCtrl2LocalHome().create();
-    }
-
-    public static ItemCtrl2 getItemCtrl2Home(String host, String jndiPort) throws NamingException, CreateException,
-            XtentisException {
-        ItemCtrl2 itemContrl2;
-        try {
-            itemContrl2 = ((ItemCtrl2Home) getHome(host, jndiPort, com.amalto.core.ejb.remote.ItemCtrl2Home.JNDI_NAME)).create();
-        } catch (Exception e) {
-            String err = "Error : unable to access the ItemContrl2Home : " + e.getLocalizedMessage();
-            throw new XtentisException(err, e);
+    public static RoutingOrder getRoutingOrderV2CtrlLocal() {
+        if (defaultRoutingOrder == null) {
+            defaultRoutingOrder = new DefaultRoutingOrder();
         }
-        return itemContrl2;
+        return defaultRoutingOrder;
     }
 
-    public static DroppedItemCtrlLocalHome getDroppedItemCtrlLocalHome() throws NamingException {
-        return (DroppedItemCtrlLocalHome) getLocalHome(DroppedItemCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static DroppedItemCtrlLocal getDroppedItemCtrlLocal() throws NamingException, CreateException {
-        return getDroppedItemCtrlLocalHome().create();
-    }
-
-    public static DataModelCtrlLocalHome getDataModelCtrlLocalHome() throws NamingException {
-        return (DataModelCtrlLocalHome) getLocalHome(DataModelCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static DataModelCtrlLocal getDataModelCtrlLocal() throws NamingException, CreateException {
-        return getDataModelCtrlLocalHome().create();
-    }
-
-    public static XmlServerSLWrapperLocal getXmlServerCtrlLocal() throws XtentisException {
-        try {
-            return ((XmlServerSLWrapperLocalHome) getLocalHome(XmlServerSLWrapperLocalHome.JNDI_NAME)).create();
-        } catch (Exception e) {
-            String err = "Error : unable to access the XML Server wrapper";
-            throw new XtentisException(err, e);
+    public static RoutingRule getRoutingRuleCtrlLocal() {
+        if (defaultRoutingRule == null) {
+            defaultRoutingRule = new DefaultRoutingRule();
         }
+        return defaultRoutingRule;
     }
-
-    public static EJBHome getHome(String host, String port, String jndi) throws NamingException {
-        Properties props = new Properties();
-        props.setProperty("java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory"); //$NON-NLS-1$ //$NON-NLS-2$
-        props.setProperty("java.naming.provider.url", "jnp://" + host + ":" + port); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        props.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming"); //$NON-NLS-1$ //$NON-NLS-2$
-        InitialContext initialContext = new InitialContext(props);
-        return (EJBHome) initialContext.lookup(jndi);
-    }
-
-    public static XmlServerSLWrapper getXmlServerCtrlHome(String host, String jndiPort) throws XtentisException {
-        XmlServerSLWrapper server;
-        try {
-            server = ((XmlServerSLWrapperHome) getHome(host, jndiPort, XmlServerSLWrapperHome.JNDI_NAME)).create();
-        } catch (Exception e) {
-            String err = "Error : unable to access the XML Server wrapper: " + e.getLocalizedMessage();
-            throw new XtentisException(err, e);
+    
+    public static StoredProcedure getStoredProcedureCtrlLocal() {
+        if (defaultStoredProcedure == null) {
+            defaultStoredProcedure = new DefaultStoredProcedure();
         }
-        return server;
+        return defaultStoredProcedure;
     }
 
-    public static DataClusterCtrlLocalHome getDataClusterCtrlLocalHome() throws NamingException {
-        return (DataClusterCtrlLocalHome) getLocalHome(DataClusterCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static DataClusterCtrlLocal getDataClusterCtrlLocal() throws NamingException, CreateException {
-        return getDataClusterCtrlLocalHome().create();
-    }
-
-    public static ViewCtrlLocalHome getViewCtrlLocalHome() throws NamingException {
-        return (ViewCtrlLocalHome) getLocalHome(ViewCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static ViewCtrlLocal getViewCtrlLocal() throws NamingException, CreateException {
-        return getViewCtrlLocalHome().create();
-    }
-
-    @Deprecated
-    public static TransformerCtrlLocalHome getTransformerCtrlLocalHome() throws NamingException {
-        return (TransformerCtrlLocalHome) getLocalHome(TransformerCtrlLocalHome.JNDI_NAME);
-    }
-
-    @Deprecated
-    public static TransformerCtrlLocal getTransformerCtrlLocal() throws NamingException, CreateException {
-        return getTransformerCtrlLocalHome().create();
-    }
-
-    public static TransformerV2CtrlLocalHome getTransformerV2CtrlLocalHome() throws NamingException {
-        return (TransformerV2CtrlLocalHome) getLocalHome(TransformerV2CtrlLocalHome.JNDI_NAME);
-    }
-
-    public static TransformerV2CtrlLocal getTransformerV2CtrlLocal() throws NamingException, CreateException {
-        return getTransformerV2CtrlLocalHome().create();
-    }
-
-    public static MenuCtrlLocalHome getMenuCtrlLocalHome() throws NamingException {
-        return (MenuCtrlLocalHome) getLocalHome(MenuCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static MenuCtrlLocal getMenuCtrlLocal() throws NamingException, CreateException {
-        return getMenuCtrlLocalHome().create();
-    }
-
-    public static BackgroundJobCtrlLocalHome getBackgroundJobCtrlLocalHome() throws NamingException {
-        return (BackgroundJobCtrlLocalHome) getLocalHome(BackgroundJobCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static BackgroundJobCtrlLocal getBackgroundJobCtrlLocal() throws NamingException, CreateException {
-        return getBackgroundJobCtrlLocalHome().create();
-    }
-
-    public static ConfigurationInfoCtrlLocalHome getConfigurationInfoCtrlLocalHome() throws NamingException {
-        return (ConfigurationInfoCtrlLocalHome) getLocalHome(ConfigurationInfoCtrlLocalHome.JNDI_NAME);
-    }
-
-    public static ConfigurationInfoCtrlLocal getConfigurationInfoCtrlLocal() throws NamingException, CreateException {
-        return getConfigurationInfoCtrlLocalHome().create();
-    }
-
-    public static RoutingEngineV2CtrlLocalHome getRoutingEngineV2CtrlLocalHome() throws NamingException {
-        return (RoutingEngineV2CtrlLocalHome) getLocalHome(RoutingEngineV2CtrlLocalHome.JNDI_NAME);
-    }
-
-    public static RoutingEngineV2CtrlLocal getRoutingEngineV2CtrlLocal() throws NamingException, CreateException {
-        return getRoutingEngineV2CtrlLocalHome().create();
-    }
-
-    public static Connection getConnection(String JNDIName) throws XtentisException {
-        try {
-            return ((ConnectionFactory) (new InitialContext()).lookup(JNDIName)).getConnection();
-        } catch (Exception e) {
-            String err = "JNDI lookup error: " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOGGER.error(err);
-            throw new XtentisException(err);
+    public static Item getItemCtrl2Local() {
+        if (defaultItem == null) {
+            defaultItem = new DefaultItem();
         }
+        return defaultItem;
     }
 
-    /***********************************************************************************************************
-     * Typed Content Manipulation
-     ***********************************************************************************************************/
+    public static DroppedItem getDroppedItemCtrlLocal() {
+        if (defaultDroppedItem == null) {
+            defaultDroppedItem = new DefaultDroppedItem();
+        }
+        return defaultDroppedItem;
+    }
+
+    public static DataModel getDataModelCtrlLocal() {
+        if (defaultDataModel == null) {
+            defaultDataModel = new DefaultDataModel();
+        }
+        return defaultDataModel;
+    }
+
+    public static XmlServer getXmlServerCtrlLocal() {
+        if (defaultXmlServer == null) {
+            defaultXmlServer = new DefaultXmlServer();
+        }
+        return defaultXmlServer;
+    }
+
+    public static DataCluster getDataClusterCtrlLocal() {
+        if (defaultDataCluster == null) {
+            defaultDataCluster = new DefaultDataCluster();
+        }
+        return defaultDataCluster;
+    }
+
+    public static View getViewCtrlLocal() {
+        if (defaultView == null) {
+            defaultView = new DefaultView();
+        }
+        return defaultView;
+    }
+
+    public static com.amalto.core.server.api.Transformer getTransformerV2CtrlLocal() {
+        if (defaultTransformer == null) {
+            defaultTransformer = new DefaultTransformer();
+        }
+        return defaultTransformer;
+    }
+
+    public static Menu getMenuCtrlLocal() {
+        if (menu == null) {
+            menu = new DefaultMenu();
+        }
+        return menu;
+    }
+
+    public static BackgroundJob getBackgroundJobCtrlLocal() {
+        if (defaultBackgroundJob == null) {
+            defaultBackgroundJob = new DefaultBackgroundJob();
+        }
+        return defaultBackgroundJob;
+    }
+
+    public static ConfigurationInfo getConfigurationInfoCtrlLocal() {
+        if (configurationInfo == null) {
+            configurationInfo = new DefaultConfigurationInfo();
+        }
+        return configurationInfo;
+    }
+
+    public static RoutingEngine getRoutingEngineV2CtrlLocal() {
+        if (defaultRoutingEngine == null) {
+            defaultRoutingEngine = new DefaultRoutingEngine();
+        }
+        return defaultRoutingEngine;
+    }
 
     private static Pattern extractCharsetPattern = Pattern.compile(".*charset\\s*=(.+)");
 
@@ -1378,8 +991,8 @@ public class Util {
      * 
      * @return the charset
      */
-    public static String extractCharset(String contentType, String defaultCharset) {
-        String charset = defaultCharset;
+    public static String extractCharset(String contentType) {
+        String charset = org.apache.commons.lang.CharEncoding.UTF_8;
         String properties[] = StringUtils.split(contentType, ';');
         for (String property : properties) {
             String strippedProperty = property.trim().replaceAll("\"", "").replaceAll("'", "");
@@ -1390,10 +1003,6 @@ public class Util {
             }
         }
         return charset;
-    }
-
-    public static String extractCharset(String contentType) {
-        return extractCharset(contentType, org.apache.commons.lang.CharEncoding.UTF_8);
     }
 
     /**
@@ -1425,84 +1034,6 @@ public class Util {
             bos.write(b);
         }
         return bos.toByteArray();
-    }
-
-    /*********************************************************************
-     * 
-     * GUID Generator
-     * 
-     *********************************************************************/
-
-    /** Cached per JVM server IP. */
-    private static String hexServerIP = null;
-
-    // initialise the secure random instance
-    private static final java.security.SecureRandom seeder = new java.security.SecureRandom();
-
-    /**
-     * A 32 byte GUID generator (Globally Unique ID). These artificial keys SHOULD <strong>NOT </strong> be seen by the
-     * user, not even touched by the DBA but with very rare exceptions, just manipulated by the database and the
-     * programs.
-     * 
-     * Usage: Add an id field (type java.lang.String) to your EJB, and add setId(XXXUtil.generateGUID(this)); to the
-     * ejbCreate method.
-     */
-    public static String generateGUID(Object o) {
-        StringBuilder tmpBuffer = new StringBuilder(16);
-        if (hexServerIP == null) {
-            java.net.InetAddress localInetAddress;
-            try {
-                // get the inet address
-                localInetAddress = java.net.InetAddress.getLocalHost();
-            } catch (java.net.UnknownHostException uhe) {
-                LOGGER.error(
-                        "JobUtil: Could not get the local IP address using InetAddress.getLocalHost()!", uhe);
-                // todo: find better way to get around this...
-                return null;
-            }
-            byte serverIP[] = localInetAddress.getAddress();
-            hexServerIP = hexFormat(getInt(serverIP), 8);
-        }
-
-        String hashCode = hexFormat(System.identityHashCode(o), 8);
-        tmpBuffer.append(hexServerIP);
-        tmpBuffer.append(hashCode);
-
-        long timeNow = System.currentTimeMillis();
-        int timeLow = (int) timeNow;
-        int node = seeder.nextInt();
-
-        StringBuilder guid = new StringBuilder(32);
-        guid.append(hexFormat(timeLow, 8));
-        guid.append(tmpBuffer.toString());
-        guid.append(hexFormat(node, 8));
-        return guid.toString();
-    }
-
-    private static int getInt(byte bytes[]) {
-        int i = 0;
-        int j = 24;
-        for (int k = 0; j >= 0; k++) {
-            int l = bytes[k] & 0xff;
-            i += l << j;
-            j -= 8;
-        }
-        return i;
-    }
-
-    private static String hexFormat(int i, int j) {
-        String s = Integer.toHexString(i);
-        return padHex(s, j) + s;
-    }
-
-    private static String padHex(String s, int i) {
-        StringBuilder tmpBuffer = new StringBuilder();
-        if (s.length() < i) {
-            for (int j = 0; j < i - s.length(); j++) {
-                tmpBuffer.append('0');
-            }
-        }
-        return tmpBuffer.toString();
     }
 
     public static ItemPOJO getItem(String dataCluster, String xml) throws Exception {
@@ -1550,7 +1081,7 @@ public class Util {
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeSaving_" + concept)); //$NON-NLS-1$
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
                 context.put(RUNNING, Boolean.TRUE);
-                TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
+                com.amalto.core.server.api.Transformer ctrl = getTransformerV2CtrlLocal();
                 TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"), "text/xml; charset=utf-8"); //$NON-NLS-1$
                 ctrl.execute(context, wsTypedContent, new TransformerCallBack() {
 
@@ -1588,11 +1119,23 @@ public class Util {
                 }
                 return new OutputReport(message, item);
             } catch (Exception e) {
-                LOGGER.error(e);
+                Logger.getLogger(Util.class).error(e);
                 throw e;
             }
         }
         return null;
+    }
+
+    public static boolean existsComponent(Object o, String jndiName) {
+        return false;
+    }
+
+    public static Object retrieveComponent(Object o, String jndiName) {
+        return null;
+    }
+
+    public static boolean isEnterprise() {
+        return true; // TODO
     }
 
     public static class BeforeDeleteResult {
@@ -1604,11 +1147,10 @@ public class Util {
 
     /**
      * Executes a BeforeDeleting process if any
-     *
+     * 
      * @param clusterName A data cluster name
      * @param concept A concept/type name
      * @param ids Id of the document being deleted
-     * @param operationType
      * @throws Exception If something went wrong
      */
     @SuppressWarnings("unchecked")
@@ -1658,8 +1200,9 @@ public class Util {
                 final String runningKey = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
                 context.put(runningKey, Boolean.TRUE);
-                TransformerV2CtrlLocal ctrl = getTransformerV2CtrlLocal();
+                com.amalto.core.server.api.Transformer ctrl = getTransformerV2CtrlLocal();
                 TypedContent wsTypedContent = new TypedContent(exchangeData.getBytes("UTF-8"), "text/xml; charset=utf-8");
+
                 ctrl.execute(context, wsTypedContent, new TransformerCallBack() {
 
                     @Override
@@ -1685,14 +1228,14 @@ public class Util {
                         break;
                     }
                 }
-                // handle error message 
+                // handle error message
                 BeforeDeleteResult result = new BeforeDeleteResult();
                 if (outputErrorMessage == null) {
                     LOGGER.warn("No message generated by before delete process.");
                     result.type = "info";
                     result.message = StringUtils.EMPTY;
                 } else {
-                    if (outputErrorMessage != null && outputErrorMessage.length() > 0) {
+                    if (outputErrorMessage.length() > 0) {
                         Document doc = Util.parse(outputErrorMessage);
                         // TODO what if multiple error nodes ?
                         String xpath = "/report/message"; //$NON-NLS-1$
@@ -1760,7 +1303,7 @@ public class Util {
 
     /**
      * update the element according to updated path
-     *
+     * 
      * @throws Exception
      */
     public static Node updateElement(Node old, Map<String, UpdateReportItem> updatedPath) throws Exception {
@@ -1805,7 +1348,7 @@ public class Util {
                 revisionId = pojo.getConceptRevisionID(concept);
             }
         } catch (Exception e1) {
-            LOGGER.error(e1);
+            Logger.getLogger(Util.class).error(e1);
             throw e1;
         }
 
@@ -1856,58 +1399,6 @@ public class Util {
         return null;
     }
 
-    /**
-     * check current server is Enterprise or Open
-     */
-    public static boolean isEnterprise() {
-        try {
-            Object home = null;
-            InitialContext initialContext = null;
-            String jndiName = "amalto/local/service/workflow";
-            try {
-                initialContext = new InitialContext(null);
-                home = initialContext.lookup(jndiName);
-            } catch (NamingException e) {
-                String err = "Unable to lookup \"" + jndiName + "\"" + ": " + e.getClass().getName() + ": "
-                        + e.getLocalizedMessage();
-                throw new XtentisException(err);
-            } finally {
-                try {
-                    if (initialContext != null) {
-                        initialContext.close();
-                    }
-                } catch (Exception e) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("isEnterprise error.", e);
-                    }
-                }
-            }
-            return home != null;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public static boolean isDefaultSVNUP() throws Exception {
-        if (isEnterprise()) {
-            Object service = Util.retrieveComponent(null, "amalto/local/service/svn");
-            if (service == null) {
-                return false;
-            }
-            return (Boolean) Util.getMethod(service, "isUp").invoke(service);
-        } else {
-            return false;
-        }
-    }
-
-    public static boolean isSVNAutocommit() throws Exception {
-        if (isDefaultSVNUP()) {
-            Object service = Util.retrieveComponent(null, "amalto/local/service/svn");
-            return (Boolean) Util.getMethod(service, "isAutocommittosvn").invoke(service);
-        }
-        return false;
-    }
-
     public static String getAppServerDeployDir() {
         String appServerDeployDir = System.getenv("JBOSS_HOME");
         if (appServerDeployDir == null) {
@@ -1928,9 +1419,6 @@ public class Util {
         return Util.getJbossHomeDir() + File.separator + "barfiles"; //$NON-NLS-1$
     }
 
-    /*********************************************************************
-     * MAIN
-     *********************************************************************/
     public static List<File> listFiles(FileFilter filter, File folder) {
         List<File> ret = new ArrayList<File>();
         File[] children = folder.listFiles(filter);
@@ -2120,7 +1608,7 @@ public class Util {
 
     /**
      * fix the conditions.
-     *
+     * 
      * @param conditions in workbench.
      */
 
@@ -2131,7 +1619,7 @@ public class Util {
 
                 if (condition.getRightValueOrPath() == null
                         || (condition.getRightValueOrPath().length() == 0 && !condition.getOperator().equals(
-                        WhereCondition.EMPTY_NULL))) {
+                                WhereCondition.EMPTY_NULL))) {
                     conditions.remove(i);
                 }
             }
@@ -2153,10 +1641,6 @@ public class Util {
     }
 
     public static void updateUserPropertyCondition(List conditions, String userXML) throws Exception {
-        User user = User.parse(userXML);
-        ScriptEngine scriptEngine = SCRIPTFACTORY.getEngineByName("groovy"); //$NON-NLS-1$
-        scriptEngine.put("user_context", user);//$NON-NLS-1$
-
         for (int i = conditions.size() - 1; i >= 0; i--) {
             if (conditions.get(i) instanceof WhereCondition) {
                 WhereCondition condition = (WhereCondition) conditions.get(i);
@@ -2170,6 +1654,9 @@ public class Util {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Groovy engine evaluating " + userExpression + ".");//$NON-NLS-1$ //$NON-NLS-2$
                         }
+                        ScriptEngine scriptEngine = SCRIPTFACTORY.getEngineByName("groovy"); //$NON-NLS-1$
+                        User user = User.parse(userXML);
+                        scriptEngine.put("user_context", user);//$NON-NLS-1$
                         Object expressionValue = scriptEngine.eval(userExpression);
                         if (expressionValue != null) {
                             String result = String.valueOf(expressionValue);
@@ -2201,10 +1688,10 @@ public class Util {
             try {
                 deployDir = new File(jbossHomePath).getAbsolutePath();
             } catch (Exception e1) {
-                LOGGER.error(e1);
+                Logger.getLogger(Util.class).error(e1);
             }
             deployDir = deployDir + File.separator + "server" + File.separator + "default" + File.separator + "deploy";
-            LOGGER.info("deploy url:" + deployDir);
+            Logger.getLogger(Util.class).info("deploy url:" + deployDir);
             if (!new File(deployDir).exists()) {
                 throw new FileNotFoundException();
             }
@@ -2239,7 +1726,7 @@ public class Util {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error(e);
+            Logger.getLogger(Util.class).error(e);
         }
         return jobs.toArray(new WSMDMJob[jobs.size()]);
     }
@@ -2377,7 +1864,7 @@ public class Util {
 
     /**
      * Escape any single quote characters that are included in the specified message string.
-     *
+     * 
      * @param string The string to be escaped
      */
     protected static String escape(String string) {

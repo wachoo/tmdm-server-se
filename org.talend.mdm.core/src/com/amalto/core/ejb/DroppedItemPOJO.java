@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.amalto.core.metadata.LongString;
 import com.amalto.core.schema.manage.SchemaCoreAgent;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
-import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
@@ -28,7 +28,6 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.util.LocalUser;
@@ -204,7 +203,7 @@ public class DroppedItemPOJO implements Serializable {
         // get the universe and revision ID
         universeFilter(refItemPOJOPK);
         String sourceItemRevision = droppedItemPOJOPK.getRevisionId();
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         try {
             // load dropped content
             String doc = server.getDocumentAsString(null,
@@ -260,7 +259,7 @@ public class DroppedItemPOJO implements Serializable {
     public static List<DroppedItemPOJOPK> findAllPKs(String regex) throws XtentisException {
         universeFilter();
         // get XmlServerSLWrapperLocal
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             regex = null;
         }
@@ -338,7 +337,7 @@ public class DroppedItemPOJO implements Serializable {
         //for load we need to be admin, or have a role of admin , or role of write on instance or role of read on instance
         rolesFilter(refItemPOJOPK, actionName, "r"); //$NON-NLS-1$
         //get XmlServerSLWrapperLocal
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         //load the dropped item
         try {
             //retrieve the dropped item
@@ -370,7 +369,7 @@ public class DroppedItemPOJO implements Serializable {
         //for remove we need to be admin, or have a role of admin , or role of write on instance
         rolesFilter(refItemPOJOPK, actionName, "w");  //$NON-NLS-1$
         //get XmlServerSLWrapperLocal
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         try {
             //remove the record
             long res = server.deleteDocument(

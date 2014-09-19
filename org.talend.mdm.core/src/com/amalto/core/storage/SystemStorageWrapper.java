@@ -38,8 +38,6 @@ import org.xml.sax.XMLReader;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
@@ -75,10 +73,11 @@ public class SystemStorageWrapper extends StorageWrapper {
     public SystemStorageWrapper() {
         DOCUMENT_BUILDER_FACTORY.setNamespaceAware(true);
         // Create "system" storage
-        Server server = ServerContext.INSTANCE.get();
-        StorageAdmin admin = server.getStorageAdmin();
-        String datasource = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
-        admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, datasource, null);
+        StorageAdmin admin = getStorageAdmin();
+        if (!admin.exist(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null)) {
+            String datasource = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
+            admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, datasource, null);
+        }
     }
 
     private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
@@ -396,7 +395,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         } else {
             // TMDM-5513 custom form layout pk contains double dot .. to split, but it's a system definition object
             // like this Product..Product..product_layout
-            isUserFormat = !uniqueID.contains("..") && uniqueID.indexOf('.') > 0;
+            isUserFormat = !uniqueID.contains("") && uniqueID.indexOf('.') > 0;
             String documentUniqueId = uniqueID;
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 documentUniqueId = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);

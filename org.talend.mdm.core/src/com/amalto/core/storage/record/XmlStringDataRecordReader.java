@@ -19,7 +19,6 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataHelper;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
-import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
 import javax.xml.XMLConstants;

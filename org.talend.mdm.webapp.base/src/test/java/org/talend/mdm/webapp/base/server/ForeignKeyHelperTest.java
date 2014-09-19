@@ -16,7 +16,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -31,11 +35,11 @@ import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.w3c.dom.Element;
 
+import com.amalto.webapp.core.util.Util;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOperator;
-import com.amalto.webapp.core.util.Util;
 
 @SuppressWarnings("nls")
 public class ForeignKeyHelperTest extends TestCase {
@@ -58,9 +62,9 @@ public class ForeignKeyHelperTest extends TestCase {
 
         InputStream stream = getClass().getResourceAsStream("product.xsd");
         String xsd = inputStream2String(stream);
-
+        
         ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product", null)));
-
+        
         // 1. ForeignKeyInfo = ProductFamily/Name
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", EDBType.QIZX.getName()); //$NON-NLS-1$
         ForeignKeyHelper.ForeignKeyHolder result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model,
@@ -72,7 +76,8 @@ public class ForeignKeyHelperTest extends TestCase {
 
         WSWhereItem whereItem1 = whereItem.getWhereAnd().getWhereItems()[0];
         WSWhereCondition condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd()
-                .getWhereItems()[0].getWhereCondition();
+                .getWhereItems()[0]
+                .getWhereCondition();
         assertEquals("ProductFamily/Name", condition1.getLeftPath()); //$NON-NLS-1$
         assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
         assertEquals("Hats", condition1.getRightValueOrPath()); //$NON-NLS-1$
@@ -88,7 +93,7 @@ public class ForeignKeyHelperTest extends TestCase {
         foreignKeyInfos.add("ProductFamily/Description"); //$NON-NLS-1$
         result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, value);
 
-        List<String> viewableXpaths = result.xpaths;
+        List<String> viewableXpaths=result.xpaths;
         assertTrue(viewableXpaths.size() > 0);
         assertEquals("ProductFamily/Name", viewableXpaths.get(0));
         assertEquals("ProductFamily/Description", viewableXpaths.get(1));
@@ -131,20 +136,22 @@ public class ForeignKeyHelperTest extends TestCase {
         String xpathInfoForeignKey = "ProductFamily/Name"; //$NON-NLS-1$
         String realXpathForeignKey = "ProductFamily/Id"; //$NON-NLS-1$
         whereItem = mock_SpecialForeignKeyWhereCondition(xpathForeignKey, xpathInfoForeignKey, realXpathForeignKey, value);
-
+        
         assertNotNull(whereItem);
         assertNotNull(whereItem.getWhereOr());
         assertNotNull(whereItem.getWhereOr().getWhereItems());
         assertEquals(2, whereItem.getWhereOr().getWhereItems().length);
 
         whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
-        condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
+        condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
         assertEquals("ProductFamily/Name", condition1.getLeftPath()); //$NON-NLS-1$
         assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
         assertEquals("Hats", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         whereItem2 = whereItem.getWhereOr().getWhereItems()[1];
-        condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
+        condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
+                .getWhereCondition();
         assertEquals("ProductFamily/Id", condition2.getLeftPath()); //$NON-NLS-1$
         assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
         assertEquals("Hats", condition2.getRightValueOrPath()); //$NON-NLS-1$
@@ -270,7 +277,7 @@ public class ForeignKeyHelperTest extends TestCase {
         result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model, ifFKFilter, "");
         assertNull(result.whereItem);
         assertEquals("$CFFP:Id=\"[3]\" and Name=\"Shirts\"", result.fkFilter);
-
+        
         // 11. foreignKeyinfo is null, DB is SQL db
         MDMConfiguration.getConfiguration().setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
         xml = null;
@@ -290,7 +297,7 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals("1", condition1.getRightValueOrPath());
 
     }
-
+    
     public void testGetForeignKeyHolder_given_userInputAs_starWildcard_only_shouldReturn_null_for_WhereItem() throws Exception {
 
         TypeModel model = new SimpleTypeModel("family", DataTypeConstants.STRING); //$NON-NLS-1$
@@ -308,16 +315,16 @@ public class ForeignKeyHelperTest extends TestCase {
 
         InputStream stream = getClass().getResourceAsStream("product.xsd");
         String xsd = inputStream2String(stream);
-
+        
         ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product", null)));
-
+        
         // ForeignKeyInfo = ProductFamily/Name, user user "*" as only filter value
         ForeignKeyHelper.ForeignKeyHolder result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model,
                 ifFKFilter, value);
         WSWhereItem whereItem = result.whereItem;
         assertNull(whereItem);
     }
-
+    
     private String inputStream2String(InputStream is) {
 
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
@@ -333,7 +340,7 @@ public class ForeignKeyHelperTest extends TestCase {
         return buffer.toString();
 
     }
-
+    
     public void testFormatForeignKeyValue() {
 
         String value = ForeignKeyHelper.wrapFkValue("123");
@@ -355,12 +362,12 @@ public class ForeignKeyHelperTest extends TestCase {
     /**
      * Mock org.talend.mdm.webapp.base.server.ForeignKeyHelper.getForeignKeyHolder(TypeModel, boolean, String) <li>when
      * the foreignKey = conceptName, using the method to test where condition.
-     * 
      * @return
      * @throws Exception
      */
     private WSWhereItem mock_SpecialForeignKeyWhereCondition(String xpathForeignKey, String xpathInfoForeignKey,
-            String realXpathForeignKey, String value) throws Exception {
+            String realXpathForeignKey, String value)
+            throws Exception {
         String initXpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
         initXpathForeignKey = initXpathForeignKey.split("/")[0]; //$NON-NLS-1$
         String[] fkInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
@@ -394,8 +401,8 @@ public class ForeignKeyHelperTest extends TestCase {
 
         return Util.buildWhereItems(fkWhere);
     }
-
-    public void testConvertFKInfo2DisplayInfo() {
+      
+    public void testConvertFKInfo2DisplayInfo(){
         ForeignKeyBean bean1 = new ForeignKeyBean();
         bean1.set("Name", "Apple Store");
         bean1.set("Id", "1");
@@ -405,20 +412,20 @@ public class ForeignKeyHelperTest extends TestCase {
         bean1.getForeignKeyInfo().put("Store/Id", "1");
         bean1.getForeignKeyInfo().put("Store/Code", "10001");
         bean1.getForeignKeyInfo().put("Store/Name", "Apple Store");
-        bean1.getForeignKeyInfo().put("Stroe/Description",
-                MultilanguageMessageParser.getValueByLanguage((String) bean1.get("Description"), "en"));
-
+        bean1.getForeignKeyInfo().put("Stroe/Description", MultilanguageMessageParser.getValueByLanguage((String)bean1.get("Description"), "en"));
+        
         List<String> fkInfoList = new ArrayList<String>();
         fkInfoList.add("Store/Name");
         fkInfoList.add("Store/Code");
         fkInfoList.add("Store/Id");
         fkInfoList.add("Stroe/Description");
-
+        
         ForeignKeyHelper.convertFKInfo2DisplayInfo(bean1, fkInfoList);
-
+        
         assertNotNull(bean1.getDisplayInfo());
         assertEquals("Apple Store-10001-1-Talend MDM", bean1.getDisplayInfo());
-
+        
+        
         ForeignKeyBean bean2 = new ForeignKeyBean();
         bean2.set("Name", "Google Market");
         bean2.set("Id", "2");
@@ -427,20 +434,20 @@ public class ForeignKeyHelperTest extends TestCase {
         bean2.getForeignKeyInfo().put("Store/Id", "2");
         bean2.getForeignKeyInfo().put("Store/Code", "10002");
         bean2.getForeignKeyInfo().put("Store/Name", "Google Market");
-
+        
         fkInfoList.clear();
-
+        
         ForeignKeyHelper.convertFKInfo2DisplayInfo(bean2, fkInfoList);
         assertNull(bean2.getDisplayInfo());
     }
-
+    
     public void testIsPolymorphismTypeFK() throws Exception {
         InputStream stream = getClass().getResourceAsStream("metadata.xsd");
         String xsd = inputStream2String(stream);
 
         SchemaMockAgent schemaMockAgent = new SchemaMockAgent(xsd, new DataModelID("Territory", null));
         assertFalse(schemaMockAgent.isPolymorphismTypeFK("Country"));
-
+        
         stream = getClass().getResourceAsStream("person.xsd");
         xsd = inputStream2String(stream);
 
@@ -449,23 +456,21 @@ public class ForeignKeyHelperTest extends TestCase {
         assertTrue(schemaMockAgent.isPolymorphismTypeFK("Individual"));
         assertTrue(schemaMockAgent.isPolymorphismTypeFK("Company"));
         assertFalse(schemaMockAgent.isPolymorphismTypeFK("Family"));
-
+        
     }
-
+    
     public void testInitFKBean() throws Exception {
         String[] results = new String[] {
                 "<result>\n\t<C_Name>cname1</C_Name>\n\t<C_Title>ctitle1</C_Title>\n\t<C_Sub_Name>csubname1</C_Sub_Name>\n\t<C_Sub_Title>csubtitle1</C_Sub_Title>\n\t<C_Sub_Sub_Name>csubsubname1</C_Sub_Sub_Name>\n\t<C_Sub_Sub_Title>csubsubtitle1</C_Sub_Sub_Title>\n\t<i>c1</i>\n</result>",
                 "<result>\n\t<C_Name>cname2</C_Name>\n\t<C_Title>ctitle2</C_Title>\n\t<C_Sub_Name>csubname2</C_Sub_Name>\n\t<C_Sub_Title>csubtitle2</C_Sub_Title>\n\t<C_Sub_Sub_Name>csubsubname2</C_Sub_Sub_Name>\n\t<C_Sub_Sub_Title>csubsubtitle2</C_Sub_Sub_Title>\n\t<i>c2</i>\n</result>" };
-        String[] fKInfoExpected = new String[] { "cname1-ctitle1-csubname1-csubtitle1-csubsubname1-csubsubtitle1",
-                "cname2-ctitle2-csubname2-csubtitle2-csubsubname2-csubsubtitle2" };
+        String[] fKInfoExpected = new String[] { "cname1-ctitle1-csubname1-csubtitle1-csubsubname1-csubsubtitle1", "cname2-ctitle2-csubname2-csubtitle2-csubsubname2-csubsubtitle2" };
 
         String dataClusterPK = "TestFK";
         EntityModel entityModel = new EntityModel();
         entityModel.setConceptName("C");
         entityModel.setKeys(new String[] { "C/C_Id" });
         String fk = "C";
-        List<String> foreignKeyInfos = Arrays.asList("C/C_Name", "C/C_Title", "C/C_SubInfo/C_Sub_Name",
-                "C/C_SubInfo/C_Sub_Title", "C/C_SubInfo/C_SubSubInfo/C_Sub_Sub_Name", "C/C_SubInfo/C_SubSubInfo/C_Sub_Sub_Title");
+        List<String> foreignKeyInfos = Arrays.asList("C/C_Name", "C/C_Title", "C/C_SubInfo/C_Sub_Name", "C/C_SubInfo/C_Sub_Title","C/C_SubInfo/C_SubSubInfo/C_Sub_Sub_Name", "C/C_SubInfo/C_SubSubInfo/C_Sub_Sub_Title");
         Map<String, String> xpathTypeMap = new HashMap<String, String>();
         String language = "zh";
         ForeignKeyBean[] fkBeans = new ForeignKeyBean[] { new ForeignKeyBean(), new ForeignKeyBean() };
@@ -486,12 +491,14 @@ public class ForeignKeyHelperTest extends TestCase {
                     fkBeans[i].getDisplayInfo());
         }
     }
-
+    
     public void testInitFKBean_for_missing_values_In_FKInfos() throws Exception {
-        String[] results = new String[] { "<result>\n\t<Name>bname0</Name>\n\t<CF>cname1</CF>\n\t<i>b0</i>\n</result>",
-                "<result>\n\t<CF>cname1</CF>\n\t<i>b1</i>\n</result>", "<result>\n\t<Name>bname2</Name>\n\t<i>b2</i>\n</result>",
-                "<result>\n\t<i>b2</i>\n</result>" };
-        String[] fKInfoExpected = new String[] { "bname0-cname1", "cname1", "bname2", "" };
+        String[] results = new String[] {
+                "<result>\n\t<Name>bname0</Name>\n\t<CF>cname1</CF>\n\t<i>b0</i>\n</result>",
+                "<result>\n\t<CF>cname1</CF>\n\t<i>b1</i>\n</result>",
+                "<result>\n\t<Name>bname2</Name>\n\t<i>b2</i>\n</result>",
+                "<result>\n\t<i>b2</i>\n</result>"};
+        String[] fKInfoExpected = new String[] { "bname0-cname1", "null-cname1", "bname2-null", "null-null"};
 
         String dataClusterPK = "TestFK";
         EntityModel entityModel = new EntityModel();
@@ -501,8 +508,7 @@ public class ForeignKeyHelperTest extends TestCase {
         List<String> foreignKeyInfos = Arrays.asList("B/Name", "B/CF");
         Map<String, String> xpathTypeMap = new HashMap<String, String>();
         String language = "zh";
-        ForeignKeyBean[] fkBeans = new ForeignKeyBean[] { new ForeignKeyBean(), new ForeignKeyBean(), new ForeignKeyBean(),
-                new ForeignKeyBean() };
+        ForeignKeyBean[] fkBeans = new ForeignKeyBean[] { new ForeignKeyBean(), new ForeignKeyBean(), new ForeignKeyBean(), new ForeignKeyBean() };
         fkBeans[0].setId("b0");
         fkBeans[1].setId("b1");
         fkBeans[2].setId("b2");
@@ -517,8 +523,8 @@ public class ForeignKeyHelperTest extends TestCase {
             ForeignKeyHelper.convertFKInfo2DisplayInfo(fkBeans[i], foreignKeyInfos);
         }
 
-        for (int i = 0; i < fkBeans.length; i++) {
-            assertEquals(fkBeans[i].getId() + "-> Expected displayInfo is not equal to actual displayInfo", fKInfoExpected[i],
+        for (int i = 0; i < fkBeans.length; i++) {            
+            assertEquals(fkBeans[i].getId() + "->Expected displayInfo is not equal to acutal displayInfo", fKInfoExpected[i],
                     fkBeans[i].getDisplayInfo());
         }
     }

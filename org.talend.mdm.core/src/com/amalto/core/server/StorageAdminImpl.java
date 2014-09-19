@@ -173,12 +173,6 @@ public class StorageAdminImpl implements StorageAdmin {
         repository.load(objectsToParse);
         // Additional POJOs
         repository.load(DroppedItemPOJO.class);
-        // Loads definition for JCAAdapters (Logging, SVN...)
-        InputStream stream = this.getClass().getResourceAsStream(JCA_ADAPTER_DATA_MODEL);
-        if (stream == null) {
-            throw new IllegalStateException("Could not find resource '" + JCA_ADAPTER_DATA_MODEL + "' in classpath.");
-        }
-        repository.load(stream);
         // Load additional types (PROVISIONING...)
         String[] models = new String[]{
                 "/com/amalto/core/initdb/data/datamodel/PROVISIONING", //$NON-NLS-1$

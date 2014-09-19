@@ -41,7 +41,6 @@ public class ConsistencyErrorMessageTask extends AbstractMigrationTask {
     @SuppressWarnings("unchecked")
     protected Boolean execute() {
         try {
-
             Collection<TransformerV2POJOPK> wst = Util.getTransformerV2CtrlLocal().getTransformerPKs("*"); //$NON-NLS-1$
             for (TransformerV2POJOPK id : wst) {
                 if (id.getIds()[0].startsWith("beforeSaving_") || id.getIds()[0].startsWith("beforeDeleting_")) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -50,8 +49,6 @@ public class ConsistencyErrorMessageTask extends AbstractMigrationTask {
                     if (steps.size() > 0) {
                         TransformerProcessStep st = steps.get(steps.size() - 1);
                         for (TransformerVariablesMapping mapping : st.getOutputMappings()) {// convert
-                                                                                            // output_error_message to
-                                                                                            // output_report
                             if ("output_error_message".equals(mapping.getPipelineVariable())) { //$NON-NLS-1$
                                 mapping.setPipelineVariable("output_report"); //$NON-NLS-1$
                             }

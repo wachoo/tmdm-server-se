@@ -29,7 +29,10 @@ public class WSSynchronizationPlanActionCode {
     public static final WSSynchronizationPlanActionCode STOP = new WSSynchronizationPlanActionCode(_STOP);
     public static final WSSynchronizationPlanActionCode RESET = new WSSynchronizationPlanActionCode(_RESET);
     public static final WSSynchronizationPlanActionCode STATUS = new WSSynchronizationPlanActionCode(_STATUS);
-    
+
+    public WSSynchronizationPlanActionCode() {
+    }
+
     protected WSSynchronizationPlanActionCode(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

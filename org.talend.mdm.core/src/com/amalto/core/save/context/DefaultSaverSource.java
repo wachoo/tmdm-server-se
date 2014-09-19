@@ -13,29 +13,24 @@ package com.amalto.core.save.context;
 
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
-import com.amalto.core.save.DOMDocument;
-import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
+import com.amalto.core.save.DOMDocument;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
-import com.amalto.core.server.DataModel;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.XmlServer;
+import com.amalto.core.server.*;
 import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import com.amalto.core.server.api.DataModel;
+import com.amalto.core.server.api.RoutingEngine;
+import com.amalto.core.server.api.XmlServer;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import java.io.ByteArrayInputStream;
@@ -59,17 +54,8 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public DefaultSaverSource(String userName) {
-        try {
-            database = Util.getXmlServerCtrlLocal();
-        } catch (XtentisException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            dataModel = Util.getDataModelCtrlLocal();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        database = Util.getXmlServerCtrlLocal();
+        dataModel = Util.getDataModelCtrlLocal();
         this.userName = userName;
     }
 
@@ -233,7 +219,7 @@ public class DefaultSaverSource implements SaverSource {
 
     public void routeItem(String dataCluster, String typeName, String[] id) {
         try {
-            RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
+            RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
             DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataCluster);
             ctrl.route(new ItemPOJOPK(dataClusterPOJOPK, typeName, id));
         } catch (Exception e) {

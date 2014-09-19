@@ -32,7 +32,10 @@ public class WSSynchronizationPlanStatusCode {
     public static final WSSynchronizationPlanStatusCode RUNNING = new WSSynchronizationPlanStatusCode(_RUNNING);
     public static final WSSynchronizationPlanStatusCode SCHEDULED = new WSSynchronizationPlanStatusCode(_SCHEDULED);
     public static final WSSynchronizationPlanStatusCode STOPPING = new WSSynchronizationPlanStatusCode(_STOPPING);
-    
+
+    public WSSynchronizationPlanStatusCode() {
+    }
+
     protected WSSynchronizationPlanStatusCode(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

@@ -47,7 +47,10 @@ public class WSRoutingRuleOperator {
     public static final WSRoutingRuleOperator LOWER_THAN_OR_EQUAL = new WSRoutingRuleOperator(_LOWER_THAN_OR_EQUAL);
     public static final WSRoutingRuleOperator IS_NULL = new WSRoutingRuleOperator(_IS_NULL);
     public static final WSRoutingRuleOperator IS_NOT_NULL = new WSRoutingRuleOperator(_IS_NOT_NULL);
-    
+
+    public WSRoutingRuleOperator() {
+    }
+
     protected WSRoutingRuleOperator(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

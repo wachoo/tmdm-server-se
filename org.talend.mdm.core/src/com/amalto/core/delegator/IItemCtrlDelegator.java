@@ -1,27 +1,8 @@
 package com.amalto.core.delegator;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
 import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.objects.role.ejb.RolePOJO;
@@ -36,23 +17,26 @@ import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
-import com.amalto.core.util.ArrayListHolder;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.RoleSpecification;
-import com.amalto.core.util.RoleWhereCondition;
+import com.amalto.core.util.*;
 import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereOr;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import com.amalto.xmlserver.interfaces.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDelegatorService {
 
@@ -354,7 +338,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 item.setDataModelName(dataModelName);
             }
             // Store
-            XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
+            XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             String dataClusterName = item.getDataClusterPOJOPK().getUniqueId();
             ItemPOJOPK pk;
             try {
@@ -588,7 +572,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
 
     @Override
     public ViewPOJO getViewPOJO(ViewPOJOPK viewPOJOPK) throws Exception {
-        return Util.getViewCtrlLocalHome().create().getView(viewPOJOPK);
+        return Util.getViewCtrlLocal().getView(viewPOJOPK);
     }
 
     @Override
@@ -601,7 +585,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             String forceMainPivot, ArrayList viewableFullPaths, IWhereItem whereItem, String orderBy, String direction,
             int start, int limit, int spellThreshold, boolean firstTotalCount, Map metaDataTypes, boolean withStartLimit)
             throws XtentisException {
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         String query = server.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot, // the
                                                                                                                        // main
                                                                                                                        // pivots
@@ -627,7 +611,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
     public ArrayList<String> runChildrenItemsQuery(String clusterName, String conceptName, String[] PKXpaths, String FKXpath,
             String labelXpath, String fatherPK, LinkedHashMap itemsRevisionIDs, String defaultRevisionID, IWhereItem whereItem,
             int start, int limit) throws XtentisException {
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         String query = server.getChildrenItemsQuery(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK,
                 itemsRevisionIDs, defaultRevisionID, whereItem, start, limit);
         if (LOGGER.isDebugEnabled()) {
@@ -640,7 +624,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
     public ArrayList<String> runPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap pivotWithKeys,
             LinkedHashMap itemsRevisionIDs, String defaultRevisionID, String[] indexPaths, IWhereItem whereItem,
             String[] pivotDirections, String[] indexDirections, int start, int limit) throws XtentisException {
-        XmlServerSLWrapperLocal server = Util.getXmlServerCtrlLocal();
+        XmlServer server = Util.getXmlServerCtrlLocal();
         String query = server.getPivotIndexQuery(clusterName, mainPivotName, pivotWithKeys, itemsRevisionIDs, defaultRevisionID,
                 indexPaths, whereItem, pivotDirections, indexDirections, start, limit);
         if (LOGGER.isDebugEnabled()) {

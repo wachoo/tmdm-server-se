@@ -1,11 +1,9 @@
 package com.amalto.core.objects.configurationinfo.assemble;
 
-import com.amalto.core.server.RoutingEngine;
+import com.amalto.core.server.api.RoutingEngine;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 
 public class StartEngineSubProc extends AssembleSubProc{
 
@@ -20,16 +18,18 @@ public class StartEngineSubProc extends AssembleSubProc{
 			"true"
 		));
 		if (autostart) {
-            RoutingEngineV2CtrlLocal routingEngine;
-			try {
-				routingEngine = Util.getRoutingEngineV2CtrlLocal();
-			} catch (Exception e) {
-				String err = "Auto Configuration in the background completed but Unable to start the routing Engine";
-				LOGGER.error(err,e);
-				throw new RuntimeException(err, e);
-			}
-        	routingEngine.start();
-        	LOGGER.info("Routing Engine has been started! ");
+            RoutingEngine routingEngine;
+            try {
+                routingEngine = Util.getRoutingEngineV2CtrlLocal();
+                routingEngine.start();
+                LOGGER.info("Routing engine started.");
+            } catch (Exception e) {
+                String err = "Auto Configuration in the background completed but unable to start the routing engine.";
+                LOGGER.error(err);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(err, e);
+                }
+            }
 		}
 	}
 

@@ -1,15 +1,6 @@
 package com.amalto.core.plugin.base.groovy.ejb;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.regex.Pattern;
-
-import javax.ejb.SessionBean;
-
-import org.w3c.dom.Document;
-
-import com.amalto.core.objects.transformers.v2.ejb.TransformerPluginV2CtrlBean;
+import com.amalto.core.ejb.Plugin;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
 import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.v2.util.TypedContent;
@@ -17,6 +8,12 @@ import com.amalto.core.plugin.base.groovy.CompiledParameters;
 import com.amalto.core.plugin.base.groovy.EmbedGroovy;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+import org.w3c.dom.Document;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.regex.Pattern;
 /**
  *
  * @author Starkey Shu
@@ -43,7 +40,7 @@ import com.amalto.core.util.XtentisException;
  */
      
 
-public class GroovyPluginBean extends TransformerPluginV2CtrlBean  implements SessionBean{
+public class GroovyPluginBean extends Plugin {
 
 	/**
 	 * 
@@ -294,8 +291,13 @@ public class GroovyPluginBean extends TransformerPluginV2CtrlBean  implements Se
 		}
 		
 	}
-	
-	/**
+
+    @Override
+    protected String loadConfiguration() {
+        return null;
+    }
+
+    /**
      * @throws XtentisException
      *
      * @ejb.interface-method view-type = "local"

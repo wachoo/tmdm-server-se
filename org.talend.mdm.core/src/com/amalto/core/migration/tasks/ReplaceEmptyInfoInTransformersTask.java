@@ -1,20 +1,16 @@
 package com.amalto.core.migration.tasks;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import javax.naming.InitialContext;
-
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.migration.AbstractMigrationTask;
-import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2CtrlBean;
+import com.amalto.core.objects.configurationinfo.ConfigurationHelper;
 import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
-import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocal;
-import com.amalto.core.objects.transformers.v2.ejb.local.TransformerV2CtrlLocalHome;
 import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
 import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
+import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
+import com.amalto.core.server.api.Transformer;
+
+import java.util.ArrayList;
 
 public class ReplaceEmptyInfoInTransformersTask extends AbstractMigrationTask{
 
@@ -26,7 +22,7 @@ public class ReplaceEmptyInfoInTransformersTask extends AbstractMigrationTask{
 			
 			String[] ids = ConfigurationHelper.getServer().getAllDocumentsUniqueID(null, ObjectPOJO.getCluster(TransformerV2POJO.class));
 			if (ids != null) {
-				TransformerV2CtrlLocal tCtrl = ((TransformerV2CtrlLocalHome)new InitialContext().lookup(TransformerV2CtrlLocalHome.JNDI_NAME)).create();
+				Transformer tCtrl = Util.getTransformerV2CtrlLocal();
                 for (String id : ids) {
                     String xml = ConfigurationHelper.getServer().getDocumentAsString(null, ObjectPOJO.getCluster(TransformerV2POJO.class), id);
                     TransformerV2POJO transformer = ObjectPOJO.unmarshal(TransformerV2POJO.class, xml);
@@ -42,14 +38,14 @@ public class ReplaceEmptyInfoInTransformersTask extends AbstractMigrationTask{
                             for (TransformerVariablesMapping transformerVariablesMapping : inputMappings) {
                                 String pipelineVariable = transformerVariablesMapping.getPipelineVariable();
                                 if (pipelineVariable == null || "".equals(pipelineVariable.trim())) { //$NON-NLS-1$
-                                    transformerVariablesMapping.setPipelineVariable(TransformerV2CtrlBean.DEFAULT_VARIABLE);
+                                    transformerVariablesMapping.setPipelineVariable(Transformer.DEFAULT_VARIABLE);
                                 }
                             }
                             ArrayList<TransformerVariablesMapping> outputMappings = step.getOutputMappings();
                             for (TransformerVariablesMapping transformerVariablesMapping : outputMappings) {
                                 String pipelineVariable = transformerVariablesMapping.getPipelineVariable();
                                 if (pipelineVariable == null || "".equals(pipelineVariable.trim())) { //$NON-NLS-1$
-                                    transformerVariablesMapping.setPipelineVariable(TransformerV2CtrlBean.DEFAULT_VARIABLE);
+                                    transformerVariablesMapping.setPipelineVariable(Transformer.DEFAULT_VARIABLE);
                                 }
                             }
                         }

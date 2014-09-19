@@ -12,11 +12,11 @@
 // ============================================================================
 package com.amalto.core.util;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
-import org.apache.log4j.Logger;
 
 public class Version {
 
@@ -71,8 +71,12 @@ public class Version {
         props = new Properties();
         is = clazz.getResourceAsStream(PROP_FILE);
         if (is == null) {
-            throw new RuntimeException("Couldn't find: " + PROP_FILE //$NON-NLS-1$
-                    + " on CLASSPATH"); //$NON-NLS-1$
+            props.setProperty("major", "0");
+            props.setProperty("minor", "0");
+            props.getProperty("build.number", "00000");
+            props.getProperty("build.date", "1970/01/01");
+            props.getProperty("description", "N/A");
+            return;
         }
         try {
             props.load(is);

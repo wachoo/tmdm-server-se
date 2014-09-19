@@ -12,7 +12,7 @@
 package com.amalto.core.load.action;
 
 import com.amalto.core.save.SaverSession;
-import com.amalto.core.server.XmlServer;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.XSDKey;
 
 import java.io.InputStream;

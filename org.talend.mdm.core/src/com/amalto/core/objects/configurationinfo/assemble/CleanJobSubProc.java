@@ -1,8 +1,8 @@
 package com.amalto.core.objects.configurationinfo.assemble;
 
 import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
@@ -14,7 +14,7 @@ public class CleanJobSubProc extends AssembleSubProc{
     @Override
     public void run() throws Exception {
         //clean-up background Job
-		XmlServerSLWrapperLocal server;
+		XmlServer server;
         try {
             server = Util.getXmlServerCtrlLocal();
         } catch (Exception e) {

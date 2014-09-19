@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app
+        xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+        version="2.4">
+    <display-name>Talend MDM</display-name>
+    <description>Talend MDM server</description>
+    <!-- Spring initialization -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>WEB-INF/beans.xml</param-value>
+    </context-param>
+    <listener>
+        <listener-class>
+            org.springframework.web.context.ContextLoaderListener
+        </listener-class>
+    </listener>
+    <!-- Additional MDM filters -->
+    <filter>
+        <filter-name>errorFilter</filter-name>
+        <filter-class>com.amalto.core.servlet.ErrorFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>transactionFilter</filter-name>
+        <filter-class>com.amalto.core.servlet.TransactionFilter</filter-class>
+    </filter>
+    <!-- Spring security -->
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- Enable bulk load servlet to print out full exception stack trace in case of error/exception -->
+    <filter-mapping>
+        <filter-name>errorFilter</filter-name>
+        <url-pattern>/loadServlet</url-pattern>
+    </filter-mapping>
+    <!-- Enable bulk load servlet to use an existing transaction or start an implicit one -->
+    <filter-mapping>
+        <filter-name>transactionFilter</filter-name>
+        <url-pattern>/loadServlet</url-pattern>
+    </filter-mapping>
+    <!-- Web services -->
+    <servlet>
+        <servlet-name>runServlet</servlet-name>
+        <display-name>run Servlet</display-name>
+        <description><![CDATA[Upgrade of core and start of routing engine]]></description>
+        <servlet-class>com.amalto.core.servlet.RunServlet</servlet-class>
+
+        <init-param>
+            <param-name>action</param-name>
+            <param-value>releasenotes</param-value>
+        </init-param>
+
+    </servlet>
+
+    <servlet>
+        <servlet-name>uploadFile</servlet-name>
+        <display-name>FileUpload</display-name>
+        <description><![CDATA[FileUploadToWebApp server]]></description>
+        <servlet-class>com.amalto.core.servlet.UploadFile</servlet-class>
+
+        <init-param>
+            <param-name>action</param-name>
+            <param-value>init</param-value>
+        </init-param>
+
+    </servlet>
+
+    <servlet>
+        <servlet-name>loadServlet</servlet-name>
+        <display-name>load Servlet</display-name>
+        <servlet-class>com.amalto.core.servlet.LoadServlet</servlet-class>
+        <init-param>
+            <param-name>action</param-name>
+            <param-value>load</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>exportServlet</servlet-name>
+        <display-name>export Servlet</display-name>
+        <servlet-class>com.amalto.core.servlet.ExportServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>CXFServlet</servlet-name>
+        <servlet-class>
+            org.apache.cxf.transport.servlet.CXFServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>LogViewerServlet</servlet-name>
+        <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
+        <init-param>
+            <param-name>logFile</param-name>
+            <param-value>${jboss.server.log.dir}/server.log</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxLinesByChunk</param-name>
+            <param-value>10000</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <servlet-name>MatchingLogViewerServlet</servlet-name>
+        <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
+        <init-param>
+            <param-name>logFile</param-name>
+            <param-value>${jboss.server.log.dir}/match.log</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxLinesByChunk</param-name>
+            <param-value>10000</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>runServlet</servlet-name>
+        <url-pattern>/run</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>uploadFile</servlet-name>
+        <url-pattern>/uploadFile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>loadServlet</servlet-name>
+        <url-pattern>/loadServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>exportServlet</servlet-name>
+        <url-pattern>/exportServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CXFServlet</servlet-name>
+        <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogViewerServlet</servlet-name>
+        <url-pattern>/logviewer/log</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MatchingLogViewerServlet</servlet-name>
+        <url-pattern>/logviewer/match</url-pattern>
+    </servlet-mapping>
+</web-app>

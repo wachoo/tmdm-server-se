@@ -18,8 +18,11 @@ import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
 import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJOPK;
+import com.amalto.core.objects.configurationinfo.CoreUpgrades;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
+import com.amalto.core.server.api.ConfigurationInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,7 +123,17 @@ public class DefaultConfigurationInfo implements ConfigurationInfo {
 
     @Override
     public void autoUpgrade() throws XtentisException {
-        autoUpgradeInBackground(null);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("autoUpgrade ");
+        }
+        try {
+            ConfigurationInfo ctrl = Util.getConfigurationInfoCtrlLocal();
+            CoreUpgrades.autoUpgrade(ctrl);
+        } catch (Exception e) {
+            String err = "Unable to upgrade in the background" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            LOGGER.error(err, e);
+            throw new XtentisException(err, e);
+        }
     }
 
     @Override

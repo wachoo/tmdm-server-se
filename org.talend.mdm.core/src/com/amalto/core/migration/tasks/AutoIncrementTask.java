@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.server.api.XmlServer;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
@@ -26,7 +26,7 @@ public class AutoIncrementTask extends AbstractMigrationTask {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 p.storeToXML(bos, "", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
                 String xmlString = bos.toString("UTF-8"); //$NON-NLS-1$
-                XmlServerSLWrapperLocal xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
+                XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
                 xmlServerCtrlLocal.start(XSystemObjects.DC_CONF.getName());
                 xmlServerCtrlLocal.putDocumentFromString(xmlString, "Auto_Increment", XSystemObjects.DC_CONF.getName(), null); //$NON-NLS-1$
                 xmlServerCtrlLocal.commit(XSystemObjects.DC_CONF.getName());

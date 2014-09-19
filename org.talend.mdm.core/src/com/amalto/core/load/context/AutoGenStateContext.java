@@ -18,7 +18,7 @@ import com.amalto.core.load.exception.ParserCallbackException;
 import com.amalto.core.load.payload.EndPayload;
 import com.amalto.core.load.payload.StartPayload;
 import com.amalto.core.load.xml.Selector;
-import com.amalto.core.server.XmlServer;
+import com.amalto.core.server.api.XmlServer;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;

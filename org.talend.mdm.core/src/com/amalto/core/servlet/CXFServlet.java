@@ -17,10 +17,7 @@ import org.apache.log4j.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class CXFServlet extends CXFNonSpringJaxrsServlet {
 
@@ -30,11 +27,11 @@ public class CXFServlet extends CXFNonSpringJaxrsServlet {
 
     // Similar to CXFNonSpringJaxrsServlet but doesn't fail if a service class isn't available.
     @Override
-    protected List<Class> getServiceClasses(ServletConfig servletConfig, boolean modelAvailable) throws ServletException {
+    protected Map<Class<?>, Map<String, List<String>>> getServiceClasses(ServletConfig servletConfig, boolean modelAvailable, String splitChar) throws ServletException {
         String serviceBeans = servletConfig.getInitParameter(SERVICE_CLASSES_PARAM);
         if (serviceBeans == null) {
             if (modelAvailable) {
-                return Collections.emptyList();
+                return Collections.emptyMap();
             }
             throw new ServletException("At least one resource class should be specified");
         }
@@ -42,13 +39,14 @@ public class CXFServlet extends CXFNonSpringJaxrsServlet {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Resources classes: " + Arrays.toString(classNames));
         }
-        List<Class> resourceClasses = new ArrayList<Class>();
+        Map<Class<?>, Map<String, List<String>>> resourceClasses = new HashMap<Class<?>, Map<String, List<String>>>();
         for (String cName : classNames) {
             String theName = cName.trim();
             if (theName.length() != 0) {
                 try {
                     Class cls = ClassLoaderUtils.loadClass(cName, CXFServlet.class);
-                    resourceClasses.add(cls);
+                    Map<String, List<String>> value = Collections.emptyMap();
+                    resourceClasses.put(cls, value);
                 } catch (ClassNotFoundException e) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Service class '" + cName + "' is disabled because it isn't available.");

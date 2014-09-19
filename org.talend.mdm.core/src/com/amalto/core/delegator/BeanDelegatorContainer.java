@@ -12,11 +12,11 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
+import org.apache.log4j.Logger;
+
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.log4j.Logger;
 
 public class BeanDelegatorContainer {
 

@@ -9,16 +9,16 @@
  */
 package org.talend.mdm.ext.publish.util;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.XtentisException;
 
 public class PicturesDAODBImpl implements PicturesDAO {
 
     private static final String CLUSTER_NAME = "MDMItemImages"; //$NON-NLS-1$
 
-    private XmlServerSLWrapperLocal server;
+    private XmlServer server;
 
-    public PicturesDAODBImpl(XmlServerSLWrapperLocal server) {
+    public PicturesDAODBImpl(XmlServer server) {
         this.server = server;
 
     }

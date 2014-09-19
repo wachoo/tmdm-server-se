@@ -86,9 +86,9 @@ public class RolePOJO extends ObjectPOJO{
 	
     @Override
     public ObjectPOJOPK store() throws XtentisException {
-    	if ("authenticated".equals(getName())) throw new XtentisException("The role \"authenticated\" is reserved and cannot be created");
+        /*if ("authenticated".equals(getName())) throw new XtentisException("The role \"authenticated\" is reserved and cannot be created");
     	if ("administration".equals(getName())) throw new XtentisException("The role \"administration\" is reserved and cannot be created");
-    	if ("disabled".equals(getName())) throw new XtentisException("The role \"disabled\" is reserved and cannot be created");
+    	if ("disabled".equals(getName())) throw new XtentisException("The role \"disabled\" is reserved and cannot be created");*/
     	return super.store();
     }
 	

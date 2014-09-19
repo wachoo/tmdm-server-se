@@ -12,23 +12,18 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.server;
 
-import static org.mockito.Mockito.*;
-import static org.powermock.api.support.membermodification.MemberMatcher.*;
-import static org.powermock.api.support.membermodification.MemberModifier.*;
-
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.history.DocumentTransformer;
+import com.amalto.core.history.EmptyDocument;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.save.DOMDocument;
+import com.amalto.core.server.DefaultItem;
+import com.amalto.core.server.api.Item;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit3.PowerMockSuite;
@@ -39,18 +34,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.local.ItemCtrl2Local;
-import com.amalto.core.history.DocumentTransformer;
-import com.amalto.core.history.EmptyDocument;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.save.DOMDocument;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.Mockito.when;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
+import static org.powermock.api.support.membermodification.MemberModifier.stub;
 
 @SuppressWarnings("nls")
-@PrepareForTest({ ItemCtrl2Local.class, Util.class })
+@PrepareForTest({ DefaultItem.class, Util.class })
 public class ForeignKeyInfoTransformerTest extends TestCase {
 
     private DocumentBuilderFactory documentBuilderFactory;
@@ -81,7 +79,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
 
     Map<String, ItemPOJO> itemPOJOs = new HashMap<String, ItemPOJO>();
 
-    ItemCtrl2Local itemCtrl2Local = null;
+    Item itemLocal = null;
 
     @SuppressWarnings("unchecked")
     public static TestSuite suite() throws Exception {
@@ -105,9 +103,9 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         metadataRepository = new MetadataRepository();
         metadataRepository.load(dataModelStream);
 
-        itemCtrl2Local = PowerMockito.mock(ItemCtrl2Local.class);
+        itemLocal = PowerMockito.mock(Item.class);
 
-        stub(method(Util.class, "getItemCtrl2Local")).toReturn(itemCtrl2Local);
+        stub(method(Util.class, "getItemCtrl2Local")).toReturn(itemLocal);
 
         String[] fks = new String[] { "b1", "b11", "b12", "b2", "c1", "c2", "e1", "f1" };
 
@@ -115,7 +113,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         for (String fk : fks) {
             item = PowerMockito.mock(ItemPOJO.class);
             itemPOJOs.put(fk, item);
-            when(itemCtrl2Local.getItem(getItemPOJOPK(fk))).thenReturn(itemPOJOs.get(fk));
+            when(itemLocal.getItem(getItemPOJOPK(fk))).thenReturn(itemPOJOs.get(fk));
             when(itemPOJOs.get(fk).getProjection()).thenReturn(getElement(fk));
         }
     }

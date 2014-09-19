@@ -1,18 +1,14 @@
 package com.amalto.core.servlet;
 
-import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.load.action.DefaultLoadAction;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.load.action.OptimizedLoadAction;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.local.DataClusterCtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
@@ -23,6 +19,10 @@ import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.api.DataCluster;
+import com.amalto.core.server.api.XmlServer;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -96,7 +96,7 @@ public class LoadServlet extends HttpServlet {
             throw new ServletException(new UnsupportedOperationException("XML Validation isn't supported"));
         }
         // Get xml server and key information
-        XmlServerSLWrapperLocal server;
+        XmlServer server;
         XSDKey keyMetadata;
         try {
             keyMetadata = getTypeKey(dataModelName, typeName);
@@ -152,7 +152,7 @@ public class LoadServlet extends HttpServlet {
     protected DataClusterPOJO getDataCluster(String dataClusterName) {
         DataClusterPOJO dataCluster;
         try {
-            DataClusterCtrlLocal dataClusterCtrlLocal = Util.getDataClusterCtrlLocal();
+            DataCluster dataClusterCtrlLocal = Util.getDataClusterCtrlLocal();
             DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataClusterName);
             dataCluster = dataClusterCtrlLocal.getDataCluster(dataClusterPOJOPK);
         } catch (Exception e) {

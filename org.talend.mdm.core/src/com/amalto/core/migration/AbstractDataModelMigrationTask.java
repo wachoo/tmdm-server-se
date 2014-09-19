@@ -4,7 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import com.amalto.core.objects.configurationinfo.localutil.ConfigurationHelper;
+import com.amalto.core.objects.configurationinfo.ConfigurationHelper;
 import com.amalto.core.util.Util;
 
 

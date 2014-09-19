@@ -26,7 +26,10 @@ public class WSRoutingEngineV2Status {
     public static final WSRoutingEngineV2Status STOPPED = new WSRoutingEngineV2Status(_STOPPED);
     public static final WSRoutingEngineV2Status SUSPENDED = new WSRoutingEngineV2Status(_SUSPENDED);
     public static final WSRoutingEngineV2Status RUNNING = new WSRoutingEngineV2Status(_RUNNING);
-    
+
+    public WSRoutingEngineV2Status() {
+    }
+
     protected WSRoutingEngineV2Status(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);

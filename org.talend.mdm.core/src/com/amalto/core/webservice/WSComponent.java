@@ -23,7 +23,10 @@ public class WSComponent {
     public static final WSComponent DataManager = new WSComponent(_DataManager);
     public static final WSComponent Service = new WSComponent(_Service);
     public static final WSComponent Connector = new WSComponent(_Connector);
-    
+
+    public WSComponent() {
+    }
+
     protected WSComponent(java.lang.String value) {
         this.value = value;
         valueMap.put(this.toString(), this);
