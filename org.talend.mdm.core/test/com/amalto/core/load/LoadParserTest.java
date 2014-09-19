@@ -20,7 +20,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import com.amalto.core.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import com.amalto.core.server.api.XmlServer;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
