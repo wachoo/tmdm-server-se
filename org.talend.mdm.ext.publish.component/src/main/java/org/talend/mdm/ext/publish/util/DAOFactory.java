@@ -9,7 +9,7 @@
  */
 package org.talend.mdm.ext.publish.util;
 
-import org.talend.mdm.server.api.XmlServer;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 

@@ -20,8 +20,8 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.server.api.XmlServer;
+import com.amalto.core.commmon.util.core.MDMConfiguration;
+import com.amalto.core.server.api.XmlServer;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -599,7 +599,7 @@ public class LoadParserTest extends TestCase {
         final String xmlSource = "<Product><Id>123</Id><Name>a&amp;b&lt;c&gt;s</Name></Product>";
 
         Properties props = MDMConfiguration.getConfiguration();
-        props.setProperty("xmlserver.class", "org.talend.mdm.storage.DispatchWrapper");
+        props.setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
         props.setProperty("qizx.db.type", "server");
 
         InputStream testResource = new ByteArrayInputStream(xmlSource.getBytes());
@@ -618,7 +618,7 @@ public class LoadParserTest extends TestCase {
         assertEquals("123", callback.getId());
 
         props = MDMConfiguration.getConfiguration();
-        props.setProperty("xmlserver.class", "org.talend.mdm.storage.DispatchWrapper");
+        props.setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
         props.setProperty("qizx.db.type", "embedded");
 
         testResource = new ByteArrayInputStream(xmlSource.getBytes());
@@ -636,7 +636,7 @@ public class LoadParserTest extends TestCase {
         assertEquals("123", callback.getId());
 
         props = MDMConfiguration.getConfiguration();
-        props.setProperty("xmlserver.class", "org.talend.mdm.qizx.xmldb.QizxWrapper");
+        props.setProperty("xmlserver.class", "com.amalto.core.qizx.xmldb.QizxWrapper");
         props.setProperty("qizx.db.type", "server");
 
         testResource = new ByteArrayInputStream(xmlSource.getBytes());
@@ -655,7 +655,7 @@ public class LoadParserTest extends TestCase {
         assertEquals("123", callback.getId());
 
         props = MDMConfiguration.getConfiguration();
-        props.setProperty("xmlserver.class", "org.talend.mdm.qizx.xmldb.QizxWrapper");
+        props.setProperty("xmlserver.class", "com.amalto.core.qizx.xmldb.QizxWrapper");
         props.setProperty("qizx.db.type", "embedded");
 
         testResource = new ByteArrayInputStream(xmlSource.getBytes());

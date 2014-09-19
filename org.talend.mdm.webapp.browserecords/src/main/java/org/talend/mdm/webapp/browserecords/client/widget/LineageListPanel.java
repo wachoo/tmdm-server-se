@@ -58,8 +58,8 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.Fiel
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import org.talend.mdm.server.StorageAdmin;
-import org.talend.mdm.storage.task.StagingConstants;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.task.StagingConstants;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseModelData;

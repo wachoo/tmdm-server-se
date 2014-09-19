@@ -14,13 +14,13 @@ import junit.framework.TestCase;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.server.server.MockServerLifecycle;
-import org.talend.mdm.server.ServerContext;
-import org.talend.mdm.storage.Storage;
-import org.talend.mdm.storage.hibernate.HibernateStorage;
-import org.talend.mdm.storage.record.DataRecord;
-import org.talend.mdm.storage.record.DataRecordReader;
-import org.talend.mdm.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.server.server.MockServerLifecycle;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
 @SuppressWarnings("nls")
 public class StorageIntegrityTest extends TestCase {

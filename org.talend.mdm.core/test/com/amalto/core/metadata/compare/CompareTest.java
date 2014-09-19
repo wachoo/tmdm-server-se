@@ -32,10 +32,10 @@ import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
 import com.amalto.core.query.StorageTestCase;
-import org.talend.mdm.storage.SecuredStorage;
-import org.talend.mdm.storage.Storage;
-import org.talend.mdm.storage.StorageType;
-import org.talend.mdm.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.SecuredStorage;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.hibernate.HibernateStorage;
 
 @SuppressWarnings("nls")
 public class CompareTest extends TestCase {

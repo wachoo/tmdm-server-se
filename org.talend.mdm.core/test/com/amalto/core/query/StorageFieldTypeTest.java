@@ -24,10 +24,10 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
-import org.talend.mdm.storage.StorageResults;
-import org.talend.mdm.storage.record.DataRecord;
-import org.talend.mdm.storage.record.DataRecordReader;
-import org.talend.mdm.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;

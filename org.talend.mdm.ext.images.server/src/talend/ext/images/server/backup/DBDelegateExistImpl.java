@@ -1,6 +1,6 @@
 package talend.ext.images.server.backup;
 
-import org.talend.mdm.server.api.XmlServer;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;

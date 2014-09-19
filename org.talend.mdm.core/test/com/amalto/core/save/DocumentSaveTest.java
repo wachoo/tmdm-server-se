@@ -34,15 +34,15 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.server.ServerContext;
-import org.talend.mdm.server.server.MockMetadataRepositoryAdmin;
-import org.talend.mdm.server.server.MockServerLifecycle;
-import org.talend.mdm.storage.*;
-import org.talend.mdm.storage.hibernate.HibernateStorage;
-import org.talend.mdm.storage.record.DataRecord;
-import org.talend.mdm.storage.record.DataRecordReader;
-import org.talend.mdm.storage.record.DataRecordWriter;
-import org.talend.mdm.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.server.MockMetadataRepositoryAdmin;
+import com.amalto.core.server.server.MockServerLifecycle;
+import com.amalto.core.storage.*;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -77,7 +77,7 @@ public class DocumentSaveTest extends TestCase {
     static {
         LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        MDMConfiguration.getConfiguration().setProperty("xmlserver.class", "org.talend.mdm.storage.DispatchWrapper");
+        MDMConfiguration.getConfiguration().setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
         SaverSession.setDefaultCommitter(new MockCommitter());
         LOG.info("MDM server environment set.");
     }

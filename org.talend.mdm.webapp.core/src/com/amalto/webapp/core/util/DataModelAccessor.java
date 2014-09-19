@@ -22,8 +22,8 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
-import org.talend.mdm.server.MetadataRepositoryAdmin;
-import org.talend.mdm.server.ServerContext;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.webservice.WSDataModel;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSGetDataModel;

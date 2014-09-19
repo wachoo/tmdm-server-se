@@ -34,7 +34,7 @@ import org.jboss.security.SimpleGroup;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
-import org.talend.mdm.server.api.XmlServer;
+import com.amalto.core.server.api.XmlServer;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 

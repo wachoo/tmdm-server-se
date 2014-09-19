@@ -33,14 +33,14 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.amalto.core.query.user.UserQueryBuilder;
-import org.talend.mdm.storage.Storage;
-import org.talend.mdm.storage.StorageResults;
-import org.talend.mdm.storage.record.DataRecord;
-import org.talend.mdm.storage.record.DataRecordReader;
-import org.talend.mdm.storage.record.XmlDOMDataRecordReader;
-import org.talend.mdm.storage.record.XmlSAXDataRecordReader;
-import org.talend.mdm.storage.record.XmlStringDataRecordReader;
-import org.talend.mdm.storage.record.metadata.DataRecordMetadata;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
 @SuppressWarnings("nls")
 public class DataRecordCreationTest extends StorageTestCase {

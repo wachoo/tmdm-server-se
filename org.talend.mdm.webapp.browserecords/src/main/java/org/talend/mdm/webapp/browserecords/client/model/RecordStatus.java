@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.model;
 
-import org.talend.mdm.storage.task.StagingConstants;
+import com.amalto.core.storage.task.StagingConstants;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public enum RecordStatus implements IsSerializable {

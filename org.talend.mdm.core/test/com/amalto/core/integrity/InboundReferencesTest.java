@@ -11,8 +11,8 @@
 
 package com.amalto.core.integrity;
 
-import org.talend.mdm.server.server.MockServerLifecycle;
-import org.talend.mdm.server.ServerContext;
+import com.amalto.core.server.server.MockServerLifecycle;
+import com.amalto.core.server.ServerContext;
 import org.talend.mdm.commmon.metadata.*;
 import junit.framework.TestCase;
 

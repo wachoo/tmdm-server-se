@@ -34,7 +34,7 @@ import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecordsinstaging.client.BrowseRecordsInStagingService;
 
-import org.talend.mdm.server.StorageAdmin;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 

@@ -15,8 +15,8 @@ package org.talend.mdm.webapp.stagingareacontrol.server.actions;
 import java.io.InputStream;
 import java.util.*;
 
-import org.talend.mdm.server.MetadataRepositoryAdmin;
-import org.talend.mdm.server.ServerContext;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;

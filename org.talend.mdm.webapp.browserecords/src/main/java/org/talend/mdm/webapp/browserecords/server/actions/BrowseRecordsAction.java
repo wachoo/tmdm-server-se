@@ -38,8 +38,8 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.talend.mdm.server.ServerContext;
-import org.talend.mdm.storage.task.StagingConstants;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.task.StagingConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.*;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
@@ -1484,7 +1484,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             XSComplexType type = (XSComplexType) decl.getType();
             XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
             for (XSParticle obj : xsp) {
-                if (obj.getMinOccurs().intValue() == 1 && obj.getMaxOccurs().intValue() == 1) {
+                if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1) {
                     fieldNames.add(obj.getTerm().asElementDecl().getName());
                 }
             }

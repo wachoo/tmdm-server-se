@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.talend.mdm.server.ServerContext;
+import com.amalto.core.server.ServerContext;
 import com.amalto.webapp.core.bean.Configuration;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;

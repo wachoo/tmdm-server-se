@@ -4,7 +4,7 @@ import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
-import org.talend.mdm.server.api.Item;
+import com.amalto.core.server.api.Item;
 
 public class MdmGroovyExtension {
 

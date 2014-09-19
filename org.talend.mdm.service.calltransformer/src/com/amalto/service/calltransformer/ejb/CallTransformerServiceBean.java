@@ -12,8 +12,8 @@ import com.amalto.core.objects.transformers.v2.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.talend.mdm.server.api.Item;
-import org.talend.mdm.server.api.Transformer;
+import com.amalto.core.server.api.Item;
+import com.amalto.core.server.api.Transformer;
 import org.w3c.dom.Document;
 import sun.misc.BASE64Decoder;
 
