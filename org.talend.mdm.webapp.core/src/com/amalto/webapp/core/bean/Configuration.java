@@ -294,7 +294,10 @@ public class Configuration {
                 LOG.error("Unable to store updated configuration", e); //$NON-NLS-1$
             }
         }
-
+        Document d = user.getOwnerDocument();
+        String updatedUser = CommonDWR.getXMLStringFromDocument(d).replaceAll("<\\?xml.*?\\?>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        ILocalUser iUser = LocalUser.getLocalUser();
+        iUser.setUserXML(updatedUser);// syn cache
         return configuration;
     }
 
