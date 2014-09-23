@@ -20,6 +20,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.shared.Constants;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
@@ -54,8 +55,6 @@ import com.amalto.webapp.core.util.dwr.WebappInfo;
  * The server side implementation of the RPC service.
  */
 public class WelcomePortalAction implements WelcomePortalService {
-
-    private static final String PORTAL_CONFIG_PREFIX = "mdm_pref_"; //$NON-NLS-1$
 
     private static final Logger LOG = Logger.getLogger(WelcomePortalAction.class);
 
@@ -306,7 +305,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     private Map<String, String> getPortalPreferences(Map<String, String> props) {
         Map<String, String> portalConfigs = new HashMap<String, String>();
         for (String key : props.keySet()) {
-            if (key.startsWith(PORTAL_CONFIG_PREFIX)) {
+            if (key.startsWith(Constants.PORTAL_CONFIG_PREFIX)) {
                 portalConfigs.put(key, props.get(key));
             }
         }
