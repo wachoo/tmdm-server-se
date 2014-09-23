@@ -2505,6 +2505,54 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("", evaluate(committedElement, "/Product/Features/Colors/Color[2]"));
     }
 
+    public void testUpdateShouldNotResetMultiOccurrenceFieldsDefinedInAnnonymousTypes() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test68_original.xml", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test68.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Description value", evaluate(committedElement, "/Product/Description"));
+        assertEquals("60", evaluate(committedElement, "/Product/Price"));
+        assertEquals("Small", evaluate(committedElement, "/Product/Features/Sizes/Size[1]"));
+        assertEquals("X-Large", evaluate(committedElement, "/Product/Features/Sizes/Size[2]"));
+        assertEquals("Lemon", evaluate(committedElement, "/Product/Features/Colors/Color[1]"));
+        assertEquals("Light Blue", evaluate(committedElement, "/Product/Features/Colors/Color[2]"));
+    }
+
+    public void testDeleteMultiOccurrenceFieldDefinedInReusableTypes() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata20.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test69_original.xml", "metadata20.xsd");
+        ((TestSaverSource) source).setUserName("System_Admin");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test69.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("", evaluate(committedElement, "/E/a[2]"));
+    }
+
     public void testRemoveComplexTypeNodeWithOccurrence() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata13.xsd"));
