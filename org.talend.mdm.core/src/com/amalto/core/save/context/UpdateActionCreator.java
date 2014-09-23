@@ -209,6 +209,10 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
             Accessor rightAccessor;
             try {
                 rightAccessor = newDocument.createAccessor(currentPath);
+                if (!rightAccessor.exist() && !isDeletingContainedElement) {
+                    // If new list does not exist, it means element was omitted in new version (legacy behavior).
+                    return;
+                }                
                 leftAccessor = originalDocument.createAccessor(currentPath);
             } finally {
                 path.pop();
