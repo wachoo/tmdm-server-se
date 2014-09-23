@@ -957,7 +957,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             new WSGetItem(new WSItemPK(new WSDataClusterPK(XSystemObjects.DC_SEARCHTEMPLATE.getName()),
                                     "BrowseItem",//$NON-NLS-1$
                                     new String[] { bookmark }))).getContent().trim();
-            if (!result.contains("<SearchCriteria>")) { //$NON-NLS-1$
+            if (result.contains("<SearchCriteria>")) { //$NON-NLS-1$
                 criteria = result.substring(result.indexOf("<SearchCriteria>") + 16, result.indexOf("</SearchCriteria>"));//$NON-NLS-1$ //$NON-NLS-2$
                 if (criteria.contains("&amp;")) { //$NON-NLS-1$
                     criteria = criteria.replace("&amp;", "&"); //$NON-NLS-1$ //$NON-NLS-2$
