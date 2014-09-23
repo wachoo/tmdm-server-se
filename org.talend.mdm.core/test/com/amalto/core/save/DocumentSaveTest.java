@@ -2534,14 +2534,14 @@ public class DocumentSaveTest extends TestCase {
     public void testDeleteMultiOccurrenceFieldDefinedInReusableTypes() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata20.xsd"));
-        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+        MockMetadataRepositoryAdmin.INSTANCE.register("metadata20.xsd", repository);
 
         SaverSource source = new TestSaverSource(repository, true, "test69_original.xml", "metadata20.xsd");
         ((TestSaverSource) source).setUserName("System_Admin");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test69.xml");
-        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true,
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "metadata20.xsd", "Source", recordXml, false, true, true,
                 true, false);
         DocumentSaver saver = context.createSaver();
         saver.save(session, context);
