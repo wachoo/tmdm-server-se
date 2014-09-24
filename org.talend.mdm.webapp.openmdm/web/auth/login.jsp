@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Locale"%>
 <%@page import="com.amalto.core.util.Util"%>
@@ -128,21 +129,16 @@ deleteCookie();
     </table>
     <table width="100%" height="65%" cellpadding="0" cellspacing="1">
         <tr>
-            <!--
             <td valign="middle" align="center">
-                <img src="<%= contextPath %>/auth/logo-big-talend.jpg"/>
-            </td>
-            -->
-            <td valign="middle" align="center">
-                <form method="POST" action='<%= response.encodeURL("j_security_check") %>' name="loginform">
+                <form method="POST" action="" name="loginform">
                     <br>
                     <table width="300" height="150" cellpadding="0" cellspacing="0"
                         class="form">
                         <tr>
                             <td colspan="2">
-                            <% if(request.getParameter("error")!=null) {%>
-                            <div style="text-align:center;color:red"><%= _ERROR_ %></div>                            
-                            <% } %>
+                                <c:if test="${'fail' eq param.auth}">
+                                    <div style="text-align:center;color:red"><%= _ERROR_ %></div>
+                                </c:if>
                             </td>
                         </tr>
                         <tr>
@@ -158,7 +154,6 @@ deleteCookie();
                         <tr>
                             <td align="right" width="120"><%= _UNIVERSE_ %>:&nbsp;</td>
                             <td align="left">
-                            <!--<input type="text" name="j_universe" value="" />-->
                             <select id="j_universe" name="j_universe"/>
                             </td>
                         </tr>
@@ -167,6 +162,7 @@ deleteCookie();
                             <td colspan="2" align="center"><input type="button" name="login" value="<%=_LOGIN_%>" onclick="f_submit()"/></td>
                         </tr>
                     </table>
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                 </form>
     
             </td>

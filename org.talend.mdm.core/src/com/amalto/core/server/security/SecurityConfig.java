@@ -10,13 +10,11 @@
 
 package com.amalto.core.server.security;
 
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.record.DataRecord;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
@@ -25,14 +23,18 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.record.DataRecord;
 
 @EnableWebSecurity
 @Configuration
@@ -70,6 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // All request must have 'authenticated' as role
-        http.authorizeRequests().antMatchers("/**").hasAuthority(AUTHENTICATED_ROLE).and().formLogin().loginPage("auth/login.jsp"); //$NON-NLS-1$ //$NON-NLS-2$
+        FormLoginConfigurer<HttpSecurity> formLogin = http.authorizeRequests().antMatchers("/secure/**").hasAuthority(AUTHENTICATED_ROLE).and().formLogin();
+        formLogin.loginPage("/auth/login.jsp").usernameParameter("j_username").passwordParameter("j_password").defaultSuccessUrl("/secure"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

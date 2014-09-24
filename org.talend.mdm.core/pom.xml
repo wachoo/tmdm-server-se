@@ -63,36 +63,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>start-tomcat</id>
-                        <goals>
-                            <goal>run-war</goal>
-                        </goals>
-                        <phase>pre-integration-test</phase>
-                        <configuration>
-                            <port>${test.server.port}</port>
-                            <path>/jaxrs-service</path>
-                            <fork>true</fork>
-                            <warDirectory>${project.build.directory}/${project.build.finalName}</warDirectory>
-                            <useSeparateTomcatClassLoader>true</useSeparateTomcatClassLoader>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>stop-tomcat</id>
-                        <goals>
-                            <goal>shutdown</goal>
-                        </goals>
-                        <phase>post-integration-test</phase>
-                        <configuration>
-                            <path>/jaxrs-service</path>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 

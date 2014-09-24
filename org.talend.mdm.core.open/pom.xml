@@ -32,7 +32,11 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
+                                    <!-- Core -->
                                     <include>org.talend.mdm:org.talend.mdm.webapp.openmdm:war:*</include>
+                                    <include>org.talend.mdm:org.talend.mdm.webapp.core.open:jar:*</include>
+                                    <!-- UI -->
+                                    <include>org.talend.mdm:org.talend.mdm.webapp.general:war:*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
@@ -48,8 +52,8 @@
                         <goals>
                             <goal>run-war</goal>
                         </goals>
-                        <phase>pre-integration-test</phase>
                         <configuration>
+                            <JAVA_OPTS>-Xms256m -Xmx1024m -XX:MaxPermSize=512m</JAVA_OPTS>
                             <path>/talendmdm</path>
                             <fork>true</fork>
                             <warDirectory>${project.build.directory}/${project.build.finalName}</warDirectory>
@@ -88,13 +92,25 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
-        <!-- MDM dependencies -->
+        <!-- Web apps -->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.core.open</artifactId>
+            <version>5.6-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.openmdm</artifactId>
             <type>war</type>
             <version>5.6-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.general</artifactId>
+            <version>5.6-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+        <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
