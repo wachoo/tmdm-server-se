@@ -70,6 +70,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // All request must have 'authenticated' as role
-        http.authorizeRequests().antMatchers("/**").hasAuthority(AUTHENTICATED_ROLE).and().formLogin(); //$NON-NLS-1$
+        http.authorizeRequests().antMatchers("/**").hasAuthority(AUTHENTICATED_ROLE).and().formLogin().loginPage("auth/login.jsp"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }
