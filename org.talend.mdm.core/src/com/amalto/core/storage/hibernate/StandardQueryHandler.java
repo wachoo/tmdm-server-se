@@ -475,6 +475,19 @@ class StandardQueryHandler extends AbstractQueryHandler {
         boolean hasPaging = pageSize < Integer.MAX_VALUE;
         // Results
         if (!hasPaging) {
+            if (storage instanceof HibernateStorage) {
+                RDBMSDataSource dataSource = (RDBMSDataSource) storage.getDataSource();
+                if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.DB2) {
+                    // TMDM-7701: DB2 doesn't like use of SCROLL_INSENSITIVE for projections including a CLOB.
+                    if (select.isProjection()) {
+                        return createResults(criteria.scroll(ScrollMode.FORWARD_ONLY), true);
+                    } else {
+                        return createResults(criteria.scroll(ScrollMode.SCROLL_INSENSITIVE), false);
+                    }
+                } else {
+                    return createResults(criteria.scroll(ScrollMode.SCROLL_INSENSITIVE), select.isProjection());
+                }
+            }
             return createResults(criteria.scroll(ScrollMode.SCROLL_INSENSITIVE), select.isProjection());
         } else {
             List list = criteria.list();
