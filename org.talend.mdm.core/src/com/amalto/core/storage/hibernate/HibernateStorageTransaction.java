@@ -21,7 +21,6 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Transaction;
@@ -231,19 +230,27 @@ class HibernateStorageTransaction extends StorageTransaction {
                     LOGGER.warn("Transaction was already rollbacked.");
                 }
             } finally {
-                /*
-                 * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
-                 * is reused.
-                 */
-                if (session.isOpen() && session.getStatistics().getEntityKeys().size() > 0) {
-                    session.clear();
-                    session.close();
+                try {
+                    /*
+                     * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the
+                     * session is reused.
+                     */
+                    if (session.isOpen() && session.getStatistics().getEntityKeys().size() > 0) {
+                        session.clear();
+                        session.close();
+                    }
+                    hasFailed = false;
+                } catch (HibernateException e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Could not clean up session.", e);
+                    }
+                } finally {
+                    // It is *very* important to ensure super.rollback() gets called (even if session close did not succeed).
+                    super.rollback();
+                    storage.getClassLoader().reset(Thread.currentThread());
                 }
-                hasFailed = false;
             }
         }
-        super.rollback();
-        storage.getClassLoader().reset(Thread.currentThread());
     }
 
     @Override
