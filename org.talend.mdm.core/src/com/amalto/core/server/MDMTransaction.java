@@ -145,7 +145,7 @@ class MDMTransaction implements Transaction {
         }
         StorageTransaction storageTransaction;
         synchronized (storageTransactions) {
-            storageTransaction = getStorageTransaction(storage, Thread.currentThread());
+            storageTransaction = (StorageTransaction) storageTransactions.get(storage, Thread.currentThread());
             if (storageTransaction == null) {
                 storageTransaction = storage.newStorageTransaction();
                 storageTransactions.put(storage, Thread.currentThread(), storageTransaction);
@@ -158,21 +158,6 @@ class MDMTransaction implements Transaction {
                 return storageTransaction.dependent();
             default:
                 throw new NotImplementedException("No support for life time '" + lifetime + "'");
-        }
-    }
-
-    private StorageTransaction getStorageTransaction(Storage storage, Thread thread) {
-        synchronized (storageTransactions) {
-            if (storage.getType() == StorageType.SYSTEM) {
-                for (Object storageTransactionAsObject : storageTransactions.values()) {
-                    StorageTransaction storageTransaction = (StorageTransaction) storageTransactionAsObject;
-                    Storage associatedStorage = storageTransaction.getStorage();
-                    if (associatedStorage.getType() == StorageType.SYSTEM) {
-                        return storageTransaction;
-                    }
-                }
-            }
-            return (StorageTransaction) storageTransactions.get(storage, thread);
         }
     }
 
