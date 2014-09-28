@@ -45,6 +45,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.PortalEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 
@@ -155,48 +156,7 @@ public class MainFramePanel extends Portal {
                 if (index < DEFAULT_ORDERING_INDEX.size() - 1) {
                     initializePortlet(DEFAULT_ORDERING_INDEX.get(index + 1));
                 } else {
-                    // Store portal config values after all portlet initialized
-                    portletToVisibilities = new HashMap<String, Boolean>();
-                    portletToAutoOnOffs = new HashMap<String, Boolean>();
-                    for (String name : portletToLocations.keySet()) {
-                        portletToVisibilities.put(name, true);
-                        if (!name.equals(WelcomePortal.START) && !name.equals(WelcomePortal.SEARCH)) {
-                            portletToAutoOnOffs.put(name, false);
-                        }
-                    }
-                    // now we have all available portlets, need to record them in Actions panel in General project
-                    Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
-                    for (String name : portletToLocations.keySet()) {
-                        portletConfigs.put(name, portletToVisibilities.get(name));
-                    }
-
-                    allCharts = new HashSet<String>(portletToLocations.keySet());
-                    allCharts.retainAll(DEFAULT_CHART_NAMES);
-
-                    props.add(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString());
-                    props.add(PortalProperties.KEY_PORTLET_VISIBILITIES, portletToVisibilities.toString());
-                    props.add(PortalProperties.KEY_COLUMN_NUM, ((Integer) MainFramePanel.this.numColumns).toString());
-                    props.add(PortalProperties.KEY_ALL_CHARTS, allCharts.toString());
-                    props.add(PortalProperties.KEY_CHARTS_ON, ((Boolean) chartsOn).toString());
-                    props.add(PortalProperties.KEY_AUTO_ONOFFS, portletToAutoOnOffs.toString());
-
-                    service.savePortalConfig(props, new SessionAwareAsyncCallback<Void>() {
-
-                        @Override
-                        public void onSuccess(Void result) {
-                            return;
-                        }
-
-                        @Override
-                        protected void doOnFailure(Throwable caught) {
-                            super.doOnFailure(caught);
-                            return;
-                        }
-                    });
-
-                    portletConfigs.put(USING_DEFAULT_COLUMN_NUM, MainFramePanel.this.numColumns == DEFAULT_COLUMN_NUM);
-                    portletConfigs.put(CHARTS_ENABLED, chartsOn);
-                    recordPortalConfigs(portletConfigs.toString(), allCharts.toString());
+                    initDatabase();
                 }
             }
         });
@@ -265,7 +225,6 @@ public class MainFramePanel extends Portal {
             chartsOn = props.getChartsOn();
 
             initializePortlets(portletToLocations, portletToVisibilities);
-
             recordPortalSettings();
         } else {
             // switch column config/chartsSwitcher status updated, get current ordering from database, other configs
@@ -736,11 +695,59 @@ public class MainFramePanel extends Portal {
                     BasePortlet portlet = new MatchingChart(MainFramePanel.this);
                     portlets.add(portlet);
                     MainFramePanel.this.add(portlet);
+                } else {
+                    initDatabase();
                 }
             }
         });
 
     }
+    
+    // Store portal config values after all portlet initialized
+    private void initDatabase() {
+        portletToVisibilities = new HashMap<String, Boolean>();
+        portletToAutoOnOffs = new HashMap<String, Boolean>();
+        for (String name : portletToLocations.keySet()) {
+            portletToVisibilities.put(name, true);
+            if (!name.equals(WelcomePortal.START) && !name.equals(WelcomePortal.SEARCH)) {
+                portletToAutoOnOffs.put(name, false);
+            }
+        }
+        // now we have all available portlets, need to record them in Actions panel in General project
+        Map<String, Boolean> portletConfigs = new HashMap<String, Boolean>(portletToLocations.size());
+        for (String name : portletToLocations.keySet()) {
+            portletConfigs.put(name, portletToVisibilities.get(name));
+        }
+
+        allCharts = new HashSet<String>(portletToLocations.keySet());
+        allCharts.retainAll(DEFAULT_CHART_NAMES);
+
+        props.add(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString());
+        props.add(PortalProperties.KEY_PORTLET_VISIBILITIES, portletToVisibilities.toString());
+        props.add(PortalProperties.KEY_COLUMN_NUM, ((Integer) MainFramePanel.this.numColumns).toString());
+        props.add(PortalProperties.KEY_ALL_CHARTS, allCharts.toString());
+        props.add(PortalProperties.KEY_CHARTS_ON, ((Boolean) chartsOn).toString());
+        props.add(PortalProperties.KEY_AUTO_ONOFFS, portletToAutoOnOffs.toString());
+
+        service.savePortalConfig(props, new SessionAwareAsyncCallback<Void>() {
+
+            @Override
+            public void onSuccess(Void result) {
+                return;
+            }
+
+            @Override
+            protected void doOnFailure(Throwable caught) {
+                super.doOnFailure(caught);
+                return;
+            }
+        });
+
+        portletConfigs.put(USING_DEFAULT_COLUMN_NUM, MainFramePanel.this.numColumns == DEFAULT_COLUMN_NUM);
+        portletConfigs.put(CHARTS_ENABLED, chartsOn);
+        recordPortalConfigs(portletConfigs.toString(), allCharts.toString());
+    }
+    
 
     public native void openWindow(String url)/*-{
 		window.open(url);

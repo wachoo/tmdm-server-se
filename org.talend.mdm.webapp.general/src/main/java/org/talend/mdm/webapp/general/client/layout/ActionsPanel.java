@@ -84,7 +84,7 @@ public class ActionsPanel extends FormPanel {
 
     private Button saveConfigBtn = new Button(MessageFactory.getMessages().save());
 
-    private boolean chartsOn = true;
+    private boolean chartsOn;
 
     private ComboBoxModel emptyModelValue = new ComboBoxModel();
 
@@ -179,7 +179,16 @@ public class ActionsPanel extends FormPanel {
         chartsGroup.setOrientation(Orientation.VERTICAL);
 
         for (String portletName : DEFAULT_CHART_NAMES) {
-            check = new CheckBox();
+            check = new CheckBox() {
+
+                @Override
+                protected void onClick(ComponentEvent be) {
+                    if (this.getValue()) {
+                        chartsCheck.setValue(true);
+                        chartsOn = true;
+                    }
+                }
+            };
             check.setName(portletName);
             check.setBoxLabel(getPortletLabel(portletName));
             check.setValue(false);
@@ -383,6 +392,7 @@ public class ActionsPanel extends FormPanel {
             for (CheckBox check : portletCKBoxes.values()) {
                 String name = check.getName();
                 if (allCharts.contains(name)) {
+                    check.setVisible(true);
                     check.setValue(false);
                 }
             }
@@ -450,7 +460,9 @@ public class ActionsPanel extends FormPanel {
         for (String name : DEFAULT_PORTLET_NAMES) {
             check = portletCKBoxes.get(name);
             if (check.isVisible()) {
-                updates.put(name, check.getValue());
+                if (!allCharts.contains(name) || chartsOn) {
+                    updates.put(name, check.getValue());
+                }
             }
         }
 

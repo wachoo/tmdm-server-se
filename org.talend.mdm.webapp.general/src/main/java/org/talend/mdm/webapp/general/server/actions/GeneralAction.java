@@ -29,7 +29,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.util.LicenseUserNumberValidationException;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.bean.Configuration;
@@ -46,6 +48,9 @@ import com.amalto.core.webservice.WSDataModel;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSGetDataCluster;
 import com.amalto.core.webservice.WSGetDataModel;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
 import com.amalto.core.webservice.WSLogout;
 import com.amalto.core.webservice.WSRegexDataClusterPKs;
 import com.amalto.core.webservice.WSRegexDataModelPKs;
@@ -162,8 +167,14 @@ public class GeneralAction implements GeneralService {
             UserBean userBean = new UserBean();
             userBean.setEnterprise(com.amalto.core.util.Util.isEnterprise());
             if (!com.amalto.core.util.Util.isEnterprise()) {
-                userBean.setName(Util.getLoginUserName());
+                //TMDM-7629 init locaUser cache 
+                String userName = Util.getLoginUserName();
+                userBean.setName(userName);
                 userBean.setUniverse("UNKNOWN"); //$NON-NLS-1$
+                WSItem item = Util.getPort().getItem(
+                        new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"), "User", new String[] { userName }))); //$NON-NLS-1$ //$NON-NLS-2$
+                ILocalUser iUser = LocalUser.getLocalUser();
+                iUser.setUserXML(item.getContent());
                 return userBean;
             }
             String givenname = null;
