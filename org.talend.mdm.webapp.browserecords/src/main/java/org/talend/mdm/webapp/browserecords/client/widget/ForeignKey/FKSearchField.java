@@ -230,6 +230,11 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
         }
         super.setValue(fk);
     }
+    
+    @Override
+    public void setSuperValue(ForeignKeyBean fk) {
+        super.setValue(fk);
+    }
 
     @Override
     public ForeignKeyBean getValue() {

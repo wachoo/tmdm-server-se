@@ -281,6 +281,11 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
             super.setValue(fk);
         }
     }
+    
+    @Override
+    public void setSuperValue(ForeignKeyBean fk) {
+        super.setValue(fk);
+    }
 
     @Override
     public void clear() {
