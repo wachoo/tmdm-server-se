@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.browserecords.client.mvc;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.XmlUtil;
 import org.talend.mdm.webapp.base.client.widget.CallbackAction;
@@ -245,29 +244,11 @@ public class BrowseRecordsController extends Controller {
                             ReturnCriteriaFK returnCriteriaFK = detailToolBar.getReturnCriteriaFK();
                             if (returnCriteriaFK instanceof ForeignKeyTablePanel) {
                                 ForeignKeyTablePanel foreignKeyTablePanel = (ForeignKeyTablePanel) returnCriteriaFK;
-                                browseRecordsService.getForeignKeyBean(result.getReturnValue(), itemBean.getConcept(),
-                                        foreignKeyTablePanel.getFkTypeModel().getForeignKeyInfo(), isStaging,
-                                        Locale.getLanguage(), new SessionAwareAsyncCallback<ForeignKeyBean>() {
-
-                                            @Override
-                                            public void onSuccess(ForeignKeyBean model) {
-                                                detailToolBar.getReturnCriteriaFK().setCriteriaFK(model);
-                                            }
-                                        });
+                                foreignKeyTablePanel.setCriteriaFK(result.getReturnValue());
                             } else if (returnCriteriaFK instanceof ForeignKeyField) {
                                 ForeignKeyField foreignKeyField = (ForeignKeyField) returnCriteriaFK;
-                                browseRecordsService.getForeignKeyBean(result.getReturnValue(), itemBean.getConcept(),
-                                        foreignKeyField.getForeignKeyInfo(), isStaging, Locale.getLanguage(),
-                                        new SessionAwareAsyncCallback<ForeignKeyBean>() {
-
-                                            @Override
-                                            public void onSuccess(ForeignKeyBean model) {
-                                                detailToolBar.getReturnCriteriaFK().setCriteriaFK(model);
-                                            }
-
-                                        });
+                                foreignKeyField.setCriteriaFK(result.getReturnValue());
                             }
-
                         }
                         // Only Hierarchy call the next method
                         // TMDM-4112 : JavaScript Error on IE8
@@ -280,10 +261,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-                                                                      $wnd.setTimeout(function() {
-                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-                                                                      }, millisecond);
-                                                                      }-*/;
+		$wnd.setTimeout(function() {
+			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+		}, millisecond);
+    }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
