@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.base.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -59,6 +58,7 @@ import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSGetItemsByCustomFKFilters;
 import com.amalto.core.webservice.WSInt;
 import com.amalto.core.webservice.WSStringArray;
+import com.amalto.core.webservice.WSWhereAnd;
 import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOperator;
@@ -90,11 +90,12 @@ public class ForeignKeyHelper {
             hasCompositeKey = true;
         }
         ForeignKeyHolder holder;
+        String foreignKeyFilter = getForeignKeyFilter(hasForeignKeyFilter, currentXpath.split("/")[0], xml, currentXpath, model); //$NON-NLS-1$
         if (hasCompositeKey && ids.contains(".")) { //$NON-NLS-1$
-            holder = getForeignKeyHolder(xml,
-                    currentXpath.split("/")[0], currentXpath, model, hasForeignKeyFilter, ids.split("[.]")[0]); //$NON-NLS-1$ //$NON-NLS-2$
+            holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter,
+                    ids.split("[.]")[0]); //$NON-NLS-1$ 
         } else {
-            holder = getForeignKeyHolder(xml, currentXpath.split("/")[0], currentXpath, model, hasForeignKeyFilter, ids); //$NON-NLS-1$
+            holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter, ids);
         }
         String[] results = null;
         if (holder != null) {
@@ -122,8 +123,8 @@ public class ForeignKeyHelper {
             }
         }
         if (results != null) {
-            List<ForeignKeyBean> foreignKeyBeanList = convertForeignKeyBeanList(results, entityModel, model, dataClusterPK, 0,
-                    language);
+            List<ForeignKeyBean> foreignKeyBeanList = convertForeignKeyBeanList(results, entityModel, model.getForeignkey(),
+                    model.getForeignKeyInfo(), dataClusterPK, 0, language);
             if (foreignKeyBeanList != null && foreignKeyBeanList.size() > 0) {
                 if (foreignKeyBeanList.size() > 1) {
                     for (ForeignKeyBean bean : foreignKeyBeanList) {
@@ -142,11 +143,37 @@ public class ForeignKeyHelper {
         return foreignKeyBean;
     }
 
-    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
-            EntityModel entityModel, String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
+    public static String getForeignKeyFilter(boolean ifFKFilter, String dataObject, String xml, String currentXpath,
+            TypeModel model) throws Exception {
+        String fkFilter;
+        if (ifFKFilter) {
+            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
+            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
+        } else {
+            fkFilter = ""; //$NON-NLS-1$
+        }
+        return fkFilter;
+    }
 
-        ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
-                (String) config.get("currentXpath"), model, ifFKFilter, value); //$NON-NLS-1$
+    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config,
+            String foreignKeyPath, List<String> foreignKeyInfo, String foreignKeyFilter, String filterValue, TypeModel model,
+            EntityModel entityModel, String dataClusterPK) throws Exception {
+        ForeignKeyHolder holder = getForeignKeyHolder(model, foreignKeyPath, foreignKeyInfo, foreignKeyFilter, filterValue);
+        return _getForeignKeyList(config, foreignKeyPath, foreignKeyInfo, entityModel, dataClusterPK, holder);
+    }
+
+    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+            EntityModel entityModel, String dataClusterPK, boolean ifFKFilter, String filterValue) throws Exception {
+        String foreignKeyFilter = getForeignKeyFilter(ifFKFilter,
+                (String) config.get("dataObject"), (String) config.get("xml"), (String) config.get("currentXpath"), model); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        ForeignKeyHolder holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter,
+                filterValue);
+        return _getForeignKeyList(config, model.getForeignkey(), model.getForeignKeyInfo(), entityModel, dataClusterPK, holder);
+    }
+
+    public static ItemBasePageLoadResult<ForeignKeyBean> _getForeignKeyList(BasePagingLoadConfigImpl config,
+            String foreignKeyPath, List<String> foreignKeyInfo, EntityModel entityModel, String dataClusterPK,
+            ForeignKeyHolder holder) throws Exception {
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;
@@ -166,7 +193,7 @@ public class ForeignKeyHelper {
             }
 
             if (sortDir != null) {
-                if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0) {
+                if (foreignKeyInfo != null && foreignKeyInfo.size() > 0) {
                     // TMDM-5276: use substringBeforeLast in case sort field is a contained field
                     // (Entity/field1/.../fieldN)
                     xpath = StringUtils.substringBeforeLast(xPaths.get(0), "/") + "/" + config.getSortField(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -205,26 +232,27 @@ public class ForeignKeyHelper {
                 throw new IllegalArgumentException("Total count '" + results[0] + "' does not match expected format"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             boolean isPagingAccurate = CommonUtil.getPort().isPagingAccurate(new WSInt(Integer.valueOf(count))).is_true();
-            return new ItemBasePageLoadResult<ForeignKeyBean>(convertForeignKeyBeanList(results, entityModel, model,
-                    dataClusterPK, config.getOffset(), (String) config.get("language")), config.getOffset(), //$NON-NLS-1$
+            return new ItemBasePageLoadResult<ForeignKeyBean>(convertForeignKeyBeanList(results, entityModel, foreignKeyPath,
+                    foreignKeyInfo, dataClusterPK, config.getOffset(), (String) config.get("language")), config.getOffset(), //$NON-NLS-1$
                     Integer.valueOf(count), isPagingAccurate);
         } else {
             return new ItemBasePageLoadResult<ForeignKeyBean>(new ArrayList<ForeignKeyBean>(), config.getOffset(), 0);
         }
     }
 
-    private static List<ForeignKeyBean> convertForeignKeyBeanList(String[] results, EntityModel entityModel, TypeModel model,
-            String dataClusterPK, int offset, String language) throws Exception {
+    private static List<ForeignKeyBean> convertForeignKeyBeanList(String[] results, EntityModel entityModel,
+            String foreignKeyPath, List<String> foreignKeyInfo, String dataClusterPK, int offset, String language)
+            throws Exception {
         List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
         if (LOG.isDebugEnabled()) {
             for (String result : results) {
                 LOG.debug(result);
             }
         }
-        String fk = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
+        String fk = foreignKeyPath.split("/")[0]; //$NON-NLS-1$
         BusinessConcept businessConcept = schemaManager.getBusinessConcept(fk);
         // init foreignKey info type
-        if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0 && businessConcept != null) {
+        if (foreignKeyInfo != null && foreignKeyInfo.size() > 0 && businessConcept != null) {
             businessConcept.load();
         }
         // Polymorphism FK
@@ -262,9 +290,9 @@ public class ForeignKeyHelper {
             }
 
             if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
-                initFKBean(dataClusterPK, entityModel, resultAsDOM, bean, fk, model.getForeignKeyInfo(),
+                initFKBean(dataClusterPK, entityModel, resultAsDOM, bean, fk, foreignKeyInfo,
                         businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null, language);
-                convertFKInfo2DisplayInfo(bean, model.getForeignKeyInfo());
+                convertFKInfo2DisplayInfo(bean, foreignKeyInfo);
             } else {
                 bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
             }
@@ -287,49 +315,33 @@ public class ForeignKeyHelper {
         String fkFilter;
     }
 
-    protected static ForeignKeyHolder getForeignKeyHolder(String xml, String dataObject, String currentXpath, TypeModel model,
-            boolean ifFKFilter, String filterValue) throws Exception {
-
-        String xpathForeignKey = model.getForeignkey();
-        if (xpathForeignKey == null) {
-            return null;
-        }
-
+    protected static ForeignKeyHolder getForeignKeyHolder(TypeModel model, String foreignKeyPath, List<String> foreignKeyInfo,
+            String foreignKeyFilter, String filterValue) throws Exception {
         // to verify
         String xpathInfoForeignKey;
-        if (model.getForeignKeyInfo() != null && model.getForeignKeyInfo().size() > 0) {
-            xpathInfoForeignKey = Util.joinStrings(model.getForeignKeyInfo()
-                    .toArray(new String[model.getForeignKeyInfo().size()]), ",");//$NON-NLS-1$
+        if (foreignKeyInfo != null && foreignKeyInfo.size() > 0) {
+            xpathInfoForeignKey = Util.joinStrings(foreignKeyInfo.toArray(new String[foreignKeyInfo.size()]), ",");//$NON-NLS-1$
         } else {
             xpathInfoForeignKey = "";//$NON-NLS-1$
         }
-        // in search panel, the fkFilter is empty
-        String fkFilter;
-        if (ifFKFilter) {
-            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
-        } else {
-            fkFilter = ""; //$NON-NLS-1$
-        }
 
-        String initxpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
+        String initxpathForeignKey = Util.getForeignPathFromPath(foreignKeyPath);
 
-        WSWhereCondition whereCondition = Util.getConditionFromPath(xpathForeignKey);
-        WSWhereItem whereItem = null;
+        List<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
+        WSWhereCondition whereCondition = Util.getConditionFromPath(foreignKeyPath);
         if (whereCondition != null) {
-            whereItem = new WSWhereItem(whereCondition, null, null);
+            conditions.add(new WSWhereItem(whereCondition, null, null));
         }
-
-        if (!Util.isCustomFilter(fkFilter)) {
+        if (!Util.isCustomFilter(foreignKeyFilter)) {
             // get FK filter
-            WSWhereItem fkFilterWi = Util.getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter, false);
-            if (fkFilterWi != null) {
-                whereItem = fkFilterWi;
+            WSWhereItem filterWhereItem = Util.getConditionFromFKFilter(foreignKeyPath, xpathInfoForeignKey, foreignKeyFilter,
+                    false);
+            if (filterWhereItem != null) {
+                conditions.add(filterWhereItem);
             }
         }
 
         initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
-
         if (xpathInfoForeignKey == null) {
             xpathInfoForeignKey = ""; //$NON-NLS-1$
         }
@@ -344,19 +356,27 @@ public class ForeignKeyHelper {
             } else {
                 xpathInfos[0] = initxpathForeignKey;
             }
-
+            filterValue = filterValue == null ? "" : filterValue; //$NON-NLS-1$
             // build query - add a content condition on the pivot if we search for a particular value
             if (filterValue != null
                     && !"".equals(filterValue.trim()) && !".*".equals(filterValue.trim()) && !"'*'".equals(filterValue.trim())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                WSWhereItem queryWhereItem = getFKQueryCondition(conceptName, xpathForeignKey, xpathInfoForeignKey, filterValue);
+                WSWhereItem queryWhereItem = getFKQueryCondition(conceptName, foreignKeyPath, xpathInfoForeignKey, filterValue);
                 if (queryWhereItem != null) {
-                    whereItem = queryWhereItem;
+                    conditions.add(queryWhereItem);
                 }
+            }
+
+            WSWhereItem whereItem = null;
+            if (conditions.size() > 1) {
+                WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
+                whereItem = new WSWhereItem(null, and, null);
+            } else if (conditions.size() == 1) {
+                whereItem = conditions.get(0);
             }
 
             // add the xPath Infos Path
             ArrayList<String> xPaths = new ArrayList<String>();
-            if (model.isRetrieveFKinfos()) {
+            if (foreignKeyInfo.size() > 0) {
                 // add the xPath Infos Path
                 for (String xpathInfo : xpathInfos) {
                     xPaths.add(Util.getFormatedFKInfo(xpathInfo.replaceFirst(initxpathForeignKey, initxpathForeignKey),
@@ -378,7 +398,7 @@ public class ForeignKeyHelper {
             holder.orderbyPath = orderbyPath;
             holder.conceptName = conceptName;
             holder.whereItem = whereItem;
-            holder.fkFilter = fkFilter;
+            holder.fkFilter = foreignKeyFilter;
             return holder;
         }
         return null;
@@ -557,77 +577,26 @@ public class ForeignKeyHelper {
                 return parsedFkfilter;
             }
             // parse
-            String[] criterias = fkFilter.split("#");//$NON-NLS-1$
+            String[] criterias = org.talend.mdm.webapp.base.shared.util.CommonUtil.getCriteriasByForeignKeyFilter(fkFilter);
             List<Map<String, String>> conditions = new ArrayList<Map<String, String>>();
             for (String cria : criterias) {
-                Map<String, String> conditionMap = new HashMap<String, String>();
-                String[] values = cria.split("\\$\\$");//$NON-NLS-1$
-                for (int i = 0; i < values.length; i++) {
-
-                    switch (i) {
-                    case 0:
-                        conditionMap.put("Xpath", values[0]);//$NON-NLS-1$
-                        break;
-                    case 1:
-                        conditionMap.put("Operator", values[1]);//$NON-NLS-1$
-                        break;
-                    case 2:
-                        String rightValueOrPath = values[2];
-                        rightValueOrPath = StringEscapeUtils.unescapeXml(rightValueOrPath);
-                        rightValueOrPath = parseRightValueOrPath(xml, dataObject, rightValueOrPath, currentXpath);
-                        if (isFkPath(values[0])) {
-                            rightValueOrPath = wrapFkValue(rightValueOrPath);
-                        } else {
-                            rightValueOrPath = unwrapFkValue(rightValueOrPath);
-                        }
-                        conditionMap.put("Value", rightValueOrPath);//$NON-NLS-1$
-                        break;
-                    case 3:
-                        conditionMap.put("Predicate", values[3]);//$NON-NLS-1$
-                        break;
-                    default:
-                        break;
-                    }
+                Map<String, String> conditionMap = org.talend.mdm.webapp.base.shared.util.CommonUtil
+                        .buildConditionByCriteria(cria);
+                String value = conditionMap.get("Value"); //$NON-NLS-1$
+                value = StringEscapeUtils.unescapeXml(value);
+                value = parseRightValueOrPath(xml, dataObject, value, currentXpath);
+                if (isFkPath(conditionMap.get("Xpath"))) { //$NON-NLS-1$
+                    value = org.talend.mdm.webapp.base.shared.util.CommonUtil.wrapFkValue(value);
+                } else {
+                    value = org.talend.mdm.webapp.base.shared.util.CommonUtil.unwrapFkValue(value);
                 }
+                conditionMap.put("Value", value);//$NON-NLS-1$
                 conditions.add(conditionMap);
             }
             // build
-            if (conditions.size() > 0) {
-                StringBuffer sb = new StringBuffer();
-                for (Map<String, String> map : conditions) {
-                    Map<String, String> conditionMap = map;
-                    if (conditionMap.size() > 0) {
-                        String xpath = conditionMap.get("Xpath") == null ? "" : conditionMap.get("Xpath");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        String operator = conditionMap.get("Operator") == null ? "" : conditionMap.get("Operator");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        String value = conditionMap.get("Value") == null ? "" : conditionMap.get("Value");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        String predicate = conditionMap.get("Predicate") == null ? "" : conditionMap.get("Predicate");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        sb.append(xpath + "$$" + operator + "$$" + value + "$$" + predicate + "#");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-                    }
-                }
-                if (sb.length() > 0) {
-                    parsedFkfilter = sb.toString();
-                }
-            }
+            parsedFkfilter = org.talend.mdm.webapp.base.shared.util.CommonUtil.buildForeignKeyFilterByConditions(conditions);
         }
         return parsedFkfilter;
-    }
-
-    public static String wrapFkValue(String value) {
-        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$//$NON-NLS-2$
-            return value;
-        }
-        return "[" + value + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    public static String unwrapFkValue(String value) {
-        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$ //$NON-NLS-2$
-            if (value.contains("][")) { //$NON-NLS-1$
-                return value;
-            } else {
-                return value.substring(1, value.length() - 1);
-            }
-        }
-        return value;
     }
 
     public static String unwrapKeyValueToString(String value, String symbol) {
@@ -639,7 +608,7 @@ public class ForeignKeyHelper {
                 }
                 return sb.substring(0, sb.length() - symbol.length());
             } else {
-                return unwrapFkValue(value);
+                return org.talend.mdm.webapp.base.shared.util.CommonUtil.unwrapFkValue(value);
             }
         } else {
             return value;
@@ -686,23 +655,9 @@ public class ForeignKeyHelper {
         if (rightValueOrPath == null || currentXpath == null) {
             throw new IllegalArgumentException();
         }
-
-        boolean isValue = false;
-        boolean isRelativePath = false;
-
-        rightValueOrPath = rightValueOrPath.trim();// space(s) ignore
-
-        // switch cases
-        if (rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"") || //$NON-NLS-1$//$NON-NLS-2$
-                rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")) {
-            isValue = true;
-        } else if (rightValueOrPath.startsWith(".") || rightValueOrPath.startsWith("..")) {
-            isRelativePath = true;
-        }
-
         // cases handle
         String result = rightValueOrPath;// by default result equals input value/path
-        if (isValue) {
+        if (org.talend.mdm.webapp.base.shared.util.CommonUtil.isFilterValue(rightValueOrPath)) {
             result = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
         } else {
             if (xml != null) {
@@ -710,7 +665,7 @@ public class ForeignKeyHelper {
                 org.dom4j.Document doc = XmlUtil.parseDocument(Util.parse(xml));
                 org.dom4j.Node currentNode = doc.selectSingleNode(currentXpath);
                 org.dom4j.Node targetNode = null;
-                if (isRelativePath) {
+                if (org.talend.mdm.webapp.base.shared.util.CommonUtil.isRelativePath(rightValueOrPath)) {
                     targetNode = currentNode.selectSingleNode(rightValueOrPath);
                 } else {
                     String xpath = rightValueOrPath.startsWith("/") ? rightValueOrPath : "/" + rightValueOrPath; //$NON-NLS-1$//$NON-NLS-2$
