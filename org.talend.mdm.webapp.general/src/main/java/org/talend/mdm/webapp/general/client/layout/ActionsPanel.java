@@ -92,6 +92,10 @@ public class ActionsPanel extends FormPanel {
 
     private static Boolean containerSelectFlag = true;
 
+    private static String WELCOMEPORTAL_CONTEXT = "welcomeportal"; //$NON-NLS-1$
+
+    private static String WELCOMEPORTAL_APP = "WelcomePortal"; //$NON-NLS-1$
+
     private ActionsPanel() {
         super();
         this.setHeading(MessageFactory.getMessages().actions());
@@ -273,6 +277,7 @@ public class ActionsPanel extends FormPanel {
             @Override
             public void componentSelected(ButtonEvent ce) {
                 Map<String, Boolean> configUpdates = getPortalConfigUpdate();
+                switchToWelcomeportal();
                 refreshPortal(configUpdates.toString());
 
             }
@@ -343,6 +348,11 @@ public class ActionsPanel extends FormPanel {
                 }
             }
         });
+    }
+
+    protected void switchToWelcomeportal() {
+        display(WELCOMEPORTAL_CONTEXT, WELCOMEPORTAL_APP);
+        AccordionMenus.getInstance().selectedItem(AccordionMenus.getInstance().getWelcomeportalItem());
     }
 
     public void loadAction(ActionBean action) {
@@ -478,5 +488,13 @@ public class ActionsPanel extends FormPanel {
     // call refresh in WelcomePortal
     private native void refreshPortal(String portalConfig)/*-{
 		$wnd.amalto.core.refreshPortal(portalConfig);
+    }-*/;
+
+    private native void display(String context, String application)/*-{
+		if ($wnd.amalto[context]) {
+			if ($wnd.amalto[context][application]) {
+				$wnd.amalto[context][application].init();
+			}
+		}
     }-*/;
 }
