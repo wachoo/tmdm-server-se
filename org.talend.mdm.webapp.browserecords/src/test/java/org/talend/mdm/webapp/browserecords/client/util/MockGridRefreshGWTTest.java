@@ -392,8 +392,9 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK, boolean ifFKFilter,
-                String value, String language, AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback) {
+        public void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK,
+                String foreignKeyFilter, String value, String language,
+                AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback) {
         }
 
         @Override
@@ -608,15 +609,20 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 AsyncCallback<List<ForeignKeyBean>> callback) {
         }
 
-        @Override
-        public void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Boolean> callback) {
-
-        }
 
         @Override
         public void getForeignKeyBean(String concept, String ids, String xml, String currentXpath, String foreignKey,
                 List<String> foreignKeyInfo, String foreignKeyFilter, boolean staging, String language,
                 AsyncCallback<ForeignKeyBean> callback) {
+        }
+
+        /* (non-Javadoc)
+         * @see org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync#checkTask(java.lang.String, java.lang.String, java.lang.String, com.google.gwt.user.client.rpc.AsyncCallback)
+         */
+        @Override
+        public void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Boolean> callback) {
+            // TODO Auto-generated method stub
+            
         }
     }
 

@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.base.server;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -72,8 +71,17 @@ public class ForeignKeyHelper {
             String xml, String currentXpath, String language) throws Exception {
         ForeignKeyBean foreignKeyBean = null;
         boolean hasForeignKeyFilter = model.getFkFilter() != null && model.getFkFilter().trim().length() > 0 ? true : false;
-        ForeignKeyHolder holder = getForeignKeyHolder(xml,
-                currentXpath.split("/")[0], currentXpath, model, hasForeignKeyFilter, ids); //$NON-NLS-1$
+        boolean hasCompositeKey = false;
+        if (entityModel.getKeys() != null && entityModel.getKeys().length > 1) {
+            hasCompositeKey = true;
+        }
+        ForeignKeyHolder holder;
+        String foreignKeyFilter = getForeignKeyFilter(hasForeignKeyFilter, currentXpath.split("/")[0], xml, currentXpath, model); //$NON-NLS-1$
+        if (hasCompositeKey && ids.contains(".")) { //$NON-NLS-1$
+            holder = getForeignKeyHolder(model, foreignKeyFilter, ids.split("[.]")[0]); //$NON-NLS-1$ 
+        } else {
+            holder = getForeignKeyHolder(model, foreignKeyFilter, ids);
+        }
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;
@@ -109,11 +117,34 @@ public class ForeignKeyHelper {
         return foreignKeyBean;
     }
 
+    public static String getForeignKeyFilter(boolean ifFKFilter, String dataObject, String xml, String currentXpath,
+            TypeModel model) throws Exception {
+        String fkFilter;
+        if (ifFKFilter) {
+            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
+            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
+        } else {
+            fkFilter = ""; //$NON-NLS-1$
+        }
+        return fkFilter;
+    }
+
+    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+            EntityModel entityModel, String dataClusterPK, String foreignKeyFilter, String value) throws Exception {
+        ForeignKeyHolder holder = getForeignKeyHolder(model, foreignKeyFilter, value);
+        return _getForeignKeyList(config, model, entityModel, dataClusterPK, holder);
+    }
+
     public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
             EntityModel entityModel, String dataClusterPK, boolean ifFKFilter, String value) throws Exception {
+        String foreignKeyFilter = getForeignKeyFilter(ifFKFilter,
+                (String) config.get("dataObject"), (String) config.get("xml"), (String) config.get("currentXpath"), model); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        ForeignKeyHolder holder = getForeignKeyHolder(model, foreignKeyFilter, value);
+        return _getForeignKeyList(config, model, entityModel, dataClusterPK, holder);
+    }
 
-        ForeignKeyHolder holder = getForeignKeyHolder((String) config.get("xml"), (String) config.get("dataObject"), //$NON-NLS-1$ //$NON-NLS-2$
-                (String) config.get("currentXpath"), model, ifFKFilter, value); //$NON-NLS-1$
+    public static ItemBasePageLoadResult<ForeignKeyBean> _getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+            EntityModel entityModel, String dataClusterPK, ForeignKeyHolder holder) throws Exception {
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;
@@ -254,9 +285,8 @@ public class ForeignKeyHelper {
         String fkFilter;
     }
 
-    protected static ForeignKeyHolder getForeignKeyHolder(String xml, String dataObject, String currentXpath, TypeModel model,
-            boolean ifFKFilter, String value) throws Exception {
-
+    protected static ForeignKeyHolder getForeignKeyHolder(TypeModel model, String foreignKeyFilter, String value)
+            throws Exception {
         String xpathForeignKey = model.getForeignkey();
         if (xpathForeignKey == null) {
             return null;
@@ -270,33 +300,24 @@ public class ForeignKeyHelper {
         } else {
             xpathInfoForeignKey = "";//$NON-NLS-1$
         }
-        // in search panel, the fkFilter is empty
-        String fkFilter;
-        if (ifFKFilter) {
-            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
-            fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
-        } else {
-            fkFilter = ""; //$NON-NLS-1$
-        }
 
         String initxpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
 
+        List<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
         WSWhereCondition whereCondition = Util.getConditionFromPath(xpathForeignKey);
-        WSWhereItem whereItem = null;
         if (whereCondition != null) {
-            whereItem = new WSWhereItem(whereCondition, null, null);
+            conditions.add(new WSWhereItem(whereCondition, null, null));
         }
-
-        if (!Util.isCustomFilter(fkFilter)) {
+        if (!Util.isCustomFilter(foreignKeyFilter)) {
             // get FK filter
-            WSWhereItem fkFilterWi = Util.getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, fkFilter, false);
-            if (fkFilterWi != null) {
-                whereItem = fkFilterWi;
+            WSWhereItem filterWhereItem = Util.getConditionFromFKFilter(xpathForeignKey, xpathInfoForeignKey, foreignKeyFilter,
+                    false);
+            if (filterWhereItem != null) {
+                conditions.add(filterWhereItem);
             }
         }
 
         initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
-
         if (xpathInfoForeignKey == null) {
             xpathInfoForeignKey = ""; //$NON-NLS-1$
         }
@@ -312,53 +333,20 @@ public class ForeignKeyHelper {
                 xpathInfos[0] = initxpathForeignKey;
             }
             value = value == null ? "" : value; //$NON-NLS-1$
-
             // build query - add a content condition on the pivot if we search for a particular value
             if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim()) && !"'*'".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
-                if (whereItem != null) {
-                    condition.add(whereItem);
+                WSWhereItem queryWhereItem = getFKQueryCondition(xpathForeignKey, xpathInfoForeignKey, value);
+                if (queryWhereItem != null) {
+                    conditions.add(queryWhereItem);
                 }
+            }
 
-                String fkWhere = initxpathForeignKey + "/../* CONTAINS " + value; //$NON-NLS-1$
-                if (xpathInfoForeignKey.trim().length() > 0) {
-                    StringBuffer ids = new StringBuffer();
-                    String realXpathForeignKey = null; // In studio, ForeignKey = ConceptName, but not ConceptName/Id
-                    if (xpathForeignKey.indexOf("/") == -1) { //$NON-NLS-1$
-                        String[] fks = Util.getBusinessConceptKeys(conceptName);
-                        if (fks != null && fks.length > 0) {
-                            realXpathForeignKey = fks[0];
-                            for (int i = 0; i < fks.length; i++) {
-                                ids.append(fks[i] + " CONTAINS " + value); //$NON-NLS-1$
-                                if (i != fks.length - 1) {
-                                    ids.append(" OR "); //$NON-NLS-1$
-                                }
-                            }
-                        }
-                    }
-                    StringBuffer sb = new StringBuffer();
-                    for (String fkInfo : xpathInfos) {
-                        sb.append((fkInfo.startsWith(".") ? XpathUtil.convertAbsolutePath( //$NON-NLS-1$
-                                (realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey
-                                        : xpathForeignKey, fkInfo) : fkInfo)
-                                + " CONTAINS " + value); //$NON-NLS-1$
-                        sb.append(" OR "); //$NON-NLS-1$
-                    }
-                    if (realXpathForeignKey != null) {
-                        sb.append(ids.toString());
-                    } else {
-                        sb.append(xpathForeignKey + " CONTAINS " + value); //$NON-NLS-1$
-                    }
-                    fkWhere = sb.toString();
-                }
-
-                WSWhereItem wc = Util.buildWhereItems(fkWhere);
-                condition.add(wc);
-                WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-                WSWhereItem whand = new WSWhereItem(null, and, null);
-                if (whand != null) {
-                    whereItem = whand;
-                }
+            WSWhereItem whereItem = null;
+            if (conditions.size() > 1) {
+                WSWhereAnd and = new WSWhereAnd(conditions.toArray(new WSWhereItem[conditions.size()]));
+                whereItem = new WSWhereItem(null, and, null);
+            } else if (conditions.size() == 1) {
+                whereItem = conditions.get(0);
             }
 
             // add the xPath Infos Path
@@ -385,10 +373,56 @@ public class ForeignKeyHelper {
             holder.orderbyPath = orderbyPath;
             holder.conceptName = conceptName;
             holder.whereItem = whereItem;
-            holder.fkFilter = fkFilter;
+            holder.fkFilter = foreignKeyFilter;
             return holder;
         }
         return null;
+    }
+
+    protected static WSWhereItem getFKQueryCondition(String xpathForeignKey, String xpathInfoForeignKey, String keyValue)
+            throws Exception {
+        String initxpathForeignKey = Util.getForeignPathFromPath(xpathForeignKey);
+        initxpathForeignKey = initxpathForeignKey.split("/")[0]; //$NON-NLS-1$
+        String[] xpathInfos = new String[1];
+
+        if (xpathInfoForeignKey.trim().length() != 0) {
+            xpathInfos = xpathInfoForeignKey.split(","); //$NON-NLS-1$
+        } else {
+            xpathInfos[0] = initxpathForeignKey;
+        }
+
+        String fkWhere = initxpathForeignKey + "/../* CONTAINS " + keyValue; //$NON-NLS-1$
+        if (xpathInfoForeignKey.trim().length() > 0) {
+            StringBuffer ids = new StringBuffer();
+            String realXpathForeignKey = null; // In studio, ForeignKey = ConceptName, but not ConceptName/Id
+            if (xpathForeignKey.indexOf("/") == -1) { //$NON-NLS-1$
+                String[] fks = Util.getBusinessConceptKeys(initxpathForeignKey);
+                if (fks != null && fks.length > 0) {
+                    realXpathForeignKey = fks[0];
+                    for (int i = 0; i < fks.length; i++) {
+                        ids.append(fks[i] + " CONTAINS " + keyValue); //$NON-NLS-1$
+                        if (i != fks.length - 1) {
+                            ids.append(" OR "); //$NON-NLS-1$
+                        }
+                    }
+                }
+            }
+            StringBuffer sb = new StringBuffer();
+            for (String fkInfo : xpathInfos) {
+                sb.append((fkInfo.startsWith(".") ? XpathUtil.convertAbsolutePath( //$NON-NLS-1$
+                        (realXpathForeignKey != null && realXpathForeignKey.trim().length() > 0) ? realXpathForeignKey
+                                : xpathForeignKey, fkInfo) : fkInfo)
+                        + " CONTAINS " + keyValue); //$NON-NLS-1$
+                sb.append(" OR "); //$NON-NLS-1$
+            }
+            if (realXpathForeignKey != null) {
+                sb.append(ids.toString());
+            } else {
+                sb.append(xpathForeignKey + " CONTAINS " + keyValue); //$NON-NLS-1$
+            }
+            fkWhere = sb.toString();
+        }
+        return Util.buildWhereItems(fkWhere);
     }
 
     protected static void initFKBean(String dataClusterPK, EntityModel entityModel, Element ele, ForeignKeyBean bean, String fk,
@@ -510,77 +544,42 @@ public class ForeignKeyHelper {
                 return parsedFkfilter;
             }
             // parse
-            String[] criterias = fkFilter.split("#");//$NON-NLS-1$
+            String[] criterias = org.talend.mdm.webapp.base.shared.util.CommonUtil.getCriteriasByForeignKeyFilter(fkFilter);
             List<Map<String, String>> conditions = new ArrayList<Map<String, String>>();
             for (String cria : criterias) {
-                Map<String, String> conditionMap = new HashMap<String, String>();
-                String[] values = cria.split("\\$\\$");//$NON-NLS-1$
-                for (int i = 0; i < values.length; i++) {
-
-                    switch (i) {
-                    case 0:
-                        conditionMap.put("Xpath", values[0]);//$NON-NLS-1$
-                        break;
-                    case 1:
-                        conditionMap.put("Operator", values[1]);//$NON-NLS-1$
-                        break;
-                    case 2:
-                        String rightValueOrPath = values[2];
-                        rightValueOrPath = StringEscapeUtils.unescapeXml(rightValueOrPath);
-                        rightValueOrPath = parseRightValueOrPath(xml, dataObject, rightValueOrPath, currentXpath);
-                        if (isFkPath(values[0])) {
-                            rightValueOrPath = wrapFkValue(rightValueOrPath);
-                        } else {
-                            rightValueOrPath = unwrapFkValue(rightValueOrPath);
-                        }
-                        conditionMap.put("Value", rightValueOrPath);//$NON-NLS-1$
-                        break;
-                    case 3:
-                        conditionMap.put("Predicate", values[3]);//$NON-NLS-1$
-                        break;
-                    default:
-                        break;
-                    }
+                Map<String, String> conditionMap = org.talend.mdm.webapp.base.shared.util.CommonUtil
+                        .buildConditionByCriteria(cria);
+                String value = conditionMap.get("Value"); //$NON-NLS-1$
+                value = StringEscapeUtils.unescapeXml(value);
+                value = parseRightValueOrPath(xml, dataObject, value, currentXpath);
+                if (isFkPath(conditionMap.get("Xpath"))) { //$NON-NLS-1$
+                    value = org.talend.mdm.webapp.base.shared.util.CommonUtil.wrapFkValue(value);
+                } else {
+                    value = org.talend.mdm.webapp.base.shared.util.CommonUtil.unwrapFkValue(value);
                 }
+                conditionMap.put("Value", value);//$NON-NLS-1$
                 conditions.add(conditionMap);
             }
             // build
-            if (conditions.size() > 0) {
-                StringBuffer sb = new StringBuffer();
-                for (Map<String, String> map : conditions) {
-                    Map<String, String> conditionMap = map;
-                    if (conditionMap.size() > 0) {
-                        String xpath = conditionMap.get("Xpath") == null ? "" : conditionMap.get("Xpath");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        String operator = conditionMap.get("Operator") == null ? "" : conditionMap.get("Operator");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        String value = conditionMap.get("Value") == null ? "" : conditionMap.get("Value");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        String predicate = conditionMap.get("Predicate") == null ? "" : conditionMap.get("Predicate");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                        sb.append(xpath + "$$" + operator + "$$" + value + "$$" + predicate + "#");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-                    }
-                }
-                if (sb.length() > 0) {
-                    parsedFkfilter = sb.toString();
-                }
-            }
+            parsedFkfilter = org.talend.mdm.webapp.base.shared.util.CommonUtil.buildForeignKeyFilterByConditions(conditions);
         }
         return parsedFkfilter;
     }
 
-    public static String wrapFkValue(String value) {
-        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$//$NON-NLS-2$
+    public static String unwrapKeyValueToString(String value, String symbol) {
+        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$ //$NON-NLS-2$
+            StringBuffer sb = new StringBuffer();
+            if (value.contains("][")) { //$NON-NLS-1$
+                for (String s : value.split("]")) { //$NON-NLS-1$
+                    sb = sb.append(s.substring(1, s.length()) + symbol);
+                }
+                return sb.substring(0, sb.length() - symbol.length());
+            } else {
+                return org.talend.mdm.webapp.base.shared.util.CommonUtil.unwrapFkValue(value);
+            }
+        } else {
             return value;
         }
-        return "[" + value + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    public static String unwrapFkValue(String value) {
-        if (value.startsWith("[") && value.endsWith("]")) { //$NON-NLS-1$ //$NON-NLS-2$
-            if (value.contains("][")) { //$NON-NLS-1$
-                return value;
-            } else {
-                return value.substring(1, value.length() - 1);
-            }
-        }
-        return value;
     }
 
     public static boolean isFkPath(String fkPath) {
@@ -623,23 +622,9 @@ public class ForeignKeyHelper {
         if (rightValueOrPath == null || currentXpath == null) {
             throw new IllegalArgumentException();
         }
-
-        boolean isValue = false;
-        boolean isRelativePath = false;
-
-        rightValueOrPath = rightValueOrPath.trim();// space(s) ignore
-
-        // switch cases
-        if (rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"") || //$NON-NLS-1$//$NON-NLS-2$
-                rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")) {
-            isValue = true;
-        } else if (rightValueOrPath.startsWith(".") || rightValueOrPath.startsWith("..")) {
-            isRelativePath = true;
-        }
-
         // cases handle
         String result = rightValueOrPath;// by default result equals input value/path
-        if (isValue) {
+        if (org.talend.mdm.webapp.base.shared.util.CommonUtil.isFilterValue(rightValueOrPath)) {
             result = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
         } else {
             if (xml != null) {
@@ -647,7 +632,7 @@ public class ForeignKeyHelper {
                 org.dom4j.Document doc = XmlUtil.parseDocument(Util.parse(xml));
                 org.dom4j.Node currentNode = doc.selectSingleNode(currentXpath);
                 org.dom4j.Node targetNode = null;
-                if (isRelativePath) {
+                if (org.talend.mdm.webapp.base.shared.util.CommonUtil.isRelativePath(rightValueOrPath)) {
                     targetNode = currentNode.selectSingleNode(rightValueOrPath);
                 } else {
                     String xpath = rightValueOrPath.startsWith("/") ? rightValueOrPath : "/" + rightValueOrPath; //$NON-NLS-1$//$NON-NLS-2$

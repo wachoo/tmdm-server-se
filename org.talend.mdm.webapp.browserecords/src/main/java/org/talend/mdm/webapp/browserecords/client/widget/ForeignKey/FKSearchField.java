@@ -21,6 +21,7 @@ import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SuggestComboBoxField;
@@ -64,6 +65,8 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
     private List<String> foreignKeyInfo;
 
     private String usageField;
+
+    private ItemNodeModel itemNode;
 
     public boolean isRetrieveFKinfos() {
         return retrieveFKinfos;
@@ -267,4 +270,9 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
         this.usageField = usageField;
     }
 
+
+    @Override
+    public void setItemNode(ItemNodeModel node) {
+        this.itemNode = node;
+    }
 }

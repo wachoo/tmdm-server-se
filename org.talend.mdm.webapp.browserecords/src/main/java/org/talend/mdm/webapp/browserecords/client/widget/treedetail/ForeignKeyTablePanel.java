@@ -540,6 +540,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
                     @Override
                     public void onClick(ClickEvent event) {
+                        fkWindow.setItemNode(model);
                         fkWindow.show(entityModel, itemsDetailPanel, fkTypeModel.getXpath());
                         currentNodeModel = model;
                     }
@@ -597,7 +598,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                                     setCriteriaFK(foreignKeyBean);
                                 } else {
                                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                            .foreignkey_filter_warning(), null);
+                                            .foreignkeybean_filter_warnging(), null);
                                 }
                             }
                         });

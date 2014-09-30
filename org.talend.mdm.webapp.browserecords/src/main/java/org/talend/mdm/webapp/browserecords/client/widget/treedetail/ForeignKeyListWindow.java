@@ -13,7 +13,9 @@
 package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
@@ -36,6 +38,7 @@ import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
@@ -131,10 +134,11 @@ public class ForeignKeyListWindow extends Window {
     private String currentXpath;
 
     private boolean isPagingAccurate;
-    
+
     private boolean isStaging;
 
-    
+    private ItemNodeModel itemNode;
+
     public void setStaging(boolean isStaging) {
         this.isStaging = isStaging;
     }
@@ -213,6 +217,8 @@ public class ForeignKeyListWindow extends Window {
 
             @Override
             public void load(final Object loadConfig, final AsyncCallback<PagingLoadResult<ForeignKeyBean>> callback) {
+                String foreignKeyFilter = (hasForeignKeyFilter && itemNode != null) ? parseForeignKeyFilter(itemNode,
+                        typeModel.getFkFilter()) : ""; //$NON-NLS-1$
                 PagingLoadConfig config = (PagingLoadConfig) loadConfig;
                 BasePagingLoadConfigImpl baseConfig = BasePagingLoadConfigImpl.copyPagingLoad(config);
                 final String currentFilterText = getFilterValue();
@@ -229,7 +235,7 @@ public class ForeignKeyListWindow extends Window {
                 } else {
                     dataCluster = BrowseRecords.getSession().getAppHeader().getMasterDataCluster();
                 }
-                service.getForeignKeyList(baseConfig, typeModel, dataCluster, hasForeignKeyFilter, currentFilterText,
+                service.getForeignKeyList(baseConfig, typeModel, dataCluster, foreignKeyFilter, currentFilterText,
                         Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             @Override
@@ -377,8 +383,9 @@ public class ForeignKeyListWindow extends Window {
 
                 typeModel.setForeignKeyInfo(fkinfo);
                 loader.load(0, pageSize);
-                if(entityModel != null && targetEntity != null && !targetEntity.equals(entityModel.getConceptName())){
-                    fkDrawer = CommonUtil.switchForeignKeyEntityType(entityModel.getConceptName(), typeModel.getForeignkey(), fkInfo); 
+                if (entityModel != null && targetEntity != null && !targetEntity.equals(entityModel.getConceptName())) {
+                    fkDrawer = CommonUtil.switchForeignKeyEntityType(entityModel.getConceptName(), typeModel.getForeignkey(),
+                            fkInfo);
                     typeModel.setForeignkey(fkDrawer.getXpathForeignKey());
                 }
             }
@@ -425,7 +432,7 @@ public class ForeignKeyListWindow extends Window {
             }
             for (String info : foreignKeyInfo) {
                 ColumnConfig columnConfig = new ColumnConfig(CommonUtil.getElementFromXpath(info),
-                        CommonUtil.getElementFromXpath(info), COLUMN_WIDTH);
+                CommonUtil.getElementFromXpath(info), COLUMN_WIDTH);
                 columns.add(columnConfig);
                 if (entityModel.getTypeModel(info).getType().equals(DataTypeConstants.MLS)) {
 
@@ -547,6 +554,100 @@ public class ForeignKeyListWindow extends Window {
 
     public ComboBoxField<BaseModel> getTypeComboBox() {
         return this.typeComboBox;
+    }
+
+    public void setItemNode(ItemNodeModel itemNode) {
+        this.itemNode = itemNode;
+    }
+
+    public String parseForeignKeyFilter(ItemNodeModel node, String fkFilter) {
+        String parsedFkfilter = fkFilter;
+        if (fkFilter != null) {
+            String[] criterias = org.talend.mdm.webapp.base.shared.util.CommonUtil.getCriteriasByForeignKeyFilter(parsedFkfilter);
+            List<Map<String, String>> conditions = new ArrayList<Map<String, String>>();
+            for (String cria : criterias) {
+                Map<String, String> conditionMap = org.talend.mdm.webapp.base.shared.util.CommonUtil
+                        .buildConditionByCriteria(cria);
+                String filterValue = conditionMap.get("Value"); //$NON-NLS-1$
+
+                if (filterValue == null || this.currentXpath == null) {
+                    return ""; //$NON-NLS-1$
+                }
+
+                // cases handle
+                filterValue = org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(filterValue);
+                if (org.talend.mdm.webapp.base.shared.util.CommonUtil.isFilterValue(filterValue)) {
+                    filterValue = filterValue.substring(1, filterValue.length() - 1);
+                } else if (org.talend.mdm.webapp.base.shared.util.CommonUtil.isRelativePath(filterValue)) {
+                    String[] rightPathArray = filterValue.split("/"); //$NON-NLS-1$
+                    String relativeMark = rightPathArray[0];
+                    String targetPath = node.getTypePath();
+                    ItemNodeModel parentNode = node;
+                    if (".".equals(relativeMark)) { //$NON-NLS-1$
+                        targetPath = targetPath + filterValue.substring(filterValue.indexOf("/")); //$NON-NLS-1$
+                    } else if ("..".equals(relativeMark)) { //$NON-NLS-1$
+                        parentNode = (ItemNodeModel) parentNode.getParent();
+                        targetPath = targetPath.substring(0, targetPath.lastIndexOf("/")); //$NON-NLS-1$
+                        targetPath = targetPath + filterValue.substring(filterValue.indexOf("/")); //$NON-NLS-1$
+                    }
+                    ItemNodeModel targetNode = findTarget(targetPath, parentNode);
+                    if (targetNode != null && targetNode.getObjectValue() != null) {
+                        filterValue = org.talend.mdm.webapp.base.shared.util.CommonUtil.unwrapFkValue(targetNode.getObjectValue()
+                                .toString());
+                    } else {
+                        filterValue = ""; //$NON-NLS-1$
+                    }
+                } else {
+                    List<String> duplicatedPathList = new ArrayList<String>();
+                    List<String> leftPathNodeList = new ArrayList<String>();
+                    List<String> rightPathNodeList = Arrays.asList(filterValue.split("/")); //$NON-NLS-1$
+                    String[] leftValueOrPathArray = currentXpath.split("/"); //$NON-NLS-1$
+                    for (String element : leftValueOrPathArray) {
+                        leftPathNodeList.add(element);
+                    }
+                    for (int i = 0; i < leftPathNodeList.size(); i++) {
+                        if (i < rightPathNodeList.size() && leftPathNodeList.get(i).equals(rightPathNodeList.get(i))) {
+                            duplicatedPathList.add(rightPathNodeList.get(i));
+                        } else {
+                            break;
+                        }
+                    }
+                    leftPathNodeList.removeAll(duplicatedPathList);
+                    ItemNodeModel parentNode = node;
+                    for (int i = 0; i < leftPathNodeList.size(); i++) {
+                        parentNode = (ItemNodeModel) parentNode.getParent();
+                    }
+                    ItemNodeModel targetNode = findTarget(filterValue, parentNode);
+                    if (targetNode != null && targetNode.getObjectValue() != null) {
+                        filterValue = org.talend.mdm.webapp.base.shared.util.CommonUtil.unwrapFkValue(targetNode.getObjectValue()
+                                .toString());
+                    } else {
+                        filterValue = ""; //$NON-NLS-1$
+                    }
+                }
+                conditionMap.put("Value", filterValue); //$NON-NLS-1$
+                conditions.add(conditionMap);
+            }
+            parsedFkfilter = org.talend.mdm.webapp.base.shared.util.CommonUtil.buildForeignKeyFilterByConditions(conditions);
+        }
+        return parsedFkfilter;
+    }
+
+    private ItemNodeModel findTarget(String targetPath, ItemNodeModel node) {
+        List<ModelData> childrenList = node.getChildren();
+        if (childrenList != null && childrenList.size() > 0) {
+            for (int i = 0; i < childrenList.size(); i++) {
+                ItemNodeModel child = (ItemNodeModel) childrenList.get(i);
+                if (targetPath.contains(child.getTypePath())) {
+                    if (targetPath.equals(child.getTypePath())) {
+                        return child;
+                    } else {
+                        findTarget(targetPath, child);
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }
