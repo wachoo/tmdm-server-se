@@ -157,8 +157,8 @@ public class JournalChart extends ChartPortlet {
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
 
         // create series
-        SeriesHandler seriesCreation = model.addSeries(Series.of("Creation")); //$NON-NLS-1$
-        SeriesHandler seriesUpdate = model.addSeries(Series.of("Update")); //$NON-NLS-1$
+        SeriesHandler seriesCreation = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_creation()));
+        SeriesHandler seriesUpdate = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_update()));
 
         // add data
         for (String entityName : entityNamesSorted) {

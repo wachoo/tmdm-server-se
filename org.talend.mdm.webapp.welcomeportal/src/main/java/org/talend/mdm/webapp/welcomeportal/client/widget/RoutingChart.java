@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
+import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
@@ -111,8 +112,8 @@ public class RoutingChart extends ChartPortlet {
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
         // create series
-        SeriesHandler seriesCompleted = model.addSeries(Series.of("Completed")); //$NON-NLS-1$
-        SeriesHandler seriesFailed = model.addSeries(Series.of("Failed")); //$NON-NLS-1$
+        SeriesHandler seriesCompleted = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_completed));
+        SeriesHandler seriesFailed = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_failed()));
 
         // add data
         for (String appName : appnamesSorted) {
