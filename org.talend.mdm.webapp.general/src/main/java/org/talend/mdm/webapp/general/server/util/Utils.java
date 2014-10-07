@@ -361,7 +361,7 @@ public class Utils {
 
     public static Boolean setDefaultLanguage(String language) throws Exception {
         try {
-            String userName = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+            String userName = com.amalto.webapp.core.util.Util.getLoginUserName();
             WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
             if (userName != null && userName.length() > 0) {
                 String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();

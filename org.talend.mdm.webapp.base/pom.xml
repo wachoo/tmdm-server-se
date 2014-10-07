@@ -91,16 +91,8 @@
             <artifactId>dom4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-jxpath</groupId>
             <artifactId>commons-jxpath</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2ee</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -118,7 +110,6 @@
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet.ext.xml</artifactId>
         </dependency>
-
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -136,7 +127,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>ejbs</classifier>
         </dependency>
     </dependencies>
 

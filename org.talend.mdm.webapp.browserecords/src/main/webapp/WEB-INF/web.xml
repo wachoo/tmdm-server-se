@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+        PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <servlet>
+        <servlet-name>browserecordsServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>baseRemoteServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.base.server.BaseRemoteServiceImpl</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>exportExcelFile</servlet-name>
+        <display-name>exportExcelFile</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.DownloadData</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>exportExcelFile4Staging</servlet-name>
+        <display-name>exportExcelFile4Staging</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecordsinstaging.server.servlet.DownloadData4Staging</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>readExcelFile</servlet-name>
+        <display-name>readExcelFile</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.UploadData</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>readExcelFile4Staging</servlet-name>
+        <display-name>readExcelFile4Staging</display-name>
+        <servlet-class>org.talend.mdm.webapp.browserecordsinstaging.server.servlet.UploadData4Staging</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SmartViewServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.SmartViewServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>browserecordsServlet</servlet-name>
+        <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>browserecordsServlet</servlet-name>
+        <url-pattern>/browserecordsinstaging/BrowseRecordsService</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>baseRemoteServlet</servlet-name>
+        <url-pattern>/browserecords/BaseRemoteService</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>readExcelFile</servlet-name>
+        <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>readExcelFile4Staging</servlet-name>
+        <url-pattern>/upload4Staging</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>exportExcelFile</servlet-name>
+        <url-pattern>/download</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>exportExcelFile4Staging</servlet-name>
+        <url-pattern>/download4Staging</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SmartViewServlet</servlet-name>
+        <url-pattern>/secure/SmartViewServlet</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>BrowseRecords.html</welcome-file>
+    </welcome-file-list>
+</web-app>

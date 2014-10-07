@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+	PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+	"http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <servlet>
+        <servlet-name>journalServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>journalExportServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.journal.server.servlet.JournalExportServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>journalServlet</servlet-name>
+        <url-pattern>/journal/JournalService</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>journalExportServlet</servlet-name>
+        <url-pattern>/journalExport</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>Journal.html</welcome-file>
+    </welcome-file-list>
+</web-app>

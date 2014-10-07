@@ -4,13 +4,10 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-
-    <!-- Servlets -->
     <servlet>
         <servlet-name>GeneralService</servlet-name>
         <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
     </servlet>
-    
     <servlet>
         <servlet-name>dispatch</servlet-name>
         <servlet-class>org.talend.mdm.webapp.general.server.servlet.ControllerServlet</servlet-class>
@@ -20,42 +17,8 @@
         <servlet-name>GeneralService</servlet-name>
         <url-pattern>/general/GeneralService</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>dispatch</servlet-name>
         <url-pattern>/secure/</url-pattern>
     </servlet-mapping>
-
-    <!-- Security -->
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Secure resources</web-resource-name>
-            <url-pattern>/secure/*</url-pattern>
-            <url-pattern>/general/GeneralService</url-pattern>
-        </web-resource-collection>
-        <web-resource-collection>
-            <web-resource-name>WEB-INF</web-resource-name>
-            <url-pattern>/WEB-INF/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>administration</role-name>
-            <role-name>authenticated</role-name>
-        </auth-constraint>
-    </security-constraint>
-
-    <login-config>
-        <auth-method>FORM</auth-method>
-        <realm-name>xtentisSecurity</realm-name>
-        <form-login-config>
-            <form-login-page>/loginAgent.html</form-login-page>
-            <form-error-page>/loginAgent.html</form-error-page>
-        </form-login-config>
-    </login-config>
-           
-    <security-role>
-        <role-name>administration</role-name>
-    </security-role> 
-    <security-role>
-        <role-name>authenticated</role-name>
-    </security-role>
 </web-app>

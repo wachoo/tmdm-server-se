@@ -15,7 +15,6 @@
 
     <properties>
         <jboss.web.deployer>${jboss.deploy.dir}/jboss-web.deployer</jboss.web.deployer>
-        <exist.version>exist-1.4.0-rev11706-TalendPatch</exist.version>
     </properties>
 
     <build>
@@ -32,7 +31,6 @@
                                     classpathref="maven.plugin.classpath" />
 
                                 <delete file="${jboss.endorsed.dir}/xercesImpl.jar" />
-                                <delete dir="${jboss.deploy.dir}/${exist.version}.war" />
 
                                 <copy todir="${jboss.dir}" overwrite="true">
                                     <fileset dir="deploy"
@@ -65,10 +63,6 @@
 
                                 <copy todir="${jboss.deploy.dir}" overwrite="true">
                                     <fileset dir="deploy/deploy"></fileset>
-                                </copy>
-
-                                <copy todir="${jboss.deploy.dir}">
-                                    <fileset dir="eXist" includes="${exist.version}.war/**" />
                                 </copy>
 
                                 <!-- var substitution... -->

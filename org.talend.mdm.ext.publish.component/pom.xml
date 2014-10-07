@@ -13,10 +13,6 @@
     <name>org.talend.mdm.ext.publish.component</name>
     <packaging>war</packaging>
 
-    <properties>
-        <war>zz.50.ext.pubcomponent</war>
-    </properties>
-
     <build>
         <resources>
             <resource>
@@ -27,33 +23,6 @@
                 </includes>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
-                    <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-jboss</id>
-                        <configuration>
-                            <tasks>
-                                <delete file="${jboss.deploy.dir}/${war}.war" />
-
-                                <copy file="${project.build.directory}/${project.build.finalName}.war"
-                                    tofile="${jboss.deploy.dir}/${war}.war" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
 
     <dependencies>
@@ -65,24 +34,15 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>ejbs</classifier>
         </dependency>
-
         <!-- 3rd party dependencies -->
         <dependency>
             <groupId>com.noelios.restlet</groupId>
             <artifactId>com.noelios.restlet.ext.servlet</artifactId>
-            <version>1.1.6</version>
         </dependency>
         <dependency>
             <groupId>com.noelios.restlet</groupId>
             <artifactId>com.noelios.restlet</artifactId>
-            <version>1.1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.restlet</groupId>
-            <artifactId>org.restlet</artifactId>
-            <version>1.1.6</version>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
@@ -96,10 +56,5 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2ee</artifactId>
-        </dependency>
     </dependencies>
-
 </project>

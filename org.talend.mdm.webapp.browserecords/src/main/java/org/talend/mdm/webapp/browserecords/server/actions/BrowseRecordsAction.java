@@ -389,7 +389,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (typeModel.isSimpleType()) {
                     // It should getValue by XPath but not element name(ItemBean's map object is only used by
                     // ItemsListPanel)
-                    NodeList nodes = Util.getNodeList(docXml,
+                    NodeList nodes = com.amalto.core.util.Util.getNodeList(docXml,
                             typeModel.getXpath().replaceFirst(entityModel.getConceptName() + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
                     if (nodes.getLength() > 0) {
                         if (nodes.item(0) instanceof Element) {
@@ -706,7 +706,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String xpath = tm.getXpath();
                 String dataText = null;
                 if (!key.equals(xpath)) {
-                    NodeList list = Util.getNodeList(doc.getDocumentElement(), xpath.replaceFirst(concept + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
+                    NodeList list = com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(), xpath.replaceFirst(concept + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
                     if (list != null) {
                         for (int k = 0; k < list.getLength(); k++) {
                             Node node = list.item(k);
@@ -738,7 +738,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 calendar.setTime(date);
                                 String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
                                 formateValueMap.put(key, formatValue);
-                                Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                                com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
                             } catch (Exception e) {
                                 originalMap.remove(key);
                                 formateValueMap.remove(key);
@@ -750,7 +750,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 originalMap.put(key, num);
                                 String formatValue = String.format(value[0], num);
                                 formateValueMap.put(key, formatValue);
-                                Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                                com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
                             } catch (Exception e) {
                                 originalMap.remove(key);
                                 formateValueMap.remove(key);
@@ -1484,7 +1484,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             XSComplexType type = (XSComplexType) decl.getType();
             XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
             for (XSParticle obj : xsp) {
-                if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1) {
+                if (obj.getMinOccurs().intValue() == 1 && obj.getMaxOccurs().intValue() == 1) {
                     fieldNames.add(obj.getTerm().asElementDecl().getName());
                 }
             }
@@ -1677,6 +1677,23 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), isStaging, language);
             return new ForeignKeyModel(viewBean, itemBean, nodeModel);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public ForeignKeyBean getForeignKeyBean(String idsString, String concept, List<String> foreignKeyInfo, boolean staging,
+            String language) throws ServiceException {
+        try {
+            String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
+            ViewBean viewBean = getView(viewPk, language);
+            EntityModel entityModel = viewBean.getBindingEntityModel();
+            String[] ids = CommonUtil.extractIdWithDots(entityModel.getKeys(), idsString);
+            ItemBean itemBean = getItemBeanById(concept, ids, language);
+            return ForeignKeyHelper.getForeignKeyBean(entityModel, getCurrentDataCluster(staging), concept, foreignKeyInfo,
+                    itemBean.getItemXml(), language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -1922,7 +1939,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                 // TODO String
                 String searchPrefix;
-                NodeList attrNodeList = Util.getNodeList(jobDoc, "/results/item/attr"); //$NON-NLS-1$
+                NodeList attrNodeList = com.amalto.core.util.Util.getNodeList(jobDoc, "/results/item/attr"); //$NON-NLS-1$
                 if (attrNodeList != null && attrNodeList.getLength() > 0) {
                     searchPrefix = "/results/item/attr/"; //$NON-NLS-1$
                 } else {
@@ -1932,7 +1949,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 for (String xpath : lookupFieldsForWSItemDoc) {
                     String firstValue = Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
                     if (null != firstValue && firstValue.length() != 0) {
-                        NodeList list = Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
+                        NodeList list = com.amalto.core.util.Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
                         if (list != null && list.getLength() > 0) {
                             list.item(0).setTextContent(firstValue);
                         }
@@ -2057,6 +2074,28 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
             }
             return ids.toString();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public boolean checkTask(String dataClusterPK, String viewPK, String concept, String taskId) throws ServiceException {
+        WSWhereCondition whereCondition_Status_SUCCESS_VALIDATE = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
+                WSWhereOperator.EQUALS, StagingConstants.SUCCESS_MERGE_CLUSTERS, WSStringPredicate.NONE, false);
+        WSWhereItem whereItem_Status_SUCCESS_VALIDATE = new WSWhereItem(whereCondition_Status_SUCCESS_VALIDATE, null, null);
+        WSWhereCondition whereCondition_TaskID = new WSWhereCondition(StagingConstant.STAGING_TASKID.substring(1),
+                WSWhereOperator.EQUALS, taskId, WSStringPredicate.NONE, false);
+        WSWhereItem whereItem_TaskID = new WSWhereItem(whereCondition_TaskID, null, null);
+        WSWhereItem[] whereItem_Array = { whereItem_TaskID, whereItem_Status_SUCCESS_VALIDATE };
+        WSWhereAnd whereAnd = new WSWhereAnd(whereItem_Array);
+        WSWhereItem whereItem = new WSWhereItem(null, whereAnd, null);
+        try {
+            WSString results = CommonUtil.getPort()
+                    .count(new WSCount(new WSDataClusterPK(dataClusterPK), concept, whereItem, -1));
+            int resultSize = Integer.parseInt(results.getValue());
+            return resultSize > 1 ? true : false;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

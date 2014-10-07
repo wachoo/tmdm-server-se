@@ -64,7 +64,6 @@
             <groupId>org.restlet.gwt</groupId>
             <artifactId>org.restlet.ext.xml</artifactId>
         </dependency>
-
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -82,7 +81,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>ejbs</classifier>
         </dependency>
     </dependencies>
 

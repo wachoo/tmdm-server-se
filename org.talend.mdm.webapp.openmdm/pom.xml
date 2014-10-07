@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.talend.mdm</groupId>
@@ -11,100 +11,54 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.webapp.openmdm</artifactId>
     <name>org.talend.mdm.webapp.openmdm</name>
-    <packaging>war</packaging>
+    <packaging>uberwar</packaging>
 
-    <properties>
-        <war>zz.20.openmdm.webapp</war>
-    </properties>
-    
     <build>
-        <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.conf</include>
-                    <include>**/**.xsd</include>
-                    <include>**/**.xml</include>
-                    <include>**/**.dtd</include>
-                    <include>**/**.properties</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.4.10</version>
+                <extensions>true</extensions>
                 <configuration>
-                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
-                    <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
+                    <descriptor>src/assemble/merge.xml</descriptor>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-jboss</id>
-                        <configuration>
-                            <tasks>
-                                <delete file="${jboss.deploy.dir}/${war}.war" />
-
-                                <copy file="${project.build.directory}/${project.build.finalName}.war"
-                                    tofile="${jboss.deploy.dir}/${war}.war" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
 
     <dependencies>
-        <dependency>
-        	<groupId>jstl</groupId>
-        	<artifactId>jstl</artifactId>
-        	<version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dwr</groupId>
-            <artifactId>dwr</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xsom</groupId>
-            <artifactId>xsom</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2ee</artifactId>
-        </dependency>
-
-        <!-- MDM dependencies -->
+        <!-- Community and enterprise shared dependencies (web apps) -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
-            <classifier>lib</classifier>
+            <version>${project.version}</version>
+            <type>war</type>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.commmon</artifactId>
+            <artifactId>org.talend.mdm.webapp.general</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.core</artifactId>
+            <artifactId>org.talend.mdm.webapp.welcomeportal</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.browserecords</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        <!-- Community-only dependencies-->
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.core.open</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
         </dependency>
     </dependencies>
-
 </project>

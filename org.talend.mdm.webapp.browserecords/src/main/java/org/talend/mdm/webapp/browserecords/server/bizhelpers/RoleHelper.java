@@ -15,8 +15,6 @@ package org.talend.mdm.webapp.browserecords.server.bizhelpers;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.jacc.PolicyContextException;
-
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.mockup.FakeData;
@@ -37,8 +35,8 @@ public class RoleHelper {
         List<String> roles = new ArrayList<String>();
         if (!BaseConfiguration.isStandalone()) {
             try {
-                roles = Util.getAjaxSubject().getRoles();
-            } catch (PolicyContextException e) {
+                roles = Util.getLoginRoles();
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         } else {

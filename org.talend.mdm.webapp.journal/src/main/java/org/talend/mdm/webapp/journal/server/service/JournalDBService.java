@@ -145,7 +145,7 @@ public class JournalDBService {
         root.setAuth(isAuth);
 
         if (isAuth) {
-            NodeList ls = Util.getNodeList(doc, "/Update/Item"); //$NON-NLS-1$
+            NodeList ls = com.amalto.core.util.Util.getNodeList(doc, "/Update/Item"); //$NON-NLS-1$
             if (ls.getLength() > 0) {
                 for (int i = 0; i < ls.getLength(); i++) {
                     List<JournalTreeModel> list = new ArrayList<JournalTreeModel>();

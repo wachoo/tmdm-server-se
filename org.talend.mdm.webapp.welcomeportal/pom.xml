@@ -9,8 +9,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.webapp.welcomeportal</artifactId>
-    <packaging>war</packaging>
     <name>org.talend.mdm.webapp.welcomeportal</name>
+    <packaging>war</packaging>
 
     <dependencies>
         <!-- Test dependencies -->
@@ -26,8 +26,6 @@
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
         </dependency>
-        
-
         <!-- 3rd party dependencies -->
         <dependency>
             <groupId>com.google.gwt</groupId>
@@ -61,7 +59,6 @@
           <groupId>com.googlecode.gflot</groupId>
           <artifactId>gflot</artifactId>
         </dependency>
-
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -79,13 +76,11 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>ejbs</classifier>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
@@ -98,31 +93,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <!-- Apply dev mode exclusions -->
-                    <execution>
-                        <id>devmode-exclusions</id>
-                        <phase>prepare-package</phase>
-                    </execution>
-                    <!-- Deploy to Jboss -->
-                    <execution>
-                        <id>deploy-jboss</id>
-                        <configuration>
-                            <tasks>
-                                <delete file="${jboss.deploy.dir}/${project.name}.war" />
-
-                                <copy file="${project.build.directory}/${project.build.finalName}.war"
-                                    tofile="${jboss.deploy.dir}/${project.name}.war" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 </project>

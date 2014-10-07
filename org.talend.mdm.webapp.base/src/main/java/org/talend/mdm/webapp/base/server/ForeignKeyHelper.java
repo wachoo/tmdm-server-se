@@ -161,7 +161,7 @@ public class ForeignKeyHelper {
                     bean.setConceptName(fk);
                 }
                 String id = ""; //$NON-NLS-1$
-                NodeList nodes = Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
+                NodeList nodes = com.amalto.core.util.Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
                 if (nodes != null) {
                     for (int i = 0; i < nodes.getLength(); i++) {
                         if (nodes.item(i) instanceof Element) {
@@ -194,6 +194,47 @@ public class ForeignKeyHelper {
         }
 
         return new ItemBasePageLoadResult<ForeignKeyBean>(fkBeans, config.getOffset(), 0);
+    }
+
+    public static ForeignKeyBean getForeignKeyBean(EntityModel entityModel, String dataClusterPK, String concept,
+            List<String> foreignKeyInfo, String xml, String language) throws Exception {
+        ForeignKeyBean foreignKeyBean = new ForeignKeyBean();
+        BusinessConcept businessConcept = schemaManager.getBusinessConcept(concept);
+        // init foreignKey info type
+        if (foreignKeyInfo != null && foreignKeyInfo.size() > 0 && businessConcept != null) {
+            businessConcept.load();
+        }
+        // Polymorphism FK
+        boolean isPolymorphismFK = false;
+        if (businessConcept != null) {
+            String fkReusableType = businessConcept.getCorrespondTypeName();
+            if (fkReusableType != null) {
+                List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(fkReusableType, true);
+                List<ReusableType> parentTypes = SchemaWebAgent.getInstance().getMyParents(fkReusableType);
+                isPolymorphismFK = subTypes.size() > 0 || parentTypes.size() > 0;
+            }
+        }
+        if (businessConcept != null && isPolymorphismFK) {
+            foreignKeyBean.setTypeName(businessConcept.getCorrespondTypeName());
+            foreignKeyBean.setConceptName(concept);
+        }
+
+        Element resultAsDOM = Util.parse(xml).getDocumentElement();
+        String id = ""; //$NON-NLS-1$
+        String[] keys = entityModel.getKeys();
+        for (String key : keys) {
+            NodeList nodes = com.amalto.core.util.Util.getNodeList(resultAsDOM, key.replaceFirst(entityModel.getConceptName() + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+            if (nodes != null) {
+                if (nodes.item(0) instanceof Element) {
+                    id += "[" + (nodes.item(0).getTextContent() == null ? "" : nodes.item(0).getTextContent()) + "]"; //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
+                }
+            }
+        }
+        initFKBean(dataClusterPK, entityModel, resultAsDOM, foreignKeyBean, concept, foreignKeyInfo,
+                businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null, language);
+        convertFKInfo2DisplayInfo(foreignKeyBean, foreignKeyInfo);
+        foreignKeyBean.setId(id);
+        return foreignKeyBean;
     }
 
     protected static class ForeignKeyHolder {

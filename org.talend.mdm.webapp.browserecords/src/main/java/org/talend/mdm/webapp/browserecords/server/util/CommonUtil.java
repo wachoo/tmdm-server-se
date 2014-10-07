@@ -211,7 +211,7 @@ public class CommonUtil {
 
         Document doc = Util.parse(outputMessage);
         String xpath = "//report/message"; //$NON-NLS-1$
-        NodeList checkList = Util.getNodeList(doc, xpath);
+        NodeList checkList = com.amalto.core.util.Util.getNodeList(doc, xpath);
         if (checkList != null && checkList.getLength() > 0) {
             Node messageNode = checkList.item(0);
             if (messageNode instanceof Element) {

@@ -13,12 +13,7 @@
     <name>org.talend.mdm.ext.images.server</name>
     <packaging>war</packaging>
 
-    <properties>
-        <war>zz.50.ext.imageserver</war>
-    </properties>
-
     <build>
-        <sourceDirectory>src</sourceDirectory>
         <resources>
             <resource>
                 <directory>src</directory>
@@ -34,57 +29,16 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-libs</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>ssim</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/war/WEB-INF/lib</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>deploy-jboss-runtime-libs</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
-                    <webXml>${basedir}/web/WEB-INF/web.xml</webXml>
                     <!-- WAR is packaged outside EAR, so include our external dependencies -->
                     <packagingExcludes>%regex[WEB-INF/lib/(?!ssim).*.jar]</packagingExcludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-jboss</id>
-                        <configuration>
-                            <tasks>
-                                <delete file="${jboss.deploy.dir}/${war}.war" />
-
-                                <copy file="${project.build.directory}/${project.build.finalName}.war"
-                                    tofile="${jboss.deploy.dir}/${war}.war" />                                
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
 
     <dependencies>
-
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -102,22 +56,17 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2ee</artifactId>
+        	<groupId>com.mchange</groupId>
+        	<artifactId>ssim</artifactId>
         </dependency>
         <dependency>
             <groupId>com.mchange</groupId>
-            <artifactId>ssim</artifactId>
-            <scope>system</scope>
-            <version>0.6.0</version>
-            <systemPath>${tom.location}/org.talend.mdm.ext.images.server/libs/ssim-0.6.0.jar</systemPath>
+            <artifactId>mchange-commons-java</artifactId>
         </dependency>
-
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>ejbs</classifier>
         </dependency>
     </dependencies>
 

@@ -12,8 +12,6 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.log4j.Logger;
 import com.amalto.core.server.api.Transformer;
 import org.w3c.dom.Document;
@@ -25,15 +23,8 @@ import talend.core.transformer.plugin.v2.tiscall.ConceptMappingParam;
 import talend.core.transformer.plugin.v2.tiscall.ContextParam;
 import talend.core.transformer.plugin.v2.tiscall.util.JSONException;
 import talend.core.transformer.plugin.v2.tiscall.util.JSONObject;
-import talend.core.transformer.plugin.v2.tiscall.webservices.Args;
-import talend.core.transformer.plugin.v2.tiscall.webservices.ArrayOfXsdString;
-import talend.core.transformer.plugin.v2.tiscall.webservices.WSxml;
-import talend.core.transformer.plugin.v2.tiscall.webservices.WSxmlService;
 
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,10 +62,6 @@ public class TISCallTransformerPluginBean extends Plugin {
     private static final String INPUT_TEXT = "text";
 
     private static final String OUTPUT_TEXT = "result";
-
-    private static final long serialVersionUID = 1L;
-
-    private static final String WSDL_TIS_WSDL = "/META-INF/wsdl/tis.wsdl";
 
     private static final Logger LOGGER = Logger.getLogger(TISCallTransformerPluginBean.class);
 
@@ -185,30 +172,7 @@ public class TISCallTransformerPluginBean extends Plugin {
                 jobInvokeConfig.setJobVersion(jobVersion);
                 context.put(INVOKE_CONFIG, jobInvokeConfig);
             } else if (HTTP_PROTOCOL.equalsIgnoreCase(protocol)) {
-                URL wsdlResource = TISCallTransformerPluginBean.class.getResource(WSDL_TIS_WSDL);
-                if (wsdlResource == null) {
-                    throw new IllegalStateException("Could not find resource '" + WSDL_TIS_WSDL + "'");
-                }
-
-                WSxmlService service = new WSxmlService(wsdlResource, new QName("http://talend.org", "WSxmlService"));
-                WSxml port = service.getWSxml();
-
-                BindingProvider bp = (BindingProvider) port;
-                bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, compiledParameters.getUrl());
-                bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, compiledParameters.getUsername());
-                bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, compiledParameters.getPassword());
-
-                if (java.lang.reflect.Proxy.getInvocationHandler(port) instanceof org.apache.cxf.jaxws.JaxWsClientProxy) {
-                    org.apache.cxf.endpoint.Client client = org.apache.cxf.frontend.ClientProxy.getClient(port);
-                    if (client != null) {
-                        HTTPConduit conduit = (org.apache.cxf.transport.http.HTTPConduit) client.getConduit();
-                        HTTPClientPolicy policy = new org.apache.cxf.transports.http.configuration.HTTPClientPolicy();
-                        policy.setConnectionTimeout(600000);
-                        policy.setReceiveTimeout(0); // infinitely
-                        conduit.setClient(policy);
-                    }
-                }
-                context.put(PORT, port);
+                throw new NotImplementedException(); // TODO (rewrite -> HTTP call heavily depended on JBoss classes).
             } else {
                 throw new IllegalArgumentException("Protocol '" + protocol + "' is not supported.");
             }
@@ -268,14 +232,11 @@ public class TISCallTransformerPluginBean extends Plugin {
                 }
             }
 
-            Args args = new Args();
             Map<String, String> argsMap = new HashMap<String, String>();
             for (Object o : p.keySet()) {
                 String key = (String) o;
                 String value = p.getProperty(key);
                 String param = "--context_param " + key + "=" + value;
-                args.getItem().add(param);
-
                 argsMap.put(key, value);
             }
 
@@ -296,7 +257,7 @@ public class TISCallTransformerPluginBean extends Plugin {
                 }
             }
             // Build call parameters
-            List<ArrayOfXsdString> list = new ArrayList<ArrayOfXsdString>();
+            List<String[]> list = new ArrayList<String[]>();
 
             if (invokeConfig != null) { // Local test job invocation
 
@@ -304,34 +265,25 @@ public class TISCallTransformerPluginBean extends Plugin {
                         new String(context.getFromPipeline(Transformer.DEFAULT_VARIABLE).getContentBytes(), charset));
                 String[][] result = JobContainer.getUniqueInstance()
                         .getJobInvoker(invokeConfig.getJobName(), invokeConfig.getJobVersion()).call(argsMap);
-
                 for (String[] currentResult : result) {
-                    ArrayOfXsdString arrayOfXsdString = new ArrayOfXsdString();
-                    for (String currentXsdString : currentResult) {
-                        arrayOfXsdString.getItem().add(currentXsdString);
-                    }
-                    list.add(arrayOfXsdString);
+                    list.add(currentResult);
                 }
-
             } else { // Web service invocation
                 // recover the port
-                WSxml port = (WSxml) context.get(PORT);
-                list = port.runJob(args).getItem();
+                throw new NotImplementedException(); // TODO (rewrite -> HTTP call heavily depended on JBoss classes).
             }
             // FIXME use a better way ?
             StringBuilder sb = new StringBuilder();
             if (list.size() > 0) {
                 sb = sb.append("<results>\n");
-                for (ArrayOfXsdString aList : list) {
-                    List<String> results = aList.getItem();
-
+                for (String[] aList : list) {
                     if (hasConcept) {
                         sb = sb.append("<").append(conceptName).append(">\n");
                     } else {
                         sb = sb.append("<item>\n");
                     }
-                    for (int j = 0; j < results.size(); j++) {
-                        String str = results.get(j);
+                    for (int j = 0; j < aList.length; j++) {
+                        String str = aList[j];
                         if (str != null) {
                             // remove xml header
                             str = str.replaceFirst("<\\?xml .*\\?>", "");

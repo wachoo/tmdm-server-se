@@ -78,10 +78,6 @@
             <artifactId>xsom</artifactId>
         </dependency>
         <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2ee</artifactId>
-        </dependency>
-        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
         </dependency>
@@ -93,7 +89,6 @@
             <groupId>com.sun.xml</groupId>
             <artifactId>relaxngDatatype</artifactId>
         </dependency>
-
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -115,14 +110,7 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>ejbs</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>jaas</classifier>
-            <scope>test</scope>
-        </dependency>        
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>

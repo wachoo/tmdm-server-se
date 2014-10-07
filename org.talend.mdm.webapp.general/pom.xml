@@ -36,7 +36,6 @@
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
         </dependency>
-
         <!-- 3rd party dependencies -->
         <dependency>
             <groupId>com.google.gwt</groupId>
@@ -55,14 +54,9 @@
             <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2ee</artifactId>
-        </dependency>
-        <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
         </dependency>
-        
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -90,14 +84,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
-                    <webXml>${basedir}/war/WEB-INF/web.xml</webXml>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
                 <executions>
@@ -105,32 +91,6 @@
                         <id>gwt-compile</id>
                         <configuration>
                             <module>org.talend.mdm.webapp.general.General</module>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <!-- Apply dev mode exclusions -->
-                    <execution>
-                        <id>devmode-exclusions</id>
-                        <phase>prepare-package</phase>
-                    </execution>
-                    <!-- Deploy to Jboss -->
-                    <execution>
-                        <id>deploy-jboss</id>
-                        <configuration>
-                            <tasks>
-                                <delete file="${jboss.deploy.dir}/${project.name}.war" />
-                                <delete file="${jboss.lib.dir}/${project.name}.jar" />
-
-                                <copy file="${project.build.directory}/${project.build.finalName}.war"
-                                    tofile="${jboss.deploy.dir}/${project.name}.war" />
-                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                    tofile="${jboss.lib.dir}/${project.name}.jar" />
-                            </tasks>
                         </configuration>
                     </execution>
                 </executions>
@@ -162,6 +122,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
+                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
+                    <webXml>${basedir}/war/WEB-INF/web.xml</webXml>
                     <packagingExcludes>WEB-INF/lib/*.jar,WEB-INF/classes/org/talend/mdm/webapp/general/gwt/**</packagingExcludes>
                 </configuration>
             </plugin>

@@ -76,6 +76,9 @@ public abstract class ILocalUser implements IBeanDelegator {
     public void setUniverse(UniversePOJO universe) {
     }
 
+    public void setUserXML(String userXML) {
+    }
+
     public void setUsername(String username) {
     }
 

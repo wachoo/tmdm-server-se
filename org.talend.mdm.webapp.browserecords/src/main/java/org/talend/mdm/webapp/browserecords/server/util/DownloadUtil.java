@@ -44,7 +44,7 @@ public class DownloadUtil {
     public static String[] convertXml2Array(String xml,String rootName) throws Exception {
         List<String> resultList = new ArrayList<String>();
         org.w3c.dom.Document doc = Util.parse(xml);
-        org.w3c.dom.NodeList nodeList = Util.getNodeList(doc, "/" + rootName + "/item"); //$NON-NLS-1$ //$NON-NLS-2$
+        org.w3c.dom.NodeList nodeList = com.amalto.core.util.Util.getNodeList(doc, "/" + rootName + "/item"); //$NON-NLS-1$ //$NON-NLS-2$
         for (int i = 0; i < nodeList.getLength(); i++) {
             org.w3c.dom.Node node = nodeList.item(i).getFirstChild();
             resultList.add(XMLUtils.nodeToString(node));

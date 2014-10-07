@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.amalto.core.util.LocalUser;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -168,7 +169,7 @@ public class GeneralAction implements GeneralService {
             }
             String givenname = null;
             String familyname = null;
-            String xml = Util.getAjaxSubject().getXml();
+            String xml = LocalUser.getLocalUser().getUserXML();
             if (xml != null) {
                 Document d = Util.parse(xml);
                 givenname = Util.getFirstTextNode(d, "//givenname"); //$NON-NLS-1$
@@ -179,7 +180,7 @@ public class GeneralAction implements GeneralService {
             if (familyname != null && givenname != null) {
                 userBean.setName(givenname + " " + familyname); //$NON-NLS-1$
             } else {
-                userBean.setName(Util.getAjaxSubject().getUsername());
+                userBean.setName(Util.getLoginUserName());
             }
             userBean.setUniverse(universe);
             return userBean;
@@ -251,7 +252,7 @@ public class GeneralAction implements GeneralService {
     @Override
     public void logout() throws ServiceException {
         try {
-            String username = com.amalto.webapp.core.util.Util.getAjaxSubject().getUsername();
+            String username = com.amalto.webapp.core.util.Util.getLoginUserName();
             SessionListener.unregisterUser(username);
             Util.getPort().logout(new WSLogout("")).getValue(); //$NON-NLS-1$
             GwtWebContextFactory.get().getSession().invalidate();
