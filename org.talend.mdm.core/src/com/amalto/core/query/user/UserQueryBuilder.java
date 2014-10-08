@@ -320,6 +320,10 @@ public class UserQueryBuilder {
 
     public static Condition isEmpty(FieldMetadata field) {
         assertNullField(field);
+        // TMDM-7700: IsEmpty on a FK field should be considered as IsNull
+        if (!field.isMany() && field instanceof ReferenceFieldMetadata) {
+            return new IsNull(new Field(field));
+        }
         // If field is a number field, consider a condition "field equals 0"
         String typeName = MetadataUtils.getSuperConcreteType(field.getType()).getName();
         for (String numberType : Types.NUMBERS) {

@@ -3926,6 +3926,30 @@ public class StorageQueryTest extends StorageTestCase {
         storage.commit();
     }
 
+    public void testEmptyOrNullOnFK() throws Exception {
+        FieldMetadata field = address.getField("country");
+
+        UserQueryBuilder qb = from(address).where(isNull(field));
+        storage.begin();
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+
+        qb = from(address).where(or(isNull(field), isEmpty(field)));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+    }
+
     private static class TestRDBMSDataSource extends RDBMSDataSource {
 
         private ContainsOptimization optimization;
