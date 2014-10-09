@@ -3139,7 +3139,36 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+        qb = from(country).where(contains(country.getField("name"), "france"));
+        results = s1.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        qb = from(country).where(contains(country.getField("name"), "France"));
+        results = s1.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        // DS2
         qb = from(country).where(contains(country.getField("name"), "FRANCE"));
+        results = s2.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        qb = from(country).where(contains(country.getField("name"), "france"));
+        results = s2.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        qb = from(country).where(contains(country.getField("name"), "France"));
         results = s2.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
