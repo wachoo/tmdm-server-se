@@ -222,15 +222,21 @@ public class BrowseRecordsController extends Controller {
                                         .equals(itemBean.getConcept());
 
                         // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
-						if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {
-							if (isSameConcept && detailToolBar.getType() == ItemDetailToolBar.TYPE_DEFAULT) {
-                                 itemBean.setIds(result.getReturnValue());
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {
+                            if (isSameConcept && detailToolBar.getType() == ItemDetailToolBar.TYPE_DEFAULT) {
+                                itemBean.setIds(result.getReturnValue());
                                 ItemsListPanel.getInstance().refreshGrid(itemBean);
                             }
                         }
 
                         // TMDM-4814, TMDM-4815 (reload data to refresh ui)
                         if ((detailToolBar.isFkToolBar() || detailToolBar.isOutMost()) && !isSameConcept && !isClose) {
+                            detailToolBar.refresh(result.getReturnValue());
+                        }
+
+                        // TMDM-7678 refresh detail panel after save in duplicate operation
+                        if (detailToolBar.isOutMost()
+                                && ItemDetailToolBar.DUPLICATE_OPERATION.equals(detailToolBar.getOperation()) && !isClose) {
                             detailToolBar.refresh(result.getReturnValue());
                         }
 
