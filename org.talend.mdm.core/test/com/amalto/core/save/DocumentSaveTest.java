@@ -2727,6 +2727,29 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
     }
+    
+    public void test68() throws Exception {
+        // TMDM-7765: Test for null FK during element's type change.
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata21.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("metadata21.xsd", repository);
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test70_original.xml", "metadata21.xsd");
+        source.setUserName("administrator");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test70.xml");
+        DocumentSaverContext context = session.getContextFactory().create("metadata21.xsd", "metadata21.xsd", "genericUI", recordXml, false, true,
+                false, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Format_Date", evaluate(committedElement, "/EntiteA/format/@xsi:type"));
+    }
 
     public void testDateTypeInKey() throws Exception {
         MetadataRepository repository = new MetadataRepository();
