@@ -67,6 +67,12 @@ public interface WelcomePortalMessages extends Messages {
 
     String chart_matching_duplicates();
     
+    String autorefresh();
+    
+    String entities();
+    
+    String timeframe();
+    
     String autorefresh_on();
 
     String autorefresh_off();
