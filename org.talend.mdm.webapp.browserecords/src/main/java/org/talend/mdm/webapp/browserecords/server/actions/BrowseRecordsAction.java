@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import com.amalto.core.util.*;
 import com.amalto.core.webservice.*;
 import com.amalto.core.ejb.UpdateReportPOJO;
 import org.apache.commons.lang.StringUtils;
@@ -95,10 +96,6 @@ import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.task.StagingConstants;
-import com.amalto.core.util.EntityNotFoundException;
-import com.amalto.core.util.FieldNotFoundException;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSDeleteItem;
@@ -1050,63 +1047,38 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public List<ItemBaseModel> getViewsList(String language) throws ServiceException {
         try {
             String model = getCurrentDataModel();
-            String[] businessConcept = CommonUtil.getPort()
-                    .getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model))).getStrings();
-            ArrayList<String> bc = new ArrayList<String>();
-            Collections.addAll(bc, businessConcept);
-            WSViewPK[] wsViewsPK = CommonUtil.getPort()
-                    .getViewPKs(new WSGetViewPKs(ViewHelper.DEFAULT_VIEW_PREFIX + ".*")).getWsViewPK();//$NON-NLS-1$
-
-            // Filter view list according to current datamodel
+            MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(model);
             TreeMap<String, String> views = new TreeMap<String, String>();
-            for (WSViewPK aWsViewsPK : wsViewsPK) {
-                WSView wsview = CommonUtil.getPort().getView(new WSGetView(aWsViewsPK));// FIXME: Do we need get each
-                // view entity here?
-                String concept = ViewHelper.getConceptFromDefaultViewName(wsview.getName());
-                if (bc.contains(concept)) {
-                    String viewDesc = ViewHelper.getViewLabel(language, wsview);
-                    views.put(wsview.getName(), viewDesc);
+            HashSet<String> userRoles = LocalUser.getLocalUser().getRoles();
+            // It is faster to retrieve all view then look on them (alternatives imply "search by exception").
+            WSViewPKArray viewPKs = CommonUtil.getPort().getViewPKs(new WSGetViewPKs(".*")); //$NON-NLS-1$
+            for (WSViewPK viewPK : viewPKs.getWsViewPK()) {
+                String typeName = ViewHelper.getConceptFromDefaultViewName(viewPK.getPk());
+                ComplexTypeMetadata type = repository.getComplexType(typeName);
+                if (type != null) {
+                    // Hides the entity if at least one of user's role is in the "hide" roles (i.e. "No Access" roles).
+                    if (type.getHideUsers().isEmpty() || !Collections.disjoint(type.getHideUsers(), userRoles)) {
+                        WSView view = CommonUtil.getPort().getView(new WSGetView(viewPK));
+                        String viewDesc = ViewHelper.getViewLabel(language, view);
+                        views.put(view.getName(), viewDesc);
+                    }
                 }
             }
-            Map<String, String> viewMap = getMapSortedByValue(views);
-
-            Util.filterAuthViews(viewMap);
-
-            List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
-            for (String key : viewMap.keySet()) {
+            // Filter based on access roles on views
+            Util.filterAuthViews(views);
+            // Build results for web UI
+            List<ItemBaseModel> viewList = new ArrayList<ItemBaseModel>();
+            for (String key : views.keySet()) {
                 ItemBaseModel bm = new ItemBaseModel();
-                bm.set("name", viewMap.get(key));//$NON-NLS-1$
-                bm.set("value", key);//$NON-NLS-1$
-                list.add(bm);
+                bm.set("name", views.get(key)); //$NON-NLS-1$
+                bm.set("value", key); //$NON-NLS-1$
+                viewList.add(bm);
             }
-            return list;
+            return viewList;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-    }
-
-    private static Map<String, String> getMapSortedByValue(Map<String, String> map) {
-        TreeSet<Map.Entry<String, String>> set = new TreeSet<Map.Entry<String, String>>(
-                new Comparator<Map.Entry<String, String>>() {
-
-                    @Override
-                    public int compare(Map.Entry<String, String> obj1, Map.Entry<String, String> obj2) {
-                        String obj1Value = obj1.getValue();
-                        if (obj1Value != null) {
-                            return obj1Value.compareTo(obj2.getValue());
-                        } else { // obj1Value == null
-                            return obj2.getValue() == null ? 0 : 1;
-                        }
-                    }
-                });
-        set.addAll(map.entrySet());
-        Map<String, String> sortedMap = new LinkedHashMap<String, String>();
-        for (Map.Entry<String, String> entry : set) {
-            sortedMap.put(entry.getKey(), entry.getValue());
-        }
-
-        return sortedMap;
     }
 
     @Override
