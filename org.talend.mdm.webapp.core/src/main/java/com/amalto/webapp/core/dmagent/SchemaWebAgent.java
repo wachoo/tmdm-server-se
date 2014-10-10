@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.amalto.core.util.LocalUser;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
@@ -429,7 +430,7 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
             return false;
         }
         XSAnnotation xsa = declaration.getAnnotation();
-        List<String> roles = Util.getLoginRoles();
+        Collection<String> roles = LocalUser.getLocalUser().getRoles();
         if (xsa != null && xsa.getAnnotation() != null) {
             Element el = (Element) xsa.getAnnotation();
             NodeList annotationList = el.getChildNodes();

@@ -23,6 +23,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.amalto.core.util.LocalUser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -41,7 +42,6 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -448,7 +448,7 @@ public class CommonUtil {
         // bind entity model
         String model = getCurrentDataModel();
         EntityModel entityModel = new EntityModel();
-        DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+        DataModelHelper.parseSchema(model, concept, entityModel, LocalUser.getLocalUser().getRoles());
         return entityModel;
     }
 

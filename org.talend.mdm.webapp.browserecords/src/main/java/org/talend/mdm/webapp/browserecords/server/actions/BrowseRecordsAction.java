@@ -17,13 +17,11 @@ import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.util.EntityNotFoundException;
-import com.amalto.core.util.FieldNotFoundException;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.util.*;
 import com.amalto.core.webservice.*;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.*;
+import com.amalto.webapp.core.util.Util;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.sun.xml.xsom.*;
 import com.sun.xml.xsom.parser.XSOMParser;
@@ -282,7 +280,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String[] ids = CommonUtil.extractIdWithDots(entityModel.getKeys(), itemBean.getIds());
 
             // parse schema firstly, then use element declaration (DataModelHelper.getEleDecl)
-            DataModelHelper.parseSchema(dataModel, concept, entityModel, RoleHelper.getUserRoles());
+            DataModelHelper.parseSchema(dataModel, concept, entityModel, LocalUser.getLocalUser().getRoles());
 
             WSItem wsItem = CommonUtil.getPort()
                     .getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, itemBean.getConcept(), ids)));
@@ -458,7 +456,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // bind entity model
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
-            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+            DataModelHelper.parseSchema(model, concept, entityModel, LocalUser.getLocalUser().getRoles());
             return entityModel;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -496,7 +494,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             // bind entity model
             entityModel = new EntityModel();
-            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+            DataModelHelper.parseSchema(model, concept, entityModel, LocalUser.getLocalUser().getRoles());
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             Locale locale = new Locale(language);
@@ -928,7 +926,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         WSWhereCondition wc1 = new WSWhereCondition("BrowseItem/ViewPK", WSWhereOperator.EQUALS, view,//$NON-NLS-1$
                 WSStringPredicate.NONE, false);
         WSWhereCondition wc3 = new WSWhereCondition("BrowseItem/Owner", WSWhereOperator.EQUALS,//$NON-NLS-1$
-                RoleHelper.getCurrentUserName(), WSStringPredicate.OR, false);
+                LocalUser.getLocalUser().getUsername(), WSStringPredicate.OR, false);
         WSWhereCondition wc4;
         WSWhereOr or = new WSWhereOr();
         if (isShared) {
@@ -1066,7 +1064,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString) throws ServiceException {
         try {
-            String owner = com.amalto.webapp.core.util.Util.getLoginUserName();
+            String owner = LocalUser.getLocalUser().getUsername();
             SearchTemplate searchTemplate = new SearchTemplate();
             searchTemplate.setViewPK(viewPK);
             searchTemplate.setCriteriaName(templateName);
@@ -1979,7 +1977,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
-            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+            DataModelHelper.parseSchema(model, concept, entityModel, LocalUser.getLocalUser().getRoles());
 
             dynamicAssemble(itemBean, entityModel, language);
 

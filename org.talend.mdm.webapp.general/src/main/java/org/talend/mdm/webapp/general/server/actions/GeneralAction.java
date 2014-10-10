@@ -163,7 +163,7 @@ public class GeneralAction implements GeneralService {
             UserBean userBean = new UserBean();
             userBean.setEnterprise(com.amalto.core.util.Util.isEnterprise());
             if (!com.amalto.core.util.Util.isEnterprise()) {
-                userBean.setName(Util.getLoginUserName());
+                userBean.setName(LocalUser.getLocalUser().getUsername());
                 userBean.setUniverse("UNKNOWN"); //$NON-NLS-1$
                 return userBean;
             }
@@ -176,11 +176,11 @@ public class GeneralAction implements GeneralService {
                 familyname = Util.getFirstTextNode(d, "//familyname"); //$NON-NLS-1$
             }
 
-            String universe = Util.getLoginUniverse();
+            String universe = LocalUser.getLocalUser().getUniverse().getName();
             if (familyname != null && givenname != null) {
                 userBean.setName(givenname + " " + familyname); //$NON-NLS-1$
             } else {
-                userBean.setName(Util.getLoginUserName());
+                userBean.setName(LocalUser.getLocalUser().getUsername());
             }
             userBean.setUniverse(universe);
             return userBean;
@@ -252,7 +252,7 @@ public class GeneralAction implements GeneralService {
     @Override
     public void logout() throws ServiceException {
         try {
-            String username = com.amalto.webapp.core.util.Util.getLoginUserName();
+            String username = LocalUser.getLocalUser().getUsername();
             SessionListener.unregisterUser(username);
             Util.getPort().logout(new WSLogout("")).getValue(); //$NON-NLS-1$
             GwtWebContextFactory.get().getSession().invalidate();

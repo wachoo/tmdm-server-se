@@ -53,11 +53,13 @@ public class JobDeploy {
      */
     public void deployAll() {
         String[] fileNames = new File(deployDir).list();
-        for (String filename : fileNames) {
-            try {
-                deploy(filename);
-            } catch (JoboxException e) {
-                LOGGER.error("Could not deploy '" + filename + "' due to exception.", e);
+        if (fileNames != null) {
+            for (String filename : fileNames) {
+                try {
+                    deploy(filename);
+                } catch (JoboxException e) {
+                    LOGGER.error("Could not deploy '" + filename + "' due to exception.", e);
+                }
             }
         }
     }
@@ -68,8 +70,10 @@ public class JobDeploy {
      */
     public void undeployAll() {
         String[] fileNames = new File(deployDir).list();
-        for (String filename : fileNames) {
-            undeploy(filename);
+        if (fileNames != null) {
+            for (String filename : fileNames) {
+                undeploy(filename);
+            }
         }
     }
 

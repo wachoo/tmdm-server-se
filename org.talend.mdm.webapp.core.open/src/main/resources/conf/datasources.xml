@@ -7,8 +7,8 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:/tmp/data/h2_default;MVCC=TRUE</connection-url>
-                <fulltext-index-directory>/tmp/indexes/H2_DEFAULT</fulltext-index-directory>
+                <connection-url>jdbc:h2:/tmp/data/${container}/h2_default;MVCC=TRUE</connection-url>
+                <fulltext-index-directory>/tmp/indexes/${container}</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
                 <schema-generation>create</schema-generation>
             </rdbms-configuration>
@@ -18,8 +18,8 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:/tmp/data/h2_default;MVCC=TRUE</connection-url>
-                <fulltext-index-directory>/tmp/indexes/H2_DEFAULT</fulltext-index-directory>
+                <connection-url>jdbc:h2:/tmp/data/system/h2_system;MVCC=TRUE</connection-url>
+                <fulltext-index-directory>/tmp/indexes/H2_SYSTEM</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
                 <schema-generation>create</schema-generation>
             </rdbms-configuration>
@@ -37,7 +37,7 @@
                 <connection-password>toor</connection-password>
                 <connection-pool-minsize>5</connection-pool-minsize>
                 <connection-pool-maxsize>50</connection-pool-maxsize>
-                <fulltext-index-directory>/opt/jboss/jboss-4.2.2.GA/server/default/data/indexes/MySQL-Default</fulltext-index-directory>
+                <fulltext-index-directory>/tmp/data/indexes/${container}_MASTER</fulltext-index-directory>
                 <schema-generation>update</schema-generation>
                 <properties>
                     <property name="hibernate.show_sql">false</property>

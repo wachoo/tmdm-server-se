@@ -63,24 +63,12 @@ public class DataModelHelper {
         return eleDecl;
     }
 
-    /**
-     * DOC HSHU Comment method "parseSchema".
-     * 
-     * @param model
-     * @param concept
-     */
-    public static void parseSchema(String model, String concept, EntityModel entityModel, List<String> roles) {
+    public static void parseSchema(String model, String concept, EntityModel entityModel, Collection<String> roles) {
         parseSchema(model, concept, null, null, entityModel, roles);
     }
 
-    /**
-     * DOC HSHU Comment method "parseSchema".
-     * 
-     * @param model
-     * @param concept
-     */
     public static void parseSchema(String model, String concept, XSElementDecl elDecl, String[] ids, EntityModel entityModel,
-            List<String> roles) {
+            Collection<String> roles) {
 
         entityModel.setConceptName(concept);
 
@@ -171,7 +159,7 @@ public class DataModelHelper {
      * @param currentXPath
      */
     public static void travelXSElement(XSElementDecl e, String currentXPath, EntityModel entityModel,
-            ComplexTypeModel parentTypeModel, List<String> roles, int minOccurs, int maxOccurs) {
+            ComplexTypeModel parentTypeModel, Collection<String> roles, int minOccurs, int maxOccurs) {
         if (e != null) {
 
             TypeModel typeModel = null;
@@ -217,7 +205,7 @@ public class DataModelHelper {
     }
 
     private static TypeModel parseElement(String currentXPath, XSElementDecl e, TypeModel typeModel, EntityModel entityModel,
-            List<String> roles) {
+            Collection<String> roles) {
         String typeName = e.getType().getName();
         String baseTypeName;
 
@@ -382,7 +370,7 @@ public class DataModelHelper {
     }
 
     private static void travelParticle(XSParticle xsParticle, String currentXPath, EntityModel entityModel,
-            ComplexTypeModel parentTypeModel, List<String> roles) {
+            ComplexTypeModel parentTypeModel, Collection<String> roles) {
         if (xsParticle.getTerm().asModelGroup() != null) {
             XSParticle[] xsps = xsParticle.getTerm().asModelGroup().getChildren();
             for (XSParticle xsp : xsps) {
@@ -395,7 +383,7 @@ public class DataModelHelper {
         }
     }
 
-    private static void parseAnnotation(XSElementDecl e, TypeModel typeModel, List<String> roles) {
+    private static void parseAnnotation(XSElementDecl e, TypeModel typeModel, Collection<String> roles) {
         boolean writable = false;
         ArrayList<String> pkInfoList = new ArrayList<String>();
         ArrayList<String> fkInfoList = new ArrayList<String>();

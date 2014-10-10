@@ -17,7 +17,6 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Locale;
 
-import javax.security.auth.Subject;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,7 +29,6 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.amalto.core.util.LocaleUtil;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.core.util.Util;
 
 public class ControllerServlet extends HttpServlet {
 
@@ -53,7 +51,6 @@ public class ControllerServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String language = null;
         Locale locale = null;
-
         // Try first the user language
         try {
             String storedLanguage = com.amalto.webapp.core.util.Util.getDefaultLanguage();
@@ -64,25 +61,18 @@ public class ControllerServlet extends HttpServlet {
         } catch (Exception e1) {
             Log.error("Load User Language Error!", e1); //$NON-NLS-1$
         }
-
         // Try then the language set on request
         if (language == null) {
             locale = LocaleUtil.getLocale(req);
             language = locale.getLanguage().toLowerCase();
         }
-
         req.getSession().setAttribute("language", language); //$NON-NLS-1$
         res.setContentType("text/html; charset=UTF-8"); //$NON-NLS-1$
         res.setHeader("Content-Type", "text/html; charset=UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
         PrintWriter out = res.getWriter();
-
         try {
-            if (!sessionExpired()) {
-                String html = getHtml(language);
-                out.write(html);
-            } else {
-                throw new Exception(MESSAGES.getMessage(locale, "session.expired")); //$NON-NLS-1$
-            }
+            String html = getHtml(language);
+            out.write(html);
         } catch (Exception e) {
             req.getSession().invalidate();
             String message = e.getLocalizedMessage();
@@ -90,16 +80,7 @@ public class ControllerServlet extends HttpServlet {
                 message = MESSAGES.getMessage(locale, "error.occured"); //$NON-NLS-1$
             }
             String html = getHtmlError(message, locale);
-            out.write(html.toString());
-        }
-    }
-
-    private boolean sessionExpired() {
-        try {
-            Subject subject = Util.getActiveSubject();
-            return (subject == null) ? true : false;
-        } catch (Exception e) {
-            return true;
+            out.write(html);
         }
     }
 
@@ -112,24 +93,20 @@ public class ControllerServlet extends HttpServlet {
         html.append("<title>Talend MDM</title>\n");
         html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>\n");
         html.append("<meta http-equiv='X-UA-Compatible' content='IE=8'>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='/core/secure/gxt/resources/css/gxt-all.css'/>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='/general/General.css'/>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='/general/General-menus.css'/>\n");
-
+        html.append("<link rel='stylesheet' type='text/css' href='/secure/gxt/resources/css/gxt-all.css'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='/General.css'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='/General-menus.css'/>\n");
         List<String> cssImports = Utils.getCssImport();
         for (String css : cssImports) {
             html.append(css);
         }
-
-        html.append("<script type='text/javascript' language='javascript' src='/general/general/general.nocache.js'></script>\n"); //$NON-NLS-1$
-
+        html.append("<script type='text/javascript' language='javascript' src='/general.nocache.js'></script>\n"); //$NON-NLS-1$
         html.append(Utils.getCommonImport());
         List<String> imports = Utils.getJavascriptImport();
         for (String js : imports) {
             html.append(js);
         }
         html.append("</head>");
-
         html.append("<body style=\"-moz-user-select: -moz-none\">");
         html.append("<iframe src=\"javascript:''\" id='__gwt_historyFrame' tabIndex='-1' style='position:absolute;width:0;height:0;border:0'></iframe>");
         html.append("</body>");

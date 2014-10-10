@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amalto.core.util.LocalUser;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
@@ -36,7 +37,6 @@ import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
 import org.talend.mdm.webapp.browserecords.server.exception.UploadException;
 import org.talend.mdm.webapp.browserecords.server.service.UploadService;
 import org.talend.mdm.webapp.browserecords.server.util.UploadUtil;
@@ -193,7 +193,7 @@ public class UploadData extends HttpServlet {
     protected EntityModel getEntityModel(String concept) throws Exception {
         EntityModel entityModel = new EntityModel();
         DataModelHelper.parseSchema(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataModel(), concept,
-                entityModel, RoleHelper.getUserRoles());
+                entityModel, LocalUser.getLocalUser().getRoles());
         return entityModel;
     }
 

@@ -236,7 +236,7 @@ public class Utils {
     }
 
     private static void completeThirdPartJS(ArrayList<String> imports) {
-        imports.add("<script type=\"text/javascript\" src=\"/talendmdm/secure/dwr/interface/WidgetInterface.js\"></script>\n");//$NON-NLS-1$
+        imports.add("<script type=\"text/javascript\" src=\"/secure/dwr/interface/WidgetInterface.js\"></script>\n");//$NON-NLS-1$
         imports.add("<script language=\"javascript\" src=\"/core/secure/gxt/resources/flash/swfobject.js\"></script>"); //$NON-NLS-1$
     }
 
@@ -361,7 +361,7 @@ public class Utils {
 
     public static Boolean setDefaultLanguage(String language) throws Exception {
         try {
-            String userName = com.amalto.webapp.core.util.Util.getLoginUserName();
+            String userName = LocalUser.getLocalUser().getUsername();
             WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
             if (userName != null && userName.length() > 0) {
                 String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();

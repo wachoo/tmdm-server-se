@@ -164,7 +164,7 @@ public class Configuration {
                 .getPort()
                 .getItem(
                         new WSGetItem(new WSItemPK(
-                                new WSDataClusterPK("PROVISIONING"), "User", new String[] { Util.getLoginUserName() }))) //$NON-NLS-1$//$NON-NLS-2$
+                                new WSDataClusterPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser().getUsername() }))) //$NON-NLS-1$//$NON-NLS-2$
                 .getContent();
         Document d = Util.parse(xml);
         NodeList nodeList = com.amalto.core.util.Util.getNodeList(d, "//property"); //$NON-NLS-1$
@@ -205,7 +205,7 @@ public class Configuration {
                     new WSPutItem(new WSDataClusterPK("PROVISIONING"), Util.nodeToString(d.getDocumentElement()).replaceAll( //$NON-NLS-1$
                             "<\\?xml.*?\\?>", ""), new WSDataModelPK("PROVISIONING"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else {
-            Util.storeProvisioning(Util.getLoginUserName(), Util.nodeToString(d.getDocumentElement())
+            Util.storeProvisioning(LocalUser.getLocalUser().getUsername(), Util.nodeToString(d.getDocumentElement())
                     .replaceAll("<\\?xml.*?\\?>", "")); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
@@ -231,7 +231,7 @@ public class Configuration {
 
         Element user = null;
         try {
-            user = Util.getLoginProvisioningFromDB();
+            user = Util.parse(LocalUser.getLocalUser().getUserXML()).getDocumentElement();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

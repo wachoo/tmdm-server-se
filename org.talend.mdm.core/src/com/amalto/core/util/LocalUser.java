@@ -2,28 +2,18 @@ package com.amalto.core.util;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.ItemPOJO;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 
-import javax.security.auth.Subject;
 import java.util.HashSet;
 
 public class LocalUser {
     /*
      * A very special user that is triggered by scheduled, timeout or startup processes
      */
-    public final static String UNAUTHENTICATED_USER = "anonymous";
-
-    static ILocalUser localUser = null;
+    public final static String UNAUTHENTICATED_USER = "anonymous"; //$NON-NLS-1$
 
     private static ILocalUser findLocalUser() {
-        if (localUser == null) {
-            localUser = BeanDelegatorContainer.getInstance().getLocalUserDelegator();
-        }
-        if(localUser == null) {
-            throw new IllegalStateException("Unable to access user management interface.");
-        }
-        return localUser;
+        return BeanDelegatorContainer.getInstance().getLocalUserDelegator();
     }
 
     public HashSet<String> getRoles() {
@@ -59,10 +49,6 @@ public class LocalUser {
         return findLocalUser().getILocalUser();
     }
 
-    public static Subject getCurrentSubject() throws XtentisException {
-        return findLocalUser().getICurrentSubject();
-    }
-
     public static void resetLocalUsers() throws XtentisException {
         findLocalUser().resetILocalUsers();
     }
@@ -83,22 +69,6 @@ public class LocalUser {
         return findLocalUser().isAdmin(objectTypeClass);
     }
 
-    public boolean userItemCanWrite(ItemPOJO item, String datacluster, String concept) throws XtentisException {
-        return findLocalUser().userItemCanWrite(item, datacluster, concept);
-    }
-
-    public boolean userItemCanRead(ItemPOJO item) throws XtentisException {
-        return findLocalUser().userItemCanRead(item);
-    }
-
-    /**
-     * Checks if the user can change the instance of the object specified
-     * Ability to change implies ability to read
-     */
-    public boolean userCanWrite(Class<?> objectTypeClass, String instanceId) throws XtentisException {
-        return findLocalUser().userCanWrite(objectTypeClass, instanceId);
-    }
-
     /**
      * Checks if the user can read the instance of the object specified
      * @return true is the user can read
@@ -108,7 +78,6 @@ public class LocalUser {
     }
 
     public ILocalUser getILocalUser() throws XtentisException {
-        // No need to implement this method.
-        return null;
+        return getLocalUser().getILocalUser();
     }
 }

@@ -16,8 +16,10 @@ import java.io.ByteArrayInputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
+import com.amalto.core.util.LocalUser;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -41,24 +43,10 @@ public class DataModelAccessor {
         return accessor;
     }
 
-    public String getDataModelXSD(String dataModelName) throws RemoteException, XtentisWebappException {
-        if (dataModelName != null && !dataModelName.isEmpty()) {
-            WSDataModel dataModel = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelName)));
-            if (dataModel != null) {
-                return dataModel.getXsdSchema();
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
-
     public boolean checkReadAccess(String dataModelName, String conceptName) {
         try {
             if (dataModelName != null && conceptName != null) {
-                String roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles"); //$NON-NLS-1$
-                List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
+                Collection<String> roleList = LocalUser.getLocalUser().getRoles();
                 MetadataRepositoryAdmin admin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
                 MetadataRepository repository = admin.get(dataModelName);
                 return _checkReadAccess(repository, conceptName, roleList);
@@ -77,7 +65,7 @@ public class DataModelAccessor {
         return _checkReadAccess(repository, conceptName, roles);
     }
 
-    private boolean _checkReadAccess(MetadataRepository repository, String conceptName, List<String> roleList) {
+    private boolean _checkReadAccess(MetadataRepository repository, String conceptName, Collection<String> roleList) {
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type != null) {
             List<String> noAccessRoles = new ArrayList<String>(type.getHideUsers());
@@ -98,8 +86,7 @@ public class DataModelAccessor {
     public boolean checkRestoreAccess(String dataModelName, String conceptName) {
         try {
             if (dataModelName != null && conceptName != null) {
-                String roles = com.amalto.webapp.core.util.Util.getPrincipalMember("Roles"); //$NON-NLS-1$
-                List<String> roleList = Arrays.asList(roles.split(",")); //$NON-NLS-1$
+                Collection<String> roleList = LocalUser.getLocalUser().getRoles(); //$NON-NLS-1$
                 MetadataRepositoryAdmin admin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
                 MetadataRepository repository = admin.get(dataModelName);
                 return _checkRestoreAccess(repository, conceptName, roleList);
@@ -118,7 +105,7 @@ public class DataModelAccessor {
         return _checkRestoreAccess(repository, conceptName, roles);
     }
 
-    private boolean _checkRestoreAccess(MetadataRepository repository, String conceptName, List<String> roleList) {
+    private boolean _checkRestoreAccess(MetadataRepository repository, String conceptName, Collection<String> roleList) {
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type != null) {
             List<String> noAccessRoles = new ArrayList<String>(type.getHideUsers());

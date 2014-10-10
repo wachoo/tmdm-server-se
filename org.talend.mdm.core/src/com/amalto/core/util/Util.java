@@ -517,26 +517,9 @@ public class Util {
 
     public static List<String> getAuthorizationInfo() {
         ArrayList<String> authorizations = new ArrayList<String>();
-        String user = "", pwd = "";
         try {
-            Subject subject = LocalUser.getCurrentSubject();
-            Set<Principal> set = subject.getPrincipals();
-            for (Principal principal : set) {
-                if (principal instanceof Group) {
-                    Group group = (Group) principal;
-                    if ("Username".equals(group.getName())) {
-                        if (group.members().hasMoreElements()) {
-                            user = group.members().nextElement().getName();
-                        }
-                    } else if ("Password".equals(group.getName())) {
-                        if (group.members().hasMoreElements()) {
-                            pwd = group.members().nextElement().getName();
-                        }
-                    }
-                }
-            }
-            authorizations.add(user);
-            authorizations.add(pwd);
+            authorizations.add(LocalUser.getLocalUser().getUsername());
+            authorizations.add(LocalUser.getLocalUser().getPassword());
         } catch (XtentisException e) {
             Logger.getLogger(Util.class).error(e);
             return null;
@@ -827,34 +810,8 @@ public class Util {
     public static String getUsernameAndPasswordToken() {
         String token = null;
         try {
-            String userName = null;
-            String password = null;
-            Subject subject = LocalUser.getCurrentSubject();
-            if (subject != null) {
-                Set<Principal> set = subject.getPrincipals();
-                if (set != null) {
-                    for (Principal principal : set) {
-                        if (principal instanceof Group) {
-                            Group group = (Group) principal;
-                            if ("Username".equals(group.getName())) {
-                                if (group.members().hasMoreElements()) {
-                                    userName = group.members().nextElement().getName();
-                                }
-                            } else if ("Password".equals(group.getName())) {
-                                if (group.members().hasMoreElements()) {
-                                    password = group.members().nextElement().getName();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (userName == null) {
-                userName = "";
-            }
-            if (password == null) {
-                password = "";
-            }
+            String userName = LocalUser.getLocalUser().getUsername();
+            String password = LocalUser.getLocalUser().getPassword();
             token = userName + "/" + password;
         } catch (XtentisException e) {
             Logger.getLogger(Util.class).error(e);

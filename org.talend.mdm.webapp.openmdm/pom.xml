@@ -23,6 +23,14 @@
                 <configuration>
                     <descriptor>src/assemble/merge.xml</descriptor>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.talend.mdm</groupId>
+                        <artifactId>org.talend.mdm.webapp.core</artifactId>
+                        <classifier>lib</classifier>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
@@ -32,33 +40,53 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
-            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.general</artifactId>
-            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.welcomeportal</artifactId>
-            <version>${project.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.browserecords</artifactId>
-            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.recyclebin</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.journal</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.stagingarea</artifactId>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.ext.images.server</artifactId>
             <type>war</type>
         </dependency>
         <!-- Community-only dependencies-->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core.open</artifactId>
-            <version>${project.version}</version>
             <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core.open</artifactId>
+            <version>5.6-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

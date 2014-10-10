@@ -27,7 +27,6 @@ import com.amalto.webapp.core.json.JSONObject;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSElementDecl;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -36,7 +35,6 @@ import com.amalto.core.server.api.XmlServer;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
-import javax.security.auth.Subject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -46,7 +44,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -111,7 +108,7 @@ public class Util {
 
     private static XtentisPort getRMIEndPoint() throws XtentisWebappException {
         try {
-            return (XtentisPort) Class.forName("com.amalto.core.ejb.XtentisWSBean").newInstance(); //$NON-NLS-1$
+            return (XtentisPort) Class.forName("com.amalto.core.webservice.XtentisWSBean").newInstance(); //$NON-NLS-1$
         } catch (Exception e) {
             throw new XtentisWebappException(e);
         }
@@ -508,10 +505,6 @@ public class Util {
     }
 
     public static String[] getTextNodes(Node contextNode, String xPath) throws XtentisWebappException {
-        return getTextNodes(contextNode, xPath, contextNode);
-    }
-
-    public static String[] getTextNodes(Node contextNode, String xPath, Node namespaceNode) throws XtentisWebappException {
         // test for hard-coded values
         if (xPath.startsWith("\"") && xPath.endsWith("\"")) {
             return new String[] { xPath.substring(1, xPath.length() - 1) };
@@ -536,42 +529,14 @@ public class Util {
         }
     }
 
-    public static String getFirstTextNode(Node contextNode, String xPath, Node namespaceNode) throws XtentisWebappException {
-        String[] res = getTextNodes(contextNode, xPath, namespaceNode);
-        if (res.length == 0) {
-            return null;
-        }
-        return res[0];
-    }
-
     /**
      * Get the first text node matching the Xpath
-     * 
+     *
      * @return the String or null if not found
      * @throws XtentisWebappException
      */
     public static String getFirstTextNode(Node contextNode, String xPath) throws XtentisWebappException {
-        return getFirstTextNode(contextNode, xPath, contextNode);
-    }
-
-    public static String getLoginUserName() throws Exception {
-        throw new NotImplementedException();
-    }
-
-    public static String getLoginUniverse() throws Exception {
-        throw new NotImplementedException();
-    }
-
-    public static List<String> getLoginRoles() throws Exception {
-        throw new NotImplementedException();
-    }
-
-    public static Element getLoginProvisioningFromDB() throws Exception {
-        WSItem item = Util.getPort().getItem(
-                new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"), "User", new String[] { Util //$NON-NLS-1$ //$NON-NLS-2$
-                        .getLoginUserName() })));
-        String userString = item.getContent();
-        return (Element) com.amalto.core.util.Util.getNodeList(Util.parse(userString), "//User").item(0);
+        return getFirstTextNode(contextNode, xPath);
     }
 
     /**
@@ -669,31 +634,6 @@ public class Util {
             res = WSWhereOperator.EMPTY_NULL;
         }
         return res;
-    }
-
-    public static List<String> getElementValues(Node n) throws Exception {
-        List<String> l = new ArrayList<String>();
-        NodeList list = n.getChildNodes();
-        for (int i = 0; i < list.getLength(); i++) {
-            Node node = list.item(i);
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
-                String nValue = com.amalto.core.util.Util.getFirstTextNode(node, "."); //$NON-NLS-1$
-                if (!hasChildren(node)) {
-                    l.add(nValue);
-                }
-            }
-        }
-        return l;
-    }
-
-    public static boolean hasChildren(Node node) {
-        NodeList list = node.getChildNodes();
-        for (int i = 0; i < list.getLength(); i++) {
-            if (list.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static WSWhereItem buildWhereItems(String criteria) {
@@ -821,7 +761,7 @@ public class Util {
             // build query - add a content condition on the pivot if we search for a particular value
             // hshu fix bug 0013849: Lazy loading of FK picker always get records from the first 20 records of all
             // records
-            if (value != null && !"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
+            if (!"".equals(value.trim()) && !".*".equals(value.trim())) { //$NON-NLS-1$ //$NON-NLS-2$
                 List<WSWhereItem> condition = new ArrayList<WSWhereItem>();
                 if (whereItem != null) {
                     condition.add(whereItem);
@@ -864,10 +804,7 @@ public class Util {
                 WSWhereItem wc = buildWhereItems(fkWhere);
                 condition.add(wc);
                 WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-                WSWhereItem whereAnd = new WSWhereItem(null, and, null);
-                if (whereAnd != null) {
-                    whereItem = whereAnd;
-                }
+                whereItem = new WSWhereItem(null, and, null);
             }
             // add the xPath Infos Path
             ArrayList<String> xPaths = new ArrayList<String>();
@@ -879,7 +816,7 @@ public class Util {
             xPaths.add(initXpathForeignKey + "/../../i"); //$NON-NLS-1$
             // order by
             String orderByPath = null;
-            if (!"".equals(xpathInfoForeignKey) && xpathInfoForeignKey != null) { //$NON-NLS-1$
+            if (!"".equals(xpathInfoForeignKey)) { //$NON-NLS-1$
                 orderByPath = getFormatedFKInfo(xpathInfos[0].replaceFirst(initXpathForeignKey, initXpathForeignKey),
                         initXpathForeignKey);
             }
@@ -968,11 +905,6 @@ public class Util {
             return json.toString();
         }
         throw new Exception("Unexpected concept name: '" + initXpathForeignKey + "'"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter)
-            throws Exception {
-        return countForeignKey_filter(xpathForeignKey, xpathForeignKeyinfo, fkFilter, null);
     }
 
     public static String countForeignKey_filter(String xpathForeignKey, String xpathForeignKeyinfo, String fkFilter,
@@ -1191,18 +1123,13 @@ public class Util {
     }
 
     public static boolean isAuth(Set<String> roleSet) throws Exception {
-        String roles = getPrincipalMember("Roles"); //$NON-NLS-1$
-        String[] roleArr = roles.split(","); //$NON-NLS-1$
+        Collection<String> roleArr = LocalUser.getLocalUser().getRoles();
         for (String role : roleArr) {
             if (roleSet.contains(role)) {
                 return false;
             }
         }
         return true;
-    }
-
-    public static String getPrincipalMember(String roles) {
-        throw new NotImplementedException();
     }
 
     public static void filterAuthViews(Map<String, String> viewMap) throws Exception {
@@ -1222,7 +1149,7 @@ public class Util {
 
     public static String getDefaultLanguage() throws Exception {
         String defaultLanguage = ""; //$NON-NLS-1$
-        String userName = getLoginUserName();
+        String userName = LocalUser.getLocalUser().getUsername();
         WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
         if (userName != null && userName.length() > 0) {
             Document doc = XMLUtils.parse(Util.getPort().getItem(new WSGetItem(itemPK)).getContent());

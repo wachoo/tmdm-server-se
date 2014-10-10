@@ -11,6 +11,7 @@
 
 package com.amalto.core.server;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;

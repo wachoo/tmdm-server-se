@@ -16,6 +16,7 @@ package com.amalto.core.jobox.properties;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -78,7 +79,8 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
             String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
             if (jbossServerDir != null) {
                 properties.put("jboss.server.home.dir", jbossServerDir); //$NON-NLS-1$
-                properties.put("log4j.configuration", System.getProperty("jboss.server.config.url") + "/log4j-jobox.properties"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                URL joboxLog4j = SunOracleStandardPropertiesStrategy.class.getResource("log4j-jobox.properties"); //$NON-NLS-1$
+                properties.put("log4j.configuration", joboxLog4j.toExternalForm()); //$NON-NLS-1$
             } else {
                 LOGGER.error("Jobox Log4J environment not set"); //$NON-NLS-1$
             }

@@ -3,6 +3,7 @@ package com.amalto.webapp.core.util;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import com.amalto.core.util.LocalUser;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -159,12 +160,12 @@ public class Menu {
         // The index of Menu Entries
         HashMap<String, Menu> menuIndex = new HashMap<String, Menu>();
         try {
-            if (MDMConfiguration.getAdminUser().equals(Util.getLoginUserName())) {
+            if (MDMConfiguration.getAdminUser().equals(LocalUser.getLocalUser().getUsername())) {
                 // TODO: should we do anything here?
                 return menuIndex;
             }
             // not admin
-            for (String role : Util.getLoginRoles()) {
+            for (String role : LocalUser.getLocalUser().getRoles()) {
                 LOGGER.debug("getMenuIndex() ROLE " + role);
                 if (!("authenticated".equals(role) || "administration".equals(role) || "disabled".equals(role))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     WSRole wsRole = Util.getPort().getRole(new WSGetRole(new WSRolePK(role)));

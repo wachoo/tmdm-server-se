@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amalto.core.util.LocalUser;
 import org.apache.log4j.Logger;
 
 import com.amalto.webapp.core.util.SessionListener;
@@ -44,7 +45,7 @@ public class LogoutServlet extends HttpServlet {
         int errorCode = -1;
         if (user != null) {
             try {
-                String username = com.amalto.webapp.core.util.Util.getLoginUserName();
+                String username = LocalUser.getLocalUser().getUsername();
                 if (user.equals(username)) {
                     SessionListener.unregisterUser(user);
                 } else {

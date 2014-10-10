@@ -45,11 +45,12 @@ public class BeanDelegatorContainer {
     public static synchronized BeanDelegatorContainer getInstance() {
         if (instance == null) {
             instance = new BeanDelegatorContainer();
+            instance.init();
         }
         return instance;
     }
 
-    private void init() {
+    public void init() {
         synchronized (delegatorInstancePool) {
             Map<String, String> beanImplNamesMap = BeanDelegatorConfigReader.readConfiguration();
             for (Map.Entry<String, String> currentBean : beanImplNamesMap.entrySet()) {
@@ -71,6 +72,7 @@ public class BeanDelegatorContainer {
     }
 
     public ILocalUser getLocalUserDelegator() {
+        init();
         synchronized (delegatorInstancePool) {
             return (ILocalUser) delegatorInstancePool.get(LOCAL_USER);
         }

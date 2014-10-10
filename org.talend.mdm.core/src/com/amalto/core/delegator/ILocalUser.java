@@ -13,20 +13,35 @@
 package com.amalto.core.delegator;
 
 import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
 import com.amalto.core.util.XtentisException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import javax.security.auth.Subject;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
-public abstract class ILocalUser implements IBeanDelegator {
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
-    public Subject getICurrentSubject() throws XtentisException {
-        return null; // TODO
-    }
+public abstract class ILocalUser implements IBeanDelegator {
 
     public ILocalUser getILocalUser() throws XtentisException {
         return null;
@@ -48,15 +63,36 @@ public abstract class ILocalUser implements IBeanDelegator {
     }
 
     public String getUserXML() {
-        return null;
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        ComplexTypeMetadata userType = systemStorage.getMetadataRepository().getComplexType("User"); //$NON-NLS-1$
+        UserQueryBuilder qb = from(userType).where(eq(userType.getField("username"), getUsername())); //$NON-NLS-1$
+        DataRecordWriter writer = new SystemDataRecordXmlWriter((ClassRepository) systemStorage.getMetadataRepository(), userType);
+        StringWriter userXml = new StringWriter();
+        try {
+            systemStorage.begin();
+            StorageResults results = systemStorage.fetch(qb.getSelect());
+            for (DataRecord result : results) {
+                writer.write(result, userXml);
+            }
+            systemStorage.commit();
+        } catch (IOException e) {
+            systemStorage.rollback();
+            throw new RuntimeException("Could not access user record.", e);
+        }
+        return userXml.toString();
     }
 
     public String getUsername() {
-        return MDMConfiguration.getAdminUser(); // TODO
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        return user.getUsername(); 
     }
 
     public String getPassword() {
-        return MDMConfiguration.getAdminUser(); // TODO
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        return user.getPassword();
     }
 
     public boolean isAdmin(Class<?> objectTypeClass) throws XtentisException {
