@@ -49,13 +49,6 @@ public class ConfigurableContainsOptimizer implements Optimizer {
         if (select.getCondition() != null) {
             Condition condition = select.getCondition();
             RDBMSDataSource.ContainsOptimization containsOptimization = dataSource.getContainsOptimization();
-            if (dataSource.isCaseSensitiveSearch()) {
-                // Nothing to do: can't twist Lucene index for case sensitive searches (for all cases).
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Cannot use '" + containsOptimization + "': datasource configuration asks for case sensitive comparisons.");
-                }
-                return;
-            }
             if (containsOptimization == RDBMSDataSource.ContainsOptimization.LIKE) {
                 // Nothing to do
                 return;
