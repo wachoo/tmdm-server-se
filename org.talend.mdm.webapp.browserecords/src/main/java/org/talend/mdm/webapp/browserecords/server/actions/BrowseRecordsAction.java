@@ -616,7 +616,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSItemPK wsItemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
             WSDropItem wsDropItem = new WSDropItem(wsItemPK, path, override);
             wsDropItem.setSource("genericUI"); //$NON-NLS-1$
-            wsDropItem.setInvokeBeforeSaving(true);
+            wsDropItem.setInvokeBeforeDeleting(true);
             wsDropItem.setWithReport(true);
             CommonUtil.getPort().dropItem(wsDropItem);
         } catch (ServiceException e) {
