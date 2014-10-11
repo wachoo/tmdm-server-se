@@ -227,6 +227,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
         FKSearchField f = new FKSearchField(fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo());
         f.setUsageField("ForeignKeyTablePanel"); //$NON-NLS-1$
+        f.setStaging(isStaging);
         keyCellEditor = new FKKeyCellEditor(f, fkTypeModel, this);
 
         keyColumn.setEditor(keyCellEditor);
