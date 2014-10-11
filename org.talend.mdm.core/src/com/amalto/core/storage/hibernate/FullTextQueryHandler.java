@@ -15,8 +15,6 @@ import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
@@ -112,11 +110,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         }
         // Create Lucene query (concatenates all sub queries together).
         FullTextSession fullTextSession = Search.getFullTextSession(session);
-        DataSource dataSource = storage.getDataSource();
-        if (!(dataSource instanceof RDBMSDataSource)) {
-            throw new IllegalArgumentException("Data source is not a RDBMS datasource.");
-        }
-        Query parsedQuery = select.getCondition().accept(new LuceneQueryGenerator(types, (RDBMSDataSource) dataSource));
+        Query parsedQuery = select.getCondition().accept(new LuceneQueryGenerator(types));
         // Create Hibernate Search query
         Set<Class> classes = new HashSet<Class>();
         for (ComplexTypeMetadata type : types) {

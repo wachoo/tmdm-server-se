@@ -44,6 +44,7 @@
                 <fulltext-index-directory>target/indexes/H2_DS1</fulltext-index-directory>
                 <schema-generation>create</schema-generation>
                 <case-sensitive-search>true</case-sensitive-search>
+                <contains-optimization>like</contains-optimization>
             </rdbms-configuration>
         </master>
         <staging>
