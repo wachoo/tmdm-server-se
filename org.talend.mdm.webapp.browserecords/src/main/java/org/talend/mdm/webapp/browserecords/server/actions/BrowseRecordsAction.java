@@ -17,16 +17,25 @@ import java.io.StringReader;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import com.amalto.core.util.*;
-import com.amalto.core.webservice.*;
-import com.amalto.core.ejb.UpdateReportPOJO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -90,12 +99,22 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
 import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.task.StagingConstants;
+import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.FieldNotFoundException;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.webservice.WSBoolean;
+import com.amalto.core.webservice.WSByteArray;
+import com.amalto.core.webservice.WSConceptKey;
+import com.amalto.core.webservice.WSCount;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSDeleteItem;
@@ -115,6 +134,7 @@ import com.amalto.core.webservice.WSItem;
 import com.amalto.core.webservice.WSItemPK;
 import com.amalto.core.webservice.WSPutItem;
 import com.amalto.core.webservice.WSPutItemWithReport;
+import com.amalto.core.webservice.WSString;
 import com.amalto.core.webservice.WSStringArray;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.core.webservice.WSTransformer;
@@ -125,6 +145,7 @@ import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.core.webservice.WSTypedContent;
 import com.amalto.core.webservice.WSView;
 import com.amalto.core.webservice.WSViewPK;
+import com.amalto.core.webservice.WSViewPKArray;
 import com.amalto.core.webservice.WSViewSearch;
 import com.amalto.core.webservice.WSWhereAnd;
 import com.amalto.core.webservice.WSWhereCondition;
@@ -290,6 +311,26 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
+    public ForeignKeyBean getForeignKeyBean(String concept, String ids, String xml, String currentXpath, String foreignKey,
+            List<String> foreignKeyInfo, String foreignKeyFilter, boolean staging, String language) throws ServiceException {
+        String currentDataCluster = getCurrentDataCluster(staging);
+        EntityModel entityModel = getEntityModel(concept, language);
+        TypeModel model = entityModel.getMetaDataTypes().get(concept);
+        model.setForeignkey(foreignKey);
+        model.setForeignKeyInfo(foreignKeyInfo);
+        model.setRetrieveFKinfos(true);
+        model.setFkFilter(foreignKeyFilter);
+        EntityModel foreignKeyEntityModel = getEntityModel(model.getForeignkey().split("/")[0], language); //$NON-NLS-1$
+        try {
+            return ForeignKeyHelper.getForeignKeyBean(model, foreignKeyEntityModel, currentDataCluster, ids, xml, currentXpath,
+                    language);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    @Override
     public List<Restriction> getForeignKeyPolymTypeList(String xpathForeignKey, String language) throws ServiceException {
         try {
             String fkEntityType;
@@ -300,8 +341,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
                     xpathForeignKey = xpathForeignKey.substring(1);
                 }
-                String fkEntity; //$NON-NLS-1$                
-				if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
+                String fkEntity;
+                if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
                     fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
                 } else {
                     fkEntity = xpathForeignKey;
@@ -1735,23 +1776,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
             ItemNodeModel nodeModel = getItemNodeModel(itemBean, viewBean.getBindingEntityModel(), isStaging, language);
             return new ForeignKeyModel(viewBean, itemBean, nodeModel);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
-        }
-    }
-
-    @Override
-    public ForeignKeyBean getForeignKeyBean(String idsString, String concept, List<String> foreignKeyInfo, boolean staging,
-            String language) throws ServiceException {
-        try {
-            String viewPk = "Browse_items_" + concept; //$NON-NLS-1$
-            ViewBean viewBean = getView(viewPk, language);
-            EntityModel entityModel = viewBean.getBindingEntityModel();
-            String[] ids = CommonUtil.extractIdWithDots(entityModel.getKeys(), idsString);
-            ItemBean itemBean = getItemBeanById(concept, ids, language);
-            return ForeignKeyHelper.getForeignKeyBean(entityModel, getCurrentDataCluster(staging), concept, foreignKeyInfo,
-                    itemBean.getItemXml(), language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
