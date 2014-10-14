@@ -295,6 +295,10 @@ public class UserQueryBuilder {
 
     public static Condition emptyOrNull(FieldMetadata field) {
         assertNullField(field);
+        // TMDM-7700: IsEmpty on a FK field should be considered as IsNull
+        if (!field.isMany() && field instanceof ReferenceFieldMetadata) {
+            return new IsNull(new Field(field));
+        }
         // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
         if (Types.STRING.equals(field.getType().getName())) {
             return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
@@ -310,6 +314,13 @@ public class UserQueryBuilder {
             FieldMetadata testedField = ((Type) field).getField().getFieldMetadata();
             return new Isa(new Field(testedField), ((ContainedTypeFieldMetadata) testedField).getContainedType());
         }
+        // TMDM-7700: IsEmpty on a FK field should be considered as IsNull
+        if (field instanceof Field) {
+            FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
+            if (!fieldMetadata.isMany() && fieldMetadata instanceof ReferenceFieldMetadata) {
+                return new IsNull(new Field(fieldMetadata));
+            }
+        }                
         // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
         if (Types.STRING.equals(field.getTypeName())) {
             return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
