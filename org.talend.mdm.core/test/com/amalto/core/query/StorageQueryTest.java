@@ -3977,6 +3977,16 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         storage.commit();
+        
+        qb = from(address).where(emptyOrNull(field));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
