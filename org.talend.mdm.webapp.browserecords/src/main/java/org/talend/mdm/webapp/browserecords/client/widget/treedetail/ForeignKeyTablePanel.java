@@ -578,7 +578,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                                     setCriteriaFK(foreignKeyBean);
                                 } else {
                                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                            .foreignkeybean_filter_warnging(), null);
+                                            .foreignkey_filter_warning(), null);
                                 }
                             }
                         });
