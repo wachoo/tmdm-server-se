@@ -3828,6 +3828,17 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+        qb = from(person).selectId(person).select(person.getField("firstname")).select(timestamp()).select(taskId())
+                .where(contains(person.getField("firstname"), "Jul"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                assertNotNull(result.get("metadata:timestamp"));
+                assertTrue(((Long) result.get("metadata:timestamp")) > 0);
+            }
+        } finally {
+            results.close();
+        }
     }
 
     public void testCountProjection() throws Exception {

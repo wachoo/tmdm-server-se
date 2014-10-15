@@ -226,7 +226,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
                         private Void handleMetadataField(MetadataField field) {
                             SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, field.getTypeName());
-                            SimpleTypeFieldMetadata aliasField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, aliasName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY);
+                            String fieldName = aliasName == null ? field.getFieldName() : aliasName;
+                            SimpleTypeFieldMetadata aliasField = new SimpleTypeFieldMetadata(explicitProjectionType, false, false, false, fieldName, fieldType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY);
                             explicitProjectionType.addField(aliasField);
                             nextRecord.set(aliasField, field.getReader().readValue(next));
                             return null;
@@ -346,6 +347,20 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             } else {
                                 throw new IllegalArgumentException("Aliased expression '" + typedExpression + "' is not supported.");
                             }
+                        } else if (selectedField instanceof MetadataField) {
+                            SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, selectedField.getTypeName());
+                            SimpleTypeFieldMetadata newField = new SimpleTypeFieldMetadata(explicitProjectionType,
+                                    false,
+                                    false,
+                                    false,
+                                    ((MetadataField) selectedField).getFieldName(),
+                                    fieldType,
+                                    Collections.<String>emptyList(),
+                                    Collections.<String>emptyList(),
+                                    Collections.<String>emptyList(),
+                                    StringUtils.EMPTY);
+                            explicitProjectionType.addField(newField);
+                            nextRecord.set(newField, ((MetadataField) selectedField).getReader().readValue(next));
                         }
                     }
                     explicitProjectionType.freeze();
