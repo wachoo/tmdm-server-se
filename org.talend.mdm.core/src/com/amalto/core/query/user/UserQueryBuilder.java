@@ -265,13 +265,14 @@ public class UserQueryBuilder {
                 || Types.HEX_BINARY.equals(fieldTypeName)
                 || Types.BASE64_BINARY.equals(fieldTypeName)
                 || Types.ANY_URI.equals(fieldTypeName)
-                || Types.QNAME.equals(fieldTypeName)) {
+                || Types.QNAME.equals(fieldTypeName)
+                || Types.DURATION.equals(fieldTypeName)) {
             return new StringConstant(constant);
         } else if (Types.DATE.equals(fieldTypeName)) {
             return new DateConstant(constant);
         } else if (Types.DATETIME.equals(fieldTypeName)) {
             return new DateTimeConstant(constant);
-        } else if (Types.TIME.equals(fieldTypeName) || Types.DURATION.equals(fieldTypeName)) {
+        } else if (Types.TIME.equals(fieldTypeName)) {
             return new TimeConstant(constant);
         } else if (Types.BOOLEAN.equals(fieldTypeName)) {
             boolean value = Boolean.parseBoolean(constant);
