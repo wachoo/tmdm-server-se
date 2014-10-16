@@ -386,7 +386,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 || Types.BOOLEAN.equals(type)
                 || Types.BASE64_BINARY.equals(type)
                 || Types.QNAME.equals(type)
-                || Types.HEX_BINARY.equals(type)) {
+                || Types.HEX_BINARY.equals(type)
+                || Types.DURATION.equals(type)) {
             return SortField.STRING_VAL; // STRING does not work well for 'long' strings.
         } else if (Types.INT.equals(type)
                 || Types.INTEGER.equals(type)
@@ -400,8 +401,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
             return SortField.DOUBLE;
         } else if (Types.DATE.equals(type)
                 || Types.DATETIME.equals(type)
-                || Types.TIME.equals(type)
-                || Types.DURATION.equals(type)) {
+                || Types.TIME.equals(type)) {
             return SortField.STRING;
         } else if (Types.UNSIGNED_SHORT.equals(type) || Types.SHORT.equals(type)) {
             return SortField.SHORT;

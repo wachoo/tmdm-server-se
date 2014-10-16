@@ -481,8 +481,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         }
         type = MetadataUtils.getSuperConcreteType(type);
         boolean validType = !(Types.DATE.equals(type.getName()) || Types.DATETIME.equals(type.getName())
-                || Types.TIME.equals(type.getName()) || Types.DURATION.equals(type.getName())
-                || Types.BYTE.equals(type.getName()) || Types.UNSIGNED_BYTE.equals(type.getName()));
+                || Types.TIME.equals(type.getName()) || Types.BYTE.equals(type.getName()) || Types.UNSIGNED_BYTE.equals(type
+                .getName()));
         if (!metadata.isMany() && validType) {
             if (Types.INTEGER.equals(type.getName()) || Types.DOUBLE.equals(type.getName())) {
                 return new NumericSearchIndexHandler();
