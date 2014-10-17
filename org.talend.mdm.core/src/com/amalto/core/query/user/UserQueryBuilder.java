@@ -534,7 +534,6 @@ public class UserQueryBuilder {
             typedExpression = new Field(field);
         }
         expressionAsSelect().getSelectedFields().add(typedExpression);
-        expressionAsSelect().setProjection(true);
         return this;
     }
 
@@ -782,7 +781,6 @@ public class UserQueryBuilder {
                 throw new UnsupportedOperationException("Can't select twice a non-field expression.");
             }
         }
-        select.setProjection(true);
         return this;
     }
 

@@ -34,8 +34,6 @@ public class Select implements Expression {
 
     private String revisionId = "1"; //$NON-NLS-1$
 
-    private boolean isProjection;
-
     private boolean forUpdate = false;
 
     private At history;
@@ -82,11 +80,7 @@ public class Select implements Expression {
      *         is selecting few fields (that may or not belong to the same type).
      */
     public boolean isProjection() {
-        return isProjection;
-    }
-
-    public void setProjection(boolean projection) {
-        isProjection = projection;
+        return !selectedFields.isEmpty();
     }
 
     public void addJoin(Join join) {
@@ -160,7 +154,6 @@ public class Select implements Expression {
         for (OrderBy currentOrderBy : this.orderBy) {
             copy.addOrderBy(currentOrderBy);
         }
-        copy.setProjection(this.isProjection);
         for (Join join : joins) {
             copy.getJoins().add(join);
         }
@@ -182,9 +175,6 @@ public class Select implements Expression {
             return false;
         }
         Select select = (Select) o;
-        if (isProjection != select.isProjection) {
-            return false;
-        }
         if (condition != null ? !condition.equals(select.condition) : select.condition != null) {
             return false;
         }
@@ -218,7 +208,6 @@ public class Select implements Expression {
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
         result = 31 * result + (revisionId != null ? revisionId.hashCode() : 0);
         result = 31 * result + (orderBy.hashCode());
-        result = 31 * result + (isProjection ? 1 : 0);
         return result;
     }
 
