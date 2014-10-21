@@ -176,39 +176,35 @@ public class MainFramePanel extends Portal {
         props = portalConfig;
         configFromActionsPanel = userConfig;
 
-        if (portalConfig.getPortletToLocations() == null) { // no portal configs in db yet, get autrefresh config
-                                                            // settings
-            service.getWelcomePortletConfig(new SessionAwareAsyncCallback<Map<Boolean, Integer>>() {
+        service.getWelcomePortletConfig(new SessionAwareAsyncCallback<Map<Boolean, Integer>>() {
 
-                @Override
-                public void onSuccess(Map<Boolean, Integer> config) {
-                    if (!config.containsKey(startedAsOn)) {
-                        startedAsOn = !startedAsOn;
-                    }
-
-                    interval = config.get(startedAsOn);
-                    default_index_ordering = getDefaultPortletOrdering(isEnterprise);
-                    if (isEnterprise) {
-                        chartsOn = true;
-                    }
-                    initializePortlets();
+            @Override
+            public void onSuccess(Map<Boolean, Integer> config) {
+                boolean startedAsOnCp = startedAsOn;
+                if (!config.containsKey(startedAsOnCp)) {
+                    startedAsOnCp = !startedAsOnCp;
                 }
 
-                @Override
-                public void doOnFailure(Throwable e) {
-                    startedAsOn = DEFAULT_REFRESH_STARTASON;
-                    interval = DEFAULT_REFRESH_INTERVAL;
-                    default_index_ordering = getDefaultPortletOrdering(isEnterprise);
-                    if (isEnterprise) {
-                        chartsOn = true;
-                    }
-                    initializePortlets();
+                interval = config.get(startedAsOnCp);
+                default_index_ordering = getDefaultPortletOrdering(isEnterprise);
+                if (isEnterprise) {
+                    chartsOn = true;
                 }
+                initializePortlets();
+            }
 
-            });
-        } else {
-            initializePortlets();
-        }
+            @Override
+            public void doOnFailure(Throwable e) {
+                startedAsOn = DEFAULT_REFRESH_STARTASON;
+                interval = DEFAULT_REFRESH_INTERVAL;
+                default_index_ordering = getDefaultPortletOrdering(isEnterprise);
+                if (isEnterprise) {
+                    chartsOn = true;
+                }
+                initializePortlets();
+            }
+
+        });
     }
 
     private List<String> getDefaultPortletOrdering(boolean isEE) {
