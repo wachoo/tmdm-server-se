@@ -304,19 +304,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             }
         });
 
-        // TMDM-3202 open FK in new tab
-        grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemNodeModel>>() {
-
-            @Override
-            public void handleEvent(GridEvent<ItemNodeModel> be) {
-                int rowIndex = be.getRowIndex();
-                if (rowIndex != -1) {
-                    ItemNodeModel model = grid.getStore().getAt(rowIndex);
-                    openForeignKey(model);
-                }
-            }
-        });
-
         if (parent.getParent() != null && !parent.isMandatory()) {
             grid.getView().addListener(Events.Refresh, new Listener<BaseEvent>() {
 
