@@ -1,41 +1,70 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage;
 
-import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.metadata.Timestamp;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.record.*;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import java.io.*;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import com.amalto.core.load.io.ResettableStringWriter;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.Split;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public class StorageWrapper implements IXmlServerSLWrapper {
 
@@ -50,7 +79,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     private static Select getSelectTypeById(ComplexTypeMetadata type, String revisionId, String[] splitUniqueId, String uniqueID) {
         ComplexTypeMetadata typeForSelect = type;
-        while (typeForSelect.getSuperTypes() != null && !typeForSelect.getSuperTypes().isEmpty() && typeForSelect.getSuperTypes().size() > 0) {
+        while (typeForSelect.getSuperTypes() != null && !typeForSelect.getSuperTypes().isEmpty()
+                && typeForSelect.getSuperTypes().size() > 0) {
             typeForSelect = (ComplexTypeMetadata) typeForSelect.getSuperTypes().iterator().next();
         }
         UserQueryBuilder qb = UserQueryBuilder.from(typeForSelect);
@@ -61,9 +91,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             for (String currentId : splitUniqueId) {
                 builder.append(currentId).append('.');
             }
-            throw new IllegalArgumentException("Id '" + builder.toString() + "' does not contain all required values for key of type '" + type.getName() + "'.");
+            throw new IllegalArgumentException("Id '" + builder.toString()
+                    + "' does not contain all required values for key of type '" + type.getName() + "'.");
         } else if (keyFields.size() == 1) {
-            // Split unique id > keyField: if # of key elements is 1, consider all remaining value as a single value (with '.' separators).
+            // Split unique id > keyField: if # of key elements is 1, consider all remaining value as a single value
+            // (with '.' separators).
             String uniqueIdPrefix = splitUniqueId[0] + '.' + splitUniqueId[1] + '.';
             String key = StringUtils.removeStart(uniqueID, uniqueIdPrefix);
             qb.where(eq(keyFields.iterator().next(), key));
@@ -100,14 +132,17 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return typeName.toString();
     }
 
+    @Override
     public boolean isUpAndRunning() {
         return getStorageAdmin() != null;
     }
 
+    @Override
     public String[] getAllClusters(String revisionID) throws XmlServerException {
         return getStorageAdmin().getAll(revisionID);
     }
 
+    @Override
     public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
@@ -118,6 +153,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
+    @Override
     public long deleteAllClusters(String revisionID) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
@@ -126,6 +162,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
+    @Override
     public long createCluster(String revisionID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
@@ -136,16 +173,21 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
+    @Override
     public boolean existCluster(String revision, String cluster) throws XmlServerException {
         StorageType storageType = cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
         return getStorageAdmin().exist(cluster, storageType, revision);
     }
 
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    @Override
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID)
+            throws XmlServerException {
         return putDocumentFromFile(fileName, uniqueID, clusterName, revisionID, IXmlServerSLWrapper.TYPE_DOCUMENT);
     }
 
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    @Override
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID, String documentType)
+            throws XmlServerException {
         long startTime = System.currentTimeMillis();
         File file = new File(fileName);
         if (!file.canRead()) {
@@ -165,11 +207,15 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - startTime;
     }
 
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    @Override
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID)
+            throws XmlServerException {
         return putDocumentFromString(xmlString, uniqueID, clusterName, revisionID, null);
     }
 
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    @Override
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID,
+            String documentType) throws XmlServerException {
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
@@ -185,7 +231,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    @Override
+    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID)
+            throws XmlServerException {
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
@@ -198,7 +246,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException {
+    @Override
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId)
+            throws XmlServerException {
         String typeName = getTypeName(input.getPublicId());
         long start = System.currentTimeMillis();
         {
@@ -215,15 +265,19 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
+    @Override
     public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XmlServerException {
-        // TODO Web UI sends incomplete ids (in case of save of instance with auto increment). Fix caller code in IXtentisRMIPort.
+        // TODO Web UI sends incomplete ids (in case of save of instance with auto increment). Fix caller code in
+        // IXtentisRMIPort.
         if (uniqueID.split("\\.").length < 3) { //$NON-NLS-1$
             return null;
         }
         return getDocumentAsString(revisionID, clusterName, uniqueID, "UTF-8"); //$NON-NLS-1$
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding) throws XmlServerException {
+    @Override
+    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding)
+            throws XmlServerException {
         if (encoding == null) {
             encoding = "UTF-8"; //$NON-NLS-1$
         }
@@ -270,7 +324,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException {
+    @Override
+    public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType)
+            throws XmlServerException {
         try {
             return getDocumentAsString(revisionID, clusterName, uniqueID).getBytes("UTF-8"); //$NON-NLS-1$
         } catch (UnsupportedEncodingException e) {
@@ -278,16 +334,18 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
+    @Override
     public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
         List<String> uniqueIds = new LinkedList<String>();
         Storage storage = getStorage(clusterName, revisionID);
         MetadataRepository repository = storage.getMetadataRepository();
         Collection<ComplexTypeMetadata> typeToQuery;
-        if(clusterName.contains("/")) { //$NON-NLS-1$
+        if (clusterName.contains("/")) { //$NON-NLS-1$
             String typeName = StringUtils.substringAfter(clusterName, "/"); //$NON-NLS-1$
             ComplexTypeMetadata complexType = repository.getComplexType(typeName);
             if (complexType == null) {
-                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in container '" + storage.getName() + "'");
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in container '" + storage.getName()
+                        + "'");
             }
             typeToQuery = Collections.singletonList(complexType);
         } else {
@@ -319,7 +377,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public long deleteDocument(String revisionID, String clusterName, final String uniqueID, String documentType) throws XmlServerException {
+    @Override
+    public long deleteDocument(String revisionID, String clusterName, final String uniqueID, String documentType)
+            throws XmlServerException {
         long start = System.currentTimeMillis();
         {
             String typeName = getTypeName(uniqueID);
@@ -341,12 +401,18 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
-    public int deleteXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String objectRootElementName, IWhereItem whereItem) throws XmlServerException {
+    @Override
+    public int deleteXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID,
+            HashMap<String, String> objectRootElementNameToClusterName, String objectRootElementName, IWhereItem whereItem)
+            throws XmlServerException {
         // Storage does not handle MDM internal data, thus supporting this method seems useless.
         throw new UnsupportedOperationException();
     }
 
-    public int deleteItems(LinkedHashMap<String, String> conceptPatternsToRevisionID, LinkedHashMap<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
+    @Override
+    public int deleteItems(LinkedHashMap<String, String> conceptPatternsToRevisionID,
+            LinkedHashMap<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem)
+            throws XmlServerException {
         if (conceptName == null) {
             throw new IllegalArgumentException("Concept name can not be null.");
         }
@@ -371,7 +437,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         MetadataRepository repository = storage.getMetadataRepository();
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type == null) {
-            throw new IllegalArgumentException("Type '" + conceptName + "' does not exist in cluster '" + storage.getName() + "'.");
+            throw new IllegalArgumentException("Type '" + conceptName + "' does not exist in cluster '" + storage.getName()
+                    + "'.");
         }
         UserQueryBuilder qb = from(type);
         qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
@@ -395,11 +462,15 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public long moveDocumentById(String sourceRevisionID, String sourceClusterName, String uniqueID, String targetRevisionID, String targetClusterName) throws XmlServerException {
+    @Override
+    public long moveDocumentById(String sourceRevisionID, String sourceClusterName, String uniqueID, String targetRevisionID,
+            String targetClusterName) throws XmlServerException {
         throw new NotImplementedException();
     }
 
-    public long countItems(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
+    @Override
+    public long countItems(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName,
+            String conceptName, IWhereItem whereItem) throws XmlServerException {
         if (conceptName == null) {
             throw new IllegalArgumentException("Concept name can not be null.");
         }
@@ -455,48 +526,76 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return count;
     }
 
-    public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, IWhereItem whereItem) throws XmlServerException {
+    @Override
+    public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID,
+            HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, IWhereItem whereItem)
+            throws XmlServerException {
         // Storage does not handle MDM internal data, thus supporting this method seems useless.
         throw new UnsupportedOperationException();
     }
 
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
+    @Override
+    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID,
+            Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths,
+            IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
         // Don't support query text stuff
         throw new UnsupportedOperationException();
     }
 
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
+    @Override
+    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID,
+            Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths,
+            IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow,
+            Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
         // Don't support query text stuff
         throw new UnsupportedOperationException();
     }
 
-    public String getXtentisObjectsQuery(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
+    @Override
+    public String getXtentisObjectsQuery(HashMap<String, String> objectRootElementNameToRevisionID,
+            HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName,
+            ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit)
+            throws XmlServerException {
         // Don't support query text stuff
         throw new UnsupportedOperationException();
     }
 
-    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID, LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow) throws XmlServerException {
+    @Override
+    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID,
+            LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName,
+            ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit,
+            boolean totalCountOnFirstRow) throws XmlServerException {
         // Don't support query text stuff
         throw new UnsupportedOperationException();
     }
 
-    public String getPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap<String, String[]> pivotWithKeys, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections, String[] indexDirections, int start, int limit) throws XmlServerException {
+    @Override
+    public String getPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap<String, String[]> pivotWithKeys,
+            LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, String[] indexPaths, IWhereItem whereItem,
+            String[] pivotDirections, String[] indexDirections, int start, int limit) throws XmlServerException {
         // Don't support query text stuff
         throw new UnsupportedOperationException();
     }
 
-    public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXPaths, String FKXpath, String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, IWhereItem whereItem, int start, int limit) throws XmlServerException {
+    @Override
+    public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXPaths, String FKXpath,
+            String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID,
+            IWhereItem whereItem, int start, int limit) throws XmlServerException {
         // Don't support query text stuff
         throw new UnsupportedOperationException();
     }
 
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException {
+    @Override
+    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters)
+            throws XmlServerException {
         return runQuery(revisionID, clusterName, query, parameters, 0, 0, false);
     }
 
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
+    @Override
+    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start,
+            int limit, boolean withTotalCount) throws XmlServerException {
         Storage storage = getStorage(clusterName, revisionID);
-         // replace parameters in the procedure
+        // replace parameters in the procedure
         if (parameters != null) {
             for (int i = 0; i < parameters.length; i++) {
                 String param = parameters[i];
@@ -525,6 +624,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return resultsAsString;
     }
 
+    @Override
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
         String clusterName = criteria.getClusterName();
         Storage storage = getStorage(clusterName, criteria.getRevisionId());
@@ -538,23 +638,24 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             storage.begin();
             if (typeName != null && !typeName.isEmpty()) {
                 totalCount = getTypeItemCount(criteria, repository.getComplexType(typeName), storage);
-                itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage, repository.getComplexType(typeName).getName()));
+                itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(typeName), storage, repository
+                        .getComplexType(typeName).getName()));
             } else {
                 // TMDM-4651: Returns type in correct dependency order.
                 Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
                 int maxCount = criteria.getMaxItems();
-                if(criteria.getSkip() < 0) { // MDM Studio may send negative values
+                if (criteria.getSkip() < 0) { // MDM Studio may send negative values
                     criteria.setSkip(0);
                 }
                 List<String> currentInstanceResults;
                 for (ComplexTypeMetadata type : types) {
                     int count = getTypeItemCount(criteria, type, storage);
                     totalCount += count;
-                    if(itemPKResults.size() < maxCount) {
-                        if(count > criteria.getSkip()) {
+                    if (itemPKResults.size() < maxCount) {
+                        if (count > criteria.getSkip()) {
                             currentInstanceResults = getTypeItems(criteria, type, storage, type.getName());
                             int n = maxCount - itemPKResults.size();
-                            if (n <= currentInstanceResults.size()){
+                            if (n <= currentInstanceResults.size()) {
                                 itemPKResults.addAll(currentInstanceResults.subList(0, n));
                             } else {
                                 itemPKResults.addAll(currentInstanceResults);
@@ -567,7 +668,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     }
                 }
             }
-            itemPKResults.add(0, "<totalCount>" + totalCount + "</totalCount>");  //$NON-NLS-1$ //$NON-NLS-2$
+            itemPKResults.add(0, "<totalCount>" + totalCount + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
         } finally {
             storage.commit();
         }
@@ -588,15 +689,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             results.close();
         }
     }
-    
-    protected List<String> getTypeItems(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage, String resultElementName) throws XmlServerException {
+
+    protected List<String> getTypeItems(ItemPKCriteria criteria, ComplexTypeMetadata type, Storage storage,
+            String resultElementName) throws XmlServerException {
         // Build base query
-        UserQueryBuilder qb = from(type)
-                .select(alias(timestamp(), "timestamp")) //$NON-NLS-1$
+        UserQueryBuilder qb = from(type).select(alias(timestamp(), "timestamp")) //$NON-NLS-1$
                 .select(alias(taskId(), "taskid")) //$NON-NLS-1$
-                .selectId(type)
-                .limit(criteria.getMaxItems())
-                .start(criteria.getSkip());
+                .selectId(type).limit(criteria.getMaxItems()).start(criteria.getSkip());
 
         List<String> list = new LinkedList<String>();
         StorageResults results = storage.fetch(buildQueryBuilder(qb, criteria, type).getSelect());
@@ -616,6 +715,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     private UserQueryBuilder buildQueryBuilder(UserQueryBuilder qb, ItemPKCriteria criteria, ComplexTypeMetadata type) {
         // Filter by keys: expected format here: $EntityTypeName/Path/To/Field$[id_for_lookup]
+        String keysString = criteria.getKeys();
+        if (keysString != null && !keysString.isEmpty()) {
+            buildKeyCondition(qb, type, criteria.getClusterName(), keysString);
+        }
+
         String keysKeywords = criteria.getKeysKeywords();
         if (keysKeywords != null && !keysKeywords.isEmpty()) {
             if (keysKeywords.charAt(0) == '$') {
@@ -628,26 +732,26 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 int slashCount = 0;
                 for (char current : chars) {
                     switch (current) {
-                        case '$':
-                            dollarCount++;
-                            break;
-                        case ',':
-                            paths.add(currentPath.toString());
-                            currentPath = new StringBuilder();
-                            slashCount = 0;
-                            break;
-                        case '/':
-                            slashCount++;
-                        default:
-                            if (dollarCount == 0) {
-                                id.append(current);
-                            } else if (dollarCount >= 2) {
-                                idForLookup.append(current);
-                            } else if (slashCount > 0) {
-                                if (slashCount != 1 || '/' != current) {
-                                    currentPath.append(current);
-                                }
+                    case '$':
+                        dollarCount++;
+                        break;
+                    case ',':
+                        paths.add(currentPath.toString());
+                        currentPath = new StringBuilder();
+                        slashCount = 0;
+                        break;
+                    case '/':
+                        slashCount++;
+                    default:
+                        if (dollarCount == 0) {
+                            id.append(current);
+                        } else if (dollarCount >= 2) {
+                            idForLookup.append(current);
+                        } else if (slashCount > 0) {
+                            if (slashCount != 1 || '/' != current) {
+                                currentPath.append(current);
                             }
+                        }
                     }
                 }
                 paths.add(currentPath.toString());
@@ -663,7 +767,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                             if (candidateField instanceof ReferenceFieldMetadata
                                     && ((ReferenceFieldMetadata) candidateField).getReferencedField() instanceof CompoundFieldMetadata) {
                                 // composite key: fkValue of the form '[value1.value2.value3...]'
-                                pathCondition = or(eq(candidateField, StringUtils.replace(idForLookup.toString(), ".", "][")), pathCondition); //$NON-NLS-1$ //$NON-NLS-2$
+                                pathCondition = or(
+                                        eq(candidateField, StringUtils.replace(idForLookup.toString(), ".", "][")), pathCondition); //$NON-NLS-1$ //$NON-NLS-2$
                             } else {
                                 pathCondition = or(eq(candidateField, idForLookup.toString()), pathCondition);
                             }
@@ -673,31 +778,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     qb.where(globalCondition);
                 }
             } else {
-                Collection<FieldMetadata> keyFields = type.getKeyFields();
-                if (criteria.getClusterName().equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && type.getName().equals("Update")) { //$NON-NLS-1$
-                    // UpdateReport: Source.TimeInMillis is the key
-                    String[] keys = keysKeywords.split("\\."); //$NON-NLS-1$
-                    if (keys.length == 1 || keys.length > 2) {
-                        throw new IllegalArgumentException("The key format is 'Source.TimeInMillis' for type " + type.getName()); //$NON-NLS-1$
-                    } else if (keys.length == 2) {
-                        if (keys[1] == null || keys[1].trim().isEmpty() || !StorageMetadataUtils.isValueAssignable(keys[1], Timestamp.INSTANCE.getTypeName())) {
-                            throw new IllegalArgumentException("The key format is 'Source.TimeInMillis' for type '" + type.getName() + "'" +  //$NON-NLS-1$//$NON-NLS-2$
-                            		" and the TimeInMillis key value must be a long type."); //$NON-NLS-1$
-                        }
-                        int i = 0;
-                        for (FieldMetadata keyField : keyFields) {
-                            qb.where(eq(keyField, keys[i]));
-                            i++;
-                        }
-                    }
-                } else {
-                    if (keyFields.size() > 1) {
-                        throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field."); //$NON-NLS-1$ //$NON-NLS-2$
-                    }
-                    String uniqueKeyFieldName = keyFields.iterator().next().getName();
-                    qb.where(eq(type.getField(uniqueKeyFieldName), keysKeywords));    
-                }
-                
+                buildKeyCondition(qb, type, criteria.getClusterName(), keysKeywords);
             }
         }
         // Filter by timestamp
@@ -725,18 +806,20 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                         }
                     }
                 }
-                if(condition != null) {
-                  qb.where(condition);
+                if (condition != null) {
+                    qb.where(condition);
                 }
             }
         }
-        
+
         return qb;
     }
-    
+
+    @Override
     public void clearCache() {
     }
 
+    @Override
     public boolean supportTransaction() {
         return true;
     }
@@ -755,35 +838,42 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     protected Storage getStorage(String dataClusterName, String revisionId) {
         StorageAdmin admin = getStorageAdmin();
         if (!admin.exist(dataClusterName, admin.getType(dataClusterName), revisionId)) {
-            throw new IllegalStateException("Data container '" + dataClusterName + "' (revision: '" + revisionId + "') does not exist.");
+            throw new IllegalStateException("Data container '" + dataClusterName + "' (revision: '" + revisionId
+                    + "') does not exist.");
         }
         return admin.get(dataClusterName, admin.getType(dataClusterName), revisionId);
     }
 
+    @Override
     public void start(String dataClusterName) throws XmlServerException {
         Storage storage = getStorage(dataClusterName);
         storage.begin();
     }
 
+    @Override
     public void commit(String dataClusterName) throws XmlServerException {
         Storage storage = getStorage(dataClusterName);
         storage.commit();
     }
 
+    @Override
     public void rollback(String dataClusterName) throws XmlServerException {
         Storage storage = getStorage(dataClusterName);
         storage.rollback();
     }
 
+    @Override
     public void end(String dataClusterName) throws XmlServerException {
         Storage storage = getStorage(dataClusterName);
         storage.end();
     }
 
+    @Override
     public void close() throws XmlServerException {
         getStorageAdmin().close();
     }
 
+    @Override
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
         Storage storage = getStorage(dataCluster, null);
         MetadataRepository repository = storage.getMetadataRepository();
@@ -817,7 +907,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             storage.begin();
             StorageResults results = null;
             try {
-                results = Split.fetchAndMerge(storage, qb.getSelect()); // TMDM-7290: Split main query into smaller queries.
+                results = Split.fetchAndMerge(storage, qb.getSelect()); // TMDM-7290: Split main query into smaller
+                                                                        // queries.
                 DataRecordWriter writer = new FullTextResultsWriter(keyword);
                 resultsAsXmlStrings.add(String.valueOf(results.getCount()));
                 for (DataRecord result : results) {
@@ -841,8 +932,40 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
-        // No support for bulk export when using SQL storages (this could be in HibernateStorage but would require to define new API).
+    @Override
+    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata,
+            OutputStream outputStream) throws XmlServerException {
+        // No support for bulk export when using SQL storages (this could be in HibernateStorage but would require to
+        // define new API).
         throw new NotImplementedException("No support for bulk export.");
+    }
+
+    private void buildKeyCondition(UserQueryBuilder qb, ComplexTypeMetadata type, String clusterName, String keysString) {
+        Collection<FieldMetadata> keyFields = type.getKeyFields();
+        if (clusterName.equals(XSystemObjects.DC_UPDATE_PREPORT.getName()) && type.getName().equals("Update")) { //$NON-NLS-1$
+            // UpdateReport: Source.TimeInMillis is the key
+            String[] keys = keysString.split("\\."); //$NON-NLS-1$
+            if (keys.length == 1 || keys.length > 2) {
+                throw new IllegalArgumentException("The key format is 'Source.TimeInMillis' for type " + type.getName()); //$NON-NLS-1$
+            } else if (keys.length == 2) {
+                if (keys[1] == null || keys[1].trim().isEmpty()
+                        || !StorageMetadataUtils.isValueAssignable(keys[1], Timestamp.INSTANCE.getTypeName())) {
+                    throw new IllegalArgumentException(
+                            "The key format is 'Source.TimeInMillis' for type '" + type.getName() + "'" + //$NON-NLS-1$//$NON-NLS-2$
+                                    " and the TimeInMillis key value must be a long type."); //$NON-NLS-1$
+                }
+                int i = 0;
+                for (FieldMetadata keyField : keyFields) {
+                    qb.where(eq(keyField, keys[i]));
+                    i++;
+                }
+            }
+        } else {
+            if (keyFields.size() > 1) {
+                throw new IllegalArgumentException("Expected type '" + type.getName() + "' to contain only 1 key field."); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            String uniqueKeyFieldName = keyFields.iterator().next().getName();
+            qb.where(eq(type.getField(uniqueKeyFieldName), keysString));
+        }
     }
 }
