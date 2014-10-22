@@ -10,8 +10,9 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-
+import org.talend.mdm.webapp.browserecords.client.widget.OperationMessageWindow;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
@@ -20,42 +21,35 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
  */
 public class PhysicalDeleteAction implements DeleteAction {
 
+    private final int ERROR = 2;
+    
     @Override
     public void delete(final List<ItemBean> items, BrowseRecordsServiceAsync service, boolean override,
             final PostDeleteAction postDeleteAction) {
         final BrowseRecordsMessages message = MessagesFactory.getMessages();
         final MessageBox progressBar = MessageBox.wait(message.delete_item_title(), null, message.delete_item_progress());
-        service.deleteItemBeans(items, override, Locale.getLanguage(), new SessionAwareAsyncCallback<List<String>>() {
+        service.deleteItemBeans(items, override, Locale.getLanguage(),
+                new SessionAwareAsyncCallback<List<ItemResult>>() {
 
             @Override
-            public void onSuccess(List<String> msgs) {
+            public void onSuccess(List<ItemResult> msgs) {
                 progressBar.close();
 
-                if (msgs != null) {
-                    if (msgs.size() > 1) {
-                        String msgTitle = MultilanguageMessageParser.pickOutISOMessage(msgs.get(0));
-                        StringBuilder sb = new StringBuilder();
-                        MessageBox msgBox = null;
-
-                        for (int i = 1; i < msgs.size(); i++) {
-                            String str = MultilanguageMessageParser.pickOutISOMessage(msgs.get(i));
-                            if(str != null && str.trim().length() > 0) {
-                                sb.append("<br/>").append(str); //$NON-NLS-1$
-                            }
+                MessageBox msgBox = null;
+                if (msgs != null && msgs.size() > 0) {
+                    for(ItemResult bean : msgs){
+                        if(bean.getStatus() == ERROR){
+                            msgBox = MessageBox.alert(message.error_title(), bean.getMessage(), null);
+                            return;
                         }
-                        String msg = sb.toString().trim();
-                        if (msg.length() > 0) {
-                            if (msgTitle.equals(BaseMessagesFactory.getMessages().message_error())) {
-                                msgBox = MessageBox.alert(message.error_title(), msg, null);
-                                return;
-                            } else {
-                                msgBox = MessageBox.info(message.info_title(), msg, null);
-                                if (msgBox != null && msgTitle.equals(BaseMessagesFactory.getMessages().message_success())) {
-                                    setTimeout(msgBox, 1000);
-                                }
-                            }
-                        }
-                    }
+                        bean.setMessage(MultilanguageMessageParser.pickOutISOMessage(bean.getMessage()));
+                    }                    
+                    OperationMessageWindow messageWindow = new OperationMessageWindow(msgs);
+                    messageWindow.setHeading(MessagesFactory.getMessages().delete_record_failure());
+                    messageWindow.show();                                 
+                } else {
+                    msgBox = MessageBox.info(message.info_title(), BaseMessagesFactory.getMessages().message_success(), null);
+                    setTimeout(msgBox, 1000);
                 }
                 postDeleteAction.doAction();
                 CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_DELETEITEM_CALLBACK, null,false);

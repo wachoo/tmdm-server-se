@@ -369,10 +369,10 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
     }
 
     private void onDeleteItemBeans() {
-        service.deleteItemBeans(null, true, "en", new SessionAwareAsyncCallback<List<String>>() {
+        service.deleteItemBeans(null, true, "en", new SessionAwareAsyncCallback<List<ItemResult>>() {
 
             @Override
-            public void onSuccess(List<String> result) {
+            public void onSuccess(List<ItemResult> result) {
                 assertNotNull(result);
                 gridRefresh();
             }
@@ -423,8 +423,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void deleteItemBeans(List<ItemBean> items, boolean override, String language, AsyncCallback<List<String>> callback) {
-            callback.onSuccess(new ArrayList<String>());
+        public void deleteItemBeans(List<ItemBean> items, boolean override, String language, AsyncCallback<List<ItemResult>> callback) {
+            callback.onSuccess(new ArrayList<ItemResult>());
         }
 
         @Override
