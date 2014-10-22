@@ -14,12 +14,13 @@ package org.talend.mdm.webapp.browserecords.client.model;
 
 import java.io.Serializable;
 
+import com.extjs.gxt.ui.client.data.BaseModel;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * DOC Administrator class global comment. Detailled comment
  */
-public class ItemResult implements IsSerializable, Serializable {
+public class ItemResult extends BaseModel implements IsSerializable, Serializable {
 
     private static final long serialVersionUID = -8146665156441820837L;
 
@@ -89,5 +90,21 @@ public class ItemResult implements IsSerializable, Serializable {
 
     public void setInsertionTime(long insertionTime) {
         this.insertionTime = insertionTime;
+    }
+    
+    public String getMessage() {
+        return get("message"); //$NON-NLS-1$
+    }
+
+    public void setMessage(String message) {
+        set("message", message); //$NON-NLS-1$
+    }
+
+    public String getKey() {
+        return get("key"); //$NON-NLS-1$
+    }
+
+    public void setKey(String key) {
+        set("key", key); //$NON-NLS-1$
     }
 }

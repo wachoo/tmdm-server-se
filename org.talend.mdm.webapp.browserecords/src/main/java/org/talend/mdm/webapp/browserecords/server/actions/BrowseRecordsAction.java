@@ -185,31 +185,33 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private final List<String> numberTypeNmes = Arrays.asList("double", "float", "decimal", "int", "integer", "long", "short"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ 
 
+    private final int FAIL = 1;
+    private final int ERROR = 2;
+    
     @Override
-    public List<String> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
-        List<String> itemResults = new ArrayList<String>();
+    public List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
+        List<ItemResult> itemResults = new ArrayList<ItemResult>();
         MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(getCurrentDataModel());
         for (ItemBean item : items) {
             Locale locale = new Locale(language);
+            ItemResult messageBean = new ItemResult();
             try {
                 String dataClusterPK = getCurrentDataCluster();
                 String concept = item.getConcept();
                 String[] ids = getItemId(repository, item, concept);
-                if (ids != null && !item.isReadOnly()) {
-                    WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
-                    WSDeleteItem wsDeleteItem = new WSDeleteItem(itemPK, override);
-                    wsDeleteItem.setWithReport(true);
-                    wsDeleteItem.setInvokeBeforeDeleting(true);
-                    wsDeleteItem.setSource("genericUI"); //$NON-NLS-1$
-                    WSItemPK wsItem = CommonUtil.getPort().deleteItem(wsDeleteItem);
-                    if (wsItem == null) {
-                        throw new ServiceException(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
-                    }
-                    itemResults.add(MESSAGES.getMessage("message_success", locale)); //$NON-NLS-1$
-                    itemResults.add(MESSAGES.getMessage("delete_process_validation_success", locale)); //$NON-NLS-1$
-                } else {
-                    itemResults.add(MESSAGES.getMessage("message_fail", locale)); //$NON-NLS-1$
-                    itemResults.add(MESSAGES.getMessage("delete_item_record_successNoupdate", locale)); //$NON-NLS-1$
+                
+                WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
+                WSDeleteItem wsDeleteItem = new WSDeleteItem(itemPK, override);
+                wsDeleteItem.setWithReport(true);
+                wsDeleteItem.setInvokeBeforeDeleting(true);
+                wsDeleteItem.setSource("genericUI"); //$NON-NLS-1$
+                WSItemPK wsItem = CommonUtil.getPort().deleteItem(wsDeleteItem);
+                
+                if (wsItem == null) {
+                    messageBean.setStatus(FAIL);
+                    messageBean.setKey(item.getIds());                        
+                    messageBean.setMessage(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
+                    itemResults.add(messageBean);
                 }
             } catch (ServiceException e) {
                 LOG.error(e.getMessage(), e);
@@ -234,8 +236,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     errorMessage = exception.getMessage();
                     LOG.error(errorMessage, exception);
                 }
-                itemResults.add(MESSAGES.getMessage("message_error", locale)); //$NON-NLS-1$
-                itemResults.add(errorMessage);
+                messageBean.setStatus(ERROR);
+                messageBean.setMessage(errorMessage); 
                 return itemResults;
             }
         }
