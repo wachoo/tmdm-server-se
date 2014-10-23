@@ -53,11 +53,14 @@ public class DataStatistics {
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
             Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-            if (systemStorage == null) { // is xmldb, not supported/implemented
-                LOGGER.debug("Could not find system storage. Statistics is not supported for XMLDB"); //$NON-NLS-1$
-                return Response.status(Response.Status.NO_CONTENT).build();
+            if (LOGGER.isDebugEnabled()) {
+                if (systemStorage == null) { // is xmldb, not supported/implemented
+                    LOGGER.debug("Could not find system storage. Statistics is not supported for XMLDB"); //$NON-NLS-1$
+                } else {
+                    LOGGER.debug("Container '" + containerName + "' does not exist.");
+                }
             }
-            throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
         // Build statistics
         SortedSet<TypeEntry> entries = new TreeSet<TypeEntry>(new Comparator<TypeEntry>() {
