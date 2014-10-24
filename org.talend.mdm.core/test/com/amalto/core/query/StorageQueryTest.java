@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amalto.core.query.user.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -45,25 +46,6 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.query.user.Alias;
-import com.amalto.core.query.user.BinaryLogicOperator;
-import com.amalto.core.query.user.Compare;
-import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.FieldFullText;
-import com.amalto.core.query.user.IntegerConstant;
-import com.amalto.core.query.user.LongConstant;
-import com.amalto.core.query.user.OrderBy;
-import com.amalto.core.query.user.Predicate;
-import com.amalto.core.query.user.Range;
-import com.amalto.core.query.user.Select;
-import com.amalto.core.query.user.Split;
-import com.amalto.core.query.user.StringConstant;
-import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UnaryLogicOperator;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
@@ -872,6 +854,15 @@ public class StorageQueryTest extends StorageTestCase {
         try {
             assertEquals(2, results.getSize());
             assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(address).where(eq(address.getField("Street"), (String) null));
+        assertEquals(IsNull.class, qb.getSelect().getCondition().getClass());
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
         } finally {
             results.close();
         }
@@ -2455,6 +2446,17 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults storageResults = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+        }
+
+        qb = UserQueryBuilder.from(person);
+        item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS,
+                null, WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, storageResults.getCount());
         } finally {
             storageResults.close();
         }
