@@ -15,25 +15,9 @@ package com.amalto.core.query;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.amalto.core.query.user.*;
 import org.apache.commons.io.output.NullOutputStream;
@@ -48,28 +32,14 @@ import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.StorageWrapper;
+import com.amalto.core.storage.*;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.ViewSearchResultsWriter;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
-import com.amalto.xmlserver.interfaces.WhereOr;
-import com.amalto.xmlserver.interfaces.XmlServerException;
+import com.amalto.xmlserver.interfaces.*;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -1186,7 +1156,7 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             storageResults.close();
         }
-        // Test correct translation when there's only one actual condition 
+        // Test correct translation when there's only one actual condition
         qb = UserQueryBuilder.from(product);
         fieldName = "Product/../*";
         item = new WhereOr(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.CONTAINS_TEXT_OF, "1",
@@ -1271,8 +1241,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testJoinQueryWithId() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.TRUE))
-                .join(person.getField("addresses/address"));
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.TRUE)).join(person.getField("addresses/address"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -1282,8 +1251,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(UserQueryHelper.TRUE, eq(person.getField("id"), "1")))
-                .join(person.getField("addresses/address"));
+                .where(and(UserQueryHelper.TRUE, eq(person.getField("id"), "1"))).join(person.getField("addresses/address"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -1295,8 +1263,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testJoinQueryNormalize() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.TRUE))
-                .join(person.getField("addresses/address"));
+                .where(and(eq(person.getField("id"), "1"), UserQueryHelper.TRUE)).join(person.getField("addresses/address"));
         Select select = qb.getSelect();
         assertTrue(select.getCondition() instanceof BinaryLogicOperator);
         Select normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is
@@ -1304,8 +1271,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertTrue(normalizedSelect.getCondition() instanceof Compare);
 
         qb = from(person).select(person.getField("firstname")).select(address.getField("Street"))
-                .where(and(UserQueryHelper.TRUE, eq(person.getField("id"), "1")))
-                .join(person.getField("addresses/address"));
+                .where(and(UserQueryHelper.TRUE, eq(person.getField("id"), "1"))).join(person.getField("addresses/address"));
         select = qb.getSelect();
         assertTrue(select.getCondition() instanceof BinaryLogicOperator);
         normalizedSelect = (Select) select.normalize(); // Binary condition can be simplified because right is
@@ -1576,7 +1542,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-    
+
     public void testFKSearchWithIncompatibleValueAndNot() throws Exception {
         UserQueryBuilder qb = from(address).selectId(address).select(address.getField("country"))
                 .where(not(contains(address.getField("country"), "aaaa"))); // Id to country is integer
@@ -2559,7 +2525,8 @@ public class StorageQueryTest extends StorageTestCase {
         storage.begin();
         storage.update(allRecords);
         storage.commit();
-        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("knownAddresses/knownAddress/City"));
+        UserQueryBuilder qb = from(person).selectId(person).select(person.getField("knownAddresses/knownAddress/City"))
+                .where(not(eq(person.getField("knownAddresses/knownAddress/City"), "")));
         storage.begin();
         try {
             StorageResults results = storage.fetch(qb.getSelect());
@@ -4000,6 +3967,39 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         storage.commit();
+    }
+
+    public void testSubEntityContainedFK() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        // Add 'record6' to ContainedEntityB
+        allRecords.add(factory.read("1", repository, ContainedEntityB,
+                "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>record6</id></ContainedEntityB>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        // Add ContainedEntityC record that CsubType/Sub_FK_to_B point to ContainedEntityB "record6"
+        allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                ContainedEntityC,
+                                "<ContainedEntityC xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Cid>c1</Cid><FK_to_B>[record6]</FK_to_B></ContainedEntityC>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        // Can find relation records "c1" from "record6"
+        storage.begin();
+        UserQueryBuilder qb = from(ContainedEntityC).selectId(ContainedEntityC).where(
+                or(eq(ContainedEntityC.getField("FK_to_B"), "record6"),
+                        eq(ContainedEntityC.getField("CsubType/Sub_FK_to_B"), "record6")));
+        StorageResults records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, records.getCount());
+        } finally {
+            storage.commit();
+        }
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
