@@ -366,6 +366,29 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     /**
+     * Test if a path has elements part of a inheritance tree.
+     * 
+     * @param path A list of {@link org.talend.mdm.commmon.metadata.FieldMetadata fields} that represents a path from an
+     * entity type down to a selected field (for projection or condition).
+     * @return <code>true</code> if at least one element in the <code>path</code> is contained in a type part of an
+     * inheritance tree, <code>false</code> otherwise. If path is empty, returns <code>true</code> as method cannot
+     * decide.
+     */
+    private static boolean pathContainsInheritance(List<FieldMetadata> path) {
+        if (path.isEmpty()) {
+            // Path is empty: it may contain inheritance elements, can't decide.
+            return true;
+        }
+        for (FieldMetadata fieldMetadata : path) {
+            ComplexTypeMetadata containingType = fieldMetadata.getContainingType();
+            if (!containingType.getSubTypes().isEmpty() || !containingType.getSuperTypes().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * <p>
      * Generate an alias to the <code>field</code> starting from <code>type</code>. This code ensures all paths to
      * <code>field</code> are covered (this field might be present several times inside the MDM entity scope).
@@ -383,7 +406,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         String previousAlias = type.getName();
         String alias = null;
         Set<List<FieldMetadata>> paths;
-        if (fieldMetadata instanceof ReferenceFieldMetadata || !fieldMetadata.getContainingType().isInstantiable()) {
+        if (fieldMetadata instanceof ReferenceFieldMetadata
+                || (!fieldMetadata.getContainingType().isInstantiable() && pathContainsInheritance(field.getPath()))) {
             paths = StorageMetadataUtils.paths(type, fieldMetadata);
         } else {
             paths = Collections.singleton(field.getPath());
