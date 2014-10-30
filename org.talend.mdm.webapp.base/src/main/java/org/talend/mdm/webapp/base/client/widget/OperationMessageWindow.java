@@ -10,15 +10,13 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.browserecords.client.widget;
+package org.talend.mdm.webapp.base.client.widget;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.talend.mdm.webapp.base.client.model.ItemResult;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
-import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
-
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -42,7 +40,7 @@ import com.google.gwt.user.client.Element;
 
 public class OperationMessageWindow extends Window {
 
-    private static int WINDOW_WIDTH = 420;
+    private static int WINDOW_WIDTH = 450;
 
     private static int WINDOW_HEIGH = 300;
     
@@ -87,7 +85,7 @@ public class OperationMessageWindow extends Window {
         
         List<ColumnConfig> columnConfigs = new ArrayList<ColumnConfig>();        
         columnConfigs.add(new ColumnConfig("key", "key", 100)); //$NON-NLS-1$ //$NON-NLS-2$ 
-        columnConfigs.add(new ColumnConfig("message", "message", 200)); //$NON-NLS-1$ //$NON-NLS-2$        
+        columnConfigs.add(new ColumnConfig("message", "message", 380)); //$NON-NLS-1$ //$NON-NLS-2$        
         
         ColumnModel cm = new ColumnModel(columnConfigs);
         messageGrid = new Grid<ItemResult>(store, cm);
@@ -116,12 +114,12 @@ public class OperationMessageWindow extends Window {
         
         pagingBar = new PagingToolBarEx(PAGE_SIZE);
         pagingBar.setHideMode(HideMode.VISIBILITY);
-        pagingBar.getMessages().setDisplayMsg(MessagesFactory.getMessages().page_displaying_records());
         
         pagingBar.bind(loader);
         loader.setRemoteSort(true);
         
         panel.setBottomComponent(pagingBar);
+        this.setLayout(new FitLayout());        
         this.add(panel);
     }
     
