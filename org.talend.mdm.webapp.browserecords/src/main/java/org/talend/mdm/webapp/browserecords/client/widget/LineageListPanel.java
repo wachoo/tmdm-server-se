@@ -123,6 +123,10 @@ public class LineageListPanel extends ContentPanel {
 
     private GridFilters filters;
 
+    private ContentPanel gridContainer;
+
+    private ToolBar openTaskToolBar;
+
     private static LineageListPanel instance;
 
     private BrowseStagingRecordsServiceAsync browseStagingRecordService = ServiceFactory.getInstance().getStagingService();
@@ -190,22 +194,6 @@ public class LineageListPanel extends ContentPanel {
     }
 
     private LineageListPanel() {
-        Button taskButton = new Button();
-        taskButton = new Button(MessagesFactory.getMessages().open_task());
-        taskButton.setId("openTaskButton"); //$NON-NLS-1$
-        taskButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
-
-        taskButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-            @Override
-            public void componentSelected(ButtonEvent buttonEvent) {
-                initDSC(LineageListPanel.this.taskId);
-            }
-        });
-        ToolBar toolBar = new ToolBar();
-        toolBar.add(taskButton);
-        setTopComponent(toolBar);
-
         this.cluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
         this.cluster = this.cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? this.cluster : this.cluster
                 + StorageAdmin.STAGING_SUFFIX;
@@ -214,10 +202,11 @@ public class LineageListPanel extends ContentPanel {
 
         setLayout(new FitLayout());
         setHeaderVisible(false);
-        this.layout();
+
         initErrorTitles();
         ContentPanel gridPanel = generateGrid();
         add(gridPanel);
+        layout();
     }
 
     private void initErrorTitles() {
@@ -285,12 +274,27 @@ public class LineageListPanel extends ContentPanel {
 
     public void refresh() {
         selectStagingGridPanel();
-        PagingLoadConfig config = new BaseFilterPagingLoadConfig();
-        config.setOffset(0);
-        int pageSize = pagingBar.getPageSize();
-        config.setLimit(pageSize);
-        loader.load(config);
-        pagingBar.setVisible(true);
+        browseStagingRecordService.checkTask(cluster, entityModel.getConceptName(), taskId,
+                new SessionAwareAsyncCallback<Boolean>() {
+
+                    @Override
+                    public void onSuccess(Boolean result) {
+                        int gridContainerHeight = LineageListPanel.this.getHeight();
+                        if (result) {
+                            openTaskToolBar.setVisible(true);
+                        } else {
+                            openTaskToolBar.setVisible(false);
+                            gridContainerHeight = gridContainerHeight - 1;
+                        }
+                        PagingLoadConfig config = new BaseFilterPagingLoadConfig();
+                        config.setOffset(0);
+                        int pageSize = pagingBar.getPageSize();
+                        config.setLimit(pageSize);
+                        loader.load(config);
+                        pagingBar.setVisible(true);
+                        gridContainer.setHeight(gridContainerHeight);
+                    }
+                });
     }
 
     private List<ColumnConfig> generateColumnList() {
@@ -418,7 +422,24 @@ public class LineageListPanel extends ContentPanel {
     }
 
     private ContentPanel generateGrid() {
-        ContentPanel gridContainer = new ContentPanel(new FitLayout());
+        gridContainer = new ContentPanel(new FitLayout());
+
+        Button taskButton = new Button();
+        taskButton = new Button(MessagesFactory.getMessages().open_task());
+        taskButton.setId("openTaskButton"); //$NON-NLS-1$
+        taskButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
+
+        taskButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent buttonEvent) {
+                initDSC(LineageListPanel.this.taskId);
+            }
+        });
+        openTaskToolBar = new ToolBar();
+        openTaskToolBar.add(taskButton);
+        gridContainer.setTopComponent(openTaskToolBar);
+
         ColumnModel cm = new ColumnModel(generateColumnList());
         gridContainer.setBodyBorder(false);
         gridContainer.setHeaderVisible(false);
@@ -489,6 +510,7 @@ public class LineageListPanel extends ContentPanel {
 
         grid.addPlugin(filters);
         gridContainer.add(grid);
+
         return gridContainer;
     }
 

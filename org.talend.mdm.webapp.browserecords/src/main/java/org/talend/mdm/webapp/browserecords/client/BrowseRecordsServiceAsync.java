@@ -63,8 +63,7 @@ public interface BrowseRecordsServiceAsync {
 
     void getView(String viewPk, String language, AsyncCallback<ViewBean> callback);
 
-    void deleteItemBeans(List<ItemBean> items, boolean override, String language,
-            AsyncCallback<List<ItemResult>> callback);
+    void deleteItemBeans(List<ItemBean> items, boolean override, String language, AsyncCallback<List<ItemResult>> callback);
 
     void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<Map<ItemBean, FKIntegrityResult>> asyncCallback);
 
@@ -135,7 +134,7 @@ public interface BrowseRecordsServiceAsync {
     void getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId,
             AsyncCallback<String> callback);
 
-    void checkTask(String dataClusterPK, String viewPK, String concept, String groupId, AsyncCallback<Boolean> callback);
+    void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Boolean> callback);
 
     void getRecords(String concept, List<String> idsList, AsyncCallback<List<ItemBean>> callback);
 

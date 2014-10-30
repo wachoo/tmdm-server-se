@@ -423,7 +423,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void deleteItemBeans(List<ItemBean> items, boolean override, String language, AsyncCallback<List<ItemResult>> callback) {
+        public void deleteItemBeans(List<ItemBean> items, boolean override, String language,
+                AsyncCallback<List<ItemResult>> callback) {
             callback.onSuccess(new ArrayList<ItemResult>());
         }
 
@@ -608,7 +609,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void checkTask(String dataClusterPK, String viewPK, String concept, String groupId, AsyncCallback<Boolean> callback) {
+        public void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Boolean> callback) {
 
         }
 
