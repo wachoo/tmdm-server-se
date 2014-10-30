@@ -21,12 +21,15 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.ItemResult;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
+import org.talend.mdm.webapp.base.client.widget.OperationMessageWindow;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import org.talend.mdm.webapp.recyclebin.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.recyclebin.client.resources.icon.Icons;
+import org.talend.mdm.webapp.recyclebin.shared.DroppedItemBeforeDeletingException;
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
 
@@ -104,6 +107,8 @@ public class MainFramePanel extends ContentPanel {
     private int outstandingDeleteCallFailCount = 0;
 
     private List<ItemsTrashItem> outstandingDeleteCallFailRecords = new LinkedList<ItemsTrashItem>();
+    
+    private List<ItemResult> deleteMessages = new ArrayList<ItemResult>();
 
     private static final int COLUMN_WIDTH = 100;
 
@@ -570,6 +575,7 @@ public class MainFramePanel extends ContentPanel {
         if (selectedRecords == null || selectedRecords.size() == 0) {
             return;
         }
+        deleteMessages.clear();
         for (final ItemsTrashItem r : selectedRecords) {
 
             ++outstandingDeleteCallCount;
@@ -578,7 +584,7 @@ public class MainFramePanel extends ContentPanel {
 
                 @Override
                 protected void doOnFailure(Throwable caught) {
-                    deleteSelectedCheckFinished(r, false, caught.getMessage());
+                    deleteSelectedCheckFinished(r, false, caught.getMessage(), false);
                 }
 
                 @Override
@@ -622,21 +628,25 @@ public class MainFramePanel extends ContentPanel {
 
                                 @Override
                                 public void onSuccess(String msg) {
-                                    deleteSelectedCheckFinished(r, true, msg);
+                                    deleteSelectedCheckFinished(r, true, msg, false);
                                 }
 
                                 @Override
                                 protected void doOnFailure(Throwable caught) {
-                                    String errorMsg = caught.getLocalizedMessage();
-                                    if (errorMsg == null) {
-                                        if (Log.isDebugEnabled()) {
-                                            errorMsg = caught.toString(); // for debugging
-                                            // purpose
-                                        } else {
-                                            errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                                    String errorMsg = caught.getLocalizedMessage();                                    
+                                    if(caught instanceof DroppedItemBeforeDeletingException){
+                                        deleteSelectedCheckFinished(r, false, caught.getMessage(), true);
+                                    } else {
+                                        if (errorMsg == null) {
+                                            if (Log.isDebugEnabled()) {
+                                                errorMsg = caught.toString(); // for debugging
+                                                // purpose
+                                            } else {
+                                                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+                                            }
                                         }
+                                        deleteSelectedCheckFinished(r, false, errorMsg, false);
                                     }
-                                    deleteSelectedCheckFinished(r, false, errorMsg);
                                 }
                             });
                 }
@@ -644,8 +654,17 @@ public class MainFramePanel extends ContentPanel {
         }
     }
 
-    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success, String msg) {
+    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success, String msg, boolean isBeforeDeletingMessage) {
         --outstandingDeleteCallCount;
+
+        if (isBeforeDeletingMessage) {
+            ItemResult message = new ItemResult();
+            if(r != null){
+                message.setKey(r.getIds());
+            }
+            message.setMessage(MultilanguageMessageParser.pickOutISOMessage(msg));
+            deleteMessages.add(message);
+        }
 
         if (!success) {
             ++outstandingDeleteCallFailCount;
@@ -664,9 +683,15 @@ public class MainFramePanel extends ContentPanel {
                 outstandingDeleteCallFailRecords.clear();
             }
 
-            if (msg != null) {
-                MessageBox.info(BaseMessagesFactory.getMessages().info_title(),
-                        MultilanguageMessageParser.pickOutISOMessage(msg), null);
+            if(deleteMessages != null && deleteMessages.size() > 0){
+                OperationMessageWindow messageWindow = new OperationMessageWindow(deleteMessages);
+                messageWindow.setHeading(BaseMessagesFactory.getMessages().info_title());
+                messageWindow.show();
+            } else {
+                if (msg != null) {
+                    MessageBox.info(BaseMessagesFactory.getMessages().info_title(),
+                            MultilanguageMessageParser.pickOutISOMessage(msg), null);
+                }
             }
         }
     }

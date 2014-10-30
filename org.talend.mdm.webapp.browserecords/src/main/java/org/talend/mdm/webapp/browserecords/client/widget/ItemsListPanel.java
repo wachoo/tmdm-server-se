@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.base.client.exception.ParserException;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.ItemResult;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.Parser;
 import org.talend.mdm.webapp.base.client.widget.ColumnAlignGrid;
@@ -40,7 +41,6 @@ import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;

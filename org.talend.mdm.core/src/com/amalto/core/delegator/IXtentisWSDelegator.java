@@ -140,6 +140,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     private static Logger LOGGER = Logger.getLogger(IXtentisWSDelegator.class);
 
     private transient ConnectionFactory cxFactory = null;
+    
+    public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
+    
+    public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
+    
+    public static final String SUCCESS_KEYWORD = "SUCCESS";//$NON-NLS-1$
+    
+    public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
 
     public WSVersion getComponentVersion(WSGetComponentVersion wsGetComponentVersion) throws RemoteException {
         try {
@@ -1138,22 +1146,31 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     pushToUpdateReport(dataClusterPK, dataModelPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving(),
                             wsDeleteItem.getSource(), wsDeleteItem.getOperateType(), wsDeleteItem.getUser());
                 }
+                // Message status is stored into 'source' property of the function parameter WSDeleteItemWithReport 
+                // (not an ideal situation but necessary to get around WS API refactor) and returned back to the webui.
+                wsDeleteItem.setSource(SUCCESS_KEYWORD);
                 return new WSString("logical delete item successful!"); //$NON-NLS-1$
             } else { // Physical delete
+                String status = SUCCESS_KEYWORD;
                 String message = "physical delete item successful!"; //$NON-NLS-1$
                 if (wsDeleteItem.getInvokeBeforeSaving()) {
                     Util.BeforeDeleteResult result = Util.beforeDeleting(dataClusterPK, concept, ids,
                             wsDeleteItem.getOperateType());
                     if (result != null) { // There was a before delete process to execute
-                        if (!"error".equals(result.type)) { //$NON-NLS-1$
-                            message = result.message;
-                        } else {
+                        if (ERROR_KEYWORD.equalsIgnoreCase(result.type)) {
+                            wsDeleteItem.setSource(ERROR_KEYWORD);
                             if (result.message == null) {
                                 return new WSString(
                                         "Could not retrieve the validation process result. An error might have occurred. The record was not deleted."); //$NON-NLS-1$
                             } else {
-                                throw new BeforeDeletingErrorException(result.message);
-                            }
+                                return new WSString(result.message); 
+                            }                            
+                        } else if (INFO_KEYWORD.equalsIgnoreCase(result.type)){
+                            status = INFO_KEYWORD;
+                            message = result.message;
+                        } else {
+                            status = SUCCESS_KEYWORD;
+                            message = result.message;
                         }
                     }
                 }
@@ -1165,8 +1182,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                                 wsDeleteItem.getSource(), wsDeleteItem.getOperateType(), wsDeleteItem.getUser());
                     }
                 } else {
+                    status = FAIL_KEYWORD;
                     message = "ERROR - Unable to delete item"; //$NON-NLS-1$
                 }
+                wsDeleteItem.setSource(status);
                 return new WSString(message);
             }
         } catch (Exception e) {
@@ -1762,8 +1781,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String operationType = UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE;
             // Call beforeDelete process (if any).
             Util.BeforeDeleteResult result = Util.beforeDeleting(clusterName, conceptName, ids, operationType);
-            if (result != null && "error".equals(result.type)) { //$NON-NLS-1$
-                throw new RemoteException(result.message);
+            if (result != null && ERROR_KEYWORD.equalsIgnoreCase(result.type)) { 
+                throw new BeforeDeletingErrorException(result.message);
             }
             // Generate physical delete event in journal
             WSDroppedItemPK droppedItemPK = wsRemoveDroppedItem.getWsDroppedItemPK();
@@ -1771,9 +1790,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // Removes item from recycle bin
             DroppedItemCtrlLocal droppedItemCtrlLocal = Util.getDroppedItemCtrlLocal();
             DroppedItemPOJOPK droppedItemPOJOPK = droppedItemCtrlLocal.removeDroppedItem(XConverter.WS2POJO(droppedItemPK));
+            if (result != null && INFO_KEYWORD.equalsIgnoreCase(result.type)) { 
+                throw new BeforeDeletingErrorException(result.message);
+            }
             return XConverter.POJO2WS(droppedItemPOJOPK);
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
+        } catch (BeforeDeletingErrorException e) {
+            throw new RemoteException(e.getLocalizedMessage(), e);
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }

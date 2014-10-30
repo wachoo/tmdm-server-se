@@ -53,6 +53,7 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.ItemResult;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
@@ -69,7 +70,6 @@ import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
-import org.talend.mdm.webapp.browserecords.client.model.ItemResult;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
 import org.talend.mdm.webapp.browserecords.client.model.Restriction;
@@ -118,6 +118,7 @@ import com.amalto.core.webservice.WSCount;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSDeleteItem;
+import com.amalto.core.webservice.WSDeleteItemWithReport;
 import com.amalto.core.webservice.WSDropItem;
 import com.amalto.core.webservice.WSExecuteTransformerV2;
 import com.amalto.core.webservice.WSExistsItem;
@@ -185,8 +186,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     private final List<String> numberTypeNmes = Arrays.asList("double", "float", "decimal", "int", "integer", "long", "short"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ 
 
-    private final int FAIL = 1;
-    private final int ERROR = 2;
+    public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
+    
+    public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
+        
+    public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
     
     @Override
     public List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
@@ -200,18 +204,38 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String concept = item.getConcept();
                 String[] ids = getItemId(repository, item, concept);
                 
-                WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids);
-                WSDeleteItem wsDeleteItem = new WSDeleteItem(itemPK, override);
-                wsDeleteItem.setWithReport(true);
-                wsDeleteItem.setInvokeBeforeDeleting(true);
-                wsDeleteItem.setSource("genericUI"); //$NON-NLS-1$
-                WSItemPK wsItem = CommonUtil.getPort().deleteItem(wsDeleteItem);
+                WSDeleteItemWithReport wsDeleteItem  = new WSDeleteItemWithReport(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids),
+                        "genericUI", //$NON-NLS-1$
+                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE,
+                        "/", //$NON-NLS-1$
+                        LocalUser.getLocalUser().getUsername(),
+                        true,
+                        true,
+                        override);
                 
-                if (wsItem == null) {
-                    messageBean.setStatus(FAIL);
-                    messageBean.setKey(item.getIds());                        
-                    messageBean.setMessage(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
-                    itemResults.add(messageBean);
+                WSString deleteMessage = CommonUtil.getPort().deleteItemWithReport(wsDeleteItem);
+                
+                if (deleteMessage == null) {
+                    throw new ServiceException(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
+                } else {
+                    String message = deleteMessage.getValue();
+                    String messageType = wsDeleteItem.getSource();
+                    if(messageType != null && INFO_KEYWORD.equals(messageType)){ 
+                        messageBean.setKey(item.getIds()); 
+                        messageBean.setStatus(getMessageTypeStatus(INFO_KEYWORD));
+                        messageBean.setMessage(message);
+                        itemResults.add(messageBean);
+                    } else if(messageType != null && FAIL_KEYWORD.equals(messageType)){ 
+                        messageBean.setKey(item.getIds()); 
+                        messageBean.setStatus(getMessageTypeStatus(FAIL_KEYWORD));
+                        messageBean.setMessage(MESSAGES.getMessage("message_fail", locale)); //$NON-NLS-1$
+                        itemResults.add(messageBean);
+                    } else if(messageType != null && ERROR_KEYWORD.equals(messageType)){ 
+                        messageBean.setKey(item.getIds()); 
+                        messageBean.setStatus(getMessageTypeStatus(ERROR_KEYWORD));
+                        messageBean.setMessage(message); 
+                        itemResults.add(messageBean);
+                    }
                 }
             } catch (ServiceException e) {
                 LOG.error(e.getMessage(), e);
@@ -221,27 +245,28 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } catch (Exception exception) {
                 String errorMessage;
                 if (WebCoreException.class.isInstance(exception.getCause())) {
-                    WebCoreException webCoreException = (WebCoreException) exception.getCause();
                     errorMessage = getErrorMessageFromWebCoreException(((WebCoreException) exception.getCause()),
                             item.getConcept(), item.getIds(), locale);
-                    if (webCoreException.isClient()) {
-                        throw new ServiceException(errorMessage);
-                    }
-                    if (webCoreException.getLevel() == WebCoreException.INFO) {
-                        LOG.info(errorMessage);
-                    } else {
-                        LOG.error(errorMessage, exception);
-                    }
                 } else {
                     errorMessage = exception.getMessage();
-                    LOG.error(errorMessage, exception);
                 }
-                messageBean.setStatus(ERROR);
-                messageBean.setMessage(errorMessage); 
-                return itemResults;
+                LOG.error(errorMessage, exception);
+                throw new ServiceException(errorMessage);
             }
         }
         return itemResults;
+    }
+    
+    private int getMessageTypeStatus(String keywords) {
+        int status = 0;        
+        if(INFO_KEYWORD.equalsIgnoreCase(keywords)){
+            return 1;
+        } else if(FAIL_KEYWORD.equalsIgnoreCase(keywords)){
+            return 2;
+        } else if(ERROR_KEYWORD.equalsIgnoreCase(keywords)){
+            return 3;
+        }
+        return status;
     }
 
     private String[] getItemId(MetadataRepository repository, ItemBean item, String concept) throws WebBaseException {
