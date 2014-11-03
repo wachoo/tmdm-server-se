@@ -74,6 +74,7 @@ public class ViewUtil {
         tree.addItem(treeRootNode);
 
         List<TreeItemEx> children = getChildren(originalRoot);
+
         List<ColumnElement> columnLayoutModels = columnLayoutModel.getColumnElements();
         if (columnLayoutModels != null) {
             for (ColumnElement ce : columnLayoutModels) {
@@ -88,9 +89,7 @@ public class ViewUtil {
 
                     if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
                         iter.remove();
-                        treeRootNode.addItem(child);
-                        child.getElement().getStyle().setPaddingLeft(23D, Unit.PX);
-                        __transformToCustomLayout(child, ce, customLayoutDisplayedElements, viewBean);
+                        __transformToCustomLayout(child, ce, customLayoutDisplayedElements, viewBean, treeRootNode);
                     }
                 }
                 if (ce.getHtmlSnippet() != null && ce.getHtmlSnippet().trim().length() > 0) {
@@ -108,12 +107,18 @@ public class ViewUtil {
     }
 
     private static void __transformToCustomLayout(TreeItemEx item, ColumnElement columnEl,
-            Set<TreeItemEx> customLayoutDisplayedElements, ViewBean viewBean) {
-        customLayoutDisplayedElements.add(item);
-        applyStyleTreeItem(item, columnEl.getLabelStyle(), convertCSS4ValueStyle(columnEl.getValueStyle()), columnEl.getStyle());
+            Set<TreeItemEx> customLayoutDisplayedElements, ViewBean viewBean, DynamicTreeItem treeNode) {        
         if (columnEl.getChildren() == null) {
+            customLayoutDisplayedElements.add(item);
+            item.getElement().getStyle().setPaddingLeft(23D, Unit.PX); 
+            treeNode.addItem(item);
+            applyStyleTreeItem(item, columnEl.getLabelStyle(), convertCSS4ValueStyle(columnEl.getValueStyle()), columnEl.getStyle());
             return;
         }
+        
+        DynamicTreeItem chideTreeNode = createNewTreeNode(item);
+        treeNode.addItem(chideTreeNode);
+    
         for (ColumnElement ce : columnEl.getChildren()) {
 
             for (int i = 0; i < item.getChildCount(); i++) {
@@ -123,17 +128,30 @@ public class ViewUtil {
                     TypeModel tm = viewBean.getBindingEntityModel().getMetaDataTypes().get(node.getTypePath());
                     String xpath = node.getBindingPath();
                     if (("/" + xpath).equals(ce.getxPath())) { //$NON-NLS-1$
-                        __transformToCustomLayout(child, ce, customLayoutDisplayedElements, viewBean);
+                        __transformToCustomLayout(child, ce, customLayoutDisplayedElements, viewBean, chideTreeNode);
                         if (tm.getMaxOccurs() == 1) {
                             break;
                         }
                     }
                 }
             }
+            
             if (ce.getHtmlSnippet() != null && ce.getHtmlSnippet().trim().length() > 0) {
                 item.addItem(new HTML(ce.getHtmlSnippet()));
             }
         }
+    }
+    
+    private static DynamicTreeItem createNewTreeNode(TreeItemEx item){
+        DynamicTreeItem chideTreeNode = new DynamicTreeItem();
+        ItemNodeModel oldNode = (ItemNodeModel)item.getUserObject();
+        chideTreeNode.setWidget(item.getWidget());
+        chideTreeNode.setItemNodeModel(oldNode);
+        chideTreeNode.setUserObject(oldNode);
+        chideTreeNode.setVisible(oldNode.isVisible());
+        chideTreeNode.setState(item.getState());
+        chideTreeNode.getElement().getStyle().setPaddingLeft(3.0, Unit.PX);
+        return chideTreeNode;
     }
 
     public static void applyStyleTreeItem(final TreeItemEx item, final String labelStyle, final String valueStyle, String style) {
@@ -149,6 +167,7 @@ public class ViewUtil {
         }
         DeferredCommand.addCommand(new Command() {
 
+            @Override
             public void execute() {
                 if (item.getWidget() instanceof HorizontalPanel) {
                     HorizontalPanel hp = (HorizontalPanel) item.getWidget();
@@ -176,7 +195,8 @@ public class ViewUtil {
             setStyleAttribute(targetLabel.getElement(), getStyleAttribute(sourceLabel.getElement()));
             if (sourceHp.getWidgetCount() >= 2 && sourceHp.getWidget(1) instanceof Field<?>) {
                 DeferredCommand.addCommand(new Command() {
-                    public void execute() {
+
+                    @Override                    public void execute() {
                         El sourceInputEl = getInputEl((Field<?>) sourceHp.getWidget(1));
                         El targetInputEl = getInputEl((Field<?>) targetHp.getWidget(1));
                         setStyleAttribute(targetInputEl.dom, getStyleAttribute(sourceInputEl.dom));
@@ -225,13 +245,13 @@ public class ViewUtil {
     }
 
     private static native ArrayList<TreeItemEx> getChildren(TreeItemEx item)/*-{
-		return item.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::children;
+        return item.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::children;
     }-*/;
 
     private static native El getInputEl(Field<?> field)/*-{
-		return field.@com.extjs.gxt.ui.client.widget.form.Field::getInputEl()();
+        return field.@com.extjs.gxt.ui.client.widget.form.Field::getInputEl()();
     }-*/;
-    
+
     public static String convertCSS4ValueStyle(String css) {
         if (css == null) {
             return null;
@@ -241,7 +261,7 @@ public class ViewUtil {
         }
         return css;
     }
-    
+
     public static ItemBaseModel getDefaultSmartViewModel(List<ItemBaseModel> list, String concept) {
         String defSmartView = "Smart_view_" + concept; //$NON-NLS-1$
         String defSmartViewWithLang = defSmartView + "_" + Locale.getLanguage(); //$NON-NLS-1$
