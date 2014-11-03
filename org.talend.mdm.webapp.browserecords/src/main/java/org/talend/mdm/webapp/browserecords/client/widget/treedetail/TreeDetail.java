@@ -312,7 +312,6 @@ public class TreeDetail extends ContentPanel {
                         }
                     });
                 } else {
-                    item.addItem(new GhostTreeItem());
                     item.setAutoExpandHandler(new AutoExpandHandler() {
 
                         @Override
@@ -320,6 +319,7 @@ public class TreeDetail extends ContentPanel {
                             BrowseRecordsMessages msg = MessagesFactory.getMessages();
                             progressBar = MessageBox.wait(msg.rendering_title(), msg.render_message(), msg.rendering_progress());
                             renderChildren(itemNode, parentItem, withDefaultValue, operation);
+                            
                             renderCompleteCallBackList.add(new RenderCompleteCallBack() {
 
                                 @Override
@@ -343,7 +343,7 @@ public class TreeDetail extends ContentPanel {
     }
 
     private void renderChildren(ItemNodeModel itemNode, DynamicTreeItem item, boolean withDefaultValue, String operation) {
-        IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, operation, item);
+        IncrementalBuildTree incCommand = new IncrementalBuildTree(this, itemNode, viewBean, withDefaultValue, operation, item, fieldMap, itemsDetailPanel);
         if (itemNode.getParent() == null) {
             addCommand(incCommand, true);
         } else {
@@ -680,7 +680,7 @@ public class TreeDetail extends ContentPanel {
         }
 
         private native Element getContentElement()/*-{
-			return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::contentElem;
+            return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::contentElem;
         }-*/;
 
         public void insertItem(DynamicTreeItem item, int beforeIndex) {
@@ -711,28 +711,28 @@ public class TreeDetail extends ContentPanel {
         }
 
         private native ArrayList<TreeItemEx> _getChildren()/*-{
-			return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::children;
+            return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::children;
         }-*/;
 
         private native void _initChildren() /*-{
-			this
-					.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::initChildren()
+            this
+                    .@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::initChildren()
         }-*/;
 
         private native void _setParentItem(TreeItemEx parent)/*-{
-			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::setParentItem(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeItemEx;)(parent);
+            this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::setParentItem(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeItemEx;)(parent);
         }-*/;
 
         private native void _updateState(boolean animate, boolean updateTreeSelection)/*-{
-			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::updateState(ZZ)(animate, updateTreeSelection);
+            this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::updateState(ZZ)(animate, updateTreeSelection);
         }-*/;
 
         private native void _setTree(TreeEx tree)/*-{
-			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::setTree(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeEx;)(tree);
+            this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::setTree(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeEx;)(tree);
         }-*/;
 
         private native Element _getChildSpanElem()/*-{
-			return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::childSpanElem;
+            return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::childSpanElem;
         }-*/;
 
         public void removeItem(DynamicTreeItem item) {
@@ -758,19 +758,19 @@ public class TreeDetail extends ContentPanel {
         }
 
         private native boolean getOpen()/*-{
-			return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::open;
+            return this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::open;
         }-*/;
 
         private native void setOpen(boolean open)/*-{
-			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::open = open;
+            this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::open = open;
         }-*/;
 
         private native void __updateState(boolean animate, boolean updateTreeSelection)/*-{
-			this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::updateState(ZZ)(animate, updateTreeSelection);
+            this.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx::updateState(ZZ)(animate, updateTreeSelection);
         }-*/;
 
         private native void fireTreeStateChanged(TreeEx tree, TreeItemEx item, boolean open)/*-{
-			tree.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeEx::fireStateChanged(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeItemEx;Z)(item,open);
+            tree.@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeEx::fireStateChanged(Lorg/talend/mdm/webapp/browserecords/client/widget/treedetail/TreeItemEx;Z)(item,open);
         }-*/;
 
         public void setItemNodeModel(ItemNodeModel treeNode) {
