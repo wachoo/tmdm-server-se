@@ -3370,6 +3370,46 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals("test note", ((FieldFullText) select.getCondition()).getValue());
     }
 
+    public void testContainsOptimizationOnReusableTypes() throws Exception {
+        DataSourceDefinition definition = getDatasource(DATABASE + "-Default");
+        DataSource datasource = definition.getMaster();
+        assertTrue(datasource instanceof RDBMSDataSource);
+        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) datasource;
+        TestRDBMSDataSource testDataSource = new TestRDBMSDataSource(rdbmsDataSource);
+        testDataSource.setCaseSensitiveSearch(false);
+        testDataSource.setSupportFullText(true);
+        ConfigurableContainsOptimizer optimizer = new ConfigurableContainsOptimizer(testDataSource);
+        // Default optimization
+        UserQueryBuilder qb = UserQueryBuilder.from(customer).where(contains(customer.getField("address1/Street"), "test note"));
+        Select select = qb.getSelect();
+        assertTrue(select.getCondition() instanceof Compare);
+        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
+        // LIKE optimization
+        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.LIKE);
+        qb = UserQueryBuilder.from(customer).where(contains(customer.getField("address1/Street"), "test note"));
+        select = qb.getSelect();
+        optimizer.optimize(select);
+        assertTrue(select.getCondition() instanceof Compare);
+        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
+        // DISABLED optimization
+        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.DISABLED);
+        qb = UserQueryBuilder.from(customer).where(contains(customer.getField("address1/Street"), "test note"));
+        select = qb.getSelect();
+        try {
+            optimizer.optimize(select);
+            fail("Contains use is disabled.");
+        } catch (Exception e) {
+            // Expected
+        }
+        // FULL TEXT optimization
+        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.FULL_TEXT);
+        qb = UserQueryBuilder.from(customer).where(contains(customer.getField("address1/Street"), "test note"));
+        select = qb.getSelect();
+        optimizer.optimize(select);
+        assertTrue(select.getCondition() instanceof Compare);
+        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
+    }
+
     public void testContainsWithDash() throws Exception {
         DataSourceDefinition definition = getDatasource(DATABASE + "-Default");
         DataSource datasource = definition.getMaster();
