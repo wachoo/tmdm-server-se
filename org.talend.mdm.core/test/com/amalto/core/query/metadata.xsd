@@ -90,6 +90,25 @@
         </xsd:sequence>
     </xsd:complexType>
 
+    <xsd:element name="Customer">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="id" type="xsd:string"/>
+                <xsd:element name="firstname" type="xsd:string"/>
+                <xsd:element name="middlename" type="xsd:string"/>
+                <xsd:element name="lastname" type="xsd:string"/>
+                <xsd:element minOccurs="0" name="Available" type="xsd:boolean"/>
+                <xsd:element maxOccurs="1" name="address1" type="Address"/>
+                <xsd:element maxOccurs="1" name="address2" type="Address"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:unique name="Customer">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="id"/>
+        </xsd:unique>
+    </xsd:element>
+
+
     <xsd:simpleType name="PersonStatus">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="Customer"/>
