@@ -187,7 +187,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     private final List<String> numberTypeNmes = Arrays.asList("double", "float", "decimal", "int", "integer", "long", "short"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ 
 
     public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
-    
+
     public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
         
     public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
@@ -203,7 +203,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String dataClusterPK = getCurrentDataCluster();
                 String concept = item.getConcept();
                 String[] ids = getItemId(repository, item, concept);
-                
+
                 WSDeleteItemWithReport wsDeleteItem  = new WSDeleteItemWithReport(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids),
                         "genericUI", //$NON-NLS-1$
                         UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE,
@@ -212,7 +212,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         true,
                         true,
                         override);
-                
+
                 WSString deleteMessage = CommonUtil.getPort().deleteItemWithReport(wsDeleteItem);
                 
                 if (deleteMessage == null) {
@@ -2225,7 +2225,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public boolean checkTask(String dataClusterPK, String viewPK, String concept, String taskId) throws ServiceException {
+    public boolean checkTask(String dataClusterPK, String concept, String taskId) throws ServiceException {
         WSWhereCondition whereCondition_Status_SUCCESS_VALIDATE = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
                 WSWhereOperator.EQUALS, StagingConstants.SUCCESS_MERGE_CLUSTERS, WSStringPredicate.NONE, false);
         WSWhereItem whereItem_Status_SUCCESS_VALIDATE = new WSWhereItem(whereCondition_Status_SUCCESS_VALIDATE, null, null);
