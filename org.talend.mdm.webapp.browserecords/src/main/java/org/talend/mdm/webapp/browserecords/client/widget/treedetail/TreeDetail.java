@@ -657,9 +657,6 @@ public class TreeDetail extends ContentPanel {
         void autoExpand();
     }
 
-    public class GhostTreeItem extends DynamicTreeItem {
-    }
-
     public static class DynamicTreeItem extends TreeItemEx {
 
         private ItemNodeModel itemNode;

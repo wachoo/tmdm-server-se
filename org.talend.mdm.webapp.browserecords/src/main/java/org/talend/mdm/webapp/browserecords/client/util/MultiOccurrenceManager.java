@@ -25,7 +25,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.MultiOccurre
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.MultiOccurrenceChangeItem.AddRemoveHandler;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.GhostTreeItem;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailGridFieldCreator;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeItemEx;
 
@@ -75,7 +74,7 @@ public class MultiOccurrenceManager {
             if (nodeModel != null) {
                 TypeModel typeModel = metaDataTypes.get(nodeModel.getTypePath());
                 boolean isLazyLoading = !typeModel.isAutoExpand() && nodeModel.getParent() != null
-                        && nodeModel.getChildCount() > 0 && item.getChild(0) instanceof GhostTreeItem;
+                        && nodeModel.getChildCount() > 0 && item.getChild(0) instanceof DynamicTreeItem;
                 if (typeModel.isAutoExpand() || isLazyLoading || nodeModel.getChildCount() == 0 || item.getChildCount() == 0) {
                     if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
                         String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
@@ -410,7 +409,7 @@ public class MultiOccurrenceManager {
         // Clear all the leaf node's value when the current node isAutoExpand = false and children have not been
         // rendered
         TypeModel typeModel = metaDataTypes.get(nodeModel.getTypePath());
-        if (!typeModel.isAutoExpand() && nodeModel.getChildCount() > 0 && selectedItem.getChild(0) instanceof GhostTreeItem) {
+        if (!typeModel.isAutoExpand() && nodeModel.getChildCount() > 0 && selectedItem.getChild(0) instanceof DynamicTreeItem) {
             nodeModel.clearNodeValue();
         } else {
             if (nodeModel.isLeaf()) {

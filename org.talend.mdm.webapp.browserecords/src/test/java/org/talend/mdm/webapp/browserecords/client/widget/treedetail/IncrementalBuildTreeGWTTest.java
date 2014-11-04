@@ -34,6 +34,7 @@ import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.gwt.junit.client.GWTTestCase;
 
 public class IncrementalBuildTreeGWTTest extends GWTTestCase {
@@ -90,9 +91,11 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
         ItemNodeModel testNode = builderItemNode();
 
         incCommand = new IncrementalBuildTree(mockTreeDetail, testNode, viewBean, false,
-                ItemDetailToolBar.VIEW_OPERATION, item);
+                ItemDetailToolBar.VIEW_OPERATION, item, new HashMap<String, Field<?>>(), ItemsDetailPanel.newInstance());
 
-        while (incCommand.execute());
+        while (incCommand.execute()) {
+            ;
+        }
         assertNotNull(item);
         assertEquals(128, item.getChildCount());
     }

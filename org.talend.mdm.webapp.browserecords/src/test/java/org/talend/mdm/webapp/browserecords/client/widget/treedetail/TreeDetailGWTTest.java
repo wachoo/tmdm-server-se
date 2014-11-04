@@ -25,7 +25,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ForeignKeyHandler;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.GhostTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
@@ -367,8 +366,8 @@ public class TreeDetailGWTTest extends GWTTestCase {
         // cp node lazy loading
         DynamicTreeItem cpItem = (DynamicTreeItem) item.getChild(2);
         assertNotNull(cpItem);
-        assertEquals(1, cpItem.getChildCount());
-        assertTrue(cpItem.getChild(0) instanceof GhostTreeItem);
+        assertEquals(2, cpItem.getChildCount());
+        assertTrue(cpItem.getChild(0) instanceof DynamicTreeItem);
         // render cp node
         cpItem.setState(true);
         assertEquals(2, cpItem.getChildCount());
