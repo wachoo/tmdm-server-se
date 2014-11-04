@@ -153,7 +153,7 @@ public class RecycleBinAction implements RecycleBinService {
             return MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$;
         } catch (RemoteException e) {
             if(e.getCause() != null && BeforeDeletingErrorException.class.isInstance(e.getCause())){
-                throw new DroppedItemBeforeDeletingException(e.getCause().getMessage());
+                throw new DroppedItemBeforeDeletingException(e.getCause().getMessage(), ((BeforeDeletingErrorException)e.getCause()).getMessageStatus());
             }
             throw new ServiceException(e.getLocalizedMessage());
         } catch (Exception e) {

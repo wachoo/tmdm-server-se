@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.model.ItemResult;
+import org.talend.mdm.webapp.base.client.resources.icon.Icons;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
@@ -32,10 +33,13 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Image;
 
 
 public class OperationMessageWindow extends Window {
@@ -83,7 +87,30 @@ public class OperationMessageWindow extends Window {
         loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
         store = new ListStore<ItemResult>(loader);
         
-        List<ColumnConfig> columnConfigs = new ArrayList<ColumnConfig>();        
+        List<ColumnConfig> columnConfigs = new ArrayList<ColumnConfig>();              
+        ColumnConfig colStatus = new ColumnConfig();
+        colStatus.setId("status"); //$NON-NLS-1$
+        colStatus.setWidth(65);
+        colStatus.setHeader("status"); //$NON-NLS-1$
+        colStatus.setRenderer(new GridCellRenderer<ItemResult>() {
+
+            @Override
+            public Object render(ItemResult model, String property, ColumnData config, int rowIndex, int colIndex,
+                    ListStore<ItemResult> store, Grid<ItemResult> grid) {                
+                Image image = new Image();                
+                if(model.getStatus() < 2){
+                    image.setResource(Icons.INSTANCE.statusValid());
+                } else {
+                    image.setResource(Icons.INSTANCE.statusInvalid());
+                }
+                com.google.gwt.user.client.ui.Grid g = new com.google.gwt.user.client.ui.Grid(1, 1);
+                g.setCellPadding(0);
+                g.setCellSpacing(0);
+                g.setWidget(0, 0, image);
+                return g;
+            }
+        });
+        columnConfigs.add(colStatus);        
         columnConfigs.add(new ColumnConfig("key", "key", 100)); //$NON-NLS-1$ //$NON-NLS-2$ 
         columnConfigs.add(new ColumnConfig("message", "message", 380)); //$NON-NLS-1$ //$NON-NLS-2$        
         
