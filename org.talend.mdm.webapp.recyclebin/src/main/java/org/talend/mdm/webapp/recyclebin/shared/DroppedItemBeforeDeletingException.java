@@ -21,10 +21,21 @@ public class DroppedItemBeforeDeletingException extends ServiceException impleme
 
     private static final long serialVersionUID = -4036164497494523333L;
 
+    private String messageStatus;
+    
     public DroppedItemBeforeDeletingException() {
     }
     
     public DroppedItemBeforeDeletingException(String s) {
         super(s);
+    }
+    
+    public DroppedItemBeforeDeletingException(String s, String messageStatus) {
+        super(s);
+        this.messageStatus = messageStatus;
+    }
+    
+    public String getMessageStatus() {
+        return this.messageStatus;
     }
 }

@@ -53,7 +53,7 @@ public class PhysicalDeleteAction implements DeleteAction {
                     messageWindow.setHeading(windowTitle);
                     messageWindow.show();
                 } else {
-                    msgBox = MessageBox.info(message.info_title(), BaseMessagesFactory.getMessages().message_success(), null);
+                    msgBox = MessageBox.info(message.info_title(), MessagesFactory.getMessages().delete_item_record_success(items.size()), null);
                     setTimeout(msgBox, 1000);
                 }
                 postDeleteAction.doAction();

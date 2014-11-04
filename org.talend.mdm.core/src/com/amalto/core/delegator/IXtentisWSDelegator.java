@@ -1183,7 +1183,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     }
                 } else {
                     status = FAIL_KEYWORD;
-                    message = "ERROR - Unable to delete item"; //$NON-NLS-1$
+                    message = "Fail - Unable to delete item"; //$NON-NLS-1$
                 }
                 wsDeleteItem.setSource(status);
                 return new WSString(message);
@@ -1782,7 +1782,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // Call beforeDelete process (if any).
             Util.BeforeDeleteResult result = Util.beforeDeleting(clusterName, conceptName, ids, operationType);
             if (result != null && ERROR_KEYWORD.equalsIgnoreCase(result.type)) { 
-                throw new BeforeDeletingErrorException(result.message);
+                throw new BeforeDeletingErrorException(result.message, ERROR_KEYWORD);
             }
             // Generate physical delete event in journal
             WSDroppedItemPK droppedItemPK = wsRemoveDroppedItem.getWsDroppedItemPK();
@@ -1791,7 +1791,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             DroppedItemCtrlLocal droppedItemCtrlLocal = Util.getDroppedItemCtrlLocal();
             DroppedItemPOJOPK droppedItemPOJOPK = droppedItemCtrlLocal.removeDroppedItem(XConverter.WS2POJO(droppedItemPK));
             if (result != null && INFO_KEYWORD.equalsIgnoreCase(result.type)) { 
-                throw new BeforeDeletingErrorException(result.message);
+                throw new BeforeDeletingErrorException(result.message, INFO_KEYWORD);
             }
             return XConverter.POJO2WS(droppedItemPOJOPK);
         } catch (XtentisException e) {
