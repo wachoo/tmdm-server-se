@@ -1,0 +1,6 @@
+<C xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <id>id1</id>
+    <A xsi:type="A">
+        <a>a1</a>
+    </A>
+</C>

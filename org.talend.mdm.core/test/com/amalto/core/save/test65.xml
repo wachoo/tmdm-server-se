@@ -1,0 +1,5 @@
+<Contrat xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <numeroContrat>1</numeroContrat>
+  <numeroContratExterne>1</numeroContratExterne>
+  <detailContrat xsi:type="AP-AA"/>
+</Contrat>
