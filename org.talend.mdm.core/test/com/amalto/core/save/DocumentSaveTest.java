@@ -1097,7 +1097,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertTrue(committer.hasSaved());
     }
-
+        
     public void testProductUpdate() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
@@ -2690,6 +2690,118 @@ public class DocumentSaveTest extends TestCase {
         committedElement = committer.getCommittedElement();
         assertEquals("1", evaluate(committedElement, "/Company/PartyPK"));
 
+    }
+
+    public void test62() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata11.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contrat", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test62_original.xml", "metadata11.xsd");
+        ((TestSaverSource) source).setUserName("administrator");
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test62.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Contrat", "Source", recordXml, false, true,
+                true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("[40]", evaluate(committedElement, "/Contrat/detailContrat/Perimetre/entitesPresentes/EDAs/EDA/eda"));
+    }
+
+    public void test65() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata11.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("Contrat", repository);
+
+        SaverSource source = new TestSaverSource(repository, false, "", "metadata11.xsd");
+        ((TestSaverSource) source).setUserName("administrator");
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test65.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "Contrat", "Source", recordXml, true, true,
+                true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("", evaluate(committedElement, "/Contrat/detailContrat[@xsi:type]"));
+    }
+
+    public void test67_update_multiOccurrenceField_SubType() throws Exception {
+        // TMDM-7407: when Subtype has field of Annonymous Type
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata19.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test", repository);
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test67_original.xml", "metadata19.xsd");
+        source.setUserName("administrator");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test67.xml");
+        DocumentSaverContext context = session.getContextFactory().create("test", "test", "genericUI", recordXml, false, true,
+                true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+    }
+    
+    public void test68() throws Exception {
+        // TMDM-7765: Test for null FK during element's type change.
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata21.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("metadata21.xsd", repository);
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test70_original.xml", "metadata21.xsd");
+        source.setUserName("administrator");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test70.xml");
+        DocumentSaverContext context = session.getContextFactory().create("metadata21.xsd", "metadata21.xsd", "genericUI", recordXml, false, true,
+                false, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Format_Date", evaluate(committedElement, "/EntiteA/format/@xsi:type"));
+    }
+    
+    public void test69() throws Exception {
+        // TMDM-7460: test for FK update during element's type change
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata21.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("metadata21.xsd", repository);
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test71_original.xml", "metadata21.xsd");
+        source.setUserName("administrator");
+        SaverSession session = SaverSession.newSession(source);
+
+        InputStream recordXml2 = DocumentSaveTest.class.getResourceAsStream("test71.xml");
+        DocumentSaverContext context2 = session.getContextFactory().create("metadata21.xsd", "metadata21.xsd", "genericUI", recordXml2, false, false,
+                false, false, false);
+        DocumentSaver saver2 = context2.createSaver();
+        saver2.save(session, context2);
+        MockCommitter committer2 = new MockCommitter();
+        session.end(committer2);
+
+        assertTrue(committer2.hasSaved());
+        Element committedElement2 = committer2.getCommittedElement();
+        assertEquals("Format_Entier", evaluate(committedElement2, "/EntiteA/format/@xsi:type"));
+        assertEquals("[e1]", evaluate(committedElement2, "/EntiteA/format/CodeUniteMesure"));
+        String datarecordXml = context2.getDatabaseDocument().exportToString();        
+        assertEquals(datarecordXml, "<EntiteA><codeA>a1</codeA><format xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"Format_Entier\"><CodeUniteMesure>[e1]</CodeUniteMesure></format></EntiteA>");
     }
 
     public void testDateTypeInKey() throws Exception {

@@ -103,7 +103,7 @@ public class DataRecord {
                 return recordMetadata.getRecordProperties().get(field.getName());
             }
             // Last chance for finding value: reused field might not be hashCode-equals so does a by-name lookup.
-            if (field instanceof ContainedTypeFieldMetadata) {
+            if (field instanceof ContainedTypeFieldMetadata || field instanceof ReferenceFieldMetadata) {
                 for (Map.Entry<FieldMetadata, Object> entry : fieldToValue.entrySet()) {
                     if (field.getName().equals(entry.getKey().getName())) {
                         return entry.getValue();
