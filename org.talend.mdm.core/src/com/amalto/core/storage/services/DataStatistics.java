@@ -131,9 +131,13 @@ public class DataStatistics {
                         TypeEntry entry = iterator.next();
                         writer.object().key(entry.typeName);
                         {
-                            writer.object().key("count").value(entry.count).endObject(); //$NON-NLS-1$
-                            long percentage = (entry.count * 100) / totalCount;
-                            writer.object().key("percentage").value(percentageFormat.format(percentage)).endObject(); //$NON-NLS-1$
+                            writer.array();
+                            {
+                                writer.object().key("count").value(entry.count).endObject(); //$NON-NLS-1$
+                                long percentage = (entry.count * 100) / totalCount;
+                                writer.object().key("percentage").value(percentageFormat.format(percentage)).endObject(); //$NON-NLS-1$
+                            }
+                            writer.endArray();
                         }
                         writer.endObject();
                     }
