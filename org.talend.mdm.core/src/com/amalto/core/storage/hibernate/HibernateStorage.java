@@ -22,7 +22,19 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 import net.sf.ehcache.CacheManager;
 
@@ -395,6 +407,13 @@ public class HibernateStorage implements Storage {
                                 }
                             }
                         }
+                        //TODO: may need to add db2 after confirmation
+                        if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+                            ComplexTypeMetadata indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
+                            if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
+                                LOGGER.warn("Cannot index field '" + indexedField.getPath() + "' of type '" + indexedField.getEntityTypeName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            }
+                        }
                     }
                 }
                 break;
@@ -417,6 +436,18 @@ public class HibernateStorage implements Storage {
                         databaseIndexedFields.add(database.getField(METADATA_TASK_ID));
                     }
                 }
+                //TODO: may need to add db2 after confirmation
+                if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+                    ComplexTypeMetadata indexEntityType;
+                    for (FieldMetadata indexedField : databaseIndexedFields) {
+                        indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
+                        if (indexEntityType == null || !indexEntityType.getSuperTypes().isEmpty()
+                                || !indexEntityType.getSubTypes().isEmpty()) {
+                            LOGGER.warn("Cannot index field '" + indexedField.getPath() + "' of type '" + indexedField.getEntityTypeName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        }
+                    }
+                }
+
                 break;
             case SYSTEM: // Nothing to index on SYSTEM
                 break;
@@ -913,7 +944,8 @@ public class HibernateStorage implements Storage {
                                 typesToDrop.add((ComplexTypeMetadata) element);
                             }
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault()) + "' requires a database schema update.");
+                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault())
+                                        + "' requires a database schema update.");
                             }
                         }
                     } else {
@@ -932,7 +964,8 @@ public class HibernateStorage implements Storage {
                                 typesToDrop.add((ComplexTypeMetadata) element);
                             }
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault()) + "' requires a database schema update.");
+                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault())
+                                        + "' requires a database schema update.");
                             }
                         }
                     }
@@ -942,7 +975,8 @@ public class HibernateStorage implements Storage {
             case LOW:
                 if (LOGGER.isTraceEnabled()) {
                     for (Change change : impactCategory.getValue()) {
-                        LOGGER.trace("Change '" + change.getMessage(Locale.getDefault()) + "' does NOT require a database schema update.");
+                        LOGGER.trace("Change '" + change.getMessage(Locale.getDefault())
+                                + "' does NOT require a database schema update.");
                     }
                     break;
                 }
