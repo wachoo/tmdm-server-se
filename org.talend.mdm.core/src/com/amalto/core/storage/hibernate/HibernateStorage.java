@@ -1522,9 +1522,9 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    private static class TableClosureVisitor implements PersistentClassVisitor {
+    private class TableClosureVisitor implements PersistentClassVisitor {
 
-        private static List<String> getTableNames(PersistentClass persistentClass) {
+        private List<String> getTableNames(PersistentClass persistentClass) {
             List<String> orderedTableNames = new LinkedList<String>();
             // Get table names for properties
             Set<String> tableNames = new HashSet<String>();
@@ -1572,7 +1572,7 @@ public class HibernateStorage implements Storage {
             return getTableNames(subclass);
         }
 
-        private static class ValueVisitor implements org.hibernate.mapping.ValueVisitor {
+        private class ValueVisitor implements org.hibernate.mapping.ValueVisitor {
 
             @Override
             public Object accept(Bag bag) {
@@ -1636,12 +1636,12 @@ public class HibernateStorage implements Storage {
 
             @Override
             public Object accept(ManyToOne mto) {
-                return mto.getTable().getName();
+                return configuration.getClassMapping(mto.getReferencedEntityName()).getTable().getName();
             }
 
             @Override
             public Object accept(OneToOne oto) {
-                return oto.getTable().getName();
+                return configuration.getClassMapping(oto.getReferencedEntityName()).getTable().getName();
             }
         }
     }
