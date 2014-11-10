@@ -123,6 +123,7 @@ public class StorageAdaptTest extends TestCase {
             }
         } finally {
             statement.close();
+            connection.close();
         }
     }
 
@@ -164,6 +165,7 @@ public class StorageAdaptTest extends TestCase {
             assertSame(roadElement, hasRoad);
         } finally {
             statement.close();
+            connection.close();
         }
     }
 
