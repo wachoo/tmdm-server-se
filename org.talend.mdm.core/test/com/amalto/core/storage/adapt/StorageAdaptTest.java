@@ -165,6 +165,7 @@ public class StorageAdaptTest extends TestCase {
             assertSame(roadElement, hasRoad);
         } finally {
             statement.close();
+            connection.close();
         }
     }
 
