@@ -10,11 +10,16 @@
 
 package com.amalto.core.storage.hibernate;
 
-import static org.hibernate.criterion.Restrictions.*;
-
-import java.io.IOException;
-import java.util.*;
-
+import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.Distinct;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.metadata.*;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.record.DataRecord;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -26,16 +31,10 @@ import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.hibernate.type.IntegerType;
 import org.talend.mdm.commmon.metadata.*;
 
-import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.Distinct;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.metadata.*;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.record.DataRecord;
+import java.io.IOException;
+import java.util.*;
+
+import static org.hibernate.criterion.Restrictions.*;
 
 class StandardQueryHandler extends AbstractQueryHandler {
 
@@ -62,6 +61,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private int aliasCount = 0;
 
     private String currentAliasName;
+
+    private int countAggregateIndex = 0;
 
     public StandardQueryHandler(Storage storage, MappingRepository mappings, TableResolver resolver,
             StorageClassLoader storageClassLoader, Session session, Select select, List<TypedExpression> selectedFields,
@@ -562,8 +563,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     @Override
     public StorageResults visit(OrderBy orderBy) {
-        TypedExpression orderByExpression = orderBy.getField();
-        FieldCondition condition = orderByExpression.accept(new CriterionFieldCondition());
+        TypedExpression orderByExpression = orderBy.getExpression();
+        CriterionFieldCondition fieldCondition = new CriterionFieldCondition();
+        FieldCondition condition = orderByExpression.accept(fieldCondition);
         if (orderByExpression instanceof Field) {
             Field field = (Field) orderByExpression;
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
@@ -572,6 +574,26 @@ class StandardQueryHandler extends AbstractQueryHandler {
             condition.criterionFieldNames = new ArrayList<String>(aliases.size());
             for (String alias : aliases) {
                 condition.criterionFieldNames.add(alias + '.' + userFieldMetadata.getName());
+            }
+        }
+        if(orderByExpression instanceof Count) {
+            Count count = (Count) orderByExpression;
+            String propertyName = count.getExpression().accept(fieldCondition).criterionFieldNames.get(0);
+            ProjectionList list = projectionList;
+            if (projectionList instanceof ReadOnlyProjectionList) {
+                list = ((ReadOnlyProjectionList) projectionList).inner();
+            }
+            list.add(Projections.groupProperty(propertyName));
+            countAggregateIndex = 0;
+            String alias = "x_talend_countField" + countAggregateIndex++;
+            list.add(Projections.count(propertyName).as(alias));
+            switch (orderBy.getDirection()) {
+                case ASC:
+                    criteria.addOrder(Order.asc(alias));
+                    break;
+                case DESC:
+                    criteria.addOrder(Order.desc(alias));
+                    break;
             }
         }
         if (condition != null) {
@@ -1337,6 +1359,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
             condition.isMany = false;
             condition.criterionFieldNames.clear();
             return condition;
+        }
+
+        @Override
+        public FieldCondition visit(Count count) {
+            FieldCondition fieldCondition = new FieldCondition();
+            fieldCondition.isProperty = false;
+            fieldCondition.isComputedProperty = true;
+            return fieldCondition;
         }
 
         @Override

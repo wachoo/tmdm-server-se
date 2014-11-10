@@ -10,20 +10,13 @@
 
 package com.amalto.core.storage.services;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
-import java.io.StringWriter;
-import java.util.Iterator;
-import java.util.Locale;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import com.amalto.core.query.user.*;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.record.DataRecord;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
@@ -31,15 +24,16 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.TimeSlicer;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Locale;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @Path("/system/stats/journal") //$NON-NLS-1$
 public class JournalStatistics {
@@ -82,7 +76,7 @@ public class JournalStatistics {
     @Path("{container}") //$NON-NLS-1$
     public Response getJournalStatistics(@PathParam("container") //$NON-NLS-1$
     String containerName, @QueryParam("lang") //$NON-NLS-1$
-    String language, @QueryParam("timeframe") Long timeFrame) { //$NON-NLS-1$
+    String language, @QueryParam("timeframe") Long timeFrame, @QueryParam("top") Integer top) { //$NON-NLS-1$ //$NON-NLS-2$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
@@ -95,17 +89,49 @@ public class JournalStatistics {
         }
         Storage updateReportStorage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER, null);
         ComplexTypeMetadata updateType = updateReportStorage.getMetadataRepository().getComplexType("Update");//$NON-NLS-1$
+        // Get the top N types
+        MetadataRepository repository = dataStorage.getMetadataRepository();
+        Collection<ComplexTypeMetadata> types;
+        if(top == null || top <= 0) {
+            types = repository.getUserComplexTypes(); // No top information, handle all types
+        } else {
+            types = new ArrayList<ComplexTypeMetadata>(top); // Get the top N types present in update report
+            // Query uses a quite expensive operation (orderBy count of field value), hopefully Concept is indexed
+            // See com.amalto.core.server.MetadataRepositoryAdminImpl.getIndexedExpressions()
+            UserQueryBuilder topTypeQuery = from(updateType)
+                    .select(updateType.getField("Concept")) //$NON-NLS-1$
+                    .where(eq(updateType.getField("DataModel"), containerName)) //$NON-NLS-1$
+                    .orderBy(count(updateType.getField("Concept")), OrderBy.Direction.DESC) //$NON-NLS-1$
+                    .cache(); // The top N types should change much, so cache result
+            updateReportStorage.begin();
+            try {
+                StorageResults topTypes = updateReportStorage.fetch(topTypeQuery.getSelect());
+                try {
+                    for (DataRecord topType : topTypes) {
+                        ComplexTypeMetadata type = repository.getComplexType(String.valueOf(topType.get("Concept"))); //$NON-NLS-1$
+                        if (type != null) {
+                            types.add(type);
+                        }
+                    }
+                } finally {
+                    topTypes.close();
+                }
+                updateReportStorage.commit();
+            } catch (Exception e) {
+                updateReportStorage.rollback();
+                throw new RuntimeException("Could get the top " + top + " types.", e);
+            }
+        }
         // Build statistics
         StringWriter stringWriter = new StringWriter();
         JSONWriter writer = new JSONWriter(stringWriter);
-        MetadataRepository repository = dataStorage.getMetadataRepository();
         try {
             updateReportStorage.begin();
             writer.object().key("journal"); //$NON-NLS-1$
             {
                 writer.array();
                 {
-                    for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
+                    for (ComplexTypeMetadata type : types) {
                         writer.object();
                         {
                             // Starts stats for type
