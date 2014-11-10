@@ -123,6 +123,7 @@ public class StorageAdaptTest extends TestCase {
             }
         } finally {
             statement.close();
+            connection.close();
         }
     }
 
