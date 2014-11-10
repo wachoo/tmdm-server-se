@@ -156,7 +156,6 @@ public class StagingTask implements Task {
             startLock.set(true);
             startLock.notifyAll();
         }
-
         try {
             if (executionType == null) {
                 throw new IllegalStateException("Can not find internal type information for execution logging.");
@@ -180,6 +179,11 @@ public class StagingTask implements Task {
                 if (currentTask.hasFailed()) {
                     LOGGER.warn("Task '" + currentTask + "' failed: abort staging validation task.");
                     break;
+                }
+                try {
+                    Thread.sleep(40000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
             recordExecutionEnd(stats);

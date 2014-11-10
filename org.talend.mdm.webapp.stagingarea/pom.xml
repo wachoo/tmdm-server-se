@@ -97,7 +97,7 @@
                         <id>gwt-compile</id>
                         <configuration>
                             <modules>
-                                <module>org.talend.mdm.webapp.stagingareacontrol.StagingareaControl</module>
+                                <module>org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl</module>
                                 <module>org.talend.mdm.webapp.stagingareabrowser.StagingareaBrowse</module>
                             </modules>
                         </configuration>

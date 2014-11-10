@@ -63,11 +63,7 @@ public class StatisticsRestServiceHandler {
         if (dataContainer == null) {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }
-
-        StringBuilder uri = new StringBuilder();
-        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("data").append(RestServiceHelper.SEPARATOR) //$NON-NLS-1$
-                .append(dataContainer).append("?top=").append(configModel.getSettingValue()); //$NON-NLS-1$
-        client.init(Method.GET, uri.toString());
+        client.init(Method.GET, restServiceUrl + '/' + "data" + '/' + dataContainer + "?top=" + configModel.getSettingValue());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -90,10 +86,7 @@ public class StatisticsRestServiceHandler {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }
 
-        StringBuilder uri = new StringBuilder();
-        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("journal").append(RestServiceHelper.SEPARATOR) //$NON-NLS-1$
-                .append(dataContainer).append("?timeframe=").append(configModel.getSettingValue()); //$NON-NLS-1$
-        client.init(Method.GET, uri.toString());
+        client.init(Method.GET, restServiceUrl + '/' + "journal" + '/' + dataContainer + "?timeframe=" + configModel.getSettingValue());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -118,7 +111,7 @@ public class StatisticsRestServiceHandler {
         }
 
         StringBuilder uri = new StringBuilder();
-        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append("matching").append(RestServiceHelper.SEPARATOR) //$NON-NLS-1$
+        uri.append(restServiceUrl).append('/').append("matching").append('/') //$NON-NLS-1$
                 .append(dataContainer).append("?top=").append(configModel.getSettingValue()); //$NON-NLS-1$
         client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
@@ -140,7 +133,7 @@ public class StatisticsRestServiceHandler {
 
     public void getRoutingEventStats(ConfigModel configModel, final SessionAwareAsyncCallback<JSONArray> callback) {
         StringBuilder uri = new StringBuilder();
-        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR)
+        uri.append(restServiceUrl).append('/')
                 .append("events").append("?timeframe=").append(configModel.getSettingValue()); //$NON-NLS-1$ //$NON-NLS-2$
         client.init(Method.GET, uri.toString());
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
