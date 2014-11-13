@@ -96,7 +96,7 @@ public class StagingRestServiceHandlerGWTTest extends GWTTestCase {
 
     public void testGetValidationTaskStatus() {
         MockStagingAreaValidationModel callback = new MockStagingAreaValidationModel();
-        handler.getValidationTaskStatus("TestDataContainer", callback);
+        handler.getValidationTaskStatus("TestDataContainer", "TestDataModel", callback);
         assertTrue(callback.isSucceed());
         assertNotNull(callback.getModel());
         assertEquals("1ad084c1-5f70-4b89-aeef-613e7e44f134", callback.getModel().getId());

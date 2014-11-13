@@ -100,7 +100,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
 
-        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
+        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current\\?.+$")) {
             StringBuilder sb = new StringBuilder();
             sb.append("<execution> ");
             sb.append(" <id>1ad084c1-5f70-4b89-aeef-613e7e44f134</id> ");
@@ -119,7 +119,7 @@ public class ClientResourceMockWrapper extends ClientResourceWrapper {
             InputRepresentation representation = new InputRepresentation(stringStream);
             response.setEntity(representation);
         } else if (method.equals(Method.DELETE)
-                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current\\?.+$")) {
             response.setStatus(Status.SUCCESS_OK);
         }
 

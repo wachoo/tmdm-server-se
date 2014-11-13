@@ -261,11 +261,13 @@ public class StagingRestServiceHandler {
      * @param dataContainer
      * @param callback
      */
-    public void getValidationTaskStatus(String dataContainer, final SessionAwareAsyncCallback<StagingAreaValidationModel> callback) {
+    public void getValidationTaskStatus(String dataContainer, String dataModel, final SessionAwareAsyncCallback<StagingAreaValidationModel> callback) {
 
         StringBuilder uri = new StringBuilder();
         uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR).append(dataContainer).append("/execs/current"); //$NON-NLS-1$
-        client.init(Method.GET, uri.toString());
+        Map<String, String> parameterMap = new HashMap<String, String>();
+        parameterMap.put("model", dataModel); //$NON-NLS-1$
+        client.init(Method.GET, uri.toString(), parameterMap);
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override

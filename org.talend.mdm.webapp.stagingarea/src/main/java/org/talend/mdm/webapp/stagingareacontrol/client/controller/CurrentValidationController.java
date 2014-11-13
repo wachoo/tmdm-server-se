@@ -105,7 +105,7 @@ public class CurrentValidationController extends AbstractController {
 
     private void refreshView(final Callback callback) {
         UserContextModel ucx = UserContextUtil.getUserContext();
-        StagingRestServiceHandler.get().getValidationTaskStatus(ucx.getDataContainer(),
+        StagingRestServiceHandler.get().getValidationTaskStatus(ucx.getDataContainer(), ucx.getDataModel(), 
                 new SessionAwareAsyncCallback<StagingAreaValidationModel>() {
 
                     @Override

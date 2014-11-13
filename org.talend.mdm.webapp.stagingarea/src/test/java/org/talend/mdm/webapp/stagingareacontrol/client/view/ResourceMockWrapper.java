@@ -63,7 +63,7 @@ public class ResourceMockWrapper extends ClientResourceWrapper {
             String messageXml = sb.toString();
             DomRepresentation representation = new DomRepresentation(MediaType.TEXT_XML, XMLParser.parse(messageXml));
             response.setEntity(representation);
-        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
+        } else if (method.equals(Method.GET) && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current\\?.+$")) {
 
             if (runValidationTask) {
                 StringBuilder sb = new StringBuilder();
@@ -92,7 +92,7 @@ public class ResourceMockWrapper extends ClientResourceWrapper {
             response.setEntity(representation);
             runValidationTask = true;
         } else if (method.equals(Method.DELETE)
-                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current$")) {
+                && uri.matches("^.+/core/services/tasks/staging/TestDataContainer/execs/current\\?.+$")) {
             response.setStatus(Status.SUCCESS_OK);
             runValidationTask = false;
         }
