@@ -52,6 +52,7 @@ public class StagingAreaMainView extends AbstractView {
         this.setStyleAttribute("font-family", "tahoma,arial,helvetica,sans-serif"); //$NON-NLS-1$//$NON-NLS-2$
         this.setStyleAttribute("font-size", "11px"); //$NON-NLS-1$//$NON-NLS-2$
         ToolBar toolBar = new ToolBar();
+        // Manual refresh button.
         Button refresh = new Button(messages.refresh(), AbstractImagePrototype.create(Icons.INSTANCE.refresh()));
         refresh.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -59,13 +60,13 @@ public class StagingAreaMainView extends AbstractView {
             public void componentSelected(ButtonEvent ce) {
                 Controllers.get().getSummaryController().refresh();
                 Controllers.get().getValidationController().refresh();
-                Controllers.get().getPreviousExecutionController().search();
+                Controllers.get().getPreviousExecutionController().refresh();
             }
         });
         toolBar.add(refresh);
-
+        // Auto refresh button.
         final ToggleButton autoRefreshToggle = new ToggleButton(messages.on());
-        autoRefreshToggle.toggle(true);
+        autoRefreshToggle.toggle();
         autoRefreshToggle.setTitle(messages.auto_refresh());
         autoRefreshToggle.addListener(Events.Toggle, new Listener<BaseEvent>() {
 
@@ -74,12 +75,19 @@ public class StagingAreaMainView extends AbstractView {
                 Controllers.get().getStagingController().autoRefresh(autoRefreshToggle.isPressed());
             }
         });
+        // Turn on (or off) auto refresh depending on initial toggle status
+        Controllers.get().getStagingController().autoRefresh(autoRefreshToggle.isPressed());
         toolBar.add(autoRefreshToggle);
         mainPanel.setTopComponent(toolBar);
-
-        summaryView = new StagingContainerSummaryView(GenerateContainer.getContainerModel());
+        // All sub panels (storage summary, current validation, previous execution list).
+        summaryView = new StagingContainerSummaryView(GenerateContainer.getContainerModel(),
+                GenerateContainer.getValidationModel());
         currentValidationView = new CurrentValidationView(GenerateContainer.getValidationModel());
         previousExecutionValidationView = new PreviousExecutionView();
+        // Do an initial refresh for UI components
+        Controllers.get().getSummaryController().refresh();
+        Controllers.get().getValidationController().refresh();
+        Controllers.get().getPreviousExecutionController().refresh();
     }
 
     @Override

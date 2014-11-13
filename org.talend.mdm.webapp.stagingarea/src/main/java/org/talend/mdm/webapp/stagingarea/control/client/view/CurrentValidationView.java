@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.NumberFormat;
 import org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
@@ -37,28 +36,26 @@ import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaValidat
 
 public class CurrentValidationView extends AbstractView implements ModelEventHandler {
 
-    private final HandlerRegistration executionModelHook;
+    private Button       cancelButton;
 
-    private Button                    cancelButton;
+    private CardLayout   cardLayout;
 
-    private CardLayout                cardLayout;
+    private ContentPanel contentPanel;
 
-    private ContentPanel              contentPanel;
+    private FormPanel    formPanel;
 
-    private FormPanel                 formPanel;
+    private ContentPanel defaultMessagePanel;
 
-    private ContentPanel              defaultMessagePanel;
+    private DateField    startDateField;
 
-    private DateField                 startDateField;
+    private NumberField  recordToProcessField;
 
-    private NumberField               recordToProcessField;
+    private NumberField  invalidField;
 
-    private NumberField               invalidField;
-
-    private ProgressBar               progressBar;
+    private ProgressBar  progressBar;
 
     public CurrentValidationView(StagingAreaValidationModel executionModel) {
-        executionModelHook = executionModel.addModelEventHandler(this);
+        executionModel.addModelEventHandler(this);
     }
 
     @Override
@@ -185,11 +182,5 @@ public class CurrentValidationView extends AbstractView implements ModelEventHan
     // Called by JS
     public ContentPanel getActivePanel() {
         return (ContentPanel) cardLayout.getActiveItem();
-    }
-
-    @Override
-    protected void onDetach() {
-        super.onDetach();
-        executionModelHook.removeHandler();
     }
 }

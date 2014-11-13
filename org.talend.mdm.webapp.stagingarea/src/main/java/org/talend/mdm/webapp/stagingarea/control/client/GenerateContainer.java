@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.stagingarea.control.client;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import org.talend.mdm.webapp.stagingarea.control.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.PreviousExecutionModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingContainerModel;
 
@@ -24,11 +25,14 @@ public class GenerateContainer {
 
     private static final StagingContainerModel containerModel;
 
+    private static final PreviousExecutionModel previousExecutionModel;
+
     private static ContentPanel instance;
 
     static {
         validationModel = new StagingAreaValidationModel();
         containerModel = new StagingContainerModel();
+        previousExecutionModel = new PreviousExecutionModel();
     }
 
     public static StagingAreaValidationModel getValidationModel() {
@@ -37,6 +41,10 @@ public class GenerateContainer {
 
     public static StagingContainerModel getContainerModel() {
         return containerModel;
+    }
+
+    public static PreviousExecutionModel getPreviousExecutionModel() {
+        return previousExecutionModel;
     }
 
     public static void generateContentPanel() {

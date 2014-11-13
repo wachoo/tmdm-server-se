@@ -18,10 +18,11 @@ import java.io.Serializable;
 
 public class StagingAreaConfiguration implements Serializable, IsSerializable {
 
-    private int refreshIntervals;
+    private static final int DEFAULT_REFRESH_INTERVALS = 1000;
+
+    private int              refreshIntervals          = DEFAULT_REFRESH_INTERVALS;
 
     public StagingAreaConfiguration() {
-
     }
 
     public int getRefreshIntervals() {

@@ -43,7 +43,7 @@ public class StagingContainerModel extends AbstractHasModelEvents implements IsS
 
     public void setDataContainer(String dataContainer) {
         this.dataContainer = dataContainer;
-        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this));
     }
 
     public String getDataModel() {
@@ -52,7 +52,7 @@ public class StagingContainerModel extends AbstractHasModelEvents implements IsS
 
     public void setDataModel(String dataModel) {
         this.dataModel = dataModel;
-        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this));
     }
 
     public int getInvalidRecords() {
@@ -61,7 +61,7 @@ public class StagingContainerModel extends AbstractHasModelEvents implements IsS
 
     public void setInvalidRecords(int invalidRecords) {
         this.invalidRecords = invalidRecords;
-        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this));
     }
 
     public int getTotalRecords() {
@@ -70,7 +70,7 @@ public class StagingContainerModel extends AbstractHasModelEvents implements IsS
 
     public void setTotalRecords(int totalRecords) {
         this.totalRecords = totalRecords;
-        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this));
     }
 
     public int getValidRecords() {
@@ -79,7 +79,7 @@ public class StagingContainerModel extends AbstractHasModelEvents implements IsS
 
     public void setValidRecords(int validRecords) {
         this.validRecords = validRecords;
-        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this));
     }
 
     public int getWaitingValidationRecords() {
@@ -88,6 +88,6 @@ public class StagingContainerModel extends AbstractHasModelEvents implements IsS
 
     public void setWaitingValidationRecords(int waitingValidationRecords) {
         this.waitingValidationRecords = waitingValidationRecords;
-        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.CONTAINER_MODEL_CHANGED, this));
     }
 }

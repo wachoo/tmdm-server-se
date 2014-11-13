@@ -17,7 +17,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import org.talend.mdm.webapp.stagingarea.control.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.stagingarea.control.client.i18n.StagingAreaMessages;
 
-public abstract class AbstractView extends Composite {
+abstract class AbstractView extends Composite {
 
     final ContentPanel        mainPanel;
 

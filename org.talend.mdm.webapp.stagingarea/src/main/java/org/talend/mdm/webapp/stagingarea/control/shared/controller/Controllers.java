@@ -30,7 +30,7 @@ public class Controllers {
         stagingController = new StagingController();
         stagingContainerSummaryController = new StagingContainerSummaryController(GenerateContainer.getContainerModel());
         validationController = new ValidationController(GenerateContainer.getValidationModel());
-        previousExecutionController = new PreviousExecutionController();
+        previousExecutionController = new PreviousExecutionController(GenerateContainer.getPreviousExecutionModel());
     }
 
     private Controllers() {

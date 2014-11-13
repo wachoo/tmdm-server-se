@@ -31,11 +31,11 @@ class AbstractHasModelEvents implements HasModelEvents {
 
     private final Map<String, Object> values = new HashMap<String, Object>();
 
-    protected  <T> T get(String key) {
+    <T> T get(String key) {
         return (T) values.get(key);
     }
 
-    protected void set(String key, Object value) {
+    void set(String key, Object value) {
         values.put(key, value);
     }
 

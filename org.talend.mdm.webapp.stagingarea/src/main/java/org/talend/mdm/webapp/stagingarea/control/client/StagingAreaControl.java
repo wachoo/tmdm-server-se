@@ -35,9 +35,9 @@ public class StagingAreaControl implements EntryPoint {
 
     public static final String              STAGINGAREA_ID = "Stagingarea"; //$NON-NLS-1$
 
-    public static StagingAreaServiceAsync   service;
+    private static final StagingAreaConfiguration stagingAreaConfig = new StagingAreaConfiguration();
 
-    private static StagingAreaConfiguration stagingAreaConfig;
+    public static StagingAreaServiceAsync   service;
 
     public static StagingAreaConfiguration getStagingAreaConfig() {
         return stagingAreaConfig;
@@ -85,7 +85,7 @@ public class StagingAreaControl implements EntryPoint {
                                          var instance = this;
                                          var panel = {
                                          render : function(el) {
-                                         instance.@org.talend.mdm.webapp.stagingareacontrol.client.StagingareaControl::renderContent(Ljava/lang/String;)(el.id);
+                                         instance.@org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::renderContent(Ljava/lang/String;)(el.id);
                                          },
                                          setSize : function(width, height) {
                                          var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
@@ -120,7 +120,8 @@ public class StagingAreaControl implements EntryPoint {
 
             @Override
             public void onSuccess(StagingAreaConfiguration aStagingAreaConfig) {
-                StagingAreaControl.stagingAreaConfig = aStagingAreaConfig;
+                // Sets configuration with value from server
+                StagingAreaControl.stagingAreaConfig.setRefreshIntervals(aStagingAreaConfig.getRefreshIntervals());
                 ContentPanel content = GenerateContainer.getContentPanel();
 
                 if (GWT.isScript()) {

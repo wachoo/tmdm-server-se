@@ -17,8 +17,6 @@ import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class StagingAreaValidationModel extends AbstractHasModelEvents implements IsSerializable, Serializable {
 
@@ -27,8 +25,14 @@ public class StagingAreaValidationModel extends AbstractHasModelEvents implement
     }
 
     public void setId(String id) {
+        if (getId() == null && id != null) {
+            notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_START, this));
+        }
         set("id", id); //$NON-NLS-1$
-        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this));
+        if (id == null) {
+            notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_END, this));
+        }
     }
 
     public Date getStartDate() {
@@ -37,7 +41,7 @@ public class StagingAreaValidationModel extends AbstractHasModelEvents implement
 
     public void setStartDate(Date startDate) {
         set("start_date", startDate); //$NON-NLS-1$
-        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this));
     }
 
     public int getProcessedRecords() {
@@ -46,7 +50,7 @@ public class StagingAreaValidationModel extends AbstractHasModelEvents implement
 
     public void setProcessedRecords(int processedRecords) {
         set("processed_records", processedRecords); //$NON-NLS-1$
-        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this));
     }
 
     public int getInvalidRecords() {
@@ -55,7 +59,7 @@ public class StagingAreaValidationModel extends AbstractHasModelEvents implement
 
     public void setInvalidRecords(int invalidRecords) {
         set("invalid_records", invalidRecords); //$NON-NLS-1$
-        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this));
     }
 
     public int getTotalRecord() {
@@ -64,7 +68,7 @@ public class StagingAreaValidationModel extends AbstractHasModelEvents implement
 
     public void setTotalRecord(int totalRecord) {
         set("total_record", totalRecord); //$NON-NLS-1$
-        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this, null));
+        notifyHandlers(new ModelEvent(ModelEvent.Types.VALIDATION_MODEL_CHANGED, this));
     }
 
 }

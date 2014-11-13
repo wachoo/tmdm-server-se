@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
@@ -38,34 +38,34 @@ import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
 import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEventHandler;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.ConceptRelationshipModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.FilterModel;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingContainerModel;
 
 public class StagingContainerSummaryView extends AbstractView implements ModelEventHandler {
 
-    public static final String        STAGING_AREA_TITLE   = "staging_area_title";  //$NON-NLS-1$
+    private static final String STAGING_AREA_TITLE   = "staging_area_title";  //$NON-NLS-1$
 
-    public static final String        STAGING_AREA_WAITING = "staging_area_waiting"; //$NON-NLS-1$
+    private static final String STAGING_AREA_WAITING = "staging_area_waiting"; //$NON-NLS-1$
 
-    public static final String        STAGING_AREA_INVALID = "staging_area_invalid"; //$NON-NLS-1$
+    private static final String STAGING_AREA_INVALID = "staging_area_invalid"; //$NON-NLS-1$
 
-    public static final String        STAGING_AREA_VALID   = "staging_area_valid";  //$NON-NLS-1$
+    private static final String STAGING_AREA_VALID   = "staging_area_valid";  //$NON-NLS-1$
 
-    private final HandlerRegistration containerModelHook;
+    private ProgressBar         gaugeBar;
 
-    private ProgressBar               gaugeBar;
+    private Button              startValidate;
 
-    private Button                    startValidate;
+    private CheckBox            withFiltering;
 
-    private CheckBox                  withFiltering;
+    private HTMLPanel           detailPanel;
 
-    private HTMLPanel                 detailPanel;
+    private Provider            provider;
 
-    private Provider                  provider;
+    private int                 totalRecordCount     = 0;
 
-    private int                       totalRecordCount     = 0;
-
-    public StagingContainerSummaryView(StagingContainerModel containerModel) {
-        containerModelHook = containerModel.addModelEventHandler(this);
+    public StagingContainerSummaryView(StagingContainerModel containerModel, StagingAreaValidationModel validationModel) {
+        containerModel.addModelEventHandler(this);
+        validationModel.addModelEventHandler(this);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class StagingContainerSummaryView extends AbstractView implements ModelEv
     private native void addClickForRecord(int state, Element el)/*-{
                                                                 var instance = this;
                                                                 el.onclick = function() {
-                                                                instance.@StagingContainerSummaryView::onOpenRecord(I)(state);
+                                                                instance.@org.talend.mdm.webapp.stagingarea.control.client.view.StagingContainerSummaryView::onOpenRecord(I)(state);
                                                                 };
                                                                 }-*/;
 
@@ -167,14 +167,9 @@ public class StagingContainerSummaryView extends AbstractView implements ModelEv
     }
 
     @Override
-    protected void onDetach() {
-        super.onDetach();
-        containerModelHook.removeHandler();
-    }
-
-    @Override
     public void onModelEvent(ModelEvent e) {
-        if (e.getAssociatedType() == ModelEvent.Types.CONTAINER_MODEL_CHANGED.getType()) {
+        GwtEvent.Type<ModelEventHandler> type = e.getAssociatedType();
+        if (type == ModelEvent.Types.CONTAINER_MODEL_CHANGED.getType()) {
             StagingContainerModel stagingContainerModel = e.getModel();
             // Updates summary
             int waiting = stagingContainerModel.getWaitingValidationRecords();
@@ -210,6 +205,10 @@ public class StagingContainerSummaryView extends AbstractView implements ModelEv
                 gaugeBar.updateProgress(percentage, messages.percentage(valid, total, validPercentage));
             }
             totalRecordCount = total;
+        } else if (type == ModelEvent.Types.VALIDATION_END.getType() || type == ModelEvent.Types.VALIDATION_CANCEL.getType()) {
+            startValidate.enable();
+        } else if (type == ModelEvent.Types.VALIDATION_START.getType()) {
+            startValidate.disable();
         }
     }
 }

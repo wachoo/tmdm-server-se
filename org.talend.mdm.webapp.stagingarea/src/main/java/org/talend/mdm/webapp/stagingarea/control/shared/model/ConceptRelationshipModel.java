@@ -23,6 +23,10 @@ public class ConceptRelationshipModel implements Serializable, IsSerializable {
 
     private Map<String, String[]> relationShipMap;
 
+    // Required by GWT
+    public ConceptRelationshipModel() {
+    }
+
     public ConceptRelationshipModel(String[] concepts, Map<String, String[]> relationShipMap) {
         this.concepts = concepts;
         this.relationShipMap = relationShipMap;

@@ -25,10 +25,6 @@ public class FilterModel {
 
     private Date         endDate;
 
-    public FilterModel() {
-
-    }
-
     public List<String> getConcepts() {
         return this.concepts;
     }

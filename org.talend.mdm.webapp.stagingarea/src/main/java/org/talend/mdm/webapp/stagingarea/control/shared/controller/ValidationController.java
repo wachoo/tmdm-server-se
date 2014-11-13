@@ -18,12 +18,11 @@ import com.google.gwt.xml.client.XMLParser;
 import org.restlet.client.data.MediaType;
 import org.restlet.client.ext.xml.DomRepresentation;
 import org.restlet.client.representation.Representation;
-import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer;
-import org.talend.mdm.webapp.stagingarea.control.client.rest.StagingRestServiceHandler;
-import org.talend.mdm.webapp.stagingarea.control.client.view.CurrentValidationView;
+import org.talend.mdm.webapp.stagingarea.control.shared.controller.rest.StagingRestServiceHandler;
+import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.FilterModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaValidationModel;
 
@@ -92,5 +91,7 @@ public class ValidationController {
             entity = new DomRepresentation(MediaType.APPLICATION_XML, buildFilterDocument(filterModel));
         }
         serviceHandler.runValidationTask(ucx.getDataContainer(), ucx.getDataModel(), entity);
+        GenerateContainer.getValidationModel().notifyHandlers(
+                new ModelEvent(ModelEvent.Types.VALIDATION_START, GenerateContainer.getValidationModel()));
     }
 }

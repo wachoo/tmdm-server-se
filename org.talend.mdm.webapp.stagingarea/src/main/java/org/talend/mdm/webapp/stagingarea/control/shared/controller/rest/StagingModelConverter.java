@@ -10,12 +10,13 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.stagingarea.control.client.rest;
+package org.talend.mdm.webapp.stagingarea.control.shared.controller.rest;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import org.restlet.client.Response;
+import org.restlet.client.data.Status;
 import org.restlet.client.ext.xml.DomRepresentation;
 import org.talend.mdm.webapp.base.client.rest.RestServiceHelper;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaExecutionModel;
@@ -53,6 +54,10 @@ class StagingModelConverter {
     }
 
     public static void set(Response response, StagingAreaValidationModel model) throws IOException {
+        if (response.getStatus().getCode() == Status.SUCCESS_NO_CONTENT.getCode()) { // No current execution
+            model.setId(null);
+            return;
+        }
         DomRepresentation domRepresentation = RestServiceHelper.getDomRepresentationFromResponse(response);
         if (domRepresentation != null) {
             // Loop on the nodes to retrieve the node names and text content.
@@ -79,6 +84,7 @@ class StagingModelConverter {
             }
         }
     }
+
 
     public static StagingAreaExecutionModel response2StagingAreaExecutionModel(Response response) throws IOException {
         StagingAreaExecutionModel stagingAreaExecutionModel = null;

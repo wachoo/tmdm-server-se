@@ -14,7 +14,7 @@ package org.talend.mdm.webapp.stagingarea.control.shared.controller;
 
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
-import org.talend.mdm.webapp.stagingarea.control.client.rest.StagingRestServiceHandler;
+import org.talend.mdm.webapp.stagingarea.control.shared.controller.rest.StagingRestServiceHandler;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingContainerModel;
 
 public class StagingContainerSummaryController {

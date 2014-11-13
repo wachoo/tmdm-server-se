@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.stagingarea.control.shared.event;
 
 import com.google.gwt.event.shared.GwtEvent;
-import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingControlModel;
 
 /**
  * Represents a event fired by the model of the application.
@@ -24,14 +23,11 @@ public class ModelEvent extends GwtEvent<ModelEventHandler> {
 
     private final Type<ModelEventHandler> type;
 
-    private final Object                  data;
-
     private final Object     model;
 
-    public ModelEvent(Types type, Object model, Object data) {
+    public ModelEvent(Types type, Object model) {
         this.model = model;
         this.type = type.getType();
-        this.data = data;
     }
 
     @Override
@@ -40,19 +36,10 @@ public class ModelEvent extends GwtEvent<ModelEventHandler> {
     }
 
     /**
-     * @return Returns the {@link StagingControlModel} that fired this event.
+     * @return Returns the model that fired this event.
      */
     public <T> T getModel() {
         return (T) model;
-    }
-
-    /**
-     * @param <T> Type of expected data
-     * @return Data associated with this event (depend on event type, use with caution).
-     */
-    @SuppressWarnings({ "unchecked" })
-    public <T> T getData() {
-        return (T) data;
     }
 
     @Override
@@ -81,7 +68,9 @@ public class ModelEvent extends GwtEvent<ModelEventHandler> {
         VALIDATION_PROGRESS_CHANGED(new Type<ModelEventHandler>()),
         VALIDATION_START(new Type<ModelEventHandler>()),
         CONTAINER_MODEL_CHANGED(new Type<ModelEventHandler>()),
-        VALIDATION_MODEL_CHANGED(new Type<ModelEventHandler>());
+        VALIDATION_MODEL_CHANGED(new Type<ModelEventHandler>()),
+        PREVIOUS_EXECUTION_RELOAD(new Type<ModelEventHandler>()),
+        PREVIOUS_EXECUTION_CHANGED(new Type<ModelEventHandler>());
 
         private final Type<ModelEventHandler> type;
 

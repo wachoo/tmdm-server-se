@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.control.client.view;
 
+import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Label;
@@ -22,39 +23,49 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.base.client.widget.PagingToolBarEx;
+import org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
 import org.talend.mdm.webapp.stagingarea.control.shared.controller.PreviousExecutionController;
+import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
+import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEventHandler;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.PreviousExecutionModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaExecutionModel;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class PreviousExecutionView extends AbstractView {
+class PreviousExecutionView extends AbstractView implements ModelEventHandler {
 
-    private static final int                PAGE_SIZE = 10;
+    private static final int                    PAGE_SIZE = 10;
 
-    private PagingToolBarEx                 taskPagingBar;
+    private static final PreviousExecutionModel model;
 
-    private ToolBar                         bar;
+    private PagingToolBarEx                     taskPagingBar;
 
-    private Label                           beforeDateLabel;
+    private ToolBar                             bar;
 
-    private DateField                       beforeDateField;
+    private Label                               beforeDateLabel;
 
-    private Button                          searchButton;
+    private DateField                           beforeDateField;
 
-    private Grid<StagingAreaExecutionModel> taskGrid;
+    private Button                              searchButton;
 
-    private ColumnModel                     taskColumnModel;
+    private Grid<StagingAreaExecutionModel>     taskGrid;
 
-    private UserContextModel                ucx;
+    static {
+        model = GenerateContainer.getPreviousExecutionModel();
+    }
 
-    private void buildColumns() {
+    @Override
+    protected void initComponents() {
+        super.initComponents();
+        // Build column for the execution details grid
+        UserContextModel ucx = UserContextUtil.getUserContext();
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
         ColumnConfig startDateColumn = new ColumnConfig("start_date", messages.start_date(), 100); //$NON-NLS-1$
         if (ucx.getDateTimeFormat() != null) {
@@ -70,25 +81,20 @@ public class PreviousExecutionView extends AbstractView {
         columns.add(processRecordsColumn);
         ColumnConfig invalidRecordsColumn = new ColumnConfig("invalid_records", messages.invalid_records(), 100); //$NON-NLS-1$
         columns.add(invalidRecordsColumn);
-
         ColumnConfig recordLeftColumn = new ColumnConfig("total_record", messages.total_record(), 100); //$NON-NLS-1$
         columns.add(recordLeftColumn);
-
-        taskColumnModel = new ColumnModel(columns);
-    }
-
-    @Override
-    protected void initComponents() {
-        super.initComponents();
-        ucx = UserContextUtil.getUserContext();
-        buildColumns();
+        ColumnModel columnModel = new ColumnModel(columns);
+        // UI widgets
+        taskGrid = new Grid<StagingAreaExecutionModel>(model.getStore(), columnModel);
+        taskGrid.getView().setForceFit(true);
+        taskGrid.setAutoExpandColumn(columns.get(0).getHeader());
+        taskGrid.setAutoHeight(true);
         beforeDateLabel = new Label(messages.display_before());
         beforeDateField = new DateField();
         searchButton = new Button(messages.search());
         bar = new ToolBar();
         taskPagingBar = new PagingToolBarEx(PAGE_SIZE);
-        taskGrid = new Grid<StagingAreaExecutionModel>(Controllers.get().getPreviousExecutionController().getClearStore(), taskColumnModel);
-        taskGrid.setAutoHeight(true);
+        taskPagingBar.bind((PagingLoader<?>) model.getStore().getLoader());
     }
 
     @Override
@@ -96,25 +102,11 @@ public class PreviousExecutionView extends AbstractView {
         bar.add(beforeDateLabel);
         bar.add(beforeDateField);
         bar.add(searchButton);
-
-        taskPagingBar.bind(Controllers.get().getPreviousExecutionController().getLoader());
-        taskGrid.getView().setForceFit(true);
-        taskGrid.setAutoExpandColumn(taskColumnModel.getColumn(0).getHeader());
-
         mainPanel.setLayout(new FitLayout());
-
         mainPanel.setHeaderVisible(false);
         mainPanel.setTopComponent(bar);
         mainPanel.add(taskGrid);
         mainPanel.setBottomComponent(taskPagingBar);
-    }
-
-    public Date getBeforeDate() {
-        return beforeDateField.getValue();
-    }
-
-    public Button getSearchButton() {
-        return searchButton;
     }
 
     @Override
@@ -123,14 +115,17 @@ public class PreviousExecutionView extends AbstractView {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                Controllers.get().getPreviousExecutionController().search();
+                PreviousExecutionController controller = Controllers.get().getPreviousExecutionController();
+                controller.setBeforeDate(beforeDateField.getValue());
             }
         });
     }
 
     @Override
-    protected void onAttach() {
-        super.onAttach();
-        Controllers.get().getPreviousExecutionController().setDataContainer(ucx.getDataContainer());
+    public void onModelEvent(ModelEvent e) {
+        GwtEvent.Type<ModelEventHandler> type = e.getAssociatedType();
+        if (type == ModelEvent.Types.PREVIOUS_EXECUTION_CHANGED.getType()) {
+            model.getStore().getLoader().load();
+        }
     }
 }

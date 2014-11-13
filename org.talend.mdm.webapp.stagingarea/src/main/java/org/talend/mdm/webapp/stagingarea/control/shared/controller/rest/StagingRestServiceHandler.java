@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.mdm.webapp.stagingarea.control.client.rest;
+package org.talend.mdm.webapp.stagingarea.control.shared.controller.rest;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.xml.client.Node;
@@ -20,6 +20,7 @@ import org.restlet.client.Response;
 import org.restlet.client.data.MediaType;
 import org.restlet.client.data.Method;
 import org.restlet.client.ext.xml.DomRepresentation;
+import org.restlet.client.representation.InputRepresentation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
 import org.talend.mdm.webapp.base.client.rest.ResourceSessionAwareCallbackHandler;
@@ -32,27 +33,17 @@ import java.util.*;
 
 public class StagingRestServiceHandler {
 
-    private static StagingRestServiceHandler handler;
+    private static final StagingRestServiceHandler handler = new StagingRestServiceHandler();
 
     private final DateTimeFormat             DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ss");         //$NON-NLS-1$
 
     private final String                     restServiceUrl      = RestServiceHelper.BASE_URL + "core/services/tasks/staging"; //$NON-NLS-1$
 
-    private ClientResourceWrapper            client;
-
     private StagingRestServiceHandler() {
-        client = new ClientResourceWrapper();
     }
 
     public static StagingRestServiceHandler get() {
-        if (handler == null) {
-            handler = new StagingRestServiceHandler();
-        }
         return handler;
-    }
-
-    public void setClient(ClientResourceWrapper client) {
-        this.client = client;
     }
 
     /**
@@ -68,8 +59,8 @@ public class StagingRestServiceHandler {
         }
         Map<String, String> parameterMap = new HashMap<String, String>();
         parameterMap.put("model", dataModel); //$NON-NLS-1$
-        client.init(Method.GET, restServiceUrl + '/' + dataContainer + '/',
-                parameterMap);
+        ClientResourceWrapper client = getClient();
+        client.init(Method.GET, restServiceUrl + '/' + dataContainer + '/', parameterMap);
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -78,6 +69,10 @@ public class StagingRestServiceHandler {
             }
         });
         client.request();
+    }
+
+    private ClientResourceWrapper getClient() {
+        return new ClientResourceWrapper();
     }
 
     /**
@@ -91,6 +86,7 @@ public class StagingRestServiceHandler {
             parameterMap.put("start", String.valueOf(start)); //$NON-NLS-1$
             parameterMap.put("size", String.valueOf(pageSize)); //$NON-NLS-1$
         }
+        ClientResourceWrapper client = getClient();
         client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/", parameterMap);
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -119,8 +115,9 @@ public class StagingRestServiceHandler {
     /**
      * Get execution details by Id
      */
-    public void getStagingAreaExecution(String dataContainer, String exeId,
-            final SessionAwareAsyncCallback<StagingAreaExecutionModel> callback) {
+    void getStagingAreaExecution(String dataContainer, String exeId,
+                                 final SessionAwareAsyncCallback<StagingAreaExecutionModel> callback) {
+        ClientResourceWrapper client = getClient();
         client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/" + exeId);
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -148,6 +145,7 @@ public class StagingRestServiceHandler {
         if (before != null) {
             parameterMap.put("before", DEFAULT_DATE_FORMAT.format(before)); //$NON-NLS-1$
         }
+        ClientResourceWrapper client = getClient();
         client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/", parameterMap);
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -200,6 +198,7 @@ public class StagingRestServiceHandler {
      * Get new validation task status
      */
     public void getValidationTaskStatus(String dataContainer, final StagingAreaValidationModel model) {
+        ClientResourceWrapper client = getClient();
         client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/current");
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -220,8 +219,14 @@ public class StagingRestServiceHandler {
         }
         Map<String, String> parameterMap = new HashMap<String, String>();
         parameterMap.put("model", dataModel); //$NON-NLS-1$
+        ClientResourceWrapper client = getClient();
         client.init(Method.POST, restServiceUrl + '/' + dataContainer + '/', parameterMap);
         client.setPostEntity(entity);
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
+            @Override
+            public void doProcess(Request request, Response response) throws Exception {
+            }
+        });
         client.request(MediaType.APPLICATION_XML);
     }
 
@@ -229,6 +234,7 @@ public class StagingRestServiceHandler {
      * Cancel current validation task
      */
     public void cancelValidationTask(String dataContainer) {
+        ClientResourceWrapper client = getClient();
         client.init(Method.DELETE, restServiceUrl + '/' + dataContainer + "/execs/current");
         client.request();
     }
@@ -241,6 +247,7 @@ public class StagingRestServiceHandler {
             parameterMap.put("before", DEFAULT_DATE_FORMAT.format(criteria.getStartDate())); //$NON-NLS-1$
         }
         // do request
+        ClientResourceWrapper client = getClient();
         client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/count", parameterMap);
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
@@ -260,6 +267,5 @@ public class StagingRestServiceHandler {
             }
         });
         client.request(MediaType.TEXT_PLAIN);
-
     }
 }
