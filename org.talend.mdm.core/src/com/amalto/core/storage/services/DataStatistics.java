@@ -134,7 +134,7 @@ public class DataStatistics {
                             writer.array();
                             {
                                 writer.object().key("count").value(entry.count).endObject(); //$NON-NLS-1$
-                                long percentage = (entry.count * 100) / totalCount;
+                                long percentage = totalCount > 0 ? (entry.count * 100) / totalCount : 0;
                                 writer.object().key("percentage").value(percentageFormat.format(percentage)).endObject(); //$NON-NLS-1$
                             }
                             writer.endArray();
