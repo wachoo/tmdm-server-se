@@ -14,7 +14,7 @@ package com.amalto.core.storage.task;
 public class DefaultTaskSubmitter implements TaskSubmitter {
     @Override
     public void submit(Task task) {
-        task.run();
+        new Thread(task).start();
     }
 
     @Override

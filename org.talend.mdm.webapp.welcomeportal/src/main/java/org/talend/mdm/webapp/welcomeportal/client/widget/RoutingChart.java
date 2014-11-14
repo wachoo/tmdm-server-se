@@ -27,10 +27,16 @@ import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHand
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.PlotModel;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
+import com.googlecode.gflot.client.event.PlotHoverListener;
+import com.googlecode.gflot.client.event.PlotItem;
+import com.googlecode.gflot.client.event.PlotPosition;
+import com.googlecode.gflot.client.jsni.Plot;
 import com.googlecode.gflot.client.options.AxesOptions;
 import com.googlecode.gflot.client.options.AxisOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions;
@@ -93,7 +99,8 @@ public class RoutingChart extends ChartPortlet {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
         Set<String> appNames = chartData.keySet();
-        List<String> appnamesSorted = sort(appNames);
+        final List<String> appnamesSorted = sort(appNames);
+        displayNames = getDisplayNames(appnamesSorted);
 
         plotOptions
                 .setGlobalSeriesOptions(
@@ -104,22 +111,45 @@ public class RoutingChart extends ChartPortlet {
                                         BarSeriesOptions.create().setShow(true).setBarWidth(0.6)
                                                 .setAlignment(BarAlignment.CENTER)).setStack(true))
                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
-                .setXAxesOptions(
-                        AxesOptions.create().addAxisOptions(
-                                CategoriesAxisOptions.create().setCategories(
-                                        appnamesSorted.toArray(new String[appnamesSorted.size()]))));
+                .setXAxesOptions(AxesOptions.create().addAxisOptions(CategoriesAxisOptions.create().setCategories(displayNames)));
 
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
+
+        final PopupPanel popup = new PopupPanel();
+        final Label hoverLabel = new Label();
+        popup.add(hoverLabel);
+
+        // add hover listener
+        plot.addHoverListener(new PlotHoverListener() {
+
+            @Override
+            public void onPlotHover(Plot plotArg, PlotPosition position, PlotItem item) {
+                if (item != null) {
+                    String valueY = "" + (int) item.getDataPoint().getY(); //$NON-NLS-1$
+                    int nameIndex = (int) item.getDataPoint().getX();
+                    String text = appnamesSorted.get(nameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    hoverLabel.setText(text);
+                    popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
+                    popup.show();
+                } else {
+                    popup.hide();
+                }
+
+            }
+
+        }, false);
+
         // create series
         SeriesHandler seriesCompleted = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_completed()));
         SeriesHandler seriesFailed = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_failed()));
 
         // add data
         for (String appName : appnamesSorted) {
-            seriesCompleted.add(DataPoint.of(appName,
+            seriesCompleted.add(DataPoint.of(categoryToDisplayNames.get(appName),
                     ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
-            seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
+            seriesFailed.add(DataPoint.of(categoryToDisplayNames.get(appName),
+                    ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
         }
     }
 
@@ -129,9 +159,10 @@ public class RoutingChart extends ChartPortlet {
         PlotOptions plotOptions = plot.getOptions();
         Set<String> appNames = chartData.keySet();
         List<String> appnamesSorted = sort(appNames);
+        displayNames = getDisplayNames(appnamesSorted);
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setCategories(appnamesSorted.toArray(new String[appnamesSorted.size()]))));
+                CategoriesAxisOptions.create().setCategories(displayNames)));
 
         List<? extends SeriesHandler> series = model.getHandlers();
         assert series.size() == 2;
@@ -141,9 +172,10 @@ public class RoutingChart extends ChartPortlet {
         seriesCompleted.clear();
         seriesFailed.clear();
         for (String appName : appnamesSorted) {
-            seriesCompleted.add(DataPoint.of(appName,
+            seriesCompleted.add(DataPoint.of(categoryToDisplayNames.get(appName),
                     ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
-            seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
+            seriesFailed.add(DataPoint.of(categoryToDisplayNames.get(appName),
+                    ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
         }
     }
 
