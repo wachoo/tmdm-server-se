@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.StorageProvider;
+import org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl;
 import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
 import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
@@ -63,9 +64,9 @@ public class StagingContainerSummaryView extends AbstractView implements ModelEv
 
     private int                 totalRecordCount     = 0;
 
-    public StagingContainerSummaryView(StagingContainerModel containerModel, StagingAreaValidationModel validationModel) {
-        containerModel.addModelEventHandler(this);
-        validationModel.addModelEventHandler(this);
+    public StagingContainerSummaryView() {
+        GenerateContainer.getContainerModel().addModelEventHandler(this);
+        GenerateContainer.getValidationModel().addModelEventHandler(this);
     }
 
     @Override

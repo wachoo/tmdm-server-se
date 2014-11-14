@@ -222,6 +222,7 @@ public class StagingRestServiceHandler {
         ClientResourceWrapper client = getClient();
         client.init(Method.POST, restServiceUrl + '/' + dataContainer + '/', parameterMap);
         client.setPostEntity(entity);
+        // Need a callback even if we're not interested in the result
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
             @Override
             public void doProcess(Request request, Response response) throws Exception {
@@ -236,6 +237,12 @@ public class StagingRestServiceHandler {
     public void cancelValidationTask(String dataContainer) {
         ClientResourceWrapper client = getClient();
         client.init(Method.DELETE, restServiceUrl + '/' + dataContainer + "/execs/current");
+        // Need a callback even if we're not interested in the result
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
+            @Override
+            public void doProcess(Request request, Response response) throws Exception {
+            }
+        });
         client.request();
     }
 

@@ -60,16 +60,11 @@ public class ModelEvent extends GwtEvent<ModelEventHandler> {
      * </code>
      */
     public static enum Types {
-        INFO_WAITING_RECORD_CHANGED(new Type<ModelEventHandler>()),
-        INFO_VALID_RECORD_CHANGED(new Type<ModelEventHandler>()),
-        INFO_INVALID_RECORD_CHANGED(new Type<ModelEventHandler>()),
         VALIDATION_END(new Type<ModelEventHandler>()),
         VALIDATION_CANCEL(new Type<ModelEventHandler>()),
-        VALIDATION_PROGRESS_CHANGED(new Type<ModelEventHandler>()),
         VALIDATION_START(new Type<ModelEventHandler>()),
         CONTAINER_MODEL_CHANGED(new Type<ModelEventHandler>()),
         VALIDATION_MODEL_CHANGED(new Type<ModelEventHandler>()),
-        PREVIOUS_EXECUTION_RELOAD(new Type<ModelEventHandler>()),
         PREVIOUS_EXECUTION_CHANGED(new Type<ModelEventHandler>());
 
         private final Type<ModelEventHandler> type;

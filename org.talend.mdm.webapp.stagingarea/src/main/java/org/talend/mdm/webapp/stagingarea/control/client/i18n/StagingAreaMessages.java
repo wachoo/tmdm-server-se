@@ -135,4 +135,6 @@ public interface StagingAreaMessages extends Messages {
     String customizing();
 
     String to();
+
+    String validation_in_progress();
 }

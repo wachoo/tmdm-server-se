@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.control.client.view;
 
+import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -19,15 +20,11 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.*;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.DateField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.i18n.client.NumberFormat;
 import org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
 import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
@@ -40,51 +37,29 @@ public class CurrentValidationView extends AbstractView implements ModelEventHan
 
     private CardLayout   cardLayout;
 
-    private ContentPanel contentPanel;
-
-    private FormPanel    formPanel;
+    private ContentPanel executionPanel;
 
     private ContentPanel defaultMessagePanel;
 
-    private DateField    startDateField;
-
-    private NumberField  recordToProcessField;
-
-    private NumberField  invalidField;
-
     private ProgressBar  progressBar;
 
-    public CurrentValidationView(StagingAreaValidationModel executionModel) {
-        executionModel.addModelEventHandler(this);
+    public CurrentValidationView() {
+        GenerateContainer.getValidationModel().addModelEventHandler(this);
     }
 
     @Override
     protected void initComponents() {
-        startDateField = new DateField();
-        startDateField.setReadOnly(true);
-        startDateField.setFieldLabel(messages.start_date());
-        recordToProcessField = new NumberField();
-        recordToProcessField.setReadOnly(true);
-        recordToProcessField.setFieldLabel(messages.record_to_process());
-        invalidField = new NumberField();
-        invalidField.setReadOnly(true);
-        invalidField.setFieldLabel(messages.invalid_record());
         progressBar = new ProgressBar();
         cancelButton = new Button(messages.cancel());
-        cancelButton.setStyleAttribute("margin-top", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
         cancelButton.setSize(200, 30);
 
-        contentPanel = new ContentPanel();
-        contentPanel.setHeaderVisible(false);
-        contentPanel.setBodyBorder(false);
+        executionPanel = new ContentPanel();
+        executionPanel.setHeaderVisible(false);
+        executionPanel.setBodyBorder(false);
         TableLayout contentLayout = new TableLayout(2);
+        contentLayout.setCellSpacing(10);
         contentLayout.setWidth("100%"); //$NON-NLS-1$
-        contentPanel.setLayout(contentLayout);
-
-        formPanel = new FormPanel();
-        formPanel.setLabelWidth(120);
-        formPanel.setHeaderVisible(false);
-        formPanel.setBodyBorder(false);
+        executionPanel.setLayout(contentLayout);
         // Message when no validation is being executed
         defaultMessagePanel = new ContentPanel();
         defaultMessagePanel.setLayout(new CenterLayout());
@@ -116,25 +91,25 @@ public class CurrentValidationView extends AbstractView implements ModelEventHan
     protected void initLayout() {
         cardLayout = new CardLayout();
         mainPanel.setLayout(cardLayout);
-        // Summary of records
-        formPanel.add(startDateField);
-        formPanel.add(recordToProcessField);
-        formPanel.add(invalidField);
-        TableData fpData = new TableData();
-        fpData.setWidth("400px"); //$NON-NLS-1$
-        contentPanel.add(formPanel, fpData);
-        // Cancel button
-        TableData cb = new TableData();
-        cb.setVerticalAlign(VerticalAlignment.TOP);
-        contentPanel.add(cancelButton, cb);
+        // Set panels to main panel
+        Label validationInProgress = new Label(messages.validation_in_progress());
+        TableData validationInProgressData = new TableData();
+        validationInProgressData.setColspan(2);
+        executionPanel.add(validationInProgress, validationInProgressData);
         // Progress bar
         TableData progressData = new TableData();
-        progressData.setColspan(2);
-        contentPanel.add(progressBar, progressData);
-        // Set panels to main panel
+        progressData.setHorizontalAlign(Style.HorizontalAlignment.CENTER);
+        progressData.setWidth("90%");
+        executionPanel.add(progressBar, progressData);
+        // Cancel button
+        TableData cb = new TableData();
+        cb.setHorizontalAlign(Style.HorizontalAlignment.CENTER);
+        cb.setWidth("10%");
+        executionPanel.add(cancelButton, cb);
+        // Panel to contain both no execution message and current execution.
         mainPanel.add(new Label());
         mainPanel.add(defaultMessagePanel);
-        mainPanel.add(contentPanel);
+        mainPanel.add(executionPanel);
         mainPanel.setBodyBorder(false);
     }
 
@@ -147,28 +122,18 @@ public class CurrentValidationView extends AbstractView implements ModelEventHan
             if (total == 0) {
                 return;
             }
-            startDateField.setValue(currentValidationModel.getStartDate());
-            recordToProcessField.setValue(currentValidationModel.getTotalRecord() - currentValidationModel.getProcessedRecords());
-            invalidField.setValue(currentValidationModel.getInvalidRecords());
-
-            int process = currentValidationModel.getProcessedRecords();
-            double percentage = process * 1D / total;
-            NumberFormat format = NumberFormat.getFormat("#0.00"); //$NON-NLS-1$
-            double validPercentage = format.parse(format.format(percentage * 100));
-            progressBar.updateProgress(percentage, validPercentage + " %"); //$NON-NLS-1$
         }
         if (type == ModelEvent.Types.VALIDATION_CANCEL.getType() || type == ModelEvent.Types.VALIDATION_END.getType()) {
-            startDateField.clear();
-            recordToProcessField.clear();
-            invalidField.clear();
-            progressBar.reset();
             mainPanel.setHeight(30);
+            progressBar.reset();
             cardLayout.setActiveItem(defaultMessagePanel);
             cancelButton.disable();
         }
         if (type == ModelEvent.Types.VALIDATION_START.getType()) {
-            mainPanel.setHeight(120);
-            cardLayout.setActiveItem(contentPanel);
+            mainPanel.setHeight(90);
+            cardLayout.setActiveItem(executionPanel);
+            progressBar.enable();
+            progressBar.auto();
             cancelButton.enable();
         }
         GenerateContainer.getContentPanel().layout(true);
@@ -176,7 +141,7 @@ public class CurrentValidationView extends AbstractView implements ModelEventHan
 
     // Called by JS
     public ContentPanel getContentPanel() {
-        return contentPanel;
+        return executionPanel;
     }
 
     // Called by JS

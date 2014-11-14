@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer;
 import org.talend.mdm.webapp.stagingarea.control.client.resources.icon.Icons;
 import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
 
@@ -80,9 +79,8 @@ public class StagingAreaMainView extends AbstractView {
         toolBar.add(autoRefreshToggle);
         mainPanel.setTopComponent(toolBar);
         // All sub panels (storage summary, current validation, previous execution list).
-        summaryView = new StagingContainerSummaryView(GenerateContainer.getContainerModel(),
-                GenerateContainer.getValidationModel());
-        currentValidationView = new CurrentValidationView(GenerateContainer.getValidationModel());
+        summaryView = new StagingContainerSummaryView();
+        currentValidationView = new CurrentValidationView();
         previousExecutionValidationView = new PreviousExecutionView();
         // Do an initial refresh for UI components
         Controllers.get().getSummaryController().refresh();

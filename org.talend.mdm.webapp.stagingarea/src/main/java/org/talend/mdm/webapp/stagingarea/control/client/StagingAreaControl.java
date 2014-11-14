@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import org.talend.mdm.webapp.base.client.ServiceEnhancer;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.stagingarea.control.client.view.StagingAreaMainView;
+import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaConfiguration;
 
 /**
@@ -33,11 +34,11 @@ import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaConfigu
  */
 public class StagingAreaControl implements EntryPoint {
 
-    public static final String              STAGINGAREA_ID = "Stagingarea"; //$NON-NLS-1$
+    public static final String                    STAGINGAREA_ID    = "Stagingarea";                 //$NON-NLS-1$
 
     private static final StagingAreaConfiguration stagingAreaConfig = new StagingAreaConfiguration();
 
-    public static StagingAreaServiceAsync   service;
+    public static StagingAreaServiceAsync         service;
 
     public static StagingAreaConfiguration getStagingAreaConfig() {
         return stagingAreaConfig;
@@ -70,15 +71,26 @@ public class StagingAreaControl implements EntryPoint {
                                             }();
                                             }-*/;
 
+    // Called by JS
+    public static void cancelAutoRefresh() {
+        Controllers.get().getStagingController().autoRefresh(false);
+    }
+
     private native void _initUI()/*-{
                                  var tabPanel = $wnd.amalto.core.getTabPanel();
                                  var panel = tabPanel.getItem("Stagingarea");
                                  if (panel == undefined) {
                                  @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::generateContentPanel()();
                                  panel = this.@org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::createPanel()();
+                                 var removeTabEvent = function(tabPanel, tabItem) {
+                                    @org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::cancelAutoRefresh()();
+                                    return true;
+                                 };
+                                 tabPanel.on("beforeremove", removeTabEvent);
                                  tabPanel.add(panel);
-                                 }
+                                 tabPanel.setSelection(itemId);
                                  tabPanel.setSelection(panel.getItemId());
+                                 }
                                  }-*/;
 
     native JavaScriptObject createPanel()/*-{
