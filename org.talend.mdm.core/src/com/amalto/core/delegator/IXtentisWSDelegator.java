@@ -2730,4 +2730,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
+    
+    public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
+        throw new UnsupportedOperationException();
+    }
 }
