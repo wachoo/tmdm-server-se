@@ -16,19 +16,23 @@ public class BeforeDeletingErrorException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    private String messageStatus;
+    private String messageType;    
     
     public BeforeDeletingErrorException(String message) {
         super(message);
     }
     
-    public BeforeDeletingErrorException(String message, String messageStatus) {
+    public BeforeDeletingErrorException(String messageType, String message) {
         super(message);
-        this.messageStatus = messageStatus;
+        this.messageType = messageType;
+    }
+    
+    public String getMessageType() {
+        return this.messageType;
     }
 
-    public String getMessageStatus() {
-        return this.messageStatus;
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
     }
-
+    
 }
