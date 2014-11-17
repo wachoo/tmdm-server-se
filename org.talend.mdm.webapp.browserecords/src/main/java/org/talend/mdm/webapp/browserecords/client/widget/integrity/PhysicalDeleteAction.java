@@ -43,9 +43,12 @@ public class PhysicalDeleteAction implements DeleteAction {
                     for(ItemResult bean : msgs){
                         if(bean.getStatus() == FAIL){
                             windowTitle = MessagesFactory.getMessages().message_fail();
-                        }
-                        if(bean.getStatus() == ERROR){
+                            bean.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + bean.getMessage());
+                        } else if(bean.getStatus() == ERROR){
                             windowTitle = MessagesFactory.getMessages().message_error();
+                            bean.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + bean.getMessage());
+                        } else {
+                            bean.setMessage(BaseMessagesFactory.getMessages().delete_success_prefix() + bean.getMessage());
                         }
                         bean.setMessage(MultilanguageMessageParser.pickOutISOMessage(bean.getMessage()));
                     }
