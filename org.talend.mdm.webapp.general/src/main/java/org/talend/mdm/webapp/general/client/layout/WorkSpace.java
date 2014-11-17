@@ -21,7 +21,6 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ContainerEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -157,15 +156,6 @@ public class WorkSpace extends LayoutContainer {
             item.setLayout(new FitLayout());
             // add content to tabItem and select the tabItem
             item.add(content);
-            item.addListener(Events.Select, new Listener<TabPanelEvent>() {
-
-                @Override
-                public void handleEvent(TabPanelEvent be) {
-                    be.getItem().layout(true);
-                    refreshHierarchyTree();
-                }
-
-            });
             workTabPanel.add(item);
         } else {
             // tabItem need to be refreshed
@@ -224,10 +214,6 @@ public class WorkSpace extends LayoutContainer {
             }
         }
     }
-
-    native void refreshHierarchyTree()/*-{
-		$wnd.amalto.core.refreshHierarchyTree();
-    }-*/;
 
     native void resizeUIObject(JavaScriptObject uiObject, int width, int height)/*-{
 		uiObject.setSize(width, height);
