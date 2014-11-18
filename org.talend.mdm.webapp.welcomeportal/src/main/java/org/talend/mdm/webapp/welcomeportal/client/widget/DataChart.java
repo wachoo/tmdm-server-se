@@ -41,6 +41,8 @@ import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Formatter;
 import com.googlecode.gflot.client.options.PlotOptions;
 
 public class DataChart extends ChartPortlet {
+    
+    public static final String COUNT_NAME = "count"; //$NON-NLS-1$
 
     public DataChart(Portal portal) {
         super(WelcomePortal.CHART_DATA, portal);
@@ -204,8 +206,18 @@ public class DataChart extends ChartPortlet {
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonObject = jsonArray.get(i).isObject();
             String name = jsonObject.keySet().iterator().next();
-            int value = new Double(jsonObject.get(name).isNumber().doubleValue()).intValue();
+            JSONArray valueArray = jsonObject.get(name).isArray();
+            int value = 0;
+            for (int j = 0; j < valueArray.size(); j++) {
+                JSONObject countObject = valueArray.get(j).isObject();
+                String countName = countObject.keySet().iterator().next();
+                if(COUNT_NAME.equals(countName)) {
+                    value = new Double(countObject.get(countName).isNumber().doubleValue()).intValue();                    
+                    break;
+                }
+            }
             entityDataNew.put(name, value);
+            
         }
 
         return entityDataNew;
