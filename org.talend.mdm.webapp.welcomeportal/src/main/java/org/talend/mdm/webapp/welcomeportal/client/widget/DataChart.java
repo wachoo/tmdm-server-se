@@ -24,14 +24,24 @@ import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.extjs.gxt.ui.client.widget.custom.Portal;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.PlotModel;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
+import com.googlecode.gflot.client.event.PlotHoverListener;
+import com.googlecode.gflot.client.event.PlotItem;
+import com.googlecode.gflot.client.event.PlotPosition;
+import com.googlecode.gflot.client.jsni.Plot;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
@@ -43,6 +53,12 @@ import com.googlecode.gflot.client.options.PlotOptions;
 public class DataChart extends ChartPortlet {
     
     public static final String COUNT_NAME = "count"; //$NON-NLS-1$
+
+    String hovering;
+
+    int cursorX;
+
+    int cursorY;
 
     public DataChart(Portal portal) {
         super(WelcomePortal.CHART_DATA, portal);
@@ -56,6 +72,7 @@ public class DataChart extends ChartPortlet {
         initConfigSettings();
 
         initChart();
+
     }
 
     private void initChart() {
@@ -133,7 +150,7 @@ public class DataChart extends ChartPortlet {
         PlotOptions plotOptions = plot.getOptions();
         final NumberFormat formatter = NumberFormat.getFormat("0.#"); //$NON-NLS-1$
         Set<String> entityNames = chartData.keySet();
-        List<String> entityNamesSorted = sort(entityNames);
+        final List<String> entityNamesSorted = sort(entityNames);
 
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create().setPieSeriesOptions(
                 PieSeriesOptions
@@ -161,6 +178,44 @@ public class DataChart extends ChartPortlet {
             SeriesHandler seriesEntity = model.addSeries(Series.of(entityName));
             seriesEntity.add(DataPoint.of(entityName, (Integer) chartData.get(entityName)));
         }
+
+        final PopupPanel popup = new PopupPanel();
+        final Label hoverLabel = new Label();
+        popup.add(hoverLabel);
+        plot.addHoverListener(new PlotHoverListener() {
+
+            @Override
+            public void onPlotHover(Plot plot, PlotPosition position, PlotItem item) {
+                if (item != null) {
+                    hovering = (entityNamesSorted.get(item.getSeriesIndex()) + " : " //$NON-NLS-1$ 
+                            + formatter.format(item.getSeries().getData().getY(0)) + " / " //$NON-NLS-1$
+                            + formatter.format(item.getSeries().getPercent()) + "%"); //$NON-NLS-1$
+                    hoverLabel.setText(hovering);
+                    popup.setPopupPosition(cursorX, cursorY);
+                    popup.show();
+                } else {
+                    popup.hide();
+                }
+            }
+        }, false);
+
+        plot.addDomHandler(new MouseOutHandler() {
+
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                hovering = ""; //$NON-NLS-1$
+            }
+        }, MouseOutEvent.getType());
+
+        plot.addDomHandler(new MouseMoveHandler() {
+
+            @Override
+            public void onMouseMove(MouseMoveEvent event) {
+                cursorX = event.getScreenX() + 10;
+                cursorY = event.getScreenY() - 90;
+            }
+
+        }, MouseMoveEvent.getType());
 
     }
 
