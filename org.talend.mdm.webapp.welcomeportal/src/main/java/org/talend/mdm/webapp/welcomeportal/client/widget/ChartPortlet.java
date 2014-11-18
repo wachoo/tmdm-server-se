@@ -15,9 +15,7 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,10 +48,6 @@ public abstract class ChartPortlet extends BasePortlet {
     protected static int CHART_DEFAULT_MAXNUM_LABLES_TO_SHOW = 5;
 
     protected static int CHART_DEFAULT_MAXNUM_TOTAL_LABLECHARACTERS_TO_SHOW = 40;
-
-    protected Map<String, String> categoryToDisplayNames = new HashMap<String, String>();
-
-    protected List<String> displayNames;
 
     private int plotWidth;
 
@@ -225,36 +219,6 @@ public abstract class ChartPortlet extends BasePortlet {
     abstract protected void updatePlot();
 
     abstract protected boolean isDifferentFrom(Map<String, Object> newData);
-
-    protected List<String> getDisplayNames(List<String> entityNamesSorted) {
-        List<String> temp = new ArrayList<String>(entityNamesSorted);
-
-        int i = 0;
-        int size = temp.size();
-        int totalLength = temp.toString().length();
-        String entityName;
-        String displayName;
-
-        ListIterator<String> iterator = temp.listIterator();
-        while (iterator.hasNext()) {
-            entityName = iterator.next();
-
-            if (size > CHART_DEFAULT_MAXNUM_LABLES_TO_SHOW || totalLength >= CHART_DEFAULT_MAXNUM_TOTAL_LABLECHARACTERS_TO_SHOW) {
-                if (i % 2 == 1 && i <= size) {
-                    displayName = setPadding(i);
-                    categoryToDisplayNames.put(entityName, displayName);
-                    iterator.set(displayName);
-                } else {
-                    categoryToDisplayNames.put(entityName, entityName);
-                }
-            } else {
-                categoryToDisplayNames.put(entityName, entityName);
-            }
-            i++;
-        }
-
-        return temp;
-    }
 
     private String setPadding(int num) {
         StringBuilder sb = new StringBuilder();

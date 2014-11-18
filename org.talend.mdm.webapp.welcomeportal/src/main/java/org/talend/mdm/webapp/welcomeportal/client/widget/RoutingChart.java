@@ -100,7 +100,6 @@ public class RoutingChart extends ChartPortlet {
         PlotOptions plotOptions = plot.getOptions();
         Set<String> appNames = chartData.keySet();
         final List<String> appnamesSorted = sort(appNames);
-        displayNames = getDisplayNames(appnamesSorted);
 
         plotOptions
                 .setGlobalSeriesOptions(
@@ -111,7 +110,9 @@ public class RoutingChart extends ChartPortlet {
                                         BarSeriesOptions.create().setShow(true).setBarWidth(0.6)
                                                 .setAlignment(BarAlignment.CENTER)).setStack(true))
                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
-                .setXAxesOptions(AxesOptions.create().addAxisOptions(CategoriesAxisOptions.create().setCategories(displayNames)));
+                .setXAxesOptions(
+                        AxesOptions.create().addAxisOptions(
+                                CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(appnamesSorted)));
 
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
@@ -146,10 +147,9 @@ public class RoutingChart extends ChartPortlet {
 
         // add data
         for (String appName : appnamesSorted) {
-            seriesCompleted.add(DataPoint.of(categoryToDisplayNames.get(appName),
+            seriesCompleted.add(DataPoint.of(appName,
                     ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
-            seriesFailed.add(DataPoint.of(categoryToDisplayNames.get(appName),
-                    ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
+            seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
         }
     }
 
@@ -159,10 +159,9 @@ public class RoutingChart extends ChartPortlet {
         PlotOptions plotOptions = plot.getOptions();
         Set<String> appNames = chartData.keySet();
         List<String> appnamesSorted = sort(appNames);
-        displayNames = getDisplayNames(appnamesSorted);
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setCategories(displayNames)));
+                CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(appnamesSorted)));
 
         List<? extends SeriesHandler> series = model.getHandlers();
         assert series.size() == 2;
@@ -172,10 +171,9 @@ public class RoutingChart extends ChartPortlet {
         seriesCompleted.clear();
         seriesFailed.clear();
         for (String appName : appnamesSorted) {
-            seriesCompleted.add(DataPoint.of(categoryToDisplayNames.get(appName),
+            seriesCompleted.add(DataPoint.of(appName,
                     ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
-            seriesFailed.add(DataPoint.of(categoryToDisplayNames.get(appName),
-                    ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
+            seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
         }
     }
 
