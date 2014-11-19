@@ -102,6 +102,7 @@ public class JournalStatistics {
                     .select(updateType.getField("Concept")) //$NON-NLS-1$
                     .where(eq(updateType.getField("DataModel"), containerName)) //$NON-NLS-1$
                     .orderBy(count(updateType.getField("Concept")), OrderBy.Direction.DESC) //$NON-NLS-1$
+                    .limit(top)
                     .cache(); // The top N types should change much, so cache result
             updateReportStorage.begin();
             try {
