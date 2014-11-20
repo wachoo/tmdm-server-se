@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
@@ -51,14 +50,16 @@ import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Formatter;
 import com.googlecode.gflot.client.options.PlotOptions;
 
 public class DataChart extends ChartPortlet {
-    
+
     public static final String COUNT_NAME = "count"; //$NON-NLS-1$
 
-    String hovering;
+    private String hoveringTXT;
 
-    int cursorX;
+    private int cursorX;
 
-    int cursorY;
+    private int cursorY;
+
+    final NumberFormat formatter = NumberFormat.getFormat("0.#"); //$NON-NLS-1$
 
     public DataChart(Portal portal) {
         super(WelcomePortal.CHART_DATA, portal);
@@ -148,9 +149,7 @@ public class DataChart extends ChartPortlet {
         super.initPlot();
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        final NumberFormat formatter = NumberFormat.getFormat("0.#"); //$NON-NLS-1$
-        Set<String> entityNames = chartData.keySet();
-        final List<String> entityNamesSorted = sort(entityNames);
+        entityNamesSorted = sort(chartData.keySet());
 
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create().setPieSeriesOptions(
                 PieSeriesOptions
@@ -179,31 +178,11 @@ public class DataChart extends ChartPortlet {
             seriesEntity.add(DataPoint.of(entityName, (Integer) chartData.get(entityName)));
         }
 
-        final PopupPanel popup = new PopupPanel();
-        final Label hoverLabel = new Label();
-        popup.add(hoverLabel);
-        plot.addHoverListener(new PlotHoverListener() {
-
-            @Override
-            public void onPlotHover(Plot plot, PlotPosition position, PlotItem item) {
-                if (item != null) {
-                    hovering = (entityNamesSorted.get(item.getSeriesIndex()) + " : " //$NON-NLS-1$ 
-                            + formatter.format(item.getSeries().getData().getY(0)) + " / " //$NON-NLS-1$
-                            + formatter.format(item.getSeries().getPercent()) + "%"); //$NON-NLS-1$
-                    hoverLabel.setText(hovering);
-                    popup.setPopupPosition(cursorX, cursorY);
-                    popup.show();
-                } else {
-                    popup.hide();
-                }
-            }
-        }, false);
-
         plot.addDomHandler(new MouseOutHandler() {
 
             @Override
             public void onMouseOut(MouseOutEvent event) {
-                hovering = ""; //$NON-NLS-1$
+                hoveringTXT = ""; //$NON-NLS-1$
             }
         }, MouseOutEvent.getType());
 
@@ -222,8 +201,7 @@ public class DataChart extends ChartPortlet {
     @Override
     protected void updatePlot() {
         PlotModel model = plot.getModel();
-        Set<String> entityNames = chartData.keySet();
-        List<String> entityNamesSorted = sort(entityNames);
+        entityNamesSorted = sort(chartData.keySet());
 
         if (!dataContainerChanged && !configSettingChanged) {
             // keep SeriesHandler, just clean their data
@@ -266,13 +244,13 @@ public class DataChart extends ChartPortlet {
             for (int j = 0; j < valueArray.size(); j++) {
                 JSONObject countObject = valueArray.get(j).isObject();
                 String countName = countObject.keySet().iterator().next();
-                if(COUNT_NAME.equals(countName)) {
-                    value = new Double(countObject.get(countName).isNumber().doubleValue()).intValue();                    
+                if (COUNT_NAME.equals(countName)) {
+                    value = new Double(countObject.get(countName).isNumber().doubleValue()).intValue();
                     break;
                 }
             }
             entityDataNew.put(name, value);
-            
+
         }
 
         return entityDataNew;
@@ -292,4 +270,27 @@ public class DataChart extends ChartPortlet {
         return false;
     }
 
+    @Override
+    protected void addPlotHovering() {
+        final PopupPanel popup = new PopupPanel();
+        final Label hoverLabel = new Label();
+        popup.add(hoverLabel);
+
+        plot.addHoverListener(new PlotHoverListener() {
+
+            @Override
+            public void onPlotHover(Plot plot, PlotPosition position, PlotItem item) {
+                if (item != null) {
+                    hoveringTXT = (entityNamesSorted.get(item.getSeriesIndex()) + " : " //$NON-NLS-1$ 
+                            + formatter.format(item.getSeries().getData().getY(0)) + " / " //$NON-NLS-1$
+                            + formatter.format(item.getSeries().getPercent()) + "%"); //$NON-NLS-1$
+                    hoverLabel.setText(hoveringTXT);
+                    popup.setPopupPosition(cursorX, cursorY);
+                    popup.show();
+                } else {
+                    popup.hide();
+                }
+            }
+        }, false);
+    }
 }

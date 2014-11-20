@@ -27,16 +27,10 @@ import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHand
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.PlotModel;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
-import com.googlecode.gflot.client.event.PlotHoverListener;
-import com.googlecode.gflot.client.event.PlotItem;
-import com.googlecode.gflot.client.event.PlotPosition;
-import com.googlecode.gflot.client.jsni.Plot;
 import com.googlecode.gflot.client.options.AxesOptions;
 import com.googlecode.gflot.client.options.AxisOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions;
@@ -98,8 +92,7 @@ public class RoutingChart extends ChartPortlet {
         super.initPlot();
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> appNames = chartData.keySet();
-        final List<String> appnamesSorted = sort(appNames);
+        entityNamesSorted = sort(chartData.keySet());
 
         plotOptions
                 .setGlobalSeriesOptions(
@@ -112,41 +105,18 @@ public class RoutingChart extends ChartPortlet {
                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
                 .setXAxesOptions(
                         AxesOptions.create().addAxisOptions(
-                                CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(appnamesSorted)));
+                                CategoriesAxisOptions.create().setAxisLabelAngle(getLabelRotateDegree())
+                                        .setCategories(entityNamesSorted)));
 
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
-
-        final PopupPanel popup = new PopupPanel();
-        final Label hoverLabel = new Label();
-        popup.add(hoverLabel);
-
-        // add hover listener
-        plot.addHoverListener(new PlotHoverListener() {
-
-            @Override
-            public void onPlotHover(Plot plotArg, PlotPosition position, PlotItem item) {
-                if (item != null) {
-                    String valueY = "" + (int) item.getDataPoint().getY(); //$NON-NLS-1$
-                    int nameIndex = (int) item.getDataPoint().getX();
-                    String text = appnamesSorted.get(nameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                    hoverLabel.setText(text);
-                    popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
-                    popup.show();
-                } else {
-                    popup.hide();
-                }
-
-            }
-
-        }, false);
 
         // create series
         SeriesHandler seriesCompleted = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_completed()));
         SeriesHandler seriesFailed = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_failed()));
 
         // add data
-        for (String appName : appnamesSorted) {
+        for (String appName : entityNamesSorted) {
             seriesCompleted.add(DataPoint.of(appName,
                     ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
             seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
@@ -157,11 +127,10 @@ public class RoutingChart extends ChartPortlet {
     protected void updatePlot() {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> appNames = chartData.keySet();
-        List<String> appnamesSorted = sort(appNames);
+        entityNamesSorted = sort(chartData.keySet());
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(appnamesSorted)));
+                CategoriesAxisOptions.create().setAxisLabelAngle(getLabelRotateDegree()).setCategories(entityNamesSorted)));
 
         List<? extends SeriesHandler> series = model.getHandlers();
         assert series.size() == 2;
@@ -170,7 +139,7 @@ public class RoutingChart extends ChartPortlet {
 
         seriesCompleted.clear();
         seriesFailed.clear();
-        for (String appName : appnamesSorted) {
+        for (String appName : entityNamesSorted) {
             seriesCompleted.add(DataPoint.of(appName,
                     ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
             seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
