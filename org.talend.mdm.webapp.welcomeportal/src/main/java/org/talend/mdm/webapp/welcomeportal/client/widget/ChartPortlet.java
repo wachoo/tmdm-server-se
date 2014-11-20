@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
@@ -31,23 +32,33 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.googlecode.gflot.client.SimplePlot;
+import com.googlecode.gflot.client.event.PlotHoverListener;
+import com.googlecode.gflot.client.event.PlotItem;
+import com.googlecode.gflot.client.event.PlotPosition;
+import com.googlecode.gflot.client.jsni.Plot;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
 
 public abstract class ChartPortlet extends BasePortlet {
 
+    public static int DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL3 = 70;
+
+    public static int DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL2 = 110;
+
     protected SimplePlot plot;
 
     protected Map<String, Object> chartData;
+
+    protected List<String> entityNamesSorted;
 
     protected String dc;
 
     protected boolean dataContainerChanged;
 
-    protected static int CHART_DEFAULT_MAXNUM_LABLES_TO_SHOW = 5;
-
-    protected static int CHART_DEFAULT_MAXNUM_TOTAL_LABLECHARACTERS_TO_SHOW = 40;
+    protected PlotHoverListener hoverListener;
 
     private int plotWidth;
 
@@ -176,6 +187,7 @@ public abstract class ChartPortlet extends BasePortlet {
 
     protected void initAndShow() {
         initPlot();
+        addPlotHovering();
         set.removeAll();
         set.add(plot);
         set.layout(true);
@@ -220,12 +232,53 @@ public abstract class ChartPortlet extends BasePortlet {
 
     abstract protected boolean isDifferentFrom(Map<String, Object> newData);
 
-    private String setPadding(int num) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= num; i++) {
-            sb.append(' ');
-        }
-        return sb.toString();
+    protected void addPlotHovering() {
+        final PopupPanel popup = new PopupPanel();
+        final Label hoverLabel = new Label();
+        popup.add(hoverLabel);
+        plot.addHoverListener(new PlotHoverListener() {
+
+            @Override
+            public void onPlotHover(Plot plotArg, PlotPosition position, PlotItem item) {
+                if (item != null) {
+                    String text = getHoveringText(item);
+                    hoverLabel.setText(text);
+                    popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
+                    popup.show();
+                } else {
+                    popup.hide();
+                }
+
+            }
+
+        }, false);
     }
 
+    protected String getHoveringText(PlotItem item) {
+        String valueY = "" + (int) item.getDataPoint().getY(); //$NON-NLS-1$
+        int nameIndex = (int) item.getDataPoint().getX();
+
+        return entityNamesSorted.get(nameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+
+    private int getMaxPlotWidthInChars(int colNum) {
+        return (colNum == 3) ? DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL3 : DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL2;
+    }
+
+    protected double getLabelRotateDegree() {
+        double degree = 0d;
+        if (entityNamesSorted.toString().length() > getMaxPlotWidthInChars(((MainFramePanel) portal).getColumnConfig())) {
+            if (entityNamesSorted.size() < 5) {
+                degree = 30d;
+            } else if (entityNamesSorted.size() >= 5 && entityNamesSorted.size() < 10) {
+                degree = 45d;
+            } else if (entityNamesSorted.size() >= 10 && entityNamesSorted.size() < 15) {
+                degree = 70d;
+            } else if (entityNamesSorted.size() >= 15) {
+                degree = 90d;
+            }
+        }
+
+        return degree;
+    }
 }

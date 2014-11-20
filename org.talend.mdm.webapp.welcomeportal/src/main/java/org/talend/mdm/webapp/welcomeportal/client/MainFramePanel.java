@@ -207,6 +207,11 @@ public class MainFramePanel extends Portal {
         });
     }
 
+    
+    public int getColumnConfig() {
+        return this.numColumns;
+    }
+
     private List<String> getDefaultPortletOrdering(boolean isEE) {
         if (isEE) {
             return Arrays.asList(WelcomePortal.START, WelcomePortal.PROCESS, WelcomePortal.ALERT, WelcomePortal.SEARCH,

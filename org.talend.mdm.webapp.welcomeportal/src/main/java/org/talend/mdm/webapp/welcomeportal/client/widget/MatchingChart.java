@@ -15,7 +15,6 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
@@ -31,6 +30,7 @@ import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.PlotModel;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
+import com.googlecode.gflot.client.event.PlotItem;
 import com.googlecode.gflot.client.options.AxesOptions;
 import com.googlecode.gflot.client.options.AxisOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions;
@@ -128,8 +128,7 @@ public class MatchingChart extends ChartPortlet {
         super.initPlot();
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> entityNames = chartData.keySet();
-        List<String> entityNamesSorted = sort(entityNames);
+        entityNamesSorted = sort(chartData.keySet());
 
         plotOptions
                 .setGlobalSeriesOptions(
@@ -142,8 +141,8 @@ public class MatchingChart extends ChartPortlet {
                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(2).setMinimum(0.00)))
                 .setXAxesOptions(
                         AxesOptions.create().addAxisOptions(
-                                CategoriesAxisOptions.create().setCategories(
-                                        entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
+                                CategoriesAxisOptions.create().setAxisLabelAngle(getLabelRotateDegree())
+                                        .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
 
@@ -160,11 +159,11 @@ public class MatchingChart extends ChartPortlet {
     protected void updatePlot() {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
-        Set<String> entityNames = chartData.keySet();
-        List<String> entityNamesSorted = sort(entityNames);
+        entityNamesSorted = sort(chartData.keySet());
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
+                CategoriesAxisOptions.create().setAxisLabelAngle(getLabelRotateDegree())
+                        .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
 
         List<? extends SeriesHandler> series = model.getHandlers();
         assert series.size() == 1;
@@ -201,6 +200,14 @@ public class MatchingChart extends ChartPortlet {
             }
         }
         return false;
+    }
+
+    @Override
+    protected String getHoveringText(PlotItem item) {
+        String valueY = "" + (int) item.getDataPoint().getY(); //$NON-NLS-1$
+        int nameIndex = (int) item.getDataPoint().getX();
+
+        return entityNamesSorted.get(nameIndex) + ": " + valueY; //$NON-NLS-1$
     }
 
 }
