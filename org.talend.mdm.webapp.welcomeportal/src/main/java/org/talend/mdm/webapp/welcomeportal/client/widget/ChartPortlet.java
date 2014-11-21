@@ -44,9 +44,9 @@ import com.googlecode.gflot.client.options.PlotOptions;
 
 public abstract class ChartPortlet extends BasePortlet {
 
-    public static int DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL3 = 70;
+    public static int DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL3 = 40;
 
-    public static int DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL2 = 110;
+    public static int DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL2 = 80;
 
     protected SimplePlot plot;
 
