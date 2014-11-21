@@ -56,8 +56,9 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
             Locale locale = new Locale(language);
             for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
                 BaseModel conceptModel = new BaseModel();
-                conceptModel.set("name", type.getName()); //$NON-NLS-1$
-                conceptModel.set("value", type.getName(locale)); //$NON-NLS-1$
+                // "name" is used for display, "value" for querying (so keep in "value" the actual entity type name).
+                conceptModel.set("name", type.getName(locale)); //$NON-NLS-1$
+                conceptModel.set("value", type.getName()); //$NON-NLS-1$
                 conceptModels.add(conceptModel);
             }
             return conceptModels;
