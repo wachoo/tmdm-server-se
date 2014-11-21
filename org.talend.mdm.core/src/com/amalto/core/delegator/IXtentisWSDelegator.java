@@ -1183,7 +1183,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     }
                 } else {
                     status = FAIL_KEYWORD;
-                    message = "ERROR - Unable to delete item"; //$NON-NLS-1$
+                    message = "Fail - Unable to delete item"; //$NON-NLS-1$
                 }
                 wsDeleteItem.setSource(status);
                 return new WSString(message);
@@ -1782,8 +1782,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // Call beforeDelete process (if any).
             Util.BeforeDeleteResult result = Util.beforeDeleting(clusterName, conceptName, ids, operationType);
             if (result != null && ERROR_KEYWORD.equalsIgnoreCase(result.type)) { 
-                throw new BeforeDeletingErrorException(result.message);
-            }
+				throw new BeforeDeletingErrorException(ERROR_KEYWORD, result.message);            }
             // Generate physical delete event in journal
             WSDroppedItemPK droppedItemPK = wsRemoveDroppedItem.getWsDroppedItemPK();
             pushToUpdateReport(clusterName, dataModelName, conceptName, ids, true, "genericUI", operationType, null); //$NON-NLS-1$ 
@@ -1791,8 +1790,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             DroppedItemCtrlLocal droppedItemCtrlLocal = Util.getDroppedItemCtrlLocal();
             DroppedItemPOJOPK droppedItemPOJOPK = droppedItemCtrlLocal.removeDroppedItem(XConverter.WS2POJO(droppedItemPK));
             if (result != null && INFO_KEYWORD.equalsIgnoreCase(result.type)) { 
-                throw new BeforeDeletingErrorException(result.message);
-            }
+                throw new BeforeDeletingErrorException(INFO_KEYWORD, result.message);            }
             return XConverter.POJO2WS(droppedItemPOJOPK);
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage(), e));
@@ -2731,5 +2729,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             LOGGER.debug(err, e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
+    }
+    
+    public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
+        throw new UnsupportedOperationException();
     }
 }

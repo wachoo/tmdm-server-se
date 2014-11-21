@@ -43,9 +43,12 @@ public class PhysicalDeleteAction implements DeleteAction {
                     for(ItemResult bean : msgs){
                         if(bean.getStatus() == FAIL){
                             windowTitle = MessagesFactory.getMessages().message_fail();
-                        }
-                        if(bean.getStatus() == ERROR){
+                            bean.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + bean.getMessage());
+                        } else if(bean.getStatus() == ERROR){
                             windowTitle = MessagesFactory.getMessages().message_error();
+                            bean.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + bean.getMessage());
+                        } else {
+                            bean.setMessage(BaseMessagesFactory.getMessages().delete_success_prefix() + bean.getMessage());
                         }
                         bean.setMessage(MultilanguageMessageParser.pickOutISOMessage(bean.getMessage()));
                     }
@@ -53,7 +56,7 @@ public class PhysicalDeleteAction implements DeleteAction {
                     messageWindow.setHeading(windowTitle);
                     messageWindow.show();
                 } else {
-                    msgBox = MessageBox.info(message.info_title(), BaseMessagesFactory.getMessages().message_success(), null);
+                    msgBox = MessageBox.info(message.info_title(), MessagesFactory.getMessages().delete_item_record_success(items.size()), null);
                     setTimeout(msgBox, 1000);
                 }
                 postDeleteAction.doAction();

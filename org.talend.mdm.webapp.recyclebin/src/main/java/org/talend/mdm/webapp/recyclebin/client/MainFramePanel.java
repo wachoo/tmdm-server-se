@@ -111,7 +111,15 @@ public class MainFramePanel extends ContentPanel {
     private List<ItemResult> deleteMessages = new ArrayList<ItemResult>();
 
     private static final int COLUMN_WIDTH = 100;
+    
+    public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
+    
+    public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
 
+    public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
+    
+    public static final String SUCCESS_KEYWORD = "SUCCESS";//$NON-NLS-1$
+    
     private MainFramePanel() {
         setLayout(new FitLayout());
         setBodyBorder(false);
@@ -584,7 +592,7 @@ public class MainFramePanel extends ContentPanel {
 
                 @Override
                 protected void doOnFailure(Throwable caught) {
-                    deleteSelectedCheckFinished(r, false, caught.getMessage(), false);
+                    deleteSelectedCheckFinished(r, false, ERROR_KEYWORD, caught.getMessage(), false);                
                 }
 
                 @Override
@@ -628,14 +636,15 @@ public class MainFramePanel extends ContentPanel {
 
                                 @Override
                                 public void onSuccess(String msg) {
-                                    deleteSelectedCheckFinished(r, true, msg, false);
+                                    deleteSelectedCheckFinished(r, true, SUCCESS_KEYWORD, msg, false);                                
                                 }
 
                                 @Override
                                 protected void doOnFailure(Throwable caught) {
                                     String errorMsg = caught.getLocalizedMessage();                                    
                                     if(caught instanceof DroppedItemBeforeDeletingException){
-                                        deleteSelectedCheckFinished(r, false, caught.getMessage(), true);
+                                        DroppedItemBeforeDeletingException e = (DroppedItemBeforeDeletingException)caught;
+                                        deleteSelectedCheckFinished(r, false, e.getMessageType(), e.getMessage(), true);                                    
                                     } else {
                                         if (errorMsg == null) {
                                             if (Log.isDebugEnabled()) {
@@ -645,7 +654,7 @@ public class MainFramePanel extends ContentPanel {
                                                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
                                             }
                                         }
-                                        deleteSelectedCheckFinished(r, false, errorMsg, false);
+                                        deleteSelectedCheckFinished(r, false, ERROR_KEYWORD, errorMsg, false);                                    
                                     }
                                 }
                             });
@@ -654,15 +663,25 @@ public class MainFramePanel extends ContentPanel {
         }
     }
 
-    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success, String msg, boolean isBeforeDeletingMessage) {
-        --outstandingDeleteCallCount;
+    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success, String messageType, String msg, boolean isBeforeDeletingMessage) {        --outstandingDeleteCallCount;
 
         if (isBeforeDeletingMessage) {
             ItemResult message = new ItemResult();
             if(r != null){
                 message.setKey(r.getIds());
             }
-            message.setMessage(MultilanguageMessageParser.pickOutISOMessage(msg));
+            
+            if(messageType != null && INFO_KEYWORD.equalsIgnoreCase(messageType)){
+                message.setStatus(1);
+                message.setMessage(BaseMessagesFactory.getMessages().delete_success_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
+            } else if(messageType != null && FAIL_KEYWORD.equalsIgnoreCase(messageType)){
+                message.setStatus(2);
+                message.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
+            } else if(messageType != null && ERROR_KEYWORD.equalsIgnoreCase(messageType)){
+                message.setStatus(3);
+                message.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
+            }
+            
             deleteMessages.add(message);
         }
 

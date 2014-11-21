@@ -32,6 +32,7 @@ import org.talend.mdm.webapp.base.client.rest.RestServiceHelper;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
@@ -212,24 +213,37 @@ public class ExplainRestServiceHandler {
                     JSONArray matchArray = getJSONArray(detailValue, "match"); //$NON-NLS-1$
                     if (matchArray != null) {
                         if ("true".equals(getStringValue(getJSONValue(matchArray, "is_match")))) { //$NON-NLS-1$ //$NON-NLS-2$
-                            JSONValue scoresValue = getJSONValue(matchArray, "scores"); //$NON-NLS-1$
-                            if (scoresValue != null && scoresValue.isArray() != null) {
-                                JSONArray scoresArray = scoresValue.isArray();
-                                StringBuilder attributebBuilder = new StringBuilder();
-                                for (int j = 0; j < scoresArray.size(); j++) {
-                                    JSONArray scoreArray = getJSONArray(scoresArray.get(j), StagingConstant.MATCH_SCORE);
-                                    if (scoreArray != null) {
-                                        attributebBuilder.append(getStringValue(getJSONValue(scoreArray,
-                                                StagingConstant.MATCH_FIELD)));
-                                        attributebBuilder.append(StagingConstant.VALUE_SEPARATOR);
-                                        attributebBuilder.append(getStringValue(getJSONValue(scoreArray,
-                                                StagingConstant.MATCH_VALUE)));
-                                        attributebBuilder.append(","); //$NON-NLS-1$
+                            JSONValue scoreValue = getJSONValue(matchArray, StagingConstant.MATCH_SCORE);
+                            detail.set(StagingConstant.MATCH_SCORE, getScoreValue(scoreValue));
+                            detail.set(StagingConstant.MATCH_EXACT_SCORE, getStringValue(scoreValue));
+                            JSONValue fieldScoresValue = getJSONValue(matchArray, "field_scores"); //$NON-NLS-1$
+                            if (fieldScoresValue != null && fieldScoresValue.isArray() != null) {
+                                JSONArray fieldScoresArray = fieldScoresValue.isArray();
+                                StringBuilder scoreAttributeBuilder = new StringBuilder();
+                                StringBuilder exactScoreAttributeBuilder = new StringBuilder();
+                                for (int j = 0; j < fieldScoresArray.size(); j++) {
+                                    JSONArray fieldScoreArray = getJSONArray(fieldScoresArray.get(j),
+                                            StagingConstant.MATCH_FIELD_SCORE);
+                                    if (fieldScoreArray != null) {
+                                        String fieldName = getStringValue(getJSONValue(fieldScoreArray,
+                                                StagingConstant.MATCH_FIELD));
+                                        scoreAttributeBuilder.append(fieldName);
+                                        exactScoreAttributeBuilder.append(fieldName);
+                                        scoreAttributeBuilder.append(StagingConstant.VALUE_SEPARATOR);
+                                        exactScoreAttributeBuilder.append(StagingConstant.VALUE_SEPARATOR);
+                                        JSONValue fieldScoreValue = getJSONValue(fieldScoreArray, StagingConstant.MATCH_VALUE);
+                                        scoreAttributeBuilder.append(getScoreValue(fieldScoreValue));
+                                        exactScoreAttributeBuilder.append(getStringValue(fieldScoreValue));
+                                        scoreAttributeBuilder.append(","); //$NON-NLS-1$
+                                        exactScoreAttributeBuilder.append(","); //$NON-NLS-1$
                                     }
                                 }
-                                String scoreValue = attributebBuilder.length() > 0 ? attributebBuilder.toString().substring(0,
-                                        attributebBuilder.toString().length() - 1) : ""; //$NON-NLS-1$
-                                detail.set(StagingConstant.MATCH_SCORE, scoreValue);
+                                String fieldScoreValue = scoreAttributeBuilder.length() > 0 ? scoreAttributeBuilder.toString()
+                                        .substring(0, scoreAttributeBuilder.toString().length() - 1) : ""; //$NON-NLS-1$
+                                detail.set(StagingConstant.MATCH_FIELD_SCORE, fieldScoreValue);
+                                String fieldExactScoreValue = exactScoreAttributeBuilder.length() > 0 ? exactScoreAttributeBuilder
+                                        .toString().substring(0, exactScoreAttributeBuilder.toString().length() - 1) : ""; //$NON-NLS-1$
+                                detail.set(StagingConstant.MATCH_EXACT_FIELD_SCORE, fieldExactScoreValue);
                             }
                         }
                     }
@@ -317,6 +331,15 @@ public class ExplainRestServiceHandler {
             } else if (jsonValue.isNumber() != null) {
                 value = jsonValue.isNumber().toString();
             }
+        }
+        return value;
+    }
+
+    private String getScoreValue(JSONValue jsonValue) {
+        String value = null;
+        if (jsonValue != null && jsonValue.isNumber() != null) {
+            NumberFormat numberFormat = NumberFormat.getFormat("0.00"); //$NON-NLS-1$
+            value = numberFormat.format(jsonValue.isNumber().doubleValue() * 100) + "%"; //$NON-NLS-1$
         }
         return value;
     }

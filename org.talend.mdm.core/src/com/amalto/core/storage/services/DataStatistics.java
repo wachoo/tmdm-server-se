@@ -13,13 +13,11 @@ package com.amalto.core.storage.services;
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.StringWriter;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -37,17 +35,17 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 
-@Path("/system/stats/data") //$NON-NLS-1$
+@Path("/system/stats/data")//$NON-NLS-1$
 public class DataStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(DataStatistics.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{container}") //$NON-NLS-1$
-    public Response getDataStatistics(@PathParam("container") //$NON-NLS-1$
-            String containerName, @QueryParam("lang") //$NON-NLS-1$
-            String language, @QueryParam("top") //$NON-NLS-1$
+    @Path("{container}")//$NON-NLS-1$
+    public Response getDataStatistics(@PathParam("container")//$NON-NLS-1$
+            String containerName, @QueryParam("lang")//$NON-NLS-1$
+            String language, @QueryParam("top")//$NON-NLS-1$
             Integer top) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
@@ -79,6 +77,7 @@ public class DataStatistics {
             }
         });
         // Fill type counts (order by count)
+        long totalCount = 0; // Need total count for percentage compute
         try {
             MetadataRepository repository = dataStorage.getMetadataRepository();
             dataStorage.begin();
@@ -99,6 +98,7 @@ public class DataStatistics {
                 }
                 entry.typeName = name;
                 entry.count = countValue;
+                totalCount += countValue;
                 entries.add(entry);
             }
             dataStorage.commit();
@@ -119,6 +119,7 @@ public class DataStatistics {
             top = Integer.MAX_VALUE; // no top parameter or top <= 0 means 'all' types.
         }
         StringWriter stringWriter = new StringWriter();
+        DecimalFormat percentageFormat = new DecimalFormat("##.##", DecimalFormatSymbols.getInstance(Locale.ENGLISH)); //$NON-NLS-1$
         JSONWriter writer = new JSONWriter(stringWriter);
         try {
             writer.object().key("data"); //$NON-NLS-1$
@@ -128,7 +129,17 @@ public class DataStatistics {
                     Iterator<TypeEntry> iterator = entries.iterator();
                     for (int i = 0; i < top && iterator.hasNext(); i++) {
                         TypeEntry entry = iterator.next();
-                        writer.object().key(entry.typeName).value(entry.count).endObject();
+                        writer.object().key(entry.typeName);
+                        {
+                            writer.array();
+                            {
+                                writer.object().key("count").value(entry.count).endObject(); //$NON-NLS-1$
+                                long percentage = totalCount > 0 ? (entry.count * 100) / totalCount : 0;
+                                writer.object().key("percentage").value(percentageFormat.format(percentage)).endObject(); //$NON-NLS-1$
+                            }
+                            writer.endArray();
+                        }
+                        writer.endObject();
                     }
                 }
                 writer.endArray();
@@ -146,6 +157,6 @@ public class DataStatistics {
 
         String typeName;
 
-        long count;
+        long   count;
     }
 }
