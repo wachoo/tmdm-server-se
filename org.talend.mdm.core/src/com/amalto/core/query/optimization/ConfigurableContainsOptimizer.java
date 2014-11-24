@@ -372,7 +372,9 @@ public class ConfigurableContainsOptimizer implements Optimizer {
 
         @Override
         public Boolean visit(StringConstant constant) {
-            return !constant.getValue().contains("-"); //$NON-NLS-1$
+            // TMDM-6746: Disable Lucene search when query contains '-'.
+            // TMDM-7969: Disable Lucene search when query contains '/'.
+            return !constant.getValue().contains("-") && !constant.getValue().contains("/"); //$NON-NLS-1$ //$NON-NLS-2
         }
 
         @Override
