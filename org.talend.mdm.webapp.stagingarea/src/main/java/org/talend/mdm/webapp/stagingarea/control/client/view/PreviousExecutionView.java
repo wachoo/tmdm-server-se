@@ -61,6 +61,10 @@ class PreviousExecutionView extends AbstractView implements ModelEventHandler {
         model = GenerateContainer.getPreviousExecutionModel();
     }
 
+    public PreviousExecutionView() {
+        GenerateContainer.getValidationModel().addModelEventHandler(this);
+    }
+
     @Override
     protected void initComponents() {
         super.initComponents();
