@@ -26,12 +26,15 @@ import org.restlet.client.data.Method;
 import org.restlet.client.ext.json.JsonRepresentation;
 import org.restlet.client.representation.StringRepresentation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
 import org.talend.mdm.webapp.base.client.rest.ResourceSessionAwareCallbackHandler;
 import org.talend.mdm.webapp.base.client.rest.RestServiceHelper;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -60,7 +63,7 @@ public class ExplainRestServiceHandler {
         this.client = client;
     }
 
-    public void explainGroupResult(String dataCluster, String concept, String groupId,
+    public void explainGroupResult(String dataCluster, final String concept, String groupId,
             final SessionAwareAsyncCallback<BaseTreeModel> callback) {
         if (dataCluster == null || dataCluster.isEmpty() || concept == null || concept.isEmpty() || groupId == null
                 || groupId.isEmpty()) {
@@ -78,14 +81,17 @@ public class ExplainRestServiceHandler {
                 JsonRepresentation jsonRepresentation = RestServiceHelper.getJsonRepresentationFromResponse(response);
                 if (jsonRepresentation != null) {
                     result = buildGroupResultFromJsonRepresentation(jsonRepresentation);
+                    callback.onSuccess(result);
+                } else {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
+                            .matching_failed(concept), null);
                 }
-                callback.onSuccess(result);
             }
         });
         client.request();
     }
 
-    public void simulateMatch(String dataCluster, String concept, String ids,
+    public void simulateMatch(String dataCluster, final String concept, String ids,
             final SessionAwareAsyncCallback<BaseTreeModel> callback) {
         if (dataCluster == null || dataCluster.isEmpty() || concept == null || concept.isEmpty()) {
             throw new IllegalArgumentException();
@@ -102,11 +108,46 @@ public class ExplainRestServiceHandler {
                 JsonRepresentation jsonRepresentation = RestServiceHelper.getJsonRepresentationFromResponse(response);
                 if (jsonRepresentation != null) {
                     result = buildGroupResultFromJsonRepresentation(jsonRepresentation);
+                    callback.onSuccess(result);
+                } else {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
+                            .matching_failed(concept), null);
                 }
-                callback.onSuccess(result);
             }
         });
         client.request(MediaType.TEXT_PLAIN);
+    }
+
+    public void compareRecords(String dataModel, final String concept, String recordXml,
+            final SessionAwareAsyncCallback<BaseTreeModel> callback) {
+        if (dataModel == null || dataModel.isEmpty() || concept == null || concept.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        StringBuilder uri = new StringBuilder();
+        uri.append(restServiceUrl).append(RestServiceHelper.SEPARATOR);
+        Map<String, String> parameterMap = new HashMap<String, String>();
+        parameterMap.put("model", dataModel); //$NON-NLS-1$
+        parameterMap.put("type", concept); //$NON-NLS-1$
+        client.init(Method.POST, uri.toString(), parameterMap);
+        client.setPostEntity(new StringRepresentation(recordXml, MediaType.APPLICATION_XML));
+        client.setCallback(new ResourceSessionAwareCallbackHandler() {
+
+            @Override
+            public void doProcess(Request request, Response response) throws Exception {
+                BaseTreeModel result = null;
+                JsonRepresentation jsonRepresentation = RestServiceHelper.getJsonRepresentationFromResponse(response);
+                if (jsonRepresentation != null) {
+                    JSONObject jsonObject = jsonRepresentation.getJsonObject();
+                    JSONValue jsonValue = jsonObject.get(StagingConstant.MATCH_ROOT_NAME);
+                    result = buildTreeModelFromJsonRepresentation(jsonValue);
+                    callback.onSuccess(result);
+                } else {
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
+                            .matching_failed(concept), null);
+                }
+            }
+        });
+        client.request(MediaType.APPLICATION_XML);
     }
 
     private BaseTreeModel buildGroupResultFromJsonRepresentation(JsonRepresentation representation) throws IOException {
