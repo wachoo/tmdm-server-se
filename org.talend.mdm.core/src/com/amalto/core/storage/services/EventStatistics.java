@@ -90,20 +90,28 @@ public class EventStatistics {
             }
             writer.endObject();
             system.commit();
-        } catch (JSONException e) {
+            return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
+                    .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
+        } catch (Exception e) {
+            try {
+                system.rollback();
+            } catch (Exception rollbackException) {
+                LOGGER.debug("Unable to rollback transaction.", e);
+            }
             if (system.isClosed()) {
                 // TMDM-7749: Ignore errors when storage is closed.
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Exception occurred due to closed storage.", e);
                 }
-                return Response.status(Response.Status.NO_CONTENT).build();
             } else {
-                system.rollback();
-                throw new RuntimeException("Could not provide statistics.", e);
+                // TMDM-7970: Ignore all storage related errors.
+                LOGGER.warn("Unable to compute statistics.");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Unable to compute statistics due to storage exception.", e);
+                }
             }
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
-        return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
-                .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private void writeTo(Storage system, Map<String, String> triggerNameToParameter, ComplexTypeMetadata routingOrderType,
