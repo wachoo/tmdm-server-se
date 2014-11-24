@@ -96,16 +96,16 @@ public class JournalStatistics {
             types = repository.getUserComplexTypes(); // No top information, handle all types
         } else {
             types = new ArrayList<ComplexTypeMetadata>(top); // Get the top N types present in update report
-            // Query uses a quite expensive operation (orderBy count of field value), hopefully Concept is indexed
-            // See com.amalto.core.server.MetadataRepositoryAdminImpl.getIndexedExpressions()
-            UserQueryBuilder topTypeQuery = from(updateType)
-                    .select(updateType.getField("Concept")) //$NON-NLS-1$
-                    .where(eq(updateType.getField("DataModel"), containerName)) //$NON-NLS-1$
-                    .orderBy(count(updateType.getField("Concept")), OrderBy.Direction.DESC) //$NON-NLS-1$
-                    .limit(top)
-                    .cache(); // The top N types should change much, so cache result
-            updateReportStorage.begin();
             try {
+                // Query uses a quite expensive operation (orderBy count of field value), hopefully Concept is indexed
+                // See com.amalto.core.server.MetadataRepositoryAdminImpl.getIndexedExpressions()
+                UserQueryBuilder topTypeQuery = from(updateType)
+                        .select(updateType.getField("Concept")) //$NON-NLS-1$
+                        .where(eq(updateType.getField("DataModel"), containerName)) //$NON-NLS-1$
+                        .orderBy(count(updateType.getField("Concept")), OrderBy.Direction.DESC) //$NON-NLS-1$
+                        .limit(top)
+                        .cache(); // The top N types should change much, so cache result
+                updateReportStorage.begin();
                 StorageResults topTypes = updateReportStorage.fetch(topTypeQuery.getSelect());
                 try {
                     for (DataRecord topType : topTypes) {
@@ -119,14 +119,22 @@ public class JournalStatistics {
                 }
                 updateReportStorage.commit();
             } catch (Exception e) {
-                updateReportStorage.rollback();
-                throw new RuntimeException("Could get the top " + top + " types.", e);
+                try {
+                    updateReportStorage.rollback();
+                } catch (Exception rollbackException) {
+                    LOGGER.debug("Unable to rollback transaction.", e);
+                }
+                LOGGER.warn("Could get the top " + top + " types.");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Unable to compute top " + top  + " types due to storage exception.", e);
+                }
+                return Response.status(Response.Status.NO_CONTENT).build();
             }
         }
         // Build statistics
-        StringWriter stringWriter = new StringWriter();
-        JSONWriter writer = new JSONWriter(stringWriter);
         try {
+            StringWriter stringWriter = new StringWriter();
+            JSONWriter writer = new JSONWriter(stringWriter);
             updateReportStorage.begin();
             writer.object().key("journal"); //$NON-NLS-1$
             {
@@ -183,19 +191,27 @@ public class JournalStatistics {
             }
             writer.endObject();
             updateReportStorage.commit();
-        } catch (JSONException e) {
+            return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
+                    .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
+        } catch (Exception e) {
+            try {
+                updateReportStorage.rollback();
+            } catch (Exception rollbackException) {
+                LOGGER.debug("Unable to rollback transaction.", e);
+            }
             if (updateReportStorage.isClosed()) {
                 // TMDM-7749: Ignore errors when storage is closed.
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Exception occurred due to closed storage.", e);
                 }
-                return Response.status(Response.Status.NO_CONTENT).build();
             } else {
-                updateReportStorage.rollback();
-                throw new RuntimeException("Could not provide statistics.", e);
+                // TMDM-7970: Ignore all storage related errors.
+                LOGGER.warn("Unable to compute statistics.");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Unable to compute statistics due to storage exception.", e);
+                }
             }
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
-        return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
-                .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }
