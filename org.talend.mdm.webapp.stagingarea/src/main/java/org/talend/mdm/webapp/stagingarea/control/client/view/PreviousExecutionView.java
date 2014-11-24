@@ -124,7 +124,8 @@ class PreviousExecutionView extends AbstractView implements ModelEventHandler {
     @Override
     public void onModelEvent(ModelEvent e) {
         GwtEvent.Type<ModelEventHandler> type = e.getAssociatedType();
-        if (type == ModelEvent.Types.PREVIOUS_EXECUTION_CHANGED.getType()) {
+        if (type == ModelEvent.Types.PREVIOUS_EXECUTION_CHANGED.getType() || type == ModelEvent.Types.VALIDATION_END.getType()
+                || type == ModelEvent.Types.VALIDATION_CANCEL.getType()) {
             model.getStore().getLoader().load();
         }
     }
