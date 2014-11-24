@@ -1612,6 +1612,39 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testFKOrderByIncludingNull() throws Exception {
+        UserQueryBuilder qb = from(product).selectId(product).select(product.getField("Family"))
+                .orderBy(product.getField("Family"), OrderBy.Direction.ASC);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            int i = 0;
+            String[] expected = new String[] { null, "2" };
+            for (DataRecord result : results) {
+                String value = ((String) result.get(product.getField("Family")));
+                assertEquals(expected[i++], value);
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = from(product).selectId(product).select(product.getField("Family"))
+                .orderBy(product.getField("Family"), OrderBy.Direction.DESC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+            int i = 0;
+            String[] expected = new String[] { "2", null };
+            for (DataRecord result : results) {
+                String value = ((String) result.get(product.getField("Family")));
+                assertEquals(expected[i++], value);
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+
     public void testNonMandatoryFKSelection() throws Exception {
         UserQueryBuilder qb = from(product).selectId(product).select(product.getField("Name")).select(product.getField("Family"));
 
@@ -3415,7 +3448,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
     }
 
-    public void testContainsWithDash() throws Exception {
+    public void testContainsWithReservedCharacters() throws Exception {
         DataSourceDefinition definition = getDatasource(DATABASE + "-Default");
         DataSource datasource = definition.getMaster();
         assertTrue(datasource instanceof RDBMSDataSource);
@@ -3436,7 +3469,18 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             records.close();
         }
-        // Contains optimization should be enabled for next query
+        // Only '/' should disable contains optimization
+        qb = UserQueryBuilder.from(person).where(contains(person.getField("id"), "/"));
+        copy = qb.getSelect().copy();
+        optimizer.optimize(copy);
+        assertFalse(copy.getCondition() instanceof FieldFullText);
+        records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, records.getCount());
+        } finally {
+            records.close();
+        }
+        // Contains optimization should be disabled for next query
         qb = UserQueryBuilder.from(person).where(contains(person.getField("id"), "1-1"));
         copy = qb.getSelect().copy();
         optimizer.optimize(copy);
@@ -3447,7 +3491,7 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             records.close();
         }
-        // Contains optimization should also be enabled
+        // Contains optimization should be enabled
         qb = UserQueryBuilder.from(person).where(contains(person.getField("id"), "_"));
         copy = qb.getSelect().copy();
         optimizer.optimize(copy);
