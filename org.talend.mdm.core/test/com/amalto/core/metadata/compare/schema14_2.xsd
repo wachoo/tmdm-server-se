@@ -17,20 +17,10 @@
                         <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="1" name="Address">
+                <xsd:element maxOccurs="1" minOccurs="1" name="Address" type="Addresstype">
                     <xsd:annotation>
                         <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
                     </xsd:annotation>
-                    <xsd:complexType>
-                        <xsd:all>
-                            <xsd:element maxOccurs="1" minOccurs="0" name="zip" type="xsd:string"/>
-                            <xsd:element maxOccurs="1" minOccurs="0" name="Line1" type="xsd:string">
-                                <xsd:annotation>
-                                    <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-                                </xsd:annotation>
-                            </xsd:element>
-                        </xsd:all>
-                    </xsd:complexType>
                 </xsd:element>
             </xsd:all>
         </xsd:complexType>
@@ -39,4 +29,14 @@
             <xsd:field xpath="Test2Id"/>
         </xsd:unique>
     </xsd:element>
+    <xsd:complexType name="Addresstype">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="zip" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Line1" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
 </xsd:schema>

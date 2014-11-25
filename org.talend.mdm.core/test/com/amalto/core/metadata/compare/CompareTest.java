@@ -20,7 +20,6 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -389,13 +388,20 @@ public class CompareTest extends TestCase {
         assertEquals(0, diffResults.getModifyChanges().size());
         assertEquals(0, diffResults.getRemoveChanges().size());
         assertEquals(4, diffResults.getAddChanges().size());
-
         ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
-        assertEquals(1, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(2, sort.get(ImpactAnalyzer.Impact.HIGH).size());
         assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
-        assertEquals(3, sort.get(ImpactAnalyzer.Impact.LOW).size());
+        assertEquals(2, sort.get(ImpactAnalyzer.Impact.LOW).size());
+        // Test messages (should get null messages).
+        for (Map.Entry<ImpactAnalyzer.Impact, List<Change>> category : sort.entrySet()) {
+            List<Change> changes = category.getValue();
+            for (Change change : changes) {
+                assertNotNull(change.getMessage(Locale.ENGLISH));
+            }
+        }
     }
+
 
     @SuppressWarnings("rawtypes")
     private ClassRepository buildRepository() {
