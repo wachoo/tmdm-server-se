@@ -247,7 +247,10 @@ public class JournalChart extends ChartPortlet {
             Map<String, Integer> eventsNew;
             for (String entityName : chartData.keySet()) {
                 events = (Map<String, Integer>) chartData.get(entityName);
-                eventsNew = (Map<String, Integer>) newData.get(entityName);
+                eventsNew = newData.get(entityName) != null? (Map<String, Integer>) newData.get(entityName) : null ;
+                if(eventsNew == null) {
+                    return true;
+                }
 
                 if (!events.get(JOURNAL_ACTION_CREATE).equals(eventsNew.get(JOURNAL_ACTION_CREATE))
                         || !events.get(JOURNAL_ACTION_UPDATE).equals(eventsNew.get(JOURNAL_ACTION_UPDATE))) {
