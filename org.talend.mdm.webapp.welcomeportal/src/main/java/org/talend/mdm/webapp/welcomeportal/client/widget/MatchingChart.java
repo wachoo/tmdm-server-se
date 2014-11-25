@@ -141,7 +141,7 @@ public class MatchingChart extends ChartPortlet {
                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(2).setMinimum(0.00)))
                 .setXAxesOptions(
                         AxesOptions.create().addAxisOptions(
-                                CategoriesAxisOptions.create().setAxisLabelAngle(getLabelRotateDegree())
+                                CategoriesAxisOptions.create().setAxisLabelAngle(70d)
                                         .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
@@ -162,7 +162,7 @@ public class MatchingChart extends ChartPortlet {
         entityNamesSorted = sort(chartData.keySet());
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setAxisLabelAngle(getLabelRotateDegree())
+                CategoriesAxisOptions.create().setAxisLabelAngle(70d)
                         .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
 
         List<? extends SeriesHandler> series = model.getHandlers();

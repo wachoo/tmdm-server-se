@@ -280,6 +280,6 @@ public abstract class BasePortlet extends Portlet {
     }
 
     private native void removePortlet(String name)/*-{
-        $wnd.amalto.core.unmarkPortlet(name);
+		$wnd.amalto.core.unmarkPortlet(name);
     }-*/;
 }

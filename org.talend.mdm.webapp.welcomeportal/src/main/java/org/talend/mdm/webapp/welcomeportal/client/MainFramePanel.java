@@ -207,7 +207,6 @@ public class MainFramePanel extends Portal {
         });
     }
 
-    
     public int getColumnConfig() {
         return this.numColumns;
     }

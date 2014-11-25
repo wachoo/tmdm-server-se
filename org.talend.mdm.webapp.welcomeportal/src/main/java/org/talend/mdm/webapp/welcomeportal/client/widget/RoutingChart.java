@@ -105,8 +105,7 @@ public class RoutingChart extends ChartPortlet {
                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
                 .setXAxesOptions(
                         AxesOptions.create().addAxisOptions(
-                                CategoriesAxisOptions.create().setAxisLabelAngle(getLabelRotateDegree())
-                                        .setCategories(entityNamesSorted)));
+                                CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(entityNamesSorted)));
 
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
@@ -130,7 +129,7 @@ public class RoutingChart extends ChartPortlet {
         entityNamesSorted = sort(chartData.keySet());
 
         plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setAxisLabelAngle(getLabelRotateDegree()).setCategories(entityNamesSorted)));
+                CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(entityNamesSorted)));
 
         List<? extends SeriesHandler> series = model.getHandlers();
         assert series.size() == 2;
