@@ -180,11 +180,6 @@ public class StagingTask implements Task {
                     LOGGER.warn("Task '" + currentTask + "' failed: abort staging validation task.");
                     break;
                 }
-                try {
-                    Thread.sleep(40000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
             recordExecutionEnd(stats);
         } finally {
