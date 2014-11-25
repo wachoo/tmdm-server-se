@@ -1703,8 +1703,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return saveItem(concept, ids, xml, isCreate, language);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language)
+    public ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language)
             throws ServiceException {
         try {
             org.dom4j.Document doc;
@@ -1727,7 +1728,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (doc.selectSingleNode(xpath) == null) {
                     org.talend.mdm.webapp.base.server.util.XmlUtil.completeXMLByXPath(doc, xpath);
                 }
-                doc.selectSingleNode(xpath).setText(value);
+                org.dom4j.Element element = (org.dom4j.Element) doc.selectSingleNode(xpath);
+                element.setText(value);
+                
+                TypeModel tm = entityModel.getMetaDataTypes().get(xpath);
+                if (tm != null && tm.getForeignkey() != null && element.attributeValue("type") != null && !element.attributeValue("type").equalsIgnoreCase(tm.getForeignkey().split("/")[0])) {  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                    element.setAttributeValue("type", tm.getForeignkey().split("/")[0]);  //$NON-NLS-1$//$NON-NLS-2$
+                }
             }
 
             return saveItem(concept, ids, doc.asXML(), false, language);
@@ -1744,7 +1751,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         List<ItemResult> resultes = new ArrayList<ItemResult>();
         for (UpdateItemModel item : updateItems) {
             try {
-                resultes.add(updateItem(item.getConcept(), item.getIds(), item.getChangedNodes(), null, language));
+                resultes.add(updateItem(item.getConcept(), item.getIds(), item.getChangedNodes(), null, null, language));
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
