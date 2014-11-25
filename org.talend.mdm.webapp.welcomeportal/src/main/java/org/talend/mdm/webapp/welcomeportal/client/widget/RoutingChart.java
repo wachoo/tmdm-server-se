@@ -204,7 +204,10 @@ public class RoutingChart extends ChartPortlet {
             Map<String, Integer> statusNew;
             for (String appName : chartData.keySet()) {
                 status = (Map<String, Integer>) chartData.get(appName);
-                statusNew = (Map<String, Integer>) newData.get(appName);
+                statusNew = newData.get(appName) != null? (Map<String, Integer>) newData.get(appName) : null ;
+                if(statusNew == null) {
+                    return true;
+                }
 
                 if (!status.get(ROUTING_STATUS_FAILED).equals(statusNew.get(ROUTING_STATUS_FAILED))
                         || !status.get(ROUTING_STATUS_COMPLETED).equals(statusNew.get(ROUTING_STATUS_COMPLETED))) {
