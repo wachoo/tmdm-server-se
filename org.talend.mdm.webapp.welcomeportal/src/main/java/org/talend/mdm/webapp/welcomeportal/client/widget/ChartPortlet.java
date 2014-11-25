@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
@@ -43,10 +42,6 @@ import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
 
 public abstract class ChartPortlet extends BasePortlet {
-
-    public static int DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL3 = 40;
-
-    public static int DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL2 = 80;
 
     protected SimplePlot plot;
 
@@ -261,24 +256,4 @@ public abstract class ChartPortlet extends BasePortlet {
         return entityNamesSorted.get(nameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    private int getMaxPlotWidthInChars(int colNum) {
-        return (colNum == 3) ? DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL3 : DEFAULT_MAXNUM_LABLE_SPACE_IN_CHARS_COL2;
-    }
-
-    protected double getLabelRotateDegree() {
-        double degree = 0d;
-        if (entityNamesSorted.toString().length() > getMaxPlotWidthInChars(((MainFramePanel) portal).getColumnConfig())) {
-            if (entityNamesSorted.size() < 5) {
-                degree = 30d;
-            } else if (entityNamesSorted.size() >= 5 && entityNamesSorted.size() < 10) {
-                degree = 45d;
-            } else if (entityNamesSorted.size() >= 10 && entityNamesSorted.size() < 15) {
-                degree = 70d;
-            } else if (entityNamesSorted.size() >= 15) {
-                degree = 90d;
-            }
-        }
-
-        return degree;
-    }
 }
