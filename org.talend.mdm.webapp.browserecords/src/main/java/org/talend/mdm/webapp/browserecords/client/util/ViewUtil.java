@@ -176,7 +176,6 @@ public class ViewUtil {
                         tempModel = __transformToCustomLayoutModel(tempModel, node);
                     }
                     nodeList.add(tempModel);
-                    break;
                 }
             }
         }        
