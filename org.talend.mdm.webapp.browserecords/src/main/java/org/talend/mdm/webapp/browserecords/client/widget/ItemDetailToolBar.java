@@ -729,8 +729,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                     if (openTaskMenuItem == null) {
                         getBrowseRecordsService().checkTask(BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
-                                BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
-                                itemBean.getTaskId(), new SessionAwareAsyncCallback<Boolean>() {
+                                itemBean.getConcept(), itemBean.getTaskId(), new SessionAwareAsyncCallback<Boolean>() {
 
                                     @Override
                                     public void onSuccess(Boolean result) {

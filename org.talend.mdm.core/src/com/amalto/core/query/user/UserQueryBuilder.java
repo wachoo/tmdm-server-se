@@ -164,10 +164,13 @@ public class UserQueryBuilder {
     }
 
     public static Condition eq(TypedExpression expression, String constant) {
-        assertValueConditionArguments(expression, constant);
+        assertNullField(expression);
         if (expression instanceof Field) {
             return eq(((Field) expression), constant);
         } else {
+            if (constant == null) {
+                return isNull(expression);
+            }
             return new Compare(expression, Predicate.EQUALS, createConstant(expression, constant));
         }
     }
@@ -177,7 +180,7 @@ public class UserQueryBuilder {
     }
 
     public static Condition eq(FieldMetadata field, String constant) {
-        assertValueConditionArguments(field, constant);
+        assertNullField(field);
         Field userField = new Field(field);
         if (StorageMetadataUtils.isValueAssignable(constant, field)) {
             return eq(userField, constant);
@@ -187,6 +190,12 @@ public class UserQueryBuilder {
     }
 
     public static Condition eq(Field field, String constant) {
+        if (field == null) {
+            throw new IllegalArgumentException("Field cannot be null");
+        }
+        if (constant == null) {
+            return isNull(field);
+        }
         assertValueConditionArguments(field, constant);
         if (!StorageMetadataUtils.isValueAssignable(constant, field.getFieldMetadata())) {
             return UserQueryHelper.FALSE;
@@ -265,13 +274,14 @@ public class UserQueryBuilder {
                 || Types.HEX_BINARY.equals(fieldTypeName)
                 || Types.BASE64_BINARY.equals(fieldTypeName)
                 || Types.ANY_URI.equals(fieldTypeName)
-                || Types.QNAME.equals(fieldTypeName)) {
+                || Types.QNAME.equals(fieldTypeName)
+                || Types.DURATION.equals(fieldTypeName)) {
             return new StringConstant(constant);
         } else if (Types.DATE.equals(fieldTypeName)) {
             return new DateConstant(constant);
         } else if (Types.DATETIME.equals(fieldTypeName)) {
             return new DateTimeConstant(constant);
-        } else if (Types.TIME.equals(fieldTypeName) || Types.DURATION.equals(fieldTypeName)) {
+        } else if (Types.TIME.equals(fieldTypeName)) {
             return new TimeConstant(constant);
         } else if (Types.BOOLEAN.equals(fieldTypeName)) {
             boolean value = Boolean.parseBoolean(constant);
@@ -295,6 +305,10 @@ public class UserQueryBuilder {
 
     public static Condition emptyOrNull(FieldMetadata field) {
         assertNullField(field);
+        // TMDM-7700: IsEmpty on a FK field should be considered as IsNull
+        if (!field.isMany() && field instanceof ReferenceFieldMetadata) {
+            return new IsNull(new Field(field));
+        }
         // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
         if (Types.STRING.equals(field.getType().getName())) {
             return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
@@ -310,6 +324,13 @@ public class UserQueryBuilder {
             FieldMetadata testedField = ((Type) field).getField().getFieldMetadata();
             return new Isa(new Field(testedField), ((ContainedTypeFieldMetadata) testedField).getContainedType());
         }
+        // TMDM-7700: IsEmpty on a FK field should be considered as IsNull
+        if (field instanceof Field) {
+            FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
+            if (!fieldMetadata.isMany() && fieldMetadata instanceof ReferenceFieldMetadata) {
+                return new IsNull(new Field(fieldMetadata));
+            }
+        }                
         // Only do a isEmpty operator if field type is string, for all other known cases, isNull is enough.
         if (Types.STRING.equals(field.getTypeName())) {
             return new BinaryLogicOperator(isEmpty(field), Predicate.OR, isNull(field));
@@ -320,6 +341,10 @@ public class UserQueryBuilder {
 
     public static Condition isEmpty(FieldMetadata field) {
         assertNullField(field);
+        // TMDM-7700: IsEmpty on a FK field should be considered as IsNull
+        if (!field.isMany() && field instanceof ReferenceFieldMetadata) {
+            return new IsNull(new Field(field));
+        }
         // If field is a number field, consider a condition "field equals 0"
         String typeName = MetadataUtils.getSuperConcreteType(field.getType()).getName();
         for (String numberType : Types.NUMBERS) {
@@ -398,6 +423,10 @@ public class UserQueryBuilder {
 
     public static TypedExpression count() {
         return new Alias(new Count(), "count"); //$NON-NLS-1$
+    }
+
+    public static TypedExpression count(FieldMetadata field) {
+        return new Count(new Field(field));
     }
 
     public static TypedExpression timestamp() {
@@ -598,14 +627,14 @@ public class UserQueryBuilder {
         return this;
     }
 
-    public UserQueryBuilder orderBy(TypedExpression field, OrderBy.Direction direction) {
-        if (field == null) {
+    public UserQueryBuilder orderBy(TypedExpression expression, OrderBy.Direction direction) {
+        if (expression == null) {
             throw new IllegalArgumentException("Field cannot be null");
         }
-        if (field instanceof Field) {
-            orderBy(((Field) field).getFieldMetadata(), direction);
+        if (expression instanceof Field) {
+            orderBy(((Field) expression).getFieldMetadata(), direction);
         } else {
-            expressionAsSelect().addOrderBy(new OrderBy(field, direction));
+            expressionAsSelect().addOrderBy(new OrderBy(expression, direction));
         }
         return this;
     }

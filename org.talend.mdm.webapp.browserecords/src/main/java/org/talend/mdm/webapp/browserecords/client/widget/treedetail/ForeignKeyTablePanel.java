@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
@@ -13,12 +14,16 @@ import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.base.shared.XpathUtil;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
+import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
+import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKeyRowEditor;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKSearchField;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
@@ -126,20 +131,20 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     private VerticalPanel bottomPanel = new VerticalPanel();
 
-    private boolean isStaging;
+    private boolean staging;
 
     private FKKeyCellEditor keyCellEditor;
 
-    public ForeignKeyTablePanel(String panelName, boolean isStaging) {
+    public ForeignKeyTablePanel(String panelName, boolean staging) {
         super();
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
         this.setAutoWidth(true);
         this.setBodyBorder(false);
         this.panelName = panelName;
-        this.isStaging = isStaging;
+        this.staging = staging;
         initBaseComponent();
-        fkWindow.setStaging(isStaging);
+        fkWindow.setStaging(staging);
     }
 
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
@@ -227,6 +232,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
         FKSearchField f = new FKSearchField(fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo());
         f.setUsageField("ForeignKeyTablePanel"); //$NON-NLS-1$
+        f.setStaging(staging);
         keyCellEditor = new FKKeyCellEditor(f, fkTypeModel, this);
 
         keyColumn.setEditor(keyCellEditor);
@@ -236,10 +242,11 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             if (fkInfo.equals(fkTypeModel.getForeignkey())) {
                 continue;
             }
-            final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
+            final ColumnConfig column = new ColumnConfig("objectValueFKinfo", //$NON-NLS-1$
                     entityModel.getTypeModel(fkInfo).getLabel(Locale.getLanguage()), COLUMN_WIDTH); // using the label
                                                                                                     // to display table
                                                                                                     // header
+            column.setDataIndex("objectValue"); //$NON-NLS-1$
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
                 @Override
@@ -297,6 +304,25 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             }
         });
 
+        if (parent.getParent() != null && !parent.isMandatory()) {
+            grid.getView().addListener(Events.Refresh, new Listener<BaseEvent>() {
+
+                @Override
+                public void handleEvent(BaseEvent be) {
+                    updateSiblingNodes();
+                };
+            });
+        }
+        final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel, staging);
+        grid.setSelectionModel(sm);
+        grid.addPlugin(sm);
+        grid.setStateId(panelName);
+        grid.setStateful(true);
+        hookContextMenu(re);
+        if (!isReadonly(entityModel)) {
+            grid.addPlugin(re);
+        }
+        
         // TMDM-3202 open FK in new tab
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemNodeModel>>() {
 
@@ -309,25 +335,24 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 }
             }
         });
+        
+        grid.addListener(Events.CellClick, new Listener<GridEvent<ItemNodeModel>>() {
 
-        if (parent.getParent() != null && !parent.isMandatory()) {
-            grid.getView().addListener(Events.Refresh, new Listener<BaseEvent>() {
-
-                @Override
-                public void handleEvent(BaseEvent be) {
-                    updateSiblingNodes();
-                };
-            });
-        }
-        final ForeignKeyRowEditor re = new ForeignKeyRowEditor(fkTypeModel, isStaging);
-        grid.setSelectionModel(sm);
-        grid.addPlugin(sm);
-        grid.setStateId(panelName);
-        grid.setStateful(true);
-        hookContextMenu(re);
-        if (!isReadonly(entityModel)) {
-            grid.addPlugin(re);
-        }
+            @Override
+            public void handleEvent(GridEvent<ItemNodeModel> be) {
+                
+                int rowIndex = be.getRowIndex();
+                if(be.getColIndex() == 1){
+                    ItemNodeModel m = be.getModel();
+                    if (m == null || m.getObjectValue() == null) {
+                        return;
+                    }
+                    if (rowIndex != -1) {
+                        re.startEditing(rowIndex, true);
+                    }
+                } 
+            }
+        });
 
         // grid.setWidth(Window.getClientWidth() - ItemsListPanel.getInstance().getInnerWidth());
         grid.setBorders(false);
@@ -441,7 +466,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 if (autoSetFk) {
                     event.setData(BrowseRecordsView.FK_SOURCE_WIDGET, ForeignKeyTablePanel.this);
                 }
-                event.setData(BrowseRecordsView.IS_STAGING, isStaging);
+                event.setData(BrowseRecordsView.IS_STAGING, staging);
                 dispatch.dispatch(event);
             }
         });
@@ -546,12 +571,36 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             return;
         }
         ForeignKeyBean fkBean = (ForeignKeyBean) model.getObjectValue();
-        if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) {
+        if (fkBean == null || fkBean.getId() == null || "".equals(fkBean.getId())) { //$NON-NLS-1$
             return;
         }
         String ids = fkBean.getId().replaceAll("^\\[|\\]$", "").replace("][", "."); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
         ForeignKeyUtil.checkChange(false, fkBean.getConceptName() != null ? fkBean.getConceptName() : fkTypeModel.getForeignkey()
                 .split("/")[0], ids, itemsDetailPanel); //$NON-NLS-1$
+    }
+
+    public void setCriteriaFK(final String foreignKeyIds) {
+        ItemPanel itemPanel = (ItemPanel) itemsDetailPanel.getFirstTabWidget();
+        ItemNodeModel root = itemPanel.getTree().getRootModel();
+        String xml = (new ItemTreeHandler(root, itemPanel.getViewBean(), ItemTreeHandlingStatus.BeforeLoad)).serializeItem();
+        ServiceFactory
+                .getInstance()
+                .getService(staging)
+                .getForeignKeyBean(
+                        fkTypeModel.getForeignkey().split("/")[0], foreignKeyIds, xml, fkTypeModel.getXpath(), fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo(), //$NON-NLS-1$
+                        fkTypeModel.getFkFilter(), staging, Locale.getLanguage(),
+                        new SessionAwareAsyncCallback<ForeignKeyBean>() {
+
+                            @Override
+                            public void onSuccess(ForeignKeyBean foreignKeyBean) {
+                                if (foreignKeyBean != null) {
+                                    setCriteriaFK(foreignKeyBean);
+                                } else {
+                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                            .foreignkey_filter_warning(), null);
+                                }
+                            }
+                        });
     }
 
     @Override

@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.welcomeportal.client.widget;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,13 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.googlecode.gflot.client.SimplePlot;
+import com.googlecode.gflot.client.event.PlotHoverListener;
+import com.googlecode.gflot.client.event.PlotItem;
+import com.googlecode.gflot.client.event.PlotPosition;
+import com.googlecode.gflot.client.jsni.Plot;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
 
@@ -40,9 +47,13 @@ public abstract class ChartPortlet extends BasePortlet {
 
     protected Map<String, Object> chartData;
 
+    protected List<String> entityNamesSorted;
+
     protected String dc;
 
     protected boolean dataContainerChanged;
+
+    protected PlotHoverListener hoverListener;
 
     private int plotWidth;
 
@@ -58,38 +69,86 @@ public abstract class ChartPortlet extends BasePortlet {
         PortletConfigListener configListener = new PortletConfigListener() {
 
             @Override
-            public void onConfigUpdate(ConfigModel configModel) {
-                if (!ChartPortlet.this.configModel.equals(configModel)) {
-                    configModelChanged = true;
-                    if (ChartPortlet.this.configModel.isAutoRefresh().equals(configModel.isAutoRefresh())) {
-                        ChartPortlet.this.configModel = configModel;
-                        // Cookies.setValue(cookieskeyConfig, configModel.getSetting());
-                        refresh();
+            public void onConfigUpdate(final ConfigModel configModelFromUser) {
+                boolean autoUpdated;
+                final ConfigModel configModelOrig = configModel;
+                if (!configModel.equals(configModelFromUser)) {
+                    autoUpdated = !configModel.isAutoRefresh().equals(configModelFromUser.isAutoRefresh());
+                    configSettingChanged = !configModel.getSetting().equals(configModelFromUser.getSetting());
+                    configModel = configModelFromUser;
+                    if (!autoUpdated) { // only setting changed
+                        service.savePortalConfig(PortalProperties.KEY_CHART_SETTINGS, portletName, configModel.getSetting(),
+                                new SessionAwareAsyncCallback<Void>() {
+
+                                    @Override
+                                    public void onSuccess(Void result) {
+                                        portalConfigs.add(PortalProperties.KEY_CHART_SETTINGS, portletName,
+                                                configModel.getSetting());
+                                        if (!configModelFromUser.isAutoRefresh()) {
+                                            refresh();
+                                        } // else->auto=true, so no need to call redundant refresh()
+                                        return;
+                                    }
+
+                                    @Override
+                                    protected void doOnFailure(Throwable caught) {
+                                        super.doOnFailure(caught);
+                                        configModel = configModelOrig; // if db update fails, revert to original on UI
+                                    }
+                                });
                     } else {
-                        ChartPortlet.this.configModel = configModel;
-                        // Cookies.setValue(cookieskey, configModel.isAutoRefresh());
-                        // Cookies.setValue(cookieskeyConfig, configModel.getSetting());
-                        ChartPortlet.this.autoRefresh(configModel.isAutoRefresh());
+                        if (!configSettingChanged) {
+                            service.savePortalConfig(PortalProperties.KEY_AUTO_ONOFFS, portletName, configModel.isAutoRefresh()
+                                    .toString(), new SessionAwareAsyncCallback<Void>() {
+
+                                @Override
+                                public void onSuccess(Void result) {
+                                    portalConfigs.add(PortalProperties.KEY_AUTO_ONOFFS, portletName, configModel.isAutoRefresh()
+                                            .toString());
+                                    ChartPortlet.this.autoRefresh(configModel.isAutoRefresh());
+                                }
+
+                                @Override
+                                protected void doOnFailure(Throwable caught) {
+                                    super.doOnFailure(caught);
+                                    // revert to original auto & setting on UI
+                                    configModel = configModelOrig;
+                                }
+                            });
+
+                        } else {
+                            List<String> autoAndSetting = Arrays.asList(configModel.isAutoRefresh().toString(),
+                                    configModel.getSetting());
+
+                            service.savePortalConfigAutoAndSetting(portletName, autoAndSetting,
+                                    new SessionAwareAsyncCallback<Void>() {
+
+                                        @Override
+                                        public void onSuccess(Void result1) {
+                                            portalConfigs.add(PortalProperties.KEY_AUTO_ONOFFS, portletName, configModel
+                                                    .isAutoRefresh().toString());
+                                            portalConfigs.add(PortalProperties.KEY_CHART_SETTINGS, portletName,
+                                                    configModel.getSetting());
+                                            ChartPortlet.this.autoRefresh(configModel.isAutoRefresh());
+                                            // user turn off autorefresh, call refresh() to reflect charts with new
+                                            // setting
+                                            if (!configModel.isAutoRefresh()) {
+                                                refresh();
+                                            }
+                                        }
+
+                                        @Override
+                                        protected void doOnFailure(Throwable caught) {
+                                            super.doOnFailure(caught);
+                                            // revert to original auto & setting on UI
+                                            configModel = configModelOrig;
+                                        }
+                                    });
+
+                        }
                     }
-
-                    //
-                    portalConfigs.add(PortalProperties.KEY_AUTO_ONOFFS, portletName, configModel.isAutoRefresh().toString());
-                    portalConfigs.add(PortalProperties.KEY_CHART_SETTINGS, portletName, configModel.getSetting());
-
-                    service.savePortalConfig(portalConfigs, new SessionAwareAsyncCallback<Void>() {
-
-                        @Override
-                        public void onSuccess(Void result) {
-                            return;
-                        }
-
-                        @Override
-                        protected void doOnFailure(Throwable caught) {
-                            super.doOnFailure(caught);
-                        }
-                    });
                 } else {
-                    configModelChanged = false;
+                    configSettingChanged = false;
                     return;
                 }
             }
@@ -123,6 +182,7 @@ public abstract class ChartPortlet extends BasePortlet {
 
     protected void initAndShow() {
         initPlot();
+        addPlotHovering();
         set.removeAll();
         set.add(plot);
         set.layout(true);
@@ -140,11 +200,11 @@ public abstract class ChartPortlet extends BasePortlet {
     }
 
     protected void doRefreshWith(Map<String, Object> newData) {
-        if (dataContainerChanged || configModelChanged || isDifferentFrom(newData)) {
+        if (dataContainerChanged || configSettingChanged || isDifferentFrom(newData)) {
             chartData = newData;
             refreshPlot();
-            if (configModelChanged) {
-                configModelChanged = !configModelChanged;
+            if (configSettingChanged) {
+                configSettingChanged = !configSettingChanged;
             }
         }
     }
@@ -166,4 +226,34 @@ public abstract class ChartPortlet extends BasePortlet {
     abstract protected void updatePlot();
 
     abstract protected boolean isDifferentFrom(Map<String, Object> newData);
+
+    protected void addPlotHovering() {
+        final PopupPanel popup = new PopupPanel();
+        final Label hoverLabel = new Label();
+        popup.add(hoverLabel);
+        plot.addHoverListener(new PlotHoverListener() {
+
+            @Override
+            public void onPlotHover(Plot plotArg, PlotPosition position, PlotItem item) {
+                if (item != null) {
+                    String text = getHoveringText(item);
+                    hoverLabel.setText(text);
+                    popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
+                    popup.show();
+                } else {
+                    popup.hide();
+                }
+
+            }
+
+        }, false);
+    }
+
+    protected String getHoveringText(PlotItem item) {
+        String valueY = "" + (int) item.getDataPoint().getY(); //$NON-NLS-1$
+        int nameIndex = (int) item.getDataPoint().getX();
+
+        return entityNamesSorted.get(nameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+
 }

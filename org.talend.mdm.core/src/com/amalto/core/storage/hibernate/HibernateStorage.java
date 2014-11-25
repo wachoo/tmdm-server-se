@@ -28,6 +28,32 @@ import com.amalto.core.storage.record.DataRecordConverter;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.WeakHashMap;
+
 import net.sf.ehcache.CacheManager;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
@@ -343,6 +369,13 @@ public class HibernateStorage implements Storage {
                                 }
                             }
                         }
+                        //TODO: may need to add db2 after confirmation
+                        if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+                            ComplexTypeMetadata indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
+                            if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
+                                LOGGER.warn("Cannot index field '" + indexedField.getPath() + "' of type '" + indexedField.getEntityTypeName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            }
+                        }
                     }
                 }
                 break;
@@ -365,6 +398,18 @@ public class HibernateStorage implements Storage {
                         databaseIndexedFields.add(database.getField(METADATA_TASK_ID));
                     }
                 }
+                //TODO: may need to add db2 after confirmation
+                if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+                    ComplexTypeMetadata indexEntityType;
+                    for (FieldMetadata indexedField : databaseIndexedFields) {
+                        indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
+                        if (indexEntityType == null || !indexEntityType.getSuperTypes().isEmpty()
+                                || !indexEntityType.getSubTypes().isEmpty()) {
+                            LOGGER.warn("Cannot index field '" + indexedField.getPath() + "' of type '" + indexedField.getEntityTypeName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        }
+                    }
+                }
+
                 break;
             case SYSTEM: // Nothing to index on SYSTEM
                 break;
@@ -860,7 +905,8 @@ public class HibernateStorage implements Storage {
                                 typesToDrop.add((ComplexTypeMetadata) element);
                             }
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault()) + "' requires a database schema update.");
+                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault())
+                                        + "' requires a database schema update.");
                             }
                         }
                     } else {
@@ -879,7 +925,8 @@ public class HibernateStorage implements Storage {
                                 typesToDrop.add((ComplexTypeMetadata) element);
                             }
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault()) + "' requires a database schema update.");
+                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault())
+                                        + "' requires a database schema update.");
                             }
                         }
                     }
@@ -889,7 +936,8 @@ public class HibernateStorage implements Storage {
             case LOW:
                 if (LOGGER.isTraceEnabled()) {
                     for (Change change : impactCategory.getValue()) {
-                        LOGGER.trace("Change '" + change.getMessage(Locale.getDefault()) + "' does NOT require a database schema update.");
+                        LOGGER.trace("Change '" + change.getMessage(Locale.getDefault())
+                                + "' does NOT require a database schema update.");
                     }
                     break;
                 }
@@ -1047,6 +1095,11 @@ public class HibernateStorage implements Storage {
         } catch (Exception e) {
             throw new RuntimeException("Unable to complete database schema update.", e);
         }
+    }
+
+    @Override
+    public synchronized boolean isClosed() {
+        return factory == null || factory.isClosed();
     }
 
     @Override
@@ -1430,9 +1483,9 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    private static class TableClosureVisitor implements PersistentClassVisitor {
+    private class TableClosureVisitor implements PersistentClassVisitor {
 
-        private static List<String> getTableNames(PersistentClass persistentClass) {
+        private List<String> getTableNames(PersistentClass persistentClass) {
             List<String> orderedTableNames = new LinkedList<String>();
             // Get table names for properties
             Set<String> tableNames = new HashSet<String>();
@@ -1480,7 +1533,7 @@ public class HibernateStorage implements Storage {
             return getTableNames(subclass);
         }
 
-        private static class ValueVisitor implements org.hibernate.mapping.ValueVisitor {
+        private class ValueVisitor implements org.hibernate.mapping.ValueVisitor {
 
             @Override
             public Object accept(Bag bag) {
@@ -1544,12 +1597,12 @@ public class HibernateStorage implements Storage {
 
             @Override
             public Object accept(ManyToOne mto) {
-                return mto.getTable().getName();
+                return configuration.getClassMapping(mto.getReferencedEntityName()).getTable().getName();
             }
 
             @Override
             public Object accept(OneToOne oto) {
-                return oto.getTable().getName();
+                return configuration.getClassMapping(oto.getReferencedEntityName()).getTable().getName();
             }
         }
     }

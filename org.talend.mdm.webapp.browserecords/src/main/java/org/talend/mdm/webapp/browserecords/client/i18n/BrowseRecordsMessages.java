@@ -531,9 +531,13 @@ public interface BrowseRecordsMessages extends Messages {
 
     String explainResult_confidence_header();
 
-    String explainResult_attrscore_header();
+    String explainResult_score_header();
+
+    String explainResult_field_score_header();
 
     String explainResult_details_header();
 
     String matchdetail_title();
+
+    String foreignkey_filter_warning();
 }

@@ -52,11 +52,27 @@ public interface WelcomePortalMessages extends Messages {
     String chart_data_title();
 
     String chart_journal_title();
+    
+    String chart_journal_creation();
+    
+    String chart_journal_update();
 
     String chart_routing_event_title();
+    
+    String chart_routing_event_completed();
+    
+    String chart_routing_event_failed();
 
-    String chart_mathcing_title();
+    String chart_matching_title();
 
+    String chart_matching_duplicates();
+    
+    String autorefresh();
+    
+    String entities();
+    
+    String timeframe();
+    
     String autorefresh_on();
 
     String autorefresh_off();
@@ -75,6 +91,8 @@ public interface WelcomePortalMessages extends Messages {
 
     String waiting_workflowtask_suffix();
 
+    String waiting_dsctask(int newTasks, int pendingTasks);
+    
     String waiting_dsctask_suffix();
 
     String tasks_desc();

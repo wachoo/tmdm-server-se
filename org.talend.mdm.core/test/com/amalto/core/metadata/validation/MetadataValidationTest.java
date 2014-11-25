@@ -161,6 +161,15 @@ public class MetadataValidationTest extends TestCase {
         assertTrue(handler.getMessages().contains(ValidationError.MANDATORY_FIELD_MAY_NOT_BE_VISIBLE));
     }
 
+    public void testVisibility2() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("Visibility2_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getErrorCount());
+        assertEquals(0, handler.getWarningCount());
+    }
+
     public void testFKPointToNonPK() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("FKCheck.xsd");
@@ -592,6 +601,15 @@ public class MetadataValidationTest extends TestCase {
     public void testUnusedType2() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("UnusedType2_0.1.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(resourceAsStream, handler);
+        assertEquals(0, handler.getWarningCount());
+        assertFalse(handler.getLineNumbers().contains(null));
+    }
+
+    public void testUnusedType3() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("UnusedType3_0.1.xsd");
         TestValidationHandler handler = new TestValidationHandler();
         repository.load(resourceAsStream, handler);
         assertEquals(0, handler.getWarningCount());
