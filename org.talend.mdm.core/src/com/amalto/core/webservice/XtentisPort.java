@@ -289,8 +289,6 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public WSAutoIncrement getAutoIncrement(WSAutoIncrement wsAutoIncrementRequest) throws RemoteException;
 
-    public WSBoolean isXmlDB() throws RemoteException;
-
     public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException;
 
     public WSLong updateDigest(WSDigest wsDigest) throws RemoteException;

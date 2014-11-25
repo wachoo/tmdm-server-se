@@ -42,6 +42,8 @@ import com.amalto.core.storage.record.DataRecord;
 @Path("/system/stats/events") //$NON-NLS-1$
 public class EventStatistics {
 
+    private static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEventStatistics(@QueryParam("timeframe") Long timeFrame, @QueryParam("top") Integer top) { //$NON-NLS-1$ //$NON-NLS-2

@@ -1956,9 +1956,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
      * first. 6.add properties into ViewPOJO. 7.add properties into webservice parameter.
      */
     private void extractUsingTransformerThroughView(String concept, String viewName, String[] ids, String dataModelPK,
-            String dataClusterPK, XSElementDecl elementDecl, WSItem wsItem) throws RemoteException, XtentisWebappException,
-            UnsupportedEncodingException, Exception, XPathExpressionException, TransformerFactoryConfigurationError,
-            TransformerConfigurationException, TransformerException {
+            String dataClusterPK, XSElementDecl elementDecl, WSItem wsItem) throws Exception {
         if (viewName == null || viewName.length() == 0) {
             return;
         }

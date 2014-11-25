@@ -1246,15 +1246,6 @@ public class XtentisWSBean implements XtentisPort {
      * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      */
     @Override
-    public WSBoolean isXmlDB() throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().isXmlDB();
-    }
-
-    /**
-     * @ejb.interface-method view-type = "service-endpoint"
-     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
-     */
-    @Override
     public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getDigest(wsDigestKey);
     }

@@ -194,7 +194,7 @@ public class ForeignKeyHelper {
                     bean.setConceptName(fk);
                 }
                 String id = ""; //$NON-NLS-1$
-                NodeList nodes = Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
+                NodeList nodes = com.amalto.core.util.Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
                 if (nodes != null) {
                     for (int i = 0; i < nodes.getLength(); i++) {
                         if (nodes.item(i) instanceof Element) {
@@ -213,7 +213,6 @@ public class ForeignKeyHelper {
                 }
 
                 bean.setId(id);
-                fkBeans.add(bean);
             }
 
             Matcher matcher = TOTAL_COUNT_PATTERN.matcher(results[0]);
@@ -271,7 +270,7 @@ public class ForeignKeyHelper {
                 bean.setConceptName(fk);
             }
             String id = ""; //$NON-NLS-1$
-            NodeList nodes = Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
+            NodeList nodes = com.amalto.core.util.Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
             if (nodes != null) {
                 for (int i = 0; i < nodes.getLength(); i++) {
                     if (nodes.item(i) instanceof Element) {

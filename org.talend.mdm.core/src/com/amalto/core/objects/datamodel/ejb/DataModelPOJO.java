@@ -146,7 +146,6 @@ public class DataModelPOJO extends ObjectPOJO{
                 if (stagingStorage != null) {
                     // Storage already exists so update it.
                     MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName);
-                    Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(updatedDataModelName);
                     stagingStorage.prepare(stagingRepository, indexedExpressions, true, false);
                 } else {
                     LOGGER.warn("No SQL staging storage defined for data model '" + updatedDataModelName //$NON-NLS-1$

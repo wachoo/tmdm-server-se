@@ -169,7 +169,7 @@ public class GeneralAction implements GeneralService {
             userBean.setEnterprise(com.amalto.core.util.Util.isEnterprise());
             if (!com.amalto.core.util.Util.isEnterprise()) {
                 // TMDM-7629 init locaUser cache
-                String userName = Util.getLoginUserName();
+                String userName = LocalUser.getLocalUser().getUsername();
                 userBean.setName(userName);
                 userBean.setUniverse("UNKNOWN"); //$NON-NLS-1$
                 WSItem item = Util.getPort().getItem(

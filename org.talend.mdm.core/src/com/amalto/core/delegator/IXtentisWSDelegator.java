@@ -80,6 +80,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     private static Logger LOGGER = Logger.getLogger(IXtentisWSDelegator.class);
 
+    public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
+
+    public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
+
+    public static final String SUCCESS_KEYWORD = "SUCCESS";//$NON-NLS-1$
+
+    public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
+
     public WSVersion getComponentVersion(WSGetComponentVersion wsGetComponentVersion) throws RemoteException {
         try {
             if (WSComponent.DataManager.equals(wsGetComponentVersion.getComponent())) {
@@ -1358,95 +1366,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public WSPipeline processBytesUsingTransformer(WSProcessBytesUsingTransformer wsProjectBytes) throws RemoteException {
-        try {
-            TransformerPluginContext context = Util.getTransformerCtrlLocal().process(
-                    new com.amalto.core.util.TypedContent(null, wsProjectBytes.getWsBytes().getBytes(),
-                            wsProjectBytes.getContentType()), new TransformerPOJOPK(wsProjectBytes.getWsTransformerPK().getPk()),
-                    XConverter.WS2POJO(wsProjectBytes.getWsOutputDecisionTable()));
-            HashMap<String, com.amalto.core.util.TypedContent> pipeline = (HashMap<String, com.amalto.core.util.TypedContent>) context
-                    .get(TransformerCtrlBean.CTX_PIPELINE);
-            // Add the Item PKs to the pipeline as comma separated lines
-            String pksAsLine = "";//$NON-NLS-1$
-            Collection<ItemPOJOPK> pks = (Collection<ItemPOJOPK>) context.get(TransformerCtrlBean.CTX_PKS);
-            for (ItemPOJOPK pk : pks) {
-                if (!"".equals(pksAsLine)) { //$NON-NLS-1$
-                    pksAsLine += "\n";//$NON-NLS-1$
-                }
-                pksAsLine += pk.getConceptName() + "," + Util.joinStrings(pk.getIds(), ",");//$NON-NLS-1$ //$NON-NLS-2$
-            }
-            pipeline.put(TransformerCtrlBean.CTX_PKS, new com.amalto.core.util.TypedContent(null, pksAsLine.getBytes("UTF-8"), //$NON-NLS-1$
-                    "text/plain; charset=\"utf-8\""));//$NON-NLS-1$
-            // return the pipeline
-            return XConverter.POJO2WSOLD(pipeline);
-        } catch (XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage(), e));
-        } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
-    public WSPipeline processFileUsingTransformer(WSProcessFileUsingTransformer wsProcessFile) throws RemoteException {
-        try {
-            // read the entire file into bytes
-            TransformerPluginContext context = Util.getTransformerCtrlLocal().process(
-                    new com.amalto.core.util.TypedContent(new FileInputStream(new File(wsProcessFile.getFileName())), null,
-                            wsProcessFile.getContentType()), new TransformerPOJOPK(wsProcessFile.getWsTransformerPK().getPk()),
-                    XConverter.WS2POJO(wsProcessFile.getWsOutputDecisionTable()));
-            HashMap<String, com.amalto.core.util.TypedContent> pipeline = (HashMap<String, com.amalto.core.util.TypedContent>) context
-                    .get(TransformerCtrlBean.CTX_PIPELINE);
-            // Add the Item PKs to the pipeline as comma separated lines
-            String pksAsLine = "";//$NON-NLS-1$
-            Collection<ItemPOJOPK> pks = (Collection<ItemPOJOPK>) context.get(TransformerCtrlBean.CTX_PKS);
-            for (ItemPOJOPK pk : pks) {
-                if (!"".equals(pksAsLine)) { //$NON-NLS-1$
-                    pksAsLine += "\n";//$NON-NLS-1$
-                }
-                pksAsLine += pk.getConceptName() + "," + Util.joinStrings(pk.getIds(), ",");//$NON-NLS-1$ //$NON-NLS-2$
-            }
-            pipeline.put(TransformerCtrlBean.CTX_PKS, new com.amalto.core.util.TypedContent(null, pksAsLine.getBytes("UTF-8"),//$NON-NLS-1$
-                    "text/plain; charset=\"utf-8\""));//$NON-NLS-1$
-            // return the pipeline
-            return XConverter.POJO2WSOLD(pipeline);
-        } catch (XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage(), e));
-        } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
-    public WSBackgroundJobPK processBytesUsingTransformerAsBackgroundJob(
-            WSProcessBytesUsingTransformerAsBackgroundJob wsProcessBytesUsingTransformerAsBackgroundJob) throws RemoteException {
-        try {
-            return new WSBackgroundJobPK(Util
-                    .getTransformerCtrlLocal()
-                    .processBytesAsBackgroundJob(wsProcessBytesUsingTransformerAsBackgroundJob.getWsBytes().getBytes(),
-                            wsProcessBytesUsingTransformerAsBackgroundJob.getContentType(),
-                            new TransformerPOJOPK(wsProcessBytesUsingTransformerAsBackgroundJob.getWsTransformerPK().getPk()),
-                            XConverter.WS2POJO(wsProcessBytesUsingTransformerAsBackgroundJob.getWsOutputDecisionTable())).getUniqueId());
-        } catch (XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage(), e));
-        } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
-    public WSBackgroundJobPK processFileUsingTransformerAsBackgroundJob(
-            WSProcessFileUsingTransformerAsBackgroundJob wsProcessFileUsingTransformerAsBackgroundJob) throws RemoteException {
-        try {
-            return new WSBackgroundJobPK(Util
-                    .getTransformerCtrlLocal()
-                    .processFileAsBackgroundJob(wsProcessFileUsingTransformerAsBackgroundJob.getFileName(),
-                            wsProcessFileUsingTransformerAsBackgroundJob.getContentType(),
-                            new TransformerPOJOPK(wsProcessFileUsingTransformerAsBackgroundJob.getWsTransformerPK().getPk()),
-                            XConverter.WS2POJO(wsProcessFileUsingTransformerAsBackgroundJob.getWsOutputDecisionTable())).getUniqueId());
-        } catch (XtentisException e) {
-            throw (new RemoteException(e.getLocalizedMessage(), e));
-        } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
     public WSDroppedItemPKArray findAllDroppedItemsPKs(WSFindAllDroppedItemsPKs regex) throws RemoteException {
         try {
             List droppedItemPOJOPKs = Util.getDroppedItemCtrlLocal().findAllDroppedItemsPKs(regex.getRegex());
@@ -1506,8 +1425,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String operationType = UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE;
             // Call beforeDelete process (if any).
             Util.BeforeDeleteResult result = Util.beforeDeleting(clusterName, conceptName, ids, operationType);
-            if (result != null && ERROR_KEYWORD.equalsIgnoreCase(result.type)) { 
-				throw new BeforeDeletingErrorException(ERROR_KEYWORD, result.message);            }
+            if (result != null && ERROR_KEYWORD.equalsIgnoreCase(result.type)) {
+                throw new BeforeDeletingErrorException(ERROR_KEYWORD, result.message);
+            }
             // Generate physical delete event in journal
             WSDroppedItemPK droppedItemPK = wsRemoveDroppedItem.getWsDroppedItemPK();
             pushToUpdateReport(clusterName, dataModelName, conceptName, ids, true, "genericUI", operationType, null); //$NON-NLS-1$ 
@@ -2308,32 +2228,28 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         // Retrieves SYSTEM storage
         Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-        if (systemStorage != null) {
-            // This repository holds all system object types
-            MetadataRepository repository = systemStorage.getMetadataRepository();
-            String type = wsDigest.getWsDigestKey().getType();
-            String name = wsDigest.getWsDigestKey().getObjectName();
-            systemStorage.begin(); // Storage needs an active transaction (even for read operations).
-            try {
-                String typeName = DigestHelper.getInstance().getTypeName(type);
-                if (typeName != null) {
-                    ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
-                    UserQueryBuilder qb = UserQueryBuilder.from(storageType)
-                            .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)) //$NON-NLS-1$
-                            .forUpdate(); // <- Important line here!
-                    StorageResults results = systemStorage.fetch(qb.getSelect());
-                    Iterator<DataRecord> iterator = results.iterator();
-                    if (iterator.hasNext()) {
-                        DataRecord result = iterator.next();
-                        FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
-                        // Using convert ensure type is  correct
-                        result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField));
-                        systemStorage.update(result); // No need to set timestamp (update will update it).
-                        systemStorage.commit();
-                        return new WSLong(result.getRecordMetadata().getLastModificationTime());
-                    } else {
-                        return null;
-                    }
+        // This repository holds all system object types
+        MetadataRepository repository = systemStorage.getMetadataRepository();
+        String type = wsDigest.getWsDigestKey().getType();
+        String name = wsDigest.getWsDigestKey().getObjectName();
+        systemStorage.begin(); // Storage needs an active transaction (even for read operations).
+        try {
+            String typeName = DigestHelper.getInstance().getTypeName(type);
+            if (typeName != null) {
+                ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
+                UserQueryBuilder qb = UserQueryBuilder.from(storageType)
+                        .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)) //$NON-NLS-1$
+                        .forUpdate(); // <- Important line here!
+                StorageResults results = systemStorage.fetch(qb.getSelect());
+                Iterator<DataRecord> iterator = results.iterator();
+                if (iterator.hasNext()) {
+                    DataRecord result = iterator.next();
+                    FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
+                    // Using convert ensure type is  correct
+                    result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField));
+                    systemStorage.update(result); // No need to set timestamp (update will update it).
+                    systemStorage.commit();
+                    return new WSLong(result.getRecordMetadata().getLastModificationTime());
                 } else {
                     return null;
                 }
@@ -2344,7 +2260,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             systemStorage.rollback();
             throw new RuntimeException(e);
         }
-
     }
 
     public WSMatchRulePK putMatchRule(WSPutMatchRule wsPutMatchRule) throws RemoteException {

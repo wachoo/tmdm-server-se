@@ -826,11 +826,6 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSBoolean isXmlDB() throws RemoteException {
-        return delegate.isXmlDB();
-    }
-
-    @Override
     public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException {
         return delegate.getDigest(wsDigestKey);
     }
