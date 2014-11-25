@@ -126,7 +126,7 @@ public interface BrowseRecordsServiceAsync {
 
     void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback);
 
-    void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language,
+    void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language,
             AsyncCallback<ItemResult> callback);
 
     void updateItems(List<UpdateItemModel> updateItems, String language, AsyncCallback<List<ItemResult>> callback);

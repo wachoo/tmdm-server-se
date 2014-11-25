@@ -113,7 +113,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 
-    ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language)
+    ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language)
             throws ServiceException;
 
     List<ItemResult> updateItems(List<UpdateItemModel> updateItems, String language) throws ServiceException;

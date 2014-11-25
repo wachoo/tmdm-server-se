@@ -528,7 +528,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, String language,
+        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language,
                 AsyncCallback<ItemResult> callback) {
 
         }

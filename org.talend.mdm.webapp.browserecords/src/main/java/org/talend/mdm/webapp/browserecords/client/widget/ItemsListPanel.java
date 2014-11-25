@@ -521,7 +521,7 @@ public class ItemsListPanel extends ContentPanel {
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
                 String xml = (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem();
 
-                service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, xml, Locale.getLanguage(),
+                service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, xml, entityModel, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ItemResult>() {
 
                             @Override
