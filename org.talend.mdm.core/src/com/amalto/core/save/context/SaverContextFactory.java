@@ -259,22 +259,12 @@ public class SaverContextFactory {
         DocumentSaverContext context;
         StorageAdmin storageAdmin = server.getStorageAdmin();
         Storage storage = storageAdmin.get(dataCluster, storageAdmin.getType(dataCluster), null);
-        if (storage != null) {
-            //TMDM-6316: disable update report generation & before Checking for Staging data operation: creation,update
-            if (dataCluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-                invokeBeforeSaving = false;
-                updateReport = false;
-            }
-            context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
-        } else {
-            // Deprecated code here (keep it for XML database).
-            if (dataCluster.startsWith(SYSTEM_CONTAINER_PREFIX)
-                    || XSystemObjects.isXSystemObject(SYSTEM_DATA_CLUSTERS, dataCluster)) {
-                context = new SystemContext(dataCluster, dataModelName, userDocument, userAction);
-            } else {
-                context = new UserContext(dataCluster, dataModelName, userDocument, userAction, validate, updateReport, invokeBeforeSaving);
-            }
+        //TMDM-6316: disable update report generation & before Checking for Staging data operation: creation,update
+        if (dataCluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+            invokeBeforeSaving = false;
+            updateReport = false;
         }
+        context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
         // Additional options (update report, auto commit).
         if (updateReport) {
             context = ReportDocumentSaverContext.decorate(context, changeSource);

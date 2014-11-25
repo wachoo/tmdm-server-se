@@ -400,80 +400,64 @@ public class DefaultItem implements Item {
             String revisionId = universe.getConceptRevisionID(typeName);
             StorageAdmin storageAdmin = server.getStorageAdmin();
             Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
-            if (storage == null) {
-                // build the patterns to revision ID map
-                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                        universe.getItemsRevisionIDs());
-                if (universe.getDefaultItemRevisionID() != null) {
-                    conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
+            MetadataRepository repository = storage.getMetadataRepository();
+            ComplexTypeMetadata type = repository.getComplexType(typeName);
+            UserQueryBuilder qb = from(type);
+            qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+            qb.start(start);
+            qb.limit(limit);
+            if (orderBy != null) {
+                List<TypedExpression> fields = UserQueryHelper.getFields(type, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
+                if (fields == null) {
+                    throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
                 }
-                // build the patterns to cluster map - only one cluster at this stage
-                LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-                conceptPatternsToClusterName.put(".*", dataModelName);
-                XmlServer xmlServer = Util.getXmlServerCtrlLocal();
-                String query = xmlServer.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot,
-                        viewablePaths, whereItem, orderBy, direction, start, limit, spellThreshold, returnCount, Collections.<String, ArrayList<String>>emptyMap());
-                return xmlServer.runQuery(null, null, query, null);
-            } else {
-                MetadataRepository repository = storage.getMetadataRepository();
-                ComplexTypeMetadata type = repository.getComplexType(typeName);
-                UserQueryBuilder qb = from(type);
-                qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-                qb.start(start);
-                qb.limit(limit);
-                if (orderBy != null) {
-                    List<TypedExpression> fields = UserQueryHelper.getFields(type, StringUtils.substringAfter(orderBy, "/")); //$NON-NLS-1$
-                    if (fields == null) {
-                        throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
-                    }
-                    OrderBy.Direction queryDirection;
-                    if ("ascending".equals(direction)) { //$NON-NLS-1$
-                        queryDirection = OrderBy.Direction.ASC;
-                    } else {
-                        queryDirection = OrderBy.Direction.DESC;
-                    }
-                    for (TypedExpression field : fields) {
-                        qb.orderBy(field, queryDirection);
-                    }
+                OrderBy.Direction queryDirection;
+                if ("ascending".equals(direction)) { //$NON-NLS-1$
+                    queryDirection = OrderBy.Direction.ASC;
+                } else {
+                    queryDirection = OrderBy.Direction.DESC;
                 }
-                // Select fields
-                for (String viewablePath : viewablePaths) {
-                    String viewableTypeName = StringUtils.substringBefore(viewablePath, "/"); //$NON-NLS-1$
-                    String viewableFieldName = StringUtils.substringAfter(viewablePath, "/"); //$NON-NLS-1$
-                    if (!viewableFieldName.isEmpty()) {
-                        qb.select(repository.getComplexType(viewableTypeName), viewableFieldName);
-                    } else {
-                        qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and not 'typeName/field'
-                    }
+                for (TypedExpression field : fields) {
+                    qb.orderBy(field, queryDirection);
                 }
-                ArrayList<String> resultsAsString = new ArrayList<String>();
-                StorageResults results;
-                try {
-                    storage.begin();
-                    if (returnCount) {
-                        results = storage.fetch(qb.getSelect());
-                        resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
-                    }
-                    results = storage.fetch(qb.getSelect());
-                    DataRecordWriter writer = new DataRecordDefaultWriter();
-                    ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    for (DataRecord result : results) {
-                        try {
-                            writer.write(result, output);
-                        } catch (IOException e) {
-                            throw new XmlServerException(e);
-                        }
-                        String document = new String(output.toByteArray());
-                        resultsAsString.add(document);
-                        output.reset();
-                    }
-                    storage.commit();
-                } catch (Exception e) {
-                    storage.rollback();
-                    throw new XmlServerException(e);
-                }
-                return resultsAsString;
             }
+            // Select fields
+            for (String viewablePath : viewablePaths) {
+                String viewableTypeName = StringUtils.substringBefore(viewablePath, "/"); //$NON-NLS-1$
+                String viewableFieldName = StringUtils.substringAfter(viewablePath, "/"); //$NON-NLS-1$
+                if (!viewableFieldName.isEmpty()) {
+                    qb.select(repository.getComplexType(viewableTypeName), viewableFieldName);
+                } else {
+                    qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and not 'typeName/field'
+                }
+            }
+            ArrayList<String> resultsAsString = new ArrayList<String>();
+            StorageResults results;
+            try {
+                storage.begin();
+                if (returnCount) {
+                    results = storage.fetch(qb.getSelect());
+                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+                results = storage.fetch(qb.getSelect());
+                DataRecordWriter writer = new DataRecordDefaultWriter();
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                for (DataRecord result : results) {
+                    try {
+                        writer.write(result, output);
+                    } catch (IOException e) {
+                        throw new XmlServerException(e);
+                    }
+                    String document = new String(output.toByteArray());
+                    resultsAsString.add(document);
+                    output.reset();
+                }
+                storage.commit();
+            } catch (Exception e) {
+                storage.rollback();
+                throw new XmlServerException(e);
+            }
+            return resultsAsString;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
@@ -548,49 +532,34 @@ public class DefaultItem implements Item {
             String dataModelName = dataClusterPOJOPK.getUniqueId();
             StorageAdmin storageAdmin = server.getStorageAdmin();
             Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
-            if (storage == null) {
-                // build the patterns to revision ID map
-                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                        universe.getItemsRevisionIDs());
-                if (universe.getDefaultItemRevisionID() != null)
-                    conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
-
-                // build the patterns to cluster map - only one cluster at this stage
-                LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-                conceptPatternsToClusterName.put(".*", dataModelName);
-
-                XmlServer xmlServer = Util.getXmlServerCtrlLocal();
-                return xmlServer.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+            MetadataRepository repository = storage.getMetadataRepository();
+            Collection<ComplexTypeMetadata> types;
+            if ("*".equals(conceptName)) {
+                types = repository.getUserComplexTypes();
             } else {
-                MetadataRepository repository = storage.getMetadataRepository();
-                Collection<ComplexTypeMetadata> types;
-                if ("*".equals(conceptName)) {
-                    types = repository.getUserComplexTypes();
-                } else {
-                    types = Collections.singletonList(repository.getComplexType(conceptName));
-                }
-                long count = 0;
-                try {
-                    storage.begin();
-                    for (ComplexTypeMetadata type : types) {
-                        if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
-                            UserQueryBuilder qb = from(type);
-                            qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-                            StorageResults result = storage.fetch(qb.getSelect());
-                            try {
-                                count += result.getCount();
-                            } finally {
-                                result.close();
-                            }
+                types = Collections.singletonList(repository.getComplexType(conceptName));
+            }
+            long count = 0;
+            try {
+                storage.begin();
+                for (ComplexTypeMetadata type : types) {
+                    if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
+                        UserQueryBuilder qb = from(type);
+                        qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+                        StorageResults result = storage.fetch(qb.getSelect());
+                        try {
+                            count += result.getCount();
+                        } finally {
+                            result.close();
                         }
                     }
-                    storage.commit();
-                } catch (Exception e) {
-                    storage.rollback();
-                    throw new XtentisException(e);
                 }
-                return count;
+                storage.commit();
+            } catch (Exception e) {
+                storage.rollback();
+                throw new XtentisException(e);
             }
+            return count;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
@@ -932,70 +901,15 @@ public class DefaultItem implements Item {
             if (universe == null) {
                 universe = user.getUniverse();
             }
-            if (storage == null) {
-                // Check the threshold number (but only for XML DB)
-                if (!DispatchWrapper.isMDMInternal(dataClusterPOJOPK.getUniqueId())) {
-                    long totalItemsInDataContainer = count(dataClusterPOJOPK, "*", null, -1);
-                    int threshold = MDMConfiguration.getAutoEntityFindThreshold();
-                    if (totalItemsInDataContainer > threshold) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Won't calculate concepts in DataCluster \"" + dataModelName //$NON-NLS-1$
-                            + "\", because total items in data container " + totalItemsInDataContainer //$NON-NLS-1$
-                            + " is over the limit " + threshold + "! "); //$NON-NLS-1$ //$NON-NLS-2$
-                        }
-                        return Collections.emptyMap();
-                    }
-                }
-                // make sure we do not check a revision twice
-                Set<String> revisionsChecked = new HashSet<String>();
-                // First go through every revision
-                String query;
-                Set<String> patterns = universe.getItemsRevisionIDs().keySet();
-                for (String pattern : patterns) {
-                    String revisionID = universe.getConceptRevisionID(pattern);
-                    String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID; //$NON-NLS-1$ //$NON-NLS-2$
-                    if (revisionsChecked.contains(revisionKey)) {
-                        continue;
-                    } else {
-                        revisionsChecked.add(revisionKey);
-                    }
-                    // fetch all the concepts
-                    String collectionPath = CommonUtil.getPath(revisionID, dataModelName);
-                    query = "distinct-values(collection(\"" + collectionPath + "\")/ii/n/text())"; //$NON-NLS-1$
-                    ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
-                    // validate the concepts found
-                    for (String concept : conceptsFound) {
-                        if (concept.matches(pattern) && (concepts.get(concept) == null)) {
-                            concepts.put(concept, revisionID == null ? "" : revisionID);
-                        }
-                    }
-                }
-                // Then validate the concepts found in the default revision
-                String revisionID = universe.getDefaultItemRevisionID();
-                String revisionKey = (revisionID == null) || "".equals(revisionID) ? "__$DEFAULT$__" : revisionID; //$NON-NLS-1$ //$NON-NLS-2$
-                if (!revisionsChecked.contains(revisionKey)) {
-                    // fetch all the concepts
-                    String collectionPath = CommonUtil.getPath(revisionID, dataModelName);
-                    query = "distinct-values(collection(\"" + collectionPath + "\")/ii/n/text())"; //$NON-NLS-1$
-                    ArrayList<String> conceptsFound = runQuery(revisionID, dataClusterPOJOPK, query, null);
-                    // validate the concepts found
-                    for (String concept : conceptsFound) {
-                        if (concepts.get(concept) == null) {
-                            concepts.put(concept, revisionID == null ? "" : revisionID); //$NON-NLS-1$
-                        }
-                    }
-                }
+            MetadataRepository repository = storage.getMetadataRepository();
+            Collection<ComplexTypeMetadata> types;
+            if (DispatchWrapper.isMDMInternal(dataClusterPOJOPK.getUniqueId())) {
+                types = SystemStorageWrapper.filter(repository, dataModelName);
             } else {
-                MetadataRepository repository = storage.getMetadataRepository();
-                Collection<ComplexTypeMetadata> types;
-                if (DispatchWrapper.isMDMInternal(dataClusterPOJOPK.getUniqueId())) {
-                    types = SystemStorageWrapper.filter(repository, dataModelName);
-                } else {
-                    types = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
-                }
-                for (ComplexTypeMetadata type : types) {
-                    concepts.put(type.getName(), universe.getConceptRevisionID(type.getName()));
-                }
+                types = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+            }
+            for (ComplexTypeMetadata type : types) {
+                concepts.put(type.getName(), universe.getConceptRevisionID(type.getName()));
             }
             return concepts;
         } catch (Exception e) {

@@ -77,40 +77,27 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
         conceptPatternsToClusterName.put(".*", clusterName); //$NON-NLS-1$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(clusterName, storageAdmin.getType(clusterName), null);
-        if (storage != null) {
-            MetadataRepository repository = storage.getMetadataRepository();
-            ComplexTypeMetadata complexType = repository.getComplexType(fromTypeName);
-            Set<List<FieldMetadata>> paths = StorageMetadataUtils.paths(complexType, fromReference);
-            long inboundReferenceCount = 0;
-            for (List<FieldMetadata> path : paths) {
-                StringBuilder builder = new StringBuilder();
-                builder.append(complexType.getName()).append('/');
-                for (FieldMetadata fieldMetadata : path) {
-                    builder.append(fieldMetadata.getName()).append('/');
-                }
-                String leftPath = builder.toString();
-                IWhereItem whereItem = new WhereCondition(leftPath,
-                        WhereCondition.EQUALS,
-                        referencedId.toString(),
-                        WhereCondition.NO_OPERATOR);
-                inboundReferenceCount += Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap<String, String>(),
-                        conceptPatternsToClusterName,
-                        fromTypeName,
-                        whereItem);
+        MetadataRepository repository = storage.getMetadataRepository();
+        ComplexTypeMetadata complexType = repository.getComplexType(fromTypeName);
+        Set<List<FieldMetadata>> paths = StorageMetadataUtils.paths(complexType, fromReference);
+        long inboundReferenceCount = 0;
+        for (List<FieldMetadata> path : paths) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(complexType.getName()).append('/');
+            for (FieldMetadata fieldMetadata : path) {
+                builder.append(fieldMetadata.getName()).append('/');
             }
-            return inboundReferenceCount;
-        } else {
-            // For XML based storage
-            String leftPath = fromReference.getEntityTypeName() + '/' + fromReference.getPath();
+            String leftPath = builder.toString();
             IWhereItem whereItem = new WhereCondition(leftPath,
                     WhereCondition.EQUALS,
                     referencedId.toString(),
                     WhereCondition.NO_OPERATOR);
-            return Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap<String, String>(),
+            inboundReferenceCount += Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap<String, String>(),
                     conceptPatternsToClusterName,
                     fromTypeName,
                     whereItem);
         }
+        return inboundReferenceCount;
     }
 
     public Set<ReferenceFieldMetadata> getForeignKeyList(String concept, String dataModel) throws XtentisException {

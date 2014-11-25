@@ -66,13 +66,8 @@ public class SystemModels {
     public SystemModels() {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-        if (systemStorage != null) {
-            MetadataRepository repository = systemStorage.getMetadataRepository();
-            dataModelType = repository.getComplexType("data-model-pOJO"); //$NON-NLS-1$
-        } else {
-            LOGGER.warn("No system storage available."); //$NON-NLS-1$
-            dataModelType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, StringUtils.EMPTY, true);
-        }
+        MetadataRepository repository = systemStorage.getMetadataRepository();
+        dataModelType = repository.getComplexType("data-model-pOJO"); //$NON-NLS-1$
     }
 
     private static void reloadDataModel(String modelName) {

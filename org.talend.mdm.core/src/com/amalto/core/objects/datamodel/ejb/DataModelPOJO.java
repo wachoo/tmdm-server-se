@@ -121,29 +121,25 @@ public class DataModelPOJO extends ObjectPOJO{
             metadataRepositoryAdmin.remove(updatedDataModelName);
             StorageAdmin storageAdmin = server.getStorageAdmin();
             Storage storage = storageAdmin.get(updatedDataModelName, storageAdmin.getType(updatedDataModelName), revisionID);
-            if (storage != null) {
-                // Storage already exists so update it.
-                MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
-                // Check if data model update is possible without issues
-                if (ENABLE_MODEL_UPDATE_CHECKS) {
-                    Compare.DiffResults diffResults = Compare.compare(storage.getMetadataRepository(), repository);
-                    ImpactAnalyzer impactAnalyzer = storage.getImpactAnalyzer();
-                    Map<ImpactAnalyzer.Impact, List<Change>> impacts = impactAnalyzer.analyzeImpacts(diffResults);
-                    List<Change> changes = impacts.get(ImpactAnalyzer.Impact.HIGH);
-                    if (!changes.isEmpty()) {
-                        // Restore previous version
-                        setSchema(previousSchema);
-                        super.store(revisionID);
-                        throw new IllegalArgumentException("Can not update '" + updatedDataModelName
-                                + "': " + changes.size()
-                                + " changes cause storage issues.");
-                    }
+            // Storage already exists so update it.
+            MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
+            // Check if data model update is possible without issues
+            if (ENABLE_MODEL_UPDATE_CHECKS) {
+                Compare.DiffResults diffResults = Compare.compare(storage.getMetadataRepository(), repository);
+                ImpactAnalyzer impactAnalyzer = storage.getImpactAnalyzer();
+                Map<ImpactAnalyzer.Impact, List<Change>> impacts = impactAnalyzer.analyzeImpacts(diffResults);
+                List<Change> changes = impacts.get(ImpactAnalyzer.Impact.HIGH);
+                if (!changes.isEmpty()) {
+                    // Restore previous version
+                    setSchema(previousSchema);
+                    super.store(revisionID);
+                    throw new IllegalArgumentException("Can not update '" + updatedDataModelName
+                            + "': " + changes.size()
+                            + " changes cause storage issues.");
                 }
-                Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(updatedDataModelName);
-                storage.prepare(repository, indexedExpressions, true, false);
-            } else {
-                LOGGER.warn("No SQL storage defined for data model '" + updatedDataModelName + "'. No SQL storage to update."); //$NON-NLS-1$//$NON-NLS-2$
             }
+            Set<Expression> indexedExpressions = metadataRepositoryAdmin.getIndexedExpressions(updatedDataModelName);
+            storage.prepare(repository, indexedExpressions, true, false);
 
             if (storageAdmin.supportStaging(updatedDataModelName)) {
                 Storage stagingStorage = storageAdmin.get(updatedDataModelName, StorageType.STAGING, revisionID);

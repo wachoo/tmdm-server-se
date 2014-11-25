@@ -198,97 +198,80 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             String dataModelName = dataClusterPOJOPK.getUniqueId();
             StorageAdmin storageAdmin = server.getStorageAdmin();
             Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
-            if (storage != null) {
-                MetadataRepository repository = storage.getMetadataRepository();
-                // Build query (from 'main' type)
-                ComplexTypeMetadata type = repository.getComplexType(typeName);
-                if (type == null) {
-                    throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataModelName
-                            + "'.");
-                }
-                UserQueryBuilder qb = UserQueryBuilder.from(type);
-                // Select fields
-                ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
-                for (String viewableBusinessElement : viewableBusinessElements.getList()) {
-                    String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
-                    String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
-                    if (viewablePath.isEmpty()) {
-                        throw new IllegalArgumentException("View element '" + viewableBusinessElement
-                                + "' is invalid: no path to element.");
-                    }
-                    ComplexTypeMetadata viewableType = repository.getComplexType(viewableTypeName);
-                    List<TypedExpression> typeExpressions = UserQueryHelper.getFields(viewableType, viewablePath);
-                    for (TypedExpression typeExpression : typeExpressions) {
-                        qb.select(typeExpression);
-                    }
-                }
-                qb.select(repository.getComplexType(typeName), "../../taskId"); //$NON-NLS-1$
-                if (dataModelName.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-                    qb.select(repository.getComplexType(typeName), "$staging_status$"); //$NON-NLS-1$
-                    qb.select(repository.getComplexType(typeName), "$staging_error$"); //$NON-NLS-1$
-                    qb.select(repository.getComplexType(typeName), "$staging_source$"); //$NON-NLS-1$
-                }
-                // Condition and paging
-                qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
-                qb.start(start < 0 ? 0 : start); // UI can send negative start index
-                qb.limit(limit);
-                // Order by
-                if (orderBy != null) {
-                    ComplexTypeMetadata orderByType = repository.getComplexType(StringUtils.substringBefore(orderBy, "/")); //$NON-NLS-1$
-                    String orderByFieldName = StringUtils.substringAfter(orderBy, "/"); //$NON-NLS-1$
-                    List<TypedExpression> fields = UserQueryHelper.getFields(orderByType, orderByFieldName);
-                    OrderBy.Direction queryDirection;
-                    if ("ascending".equals(direction) //$NON-NLS-1$
-                            || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
-                            || "ASC".equals(direction)) { //$NON-NLS-1$
-                        queryDirection = OrderBy.Direction.ASC;
-                    } else {
-                        queryDirection = OrderBy.Direction.DESC;
-                    }
-                    for (TypedExpression field : fields) {
-                        qb.orderBy(field, queryDirection);
-                    }
-                }
-                // Get records
-                ArrayList<String> resultsAsString = new ArrayList<String>();
-                try {
-                    storage.begin();
-                    StorageResults results = storage.fetch(qb.getSelect());
-                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
-                    DataRecordWriter writer = new ViewSearchResultsWriter();
-                    ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    for (DataRecord result : results) {
-                        try {
-                            writer.write(result, output);
-                        } catch (IOException e) {
-                            throw new XmlServerException(e);
-                        }
-                        String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
-                        resultsAsString.add(document);
-                        output.reset();
-                    }
-                    storage.commit();
-                } catch (Exception e) {
-                    storage.rollback();
-                    throw new XmlServerException(e);
-                }
-                return resultsAsString;
-            } else {
-                // build the patterns to revision ID map
-                LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                        universe.getItemsRevisionIDs());
-                if (revisionId != null && revisionId.length() > 0) {
-                    conceptPatternsToRevisionID.put(".*", revisionId); //$NON-NLS-1$
-                }
-                // build the patterns to cluster map - only one cluster at this stage
-                LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-                conceptPatternsToClusterName.put(".*", dataModelName); //$NON-NLS-1$
-
-                Map<String, ArrayList<String>> metaDataTypes = getMetaTypes(fullWhere);
-                return runItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, view
-                        .getViewableBusinessElements().getList(), fullWhere, orderBy, direction, start, limit, spellThreshold,
-                        true, metaDataTypes, true);
+            MetadataRepository repository = storage.getMetadataRepository();
+            // Build query (from 'main' type)
+            ComplexTypeMetadata type = repository.getComplexType(typeName);
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataModelName
+                        + "'.");
             }
+            UserQueryBuilder qb = UserQueryBuilder.from(type);
+            // Select fields
+            ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
+            for (String viewableBusinessElement : viewableBusinessElements.getList()) {
+                String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
+                String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
+                if (viewablePath.isEmpty()) {
+                    throw new IllegalArgumentException("View element '" + viewableBusinessElement
+                            + "' is invalid: no path to element.");
+                }
+                ComplexTypeMetadata viewableType = repository.getComplexType(viewableTypeName);
+                List<TypedExpression> typeExpressions = UserQueryHelper.getFields(viewableType, viewablePath);
+                for (TypedExpression typeExpression : typeExpressions) {
+                    qb.select(typeExpression);
+                }
+            }
+            qb.select(repository.getComplexType(typeName), "../../taskId"); //$NON-NLS-1$
+            if (dataModelName.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                qb.select(repository.getComplexType(typeName), "$staging_status$"); //$NON-NLS-1$
+                qb.select(repository.getComplexType(typeName), "$staging_error$"); //$NON-NLS-1$
+                qb.select(repository.getComplexType(typeName), "$staging_source$"); //$NON-NLS-1$
+            }
+            // Condition and paging
+            qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+            qb.start(start < 0 ? 0 : start); // UI can send negative start index
+            qb.limit(limit);
+            // Order by
+            if (orderBy != null) {
+                ComplexTypeMetadata orderByType = repository.getComplexType(StringUtils.substringBefore(orderBy, "/")); //$NON-NLS-1$
+                String orderByFieldName = StringUtils.substringAfter(orderBy, "/"); //$NON-NLS-1$
+                List<TypedExpression> fields = UserQueryHelper.getFields(orderByType, orderByFieldName);
+                OrderBy.Direction queryDirection;
+                if ("ascending".equals(direction) //$NON-NLS-1$
+                        || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
+                        || "ASC".equals(direction)) { //$NON-NLS-1$
+                    queryDirection = OrderBy.Direction.ASC;
+                } else {
+                    queryDirection = OrderBy.Direction.DESC;
+                }
+                for (TypedExpression field : fields) {
+                    qb.orderBy(field, queryDirection);
+                }
+            }
+            // Get records
+            ArrayList<String> resultsAsString = new ArrayList<String>();
+            try {
+                storage.begin();
+                StorageResults results = storage.fetch(qb.getSelect());
+                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
+                DataRecordWriter writer = new ViewSearchResultsWriter();
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                for (DataRecord result : results) {
+                    try {
+                        writer.write(result, output);
+                    } catch (IOException e) {
+                        throw new XmlServerException(e);
+                    }
+                    String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+                    resultsAsString.add(document);
+                    output.reset();
+                }
+                storage.commit();
+            } catch (Exception e) {
+                storage.rollback();
+                throw new XmlServerException(e);
+            }
+            return resultsAsString;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
@@ -444,99 +427,70 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
         StorageAdmin storageAdmin = server.getStorageAdmin();
         String dataContainerName = dataClusterPOJOPK.getUniqueId();
         Storage storage = storageAdmin.get(dataContainerName, storageAdmin.getType(dataContainerName), revisionId);
-        if (storage != null) {
-            MetadataRepository repository = storage.getMetadataRepository();
-            ComplexTypeMetadata type = repository.getComplexType(conceptName);
-            if (type == null) {
-                throw new IllegalArgumentException("Type '" + conceptName + "' does not exist in data cluster '" //$NON-NLS-1$ //$NON-NLS-2$
-                        + dataContainerName + "'."); //$NON-NLS-1$
+        MetadataRepository repository = storage.getMetadataRepository();
+        ComplexTypeMetadata type = repository.getComplexType(conceptName);
+        if (type == null) {
+            throw new IllegalArgumentException("Type '" + conceptName + "' does not exist in data cluster '" //$NON-NLS-1$ //$NON-NLS-2$
+                    + dataContainerName + "'."); //$NON-NLS-1$
+        }
+        UserQueryBuilder qb = UserQueryBuilder.from(type);
+        // Condition and paging
+        qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
+        qb.start(start < 0 ? 0 : start); // UI can send negative start index
+        qb.limit(limit);
+        // Order by
+        if (orderBy != null) {
+            String orderByFieldName = StringUtils.substringAfter(orderBy, "/"); //$NON-NLS-1$
+            List<TypedExpression> fields = UserQueryHelper.getFields(type, orderByFieldName);
+            if (fields == null) {
+                throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
             }
-            UserQueryBuilder qb = UserQueryBuilder.from(type);
-            // Condition and paging
-            qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-            qb.start(start < 0 ? 0 : start); // UI can send negative start index
-            qb.limit(limit);
-            // Order by
-            if (orderBy != null) {
-                String orderByFieldName = StringUtils.substringAfter(orderBy, "/"); //$NON-NLS-1$
-                List<TypedExpression> fields = UserQueryHelper.getFields(type, orderByFieldName);
-                if (fields == null) {
-                    throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
-                }
-                OrderBy.Direction queryDirection;
-                if ("ascending".equals(direction) //$NON-NLS-1$
-                        || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
-                        || "ASC".equals(direction)) { //$NON-NLS-1$
-                    queryDirection = OrderBy.Direction.ASC;
-                } else {
-                    queryDirection = OrderBy.Direction.DESC;
-                }
-                for (TypedExpression typedExpression : fields) {
-                    qb.orderBy(typedExpression, queryDirection);
-                }
+            OrderBy.Direction queryDirection;
+            if ("ascending".equals(direction) //$NON-NLS-1$
+                    || "NUMBER:ascending".equals(direction) //$NON-NLS-1$
+                    || "ASC".equals(direction)) { //$NON-NLS-1$
+                queryDirection = OrderBy.Direction.ASC;
+            } else {
+                queryDirection = OrderBy.Direction.DESC;
             }
-            // Get records
-            ArrayList<String> resultsAsString = new ArrayList<String>();
-            StorageResults results;
-            try {
-                storage.begin();
-                if (totalCountOnFirstRow) {
-                    results = storage.fetch(qb.getSelect());
-                    resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-                results = storage.fetch(qb.getSelect());
-                DataRecordWriter writer = new DataRecordXmlWriter(type);
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                for (DataRecord result : results) {
-                    try {
-                        if (totalCountOnFirstRow) {
-                            output.write("<result>".getBytes()); //$NON-NLS-1$
-                        }
-                        writer.write(result, output);
-                        if (totalCountOnFirstRow) {
-                            output.write("</result>".getBytes()); //$NON-NLS-1$
-                        }
-                    } catch (IOException e) {
-                        throw new XtentisException(e);
-                    }
-                    String document = new String(output.toByteArray());
-                    resultsAsString.add(document);
-                    output.reset();
-                }
-                storage.commit();
-            } catch (Exception e) {
-                storage.rollback();
-                throw new XtentisException(e);
-            }
-            return resultsAsString;
-        } else {
-            // ******* Old behavior **********
-            // build the patterns to revision ID map
-            LinkedHashMap<String, String> conceptPatternsToRevisionID = new LinkedHashMap<String, String>(
-                    universe.getItemsRevisionIDs());
-            if (universe.getDefaultItemRevisionID() != null && universe.getDefaultItemRevisionID().length() > 0) {
-                conceptPatternsToRevisionID.put(".*", universe.getDefaultItemRevisionID()); //$NON-NLS-1$
-            }
-
-            // build the patterns to cluster map - only one cluster at this stage
-            LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-            conceptPatternsToClusterName.put(".*", dataContainerName); //$NON-NLS-1$
-
-            try {
-                ArrayList<String> elements = new ArrayList<String>();
-                elements.add(conceptName);
-                // add recordsSecurity filters for the Role
-                whereItem = getFullWhereCondition(whereItem, new ArrayList<IWhereItem>(0));
-                return runItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, null, elements, whereItem,
-                        orderBy, direction, start, limit, spellThreshold, totalCountOnFirstRow, Collections.emptyMap(), false);
-            } catch (XtentisException e) {
-                throw (e);
-            } catch (Exception e) {
-                String err = "Unable to get the items: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-                LOGGER.error(err, e);
-                throw new XtentisException(err, e);
+            for (TypedExpression typedExpression : fields) {
+                qb.orderBy(typedExpression, queryDirection);
             }
         }
+        // Get records
+        ArrayList<String> resultsAsString = new ArrayList<String>();
+        StorageResults results;
+        try {
+            storage.begin();
+            if (totalCountOnFirstRow) {
+                results = storage.fetch(qb.getSelect());
+                resultsAsString.add("<totalCount>" + results.getCount() + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            results = storage.fetch(qb.getSelect());
+            DataRecordWriter writer = new DataRecordXmlWriter(type);
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                try {
+                    if (totalCountOnFirstRow) {
+                        output.write("<result>".getBytes()); //$NON-NLS-1$
+                    }
+                    writer.write(result, output);
+                    if (totalCountOnFirstRow) {
+                        output.write("</result>".getBytes()); //$NON-NLS-1$
+                    }
+                } catch (IOException e) {
+                    throw new XtentisException(e);
+                }
+                String document = new String(output.toByteArray());
+                resultsAsString.add(document);
+                output.reset();
+            }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new XtentisException(e);
+        }
+        return resultsAsString;
     }
 
     protected Map<String, ArrayList<String>> getMetaTypes(IWhereItem fullWhere) throws Exception {

@@ -2170,49 +2170,38 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return new WSString("Refresh the item and object cache successfully!");
     }
 
-    public WSBoolean isXmlDB() {
-        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        // Retrieves SYSTEM storage
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-        return new WSBoolean(systemStorage == null);
-    }
-
     public WSDigest getDigest(WSDigestKey wsDigestKey) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         // Retrieves SYSTEM storage
         Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-        if (systemStorage != null) {
-            // This repository holds all system object types
-            MetadataRepository repository = systemStorage.getMetadataRepository();
-            String type = wsDigestKey.getType();
-            String name = wsDigestKey.getObjectName();
-            systemStorage.begin(); // Storage needs an active transaction (even for read operations).
-            try {
-                String typeName = DigestHelper.getInstance().getTypeName(type);
-                if (typeName != null) {
-                    // Get the type definition for query
-                    ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
-                    // Select instance of type where unique-id equals provided name
-                    UserQueryBuilder qb = UserQueryBuilder.from(storageType).where(
-                            UserQueryBuilder.eq(storageType.getField("unique-id"), name)); //$NON-NLS-1$
-                    StorageResults results = systemStorage.fetch(qb.getSelect());
+        // This repository holds all system object types
+        MetadataRepository repository = systemStorage.getMetadataRepository();
+        String type = wsDigestKey.getType();
+        String name = wsDigestKey.getObjectName();
+        systemStorage.begin(); // Storage needs an active transaction (even for read operations).
+        try {
+            String typeName = DigestHelper.getInstance().getTypeName(type);
+            if (typeName != null) {
+                // Get the type definition for query
+                ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
+                // Select instance of type where unique-id equals provided name
+                UserQueryBuilder qb = UserQueryBuilder.from(storageType).where(
+                        UserQueryBuilder.eq(storageType.getField("unique-id"), name)); //$NON-NLS-1$
+                StorageResults results = systemStorage.fetch(qb.getSelect());
 
-                    Iterator<DataRecord> iterator = results.iterator();
-                    if (iterator.hasNext()) {
-                        DataRecord result = iterator.next();
-                        return new WSDigest(wsDigestKey,
-                                (String) result.get("digest"), result.getRecordMetadata().getLastModificationTime()); //$NON-NLS-1$
-                    } else {
-                        return null;
-                    }
+                Iterator<DataRecord> iterator = results.iterator();
+                if (iterator.hasNext()) {
+                    DataRecord result = iterator.next();
+                    return new WSDigest(wsDigestKey,
+                            (String) result.get("digest"), result.getRecordMetadata().getLastModificationTime()); //$NON-NLS-1$
                 } else {
                     return null;
                 }
-            } finally {
-                systemStorage.commit();
+            } else {
+                return null;
             }
-        } else {
-            return null;
+        } finally {
+            systemStorage.commit();
         }
     }
 
@@ -2220,41 +2209,37 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         // Retrieves SYSTEM storage
         Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-        if (systemStorage != null) {
-            // This repository holds all system object types
-            MetadataRepository repository = systemStorage.getMetadataRepository();
-            String type = wsDigest.getWsDigestKey().getType();
-            String name = wsDigest.getWsDigestKey().getObjectName();
-            systemStorage.begin(); // Storage needs an active transaction (even for read operations).
-            try {
-                String typeName = DigestHelper.getInstance().getTypeName(type);
-                if (typeName != null) {
-                    ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
-                    UserQueryBuilder qb = UserQueryBuilder.from(storageType)
-                            .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)) //$NON-NLS-1$
-                            .forUpdate(); // <- Important line here!
-                    StorageResults results = systemStorage.fetch(qb.getSelect());
-                    Iterator<DataRecord> iterator = results.iterator();
-                    if (iterator.hasNext()) {
-                        DataRecord result = iterator.next();
-                        FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
-                        // Using convert ensure type is  correct
-                        result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField));
-                        systemStorage.update(result); // No need to set timestamp (update will update it).
-                        systemStorage.commit();
-                        return new WSLong(result.getRecordMetadata().getLastModificationTime());
-                    } else {
-                        return null;
-                    }
+        // This repository holds all system object types
+        MetadataRepository repository = systemStorage.getMetadataRepository();
+        String type = wsDigest.getWsDigestKey().getType();
+        String name = wsDigest.getWsDigestKey().getObjectName();
+        systemStorage.begin(); // Storage needs an active transaction (even for read operations).
+        try {
+            String typeName = DigestHelper.getInstance().getTypeName(type);
+            if (typeName != null) {
+                ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
+                UserQueryBuilder qb = UserQueryBuilder.from(storageType)
+                        .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)) //$NON-NLS-1$
+                        .forUpdate(); // <- Important line here!
+                StorageResults results = systemStorage.fetch(qb.getSelect());
+                Iterator<DataRecord> iterator = results.iterator();
+                if (iterator.hasNext()) {
+                    DataRecord result = iterator.next();
+                    FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
+                    // Using convert ensure type is  correct
+                    result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField));
+                    systemStorage.update(result); // No need to set timestamp (update will update it).
+                    systemStorage.commit();
+                    return new WSLong(result.getRecordMetadata().getLastModificationTime());
                 } else {
                     return null;
                 }
-            } catch (Exception e) {
-                systemStorage.rollback();
-                throw new RuntimeException(e);
+            } else {
+                return null;
             }
-        } else {
-            return null;
+        } catch (Exception e) {
+            systemStorage.rollback();
+            throw new RuntimeException(e);
         }
 
     }

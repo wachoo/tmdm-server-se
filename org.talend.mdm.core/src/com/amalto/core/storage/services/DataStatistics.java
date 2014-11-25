@@ -52,11 +52,6 @@ public class DataStatistics {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
         if (dataStorage == null) {
-            Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-            if (systemStorage == null) { // is xmldb, not supported/implemented
-                LOGGER.debug("Could not find system storage. Statistics is not supported for XMLDB"); //$NON-NLS-1$
-                return Response.status(Response.Status.NO_CONTENT).build();
-            }
             throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
         }
         // Build statistics

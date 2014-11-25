@@ -41,17 +41,11 @@ import com.amalto.core.storage.record.DataRecord;
 @Path("/system/stats/events") //$NON-NLS-1$
 public class EventStatistics {
 
-    private static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEventStatistics(@QueryParam("timeframe") Long timeFrame) { //$NON-NLS-1$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage system = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-        if (system == null) {
-            LOGGER.debug("Could not find system storage. Statistics is not supported for XML database"); //$NON-NLS-1$
-            return Response.status(Response.Status.NO_CONTENT).build();
-        }
         // Build statistics
         StringWriter stringWriter = new StringWriter();
         JSONWriter writer = new JSONWriter(stringWriter);
