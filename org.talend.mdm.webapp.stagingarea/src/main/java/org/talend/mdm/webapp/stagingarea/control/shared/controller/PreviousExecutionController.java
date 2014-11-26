@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.control.shared.controller;
 
+import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.PreviousExecutionModel;
 
 import java.util.Date;
@@ -30,5 +31,6 @@ public class PreviousExecutionController {
 
     public void refresh() {
         model.getStore().getLoader().load();
+        model.notifyHandlers(new ModelEvent(ModelEvent.Types.PREVIOUS_EXECUTION_CHANGED, model));
     }
 }
