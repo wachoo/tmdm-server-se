@@ -65,6 +65,7 @@ class PreviousExecutionView extends AbstractView implements ModelEventHandler {
 
     public PreviousExecutionView() {
         GenerateContainer.getValidationModel().addModelEventHandler(this);
+        model.addModelEventHandler(this);
     }
 
     @Override
@@ -131,12 +132,13 @@ class PreviousExecutionView extends AbstractView implements ModelEventHandler {
     public void onModelEvent(ModelEvent e) {
         GwtEvent.Type<ModelEventHandler> type = e.getAssociatedType();
         if (type == ModelEvent.Types.PREVIOUS_EXECUTION_CHANGED.getType()) {
-            model.getStore().getLoader().load();
+            taskPagingBar.enable();
         } else if (type == ModelEvent.Types.VALIDATION_START.getType()) {
             doRefreshOnValidationEnd = true;
         } else if (type == ModelEvent.Types.VALIDATION_END.getType() || type == ModelEvent.Types.VALIDATION_CANCEL.getType()) {
             if (doRefreshOnValidationEnd) {
-                model.getStore().getLoader().load();
+                taskPagingBar.refresh();
+                taskPagingBar.enable();
                 doRefreshOnValidationEnd = false;
             }
         }

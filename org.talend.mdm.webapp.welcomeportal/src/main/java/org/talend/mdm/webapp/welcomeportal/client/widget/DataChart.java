@@ -52,6 +52,7 @@ import com.googlecode.gflot.client.options.PlotOptions;
 public class DataChart extends ChartPortlet {
 
     public static final String COUNT_NAME = "count"; //$NON-NLS-1$
+    public static final String PERCENTAGE_NAME = "percentage"; //$NON-NLS-1$
 
     private String hoveringTXT;
 
@@ -59,7 +60,9 @@ public class DataChart extends ChartPortlet {
 
     private int cursorY;
 
-    final NumberFormat formatter = NumberFormat.getFormat("0.#"); //$NON-NLS-1$
+    final NumberFormat formatter = NumberFormat.getFormat("0.##"); //$NON-NLS-1$
+    
+    Map<String, Double> percentageValueMap = new HashMap<String, Double>();
 
     public DataChart(Portal portal) {
         super(WelcomePortal.CHART_DATA, portal);
@@ -166,7 +169,7 @@ public class DataChart extends ChartPortlet {
                                             public String format(String label, Series series) {
                                                 return "<div style=\"font-size:8pt;text-align:center;padding:2px;color:white;\">" //$NON-NLS-1$
                                                         + label + "<br/>" + formatter.format(series.getData().getY(0)) + " / " //$NON-NLS-1$//$NON-NLS-2$
-                                                        + formatter.format(series.getPercent()) + "%</div>"; //$NON-NLS-1$
+                                                        + formatter.format(percentageValueMap.get(label)) + "%</div>"; //$NON-NLS-1$
                                             }
                                         }))));
         plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
@@ -240,16 +243,19 @@ public class DataChart extends ChartPortlet {
             JSONObject jsonObject = jsonArray.get(i).isObject();
             String name = jsonObject.keySet().iterator().next();
             JSONArray valueArray = jsonObject.get(name).isArray();
-            int value = 0;
+            int count = 0;
+            double percentage = 0;
             for (int j = 0; j < valueArray.size(); j++) {
                 JSONObject countObject = valueArray.get(j).isObject();
                 String countName = countObject.keySet().iterator().next();
                 if (COUNT_NAME.equals(countName)) {
-                    value = new Double(countObject.get(countName).isNumber().doubleValue()).intValue();
-                    break;
+                    count = new Double(countObject.get(countName).isNumber().doubleValue()).intValue();                    
+                } else if (PERCENTAGE_NAME.equals(countName)) {
+                    percentage = Double.parseDouble(countObject.get(countName).isString().stringValue());
                 }
             }
-            entityDataNew.put(name, value);
+            entityDataNew.put(name, count);
+            percentageValueMap.put(name, percentage);
 
         }
 
@@ -283,7 +289,7 @@ public class DataChart extends ChartPortlet {
                 if (item != null) {
                     hoveringTXT = (entityNamesSorted.get(item.getSeriesIndex()) + " : " //$NON-NLS-1$ 
                             + formatter.format(item.getSeries().getData().getY(0)) + " / " //$NON-NLS-1$
-                            + formatter.format(item.getSeries().getPercent()) + "%"); //$NON-NLS-1$
+                            + formatter.format(percentageValueMap.get(item.getSeries().getLabel())) + "%"); //$NON-NLS-1$
                     hoverLabel.setText(hoveringTXT);
                     popup.setPopupPosition(cursorX, cursorY);
                     popup.show();

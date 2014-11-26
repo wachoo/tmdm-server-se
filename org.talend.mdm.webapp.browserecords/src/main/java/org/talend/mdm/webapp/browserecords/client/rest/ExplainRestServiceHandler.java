@@ -158,7 +158,7 @@ public class ExplainRestServiceHandler {
                     String groupId = getStringValue(getJSONValue(resultArray, StagingConstant.MATCH_GROUP_ID));
                     group.set(StagingConstant.MATCH_GROUP_ID, groupId);
                     group.set(StagingConstant.MATCH_GROUP_CONFIDENCE,
-                            getStringValue(getJSONValue(resultArray, StagingConstant.MATCH_GROUP_CONFIDENCE)));
+                            getScoreValue(getJSONValue(resultArray, StagingConstant.MATCH_GROUP_CONFIDENCE)));
                     group.set(StagingConstant.MATCH_GROUP_GID, groupId);
                     group.set(StagingConstant.MATCH_GROUP_SZIE, relatedIdArray.size());
                     JSONValue valueArrayValue = getJSONValue(resultArray, "values"); //$NON-NLS-1$
