@@ -24,7 +24,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.xml.sax.SAXException;
 
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.util.Util;
 
 /**

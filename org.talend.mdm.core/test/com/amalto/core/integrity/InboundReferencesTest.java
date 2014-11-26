@@ -11,8 +11,6 @@
 
 package com.amalto.core.integrity;
 
-import com.amalto.core.server.server.MockServerLifecycle;
-import com.amalto.core.server.ServerContext;
 import org.talend.mdm.commmon.metadata.*;
 import junit.framework.TestCase;
 
@@ -24,11 +22,6 @@ import java.util.Set;
  */
 @SuppressWarnings({"HardCodedStringLiteral", "nls"})
 public class InboundReferencesTest extends TestCase {
-
-    @Override
-    public void setUp() throws Exception {
-        ServerContext.INSTANCE.get(new MockServerLifecycle());
-    }
 
     private Set<ReferenceFieldMetadata> getReferencedFields(MetadataRepository repository, String typeName) {
         TypeMetadata type = repository.getType(typeName);

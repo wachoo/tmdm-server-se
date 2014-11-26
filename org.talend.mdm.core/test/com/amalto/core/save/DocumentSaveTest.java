@@ -10,11 +10,10 @@
 
 package com.amalto.core.save;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
@@ -26,7 +25,6 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.ValidateException;
-import com.amalto.xmlserver.interfaces.XmlServerException;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -38,16 +36,13 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.server.MockMetadataRepositoryAdmin;
 import com.amalto.core.server.server.MockServerLifecycle;
 import com.amalto.core.storage.*;
-import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -58,9 +53,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.from;
@@ -2760,115 +2753,6 @@ public class DocumentSaveTest extends TestCase {
         assertEquals(datarecordXml, "<EntiteA><codeA>a1</codeA><format xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"Format_Entier\"><CodeUniteMesure>[e1]</CodeUniteMesure></format></EntiteA>");
     }
 
-    public void testDateTypeInKey() throws Exception {
-        MetadataRepository repository = new MetadataRepository();
-        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata16.xsd"));
-
-        Storage storage = new HibernateStorage("H2-Default"); //$NON-NLS-1$
-        storage.init(ServerContext.INSTANCE.get().getDefinition("H2-Default", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
-        storage.prepare(repository, true);
-        DataRecordReader<String> factory = new XmlStringDataRecordReader();
-
-        List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read("1", repository, repository.getComplexType("DateInKey"),
-                "<DateInKey><id>22</id><name>22</name><date1>2014-04-17</date1></DateInKey>"));
-        records.add(factory.read("1", repository, repository.getComplexType("DateTimeInKey"),
-                "<DateTimeInKey><code>22</code><db1>2014-04-17T12:00:00</db1><aaa>aaa</aaa></DateTimeInKey>"));
-        storage.begin();
-        storage.update(records);
-        storage.commit();
-
-        // Query saved data
-        storage.begin();
-        ComplexTypeMetadata dateInKey = repository.getComplexType("DateInKey"); //$NON-NLS-1$
-        UserQueryBuilder qb = from(dateInKey);
-        qb.start(0);
-        qb.limit(1);
-        StorageResults results = storage.fetch(qb.getSelect());
-        assertEquals(1, results.getCount());
-        DataRecord result = results.iterator().next();
-        assertEquals("2014-04-17", StorageMetadataUtils.toString(result.get("date1"), result.getType().getField("date1")));
-
-        DataRecordWriter writer = new ItemPKCriteriaResultsWriter(dateInKey.getName(), dateInKey);
-        ResettableStringWriter stringWriter = new ResettableStringWriter();
-        try {
-            writer.write(result, stringWriter);
-        } catch (IOException e) {
-            throw new XmlServerException(e);
-        }
-        String recordStringValue = stringWriter.toString();
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Element r = documentBuilder.parse(new InputSource(new StringReader(recordStringValue))).getDocumentElement();
-        NodeList idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET); //$NON-NLS-1$
-        List<String> keyStrValues = new ArrayList<String>();
-        for (int j = 0; j < idsList.getLength(); j++) {
-            keyStrValues.add(idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue()); //$NON-NLS-1$
-        }
-        assertTrue(keyStrValues.contains("2014-04-17"));
-        assertTrue(keyStrValues.contains("22"));
-        stringWriter.reset();
-
-        dateInKey = repository.getComplexType("DateTimeInKey"); //$NON-NLS-1$
-        qb = from(dateInKey);
-        qb.start(0);
-        qb.limit(1);
-        results = storage.fetch(qb.getSelect());
-        assertEquals(1, results.getCount());
-        result = results.iterator().next();
-        assertEquals("2014-04-17T12:00:00", StorageMetadataUtils.toString(result.get("db1"), result.getType().getField("db1")));
-        writer = new ItemPKCriteriaResultsWriter(dateInKey.getName(), dateInKey);
-        try {
-            writer.write(result, stringWriter);
-        } catch (IOException e) {
-            throw new XmlServerException(e);
-        }
-        recordStringValue = stringWriter.toString();
-        r = documentBuilder.parse(new InputSource(new StringReader(recordStringValue))).getDocumentElement();
-        idsList = (NodeList) xpath.evaluate("./ids/i", r, XPathConstants.NODESET); //$NON-NLS-1$
-        keyStrValues.clear();
-        for (int j = 0; j < idsList.getLength(); j++) {
-            keyStrValues.add(idsList.item(j).getFirstChild() == null ? "" : idsList.item(j).getFirstChild().getNodeValue()); //$NON-NLS-1$
-        }
-        assertTrue(keyStrValues.contains("2014-04-17T12:00:00"));
-        assertTrue(keyStrValues.contains("22"));
-        stringWriter.reset();
-    }
-
-    public void testDateTypeInForeignKey() throws Exception {
-        MetadataRepository repository = new MetadataRepository();
-        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata16_1.xsd"));
-
-        Storage storage = new HibernateStorage("H2-Default"); //$NON-NLS-1$
-        storage.init(ServerContext.INSTANCE.get().getDefinition("H2-Default", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
-        storage.prepare(repository, true);
-        DataRecordReader<String> factory = new XmlStringDataRecordReader();
-
-        List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read(
-                "1",
-                repository,
-                repository.getComplexType("EOR"),
-                "<EOR>  <UG_EOR>1</UG_EOR>  <TYP_EOR>1</TYP_EOR>  <L_TYP_EOR>1</L_TYP_EOR>  <CAT_TYP_EOR>1</CAT_TYP_EOR>  <D_DEB_EOR>2014-04-21</D_DEB_EOR>  <UG_EOR_FILLES/>  <UG_EOR_MERES/>  <GARES>    <GARE>[1][2]</GARE>  </GARES> </EOR>"));
-        records.add(factory.read("1", repository, repository.getComplexType("GARE"),
-                "<GARE>  <IFE>1</IFE>  <ETFE>2</ETFE>  <UG_EOR>[1][1][2014-04-21]</UG_EOR> </GARE>"));
-        storage.begin();
-        storage.update(records);
-        storage.commit();
-
-        // Query saved data
-        storage.begin();
-        ComplexTypeMetadata dateInKey = repository.getComplexType("GARE"); //$NON-NLS-1$
-        UserQueryBuilder qb = from(dateInKey);
-        qb.start(0);
-        qb.limit(1);
-        StorageResults results = storage.fetch(qb.getSelect());
-        assertEquals(1, results.getCount());
-        DataRecord result = results.iterator().next();
-        assertEquals("[1][1][2014-04-21]",
-                StorageMetadataUtils.toString(result.get("UG_EOR"), result.getType().getField("UG_EOR")));
-    }
-
     private static class MockCommitter implements SaverSession.Committer {
 
         private MutableDocument lastSaved;
@@ -3101,34 +2985,6 @@ public class DocumentSaveTest extends TestCase {
             this.userName = userName;
         }
 
-    }
-
-    public void testCompositeKeyAndFK() {
-        MetadataRepository repository = new MetadataRepository();
-        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata17.xsd"));
-
-        Storage hibernateStorage = new HibernateStorage("H2-DS1", StorageType.STAGING); //$NON-NLS-1$
-        hibernateStorage.init(ServerContext.INSTANCE.get().getDefinition("H2-DS1", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
-        hibernateStorage.prepare(repository, true);
-        Storage storage = new StagingStorage(hibernateStorage);
-        DataRecordReader<String> factory = new XmlStringDataRecordReader();
-
-        List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read("1", repository, repository.getComplexType("MyType"),
-                "<MyType><subelement>22</subelement><myDatetime>2014-04-17T12:00:00</myDatetime><myDate>2014-04-17</myDate></MyType>"));
-        storage.begin();
-        storage.update(records);
-        storage.commit();
-
-        // Query saved data
-        storage.begin();
-        ComplexTypeMetadata dateInKey = repository.getComplexType("MyType"); //$NON-NLS-1$
-        UserQueryBuilder qb = from(dateInKey);
-        qb.start(0);
-        qb.limit(1);
-        StorageResults results = storage.fetch(qb.getSelect());
-        assertEquals(1, results.getCount());
-        DataRecord result = results.iterator().next();
     }
 
     private static class AlterRecordTestSaverSource extends DocumentSaveTest.TestSaverSource {

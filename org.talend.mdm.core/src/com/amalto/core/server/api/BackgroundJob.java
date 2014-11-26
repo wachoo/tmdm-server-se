@@ -1,7 +1,7 @@
 package com.amalto.core.server.api;
 
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJOPK;
 import com.amalto.core.util.XtentisException;
 
 import java.util.Collection;

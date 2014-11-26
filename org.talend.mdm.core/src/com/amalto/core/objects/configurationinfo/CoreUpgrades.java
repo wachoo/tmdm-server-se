@@ -3,8 +3,6 @@ package com.amalto.core.objects.configurationinfo;
 import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.migration.AbstractMigrationTask;
 import com.amalto.core.migration.MigrationRepository;
-import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
-import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJOPK;
 import com.amalto.core.server.api.ConfigurationInfo;
 import com.amalto.core.util.Version;
 import com.amalto.core.util.XtentisException;

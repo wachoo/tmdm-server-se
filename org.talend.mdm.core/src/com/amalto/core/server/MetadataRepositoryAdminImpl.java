@@ -13,9 +13,9 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
+import com.amalto.core.objects.view.ViewPOJO;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;

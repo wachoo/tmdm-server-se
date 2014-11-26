@@ -34,4 +34,11 @@ public interface DataSource {
      * @param isShared <code>true</code> is data source is shared, <code>false</code> otherwise.
      */
     void setShared(boolean isShared);
+
+    /**
+     * Returns a copy of current {@link com.amalto.core.storage.datasource.DataSource datasource} suited for given parameters.
+     * @param container A MDM container name.
+     * @param revisionId A revision id (or <code>null</code> is not used).
+     */
+    DataSource transform(String container, String revisionId);
 }

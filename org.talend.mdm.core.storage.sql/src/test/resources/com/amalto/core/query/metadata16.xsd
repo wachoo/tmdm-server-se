@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">  
+  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>  
+  <xsd:complexType name="addr"> 
+    <xsd:all> 
+      <xsd:element maxOccurs="1" minOccurs="0" name="type" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="addr" type="xsd:string"/> 
+    </xsd:all> 
+  </xsd:complexType>  
+  <xsd:simpleType name="AUTO_INCREMENT"> 
+    <xsd:restriction base="xsd:string"/> 
+  </xsd:simpleType>  
+  <xsd:element name="DateTimeInKey"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="code" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="db1" type="xsd:dateTime"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="aaa" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="DateTimeInKey"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="db1"/>  
+      <xsd:field xpath="code"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="DateInKey"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="name" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="date1" type="xsd:date"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="DateInKey"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="date1"/>  
+      <xsd:field xpath="id"/> 
+    </xsd:unique> 
+  </xsd:element> 
+</xsd:schema>

@@ -3,7 +3,7 @@ package com.amalto.core.delegator.impl;
 import java.util.ArrayList;
 
 import com.amalto.core.delegator.IItemCtrlDelegator;
-import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 
 

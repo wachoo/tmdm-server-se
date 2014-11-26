@@ -5,12 +5,12 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.objects.ObjectPOJOPK;
 import com.amalto.core.migration.AbstractMigrationTask;
 import com.amalto.core.server.api.Menu;
-import com.amalto.core.objects.menu.ejb.MenuEntryPOJO;
-import com.amalto.core.objects.menu.ejb.MenuPOJO;
-import com.amalto.core.objects.menu.ejb.MenuPOJOPK;
+import com.amalto.core.objects.menu.MenuEntryPOJO;
+import com.amalto.core.objects.menu.MenuPOJO;
+import com.amalto.core.objects.menu.MenuPOJOPK;
 import com.amalto.core.util.Util;
 
 public class UpdateItembrowserMenuEntryTask extends AbstractMigrationTask {

@@ -32,7 +32,8 @@ public interface DataSourceExtension {
      * 
      *
      * @param datasourceNode The XML node in the datasource configuration file to parse.
+     * @param name
      * @return A {@link com.amalto.core.storage.datasource.DataSource datasource} implementation.
      */
-    DataSource create(Node datasourceNode);
+    DataSource create(Node datasourceNode, String name);
 }

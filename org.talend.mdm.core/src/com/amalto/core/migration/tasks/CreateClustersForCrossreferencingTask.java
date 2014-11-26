@@ -1,10 +1,10 @@
 package com.amalto.core.migration.tasks;
 
 import com.amalto.core.migration.AbstractMigrationTask;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.server.api.DataCluster;
 import com.amalto.core.server.api.DataModel;
 import com.amalto.core.util.Util;

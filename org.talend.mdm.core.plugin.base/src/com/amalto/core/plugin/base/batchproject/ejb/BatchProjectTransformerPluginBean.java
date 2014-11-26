@@ -1,14 +1,14 @@
 package com.amalto.core.plugin.base.batchproject.ejb;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.Plugin;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.Plugin;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.plugin.base.batchproject.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;

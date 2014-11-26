@@ -343,7 +343,7 @@ public interface XmlServer {
      *                                  limit
      * @return the XQuery in the native language of the database
      * @throws com.amalto.core.util.XtentisException
-     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
+     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
      */
     String getXtentisObjectsQuery(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName,
                                   String mainObjectRootElementName, ArrayList<String> viewableObjectElements,
@@ -371,7 +371,7 @@ public interface XmlServer {
      * @param withTotalCount            whether get totalCount
      * @return the XQuery in the native language of the database
      * @throws com.amalto.core.util.XtentisException
-     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).     *
+     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).     *
      */
     String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID,
                                   LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName,
@@ -398,7 +398,7 @@ public interface XmlServer {
      * @param spellThreshold               Spell check the whereItem if threshold is greater than zero. The setting is ignored is this
      *                                     not an item query.
      * @return the xquery in the native language of the db
-     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
+     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
      */
     String getItemsQuery(LinkedHashMap<String, String> conceptPatternsToRevisionID, LinkedHashMap<String, String> conceptPatternsToClusterName,
                          String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem,
@@ -425,7 +425,7 @@ public interface XmlServer {
      *                                     not an item query.
      * @param metaDataTypes                Additional information about element's types.
      * @return the xquery in the native language of the db
-     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
+     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
      */
     String getItemsQuery(LinkedHashMap<String, String> conceptPatternsToRevisionID,
                          LinkedHashMap<String, String> conceptPatternsToClusterName,
@@ -442,7 +442,7 @@ public interface XmlServer {
             throws XtentisException;
 
     /**
-     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
+     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
      */
     String getPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap<String, String[]> pivotWithKeys,
                               LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, String[] indexPaths,
@@ -450,7 +450,7 @@ public interface XmlServer {
                               int limit) throws XtentisException;
 
     /**
-     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
+     * @deprecated These method does not allow enough loose coupling with underlying storage (prefer {@link com.amalto.core.delegator.IItemCtrlDelegator#xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}).
      */
     String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXpaths, String FKXpath,
                                  String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID,

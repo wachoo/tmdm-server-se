@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import org.talend.mdm.webapp.base.server.util.Constants;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.webservice.WSGetItems;
 import com.amalto.core.webservice.WSGetItemsSort;
 import com.amalto.core.webservice.WSWhereCondition;

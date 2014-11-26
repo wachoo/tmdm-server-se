@@ -40,11 +40,6 @@
             <artifactId>relaxngDatatype</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <!-- 3rd party dependencies -->
         <dependency>

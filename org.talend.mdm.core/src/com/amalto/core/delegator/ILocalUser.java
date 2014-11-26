@@ -12,9 +12,9 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
-import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -29,9 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import javax.security.auth.Subject;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;

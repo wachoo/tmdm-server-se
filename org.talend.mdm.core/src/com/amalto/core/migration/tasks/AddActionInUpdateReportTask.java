@@ -2,7 +2,6 @@ package com.amalto.core.migration.tasks;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,8 +15,8 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.migration.AbstractMigrationTask;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.util.Util;
 
 public class AddActionInUpdateReportTask extends AbstractMigrationTask {

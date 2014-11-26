@@ -1,9 +1,9 @@
 package com.amalto.core.server;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
+import com.amalto.core.objects.view.ViewPOJO;
+import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 import com.amalto.core.server.api.View;

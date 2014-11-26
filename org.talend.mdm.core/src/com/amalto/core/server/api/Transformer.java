@@ -1,14 +1,14 @@
 package com.amalto.core.server.api;
 
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJOPK;
+import com.amalto.core.objects.transformers.TransformerV2POJO;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.util.TransformerCallBack;
+import com.amalto.core.objects.transformers.util.TransformerContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TypedContent;
+import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.util.XtentisException;
 
 import java.util.Collection;

@@ -11,29 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.webapp.openmdm</artifactId>
     <name>org.talend.mdm.webapp.openmdm</name>
-    <packaging>uberwar</packaging>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.4.10</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <descriptor>src/assemble/merge.xml</descriptor>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.talend.mdm</groupId>
-                        <artifactId>org.talend.mdm.webapp.core</artifactId>
-                        <classifier>lib</classifier>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
+    <packaging>war</packaging>
 
     <dependencies>
         <!-- Community and enterprise shared dependencies (web apps) -->

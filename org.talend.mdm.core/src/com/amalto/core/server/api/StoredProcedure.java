@@ -1,8 +1,8 @@
 package com.amalto.core.server.api;
 
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
-import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.storedprocedure.StoredProcedurePOJO;
+import com.amalto.core.objects.storedprocedure.StoredProcedurePOJOPK;
 import com.amalto.core.util.XtentisException;
 
 import java.util.Collection;

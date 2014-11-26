@@ -11,9 +11,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.plugin.base.version.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;

@@ -1,9 +1,9 @@
 package com.amalto.core.server;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.objects.routing.v2.ejb.*;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
+import com.amalto.core.objects.routing.*;
+import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.Util;

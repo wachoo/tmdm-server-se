@@ -26,13 +26,13 @@ import org.talend.mdm.service.calljob.CompiledParameters;
 import org.talend.mdm.service.calljob.ContextParam;
 import org.w3c.dom.Element;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.Service;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.Service;
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInvokeConfig;
 import com.amalto.core.jobox.component.MDMJobInvoker;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.api.Item;
 import com.amalto.core.util.Util;

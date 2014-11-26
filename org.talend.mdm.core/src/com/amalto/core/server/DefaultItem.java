@@ -2,21 +2,21 @@ package com.amalto.core.server;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.DroppedItemPOJOPK;
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.DroppedItemPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.integrity.FKIntegrityChecker;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.util.TransformerCallBack;
+import com.amalto.core.objects.transformers.util.TransformerContext;
+import com.amalto.core.objects.transformers.util.TypedContent;
+import com.amalto.core.objects.universe.UniversePOJO;
+import com.amalto.core.objects.view.ViewPOJO;
+import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -41,8 +41,6 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -74,7 +72,7 @@ public class DefaultItem implements Item {
     }
 
     /**
-     * updates a item taskId. Is equivalent to {@link #putItem(com.amalto.core.ejb.ItemPOJO, com.amalto.core.objects.datamodel.ejb.DataModelPOJO)}.
+     * updates a item taskId. Is equivalent to {@link #putItem(com.amalto.core.objects.ItemPOJO, com.amalto.core.objects.datamodel.DataModelPOJO)}.
      *
      * @param item The item to update
      * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
@@ -697,10 +695,10 @@ public class DefaultItem implements Item {
 
     /**
      * Extract results through a view and transform them using a transformer<br/>
-     * This call is asynchronous and results will be pushed via the passed {@link com.amalto.core.objects.transformers.v2.util.TransformerCallBack}
+     * This call is asynchronous and results will be pushed via the passed {@link com.amalto.core.objects.transformers.util.TransformerCallBack}
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
-     * @param context The {@link com.amalto.core.objects.transformers.v2.util.TransformerContext} contains the initial context and the transformer name
+     * @param context The {@link com.amalto.core.objects.transformers.util.TransformerContext} contains the initial context and the transformer name
      * @param globalCallBack The callback function called by the transformer when it completes a step
      * @param viewPOJOPK A filtering view
      * @param whereItem The condition
@@ -767,7 +765,7 @@ public class DefaultItem implements Item {
 
     /**
      * Extract results through a view and transform them using a transformer<br/>
-     * This call is asynchronous and results will be pushed via the passed {@link com.amalto.core.objects.transformers.v2.util.TransformerCallBack}
+     * This call is asynchronous and results will be pushed via the passed {@link com.amalto.core.objects.transformers.util.TransformerCallBack}
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param transformerPOJOPK The transformer to use
@@ -941,7 +939,7 @@ public class DefaultItem implements Item {
      * @param orderBy           A optional order by
      * @param direction         Direction for the order by.
      * @param returnCount       If true, returns total match count as first result.
-     * @return The equivalent of a {@link #xPathsSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)} using a
+     * @return The equivalent of a {@link #xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)} using a
      *         custom XPath as additional condition.
      * @throws com.amalto.core.util.XtentisException In case of MDM server error.
      */

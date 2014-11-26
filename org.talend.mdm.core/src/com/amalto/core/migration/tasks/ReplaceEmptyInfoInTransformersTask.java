@@ -1,11 +1,11 @@
 package com.amalto.core.migration.tasks;
 
-import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.migration.AbstractMigrationTask;
 import com.amalto.core.objects.configurationinfo.ConfigurationHelper;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
-import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
-import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
+import com.amalto.core.objects.transformers.TransformerV2POJO;
+import com.amalto.core.objects.transformers.util.TransformerProcessStep;
+import com.amalto.core.objects.transformers.util.TransformerVariablesMapping;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 import com.amalto.core.server.api.Transformer;

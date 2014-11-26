@@ -37,7 +37,7 @@ import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSGetItem;

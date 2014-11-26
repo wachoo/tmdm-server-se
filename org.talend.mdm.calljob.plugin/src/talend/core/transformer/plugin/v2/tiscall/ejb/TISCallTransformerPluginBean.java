@@ -1,13 +1,13 @@
 package talend.core.transformer.plugin.v2.tiscall.ejb;
 
-import com.amalto.core.ejb.Plugin;
+import com.amalto.core.objects.Plugin;
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInvokeConfig;
 import com.amalto.core.jobox.component.MDMJobInvoker;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.objects.transformers.util.TransformerContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.NotImplementedException;

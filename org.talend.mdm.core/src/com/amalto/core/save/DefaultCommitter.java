@@ -11,12 +11,12 @@
 
 package com.amalto.core.save;
 
-import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;

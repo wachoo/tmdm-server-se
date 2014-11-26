@@ -11,12 +11,12 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;

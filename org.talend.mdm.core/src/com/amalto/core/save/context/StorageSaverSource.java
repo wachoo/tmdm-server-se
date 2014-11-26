@@ -11,10 +11,10 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.DocumentSaverContext;

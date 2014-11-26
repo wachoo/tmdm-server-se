@@ -1,14 +1,14 @@
 package com.amalto.service.calltransformer.ejb;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.Service;
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
-import com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerGlobalContext;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.Service;
+import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.ActiveRoutingOrderV2POJOPK;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.util.TransformerContext;
+import com.amalto.core.objects.transformers.util.TransformerGlobalContext;
+import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringEscapeUtils;

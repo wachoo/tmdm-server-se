@@ -14,7 +14,7 @@ package com.amalto.core.load;
 import com.amalto.core.load.action.DefaultLoadAction;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.load.action.OptimizedLoadAction;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.servlet.LoadServlet;
 import junit.framework.TestCase;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;

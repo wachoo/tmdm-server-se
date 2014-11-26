@@ -2,7 +2,7 @@ package com.amalto.core.util;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.universe.UniversePOJO;
 
 import java.util.HashSet;
 

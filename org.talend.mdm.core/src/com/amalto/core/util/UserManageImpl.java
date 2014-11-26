@@ -19,7 +19,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 
 public class UserManageImpl extends UserManage {
 

@@ -14,18 +14,18 @@ package com.amalto.core.util;
 
 import com.amalto.core.server.StorageAdminImpl;
 import org.apache.commons.lang.StringUtils;
-import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.menu.ejb.MenuPOJO;
-import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO;
-import com.amalto.core.objects.storedprocedure.ejb.StoredProcedurePOJO;
-import com.amalto.core.objects.synchronization.ejb.SynchronizationPlanPOJO;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
+import com.amalto.core.objects.configurationinfo.ConfigurationInfoPOJO;
+import com.amalto.core.objects.customform.CustomFormPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.menu.MenuPOJO;
+import com.amalto.core.objects.role.RolePOJO;
+import com.amalto.core.objects.routing.RoutingRulePOJO;
+import com.amalto.core.objects.storedprocedure.StoredProcedurePOJO;
+import com.amalto.core.objects.synchronization.SynchronizationPlanPOJO;
+import com.amalto.core.objects.transformers.TransformerV2POJO;
+import com.amalto.core.objects.universe.UniversePOJO;
+import com.amalto.core.objects.view.ViewPOJO;
 import org.apache.log4j.Logger;
 
 public class DigestHelper {

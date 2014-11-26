@@ -12,11 +12,11 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import com.amalto.core.ejb.DroppedItemPOJO;
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
+import com.amalto.core.objects.DroppedItemPOJO;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.save.SaveException;
 import com.amalto.core.storage.DispatchWrapper;
 import com.amalto.xmlserver.interfaces.IWhereItem;

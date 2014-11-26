@@ -526,7 +526,7 @@ public class BrowseRecordsActionTest extends TestCase {
         Document doc = com.amalto.webapp.core.util.Util.parse(xml);
         String viewableXpath = "viewableBusinessElements";
         String searchableXpath = "searchableBusinessElements";
-        NodeList viewList = com.amalto.webapp.core.util.Util.getNodeList(doc.getDocumentElement(), viewableXpath);
+        NodeList viewList = com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(), viewableXpath);
         String viewables[] = new String[viewList.getLength()];
         for (int k = 0; k < viewList.getLength(); k++) {
             Node node = viewList.item(k);
@@ -534,7 +534,7 @@ public class BrowseRecordsActionTest extends TestCase {
             viewBean.addViewableXpath(node.getTextContent());
         }
         viewBean.setViewables(viewables);
-        NodeList searchList = com.amalto.webapp.core.util.Util.getNodeList(doc.getDocumentElement(), searchableXpath);
+        NodeList searchList = com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(), searchableXpath);
         WSView wsView = new WSView();
         String searchableElements[] = new String[searchList.getLength()];
         for (int i = 0; i < searchList.getLength(); i++) {

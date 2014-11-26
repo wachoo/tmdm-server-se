@@ -18,7 +18,6 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.hibernate.TypeMapping;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 
 public class DataRecord {
@@ -289,10 +288,6 @@ public class DataRecord {
                 }
             }
         }
-    }
-
-    public <T> T convert(DataRecordConverter<T> converter, TypeMapping mapping) {
-        return converter.convert(this, mapping);
     }
 
     public Set<FieldMetadata> getSetFields() {

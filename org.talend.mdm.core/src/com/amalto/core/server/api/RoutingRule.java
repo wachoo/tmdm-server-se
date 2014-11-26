@@ -3,29 +3,32 @@
  */
 package com.amalto.core.server.api;
 
+import com.amalto.core.objects.routing.RoutingRulePOJO;
+import com.amalto.core.objects.routing.RoutingRulePOJOPK;
+
 public interface RoutingRule  {
    /**
     * Creates or updates a menu
     */
-   public com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK putRoutingRule(com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO routingRule)
+   public RoutingRulePOJOPK putRoutingRule(RoutingRulePOJO routingRule)
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Get menu
     */
-   public com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO getRoutingRule(com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK pk)
+   public RoutingRulePOJO getRoutingRule(RoutingRulePOJOPK pk)
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Get a RoutingRule - no exception is thrown: returns null if not found
     */
-   public com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJO existsRoutingRule(com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK pk)
+   public RoutingRulePOJO existsRoutingRule(RoutingRulePOJOPK pk)
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**
     * Remove a RoutingRule
     */
-   public com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK removeRoutingRule(com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK pk)
+   public RoutingRulePOJOPK removeRoutingRule(RoutingRulePOJOPK pk)
       throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
    /**

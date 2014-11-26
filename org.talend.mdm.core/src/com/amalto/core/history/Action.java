@@ -71,13 +71,13 @@ public interface Action {
 
     /**
      * @return Returns the source of the modification.
-     * @see com.amalto.core.ejb.UpdateReportPOJO#getSource()
+     * @see com.amalto.core.objects.UpdateReportPOJO#getSource()
      */
     String getSource();
 
     /**
      * @return Returns the user who did the modification.
-     * @see com.amalto.core.ejb.UpdateReportPOJO#getUserName()
+     * @see com.amalto.core.objects.UpdateReportPOJO#getUserName()
      */
     String getUserName();
 

@@ -65,10 +65,6 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
-        </dependency>
         <!-- 3rd dependencies -->
         <dependency>
             <groupId>commons-io</groupId>

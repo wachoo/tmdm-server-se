@@ -12,11 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.server;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.history.DocumentTransformer;
 import com.amalto.core.history.EmptyDocument;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.server.DefaultItem;
 import com.amalto.core.server.api.Item;

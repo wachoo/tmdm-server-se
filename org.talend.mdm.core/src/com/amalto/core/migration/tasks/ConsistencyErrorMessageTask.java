@@ -8,10 +8,10 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.migration.AbstractMigrationTask;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.util.TransformerProcessStep;
-import com.amalto.core.objects.transformers.v2.util.TransformerVariablesMapping;
+import com.amalto.core.objects.transformers.TransformerV2POJO;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.util.TransformerProcessStep;
+import com.amalto.core.objects.transformers.util.TransformerVariablesMapping;
 import com.amalto.core.util.Util;
 
 // ============================================================================

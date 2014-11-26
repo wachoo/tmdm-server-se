@@ -12,7 +12,7 @@
 // ============================================================================
 package com.amalto.core.migration.tasks;
 
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.server.api.XmlServer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;

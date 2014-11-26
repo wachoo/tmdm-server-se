@@ -12,8 +12,8 @@
 package com.amalto.core.server.api;
 
 import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
-import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
-import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJOPK;
+import com.amalto.core.objects.configurationinfo.ConfigurationInfoPOJO;
+import com.amalto.core.objects.configurationinfo.ConfigurationInfoPOJOPK;
 import com.amalto.core.util.XtentisException;
 
 import java.util.Collection;

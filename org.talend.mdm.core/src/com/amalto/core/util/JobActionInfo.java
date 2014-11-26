@@ -2,7 +2,7 @@ package com.amalto.core.util;
 
 import java.io.Serializable;
 
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.universe.UniversePOJO;
 
 /**
  * @author bgrieder

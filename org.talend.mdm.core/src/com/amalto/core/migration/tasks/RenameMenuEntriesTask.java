@@ -1,9 +1,9 @@
 package com.amalto.core.migration.tasks;
 
-import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.migration.AbstractMigrationTask;
 import com.amalto.core.objects.configurationinfo.ConfigurationHelper;
-import com.amalto.core.objects.menu.ejb.MenuPOJO;
+import com.amalto.core.objects.menu.MenuPOJO;
 import com.amalto.core.server.api.Menu;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;

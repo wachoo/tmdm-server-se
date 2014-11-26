@@ -21,12 +21,11 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.dom4j.tree.DefaultElement;
-import org.talend.mdm.webapp.journal.server.service.JournalDBService;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 /**

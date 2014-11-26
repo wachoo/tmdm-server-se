@@ -12,18 +12,14 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
-import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.util.*;
-import com.amalto.core.webservice.*;
+import com.amalto.core.objects.customform.CustomFormPOJO;
+import com.amalto.core.objects.customform.CustomFormPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.*;
 import com.amalto.webapp.core.util.Util;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.sun.xml.xsom.*;
 import com.sun.xml.xsom.parser.XSOMParser;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -46,8 +42,6 @@ import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -63,7 +57,6 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.task.StagingConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
-import org.talend.mdm.webapp.base.client.model.*;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -103,14 +96,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.UpdateReportPOJO;
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.task.StagingConstants;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.FieldNotFoundException;
 import com.amalto.core.util.LocalUser;
@@ -159,20 +145,15 @@ import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOperator;
 import com.amalto.core.webservice.WSWhereOr;
 import com.amalto.core.webservice.WSXPathsSearch;
-import com.amalto.core.webservice.XtentisPort;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
-import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XmlUtil;
-import com.extjs.gxt.ui.client.Style.SortDir;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.parser.XSOMParser;
 
 /**
  * DOC Administrator class global comment. Detailled comment

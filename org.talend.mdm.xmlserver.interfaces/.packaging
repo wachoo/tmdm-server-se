@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configurations>
-<archive name="z.xtentis.MDM-xmlserver.jar" destination="" used="true" exploded="false">
-<folder prefix="" includes="**/*.class" excludes="" project="" projectLocation="bin" name="bin" location="bin" used="true"/>
-<file prefix="" project="" projectLocation="version.properties" name="version.properties" location="version.properties" used="true"/>
-<file prefix="" project="" projectLocation="RELEASE.NOTES" name="RELEASE.NOTES" location="RELEASE.NOTES" used="true"/>
-</archive>
-</configurations>

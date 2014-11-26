@@ -6,9 +6,9 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.migration.AbstractMigrationTask;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.util.Util;
 
 /**

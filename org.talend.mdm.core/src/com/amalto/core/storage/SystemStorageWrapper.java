@@ -39,7 +39,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;

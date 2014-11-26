@@ -109,11 +109,11 @@ public class UtilTest extends TestCase {
             Element root = Util.parse(results[i]).getDocumentElement();
             // recover keys
             String keys = "";
-            NodeList nodes = Util.getNodeList(root, "//i");
+            NodeList nodes = com.amalto.core.util.Util.getNodeList(root, "//i");
             if (nodes != null) {
                 // when isQueryFkList = false, SQL result:(result(<result><Name>test</Name><Id>1</Id></result>)
                 if (nodes.getLength() == 0) {
-                    nodes = Util.getNodeList(root, foreignKey.split("/")[1]); //$NON-NLS-1$
+                    nodes = com.amalto.core.util.Util.getNodeList(root, foreignKey.split("/")[1]); //$NON-NLS-1$
                 }
                 for (int j = 0; j < nodes.getLength(); j++) {
                     if (nodes.item(j) instanceof Element) {

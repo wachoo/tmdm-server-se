@@ -1,7 +1,7 @@
 package com.amalto.core.objects.configurationinfo.assemble;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
 import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;

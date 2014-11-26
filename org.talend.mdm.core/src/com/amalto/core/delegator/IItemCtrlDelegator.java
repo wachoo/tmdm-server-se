@@ -1,15 +1,15 @@
 package com.amalto.core.delegator;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.role.ejb.RolePOJOPK;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.role.RolePOJO;
+import com.amalto.core.objects.role.RolePOJOPK;
+import com.amalto.core.objects.universe.UniversePOJO;
+import com.amalto.core.objects.view.ViewPOJO;
+import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -500,10 +500,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             throw new XtentisException(e);
         }
         return resultsAsString;
-    }
-
-    protected Map<String, ArrayList<String>> getMetaTypes(IWhereItem fullWhere) throws Exception {
-        return Util.getMetaDataTypes(fullWhere);
     }
 
     /**

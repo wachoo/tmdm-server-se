@@ -26,11 +26,11 @@ import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.journal.server.ForeignKeyInfoTransformer;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
 
-import com.amalto.core.ejb.DroppedItemPOJO;
-import com.amalto.core.ejb.DroppedItemPOJOPK;
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.objects.DroppedItemPOJO;
+import com.amalto.core.objects.DroppedItemPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.DocumentHistory;
 import com.amalto.core.history.DocumentHistoryFactory;
@@ -39,7 +39,7 @@ import com.amalto.core.history.DocumentTransformer;
 import com.amalto.core.history.EmptyDocument;
 import com.amalto.core.history.ModificationMarker;
 import com.amalto.core.history.UniqueIdTransformer;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 

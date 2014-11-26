@@ -1,8 +1,8 @@
 package com.amalto.core.server;
 
-import com.amalto.core.ejb.DroppedItemPOJO;
-import com.amalto.core.ejb.DroppedItemPOJOPK;
-import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.DroppedItemPOJO;
+import com.amalto.core.objects.DroppedItemPOJOPK;
+import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 import com.amalto.core.server.api.DroppedItem;

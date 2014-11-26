@@ -2,7 +2,7 @@ package com.amalto.core.migration.tasks;
 
 import com.amalto.core.migration.AbstractMigrationTask;
 import com.amalto.core.objects.configurationinfo.ConfigurationHelper;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.universe.UniversePOJO;
 
 public class CreateUniverseClusterTask extends AbstractMigrationTask{
 

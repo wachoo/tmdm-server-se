@@ -1,6 +1,6 @@
 package com.amalto.core.storage;
 
-import com.amalto.core.storage.hibernate.CloseableIterator;
+import com.amalto.core.storage.CloseableIterator;
 import com.amalto.core.storage.record.DataRecord;
 
 import java.io.IOException;

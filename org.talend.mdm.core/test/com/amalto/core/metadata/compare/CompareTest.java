@@ -16,44 +16,24 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.query.StorageTestCase;
-import com.amalto.core.storage.SecuredStorage;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.query.StorageTestCase;
-import com.amalto.core.storage.SecuredStorage;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 @SuppressWarnings("nls")
 public class CompareTest extends TestCase {
 
-    private static Logger LOG = Logger.getLogger(StorageTestCase.class);
+    private static Logger LOG = Logger.getLogger(CompareTest.class);
 
     public void test1() throws Exception {
         MetadataRepository original = new MetadataRepository();
@@ -145,18 +125,6 @@ public class CompareTest extends TestCase {
     }
 
     public void test6_SystemDMs_CONF() throws Exception {
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
         ClassRepository repository = buildRepository();
         String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/CONF" };
         for (String model : models) {
@@ -185,24 +153,12 @@ public class CompareTest extends TestCase {
 
         assertEquals(54, diffResults.getActions().size());
 
-        ImpactAnalyzer analyzer = storage.getImpactAnalyzer();
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
         assertEquals(0, sort.size());
     }
 
     public void test6_SystemDMs_Reporting() throws Exception {
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
         ClassRepository repository = buildRepository();
         String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/Reporting" };
         for (String model : models) {
@@ -231,24 +187,12 @@ public class CompareTest extends TestCase {
 
         assertEquals(54, diffResults.getActions().size());
 
-        ImpactAnalyzer analyzer = storage.getImpactAnalyzer();
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
         assertEquals(0, sort.size());
     }
 
     public void test6_SystemDMs_PROVISIONING() throws Exception {
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
         ClassRepository repository = buildRepository();
         String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" };
         for (String model : models) {
@@ -275,24 +219,12 @@ public class CompareTest extends TestCase {
 
         assertEquals(54, diffResults.getActions().size());
 
-        ImpactAnalyzer analyzer = storage.getImpactAnalyzer();
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
         assertEquals(0, sort.size());
     }
 
     public void test6_SystemDMs_SearchTemplate() throws Exception {
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
         ClassRepository repository = buildRepository();
         String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/SearchTemplate" };
         for (String model : models) {
@@ -319,7 +251,7 @@ public class CompareTest extends TestCase {
 
         assertEquals(54, diffResults.getActions().size());
 
-        ImpactAnalyzer analyzer = storage.getImpactAnalyzer();
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
         assertEquals(0, sort.size());
     }

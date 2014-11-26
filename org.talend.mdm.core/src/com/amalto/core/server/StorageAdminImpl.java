@@ -13,8 +13,8 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.ejb.DroppedItemPOJO;
-import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.objects.DroppedItemPOJO;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.DispatchWrapper;
@@ -23,12 +23,10 @@ import com.amalto.core.storage.datasource.DataSourceDefinition;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceFactory;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.hibernate.HibernateStorage;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,8 +42,6 @@ public class StorageAdminImpl implements StorageAdmin {
     public static final String MATCH_RULE_POJO_CLASS = "com.amalto.core.storage.task.config.MatchRulePOJO"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(StorageAdminImpl.class);
-
-    private static final String JCA_ADAPTER_DATA_MODEL = "jcaAdapter.xsd"; //$NON-NLS-1$
 
     /**
      * Default datasource name to be used for user/master data (from datasources configuration content).
@@ -213,9 +209,9 @@ public class StorageAdminImpl implements StorageAdmin {
             }
         }
         // Init system storage
-        Storage storage = new HibernateStorage(SYSTEM_STORAGE, StorageType.SYSTEM);
         ServerContext instance = ServerContext.INSTANCE;
         DataSourceDefinition dataSource = instance.get().getDefinition(dataSourceName, SYSTEM_STORAGE);
+        Storage storage = instance.getLifecycle().createStorage(SYSTEM_STORAGE, StorageType.SYSTEM, dataSource);
         storage.init(dataSource);
         storage.prepare(repository, Collections.<Expression>emptySet(), false, false);
         registerStorage(SYSTEM_STORAGE, StringUtils.EMPTY, storage);
@@ -241,41 +237,6 @@ public class StorageAdminImpl implements StorageAdmin {
             return null;
         }
         // Create storage
-        if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(storageName)) {
-            if (definition.get(storageType) instanceof RDBMSDataSource) {
-                final RDBMSDataSource previousDataSource = (RDBMSDataSource) definition.get(storageType);
-                RDBMSDataSource overriddenDataSource = new RDBMSDataSource(previousDataSource) {
-                    @Override
-                    public boolean supportFullText() {
-                        if (LOGGER.isDebugEnabled() && super.supportFullText()) {
-                            LOGGER.debug("Disabling full text for update report storage.");
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public boolean isShared() {
-                        return previousDataSource.isShared();
-                    }
-
-                    @Override
-                    public void setShared(boolean isShared) {
-                        previousDataSource.setShared(isShared);
-                    }
-                };
-                switch (storageType) {
-                    case MASTER:
-                        definition = new DataSourceDefinition(overriddenDataSource, definition.getStaging(), definition.getSystem());
-                        break;
-                    case STAGING:
-                        definition = new DataSourceDefinition(definition.getMaster(), overriddenDataSource, definition.getSystem());
-                        break;
-                    case SYSTEM:
-                        definition = new DataSourceDefinition(definition.getMaster(), definition.getStaging(), overriddenDataSource);
-                        break;
-                }
-            }
-        }
         Storage dataModelStorage = instance.getLifecycle().createStorage(storageName, storageType, definition);
         MetadataRepositoryAdmin metadataRepositoryAdmin = instance.get().getMetadataRepositoryAdmin();
         boolean hasDataModel = metadataRepositoryAdmin.exist(dataModelName);
@@ -387,12 +348,9 @@ public class StorageAdminImpl implements StorageAdmin {
             return getRegisteredStorage(SYSTEM_STORAGE, StorageType.SYSTEM, null);
         }
         if (storage == null) {
-            // May get request for "StorageName/Concept", but for SQL it does not make any sense.
+            // May get request for "StorageName/Concept" (especially in case of XML DB -> SQL migration).
             cleanedStorageName = StringUtils.substringBefore(cleanedStorageName, "/"); //$NON-NLS-1$
             storage = getRegisteredStorage(cleanedStorageName, type, revisionId);
-            if (storage != null && !(storage.getDataSource() instanceof RDBMSDataSource)) {
-                throw new IllegalStateException("Expected a SQL storage for '" + storageName + "' but got a '" + storage.getClass().getName() + "'.");
-            }
         }
         if (storage == null && supportStaging(cleanedStorageName) && !isHead(revisionId)) {
             LOGGER.info("Container '" + cleanedStorageName + "' does not exist in revision '" + revisionId + "', creating it.");

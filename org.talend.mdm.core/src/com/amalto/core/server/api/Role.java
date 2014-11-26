@@ -3,13 +3,16 @@
  */
 package com.amalto.core.server.api;
 
+import com.amalto.core.objects.role.RolePOJO;
+import com.amalto.core.objects.role.RolePOJOPK;
+
 public interface Role {
     /**
      * Creates or updates a Role
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.objects.role.ejb.RolePOJOPK putRole(com.amalto.core.objects.role.ejb.RolePOJO role)
+    public RolePOJOPK putRole(RolePOJO role)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -17,7 +20,7 @@ public interface Role {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.objects.role.ejb.RolePOJO getRole(com.amalto.core.objects.role.ejb.RolePOJOPK pk)
+    public RolePOJO getRole(RolePOJOPK pk)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -25,7 +28,7 @@ public interface Role {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.objects.role.ejb.RolePOJO existsRole(com.amalto.core.objects.role.ejb.RolePOJOPK pk)
+    public RolePOJO existsRole(RolePOJOPK pk)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -33,7 +36,7 @@ public interface Role {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.objects.role.ejb.RolePOJOPK removeRole(com.amalto.core.objects.role.ejb.RolePOJOPK pk)
+    public RolePOJOPK removeRole(RolePOJOPK pk)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**

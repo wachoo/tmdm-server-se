@@ -32,7 +32,7 @@ import org.talend.mdm.webapp.recyclebin.shared.DroppedItemBeforeDeletingExceptio
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
 
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.util.BeforeDeletingErrorException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;

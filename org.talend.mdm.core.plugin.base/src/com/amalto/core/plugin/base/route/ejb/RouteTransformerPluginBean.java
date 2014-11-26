@@ -1,10 +1,10 @@
 package com.amalto.core.plugin.base.route.ejb;
 
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.Plugin;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.Plugin;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.plugin.base.route.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;

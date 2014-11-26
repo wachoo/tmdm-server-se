@@ -1,10 +1,10 @@
 package com.amalto.core.plugin.base.csvparser.ejb;
 
-import com.amalto.core.ejb.Plugin;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.objects.transformers.v2.util.TypedContent_Do_Not_Process;
+import com.amalto.core.objects.Plugin;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TypedContent;
+import com.amalto.core.objects.transformers.util.TypedContent_Do_Not_Process;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringEscapeUtils;

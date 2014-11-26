@@ -13,12 +13,12 @@
 package com.amalto.core.server;
 
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
-import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.role.ejb.RolePOJOPK;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
+import com.amalto.core.objects.customform.CustomFormPOJO;
+import com.amalto.core.objects.customform.CustomFormPOJOPK;
+import com.amalto.core.objects.role.RolePOJO;
+import com.amalto.core.objects.role.RolePOJOPK;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.RoleSpecification;
 import com.amalto.core.util.XtentisException;

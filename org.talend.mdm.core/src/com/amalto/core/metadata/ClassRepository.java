@@ -11,7 +11,7 @@
 
 package com.amalto.core.metadata;
 
-import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.util.ArrayListHolder;
 import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.lang.StringUtils;

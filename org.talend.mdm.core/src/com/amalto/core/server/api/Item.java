@@ -4,7 +4,14 @@
 package com.amalto.core.server.api;
 
 import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.DroppedItemPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.universe.UniversePOJO;
+import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
@@ -19,7 +26,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.ejb.ItemPOJOPK putItem(com.amalto.core.ejb.ItemPOJO item, com.amalto.core.objects.datamodel.ejb.DataModelPOJO datamodel)
+    public ItemPOJOPK putItem(ItemPOJO item, DataModelPOJO datamodel)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -27,7 +34,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.ejb.ItemPOJOPK updateItemMetadata(com.amalto.core.ejb.ItemPOJO item)
+    public ItemPOJOPK updateItemMetadata(ItemPOJO item)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -35,7 +42,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.ejb.ItemPOJO getItem(com.amalto.core.ejb.ItemPOJOPK pk)
+    public ItemPOJO getItem(ItemPOJOPK pk)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -43,7 +50,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.ejb.ItemPOJO getItem(java.lang.String revisionID, com.amalto.core.ejb.ItemPOJOPK pk)
+    public ItemPOJO getItem(java.lang.String revisionID, ItemPOJOPK pk)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -51,7 +58,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public boolean isItemModifiedByOther(com.amalto.core.ejb.ItemPOJOPK item, long time)
+    public boolean isItemModifiedByOther(ItemPOJOPK item, long time)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -59,7 +66,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.ejb.ItemPOJO existsItem(com.amalto.core.ejb.ItemPOJOPK pk)
+    public ItemPOJO existsItem(ItemPOJOPK pk)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -67,7 +74,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.ejb.ItemPOJOPK deleteItem(com.amalto.core.ejb.ItemPOJOPK pk, boolean override)
+    public ItemPOJOPK deleteItem(ItemPOJOPK pk, boolean override)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -75,7 +82,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public int deleteItems(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem search, int spellThreshold, boolean override)
+    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem search, int spellThreshold, boolean override)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -83,7 +90,7 @@ public interface Item {
      *
      * @throws com.amalto.core.util.XtentisException
      */
-    public com.amalto.core.ejb.DroppedItemPOJOPK dropItem(com.amalto.core.ejb.ItemPOJOPK itemPOJOPK, java.lang.String partPath, boolean override)
+    public DroppedItemPOJOPK dropItem(ItemPOJOPK itemPOJOPK, java.lang.String partPath, boolean override)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -98,7 +105,7 @@ public interface Item {
      * @return The ordered list of results
      * @throws com.amalto.core.util.XtentisException
      */
-    public java.util.ArrayList viewSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, com.amalto.core.objects.view.ejb.ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, int start, int limit)
+    public java.util.ArrayList viewSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, int start, int limit)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -115,7 +122,7 @@ public interface Item {
      * @return The ordered list of results
      * @throws com.amalto.core.util.XtentisException
      */
-    public java.util.ArrayList viewSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, com.amalto.core.objects.view.ejb.ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
+    public java.util.ArrayList viewSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -189,7 +196,7 @@ public interface Item {
      * @return The number of items found
      * @throws com.amalto.core.util.XtentisException
      */
-    public long count(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold)
+    public long count(DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -207,7 +214,7 @@ public interface Item {
      * @return The ordered list of results
      * @throws com.amalto.core.util.XtentisException
      */
-    public java.util.ArrayList quickSearch(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, com.amalto.core.objects.view.ejb.ViewPOJOPK viewPOJOPK, java.lang.String searchValue, boolean matchAllWords, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
+    public java.util.ArrayList quickSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, java.lang.String searchValue, boolean matchAllWords, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -222,14 +229,14 @@ public interface Item {
      * @return The list of values
      * @throws com.amalto.core.util.XtentisException
      */
-    public java.util.ArrayList getFullPathValues(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, java.lang.String businessElementPath, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction)
+    public java.util.ArrayList getFullPathValues(DataClusterPOJOPK dataClusterPOJOPK, java.lang.String businessElementPath, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
      * Extract results thru a view and transform them using a transformer<br/> This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
-     * @param context           The {@link com.amalto.core.objects.transformers.v2.util.TransformerContext} containi the inital context and the transformer name
+     * @param context           The {@link com.amalto.core.objects.transformers.util.TransformerContext} containi the inital context and the transformer name
      * @param globalCallBack    The callback function called by the transformer when it completes a step
      * @param viewPOJOPK        A filtering view
      * @param whereItem         The condition
@@ -239,7 +246,7 @@ public interface Item {
      * @param start             The first item index (starts at zero)
      * @param limit             The maximum number of items to return
      */
-    public void extractUsingTransformerThroughView(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, com.amalto.core.objects.transformers.v2.util.TransformerContext context, com.amalto.core.objects.transformers.v2.util.TransformerCallBack globalCallBack, com.amalto.core.objects.view.ejb.ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
+    public void extractUsingTransformerThroughView(DataClusterPOJOPK dataClusterPOJOPK, com.amalto.core.objects.transformers.util.TransformerContext context, com.amalto.core.objects.transformers.util.TransformerCallBack globalCallBack, ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -255,21 +262,10 @@ public interface Item {
      * @param start             The first item index (starts at zero)
      * @param limit             The maximum number of items to return
      */
-    public com.amalto.core.objects.transformers.v2.util.TransformerContext extractUsingTransformerThroughView(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK transformerPOJOPK, com.amalto.core.objects.view.ejb.ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
+    public com.amalto.core.objects.transformers.util.TransformerContext extractUsingTransformerThroughView(DataClusterPOJOPK dataClusterPOJOPK, TransformerV2POJOPK transformerPOJOPK, ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
-    public java.util.ArrayList runQuery(java.lang.String revisionID, com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, java.lang.String query, java.lang.String[] parameters)
-            throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-
-    /**
-     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
-     *
-     * @param dataClusterPOJOPK
-     * @param universe
-     * @return A {@link java.util.Map} of concept names to revision IDs
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public java.util.Map getConceptsInDataCluster(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK)
+    public java.util.ArrayList runQuery(java.lang.String revisionID, DataClusterPOJOPK dataClusterPOJOPK, java.lang.String query, java.lang.String[] parameters)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -280,10 +276,21 @@ public interface Item {
      * @return A {@link java.util.Map} of concept names to revision IDs
      * @throws com.amalto.core.util.XtentisException
      */
-    public java.util.Map getConceptsInDataCluster(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, com.amalto.core.objects.universe.ejb.UniversePOJO universe)
+    public java.util.Map getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
-    public long countItemsByCustomFKFilters(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, java.lang.String injectedXpath)
+    /**
+     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
+     *
+     * @param dataClusterPOJOPK
+     * @param universe
+     * @return A {@link java.util.Map} of concept names to revision IDs
+     * @throws com.amalto.core.util.XtentisException
+     */
+    public java.util.Map getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK, UniversePOJO universe)
+            throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
+
+    public long countItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, java.lang.String injectedXpath)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     public java.util.ArrayList getItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, ArrayList<String> viewablePaths,
@@ -303,7 +310,7 @@ public interface Item {
      * @return The ordered list of results
      * @throws com.amalto.core.util.XtentisException
      */
-    public java.util.ArrayList getItems(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, int start, int limit, boolean totalCountOnFirstRow)
+    public java.util.ArrayList getItems(DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, int start, int limit, boolean totalCountOnFirstRow)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -320,7 +327,7 @@ public interface Item {
      * @return The ordered list of results
      * @throws com.amalto.core.util.XtentisException
      */
-    public java.util.ArrayList getItems(com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit, boolean totalCountOnFirstRow)
+    public java.util.ArrayList getItems(DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit, boolean totalCountOnFirstRow)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**

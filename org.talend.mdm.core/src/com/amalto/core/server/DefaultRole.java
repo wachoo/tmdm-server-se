@@ -1,9 +1,9 @@
 package com.amalto.core.server;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.objects.role.ejb.RolePOJO;
-import com.amalto.core.objects.role.ejb.RolePOJOPK;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
+import com.amalto.core.objects.role.RolePOJO;
+import com.amalto.core.objects.role.RolePOJOPK;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 import com.amalto.core.server.api.Role;

@@ -13,10 +13,10 @@
 
 package com.amalto.core.integrity;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;

@@ -45,21 +45,21 @@ public class TypedContent {
 		this.contentType = contentType;
 	}
 	
-	public static com.amalto.core.objects.transformers.v2.util.TypedContent getNewTypedContent(TypedContent oldContent) {
-    	com.amalto.core.objects.transformers.v2.util.TypedContent newContent = null;
+	public static com.amalto.core.objects.transformers.util.TypedContent getNewTypedContent(TypedContent oldContent) {
+    	com.amalto.core.objects.transformers.util.TypedContent newContent = null;
     	if (oldContent.getBytes() != null)
-    		newContent = new com.amalto.core.objects.transformers.v2.util.TypedContent(oldContent.getBytes(),oldContent.getContentType());
+    		newContent = new com.amalto.core.objects.transformers.util.TypedContent(oldContent.getBytes(),oldContent.getContentType());
     	else if (oldContent.getStream() != null) {
-    		newContent = new com.amalto.core.objects.transformers.v2.util.TypedContent(oldContent.getStream(),oldContent.getContentType());
+    		newContent = new com.amalto.core.objects.transformers.util.TypedContent(oldContent.getStream(),oldContent.getContentType());
     	}
     	return newContent;
 	}
 	
-	public static TypedContent getOldTypedContent(com.amalto.core.objects.transformers.v2.util.TypedContent newContent) throws IOException{
+	public static TypedContent getOldTypedContent(com.amalto.core.objects.transformers.util.TypedContent newContent) throws IOException{
     	TypedContent oldContent = new TypedContent();
    		oldContent.setStream(newContent.getContentStream());
    		//only fill the bytes if the source is actual bytes
-   		if (newContent.getContentSourceType() == com.amalto.core.objects.transformers.v2.util.TypedContent.SOURCE_BYTES)
+   		if (newContent.getContentSourceType() == com.amalto.core.objects.transformers.util.TypedContent.SOURCE_BYTES)
    			oldContent.setBytes(newContent.getContentBytes());
    		oldContent.setContentType(newContent.getContentType());
     	return oldContent;

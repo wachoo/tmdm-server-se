@@ -13,17 +13,16 @@
 
 package com.amalto.core.server.server;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-
 import com.amalto.core.server.*;
-import com.amalto.core.storage.transaction.TransactionManager;
-import org.apache.commons.lang.NotImplementedException;
-
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
+import com.amalto.core.storage.transaction.TransactionManager;
+import org.apache.commons.lang.NotImplementedException;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 
 @SuppressWarnings("nls")
 public class MockServer implements Server {

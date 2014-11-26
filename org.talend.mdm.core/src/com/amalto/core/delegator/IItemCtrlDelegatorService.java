@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.amalto.core.objects.view.ejb.ViewPOJO;
-import com.amalto.core.objects.view.ejb.ViewPOJOPK;
+import com.amalto.core.objects.view.ViewPOJO;
+import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.util.XtentisException;
 
 public interface IItemCtrlDelegatorService {

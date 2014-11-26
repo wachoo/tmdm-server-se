@@ -12,9 +12,9 @@
 package com.amalto.core.server.server;
 
 import com.amalto.core.query.user.Expression;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.apache.log4j.Logger;
 import com.amalto.core.server.MetadataRepositoryAdmin;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.io.InputStream;
 import java.util.Collections;

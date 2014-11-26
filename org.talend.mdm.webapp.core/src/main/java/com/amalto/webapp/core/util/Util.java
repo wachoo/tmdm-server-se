@@ -14,9 +14,9 @@ package com.amalto.webapp.core.util;
 
 import com.amalto.commons.core.utils.XMLUtils;
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.view.ejb.ViewPOJO;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.view.ViewPOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 import com.amalto.core.webservice.*;

@@ -12,7 +12,7 @@ package com.amalto.core.plugin.base.version.ejb.local;
  */
 public class VersionTransformerPluginSession
    extends com.amalto.core.plugin.base.version.ejb.VersionTransformerPluginBean
-   implements javax.ejb.SessionBean, com.amalto.core.objects.transformers.v2.util.TransformerPluginV2LocalInterface
+   implements javax.ejb.SessionBean, com.amalto.core.objects.transformers.util.TransformerPluginV2LocalInterface
 {
    public void ejbActivate() 
    {

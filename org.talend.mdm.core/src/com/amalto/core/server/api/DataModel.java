@@ -11,6 +11,9 @@
 
 package com.amalto.core.server.api;
 
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
+
 /**
  *
  */
@@ -19,25 +22,25 @@ public interface DataModel {
      * Creates or updates a DataModel
      * @throws com.amalto.core.util.XtentisException
      */
-    com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK putDataModel(com.amalto.core.objects.datamodel.ejb.DataModelPOJO dataModel) throws com.amalto.core.util.XtentisException;
+    DataModelPOJOPK putDataModel(DataModelPOJO dataModel) throws com.amalto.core.util.XtentisException;
 
     /**
      * Get Data Model
      * @throws com.amalto.core.util.XtentisException
      */
-    com.amalto.core.objects.datamodel.ejb.DataModelPOJO getDataModel(com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK pk) throws com.amalto.core.util.XtentisException;
+    DataModelPOJO getDataModel(DataModelPOJOPK pk) throws com.amalto.core.util.XtentisException;
 
     /**
      * Get a DataModel - no exception is thrown: returns null if not found
      * @throws com.amalto.core.util.XtentisException
      */
-    com.amalto.core.objects.datamodel.ejb.DataModelPOJO existsDataModel(com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK pk) throws com.amalto.core.util.XtentisException;
+    DataModelPOJO existsDataModel(DataModelPOJOPK pk) throws com.amalto.core.util.XtentisException;
 
     /**
      * Remove an Data Model
      * @throws com.amalto.core.util.XtentisException
      */
-    com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK removeDataModel(com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK pk) throws com.amalto.core.util.XtentisException;
+    DataModelPOJOPK removeDataModel(DataModelPOJOPK pk) throws com.amalto.core.util.XtentisException;
 
     /**
      * Retrieve all DataModel PKs
@@ -56,18 +59,18 @@ public interface DataModel {
      * @throws com.amalto.core.util.XtentisException
      * @return its name
      */
-    String putBusinessConceptSchema(com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK pk, String conceptSchemaString) throws com.amalto.core.util.XtentisException;
+    String putBusinessConceptSchema(DataModelPOJOPK pk, String conceptSchemaString) throws com.amalto.core.util.XtentisException;
 
     /**
      * Delete a Business Concept
      * @throws com.amalto.core.util.XtentisException
      * @return its name
      */
-    String deleteBusinessConcept(com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK pk, String businessConceptName) throws com.amalto.core.util.XtentisException;
+    String deleteBusinessConcept(DataModelPOJOPK pk, String businessConceptName) throws com.amalto.core.util.XtentisException;
 
     /**
      * Find all Business Concepts names
      * @throws com.amalto.core.util.XtentisException
      */
-    String[] getAllBusinessConceptsNames(com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK pk) throws com.amalto.core.util.XtentisException;
+    String[] getAllBusinessConceptsNames(DataModelPOJOPK pk) throws com.amalto.core.util.XtentisException;
 }

@@ -3,6 +3,8 @@
  */
 package com.amalto.core.util;
 
+import com.amalto.core.objects.ItemPOJOPK;
+
 import java.io.Serializable;
 
 /**
@@ -51,7 +53,7 @@ public interface ServiceCtrlLocalBI
     * To be implemented Runs the service. The item receieved in an XML String
     * @throws XtentisException
     */
-   public java.lang.String receiveFromInbound( com.amalto.core.ejb.ItemPOJOPK itemPK,java.lang.String routingOrderID,java.lang.String parameters ) throws com.amalto.core.util.XtentisException;
+   public java.lang.String receiveFromInbound( ItemPOJOPK itemPK,java.lang.String routingOrderID,java.lang.String parameters ) throws com.amalto.core.util.XtentisException;
 
    /**
     * Configuration received from outbound, typically a portlet The default implementation stores the configuration string "as is"

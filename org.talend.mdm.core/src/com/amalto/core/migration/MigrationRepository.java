@@ -14,8 +14,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ObjectPOJO;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.util.Util;
 
 public class MigrationRepository{

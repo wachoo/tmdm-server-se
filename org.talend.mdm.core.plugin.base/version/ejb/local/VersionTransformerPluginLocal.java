@@ -11,7 +11,7 @@ package com.amalto.core.plugin.base.version.ejb.local;
  * @version ${version}
  */
 public interface VersionTransformerPluginLocal
-   extends javax.ejb.EJBLocalObject, com.amalto.core.objects.transformers.v2.util.TransformerPluginV2LocalInterface
+   extends javax.ejb.EJBLocalObject, com.amalto.core.objects.transformers.util.TransformerPluginV2LocalInterface
 {
 
 }

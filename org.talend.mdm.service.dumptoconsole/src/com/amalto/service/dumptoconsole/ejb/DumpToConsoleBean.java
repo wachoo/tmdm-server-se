@@ -1,7 +1,7 @@
 package com.amalto.service.dumptoconsole.ejb;
 
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.Service;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.Service;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;

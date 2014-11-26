@@ -9,7 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;

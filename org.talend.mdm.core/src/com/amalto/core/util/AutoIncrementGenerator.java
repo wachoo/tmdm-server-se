@@ -8,9 +8,9 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 
 /**
  * 

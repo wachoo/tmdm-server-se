@@ -30,10 +30,6 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.xmlserver.interfaces</artifactId>
-        </dependency>
         <!-- 3rd party dependencies -->
         <dependency>
             <groupId>log4j</groupId>

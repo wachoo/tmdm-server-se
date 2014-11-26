@@ -10,18 +10,7 @@
 
 package com.amalto.core.storage.datasource;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.*;
-
-import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.*;
-
+import com.amalto.core.server.api.DataSourceExtension;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -30,23 +19,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.server.api.DataSourceExtension;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.*;
 
 public class DataSourceFactory {
 
-    public static final String DB_DATASOURCES = "db.datasources"; //$NON-NLS-1$
+    public static final String             DB_DATASOURCES = "db.datasources"; //$NON-NLS-1$
 
-    private static final DataSourceFactory INSTANCE = new DataSourceFactory();
+    private static final DataSourceFactory INSTANCE       = new DataSourceFactory();
 
-    private static final Logger LOGGER = Logger.getLogger(DataSourceFactory.class);
+    private static final Logger            LOGGER         = Logger.getLogger(DataSourceFactory.class);
 
-    private static final String REVISION_PLACEHOLDER = "${revision}"; //$NON-NLS-1$
+    private static final XPath             xPath          = XPathFactory.newInstance().newXPath();
 
-    private static final String CONTAINER_PLACEHOLDER = "${container}"; //$NON-NLS-1$
-
-    private static final XPath xPath = XPathFactory.newInstance().newXPath();
-
-    private static DocumentBuilderFactory factory;
+    private static DocumentBuilderFactory  factory;
 
     private DataSourceFactory() {
         factory = DocumentBuilderFactory.newInstance();
@@ -54,73 +47,6 @@ public class DataSourceFactory {
 
     public static DataSourceFactory getInstance() {
         return INSTANCE;
-    }
-
-    private static void replacePlaceholder(DataSource dataSource, String placeholderName, String value) {
-        if (dataSource instanceof RDBMSDataSource) {
-            RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) dataSource;
-            // JDBC URL
-            String connectionURL = rdbmsDataSource.getConnectionURL();
-            String processedConnectionURL;
-            RDBMSDataSource.DataSourceDialect dialect = ((RDBMSDataSource) dataSource).getDialectName();
-            switch (dialect) {
-                case POSTGRES:
-                    // Postgres always creates lower case database name
-                    processedConnectionURL = connectionURL.replace(placeholderName, value).toLowerCase();
-                    break;
-                case MYSQL:
-                    // TMDM-6559: MySQL doesn't like '-' in database name
-                    processedConnectionURL = connectionURL.replace(placeholderName, value);
-                    if (processedConnectionURL.indexOf('-') > 0) {
-                        // Uses URI-based parsing to prevent replace of '-' in host name.
-                        URI uri = URI.create(processedConnectionURL.substring(5));
-                        if (uri.getPath().indexOf('-') > 0) {
-                            String previousURL = processedConnectionURL;
-                            processedConnectionURL = processedConnectionURL.replace(uri.getPath(), uri.getPath().replace('-', '_'));
-                            LOGGER.warn("JDBC URL '" + previousURL + "' contains character(s) not supported by MySQL (replaced with '" + processedConnectionURL + "' by MDM).");
-                        }
-                    }
-                    break;
-                case H2:
-                case ORACLE_10G:
-                case SQL_SERVER:
-                default: // default for all databases
-                    processedConnectionURL = connectionURL.replace(placeholderName, value);
-                    break;
-            }
-            rdbmsDataSource.setConnectionURL(processedConnectionURL);
-            // Database name
-            String databaseName = rdbmsDataSource.getDatabaseName();
-            String processedDatabaseName = databaseName.replace(placeholderName, value);
-            switch (dialect) {
-                case POSTGRES:
-                    // Postgres always creates lower case database name
-                    processedDatabaseName = processedDatabaseName.toLowerCase();
-                    break;
-                case MYSQL:
-                    if (processedDatabaseName.indexOf('-') > 0) {
-                        LOGGER.warn("Database name '" + processedDatabaseName + "' contains character(s) not supported by MySQL.");
-                    }
-                    processedDatabaseName = processedDatabaseName.replace('-', '_'); // TMDM-6559: MySQL doesn't like '-' in
-                    // database name
-                    break;
-                case H2:
-                case ORACLE_10G:
-                case SQL_SERVER:
-                case DB2:
-                default:
-                    // Nothing to do for other databases
-                    break;
-            }
-            rdbmsDataSource.setDatabaseName(processedDatabaseName);
-            // User name
-            rdbmsDataSource.setUserName(rdbmsDataSource.getUserName().replace(placeholderName, value));
-            // Advanced properties
-            Map<String, String> advancedProperties = rdbmsDataSource.getAdvancedProperties();
-            for (Map.Entry<String, String> entry : advancedProperties.entrySet()) {
-                advancedProperties.put(entry.getKey(), entry.getValue().replace(placeholderName, value));
-            }
-        }
     }
 
     private static synchronized InputStream readDataSourcesConfiguration() {
@@ -204,109 +130,43 @@ public class DataSourceFactory {
         }
     }
 
-    private static DataSource getDataSourceConfiguration(Node document, String name, String path) throws XPathExpressionException {
-        Node dataSource = (Node) evaluate(document, path, XPathConstants.NODE);
-        if (dataSource == null) {
-            return null;
-        }
-        String type = (String) evaluate(dataSource, "type", XPathConstants.STRING); //$NON-NLS-1$
-        if ("RDBMS".equals(type)) { //$NON-NLS-1$
-            String dialectName = (String) evaluate(dataSource, "rdbms-configuration/dialect", XPathConstants.STRING); //$NON-NLS-1$
-            String driverClassName = (String) evaluate(dataSource,
-                    "rdbms-configuration/connection-driver-class", XPathConstants.STRING); //$NON-NLS-1$
-            String connectionURL = (String) evaluate(dataSource, "rdbms-configuration/connection-url", XPathConstants.STRING); //$NON-NLS-1$
-            String userName = (String) evaluate(dataSource, "rdbms-configuration/connection-username", XPathConstants.STRING); //$NON-NLS-1$
-            String password = (String) evaluate(dataSource, "rdbms-configuration/connection-password", XPathConstants.STRING); //$NON-NLS-1$
-            int connectionPoolMinSize = ((Double) evaluate(dataSource,
-                    "rdbms-configuration/connection-pool-minsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
-            int connectionPoolMaxSize = ((Double) evaluate(dataSource,
-                    "rdbms-configuration/connection-pool-maxsize", XPathConstants.NUMBER)).intValue(); //$NON-NLS-1$
-            String indexDirectory = (String) evaluate(dataSource,
-                    "rdbms-configuration/fulltext-index-directory", XPathConstants.STRING); //$NON-NLS-1$
-            String cacheDirectory = (String) evaluate(dataSource, "rdbms-configuration/cache-directory", XPathConstants.STRING); //$NON-NLS-1$
-            String caseSensitivity = (String) evaluate(dataSource,
-                    "rdbms-configuration/case-sensitive-search", XPathConstants.STRING); //$NON-NLS-1$
-            Boolean caseSensitiveSearch = caseSensitivity == null || caseSensitivity.isEmpty()
-                    || Boolean.parseBoolean(caseSensitivity);
-            String schemaGeneration = (String) evaluate(dataSource,
-                    "rdbms-configuration/schema-generation", XPathConstants.STRING); //$NON-NLS-1$
-            if (schemaGeneration == null || schemaGeneration.isEmpty()) {
-                // Default value is "update".
-                schemaGeneration = "update"; //$NON-NLS-1$
-            }
-            String generateTechnicalFKAsString = (String) evaluate(dataSource,
-                    "rdbms-configuration/schema-technical-fk", XPathConstants.STRING); //$NON-NLS-1$
-            Boolean generateTechnicalFK;
-            if (generateTechnicalFKAsString == null || generateTechnicalFKAsString.isEmpty()) {
-                // Default value is "true" (enforce FK for technical FKs).
-                generateTechnicalFK = Boolean.TRUE;
-            } else {
-                generateTechnicalFK = Boolean.parseBoolean(generateTechnicalFKAsString);
-            }
-            Map<String, String> advancedProperties = new HashMap<String, String>();
-            NodeList properties = (NodeList) evaluate(dataSource,
-                    "rdbms-configuration/properties/property", XPathConstants.NODESET); //$NON-NLS-1$
-            for (int i = 0; i < properties.getLength(); i++) {
-                Node item = properties.item(i);
-                String propertyName = item.getAttributes().getNamedItem("name").getNodeValue(); //$NON-NLS-1$
-                String propertyValue = item.getTextContent();
-                advancedProperties.put(propertyName, propertyValue);
-            }
-            // Contains optimization
-            String containsOptimizationAsString = (String) evaluate(dataSource,
-                    "rdbms-configuration/contains-optimization", XPathConstants.STRING); //$NON-NLS-1$
-            RDBMSDataSource.ContainsOptimization containsOptimization = RDBMSDataSource.ContainsOptimization.FULL_TEXT;
-            if ("fulltext".equals(containsOptimizationAsString)) { //$NON-NLS-1$
-                containsOptimization = RDBMSDataSource.ContainsOptimization.FULL_TEXT;
-            } else if ("disabled".equals(containsOptimizationAsString)) { //$NON-NLS-1$
-                containsOptimization = RDBMSDataSource.ContainsOptimization.DISABLED;
-            } else if ("like".equals(containsOptimizationAsString)) { //$NON-NLS-1$
-                containsOptimization = RDBMSDataSource.ContainsOptimization.LIKE;
-            }
-            String initConnectionURL = (String) evaluate(dataSource,
-                    "rdbms-configuration/init/connection-url", XPathConstants.STRING); //$NON-NLS-1$
-            String initUserName = (String) evaluate(dataSource,
-                    "rdbms-configuration/init/connection-username", XPathConstants.STRING); //$NON-NLS-1$
-            String initPassword = (String) evaluate(dataSource,
-                    "rdbms-configuration/init/connection-password", XPathConstants.STRING); //$NON-NLS-1$
-            String databaseName = (String) evaluate(dataSource, "rdbms-configuration/init/database-name", XPathConstants.STRING); //$NON-NLS-1$
-            return new RDBMSDataSource(name, dialectName, driverClassName, userName, password, connectionPoolMinSize,
-                    connectionPoolMaxSize, indexDirectory, cacheDirectory, caseSensitiveSearch, schemaGeneration,
-                    generateTechnicalFK, advancedProperties, connectionURL, databaseName, containsOptimization, initPassword,
-                    initUserName, initConnectionURL);
-        } else {
-            // Invoke extensions for datasource extensions
-            ServiceLoader<DataSourceExtension> extensions = ServiceLoader.load(DataSourceExtension.class);
-            if (LOGGER.isDebugEnabled()) {
-                StringBuilder extensionsAsString = new StringBuilder();
-                int i = 0;
-                for (DataSourceExtension extension : extensions) {
-                    extensionsAsString.append(extension.getClass().getName()).append(' ');
-                    i++;
-                }
-                if (i == 0) {
-                    LOGGER.debug("No datasource extension found");
-                } else {
-                    LOGGER.debug("Found datasource extensions (" + i + " found): " + extensionsAsString);
-                }
-            }
-            for (DataSourceExtension extension : extensions) {
-                if (extension.accept(type)) {
-                    return extension.create(dataSource);
-                } else {
-                    LOGGER.debug("Extension '" + extension + "' is not eligible for datasource type '" + type + "'.");
-                }
-            }
-            throw new NotImplementedException("No support for type '" + type + "'.");
-        }
-    }
-
     private static Object evaluate(Node node, String expression, QName returnType) throws XPathExpressionException {
         XPathExpression result;
         synchronized (xPath) {
             result = xPath.compile(expression);
         }
         return result.evaluate(node, returnType);
+    }
+
+    private static DataSource getDataSourceConfiguration(Node document, String name, String path) throws XPathExpressionException {
+        Node dataSource = (Node) evaluate(document, path, XPathConstants.NODE);
+        if (dataSource == null) {
+            return null;
+        }
+        String type = (String) evaluate(dataSource, "type", XPathConstants.STRING); //$NON-NLS-1$
+        // Invoke extensions for datasource extensions
+        ServiceLoader<DataSourceExtension> extensions = ServiceLoader.load(DataSourceExtension.class);
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder extensionsAsString = new StringBuilder();
+            int i = 0;
+            for (DataSourceExtension extension : extensions) {
+                extensionsAsString.append(extension.getClass().getName()).append(' ');
+                i++;
+            }
+            if (i == 0) {
+                LOGGER.debug("No datasource extension found");
+            } else {
+                LOGGER.debug("Found datasource extensions (" + i + " found): " + extensionsAsString);
+            }
+        }
+        for (DataSourceExtension extension : extensions) {
+            if (extension.accept(type)) {
+                return extension.create(dataSource, name);
+            } else {
+                LOGGER.debug("Extension '" + extension + "' is not eligible for datasource type '" + type + "'.");
+            }
+        }
+        throw new NotImplementedException("No support for type '" + type + "'.");
     }
 
     public boolean hasDataSource(String dataSourceName) {
@@ -338,27 +198,7 @@ public class DataSourceFactory {
         if (dataSource == null) {
             throw new IllegalArgumentException("Data source '" + dataSourceName + "' can not be found in configuration.");
         }
-        // Additional post parsing (replace potential ${container} with container parameter value).
-        replacePlaceholder(dataSource.getMaster(), CONTAINER_PLACEHOLDER, container);
-        // TMDM-6527: Call this for lower case processing.
-        replacePlaceholder(dataSource.getSystem(), CONTAINER_PLACEHOLDER, StringUtils.EMPTY);
-        if (dataSource.hasStaging()) {
-            replacePlaceholder(dataSource.getStaging(), CONTAINER_PLACEHOLDER, container);
-        }
-        if (revisionId != null && !"HEAD".equals(revisionId)) { //$NON-NLS-1$
-            // Additional post parsing (replace potential ${revision} with revision id parameter value).
-            replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, revisionId);
-            if (dataSource.hasStaging()) {
-                replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, revisionId);
-            }
-        } else {
-            // Additional post parsing (replace potential ${revision} with revision id parameter value).
-            replacePlaceholder(dataSource.getMaster(), REVISION_PLACEHOLDER, StringUtils.EMPTY);
-            if (dataSource.hasStaging()) {
-                replacePlaceholder(dataSource.getStaging(), REVISION_PLACEHOLDER, StringUtils.EMPTY);
-            }
-        }
-        return dataSource;
+        return dataSource.transform(container, revisionId);
     }
 
 }

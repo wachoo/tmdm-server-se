@@ -3,7 +3,10 @@
  */
 package com.amalto.core.server.api;
 
-import com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.ActiveRoutingOrderV2POJO;
+import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.util.XtentisException;
 
 public interface RoutingOrder {
@@ -11,67 +14,67 @@ public interface RoutingOrder {
     * Executes a Routing Order now
     * @throws com.amalto.core.util.XtentisException
     */
-   public String executeSynchronously(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
+   public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
 
    /**
     * Executes a Routing Order now
     * @throws com.amalto.core.util.XtentisException
     */
-   public String executeSynchronously(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder) throws XtentisException;
+   public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder) throws XtentisException;
 
    /**
     * Executes a Routing Order now in a particular universe
     * @throws com.amalto.core.util.XtentisException
     */
-   public String executeSynchronously(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder, com.amalto.core.objects.universe.ejb.UniversePOJO universePOJO) throws XtentisException;
+   public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder, UniversePOJO universePOJO) throws XtentisException;
 
    /**
     * Executes a Routing Order in delay milliseconds
     * @throws com.amalto.core.util.XtentisException
     */
-   public void executeAsynchronously(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO, long delayInMillis) throws XtentisException;
+   public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, long delayInMillis) throws XtentisException;
 
    /**
     * Executes a Routing Order in default DELAY milliseconds
     * @throws com.amalto.core.util.XtentisException
     */
-   public void executeAsynchronously(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
+   public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
 
    /**
     * Remove an item
     * @throws com.amalto.core.util.XtentisException
     */
-   public com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK removeRoutingOrder(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
+   public AbstractRoutingOrderV2POJOPK removeRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
 
    /**
     * Creates or updates a Transformer
     * @throws com.amalto.core.util.XtentisException
     */
-   public com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK putRoutingOrder(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
+   public AbstractRoutingOrderV2POJOPK putRoutingOrder(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
 
    /**
     * Get Routing Order
     * @throws com.amalto.core.util.XtentisException
     */
-   public com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO getRoutingOrder(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
+   public AbstractRoutingOrderV2POJO getRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
 
    /**
     * Get a RoutingOrder knowing its class - no exception is thrown: returns null if not found
     * @throws com.amalto.core.util.XtentisException
     */
-   public com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJO existsRoutingOrder(com.amalto.core.objects.routing.v2.ejb.AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
+   public AbstractRoutingOrderV2POJO existsRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
 
    /**
     * Find Active Routing Orders
     * @throws com.amalto.core.util.XtentisException
     */
-   public com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO[] findActiveRoutingOrders(long lastScheduledTime, int maxRoutingOrders) throws XtentisException;
+   public ActiveRoutingOrderV2POJO[] findActiveRoutingOrders(long lastScheduledTime, int maxRoutingOrders) throws XtentisException;
 
    /**
     * Find Dead Routing Orders
     * @throws com.amalto.core.util.XtentisException
     */
-   public com.amalto.core.objects.routing.v2.ejb.ActiveRoutingOrderV2POJO[] findDeadRoutingOrders(long maxLastRunStartedTime, int maxRoutingOrders) throws XtentisException;
+   public ActiveRoutingOrderV2POJO[] findDeadRoutingOrders(long maxLastRunStartedTime, int maxRoutingOrders) throws XtentisException;
 
    /**
     * Retrieve all Active Routing Order PKs

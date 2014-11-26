@@ -14,17 +14,16 @@ package com.amalto.core.util;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.IXtentisWSDelegator;
-import com.amalto.core.ejb.*;
 import com.amalto.core.jobox.JobContainer;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.util.TransformerCallBack;
-import com.amalto.core.objects.transformers.v2.util.TransformerContext;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
-import com.amalto.core.schema.manage.SchemaCoreAgent;
+import com.amalto.core.objects.*;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.util.TransformerCallBack;
+import com.amalto.core.objects.transformers.util.TransformerContext;
+import com.amalto.core.objects.transformers.util.TypedContent;
+import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.server.*;
 import com.amalto.core.webservice.WSMDMJob;
 import com.amalto.core.webservice.WSVersion;
@@ -47,8 +46,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
-import org.talend.mdm.commmon.util.datamodel.management.SchemaManager;
 import com.amalto.core.server.api.*;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
@@ -1451,51 +1448,6 @@ public class Util {
             }
         }
         return null;
-    }
-
-    public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem) throws Exception {
-        return getMetaDataTypes(whereItem, null);
-    }
-
-    // FIXME: Seems it is useless to set an ArrayList for each xpath
-    public static Map<String, ArrayList<String>> getMetaDataTypes(IWhereItem whereItem, SchemaManager schemaManager)
-            throws Exception {
-        HashMap<String, ArrayList<String>> metaDataTypes = new HashMap<String, ArrayList<String>>();
-
-        if (whereItem == null) {
-            return null;
-        }
-
-        // Get concepts from where conditions
-        Set<String> searchPaths = new HashSet<String>();
-        Util.getView(searchPaths, whereItem);
-
-        Set<String> concepts = new HashSet<String>();
-        for (String searchPath : searchPaths) {
-            concepts.add(searchPath.split("/")[0]);
-        }
-
-        // Travel concepts to parse metadata types
-        for (String conceptName : concepts) {
-            if (schemaManager == null) {
-                schemaManager = SchemaCoreAgent.getInstance();
-            }
-            BusinessConcept bizConcept = schemaManager.getBusinessConceptForCurrentUser(conceptName);
-            if (bizConcept == null) {
-                break;
-            }
-            bizConcept.load();
-            Map<String, String> xpathTypeMap = bizConcept.getXpathTypeMap();
-            for (String xpath : xpathTypeMap.keySet()) {
-                String elType = xpathTypeMap.get(xpath);
-                ArrayList<String> elTypeWrapper = new ArrayList<String>() {
-                };
-                elTypeWrapper.add(elType);
-                metaDataTypes.put(xpath, elTypeWrapper);
-            }
-        }
-
-        return metaDataTypes;
     }
 
     public static IWhereItem fixWebConditions(IWhereItem whereItem, String userXML) throws Exception {

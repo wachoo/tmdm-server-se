@@ -11,13 +11,13 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
-import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJO;
-import com.amalto.core.objects.configurationinfo.ejb.ConfigurationInfoPOJOPK;
+import com.amalto.core.objects.configurationinfo.ConfigurationInfoPOJO;
+import com.amalto.core.objects.configurationinfo.ConfigurationInfoPOJOPK;
 import com.amalto.core.objects.configurationinfo.CoreUpgrades;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;

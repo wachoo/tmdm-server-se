@@ -5,8 +5,8 @@ import java.util.Date;
 
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
 
 public class BAMLogger {
 

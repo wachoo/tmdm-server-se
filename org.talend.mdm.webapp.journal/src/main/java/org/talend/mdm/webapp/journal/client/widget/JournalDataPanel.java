@@ -27,7 +27,7 @@ import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
-import com.amalto.core.ejb.UpdateReportPOJO;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;

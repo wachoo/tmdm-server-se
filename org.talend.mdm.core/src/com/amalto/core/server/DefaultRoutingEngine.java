@@ -11,8 +11,8 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.routing.RoutingRulePOJOPK;
 import com.amalto.core.util.XtentisException;
 import com.amalto.core.server.api.RoutingEngine;
 

@@ -12,6 +12,7 @@
 // ============================================================================
 package com.amalto.core.ejb;
 
+import com.amalto.core.objects.ItemPOJO;
 import junit.framework.TestCase;
 
 import com.amalto.core.util.XtentisException;

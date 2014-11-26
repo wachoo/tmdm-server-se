@@ -1,16 +1,16 @@
 package com.amalto.core.server;
 
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.ejb.ObjectPOJO;
-import com.amalto.core.ejb.ObjectPOJOPK;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJO;
-import com.amalto.core.objects.backgroundjob.ejb.BackgroundJobPOJOPK;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJO;
-import com.amalto.core.objects.transformers.v2.ejb.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.v2.util.*;
-import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJOPK;
+import com.amalto.core.objects.transformers.TransformerV2POJO;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.transformers.util.*;
+import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.util.JobActionInfo;
 import com.amalto.core.util.LocalUser;
@@ -570,7 +570,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
      *****************************************************************/
 
     /**
-     * Implementation of {@link com.amalto.core.objects.transformers.v2.util.TransformerPluginCallBack#contentIsReady(com.amalto.core.objects.transformers.v2.util.TransformerPluginContext)}
+     * Implementation of {@link com.amalto.core.objects.transformers.util.TransformerPluginCallBack#contentIsReady(com.amalto.core.objects.transformers.util.TransformerPluginContext)}
      */
     @Override
     public void contentIsReady(TransformerPluginContext pluginContext) throws XtentisException {

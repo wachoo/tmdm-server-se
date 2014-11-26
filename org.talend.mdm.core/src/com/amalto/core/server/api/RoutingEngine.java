@@ -11,6 +11,9 @@
 
 package com.amalto.core.server.api;
 
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.routing.RoutingRulePOJOPK;
+
 /**
  *
  */
@@ -20,7 +23,7 @@ public interface RoutingEngine {
      * @return the list of routing rules PKs that matched
      * @throws com.amalto.core.util.XtentisException
      */
-    com.amalto.core.objects.routing.v2.ejb.RoutingRulePOJOPK[] route(com.amalto.core.ejb.ItemPOJOPK itemPOJOPK) throws com.amalto.core.util.XtentisException;
+    RoutingRulePOJOPK[] route(ItemPOJOPK itemPOJOPK) throws com.amalto.core.util.XtentisException;
 
     /**
      * Starts/restarts the router

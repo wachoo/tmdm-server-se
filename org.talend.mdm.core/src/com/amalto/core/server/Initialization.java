@@ -11,12 +11,11 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.DispatchWrapper;
 import com.amalto.core.storage.Storage;

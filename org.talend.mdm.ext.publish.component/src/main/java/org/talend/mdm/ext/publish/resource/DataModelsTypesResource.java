@@ -25,7 +25,7 @@ import org.restlet.resource.Variant;
 import org.talend.mdm.ext.publish.util.SchemaProcessor;
 import org.xml.sax.SAXException;
 
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.util.Util;
 
 /**

@@ -1,9 +1,9 @@
 package com.amalto.core.plugin.base.groovy.ejb;
 
-import com.amalto.core.ejb.Plugin;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.v2.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.v2.util.TypedContent;
+import com.amalto.core.objects.Plugin;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.plugin.base.groovy.CompiledParameters;
 import com.amalto.core.plugin.base.groovy.EmbedGroovy;
 import com.amalto.core.util.Util;

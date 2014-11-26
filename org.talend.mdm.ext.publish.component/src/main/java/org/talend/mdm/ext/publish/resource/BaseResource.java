@@ -9,8 +9,8 @@
  */
 package org.talend.mdm.ext.publish.resource;
 
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;

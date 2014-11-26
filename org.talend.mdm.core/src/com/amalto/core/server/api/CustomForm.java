@@ -1,7 +1,7 @@
 package com.amalto.core.server.api;
 
-import com.amalto.core.objects.customform.ejb.CustomFormPOJO;
-import com.amalto.core.objects.customform.ejb.CustomFormPOJOPK;
+import com.amalto.core.objects.customform.CustomFormPOJO;
+import com.amalto.core.objects.customform.CustomFormPOJOPK;
 import com.amalto.core.util.XtentisException;
 
 import java.util.Collection;
