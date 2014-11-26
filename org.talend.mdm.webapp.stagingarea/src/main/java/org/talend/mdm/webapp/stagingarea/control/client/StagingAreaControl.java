@@ -88,7 +88,6 @@ public class StagingAreaControl implements EntryPoint {
                                  };
                                  tabPanel.on("beforeremove", removeTabEvent);
                                  tabPanel.add(panel);
-                                 tabPanel.setSelection(itemId);
                                  tabPanel.setSelection(panel.getItemId());
                                  }
                                  }-*/;
