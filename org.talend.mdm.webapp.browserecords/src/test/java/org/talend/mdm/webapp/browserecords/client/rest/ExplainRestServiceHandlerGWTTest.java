@@ -42,7 +42,7 @@ public class ExplainRestServiceHandlerGWTTest extends GWTTestCase {
         assertEquals("1", treeNode1.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals("10aacd8a-5600-4ae8-afa3-2cd3c870ed7d", treeNode1.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
         assertEquals(1, treeNode1.get(StagingConstant.MATCH_GROUP_SZIE));
-        assertEquals("1", treeNode1.get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
+        assertEquals("100.00%", treeNode1.get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
         assertEquals("group1", treeNode1.get(StagingConstant.MATCH_GROUP_NAME)); //$NON-NLS-1$
         BaseTreeModel treeNode2 = (BaseTreeModel) treeNode1.getChild(0);
         assertEquals("1", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -67,7 +67,7 @@ public class ExplainRestServiceHandlerGWTTest extends GWTTestCase {
         assertEquals("1", treeNode1.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals("10aacd8a-5600-4ae8-afa3-2cd3c870ed7d", treeNode1.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
         assertEquals(1, treeNode1.get(StagingConstant.MATCH_GROUP_SZIE));
-        assertEquals("1", treeNode1.get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
+        assertEquals("100.00%", treeNode1.get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
         assertEquals("group1", treeNode1.get(StagingConstant.MATCH_GROUP_NAME)); //$NON-NLS-1$
         BaseTreeModel treeNode2 = (BaseTreeModel) treeNode1.getChild(0);
         assertEquals("1", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
