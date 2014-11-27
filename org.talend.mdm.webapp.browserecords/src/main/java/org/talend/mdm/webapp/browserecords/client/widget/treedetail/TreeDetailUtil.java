@@ -148,7 +148,7 @@ public class TreeDetailUtil {
     private static void initDetailPanel(ViewBean viewBean, ItemsDetailPanel panel, ItemPanel itemPanel, ItemBean item,
             String fromWhichApp, Boolean isFkToolBar, Boolean isHierarchyCall, boolean isStaging) {
         // TMDM-7760: if the itemPanel opened from Hierarchy, then set its toolBar's outMost to false
-        itemPanel.getToolBar().setOutMost("".equals(fromWhichApp) ? true : false); //$NON-NLS-1$
+        itemPanel.getToolBar().setOutMost(true);
         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
 
