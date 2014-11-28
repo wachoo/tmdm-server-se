@@ -1,20 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app
-    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd">
-
 <web-app>
-    <servlet>
-        <servlet-name>welcomeportalServlet</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>welcomeportalServlet</servlet-name>
-        <url-pattern>/welcomeportal/WelcomePortalService</url-pattern>
-    </servlet-mapping>
-
-    <welcome-file-list>
-        <welcome-file>WelcomePortal.html</welcome-file>
-    </welcome-file-list>
+    <!--
+    Intentionally left empty! This file is required by Maven build, but actual web.xml is a merged version of
+    all web.xml in various modules (see org.talend.mdm.webapp.openmdm)
+    -->
 </web-app>

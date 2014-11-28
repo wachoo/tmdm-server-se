@@ -26,6 +26,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.authentication.NullRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -35,6 +39,8 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
+
+import javax.servlet.http.HttpServletRequest;
 
 @EnableWebSecurity
 @Configuration
@@ -71,8 +77,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // Allow access on "auth/**" pages for authentication
+        http.authorizeRequests().antMatchers("/auth/**") //$NON-NLS-1
+                .permitAll();
         // All request must have 'authenticated' as role
-        FormLoginConfigurer<HttpSecurity> formLogin = http.authorizeRequests().antMatchers("/secure/**").hasAuthority(AUTHENTICATED_ROLE).and().formLogin();
-        formLogin.loginPage("/auth/login.jsp").usernameParameter("j_username").passwordParameter("j_password").defaultSuccessUrl("/secure"); //$NON-NLS-1$ //$NON-NLS-2$
+        http.authorizeRequests().antMatchers("/**") //$NON-NLS-1
+                .authenticated().and().formLogin().loginPage("/auth/login.jsp") //$NON-NLS-1
+                .usernameParameter("j_username") //$NON-NLS-1
+                .passwordParameter("j_password") //$NON-NLS-1
+                .defaultSuccessUrl("/index.html") //$NON-NLS-1$
+                .and().logout().logoutUrl("/auth/logout") //$NON-NLS-1
+                .logoutSuccessUrl("/"); //$NON-NLS-1
+        // Services access requires HTTP basic authentication (if not already authenticated).
+        // TODO Match "/" is applied *before* making this not used
+        http.authorizeRequests().antMatchers("/secure/services/**").hasAuthority(AUTHENTICATED_ROLE).and().httpBasic()
+                .realmName("Talend MDM");
+        // X-Frame-Options to SAMEORIGIN.
+        http.headers().addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN));
+        // TODO For tests only: disable CSRF to make POST requests work
+        http.csrf().disable();
     }
 }

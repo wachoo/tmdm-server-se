@@ -99,10 +99,6 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public WSStringArray xPathsSearch(WSXPathsSearch wsXPathsSearch) throws RemoteException;
 
-    public WSStringArray getItemsPivotIndex(WSGetItemsPivotIndex wsGetItemsPivotIndex) throws RemoteException;
-
-    public WSStringArray getChildrenItems(WSGetChildrenItems wsGetChildrenItems) throws RemoteException;
-
     public WSString count(WSCount wsCount) throws RemoteException;
 
     public WSStringArray quickSearch(WSQuickSearch wsQuickSearch) throws RemoteException;
@@ -167,8 +163,6 @@ public interface XtentisPort extends java.rmi.Remote {
     public WSTransformerPKArray getTransformerPKs(WSGetTransformerPKs regex) throws RemoteException;
 
     public WSTransformerPK putTransformer(WSPutTransformer wsTransformer) throws RemoteException;
-
-    public WSTransformerPK deleteTransformer(WSDeleteTransformer wsTransformerDelete) throws RemoteException;
 
     public WSPipeline processBytesUsingTransformer(WSProcessBytesUsingTransformer wsProcessBytesUsingTransformer)
             throws RemoteException;

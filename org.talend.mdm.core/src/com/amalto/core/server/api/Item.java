@@ -164,29 +164,6 @@ public interface Item {
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
-     * Get items hierarchical tree according to pivots
-     *
-     * @param clusterName     The Data Cluster where to run the query
-     * @param mainPivotName   The main Business Concept name
-     * @param pivotWithKeys   The pivots with their IDs which selected to be the catalog of the hierarchical tree
-     * @param indexPaths      The title as the content of each leaf node of the hierarchical tree
-     * @param whereItem       The condition
-     * @param pivotDirections One of ASC or DESC.
-     * @param indexDirections One of ASC or DESC.
-     * @param start           The first item index (starts at zero)
-     * @param limit           The maximum number of items to return
-     * @return The ordered list of results
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public java.util.ArrayList getItemsPivotIndex(String clusterName, String mainPivotName,
-                                                  LinkedHashMap<String, String[]> pivotWithKeys, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections,
-                                                  String[] indexDirections, int start, int limit)
-            throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-
-    public java.util.ArrayList getChildrenItems(java.lang.String clusterName, java.lang.String conceptName, java.lang.String[] PKXpaths, java.lang.String FKXpath, java.lang.String labelXpath, java.lang.String fatherPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int start, int limit)
-            throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-
-    /**
      * Count the items denoted by concept name meeting the optional condition whereItem
      *
      * @param dataClusterPOJOPK

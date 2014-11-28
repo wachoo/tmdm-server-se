@@ -92,7 +92,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
 
         if (null != itemNode.getDescription() && (itemNode.getDescription().trim().length() > 0) && xPath.indexOf("/") > -1) { //$NON-NLS-1$
             html = html
-                    + "<img style='margin-left:16px;' src='/talendmdm/secure/img/genericUI/information_icon.png' title='" + LabelUtil.convertSpecialHTMLCharacter(itemNode.getDescription()) + "' />"; //$NON-NLS-1$ //$NON-NLS-2$         
+                    + "<img style='margin-left:16px;' src='secure/img/genericUI/information_icon.png' title='" + LabelUtil.convertSpecialHTMLCharacter(itemNode.getDescription()) + "' />"; //$NON-NLS-1$ //$NON-NLS-2$
         }
         label.setHTML(html);
         this.add(label);
@@ -131,7 +131,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
 
         if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
-            addNodeImg = new Image("/talendmdm/secure/img/genericUI/add.png"); //$NON-NLS-1$
+            addNodeImg = new Image("secure/img/genericUI/add.png"); //$NON-NLS-1$
             addNodeImg.getElement().setId("Add"); //$NON-NLS-1$
             addNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
             addNodeImg.getElement().getStyle().setMarginLeft(20D, Unit.PX);
@@ -139,7 +139,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             if (!typeModel.isReadOnly()) {
                 addNodeImg.addClickHandler(handler);
             }
-            removeNodeImg = new Image("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
+            removeNodeImg = new Image("secure/img/genericUI/delete.png"); //$NON-NLS-1$
             removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
             removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
             removeNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
@@ -153,7 +153,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             this.add(removeNodeImg);
             this.setCellVerticalAlignment(removeNodeImg, VerticalPanel.ALIGN_BOTTOM);
             if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
-                cloneNodeImg = new Image("/talendmdm/secure/img/genericUI/add-group.png"); //$NON-NLS-1$
+                cloneNodeImg = new Image("secure/img/genericUI/add-group.png"); //$NON-NLS-1$
                 cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
                 cloneNodeImg.setTitle(MessagesFactory.getMessages().deepclone_title());
                 cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
@@ -166,7 +166,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         this.add(new Label()); // format placeholder, align icon on line
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
-        warnImg = new Image("/talendmdm/secure/img/genericUI/validateBadge.gif"); //$NON-NLS-1$ 
+        warnImg = new Image("secure/img/genericUI/validateBadge.gif"); //$NON-NLS-1$
         warnImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
         warnImg.setVisible(false);
         this.add(warnImg);
@@ -185,11 +185,11 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         if (removeNodeImg != null) {
             removeNodeImg.setVisible(true);
             if (isRemoveNode) {
-                removeNodeImg.setUrl("/talendmdm/secure/img/genericUI/delete.png"); //$NON-NLS-1$
+                removeNodeImg.setUrl("secure/img/genericUI/delete.png"); //$NON-NLS-1$
                 removeNodeImg.getElement().setId("Remove"); //$NON-NLS-1$
                 removeNodeImg.setTitle(MessagesFactory.getMessages().remove_title());
             } else {
-                removeNodeImg.setUrl("/talendmdm/secure/img/genericUI/clear-value.png"); //$NON-NLS-1$
+                removeNodeImg.setUrl("secure/img/genericUI/clear-value.png"); //$NON-NLS-1$
                 removeNodeImg.setTitle(MessagesFactory.getMessages().reset_value_title());
                 removeNodeImg.getElement().setId("Clear"); //$NON-NLS-1$
                 if (isFk) {

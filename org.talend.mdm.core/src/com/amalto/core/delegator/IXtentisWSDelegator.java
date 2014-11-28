@@ -510,37 +510,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public WSStringArray getItemsPivotIndex(WSGetItemsPivotIndex wsGetItemsPivotIndex) throws RemoteException {
-        try {
-            Collection res = Util.getItemCtrl2Local().getItemsPivotIndex(
-                    wsGetItemsPivotIndex.getClusterName(),
-                    wsGetItemsPivotIndex.getMainPivotName(),
-                    XConverter.WS2VO(wsGetItemsPivotIndex.getPivotWithKeys()),
-                    wsGetItemsPivotIndex.getIndexPaths().getStrings(),
-                    XConverter.WS2VO(wsGetItemsPivotIndex.getWhereItem()),
-                    wsGetItemsPivotIndex.getPivotDirections() == null ? null : wsGetItemsPivotIndex.getPivotDirections()
-                            .getStrings(),
-                    wsGetItemsPivotIndex.getIndexDirections() == null ? null : wsGetItemsPivotIndex.getIndexDirections()
-                            .getStrings(), wsGetItemsPivotIndex.getStart(), wsGetItemsPivotIndex.getLimit());
-            return new WSStringArray((String[]) res.toArray(new String[res.size()]));
-        } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
-    public WSStringArray getChildrenItems(WSGetChildrenItems wsGetChildrenItems) throws RemoteException {
-        try {
-            Collection res = Util.getItemCtrl2Local().getChildrenItems(wsGetChildrenItems.getClusterName(),
-                    wsGetChildrenItems.getConceptName(), wsGetChildrenItems.getPKXpaths().getStrings(),
-                    wsGetChildrenItems.getFKXpath(), wsGetChildrenItems.getLabelXpath(), wsGetChildrenItems.getFatherPK(),
-                    XConverter.WS2VO(wsGetChildrenItems.getWhereItem()), wsGetChildrenItems.getStart(),
-                    wsGetChildrenItems.getLimit());
-            return new WSStringArray((String[]) res.toArray(new String[res.size()]));
-        } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
     public WSString count(WSCount wsCount) throws RemoteException {
         try {
             String countPath = wsCount.getCountPath();

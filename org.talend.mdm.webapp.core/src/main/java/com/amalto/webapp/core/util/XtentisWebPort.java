@@ -335,16 +335,6 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSStringArray getItemsPivotIndex(WSGetItemsPivotIndex wsGetItemsPivotIndex) throws RemoteException {
-        return delegate.getItemsPivotIndex(wsGetItemsPivotIndex);
-    }
-
-    @Override
-    public WSStringArray getChildrenItems(WSGetChildrenItems wsGetChildrenItems) throws RemoteException {
-        return delegate.getChildrenItems(wsGetChildrenItems);
-    }
-
-    @Override
     public WSString count(WSCount wsCount) throws RemoteException {
         return delegate.count(wsCount);
     }
@@ -543,11 +533,6 @@ public class XtentisWebPort implements XtentisPort {
     @Override
     public WSTransformerPK putTransformer(WSPutTransformer wsTransformer) throws RemoteException {
         return delegate.putTransformer(wsTransformer);
-    }
-
-    @Override
-    public WSTransformerPK deleteTransformer(WSDeleteTransformer wsTransformerDelete) throws RemoteException {
-        return delegate.deleteTransformer(wsTransformerDelete);
     }
 
     @Override

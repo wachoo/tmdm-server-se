@@ -82,7 +82,7 @@ public class DataChart extends ChartPortlet {
     private void initChart() {
         String noDCAlertPrefix = "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" //$NON-NLS-1$
                 + MessagesFactory.getMessages().alerts_title() + "\">"; //$NON-NLS-1$
-        final String alertIcon = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
+        final String alertIcon = "<IMG SRC=\"secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
         final HTML alertHtml = new HTML();
         final StringBuilder noDCAlertMsg = new StringBuilder(noDCAlertPrefix);
 

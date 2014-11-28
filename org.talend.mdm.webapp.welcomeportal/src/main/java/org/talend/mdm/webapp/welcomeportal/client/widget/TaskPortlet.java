@@ -305,7 +305,7 @@ public class TaskPortlet extends BasePortlet {
     }
 
     private String buildMessageForWorkflowTasks(int num) {
-        StringBuilder message = new StringBuilder("<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$                                
+        StringBuilder message = new StringBuilder("<IMG SRC=\"secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$
         message.append(MessagesFactory.getMessages().waiting_task_prefix());
         message.append("&nbsp;<b style=\"color: red;\">"); //$NON-NLS-1$
         message.append(num);
@@ -316,7 +316,7 @@ public class TaskPortlet extends BasePortlet {
     }
 
     private String buildMessageForDSCTasks(Map<String, Integer> dscTasks) {
-        StringBuilder message = new StringBuilder("<IMG SRC=\"/talendmdm/secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$                                
+        StringBuilder message = new StringBuilder("<IMG SRC=\"secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$
         message.append(MessagesFactory.getMessages().waiting_task_prefix());
         message.append("&nbsp;<b style=\"color: red;\">"); //$NON-NLS-1$
         message.append(MessagesFactory.getMessages().waiting_dsctask(dscTasks.get(DSCTASKTYPE_NEW), dscTasks.get(DSCTASKTYPE_PENDING)));

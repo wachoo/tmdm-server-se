@@ -67,7 +67,7 @@ public class StartPortlet extends BasePortlet {
 
                 StringBuilder sb1 = new StringBuilder(
                         "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().browse_items() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-                sb1.append("<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
+                sb1.append("<IMG SRC=\"secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
                 sb1.append(MessagesFactory.getMessages().browse_items());
                 sb1.append("</span>"); //$NON-NLS-1$
                 HTML browseHtml = new HTML(sb1.toString());
@@ -82,7 +82,7 @@ public class StartPortlet extends BasePortlet {
                 set.add(browseHtml);
                 StringBuilder sb2 = new StringBuilder(
                         "<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().journal() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-                sb2.append("<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>&nbsp;"); //$NON-NLS-1$
+                sb2.append("<IMG SRC=\"secure/img/menu/updatereport.png\"/>&nbsp;"); //$NON-NLS-1$
                 sb2.append(MessagesFactory.getMessages().journal());
                 sb2.append("</span>"); //$NON-NLS-1$
                 HTML journalHtml = new HTML(sb2.toString());

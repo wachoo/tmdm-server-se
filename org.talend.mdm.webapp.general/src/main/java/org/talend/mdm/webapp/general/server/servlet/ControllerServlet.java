@@ -95,14 +95,14 @@ public class ControllerServlet extends HttpServlet {
         html.append("<title>Talend MDM</title>\n");
         html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>\n");
         html.append("<meta http-equiv='X-UA-Compatible' content='IE=8'>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='/secure/gxt/resources/css/gxt-all.css'/>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='/General.css'/>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='/General-menus.css'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='secure/gxt/resources/css/gxt-all.css'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='General.css'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='General-menus.css'/>\n");
         List<String> cssImports = Utils.getCssImport();
         for (String css : cssImports) {
             html.append(css);
         }
-        html.append("<script type='text/javascript' language='javascript' src='/general.nocache.js'></script>\n"); //$NON-NLS-1$
+        html.append("<script type='text/javascript' language='javascript' src='general/general.nocache.js'></script>\n"); //$NON-NLS-1$
         html.append(Utils.getCommonImport());
         List<String> imports = Utils.getJavascriptImport();
         for (String js : imports) {
@@ -121,9 +121,9 @@ public class ControllerServlet extends HttpServlet {
         html.append("<html>");
         html.append("<head>");
         html.append("<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'/>");
-        html.append("<link rel='stylesheet' type='text/css' href='/talendmdm/auth/loginPage.css'/>");
+        html.append("<link rel='stylesheet' type='text/css' href='/auth/loginPage.css'/>");
         html.append("<table width='100%' class='header1' border='0'>");
-        html.append("<tr><td height='128' width='50%' class='logo'><img src='/talendmdm/auth/logo.png'></td></tr>");
+        html.append("<tr><td height='128' width='50%' class='logo'><img src='/auth/logo.png'></td></tr>");
         html.append("<tr><td class='suiteName' id='suiteName' colspan='2' height='56'>Talend MDM</td></tr>");
         html.append("</table>");
         html.append("</head>");
@@ -134,7 +134,7 @@ public class ControllerServlet extends HttpServlet {
 
         html.append("<h3>").append(errorTitle).append("</h3>"); //$NON-NLS-1$ //$NON-NLS-2$
         html.append("<p><font size='4' color='red'>").append(message).append("</font></p>"); //$NON-NLS-1$ //$NON-NLS-2$
-        html.append("<a href='").append("/talendmdm/LogoutServlet'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        html.append("<a href='").append("/auth/logout'>").append(backLogin).append("</a>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
         html.append("</body>");
         html.append("</html>");

@@ -78,7 +78,7 @@ public class ProcessPortlet extends BasePortlet {
                 sb.append("<span id=\"processes"); //$NON-NLS-1$
                 sb.append(str);
                 sb.append("\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\">"); //$NON-NLS-1$
-                sb.append("<IMG SRC=\"/talendmdm/secure/img/genericUI/runnable_bullet.png\"/>&nbsp;"); //$NON-NLS-1$
+                sb.append("<IMG SRC=\"secure/img/genericUI/runnable_bullet.png\"/>&nbsp;"); //$NON-NLS-1$
                 sb.append(strDesc.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
                 sb.append("</span>"); //$NON-NLS-1$
                 processHtml.setHTML(sb.toString());

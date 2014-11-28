@@ -35,10 +35,7 @@ public interface IXmlServerSLWrapper {
 
     /** An XML document stored in the DB */
     public final static String TYPE_DOCUMENT = "DOCUMENT"; //$NON-NLS-1$
-    
-    /** A blob/bytes stored in the DB */
-    public final static String TYPE_BINARY = "BINARY"; //$NON-NLS-1$
-    
+
     /** Sort by ascending order in queries */
     public final static String ORDER_ASCENDING = "ascending"; //$NON-NLS-1$
     
@@ -46,23 +43,10 @@ public interface IXmlServerSLWrapper {
     public final static String ORDER_DESCENDING = "descending"; //$NON-NLS-1$
 
     
-    /***************************************************************************
-     * 
-     * LIFECYCLE
-     * 
-     **************************************************************************/
     /**
      * Is the XML Database Server up?
      */
     public boolean isUpAndRunning();
-    
-    
-
-    /***************************************************************************
-     * 
-     * C L U S T E R S
-     * 
-     **************************************************************************/
 
     /**
      * Get all clusters for a particular revision
@@ -107,15 +91,6 @@ public interface IXmlServerSLWrapper {
      * 
      */
     public long createCluster(String revisionID, String clusterName) throws XmlServerException;
-
-
-    
-    /***************************************************************************
-     * 
-     * D O C U M E N T S
-     * 
-     **************************************************************************/
-
     
     /**
      * Reads a document from a file and stores it in the DB 
@@ -155,13 +130,8 @@ public interface IXmlServerSLWrapper {
         String documentType
     ) throws XmlServerException;
     
-    /**
-     * 
-     * @param cluster
-     * @return
-     * @throws XmlServerException
-     */
     public boolean existCluster(String revision,String cluster)throws XmlServerException;
+    
     /**
      * Read a document from s String an store it in the DB as "DOCUMENT"
      * @param xmlString
@@ -275,7 +245,6 @@ public interface IXmlServerSLWrapper {
      */
     public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException;
     
-    
     /**
      * The list of documents unique ids in a cluster of a particular revision
      * 
@@ -287,7 +256,6 @@ public interface IXmlServerSLWrapper {
      * @throws XmlServerException
      */
     public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException;
-
     
     /**
      * Delete a document
@@ -301,7 +269,6 @@ public interface IXmlServerSLWrapper {
      * @throws XmlServerException
      */
     public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException;
-    
 
     /**
      * Delete Xtentis Objects matching a particular condition<br> 
@@ -322,7 +289,6 @@ public interface IXmlServerSLWrapper {
         String objectRootElementName,
         IWhereItem whereItem
     ) throws XmlServerException;
-
     
     /**
      * Delete Items matching a particular condition<br> 
@@ -347,23 +313,17 @@ public interface IXmlServerSLWrapper {
     
     /**
      * Move a document between two clusters of particular revision
-     * @param uniqueID
-     *          The unique ID of the document
-     * @param sourceclusterName
-     *          The unique ID of the source cluster
-     * @param sourceRevisionID
-     *          The ID of the source revision
-     * @param targetclusterName
-     *          The unique ID of the target cluster
-     * @param targetRevisionID
-     *          The ID of the target revision
+     * 
+     * @param uniqueID The unique ID of the document
+     * @param sourceclusterName The unique ID of the source cluster
+     * @param sourceRevisionID The ID of the source revision
+     * @param targetclusterName The unique ID of the target cluster
+     * @param targetRevisionID The ID of the target revision
      * @return the time to perform the move
      * @throws XmlServerException
      */
     public long moveDocumentById(String sourceRevisionID, String sourceclusterName, String uniqueID, String targetRevisionID, String targetclusterName) throws XmlServerException;
 
-
-    
     /**
      * Count Items based on conditions
      *
@@ -447,17 +407,6 @@ public interface IXmlServerSLWrapper {
     /**
      * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
      *
-     * @param conceptPatternsToRevisionID
-     * @param conceptPatternsToClusterName
-     * @param forceMainPivot
-     * @param viewableFullPaths
-     * @param whereItem
-     * @param orderBy
-     * @param direction
-     * @param start
-     * @param limit
-     * @param totalCountOnfirstRow
-     * @param metaDataTypes
      * @return the XQuery in the native language of the database
      * @throws XmlServerException
      * @deprecated

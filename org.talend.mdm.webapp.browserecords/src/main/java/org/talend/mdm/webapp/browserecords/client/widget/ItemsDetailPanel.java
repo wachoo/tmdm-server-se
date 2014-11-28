@@ -199,7 +199,7 @@ public class ItemsDetailPanel extends ContentPanel {
         String toolTipString = ""; //$NON-NLS-1$
         if (desc != null && !desc.equals("")) { //$NON-NLS-1$
             toolTipString = "<img style='margin-left:16px;' " + //$NON-NLS-1$
-                    "src='/talendmdm/secure/img/genericUI/information_icon.png' title='" //$NON-NLS-1$
+                    "src='secure/img/genericUI/information_icon.png' title='" //$NON-NLS-1$
                     + LabelUtil.convertSpecialHTMLCharacter(desc) + "'/>"; //$NON-NLS-1$ 
         }
         if (xpathList != null && xpathList.size() > 0) {

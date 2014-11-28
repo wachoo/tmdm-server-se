@@ -35,7 +35,6 @@ public class BeanDelegatorContainer {
     private static BeanDelegatorContainer instance;
 
     private BeanDelegatorContainer() {
-        init();
     }
 
     /**

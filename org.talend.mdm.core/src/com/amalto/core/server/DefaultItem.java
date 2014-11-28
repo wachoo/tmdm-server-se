@@ -319,7 +319,7 @@ public class DefaultItem implements Item {
     public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit) throws XtentisException {
         return BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
-                .viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, spellThreshold, orderBy, direction, start, limit);
+                .viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, orderBy, direction, start, limit);
 
     }
 
@@ -463,46 +463,6 @@ public class DefaultItem implements Item {
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
-    }
-
-    /**
-     * Get items hierarchical tree according to pivots
-     *
-     * @param clusterName The Data Cluster where to run the query
-     * @param mainPivotName The main Business Concept name
-     * @param pivotWithKeys The pivots with their IDs which selected to be the catalog of the hierarchical tree
-     * @param indexPaths The title as the content of each leaf node of the hierarchical tree
-     * @param whereItem The condition
-     * @param pivotDirections One of {@link com.amalto.xmlserver.interfaces.IXmlServerSLWrapper#ORDER_ASCENDING} or
-     * {@link com.amalto.xmlserver.interfaces.IXmlServerSLWrapper#ORDER_DESCENDING}
-     * @param indexDirections One of {@link com.amalto.xmlserver.interfaces.IXmlServerSLWrapper#ORDER_ASCENDING} or
-     * {@link com.amalto.xmlserver.interfaces.IXmlServerSLWrapper#ORDER_DESCENDING}
-     * @param start The first item index (starts at zero)
-     * @param limit The maximum number of items to return
-     * @return The ordered list of results
-     * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
-     */
-    public ArrayList<String> getItemsPivotIndex(String clusterName, String mainPivotName,
-            LinkedHashMap<String, String[]> pivotWithKeys, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections,
-            String[] indexDirections, int start, int limit) throws XtentisException {
-        return BeanDelegatorContainer
-                .getInstance()
-                .getItemCtrlDelegator()
-                .getItemsPivotIndex(clusterName, mainPivotName, pivotWithKeys, indexPaths, whereItem, pivotDirections,
-                        indexDirections, start, limit);
-    }
-
-    /**
-     * @param clusterName A data cluster name.
-     * @param conceptName A concept name
-     * @param start The first item index (starts at zero)
-     * @param limit The maximum number of items to return
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public ArrayList<String> getChildrenItems(String clusterName, String conceptName, String PKXpaths[], String FKXpath,
-            String labelXpath, String fatherPK, IWhereItem whereItem, int start, int limit) throws XtentisException {
-        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
-                .getChildrenItems(clusterName, conceptName, PKXpaths, FKXpath, labelXpath, fatherPK, whereItem, start, limit);
     }
 
     /**

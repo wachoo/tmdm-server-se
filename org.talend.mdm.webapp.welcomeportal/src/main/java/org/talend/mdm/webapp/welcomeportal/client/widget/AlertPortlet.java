@@ -28,7 +28,7 @@ public class AlertPortlet extends BasePortlet {
     private static String mesgPrefix = "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" //$NON-NLS-1$
             + MessagesFactory.getMessages().alerts_title() + "\">"; //$NON-NLS-1$
 
-    private static String alertIcon = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
+    private static String alertIcon = "<IMG SRC=\"secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
 
     private String linkData;
 

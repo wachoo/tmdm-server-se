@@ -39,6 +39,6 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         </jaxrs:serviceBeans>
     </jaxrs:server>
     <!-- Legacy services -->
-    <jaxws:endpoint implementor="com.amalto.core.server.lifecycle.tomcat.LegacyServices"
+    <jaxws:endpoint implementor="com.amalto.core.webservice.XtentisWSBean"
                     address="/datamanager"/>
 </beans>

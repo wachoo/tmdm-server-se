@@ -53,7 +53,7 @@ public class BrandingBar extends ContentPanel {
 
     private HTML versionLabel = new HTML();
 
-    private Image logoMdm = new Image("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
+    private Image logoMdm = new Image("secure/img/logo-mdm.png"); //$NON-NLS-1$
 
     private ListBox languageBox = new ListBox();
 
@@ -164,7 +164,7 @@ public class BrandingBar extends ContentPanel {
                     public void onSuccess(Void result) {
                         Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
                         Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
-                        setHref("/talendmdm/secure"); //$NON-NLS-1$
+                        setHref("secure"); //$NON-NLS-1$
                     }
                 });
 
@@ -181,7 +181,7 @@ public class BrandingBar extends ContentPanel {
             logoMdm.setUrl("/general/secure/img/branding/" + info.getProductKey() + "_header.png"); //$NON-NLS-1$//$NON-NLS-2$
             versionLabel.setHTML(""); //$NON-NLS-1$
         } else {
-            logoMdm.setUrl("/talendmdm/secure/img/logo-mdm.png"); //$NON-NLS-1$
+            logoMdm.setUrl("secure/img/logo-mdm.png"); //$NON-NLS-1$
             UserBean userBean = Registry.get(General.USER_BEAN);
             versionLabel.setHTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory
                     .getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
@@ -190,7 +190,7 @@ public class BrandingBar extends ContentPanel {
 
     private void buildBar() {
         UserBean userBean = Registry.get(General.USER_BEAN);
-        bar.add(new Image("/talendmdm/secure/img/header-back-title.png")); //$NON-NLS-1$
+        bar.add(new Image("secure/img/header-back-title.png")); //$NON-NLS-1$
         String html = userBean.getName() + "<br>"; //$NON-NLS-1$
         if (userBean.getUniverse() != null && userBean.getUniverse().trim().length() != 0
                 && !"UNKNOWN".equals(userBean.getUniverse())) { //$NON-NLS-1$

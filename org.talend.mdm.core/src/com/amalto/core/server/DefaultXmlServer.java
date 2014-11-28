@@ -22,7 +22,6 @@ import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -52,13 +51,6 @@ public class DefaultXmlServer implements XmlServer {
         }
     }
 
-    public boolean isUpAndRunning() {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("isUpAndRunning() "); //$NON-NLS-1$
-        }
-        return server.isUpAndRunning();
-    }
-
     public String[] getAllClusters(String revisionID) throws XtentisException {
         try {
             return server.getAllClusters(revisionID);
@@ -79,25 +71,9 @@ public class DefaultXmlServer implements XmlServer {
         }
     }
 
-    public long deleteAllclusterNames(String revisionID) throws XtentisException {
-        try {
-            return server.deleteAllClusters(revisionID);
-        } catch (XmlServerException e) {
-            throw new XtentisException(e);
-        }
-    }
-
     public long createCluster(String revisionID, String clusterName) throws XtentisException {
         try {
             return server.createCluster(revisionID, clusterName);
-        } catch (XmlServerException e) {
-            throw new XtentisException(e);
-        }
-    }
-
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XtentisException {
-        try {
-            return server.putDocumentFromFile(fileName, uniqueID, clusterName, revisionID);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -135,14 +111,6 @@ public class DefaultXmlServer implements XmlServer {
     ) throws XtentisException {
         try {
             return server.putDocumentFromString(string, uniqueID, clusterName, revisionID, documentType);
-        } catch (XmlServerException e) {
-            throw new XtentisException(e);
-        }
-    }
-
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID) throws XtentisException {
-        try {
-            return server.putDocumentFromDOM(root, uniqueID, clusterName, revisionID);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -211,19 +179,6 @@ public class DefaultXmlServer implements XmlServer {
         }
     }
 
-    public int deleteXtentisObjects(
-            HashMap<String, String> objectRootElementNameToRevisionID,
-            HashMap<String, String> objectRootElementNameToClusterName,
-            String objectRootElementName,
-            IWhereItem whereItem
-    ) throws XtentisException {
-        try {
-            return server.deleteXtentisObjects(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, objectRootElementName, whereItem);
-        } catch (XmlServerException e) {
-            throw new XtentisException(e);
-        }
-    }
-
     public int deleteItems(
             LinkedHashMap<String, String> conceptPatternsToRevisionID,
             LinkedHashMap<String, String> conceptPatternsToClusterName,
@@ -237,14 +192,6 @@ public class DefaultXmlServer implements XmlServer {
         }
     }
 
-    public long moveDocumentById(String sourceRevisionID, String sourceclusterName, String uniqueID, String targetRevisionID, String targetclusterName) throws XtentisException {
-        try {
-            return server.moveDocumentById(sourceRevisionID, sourceclusterName, uniqueID, targetRevisionID, targetclusterName);
-        } catch (XmlServerException e) {
-            throw new XtentisException(e);
-        }
-    }
-
     public long countItems(
             LinkedHashMap<String, String> conceptPatternsToRevisionID,
             LinkedHashMap<String, String> conceptPatternsToClusterName,
@@ -253,19 +200,6 @@ public class DefaultXmlServer implements XmlServer {
     ) throws XtentisException {
         try {
             return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
-        } catch (XmlServerException e) {
-            throw new XtentisException(e);
-        }
-    }
-
-    public long countXtentisObjects(
-            HashMap<String, String> objectRootElementNameToRevisionID,
-            HashMap<String, String> objectRootElementNameToClusterName,
-            String mainObjectRootElementName,
-            IWhereItem whereItem
-    ) throws XtentisException {
-        try {
-            return server.countXtentisObjects(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, whereItem);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -294,180 +228,6 @@ public class DefaultXmlServer implements XmlServer {
             return server.getItemPKsByCriteria(criteria);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
-        }
-    }
-
-    public String getXtentisObjectsQuery(
-            HashMap<String, String> objectRootElementNameToRevisionID,
-            HashMap<String, String> objectRootElementNameToClusterName,
-            String mainObjectRootElementName,
-            ArrayList<String> viewableObjectElements,
-            IWhereItem whereItem,
-            String orderBy,
-            String direction,
-            int start,
-            int limit
-    ) throws XtentisException {
-        try {
-            return server.getXtentisObjectsQuery(
-                    objectRootElementNameToRevisionID,
-                    objectRootElementNameToClusterName,
-                    mainObjectRootElementName,
-                    viewableObjectElements,
-                    whereItem,
-                    orderBy,
-                    direction,
-                    start,
-                    limit
-            );
-        } catch (XmlServerException e) {
-            throw new XtentisException("Unable to get the Xtentis Objects Query ", e);
-        }
-    }
-
-    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID,
-                                         LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName,
-                                         ArrayList<String> viewableObjectElements, IWhereItem whereItem, String orderBy, String direction, int start,
-                                         int limit, boolean withTotalCount) throws XtentisException {
-        try {
-            return server.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName,
-                    mainObjectRootElementName, viewableObjectElements, whereItem, orderBy, direction, start, limit,
-                    withTotalCount);
-        } catch (XmlServerException e) {
-            throw new XtentisException("Unable to get the Xtentis Objects Query ", e);
-        }
-    }
-
-    public String getItemsQuery(
-            LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName,
-            String forceMainPivot,
-            ArrayList<String> viewableFullPaths,
-            IWhereItem whereItem,
-            String orderBy,
-            String direction,
-            int start,
-            int limit,
-            int spellThreshold
-    ) throws XtentisException {
-        try {
-            String q = server.getItemsQuery(
-                    conceptPatternsToRevisionID,
-                    conceptPatternsToClusterName,
-                    forceMainPivot,
-                    viewableFullPaths,
-                    whereItem,
-                    orderBy,
-                    direction,
-                    start,
-                    limit
-            );
-            if (LOG.isDebugEnabled())
-                LOG.debug("getQuery():\n " + q); //$NON-NLS-1$
-            return q;
-        } catch (Exception e) {
-            throw new XtentisException("Unable to build the query", e);
-        }
-    }
-
-    public String getItemsQuery(
-            LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName,
-            String forceMainPivot,
-            ArrayList<String> viewableFullPaths,
-            IWhereItem whereItem,
-            String orderBy,
-            String direction,
-            int start,
-            int limit,
-            int spellThreshold,
-            boolean firstTotalCount,
-            Map<String, ArrayList<String>> metaDataTypes
-    ) throws XtentisException {
-        try {
-            String q = server.getItemsQuery(
-                    conceptPatternsToRevisionID,
-                    conceptPatternsToClusterName,
-                    forceMainPivot,
-                    viewableFullPaths,
-                    whereItem,
-                    orderBy,
-                    direction,
-                    start,
-                    limit,
-                    firstTotalCount,
-                    metaDataTypes
-            );
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("getQuery():\n " + q); //$NON-NLS-1$
-            }
-            return q;
-        } catch (Exception e) {
-            throw new XtentisException("Unable to build the query", e);
-        }
-    }
-
-    public String getPivotIndexQuery(
-            String clusterName,
-            String mainPivotName,
-            LinkedHashMap<String, String[]> pivotWithKeys,
-            LinkedHashMap<String, String> itemsRevisionIDs,
-            String defaultRevisionID,
-            String[] indexPaths,
-            IWhereItem whereItem,
-            String[] pivotDirections,
-            String[] indexDirections,
-            int start,
-            int limit
-    ) throws XtentisException {
-        try {
-            return server.getPivotIndexQuery(
-                    clusterName,
-                    mainPivotName,
-                    pivotWithKeys,
-                    itemsRevisionIDs,
-                    defaultRevisionID,
-                    indexPaths,
-                    whereItem,
-                    pivotDirections,
-                    indexDirections,
-                    start,
-                    limit
-            );
-        } catch (XmlServerException e) {
-            throw new XtentisException("Unable to get the Xtentis Objects Query", e);
-        }
-    }
-
-    public String getChildrenItemsQuery(
-            String clusterName,
-            String conceptName,
-            String[] PKXpaths,
-            String FKXpath,
-            String labelXpath,
-            String fatherPK,
-            LinkedHashMap<String, String> itemsRevisionIDs,
-            String defaultRevisionID,
-            IWhereItem whereItem,
-            int start,
-            int limit
-    ) throws XtentisException {
-        try {
-            return server.getChildrenItemsQuery(
-                    clusterName,
-                    conceptName,
-                    PKXpaths,
-                    FKXpath,
-                    labelXpath,
-                    fatherPK,
-                    itemsRevisionIDs,
-                    defaultRevisionID,
-                    whereItem,
-                    start,
-                    limit);
-
-        } catch (XmlServerException e) {
-            throw new XtentisException("Unable to get the Xtentis Items Query", e);
         }
     }
 

@@ -30,45 +30,13 @@ public abstract class ResourceSessionAwareCallbackHandler implements ResourceCal
 
     protected BaseMessages messages = BaseMessagesFactory.getMessages();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.talend.mdm.webapp.stagingareacontrol.client.rest.ResourceCallbackHandler#process(org.restlet.client.Request,
-     * org.restlet.client.Response)
-     */
     @Override
     public void process(Request request, Response response) {
         try {
-            // Has session expired? FIXME is there any other way to do the determination?
-            if (response != null && response.getEntity() != null && response.getEntity().getMediaType() != null
-                    && response.getEntity().getMediaType().equals(MediaType.TEXT_HTML)) {
-                if (response.getEntity().getText() != null
-                        && response.getEntity().getText().contains("<title>Redirection to secure site</title>")//$NON-NLS-1$
-                        && response.getEntity().getText()
-                                .contains("<meta http-equiv=\"refresh\" content=\"0; url=/talendmdm/secure\"")) {//$NON-NLS-1$
-
-                    MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
-                            .session_timeout_error(), new Listener<MessageBoxEvent>() {
-
-                        @Override
-                        public void handleEvent(MessageBoxEvent be) {
-                            Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
-                            Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
-                            Window.Location.replace("/talendmdm/secure/");//$NON-NLS-1$
-                        }
-                    });
-                    return;
-
-                }
-
-            }
-
             doProcess(request, response);
         } catch (Exception e) {
             alertStagingError(e);
         }
-
     }
 
     public abstract void doProcess(Request request, Response response) throws Exception;

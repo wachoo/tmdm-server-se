@@ -116,18 +116,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- War -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>${basedir}/web</warSourceDirectory>
-                    <webXml>${basedir}/war/WEB-INF/web.xml</webXml>
-                    <packagingExcludes>WEB-INF/lib/*.jar,WEB-INF/classes/org/talend/mdm/webapp/general/gwt/**</packagingExcludes>
-                </configuration>
-            </plugin>
-
         </plugins>
     </build>
 

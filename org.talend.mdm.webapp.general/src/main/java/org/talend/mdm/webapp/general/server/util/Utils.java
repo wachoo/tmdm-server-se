@@ -73,14 +73,6 @@ public class Utils {
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.general.client.i18n.GeneralMessages", Utils.class.getClassLoader()); //$NON-NLS-1$
 
-    public static void getJavascriptImportDetail(List<String> imports) {
-        try {
-            getJavascriptImportDetail(Menu.getRootMenu(), imports, 1, 1);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-    }
-
     public static int getSubMenus(Menu menu, String language, List<MenuBean> rows, int level, int i) {
         for (String key : menu.getSubMenus().keySet()) {
             Menu subMenu = menu.getSubMenus().get(key);
@@ -137,8 +129,6 @@ public class Utils {
     public static ArrayList<String> getJavascriptImport() throws Exception {
         ArrayList<String> imports = new ArrayList<String>();
         getJavascriptImportDetail(Menu.getRootMenu(), imports, 1, 1);
-        // FIXME: This is a workaround for 4.2 only
-        // complementItemsbrowser(imports);
         completeThirdPartJS(imports);
         return imports;
     }
@@ -195,12 +185,12 @@ public class Utils {
                 String gxtEntryModule = gxtFactory.getGxtEntryModule(context, application);
 
                 if (gxtEntryModule == null || context.equals("itemsbrowser2")) { //$NON-NLS-1$
-                    String tmp = "<script type=\"text/javascript\" src=\"/" + context + "/secure/dwr/interface/" //$NON-NLS-1$ //$NON-NLS-2$
+                    String tmp = "<script type=\"text/javascript\" src=\"/" + context + "secure/dwr/interface/" //$NON-NLS-1$ //$NON-NLS-2$
                             + application + "Interface.js\"></script>\n"; //$NON-NLS-1$
                     if (!imports.contains(tmp)) {
                         imports.add(tmp);
                     }
-                    tmp = "<script type=\"text/javascript\" src=\"/" + context + "/secure/js/" //$NON-NLS-1$ //$NON-NLS-2$
+                    tmp = "<script type=\"text/javascript\" src=\"/" + context + "secure/js/" //$NON-NLS-1$ //$NON-NLS-2$
                             + application + ".js\"></script>\n"; //$NON-NLS-1$
                     if (!imports.contains(tmp)) {
                         imports.add(tmp);
@@ -214,9 +204,9 @@ public class Utils {
                     String tmp = "<script type=\"text/javascript\" src=\"/" + context + "/" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
                     if ("browserecords".equals(context) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
-                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "/secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
-                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "/secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
-                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "/secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"/" + context + "secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
                     }
                     if (!imports.contains(tmp)) {
                         imports.add(tmp);
@@ -236,48 +226,45 @@ public class Utils {
     }
 
     private static void completeThirdPartJS(ArrayList<String> imports) {
-        imports.add("<script type=\"text/javascript\" src=\"/secure/dwr/interface/WidgetInterface.js\"></script>\n");//$NON-NLS-1$
-        imports.add("<script language=\"javascript\" src=\"/core/secure/gxt/resources/flash/swfobject.js\"></script>"); //$NON-NLS-1$
+        imports.add("<script language=\"javascript\" src=\"secure/gxt/resources/flash/swfobject.js\"></script>"); //$NON-NLS-1$
     }
 
     public static String getCommonImport() {
         return
         // EXT & YUI
-        "<script type=\"text/javascript\" src=\"/core/secure/yui-2.4.0/build/utilities/utilities.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"/core/secure/yui-2.4.0/build/yuiloader/yuiloader-beta.js\"></script>\n" //$NON-NLS-1$
-                + // "<script src=\"/core/secure/ext-2.2/adapter/yui/yui-utilities.js\" type=\"text/javascript\"></script>\n"+
-                "<script type=\"text/javascript\" src=\"/core/secure/ext-2.2/adapter/yui/ext-yui-adapter.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"/core/secure/ext-2.2/ext-all-debug.js\"></script>\n" //$NON-NLS-1$
-                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/ext-2.2/resources/css/ext-all_compatible.css\" />\n" //$NON-NLS-1$
+        "<script type=\"text/javascript\" src=\"secure/yui-2.4.0/build/utilities/utilities.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/yui-2.4.0/build/yuiloader/yuiloader-beta.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/ext-2.2/adapter/yui/ext-yui-adapter.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/ext-2.2/ext-all.js\"></script>\n" //$NON-NLS-1$
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/ext-2.2/resources/css/ext-all_compatible.css\" />\n" //$NON-NLS-1$
                 + // EXT-UX
-                "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/editablecolumntree/ColumnNodeUI.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/editablecolumntree/treeSerializer.js\"></script>\n" //$NON-NLS-1$
-                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/ext.ux/editablecolumntree/editable-column-tree.css\" />\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/MultiSelectTreePanel.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/i18n/PropertyReader.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/i18n/Bundle.js\"></script>\n" //$NON-NLS-1$
+                "<script type=\"text/javascript\" src=\"secure/ext.ux/editablecolumntree/ColumnNodeUI.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/ext.ux/editablecolumntree/treeSerializer.js\"></script>\n" //$NON-NLS-1$
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/ext.ux/editablecolumntree/editable-column-tree.css\" />\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/ext.ux/MultiSelectTreePanel.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/ext.ux/i18n/PropertyReader.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/ext.ux/i18n/Bundle.js\"></script>\n" //$NON-NLS-1$
                 + // Firefox3 Fixes
-                "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/css/firefox3-fix.css\" />\n" //$NON-NLS-1$
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/firefox3-fix.css\" />\n" //$NON-NLS-1$
                 + // CORE
-                "<script type=\"text/javascript\" src=\"/general/proxy_core.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"/core/secure/dwr/interface/LayoutInterface.js\"></script>\n" //$NON-NLS-1$
-                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/css/webapp-core.css\" />\n" //$NON-NLS-1$
-                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"/core/secure/css/amalto-menus.css\" />\n" //$NON-NLS-1$
+                "<script type=\"text/javascript\" src=\"proxy_core.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/dwr/interface/LayoutInterface.js\"></script>\n" //$NON-NLS-1$
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/webapp-core.css\" />\n" //$NON-NLS-1$
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/amalto-menus.css\" />\n" //$NON-NLS-1$
                 + // Proxy DWR <-> Ext
-                "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRAction.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRProxy.js\"></script>\n" //$NON-NLS-1$
-                + // "<script type=\"text/javascript\" src=\"/core/secure/ext.ux/DWRProxy.js\"></script>\n"+
-                  // utility class
-                "<script type=\"text/javascript\" src=\"/core/secure/js/bgutil.js\"></script>\n" //$NON-NLS-1$
+                "<script type=\"text/javascript\" src=\"secure/ext.ux/DWRAction.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/ext.ux/DWRProxy.js\"></script>\n" //$NON-NLS-1$
+                + // utility class
+                "<script type=\"text/javascript\" src=\"secure/js/bgutil.js\"></script>\n" //$NON-NLS-1$
                 + // graph class
-                "<script type=\"text/javascript\" src=\"/core/secure/js/raphael-min.js\"></script>\n" //$NON-NLS-1$
+                "<script type=\"text/javascript\" src=\"secure/js/raphael-min.js\"></script>\n" //$NON-NLS-1$
                 + // DWR
-                "<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/engine.js'></script>\n" //$NON-NLS-1$
-                + "<script language=\"javascript1.2\" type='text/javascript' src='/core/secure/dwr/util.js'></script>\n" //$NON-NLS-1$
-                + // Simile Wiget
-                "<script src=\"/core/secure/timeline/timeline_js/timeline-api.js\" type=\"text/javascript\"></script>\n" //$NON-NLS-1$
-                + "<script src=\"/core/secure/timeline/timeline_ajax/simile-ajax-api.js\" type=\"text/javascript\"></script>\n" //$NON-NLS-1$
-                + "<link rel=\"stylesheet\" href=\"/core/secure/timeline/css/default.css\" type=\"text/css\">"; //$NON-NLS-1$
+                "<script language=\"javascript1.2\" type='text/javascript' src='secure/dwr/engine.js'></script>\n" //$NON-NLS-1$
+                + "<script language=\"javascript1.2\" type='text/javascript' src='secure/dwr/util.js'></script>\n" //$NON-NLS-1$
+                + // Simile Widget
+                "<script src=\"secure/timeline/timeline_js/timeline-api.js\" type=\"text/javascript\"></script>\n" //$NON-NLS-1$
+                + "<script src=\"secure/timeline/timeline_ajax/simile-ajax-api.js\" type=\"text/javascript\"></script>\n" //$NON-NLS-1$
+                + "<link rel=\"stylesheet\" href=\"secure/timeline/css/default.css\" type=\"text/css\">"; //$NON-NLS-1$
     }
 
     public static List<LanguageBean> getLanguages(String selectedLang) throws Exception {

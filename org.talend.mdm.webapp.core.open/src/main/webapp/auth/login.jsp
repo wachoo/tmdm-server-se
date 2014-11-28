@@ -70,9 +70,6 @@
 <link rel="stylesheet" type="text/css" href="<%= contextPath %>/auth/loginPage.css"/>
 
 <!--  DWR -->
-<script language="javascript1.2" type='text/javascript' src='<%= request.getContextPath() %>/login/dwr/engine.js'></script>
-<script language="javascript1.2" type='text/javascript' src='<%= request.getContextPath() %>/login/dwr/util.js'></script>
-<script language="javascript1.2" type='text/javascript' src='<%= request.getContextPath() %>/login/dwr/interface/LoginInterface.js'></script>
 <script type="text/javascript">
 function f_submit(){    
     
