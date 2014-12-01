@@ -14,6 +14,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import com.amalto.core.util.LocalUser;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -293,7 +294,7 @@ public class XSLTTransformerPluginBean extends Plugin {
             Transformer transformer = transFactory.newTransformer(new StreamSource(new StringReader(parameters.getXslt())));
 
             // Pass Parameters to the XSLT processor
-            String username = Util.getUsernameFromSubject(Util.getActiveSubject());
+            String username = LocalUser.getLocalUser().getUsername();
             transformer.setParameter("USERNAME", username);
             transformer.setErrorListener(new ErrorListener() {
 

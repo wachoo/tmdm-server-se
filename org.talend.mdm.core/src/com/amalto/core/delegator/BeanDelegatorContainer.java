@@ -22,7 +22,7 @@ public class BeanDelegatorContainer {
 
     private static final Logger LOGGER = Logger.getLogger(BeanDelegatorContainer.class);
 
-    private static final Map<String, IBeanDelegator> delegatorInstancePool = new HashMap<String, IBeanDelegator>();
+    private static final Map<String, Object> delegatorInstancePool = new HashMap<String, Object>();
 
     private static final String LOCAL_USER = "LocalUser"; //$NON-NLS-1$
 
@@ -56,7 +56,7 @@ public class BeanDelegatorContainer {
                 try {
                     Class<?> clazz = Class.forName(currentBean.getValue());
                     Constructor<?> cons = clazz.getConstructor();
-                    IBeanDelegator beanDelegator = (IBeanDelegator) cons.newInstance();
+                    Object beanDelegator = cons.newInstance();
                     delegatorInstancePool.put(currentBean.getKey(), beanDelegator);
                     LOGGER.info("Init instance:" + currentBean.getValue()); //$NON-NLS-1$
                 } catch (ClassNotFoundException e) {

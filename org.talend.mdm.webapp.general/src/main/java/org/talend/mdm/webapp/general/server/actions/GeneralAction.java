@@ -84,7 +84,6 @@ public class GeneralAction implements GeneralService {
     public MenuGroup getMenus(String language) throws ServiceException {
         MenuGroup result = new MenuGroup();
         try {
-
             List<MenuBean> menus = new ArrayList<MenuBean>();
             Utils.getSubMenus(Menu.getRootMenu(), language, menus, 1, 1);
             result.setMenuBean(menus);
@@ -98,17 +97,15 @@ public class GeneralAction implements GeneralService {
 
     private List<ComboBoxModel> getClusters() throws Exception {
         List<ComboBoxModel> clusters = new ArrayList<ComboBoxModel>();
-
         WSDataClusterPK[] wsDataClustersPKs = Util.getPort().getDataClusterPKs(new WSRegexDataClusterPKs("*") //$NON-NLS-1$
                 ).getWsDataClusterPKs();
         Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-        for (int i = 0; i < wsDataClustersPKs.length; i++) {
-            if (!XSystemObjects.isXSystemObject(xDataClustersMap, wsDataClustersPKs[i].getPk())) {
-                WSDataCluster wsGetDataCluster = Util.getPort().getDataCluster(new WSGetDataCluster(wsDataClustersPKs[i]));
-                clusters.add(new ComboBoxModel(wsGetDataCluster.getDescription(), wsDataClustersPKs[i].getPk()));
+        for (WSDataClusterPK wsDataClustersPK : wsDataClustersPKs) {
+            if (!XSystemObjects.isXSystemObject(xDataClustersMap, wsDataClustersPK.getPk())) {
+                WSDataCluster wsGetDataCluster = Util.getPort().getDataCluster(new WSGetDataCluster(wsDataClustersPK));
+                clusters.add(new ComboBoxModel(wsGetDataCluster.getDescription(), wsDataClustersPK.getPk()));
             }
         }
-
         return clusters;
     }
 
@@ -116,15 +113,13 @@ public class GeneralAction implements GeneralService {
         List<ComboBoxModel> models = new ArrayList<ComboBoxModel>();
         WSDataModelPK[] wsDataModelsPKs = Util.getPort().getDataModelPKs(new WSRegexDataModelPKs("*") //$NON-NLS-1$
                 ).getWsDataModelPKs();
-
         Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
-        for (int i = 0; i < wsDataModelsPKs.length; i++) {
-            if (!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPKs[i].getPk())) {
-                WSDataModel wsDataModel = Util.getPort().getDataModel(new WSGetDataModel(wsDataModelsPKs[i]));
-                models.add(new ComboBoxModel(wsDataModel.getDescription(), wsDataModelsPKs[i].getPk()));
+        for (WSDataModelPK wsDataModelsPK : wsDataModelsPKs) {
+            if (!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPK.getPk())) {
+                WSDataModel wsDataModel = Util.getPort().getDataModel(new WSGetDataModel(wsDataModelsPK));
+                models.add(new ComboBoxModel(wsDataModel.getDescription(), wsDataModelsPK.getPk()));
             }
         }
-
         return models;
     }
 

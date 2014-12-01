@@ -12,17 +12,12 @@
 // ============================================================================
 package org.talend.mdm.webapp.base.server;
 
-import javax.security.auth.Subject;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
-import org.talend.mdm.webapp.base.client.exception.SessionTimeoutException;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.server.i18n.BaseMessagesImpl;
 
-import com.amalto.core.util.Util;
 import com.google.gwt.user.client.rpc.SerializationException;
-import com.google.gwt.user.server.rpc.RPC;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class AbstractService extends RemoteServiceServlet {
@@ -46,26 +41,10 @@ public class AbstractService extends RemoteServiceServlet {
 
     @Override
     public final String processCall(String payload) throws SerializationException {
-        if (sessionExpired()) {
-            return RPC.encodeResponseForFailure(null, new SessionTimeoutException());
-        }
         return doProcessCall(payload);
     }
 
     protected String doProcessCall(String payload) throws SerializationException {
         return super.processCall(payload);
-    }
-
-    private boolean sessionExpired() {
-        try {
-            Subject subject = Util.getActiveSubject();
-            if (subject == null)
-                return true;
-        } catch (Exception e) {
-            return true;
-        }
-        HttpServletRequest request = getThreadLocalRequest();
-        request.getSession();
-        return false;
     }
 }

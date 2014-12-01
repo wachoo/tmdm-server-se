@@ -38,9 +38,6 @@ import com.sun.xml.xsom.XSType;
 import com.sun.xml.xsom.parser.XSOMParser;
 import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.jxpath.AbstractFactory;
-import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.jxpath.Pointer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -53,7 +50,6 @@ import org.xml.sax.SAXException;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.security.auth.Subject;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -71,8 +67,6 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.Principal;
-import java.security.acl.Group;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -88,12 +82,6 @@ public class Util {
     private static final Logger LOGGER = Logger.getLogger(Util.class);
 
     private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-
-    private static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage"; //$NON-NLS-1$
-
-    private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema"; //$NON-NLS-1$
-
-    private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource"; //$NON-NLS-1$
 
     private static final String USER_PROPERTY_PREFIX = "${user_context"; //$NON-NLS-1$
 
@@ -138,170 +126,34 @@ public class Util {
 
     private static DefaultTransformer defaultTransformer;
 
-    public static Document parse(String xmlString) throws ParserConfigurationException, IOException, SAXException {
-        return parse(xmlString, null);
-    }
-
-    public static Document parseXSD(String xsd) throws ParserConfigurationException, IOException, SAXException {
-        return parse(xsd, null);
-    }
-
     private static synchronized DocumentBuilderFactory getDocumentBuilderFactory() {
         if (nonValidatingDocumentBuilderFactory == null) {
             nonValidatingDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
             nonValidatingDocumentBuilderFactory.setNamespaceAware(true);
             nonValidatingDocumentBuilderFactory.setValidating(false);
-            nonValidatingDocumentBuilderFactory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
         }
         return nonValidatingDocumentBuilderFactory;
     }
 
-    public static Document parse(String xmlString, String schema) throws ParserConfigurationException, IOException, SAXException {
+    public static Document parse(String xmlString) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory;
-        if (schema != null) {
-            factory = DocumentBuilderFactory.newInstance();
-            // Schema validation based on schemaURL
-            factory.setNamespaceAware(true);
-            factory.setValidating(true);
-            factory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
-            factory.setAttribute(JAXP_SCHEMA_SOURCE, new InputSource(new StringReader(schema)));
-        } else {
-            factory = getDocumentBuilderFactory();
-        }
-
+        factory = getDocumentBuilderFactory();
         DocumentBuilder builder = factory.newDocumentBuilder();
         SAXErrorHandler seh = new SAXErrorHandler();
         builder.setErrorHandler(seh);
         Document d = builder.parse(new InputSource(new StringReader(xmlString)));
-
         // check if document parsed correctly against the schema
-        if (schema != null) {
-            String errors = seh.getErrors();
-            if (errors.length() != 0) {
-                String err = "Document did not parse against schema: \n" + errors + "\n"
-                        + xmlString.substring(0, Math.min(100, xmlString.length()));
-                throw new SAXException(err);
-            }
+        String errors = seh.getErrors();
+        if (errors.length() != 0) {
+            String err = "Document did not parse against schema: \n" + errors + "\n"
+                    + xmlString.substring(0, Math.min(100, xmlString.length()));
+            throw new SAXException(err);
         }
-        return d;
-    }
-
-    // bug:0009642: remove the null element to match the schema
-    public static boolean setNullNode(Node element) {
-        // String xml = Util.nodeToString(element);
-        boolean removed = false;
-        NodeList nodelist = element.getChildNodes();
-        for (int i = 0; i < nodelist.getLength(); i++) {
-            Node node = nodelist.item(i);
-            int length = node.getChildNodes().getLength();
-            if (length <= 1 && (node.getTextContent() == null || node.getTextContent().trim().equals(""))) {
-                element.removeChild(node);
-                // xml = Util.nodeToString(element);
-                setNullNode(element);
-                removed = true;
-            } else if (length > 1) {
-                if (setNullNode(node)) {
-                    setNullNode(node.getParentNode());
-                }
-            }
-        }
-        return removed;
-    }
-
-    public static Document defaultValidate(Element element, String schema) throws Exception {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("validate() " + element.getLocalName());
-        }
-        if (schema == null) {
-            throw new IllegalArgumentException("Schema cannot be null.");
-        }
-        Node cloneNode = element.cloneNode(true);
-
-        // parse
-        Document d;
-        SAXErrorHandler seh = new SAXErrorHandler();
-
-        // initialize the sax parser which uses Xerces
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        // Schema validation based on schemaURL
-        factory.setNamespaceAware(true);
-        factory.setValidating(true);
-
-        schema = schema.replaceFirst("<\\?xml.*\\?>", ""); //$NON-NLS-1$//$NON-NLS-2$
-        schema = schema.replace("\r\n", "\n"); //$NON-NLS-1$//$NON-NLS-2$
-
-        factory.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
-        if (schema != null) {
-            factory.setAttribute(JAXP_SCHEMA_SOURCE, new InputSource(new StringReader(schema)));
-        }
-
-        DocumentBuilder builder;
-        builder = factory.newDocumentBuilder();
-        builder.setErrorHandler(seh);
-        builder.setEntityResolver(new SecurityEntityResolver());
-
-        // bug:0009642:remove the null element to match the schema
-        setNullNode(cloneNode);
-
-        // strip of attributes
-        removeAllAttribute(cloneNode, "tmdm:type"); //$NON-NLS-1$
-
-        String xmlAsString = Util.nodeToString(cloneNode);
-        // if element is null, remove it see 7828
-        xmlAsString = xmlAsString.replaceAll("<\\w+?/>", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
-        d = builder.parse(new InputSource(new StringReader(xmlAsString)));
-
-        // check if document parsed correctly against the schema
-        if (schema != null) {
-            // ignore cvc-complex-type.2.3 error
-            String errors = seh.getErrors();
-
-            boolean isComplex23 = errors.contains("cvc-complex-type.2.3") && errors.endsWith("is element-only."); //$NON-NLS-1$ //$NON-NLS-2$
-            if (!errors.equals("") && !isComplex23) { //$NON-NLS-1$  
-                String xmlString = Util.nodeToString(element);
-                String err = "The item " + element.getLocalName() + " did not validate against the model: \n" + errors + "\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                        + xmlString; // .substring(0, Math.min(100, xmlString.length()));
-                LOGGER.debug(err);
-                throw new CVCException(err);
-            }
-        }
-
         return d;
     }
 
     public static Document validate(Element element, String schema) throws Exception {
         return BeanDelegatorContainer.getInstance().getValidationDelegator().validation(element, schema);
-    }
-
-    public static void removeXpathFromDocument(Document document, String xpath, boolean reservedRoot) throws Exception {
-        Element root = document.getDocumentElement();
-        NodeList toDeleteNodeList = Util.getNodeList(document, xpath);
-        if (toDeleteNodeList != null) {
-            Node lastParentNode;
-            Node formatSiblingNode;
-            for (int i = 0; i < toDeleteNodeList.getLength(); i++) {
-                Node node = toDeleteNodeList.item(i);
-                if (root.isSameNode(node) && reservedRoot) {
-                    while (node.hasChildNodes()) {
-                        node.removeChild(node.getFirstChild());
-                    }
-                } else {
-                    lastParentNode = node.getParentNode();
-                    formatSiblingNode = node.getNextSibling();
-                    if (lastParentNode != null) {
-                        lastParentNode.removeChild(node);
-                    }
-                    if (formatSiblingNode != null && formatSiblingNode.getNodeValue() != null
-                            && formatSiblingNode.getNodeValue().matches("\\s+")) {
-                        if (lastParentNode != null) {
-                            lastParentNode.removeChild(formatSiblingNode);
-                        }
-                    }
-                }
-
-            }
-        }
     }
 
     public static String[] getTextNodes(Node contextNode, String xPath) throws TransformerException {
@@ -681,26 +533,6 @@ public class Util {
         return sw.toString().replaceAll("\r\n", "\n");
     }
 
-    public static void removeAllAttribute(Node node, String attrName) {
-        if (node.getNodeType() == Node.ELEMENT_NODE) {
-            NamedNodeMap attributes = node.getAttributes();
-            for (int i = 0; i < attributes.getLength(); i++) {
-                if (attributes.item(i).getNodeName().equals(attrName)) {
-                    attributes.removeNamedItem(attrName);
-                    break;
-                }
-            }
-        }
-
-        NodeList list = node.getChildNodes();
-        if (list.getLength() > 0) {
-            for (int i = 0; i < list.getLength(); i++) {
-                removeAllAttribute(list.item(i), attrName);
-            }
-        }
-
-    }
-
     /**
      * Get a node list from an xPath
      * 
@@ -779,26 +611,6 @@ public class Util {
             res.append(strings[i] == null ? StringUtils.EMPTY : strings[i]);
         }
         return res.toString();
-    }
-
-    public static Subject getActiveSubject() throws XtentisException {
-        return null; // TODO
-    }
-
-    /**
-     * Extracts the username of the logged user from the {@link Subject}
-     * 
-     * @return The username
-     * @throws XtentisException
-     */
-    public static String getUsernameFromSubject(Subject subject) throws XtentisException {
-        Set<Principal> set = subject.getPrincipals();
-        for (Principal principal : set) {
-            if (!(principal instanceof Group)) {
-                return principal.getName();
-            }
-        }
-        return null;
     }
 
     /**
@@ -1214,72 +1026,6 @@ public class Util {
             }
         }
         return null;
-    }
-
-    static AbstractFactory factory = new AbstractFactory() {
-
-        @Override
-        public boolean createObject(JXPathContext context, Pointer pointer, Object parent, String name, int index) {
-            if (parent instanceof Node) {
-                try {
-                    Node node = (Node) parent;
-                    Document doc1 = node.getOwnerDocument();
-                    Element e = doc1.createElement(name);
-                    if (index > 0) { // list
-                        Pointer p = context.getRelativeContext(pointer).getPointer(name + "[" + (index) + "]");
-                        Node curNode = (Node) p.getNode();
-                        if (curNode != null) {
-                            if (curNode.getNextSibling() != null) {
-                                node.insertBefore(e, curNode.getNextSibling());
-                            } else {
-                                node.appendChild(e);
-                            }
-                        } else {
-                            node.appendChild(e);
-                        }
-                    } else {
-                        node.appendChild(e);
-                    }
-                    return true;
-                } catch (Exception e) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public boolean declareVariable(JXPathContext context, String name) {
-            return false;
-        }
-    };
-
-    /**
-     * update the element according to updated path
-     * 
-     * @throws Exception
-     */
-    public static Node updateElement(Node old, Map<String, UpdateReportItem> updatedPath) throws Exception {
-        if (updatedPath.size() == 0) {
-            return old;
-        }
-        // use JXPathContext to update the old element
-        JXPathContext jxpContext = JXPathContext.newContext(old);
-        jxpContext.registerNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-        jxpContext.registerNamespace("tmdm", "http://www.talend.com/mdm");
-        jxpContext.setLenient(true);
-
-        jxpContext.setFactory(factory);
-        String concept = old.getLocalName();
-        for (Map.Entry<String, UpdateReportItem> entry : updatedPath.entrySet()) {
-            String xpath = entry.getValue().getPath();
-            if (xpath.startsWith("/" + concept + "/")) {
-                xpath = xpath.replaceFirst("/" + concept + "/", "");
-            }
-            jxpContext.createPathAndSetValue(xpath, entry.getValue().newValue);
-        }
-        return (Node) jxpContext.getContextBean();
     }
 
     public static String mergeExchangeData(String xml, String resultUpdateReport) {

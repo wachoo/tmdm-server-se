@@ -12,6 +12,7 @@
 // ============================================================================
 package com.amalto.core.util;
 
+import com.amalto.core.delegator.IValidation;
 import com.amalto.core.objects.DroppedItemPOJO;
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
@@ -45,6 +46,8 @@ import java.util.List;
 @SuppressWarnings("nls")
 public class UtilTestCase extends TestCase {
 
+    IValidation validation = new IValidation();
+    
     public void testDefaultValidate() throws IOException, ParserConfigurationException, SAXException {
         // missing mandontory field cvc-complex-type.2.4.b
         InputStream in = UtilTestCase.class.getResourceAsStream("Agency_ME02.xml");
@@ -54,7 +57,7 @@ public class UtilTestCase extends TestCase {
         String schema = getStringFromInputStream(inxsd);
 
         try {
-            Util.defaultValidate(element, schema);
+            validation.validation(element, schema);
         } catch (Exception e) {
             String str = e.getLocalizedMessage();
             assertTrue(str.contains("cvc-complex-type.2.4.b"));
@@ -64,7 +67,7 @@ public class UtilTestCase extends TestCase {
         String invalidXml = "<Agency>aa</Agency>";
         element = Util.parse(invalidXml).getDocumentElement();
         try {
-            Util.defaultValidate(element, schema);
+            validation.validation(element, schema);
         } catch (Exception e) {
             String str = e.getLocalizedMessage();
             assertTrue(str.contains("cvc-complex-type.2.4"));
@@ -76,7 +79,7 @@ public class UtilTestCase extends TestCase {
                 + "</Agency>";
         element = Util.parse(xmlString).getDocumentElement();
         try {
-            Util.defaultValidate(element, schema);
+            validation.validation(element, schema);
         } catch (Exception e) {
             throw new SAXException(e);
         }
@@ -87,7 +90,7 @@ public class UtilTestCase extends TestCase {
                 + "<Availability>false</Availability><Price>0.0</Price><Family></Family><OnlineStore>gg2@d</OnlineStore></Product>";
         element = Util.parse(xml1).getDocumentElement();
         try {
-            Util.defaultValidate(element, schema);
+            validation.validation(element, schema);
         } catch (Exception e) {
             throw new SAXException(e);
         }

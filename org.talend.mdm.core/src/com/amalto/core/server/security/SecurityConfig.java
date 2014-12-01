@@ -85,7 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticated().and().formLogin().loginPage("/auth/login.jsp") //$NON-NLS-1
                 .usernameParameter("j_username") //$NON-NLS-1
                 .passwordParameter("j_password") //$NON-NLS-1
-                .defaultSuccessUrl("/index.html") //$NON-NLS-1$
+                .defaultSuccessUrl("/ui") //$NON-NLS-1$
                 .and().logout().logoutUrl("/auth/logout") //$NON-NLS-1
                 .logoutSuccessUrl("/"); //$NON-NLS-1
         // Services access requires HTTP basic authentication (if not already authenticated).

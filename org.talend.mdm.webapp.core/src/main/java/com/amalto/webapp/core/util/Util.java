@@ -536,7 +536,7 @@ public class Util {
      * @throws XtentisWebappException
      */
     public static String getFirstTextNode(Node contextNode, String xPath) throws XtentisWebappException {
-        return getFirstTextNode(contextNode, xPath);
+        return getTextNodes(contextNode, xPath)[0];
     }
 
     /**
