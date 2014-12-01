@@ -151,7 +151,6 @@ public class ViewUtil {
                             }
                             if(nodeModel != null){
                                 nodeList.add(nodeModel);
-                                break;
                             }
                         }
                     }
