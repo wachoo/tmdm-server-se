@@ -734,16 +734,9 @@ public class MainFramePanel extends Portal {
         props.add(PortalProperties.KEY_AUTO_ONOFFS, portletToAutoOnOffs.toString());
 
         service.savePortalConfig(props, new SessionAwareAsyncCallback<Void>() {
-
             @Override
             public void onSuccess(Void result) {
-                return;
-            }
-
-            @Override
-            protected void doOnFailure(Throwable caught) {
-                super.doOnFailure(caught);
-                return;
+                // TODO Nothing to do?
             }
         });
 

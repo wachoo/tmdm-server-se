@@ -36,14 +36,14 @@
 
 .generic-header-background{
 	background-color: #3C3C3C;
-    background-image: url(/talendmdm/secure/img/header-back.png);
+    background-image: url(secure/img/header-back.png);
     background-repeat: repeat-x;
     height:38px;
 }	
 
 
 .generic-header{
-	background-image: url(/talendmdm/secure/img/genericUI/header.gif);
+	background-image: url(secure/img/genericUI/header.gif);
 	background-repeat: repeat-y;
 	background-position:right;
 	font:bold 12px verdana, helvetica;

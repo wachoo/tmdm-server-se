@@ -105,6 +105,8 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException;
 
+    public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException;
+
     public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException;
 
     public WSItemPK partialPutItem(WSPartialPutItem wsPartialPutItem) throws RemoteException;
@@ -298,4 +300,8 @@ public interface XtentisPort extends java.rmi.Remote {
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) throws RemoteException;
 
     public WSRolePKArray getRolePKs(WSGetRolePKs ks) throws RemoteException;
+
+    public WSRolePK putRole(WSPutRole wsRole) throws RemoteException;
+
+    public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException;
 }

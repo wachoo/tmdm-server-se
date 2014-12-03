@@ -253,9 +253,11 @@ public class AccordionMenus extends ContentPanel {
     };
 
     private void clickMenu(MenuBean menuBean, HTMLMenuItem item) {
-        boolean succeeful = initUI(menuBean.getContext(), menuBean.getApplication(), MessageFactory.getMessages()
-                .application_undefined(menuBean.getContext() + "." + menuBean.getApplication())); //$NON-NLS-1$
-        if (succeeful) {
+        String context = menuBean.getContext();
+        String application = menuBean.getApplication();
+        String errorMessage = MessageFactory.getMessages().application_undefined(context + '.' + application);
+        boolean success = initUI(context, application, errorMessage);
+        if (success) {
             selectedItem(item);
         }
     }

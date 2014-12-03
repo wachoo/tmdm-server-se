@@ -26,12 +26,14 @@ import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
 import com.amalto.core.util.XtentisException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -47,8 +49,16 @@ public abstract class ILocalUser implements IBeanDelegator {
 
     public HashSet<String> getRoles() {
         HashSet<String> set = new HashSet<String>();
-        set.add("administration"); //$NON-NLS-1$
-        set.add("authenticated"); //$NON-NLS-1$
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            for (GrantedAuthority authority : authorities) {
+                set.add(authority.getAuthority());
+            }
+        } else {
+            set.add("administration"); //$NON-NLS-1$
+            set.add("authenticated"); //$NON-NLS-1$
+        }
         return set;
     }
 

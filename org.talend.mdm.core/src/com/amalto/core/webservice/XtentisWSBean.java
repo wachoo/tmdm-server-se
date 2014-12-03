@@ -623,7 +623,6 @@ public class XtentisWSBean implements XtentisPort {
     @Override
     public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().routingEngineV2Action(wsRoutingEngineAction);
-
     }
 
     @Override
@@ -698,11 +697,6 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
-    public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
-        return new WSRole(wsGetRole.getWsRolePK().getPk(), "", new WSRoleSpecification[0]);
-    }
-
-    @Override
     public WSBoolean isPagingAccurate(WSInt wsInt) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().isPagingAccurate(wsInt);
     }
@@ -710,6 +704,21 @@ public class XtentisWSBean implements XtentisPort {
     @Override
     public WSBoolean supportStaging(WSDataClusterPK dataClusterPK) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().supportStaging(dataClusterPK);
+    }
+
+    @Override
+    public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getRolePKs(regex);
+    }
+
+    @Override
+    public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putRole(wsRole);
+    }
+
+    @Override
+    public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteRole(wsRoleDelete);
     }
 
     @Override
@@ -723,11 +732,17 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
-    public WSRolePKArray getRolePKs(WSGetRolePKs ks) throws RemoteException {
-        return null; // TODO Not supported in Open version
+    public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getRole(wsGetRole);
     }
 
+    @Override
+    public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsRole(wsExistsRole);
+    }
+
+    @Override
     public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
-        return (BeanDelegatorContainer.getInstance().getXtentisWSDelegator()).updateItemMetadata(wsUpdateMetadataItem);
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().updateItemMetadata(wsUpdateMetadataItem);
     }
 }

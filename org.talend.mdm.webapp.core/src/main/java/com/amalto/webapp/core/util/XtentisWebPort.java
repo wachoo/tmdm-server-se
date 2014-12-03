@@ -849,4 +849,16 @@ public class XtentisWebPort implements XtentisPort {
     public WSRolePKArray getRolePKs(WSGetRolePKs ks) throws RemoteException {
         return delegate.getRolePKs(ks);
     }
+
+    public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
+        return delegate.existsRole(wsExistsRole);
+    }
+
+    public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
+        return delegate.putRole(wsRole);
+    }
+
+    public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
+        return delegate.deleteRole(wsRoleDelete);
+    }
 }

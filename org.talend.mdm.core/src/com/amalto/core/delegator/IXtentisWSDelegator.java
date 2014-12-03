@@ -22,6 +22,8 @@ import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.objects.menu.MenuPOJO;
 import com.amalto.core.objects.menu.MenuPOJOPK;
+import com.amalto.core.objects.role.RolePOJO;
+import com.amalto.core.objects.role.RolePOJOPK;
 import com.amalto.core.objects.routing.*;
 import com.amalto.core.objects.storedprocedure.StoredProcedurePOJO;
 import com.amalto.core.objects.storedprocedure.StoredProcedurePOJOPK;
@@ -40,6 +42,7 @@ import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.server.*;
 import com.amalto.core.server.api.*;
+import com.amalto.core.server.api.Role;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
@@ -2306,7 +2309,71 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-    
+
+    public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
+        try {
+            Role ctrl = Util.getRoleCtrlLocal();
+            RolePOJO role = ctrl.getRole(new RolePOJOPK(wsGetRole.getWsRolePK().getPk()));
+            return XConverter.POJO2WS(role);
+        } catch (Exception e) {
+            String err = "ERROR SYSTRACE: " + e.getMessage();
+            LOGGER.debug(err, e);
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
+        try {
+            Role ctrl = Util.getRoleCtrlLocal();
+            RolePOJO pojo = ctrl.existsRole(new RolePOJOPK(wsExistsRole.getWsRolePK().getPk()));
+            return new WSBoolean(pojo != null);
+        } catch (Exception e) {
+            String err = "ERROR SYSTRACE: " + e.getMessage();
+            LOGGER.debug(err, e);
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
+        try {
+            Role ctrl = Util.getRoleCtrlLocal();
+            Collection c = ctrl.getRolePKs(regex.getRegex());
+            if (c == null) {
+                return null;
+            }
+            WSRolePK[] pks = new WSRolePK[c.size()];
+            int i = 0;
+            for (Object currentRolePK : c) {
+                pks[i++] = new WSRolePK(((RolePOJOPK) currentRolePK).getUniqueId());
+            }
+            return new WSRolePKArray(pks);
+        } catch (Exception e) {
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
+        try {
+            Role ctrl = Util.getRoleCtrlLocal();
+            RolePOJOPK pk = ctrl.putRole(XConverter.WS2POJO(wsRole.getWsRole()));
+            LocalUser.resetLocalUsers();
+            return new WSRolePK(pk.getUniqueId());
+        } catch (Exception e) {
+            String err = "ERROR SYSTRACE: " + e.getMessage();
+            LOGGER.debug(err, e);
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
+        try {
+            Role ctrl = Util.getRoleCtrlLocal();
+            return new WSRolePK(ctrl.removeRole(new RolePOJOPK(wsRoleDelete.getWsRolePK().getPk())).getUniqueId());
+        } catch (Exception e) {
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
     public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
         throw new UnsupportedOperationException();
     }
