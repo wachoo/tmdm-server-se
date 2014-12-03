@@ -221,6 +221,15 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             currentElement = new ProjectionElement();
             currentElement.field = field;
         }
+        
+        private void createElement(String typeName, String fieldName, SimpleTypeFieldMetadata fieldMetadata) {
+            SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
+            FieldMetadata field = new SimpleTypeFieldMetadata(fieldMetadata.getContainingType(), false, false, false, fieldName, fieldType,
+                    Collections.<String> emptyList(), Collections.<String> emptyList(), Collections.<String> emptyList(),
+                    StringUtils.EMPTY);
+            currentElement = new ProjectionElement();
+            currentElement.field = field;
+        }
 
         private void createElement(String typeName, String aliasName, FieldMetadata aliasedField) {
             SimpleTypeMetadata fieldType = new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, typeName);
@@ -231,7 +240,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
         }
 
         private void createReferenceElement(ReferenceFieldMetadata fieldMetadata) {
-            FieldMetadata field = new ReferenceFieldMetadata(explicitProjectionType, false, false, false,
+            FieldMetadata field = new ReferenceFieldMetadata(fieldMetadata.getContainingType(), false, false, false,
                     fieldMetadata.getName(), fieldMetadata.getReferencedType(), fieldMetadata.getReferencedField(),
                     fieldMetadata.getForeignKeyInfoFields(), false, false, new SimpleTypeMetadata(
                             XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING), Collections.<String> emptyList(),
@@ -346,8 +355,11 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     TypeMetadata type = fieldMetadata.getType();
                     if (fieldMetadata instanceof SimpleTypeFieldMetadata) {
                         type = MetadataUtils.getSuperConcreteType(type);
+                        createElement(type.getName(), fieldMetadata.getName(), (SimpleTypeFieldMetadata)fieldMetadata);
+                    } else {
+                        createElement(type.getName(), fieldMetadata.getName());
                     }
-                    createElement(type.getName(), fieldMetadata.getName());
+                    
                 }
             }
             if (fieldMetadata instanceof ReferenceFieldMetadata
