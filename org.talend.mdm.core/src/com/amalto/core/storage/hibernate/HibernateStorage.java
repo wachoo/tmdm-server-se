@@ -997,6 +997,9 @@ public class HibernateStorage implements Storage {
             // Contains optimizations (use of full text, disable it...)
             ConfigurableContainsOptimizer containsOptimizer = new ConfigurableContainsOptimizer(dataSource);
             containsOptimizer.optimize(select);
+            // Implicit order by id for databases that need a order by (e.g. Postgres).
+            ImplicitOrderBy implicitOrderBy = new ImplicitOrderBy(dataSource);
+            implicitOrderBy.optimize(select);
             // Other optimizations
             for (Optimizer optimizer : OPTIMIZERS) {
                 optimizer.optimize(select);
