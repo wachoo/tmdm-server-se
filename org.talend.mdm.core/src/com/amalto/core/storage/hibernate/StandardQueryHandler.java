@@ -119,7 +119,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
 
-    private final Map<FieldMetadata, Set<String>> joinFieldsToAlias = new HashMap<FieldMetadata, Set<String>>();
+    private final Map<String, String> pathToAlias = new HashMap<String, String>();
 
     protected final MappingRepository mappings;
 
@@ -241,32 +241,30 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private void generateJoinPath(Set<String> rightTableAliases, int joinType, List<FieldMetadata> path) {
         Iterator<FieldMetadata> pathIterator = path.iterator();
         String previousAlias = mainType.getName();
+        StringBuilder builder = new StringBuilder();
         while (pathIterator.hasNext()) {
             FieldMetadata nextField = pathIterator.next();
             String newAlias = createNewAlias();
+            builder.append(nextField.getPath());
             // TODO One interesting improvement here: can add conditions on rightTable when defining join.
             if (pathIterator.hasNext()) {
-                if (!joinFieldsToAlias.containsKey(nextField)) {
+                if (!pathToAlias.containsKey(builder.toString())) {
                     criteria.createAlias(previousAlias + '.' + nextField.getName(), newAlias, joinType);
-                    joinFieldsToAlias.put(nextField, new HashSet<String>(Arrays.asList(newAlias)));
+                    pathToAlias.put(builder.toString(), newAlias);
                     previousAlias = newAlias;
                 } else {
-                    previousAlias = joinFieldsToAlias.get(nextField).iterator().next();
+                    previousAlias = pathToAlias.get(builder.toString());
                 }
+                builder.append('/');
             } else {
-                if (!joinFieldsToAlias.containsKey(nextField)) {
+                if (!pathToAlias.containsKey(builder.toString())) {
                     for (String rightTableAlias : rightTableAliases) {
                         criteria.createAlias(previousAlias + '.' + nextField.getName(), rightTableAlias, joinType);
-                        Set<String> aliases = joinFieldsToAlias.get(nextField);
-                        if (aliases == null) {
-                            aliases = new HashSet<String>();
-                            joinFieldsToAlias.put(nextField, aliases);
-                        }
-                        aliases.add(rightTableAlias);
+                        pathToAlias.put(builder.toString(), rightTableAlias);
                     }
                     previousAlias = rightTableAliases.iterator().next();
                 } else {
-                    previousAlias = joinFieldsToAlias.get(nextField).iterator().next();
+                    previousAlias = pathToAlias.get(builder.toString());
                 }
             }
         }
@@ -428,6 +426,29 @@ class StandardQueryHandler extends AbstractQueryHandler {
     }
 
     /**
+     * Test if a path has elements part of a inheritance tree.
+     * 
+     * @param path A list of {@link org.talend.mdm.commmon.metadata.FieldMetadata fields} that represents a path from an
+     * entity type down to a selected field (for projection or condition).
+     * @return <code>true</code> if at least one element in the <code>path</code> is contained in a type part of an
+     * inheritance tree, <code>false</code> otherwise. If path is empty, returns <code>true</code> as method cannot
+     * decide.
+     */
+    private static boolean pathContainsInheritance(List<FieldMetadata> path) {
+        if (path.isEmpty()) {
+            // Path is empty: it may contain inheritance elements, can't decide.
+            return true;
+        }
+        for (FieldMetadata fieldMetadata : path) {
+            ComplexTypeMetadata containingType = fieldMetadata.getContainingType();
+            if (!containingType.getSubTypes().isEmpty() || !containingType.getSuperTypes().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * <p>
      * Generate an alias to the <code>field</code> starting from <code>type</code>. This code ensures all paths to
      * <code>field</code> are covered (this field might be present several times inside the MDM entity scope).
@@ -438,33 +459,34 @@ class StandardQueryHandler extends AbstractQueryHandler {
      * @return A set of aliases that represents the <code>field</code>.
      */
     private Set<String> getAliases(ComplexTypeMetadata type, Field field) {
-        if (joinFieldsToAlias.containsKey(field.getFieldMetadata())) {
-            return joinFieldsToAlias.get(field.getFieldMetadata());
-        }
         FieldMetadata fieldMetadata = field.getFieldMetadata();
-        String previousAlias = type.getName();
-        String alias = null;
+        String previousAlias;
+        if (fieldMetadata.getContainingType().getEntity().isInstantiable()) {
+            previousAlias = field.getFieldMetadata().getEntityTypeName();
+        } else {
+            previousAlias = type.getName();
+        }
         Set<List<FieldMetadata>> paths;
-        if (fieldMetadata instanceof ReferenceFieldMetadata || !fieldMetadata.getContainingType().isInstantiable()) {
+        if (pathContainsInheritance(field.getPath())) {
             paths = MetadataUtils.paths(type, fieldMetadata);
         } else {
             paths = Collections.singleton(field.getPath());
         }
         Set<String> aliases = new HashSet<String>(paths.size());
         for (List<FieldMetadata> path : paths) {
-            boolean newPath = false;
-            for (FieldMetadata next : path) {
+            int joinType = CriteriaSpecification.INNER_JOIN;
+            StringBuilder builder = new StringBuilder();
+            Iterator<FieldMetadata> iterator = path.iterator();
+            while (iterator.hasNext()) {
+                FieldMetadata next = iterator.next();
+                builder.append(next.getPath());
                 if (next instanceof ReferenceFieldMetadata) {
-                    aliases = joinFieldsToAlias.get(next);
-                    if (aliases == null || newPath) {
+                    String alias = pathToAlias.get(builder.toString());
+                    if (alias == null) {
                         alias = createNewAlias();
-                        if (aliases == null) {
-                            aliases = new HashSet<String>(Arrays.asList(alias));
-                            joinFieldsToAlias.put(next, aliases);
-                        } else {
-                            aliases.add(alias);
-                        }
-                        int joinType;
+                        // Remembers aliases created for the next field in path (to prevent same alias name creation for
+                        // field - in case of join, for example -)
+                        pathToAlias.put(builder.toString(), alias);
                         // TMDM-4866: Do a left join in case FK is not mandatory (only if there's one path).
                         if (next.isMandatory() && paths.size() == 1) {
                             joinType = CriteriaSpecification.INNER_JOIN;
@@ -472,18 +494,15 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             joinType = CriteriaSpecification.LEFT_JOIN;
                         }
                         criteria.createAlias(previousAlias + '.' + next.getName(), alias, joinType);
-                        newPath = true;
                     }
-                    if (alias != null) {
-                        previousAlias = alias;
-                    } else {
-                        previousAlias = aliases.iterator().next();
-                    }
+                    previousAlias = alias;
                 }
             }
             aliases.add(previousAlias);
             previousAlias = type.getName();
-            alias = null;
+            if (iterator.hasNext()) {
+                builder.append('/');
+            }
         }
         return aliases;
     }
@@ -596,7 +615,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             for (String alias : aliases) {
                 condition.criterionFieldNames.add(alias + '.' + userFieldMetadata.getName());
             }
-        }
+        }       
         if (condition != null) {
             for (String fieldName : condition.criterionFieldNames) {
                 OrderBy.Direction direction = orderBy.getDirection();
@@ -1410,7 +1429,18 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // Use line below to allow searches on collection fields (but Hibernate 4 should be used).
             // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
-            condition.criterionFieldNames.add(getFieldName(field));
+            Set<String> aliases = getAliases(mainType, field);
+            for (String alias : aliases) {
+                List<FieldMetadata> path = field.getPath();
+                if (path.size() > 1) {
+                    // For path with more than 1 element, the alias for the criterion is the *containing* one(s).
+                    String containerAlias = pathToAlias.get(path.get(path.size() - 2).getPath());
+                    condition.criterionFieldNames.add(containerAlias + '.' + field.getFieldMetadata().getName());
+                } else {
+                    // For path with size 1, code did not generate an alias for field and returned containing alias.
+                    condition.criterionFieldNames.add(alias + '.' + field.getFieldMetadata().getName());
+                }
+            }
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;
             condition.isProperty = true;

@@ -299,7 +299,18 @@ public class StorageQueryTest extends StorageTestCase {
                 .add(factory
                         .read("1", repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record5</id></ContainedEntityB>"));
-
+        allRecords
+        .add(factory
+                .read("1", repository, city,
+                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
+        allRecords
+        .add(factory
+                .read("1", repository, city,
+                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
+        allRecords
+        .add(factory
+                .read("1", repository, organization,
+                        "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -2908,6 +2919,50 @@ public class StorageQueryTest extends StorageTestCase {
             expectedResults.remove(s.replaceAll("\\r|\\n|\\t", ""));
         }
         assertTrue(expectedResults.isEmpty());
+    }
+    
+    public void testFKInReusableTypeWithViewSearch() throws Exception {
+        UserQueryBuilder qb = from(organization).selectId(organization)
+                .select(alias(organization.getField("org_address/city"), "city1"))
+                .select(alias(organization.getField("org_address/street"), "street1"))
+                .select(alias(organization.getField("post_address/city"), "city2"))
+                .select(alias(organization.getField("post_address/street"), "street2"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        for (DataRecord result : results) {
+            assertEquals("SH", String.valueOf(result.get("city1")));
+            assertEquals("waitan rd", String.valueOf(result.get("street1")));
+            assertEquals("BJ", String.valueOf(result.get("city2")));
+            assertEquals("changan rd", String.valueOf(result.get("street2")));
+        }
+    }
+    
+    public void testFKInreusableTypeWithViewSearch2() throws Exception {
+        UserQueryBuilder qb = from(organization).selectId(organization)
+                .select(organization.getField("org_address/city"))
+                .select(organization.getField("org_address/street"))
+                .select(alias(organization.getField("post_address/city"), "city"))
+                .select(alias(organization.getField("post_address/street"), "street"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        String resultAsString = "";
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+            } catch (IOException e) {
+                throw new XmlServerException(e);
+            }
+            resultAsString = new String(output.toByteArray(), Charset.forName("UTF-8"));            
+            output.reset();
+        }        
+        String startRoot = "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
+        String endRoot = "</result>";
+        
+        String expectedResult = startRoot +
+                 "<org_id>1</org_id><city>[SH]</city><street>waitan rd</street><city>[BJ]</city><street>changan rd</street>"  + endRoot;        
+        assertTrue(expectedResult.equals(resultAsString.replaceAll("\\r|\\n|\\t", "")));
     }
 
     public void testStringFieldConstraint() throws Exception {
