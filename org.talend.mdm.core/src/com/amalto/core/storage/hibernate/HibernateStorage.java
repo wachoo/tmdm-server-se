@@ -1214,9 +1214,11 @@ public class HibernateStorage implements Storage {
                             // references
                             for (ReferenceFieldMetadata reference : references) {
                                 if (reference.isMany()) {
+                                    // No need to check for mandatory collections of references since constraint cannot
+                                    // be expressed in db schema
                                     String formattedTableName = tableResolver.getCollectionTable(reference);
                                     session.createSQLQuery("delete from " + formattedTableName).executeUpdate(); //$NON-NLS-1$
-                                } else {
+                                } else if(!reference.isMandatory()) {
                                     String referenceTableName = tableResolver.get(reference.getContainingType());
                                     List<String> fkColumnNames;
                                     if (reference.getReferencedField() instanceof CompoundFieldMetadata) {
@@ -1244,8 +1246,7 @@ public class HibernateStorage implements Storage {
                                 }
                             }
                             // Delete the type instances
-                            String className = storageClassLoader.getClassFromType(typeToDelete).getName();
-                            session.createQuery("delete from " + className).executeUpdate(); //$NON-NLS-1$
+                            session.createQuery("delete from " + tableResolver.get(typeToDelete)).executeUpdate(); //$NON-NLS-1$
                             // Clean up full text indexes
                             if (dataSource.supportFullText()) {
                                 FullTextSession fullTextSession = Search.getFullTextSession(session);
