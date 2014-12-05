@@ -73,14 +73,6 @@ public class Utils {
     private static final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.general.client.i18n.GeneralMessages", Utils.class.getClassLoader()); //$NON-NLS-1$
 
-    public static void getJavascriptImportDetail(List<String> imports) {
-        try {
-            getJavascriptImportDetail(Menu.getRootMenu(), imports, 1, 1);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-    }
-
     public static int getSubMenus(Menu menu, String language, List<MenuBean> rows, int level, int i) {
         for (String key : menu.getSubMenus().keySet()) {
             Menu subMenu = menu.getSubMenus().get(key);

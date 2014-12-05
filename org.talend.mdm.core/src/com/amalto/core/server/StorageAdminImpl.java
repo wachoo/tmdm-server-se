@@ -117,8 +117,7 @@ public class StorageAdminImpl implements StorageAdmin {
 
     public Storage create(String dataModelName, String storageName, StorageType type, String dataSourceName, String revisionId) {
         if (MDMConfiguration.getConfiguration().get(DataSourceFactory.DB_DATASOURCES) == null) {
-            LOGGER.warn("Configuration does not allow creation of SQL storage for '" + dataModelName + "'.");
-            return null;
+            throw new IllegalStateException("MDM Configuration is not configured for RDBMS storage.");
         }
         if (DispatchWrapper.isMDMInternal(storageName)) {
             return internalCreateSystemStorage(dataSourceName);

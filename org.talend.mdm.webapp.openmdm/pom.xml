@@ -55,16 +55,9 @@
             <artifactId>org.talend.mdm.ext.images.server</artifactId>
             <type>war</type>
         </dependency>
-        <!-- Community-only dependencies-->
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.webapp.core.open</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.core.open</artifactId>
-            <version>6.0-SNAPSHOT</version>
+            <artifactId>org.talend.mdm.core.storage.sql</artifactId>
         </dependency>
     </dependencies>
 </project>

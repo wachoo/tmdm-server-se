@@ -3,8 +3,6 @@
 <%@page import="java.util.Locale"%>
 <%@page import="com.amalto.core.util.Util"%>
 <%@page import="com.amalto.core.util.Version"%>
-<%@page import="com.amalto.webapp.core.util.DefaultCommonUtil"%>
-
 <%
     String contextPath = request.getContextPath();
     Locale locale = request.getLocale();
@@ -38,10 +36,9 @@
          _ERROR_ = "Login failed. Please check your login and password";
     }
     
-    String editionTitle=DefaultCommonUtil.getProductInfo();
+    String editionTitle="TODO";
     String version=Version.getSimpleVersionAsString(this.getClass());
 %>
-
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
@@ -69,52 +66,9 @@
 
 <link rel="stylesheet" type="text/css" href="<%= contextPath %>/auth/loginPage.css"/>
 
-<!--  DWR -->
-<script type="text/javascript">
-function f_submit(){    
-    
-    var username=document.loginform.j_username.value ;
-    var password=document.loginform.j_password.value;
-    var universe='';
-    if(document.loginform.j_universe!=undefined && document.loginform.j_universe!=null)universe=document.loginform.j_universe.value;
-    if(universe!=''&&universe=='HEAD')universe='';
-    if(universe){
-        document.loginform.j_username.value=universe+"/"+username ;
-    }
-    document.loginform.submit();
-    
-}
-
-function getUniverseList()
-{
-    if(document.loginform.j_universe!=undefined && document.loginform.j_universe!=null){
-       //retrieve data
-        LoginInterface.getUniverseNames({
-            callback:function(data) { 
-              DWRUtil.removeAllOptions("j_universe");
-              DWRUtil.addOptions("j_universe",data);
-            },
-            errorHandler:function(message) { alert(message); },
-            timeout:10000
-        });
-    }
-}
-
-function deleteCookie() {         
-        if ('<%= error%>' == 'loginFailedAndClean') {
-            alert('<%= _ERROR_ %>');
-            document.cookie = "JSESSIONID=" + "; path=/; expires = Thu, 01-Jan-1970 00:00:01 GMT";
-            document.cookie = "JSESSIONIDSSO=" + "; path=/; expires = Thu, 01-Jan-1970 00:00:01 GMT";
-            location.href = "../index.html";               
-        }
-    }
-deleteCookie();
-</script>
-
 </head>
-<body onload="document.loginform.j_username.focus();getUniverseList();">
-
- <table width="100%" class="header1" border="0">
+<body>
+<table width="100%" class="header1" border="0">
       <tr><td height="128" width="50%" class="logo"><img src="<%= contextPath %>/auth/logo.png"></td><td class="version" id="loginVersion"><%=version%></td></tr>
       <tr><td class="suiteName" id="suiteName" colspan="2" height="56">Talend MDM</td></tr>
     </table>
@@ -147,24 +101,14 @@ deleteCookie();
                             <td align="left"><input type="password" name="j_password" value="" onKeyDown="if(event.keyCode==13){document.all.login.click()}"/>
                             </td>
                         </tr>
-                        <%if(com.amalto.core.util.Util.isEnterprise()){%>
                         <tr>
-                            <td align="right" width="120"><%= _UNIVERSE_ %>:&nbsp;</td>
-                            <td align="left">
-                            <select id="j_universe" name="j_universe"/>
-                            </td>
-                        </tr>
-                        <%}%>                       
-                        <tr>
-                            <td colspan="2" align="center"><input type="button" name="login" value="<%=_LOGIN_%>" onclick="f_submit()"/></td>
+                            <td colspan="2" align="center"><input type="submit" name="login" value="<%=_LOGIN_%>"/></td>
                         </tr>
                     </table>
                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                 </form>
-    
             </td>
         </tr>
     </table>
-
 </body>
 </html>

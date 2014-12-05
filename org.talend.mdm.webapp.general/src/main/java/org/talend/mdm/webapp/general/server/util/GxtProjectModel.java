@@ -15,42 +15,47 @@ package org.talend.mdm.webapp.general.server.util;
 import java.util.List;
 
 public class GxtProjectModel {
-	private String context;
-	private String application;
-	private String model;
-	
-	private List<String> css_addresses;
-	
-	public GxtProjectModel(){
-	}
-	
-	public GxtProjectModel(String context, String application, String model){
-		this.context = context;
-		this.application = application;
-		this.model = model;
-	}
+
+    private String       context;
+
+    private String       application;
+
+    private String       model;
+
+    private List<String> css_addresses;
+
+    public GxtProjectModel() {
+    }
+
 	public String getContext() {
-		return context;
-	}
-	public void setContext(String context) {
-		this.context = context;
-	}
-	public String getApplication() {
-		return application;
-	}
-	public void setApplication(String application) {
-		this.application = application;
-	}
-	public String getModel() {
-		return model;
-	}
-	public void setModel(String model) {
-		this.model = model;
-	}
-	public List<String> getCss_addresses() {
-		return css_addresses;
-	}
-	public void setCss_addresses(List<String> cssAddresses) {
-		css_addresses = cssAddresses;
-	}
+        return context;
+    }
+
+    public void setContext(String context) {
+        this.context = context;
+    }
+
+    public String getApplication() {
+        return application;
+    }
+
+    public void setApplication(String application) {
+        this.application = application;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public List<String> getCss_addresses() {
+        return css_addresses;
+    }
+
+    public void setCss_addresses(List<String> cssAddresses) {
+        css_addresses = cssAddresses;
+    }
 }

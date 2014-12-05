@@ -1,6 +1,0 @@
-<web-app>
-    <!--
-    Intentionally left empty! This file is required by Maven build, but actual web.xml is a merged version of
-    all web.xml in various modules (see org.talend.mdm.webapp.openmdm)
-    -->
-</web-app>

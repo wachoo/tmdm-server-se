@@ -25,7 +25,6 @@ public class AssembleDirector {
 		fBuilder.buildPartInitData();
 		fBuilder.buildPartMigrateVersion();
 		fBuilder.buildPartStartEngine();
-		fBuilder.buildFaildMessage();
 		fBuilder.buildStartService();
 		fBuilder.buildInitJobox();
 		fBuilder.buildInitDataModelPools();

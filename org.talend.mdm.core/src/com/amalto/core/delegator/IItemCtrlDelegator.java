@@ -42,9 +42,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
 
     private static final Logger LOGGER = Logger.getLogger(IItemCtrlDelegator.class);
 
-    public void resendFailtSvnMessage() throws Exception {
-    }
-
     public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, IWhereItem whereItem,
                                         String orderBy, String direction, int start, int limit) throws XtentisException {
         // get the universe and revision ID
@@ -379,7 +376,9 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
     /**
      * get view where conditions from Role CE version return empty
      */
-    protected abstract ArrayList<IWhereItem> getViewWCFromRole(ViewPOJOPK viewPOJOPK) throws Exception;
+    protected ArrayList<IWhereItem> getViewWCFromRole(ViewPOJOPK viewPOJOPK) throws Exception {
+        return null;
+    }
 
     protected static IWhereItem getFullWhereCondition(IWhereItem whereItem, ArrayList<IWhereItem> conditions) {
         IWhereItem fullWhere;
