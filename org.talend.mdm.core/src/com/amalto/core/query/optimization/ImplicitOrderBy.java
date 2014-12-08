@@ -40,7 +40,6 @@ public class ImplicitOrderBy implements Optimizer {
         case H2:
         case ORACLE_10G:
         case MYSQL:
-        case DB2:
             // Nothing to do for those databases
             return;
         case SQL_SERVER:
@@ -87,7 +86,7 @@ public class ImplicitOrderBy implements Optimizer {
         // Compute already present orderBy expressions
         Set<TypedExpression> orderByExpressions = new HashSet<TypedExpression>();
         for (OrderBy orderBy : select.getOrderBy()) {
-            orderByExpressions.add(orderBy.getExpression());
+            orderByExpressions.add(orderBy.getField());
         }
         // Create key fields expressions
         Set<TypedExpression> neededExpressions = new HashSet<TypedExpression>();
