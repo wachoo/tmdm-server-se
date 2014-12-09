@@ -100,7 +100,7 @@ public class SynchronizationItemPOJO extends ObjectPOJO{
 	@Override
     public ObjectPOJOPK getPK() {
 		if (getItemPOJOPK()==null) return null;
-		return new SynchronizationItemPOJOPK(getLocalRevisionID(),getItemPOJOPK());
+		return new ObjectPOJOPK(getItemPOJOPK().getIds());
     }
 	
 	public SynchronizationItemPOJOPK getSynchronizationItemPOJOPK() {
