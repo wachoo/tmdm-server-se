@@ -11,24 +11,31 @@
 
 package com.amalto.core.load;
 
-import com.amalto.core.load.context.AutoIdGenerator;
-import com.amalto.core.load.context.StateContext;
-import com.amalto.core.load.context.UUIDIdGenerator;
-import com.amalto.core.load.exception.ParserCallbackException;
-import com.amalto.core.load.io.XMLRootInputStream;
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import com.amalto.core.server.api.XmlServer;
-import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+
+import com.amalto.core.save.generator.UUIDIdGenerator;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+
+import com.amalto.core.save.generator.AutoIdGenerator;
+import com.amalto.core.load.context.StateContext;
+import com.amalto.core.load.exception.ParserCallbackException;
+import com.amalto.core.load.io.XMLRootInputStream;
+import com.amalto.core.server.XmlServer;
 
 /**
  *
@@ -636,7 +643,7 @@ public class LoadParserTest extends TestCase {
         assertEquals("123", callback.getId());
 
         props = MDMConfiguration.getConfiguration();
-        props.setProperty("xmlserver.class", "com.amalto.core.qizx.xmldb.QizxWrapper");
+        props.setProperty("xmlserver.class", "org.talend.mdm.qizx.xmldb.QizxWrapper");
         props.setProperty("qizx.db.type", "server");
 
         testResource = new ByteArrayInputStream(xmlSource.getBytes());
@@ -655,7 +662,7 @@ public class LoadParserTest extends TestCase {
         assertEquals("123", callback.getId());
 
         props = MDMConfiguration.getConfiguration();
-        props.setProperty("xmlserver.class", "com.amalto.core.qizx.xmldb.QizxWrapper");
+        props.setProperty("xmlserver.class", "org.talend.mdm.qizx.xmldb.QizxWrapper");
         props.setProperty("qizx.db.type", "embedded");
 
         testResource = new ByteArrayInputStream(xmlSource.getBytes());
@@ -912,6 +919,10 @@ public class LoadParserTest extends TestCase {
 
         public void saveState(XmlServer server) {
             savedState = true;
+        }
+
+        @Override
+        public void init() {
         }
 
         public boolean isStateSaved() {

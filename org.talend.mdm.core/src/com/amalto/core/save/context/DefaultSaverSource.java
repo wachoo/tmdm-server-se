@@ -11,26 +11,32 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.DataModelPOJOPK;
+import com.amalto.core.save.generator.AutoIncrementGenerator;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.save.DOMDocument;
-import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import com.amalto.core.schema.validation.XmlSchemaValidator;
-import com.amalto.core.server.*;
-import com.amalto.core.servlet.LoadServlet;
-import com.amalto.core.util.*;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
+import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.schema.validation.XmlSchemaValidator;
+import com.amalto.core.server.DataModel;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.XmlServer;
+import com.amalto.core.servlet.LoadServlet;
+import com.amalto.core.util.*;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import com.amalto.core.server.api.DataModel;
-import com.amalto.core.server.api.RoutingEngine;
-import com.amalto.core.server.api.XmlServer;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import java.io.ByteArrayInputStream;
@@ -54,8 +60,17 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public DefaultSaverSource(String userName) {
-        database = Util.getXmlServerCtrlLocal();
-        dataModel = Util.getDataModelCtrlLocal();
+        try {
+            database = Util.getXmlServerCtrlLocal();
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            dataModel = Util.getDataModelCtrlLocal();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         this.userName = userName;
     }
 
@@ -214,12 +229,12 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public void initAutoIncrement() {
-        AutoIncrementGenerator.init();
+        AutoIncrementGenerator.get().init();
     }
 
     public void routeItem(String dataCluster, String typeName, String[] id) {
         try {
-            RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
+            RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
             DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataCluster);
             ctrl.route(new ItemPOJOPK(dataClusterPOJOPK, typeName, id));
         } catch (Exception e) {
@@ -238,11 +253,15 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public void saveAutoIncrement() {
-        AutoIncrementGenerator.saveToDB();
+        try {
+            AutoIncrementGenerator.get().saveState(Util.getXmlServerCtrlLocal());
+        } catch (XtentisException e) {
+            throw new RuntimeException("Unable to save auto increment value.", e);
+        }
     }
 
     public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {
-        long autoIncrementId = -1;        
+        String autoIncrementId = null;
         String concept;
         String field;
         if (conceptName.contains(".")) { //$NON-NLS-1$
@@ -262,10 +281,10 @@ public class DefaultSaverSource implements SaverSource {
                     concept = superType.getName();
                 }
                 String autoIncrementFieldName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
-                autoIncrementId = AutoIncrementGenerator.generateNum(universe, dataCluster, autoIncrementFieldName);
+                autoIncrementId = AutoIncrementGenerator.get().generateId(dataCluster, conceptName, autoIncrementFieldName);
             } 
         }
-        return String.valueOf(autoIncrementId);
+        return autoIncrementId;
     }
 
     public String getLegitimateUser() {
