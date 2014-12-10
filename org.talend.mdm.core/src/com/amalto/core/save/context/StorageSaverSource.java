@@ -21,6 +21,7 @@ import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.generator.AutoIncrementGenerator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -188,7 +189,7 @@ public class StorageSaverSource implements SaverSource {
     }
 
     public void initAutoIncrement() {
-        AutoIncrementGenerator.init();
+        AutoIncrementGenerator.get().init();
     }
 
     public void routeItem(String dataCluster, String typeName, String[] id) {
@@ -212,13 +213,17 @@ public class StorageSaverSource implements SaverSource {
     }
 
     public void saveAutoIncrement() {
-        AutoIncrementGenerator.saveToDB();
+        try {
+            AutoIncrementGenerator.get().saveState(Util.getXmlServerCtrlLocal());
+        } catch (XtentisException e) {
+            throw new RuntimeException("Unable to save auto increment.", e);
+        }
     }
 
     public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {
-        long autoIncrementId = -1;        
-        String concept = null;
+        String autoIncrementId = null;
         String field = null;
+        String concept;
         if (conceptName.contains(".")) { //$NON-NLS-1$
             String[] conceptArray = conceptName.split("\\."); //$NON-NLS-1$
             concept = conceptArray[0];
@@ -235,10 +240,10 @@ public class StorageSaverSource implements SaverSource {
                     concept = superType.getName();
                 }                
                 String autoIncrementFiledName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
-                autoIncrementId = AutoIncrementGenerator.generateNum(universe, dataCluster, autoIncrementFiledName);
+                autoIncrementId = AutoIncrementGenerator.get().generateId(dataCluster, conceptName, autoIncrementFiledName);
             } 
         }
-        return String.valueOf(autoIncrementId);
+        return autoIncrementId;
     }
 
     public String getLegitimateUser() {
