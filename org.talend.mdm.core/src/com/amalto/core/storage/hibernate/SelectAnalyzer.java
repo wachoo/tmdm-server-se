@@ -190,6 +190,13 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
                 }
             }
         }
+        // Last but not least, in clause optimization includes projections that don't get along with locking, check this
+        // before choosing this optimization (see https://hibernate.atlassian.net/browse/HHH-3313).
+        TransactionManager manager = ServerContext.INSTANCE.get().getTransactionManager();
+        Transaction.LockStrategy lockStrategy = manager.currentTransaction().getLockStrategy();
+        if (lockStrategy == Transaction.LockStrategy.LOCK_FOR_UPDATE) {
+            return false;
+        }
         return allowInClauseOptimization || containsManyField || referenceFieldCount > 1;
     }
 
