@@ -71,7 +71,8 @@ public class CacheStorage implements Storage {
     }
 
     public int getCacheEntryUsage(Expression expression) {
-        return cache.get(expression).tokenCount.get();
+        CacheValue cacheValue = cache.get(expression);
+        return cacheValue == null ? 0 : cacheValue.tokenCount.get();
     }
 
     public int getMaxCacheEntryUsage() {
@@ -171,6 +172,8 @@ public class CacheStorage implements Storage {
             cache.put(userQuery, cacheValue);
             return new CachedResults(records);
         } else {
+            // TMDM-8035: Invalidate cache if query was already cached
+            cache.remove(userQuery);
             return delegate.fetch(userQuery);
         }
     }

@@ -114,9 +114,6 @@ public class Select implements Expression {
         if (condition == UserQueryHelper.TRUE) {
             condition = null;
         }
-        if (selectedFields.isEmpty()) {
-            isProjection = false;
-        }
         Set<OrderBy> uniqueOrderBy = new HashSet<OrderBy>();
         for (OrderBy current : orderBy) {
             uniqueOrderBy.add(current);
