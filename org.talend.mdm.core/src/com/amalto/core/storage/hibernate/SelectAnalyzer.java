@@ -13,11 +13,14 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.*;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.inmemory.InMemoryJoinStrategy;
+import com.amalto.core.storage.transaction.Transaction;
+import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
