@@ -124,21 +124,27 @@ class Deserializer implements JsonDeserializer<Expression> {
             if (select.has("fields")) { //$NON-NLS-1$
                 JsonArray fields = select.get("fields").getAsJsonArray(); //$NON-NLS-1$
                 for (int i = 0; i < fields.size(); i++) {
-                    JsonObject fieldElement = fields.get(i).getAsJsonObject();
-                    TypedExpressionProcessor processor = getTypedExpression(fieldElement);
-                    queryBuilder.select(processor.process(fieldElement, repository));
+                    JsonElement element = fields.get(i);
+                    if (element != null && element.isJsonObject()) {
+                        JsonObject fieldElement = element.getAsJsonObject();
+                        TypedExpressionProcessor processor = getTypedExpression(fieldElement);
+                        queryBuilder.select(processor.process(fieldElement, repository));
+                    }
                 }
             }
             // Process joins (joins are optional)
             if (select.has("joins")) { //$NON-NLS-1$
                 JsonArray fields = select.get("joins").getAsJsonArray(); //$NON-NLS-1$
                 for (int i = 0; i < fields.size(); i++) {
-                    JsonObject fieldElement = fields.get(i).getAsJsonObject();
-                    String joinLeft = fieldElement.get("from").getAsString();
-                    String joinRight = fieldElement.get("on").getAsString();
-                    FieldMetadata leftField = getField(repository, joinLeft).getFieldMetadata();
-                    FieldMetadata rightField = getField(repository, joinRight).getFieldMetadata();
-                    queryBuilder.join(leftField, rightField);
+                    JsonElement element = fields.get(i);
+                    if (element != null && element.isJsonObject()) {
+                        JsonObject fieldElement = element.getAsJsonObject();
+                        String joinLeft = fieldElement.get("from").getAsString();
+                        String joinRight = fieldElement.get("on").getAsString();
+                        FieldMetadata leftField = getField(repository, joinLeft).getFieldMetadata();
+                        FieldMetadata rightField = getField(repository, joinRight).getFieldMetadata();
+                        queryBuilder.join(leftField, rightField);
+                    }
                 }
             }
             // Process paging (optional)
@@ -151,7 +157,7 @@ class Deserializer implements JsonDeserializer<Expression> {
             // Process history browsing (optional)
             if (select.has("as_of")) { //$NON-NLS-1$
                 JsonElement element = select.get("as_of"); //$NON-NLS-1$
-                if (element.isJsonObject()) {
+                if (element != null && element.isJsonObject()) {
                     JsonObject object = element.getAsJsonObject();
                     JsonElement date = object.get("date"); //$NON-NLS-1$
                     if (date == null) {
@@ -173,18 +179,21 @@ class Deserializer implements JsonDeserializer<Expression> {
                     JsonElement orderBy = orderBys.get(i).getAsJsonObject().get("order_by"); //$NON-NLS-1
                     JsonArray array = orderBy.getAsJsonArray();
                     for (int j = 0; j < array.size(); j++) {
-                        JsonObject orderByElement = array.get(j).getAsJsonObject();
-                        boolean isDirection = orderByElement.get("direction") != null; //$NON-NLS-1
-                        if (!isDirection) {
-                            orderByExpression = getTypedExpression(orderByElement).process(orderByElement, repository);
-                        } else {
-                            String directionAsString = orderByElement.get("direction").getAsString(); //$NON-NLS-1
-                            if ("DESC".equalsIgnoreCase(directionAsString)) { //$NON-NLS-1
-                                direction = OrderBy.Direction.DESC;
-                            } else if ("ASC".equalsIgnoreCase(directionAsString)) { //$NON-NLS-1
-                                direction = OrderBy.Direction.ASC;
+                        JsonElement element = array.get(j);
+                        if (element != null && element.isJsonObject()) {
+                            JsonObject orderByElement = element.getAsJsonObject();
+                            boolean isDirection = orderByElement.get("direction") != null; //$NON-NLS-1
+                            if (!isDirection) {
+                                orderByExpression = getTypedExpression(orderByElement).process(orderByElement, repository);
                             } else {
-                                throw new IllegalArgumentException("Direction '" + directionAsString + "' is not a valid direction for order by.");
+                                String directionAsString = orderByElement.get("direction").getAsString(); //$NON-NLS-1
+                                if ("DESC".equalsIgnoreCase(directionAsString)) { //$NON-NLS-1
+                                    direction = OrderBy.Direction.DESC;
+                                } else if ("ASC".equalsIgnoreCase(directionAsString)) { //$NON-NLS-1
+                                    direction = OrderBy.Direction.ASC;
+                                } else {
+                                    throw new IllegalArgumentException("Direction '" + directionAsString + "' is not a valid direction for order by.");
+                                }
                             }
                         }
                     }
