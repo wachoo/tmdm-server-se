@@ -3,7 +3,6 @@ package com.amalto.core.save.generator;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
