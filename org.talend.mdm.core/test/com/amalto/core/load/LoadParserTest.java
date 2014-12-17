@@ -35,7 +35,7 @@ import com.amalto.core.save.generator.AutoIdGenerator;
 import com.amalto.core.load.context.StateContext;
 import com.amalto.core.load.exception.ParserCallbackException;
 import com.amalto.core.load.io.XMLRootInputStream;
-import com.amalto.core.server.XmlServer;
+import com.amalto.core.server.api.XmlServer;
 
 /**
  *

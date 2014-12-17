@@ -11,23 +11,23 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.save.generator.AutoIncrementGenerator;
+import com.amalto.core.server.api.DataModel;
+import com.amalto.core.server.api.RoutingEngine;
+import com.amalto.core.server.api.XmlServer;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
-import com.amalto.core.server.DataModel;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.XmlServer;
 import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
@@ -60,17 +60,8 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public DefaultSaverSource(String userName) {
-        try {
-            database = Util.getXmlServerCtrlLocal();
-        } catch (XtentisException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            dataModel = Util.getDataModelCtrlLocal();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        database = Util.getXmlServerCtrlLocal();
+        dataModel = Util.getDataModelCtrlLocal();
         this.userName = userName;
     }
 
@@ -234,7 +225,7 @@ public class DefaultSaverSource implements SaverSource {
 
     public void routeItem(String dataCluster, String typeName, String[] id) {
         try {
-            RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
+            RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
             DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataCluster);
             ctrl.route(new ItemPOJOPK(dataClusterPOJOPK, typeName, id));
         } catch (Exception e) {
@@ -253,11 +244,7 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public void saveAutoIncrement() {
-        try {
-            AutoIncrementGenerator.get().saveState(Util.getXmlServerCtrlLocal());
-        } catch (XtentisException e) {
-            throw new RuntimeException("Unable to save auto increment value.", e);
-        }
+        AutoIncrementGenerator.get().saveState(Util.getXmlServerCtrlLocal());
     }
 
     public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {

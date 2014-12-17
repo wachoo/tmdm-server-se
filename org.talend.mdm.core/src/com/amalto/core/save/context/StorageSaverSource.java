@@ -11,14 +11,14 @@
 
 package com.amalto.core.save.context;
 
-import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.save.generator.AutoIncrementGenerator;
+import com.amalto.core.server.api.DataModel;
+import com.amalto.core.server.api.RoutingEngine;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
-import com.amalto.core.objects.datamodel.ejb.local.DataModelCtrlLocal;
-import com.amalto.core.objects.routing.v2.ejb.local.RoutingEngineV2CtrlLocal;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.DocumentSaverContext;
@@ -45,7 +45,7 @@ import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 public class StorageSaverSource implements SaverSource {
 
-    private final DataModelCtrlLocal dataModel;
+    private final DataModel dataModel;
 
     private final String userName;
 
@@ -197,7 +197,7 @@ public class StorageSaverSource implements SaverSource {
 
     public void routeItem(String dataCluster, String typeName, String[] id) {
         try {
-            RoutingEngineV2CtrlLocal ctrl = Util.getRoutingEngineV2CtrlLocal();
+            RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
             DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(dataCluster);
             ctrl.route(new ItemPOJOPK(dataClusterPOJOPK, typeName, id));
         } catch (Exception e) {
@@ -216,11 +216,7 @@ public class StorageSaverSource implements SaverSource {
     }
 
     public void saveAutoIncrement() {
-        try {
-            AutoIncrementGenerator.get().saveState(Util.getXmlServerCtrlLocal());
-        } catch (XtentisException e) {
-            throw new RuntimeException("Unable to save auto increment.", e);
-        }
+        AutoIncrementGenerator.get().saveState(Util.getXmlServerCtrlLocal());
     }
 
     public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {
