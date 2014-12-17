@@ -19,7 +19,7 @@ class CountProcessor implements TypedExpressionProcessor {
     public TypedExpression process(JsonObject element, MetadataRepository repository) {
         JsonElement countElement = element.get("count"); //$NON-NLS-1
         JsonObject count = countElement.getAsJsonObject();
-        if(count.entrySet().size() > 0) {
+        if (count.entrySet().size() > 0) {
             TypedExpression field = Deserializer.getTypedExpression(count).process(count, repository);
             if (!(field instanceof Field)) {
                 throw new IllegalArgumentException("Can only count field occurrences.");

@@ -2,7 +2,8 @@
   "select": {
     "from": ["Type1"],
     "where": {
-      "full_text": [
+      "eq": [
+        {"metadata": "timestamp"},
         {"value": "1"}
       ]
     }

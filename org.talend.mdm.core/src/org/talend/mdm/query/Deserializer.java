@@ -1,21 +1,20 @@
 package org.talend.mdm.query;
 
-import java.lang.reflect.Type;
-
 import com.amalto.core.query.user.*;
+import com.google.gson.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
-import com.google.gson.*;
+import java.lang.reflect.Type;
 
 class Deserializer implements JsonDeserializer<Expression> {
 
     private final MetadataRepository repository;
 
-    private UserQueryBuilder queryBuilder;
+    private UserQueryBuilder         queryBuilder;
 
     Deserializer(MetadataRepository repository) {
         if (repository == null) {
@@ -41,7 +40,7 @@ class Deserializer implements JsonDeserializer<Expression> {
             return DistinctProcessor.INSTANCE;
         } else if (object.has("count")) { //$NON-NLS-1
             return CountProcessor.INSTANCE;
-        }else {
+        } else {
             throw new NotImplementedException("No support for '" + object + "'.");
         }
     }
@@ -192,7 +191,8 @@ class Deserializer implements JsonDeserializer<Expression> {
                                 } else if ("ASC".equalsIgnoreCase(directionAsString)) { //$NON-NLS-1
                                     direction = OrderBy.Direction.ASC;
                                 } else {
-                                    throw new IllegalArgumentException("Direction '" + directionAsString + "' is not a valid direction for order by.");
+                                    throw new IllegalArgumentException("Direction '" + directionAsString
+                                            + "' is not a valid direction for order by.");
                                 }
                             }
                         }

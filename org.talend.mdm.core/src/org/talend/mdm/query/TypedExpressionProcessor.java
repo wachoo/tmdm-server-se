@@ -8,5 +8,6 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
  *
  */
 interface TypedExpressionProcessor {
+
     TypedExpression process(JsonObject element, MetadataRepository repository);
 }

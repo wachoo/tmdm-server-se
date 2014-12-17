@@ -2,10 +2,10 @@
   "select": {
     "from": ["Type1"],
     "where": {
-      "eq": {
-        "field": "Type1/id",
-        "value": {"field": "Type1/value1"}
-      }
+      "eq": [
+        {"field": "Type1/id"},
+        {"value": {"field": "Type1/value1"}}
+      ]
     }
   }
 }

@@ -1,11 +1,10 @@
 package org.talend.mdm.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.min;
-
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-
 import com.amalto.core.query.user.TypedExpression;
 import com.google.gson.JsonObject;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+
+import static com.amalto.core.query.user.UserQueryBuilder.min;
 
 class MinProcessor implements TypedExpressionProcessor {
 

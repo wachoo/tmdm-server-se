@@ -18,7 +18,8 @@ class AndProcessor implements ConditionProcessor {
     public Condition process(JsonObject condition, MetadataRepository repository) {
         JsonArray and = condition.get("and").getAsJsonArray(); //$NON-NLS-1$
         if (and.size() != 2) {
-            throw new IllegalArgumentException("Malformed query (and is supposed to get 2 conditions - got " + and.size() + " -).");
+            throw new IllegalArgumentException("Malformed query (and is supposed to get 2 conditions - got " + and.size()
+                    + " -).");
         }
         Condition[] conditions = new Condition[2];
         for (int i = 0; i < and.size(); i++) {

@@ -1,12 +1,10 @@
 package org.talend.mdm.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.not;
-
+import com.amalto.core.query.user.Condition;
+import com.google.gson.JsonObject;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
-import com.amalto.core.query.user.Condition;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import static com.amalto.core.query.user.UserQueryBuilder.not;
 
 class NotProcessor implements ConditionProcessor {
 

@@ -1,9 +1,6 @@
 package org.talend.mdm.query;
 
 import com.amalto.core.query.user.TypedExpression;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.query.user.metadata.MetadataField;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 

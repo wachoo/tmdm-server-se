@@ -3,10 +3,10 @@
     "from": ["Type1"],
     "where": {
       "not": {
-        "eq": {
-          "field": "Type1/id",
-          "value": "1"
-        }
+        "eq": [
+          {"field": "Type1/id"},
+          {"value": "1"}
+        ]
       }
     }
   }

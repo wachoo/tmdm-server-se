@@ -438,4 +438,16 @@ public class QueryParserTest extends TestCase {
         assertEquals(Count.class, ((Alias) selectedField).getTypedExpression().getClass());
     }
 
+    public void testQuery27() {
+        QueryParser parser = QueryParser.newParser(repository);
+        Expression expression = parser.parse(QueryParserTest.class.getResourceAsStream("query27.json")); //$NON-NLS-1$
+        assertTrue(expression instanceof Select);
+        Select select = (Select) expression;
+        Condition condition = select.getCondition();
+        assertNotNull(condition);
+        assertEquals(Compare.class, condition.getClass());
+        assertEquals(Timestamp.class, ((Compare) condition).getLeft().getClass());
+        assertEquals(LongConstant.class, ((Compare) condition).getRight().getClass());
+    }
+
 }
