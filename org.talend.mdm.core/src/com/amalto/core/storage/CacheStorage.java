@@ -129,6 +129,9 @@ public class CacheStorage implements Storage {
 
     @Override
     public StorageResults fetch(Expression userQuery) {
+        if (userQuery == null) {
+            throw new IllegalArgumentException("Query cannot be null.");
+        }
         if (userQuery.cache()) {
             CacheValue cacheValue = cache.get(userQuery);
             if (cacheValue != null) {
