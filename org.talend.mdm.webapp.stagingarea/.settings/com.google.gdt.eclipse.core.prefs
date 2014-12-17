@@ -1,4 +1,4 @@
 #Fri Aug 26 16:00:52 CST 2011
 eclipse.preferences.version=1
-warSrcDir=war
+warSrcDir=src/main/webapp
 warSrcDirIsOutput=false
