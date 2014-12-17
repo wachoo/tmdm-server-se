@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -39,9 +42,6 @@ import org.talend.mdm.webapp.base.shared.XpathUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.ejb.ItemPOJO;
-import com.amalto.core.ejb.ItemPOJOPK;
-import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSGetItemsByCustomFKFilters;
 import com.amalto.core.webservice.WSInt;
@@ -230,7 +230,7 @@ public class ForeignKeyHelper {
                 bean.setConceptName(fk);
             }
             String id = ""; //$NON-NLS-1$
-            NodeList nodes = Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
+            NodeList nodes = com.amalto.core.util.Util.getNodeList(resultAsDOM, "//i"); //$NON-NLS-1$
             if (nodes != null) {
                 for (int i = 0; i < nodes.getLength(); i++) {
                     if (nodes.item(i) instanceof Element) {
