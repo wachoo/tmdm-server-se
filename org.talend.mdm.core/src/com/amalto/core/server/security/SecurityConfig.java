@@ -23,13 +23,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.authentication.NullRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -39,8 +35,6 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
-
-import javax.servlet.http.HttpServletRequest;
 
 @EnableWebSecurity
 @Configuration
@@ -56,6 +50,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
         ComplexTypeMetadata userType = systemStorage.getMetadataRepository().getComplexType("User"); //$NON-NLS-1$
         UserQueryBuilder qb = from(userType);
+        qb.start(0); //TODO
+        qb.limit(2);
         systemStorage.begin();
         List<UserDetails> userDetails = new ArrayList<UserDetails>();
         try {
@@ -63,7 +59,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             for (DataRecord user : users) {
                 String userName = String.valueOf(user.get("username")); //$NON-NLS-1$
                 String password = String.valueOf(user.get("password")); //$NON-NLS-1$
-                List<String> roles = (List<String>) ((DataRecord) user.get("roles")).get("role"); //$NON-NLS-1$  //$NON-NLS-2$
+                @SuppressWarnings("unchecked")
+				List<String> roles = (List<String>) ((DataRecord) user.get("roles")).get("role"); //$NON-NLS-1$  //$NON-NLS-2$
                 userDetails.add(new MDMUserDetails(userName, password, roles));
             }
             systemStorage.commit();
