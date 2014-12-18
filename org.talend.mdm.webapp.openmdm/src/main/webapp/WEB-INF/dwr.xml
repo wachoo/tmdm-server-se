@@ -12,22 +12,5 @@
         <convert converter="bean" match="com.amalto.webapp.core.bean.ComboItemBean"/>
         <convert converter="bean" match="java.lang.NullPointerException"/>
 
-        <create creator="new" javascript="ActionsInterface">
-            <param name="class" value="com.amalto.webapp.v3.xtentismdm.dwr.ActionsDWR"/>
-            <auth method="getClusters" role="authenticated"/>
-            <auth method="getModels" role="authenticated"/>
-            <auth method="getCluster" role="authenticated"/>
-            <auth method="getModel" role="authenticated"/>
-            <auth method="setClusterAndModel" role="authenticated"/>
-        </create>
-        <create creator="new" javascript="LoginInterface">
-            <param name="class" value="com.amalto.webapp.v3.xtentismdm.dwr.LoginDWR"/>
-        </create>
-        <create creator="new" javascript="ItemsBrowserInterface">
-            <param name="class" value="org.talend.mdm.webapp.browserecords.server.ItemsBrowserDWR"/>
-        </create>
-        <create creator="new" javascript="LayoutInterface">
-            <param name="class" value="com.amalto.webapp.core.dwr.LayoutDWR"/>
-        </create>
     </allow>
 </dwr>

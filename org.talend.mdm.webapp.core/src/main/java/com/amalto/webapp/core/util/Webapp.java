@@ -53,7 +53,8 @@ public interface Webapp {
 
         private static Webapp createWebapp() {
             try {
-                return (Webapp) Class.forName(Webapp.class.getName() + "Impl").newInstance(); //$NON-NLS-1$
+                //return (Webapp) Class.forName(Webapp.class.getName() + "Impl").newInstance(); //$NON-NLS-1$
+            	return new WebappImpl(); // TODO
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }

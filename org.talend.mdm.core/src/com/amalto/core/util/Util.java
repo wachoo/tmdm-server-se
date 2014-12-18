@@ -901,7 +901,7 @@ public class Util {
     }
 
     public static boolean isEnterprise() {
-        return true; // TODO
+        return false; // TODO
     }
 
     public static class BeforeDeleteResult {
