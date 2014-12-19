@@ -164,7 +164,7 @@ public class BrandingBar extends ContentPanel {
                     public void onSuccess(Void result) {
                         Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
                         Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
-                        setHref("secure"); //$NON-NLS-1$
+                        setHref(".."); //$NON-NLS-1$
                     }
                 });
 
