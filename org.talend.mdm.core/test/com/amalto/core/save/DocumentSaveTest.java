@@ -10,7 +10,6 @@
 
 package com.amalto.core.save;
 
-import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
@@ -29,7 +28,6 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.server.MockMetadataRepositoryAdmin;
@@ -54,8 +52,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 @SuppressWarnings("nls")
 public class DocumentSaveTest extends TestCase {
@@ -938,7 +934,6 @@ public class DocumentSaveTest extends TestCase {
         // test update report
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
         assertNotNull(updateReportDocument);
-        String updateReportXml = updateReportDocument.exportToString();
         Document doc = updateReportDocument.asDOM();
         String path = (String) evaluate(doc.getDocumentElement(), "Item[1]/path");
         String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/oldValue");
@@ -994,7 +989,6 @@ public class DocumentSaveTest extends TestCase {
         // test update report
         MutableDocument updateReportDocument2 = context2.getUpdateReportDocument();
         assertNotNull(updateReportDocument2);
-        String updateReportXml2 = updateReportDocument2.exportToString();
         Document doc = updateReportDocument2.asDOM();
         String path = (String) evaluate(doc.getDocumentElement(), "Item[1]/path");
         String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/oldValue");

@@ -623,7 +623,10 @@ public class SystemStorageTest extends TestCase {
                 int count = 0;
                 while (it.hasNext()) {
                     count++;
-                    it.next();
+                    DataRecord next = it.next();
+                    Object list = next.get("roles/role");
+                    assertTrue(list instanceof List);
+                    assertEquals(2, ((List) list).size());
                 }
                 assertEquals(2, count);
             } finally {
