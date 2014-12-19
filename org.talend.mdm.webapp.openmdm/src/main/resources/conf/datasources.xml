@@ -10,7 +10,10 @@
                 <connection-url>jdbc:h2:/tmp/data/${container}/h2_default;MVCC=TRUE</connection-url>
                 <fulltext-index-directory>/tmp/indexes/${container}</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
-                <schema-generation>create</schema-generation>
+                <schema-generation>update</schema-generation>
+                <properties>
+                    <property name="hibernate.show_sql">true</property>
+                </properties>
             </rdbms-configuration>
         </master>
         <system>
@@ -21,7 +24,10 @@
                 <connection-url>jdbc:h2:/tmp/data/system/h2_system;MVCC=TRUE</connection-url>
                 <fulltext-index-directory>/tmp/indexes/H2_SYSTEM</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
-                <schema-generation>create</schema-generation>
+                <schema-generation>update</schema-generation>
+                <properties>
+                    <property name="hibernate.show_sql">true</property>
+                </properties>
             </rdbms-configuration>
         </system>
     </datasource>

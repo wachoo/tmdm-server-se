@@ -50,8 +50,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         ComplexTypeMetadata userType = systemStorage.getMetadataRepository().getComplexType("User"); //$NON-NLS-1$
         UserQueryBuilder qb = from(userType);
-        qb.start(0); //TODO
-        qb.limit(2);
         systemStorage.begin();
         List<UserDetails> userDetails = new ArrayList<UserDetails>();
         try {
