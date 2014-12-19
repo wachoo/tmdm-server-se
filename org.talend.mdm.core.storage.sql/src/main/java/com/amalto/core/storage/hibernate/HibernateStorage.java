@@ -133,7 +133,7 @@ public class HibernateStorage implements Storage {
 
     private Configuration configuration;
 
-    private RDBMSDataSource dataSource;
+    protected RDBMSDataSource dataSource;
 
     private MetadataRepository userMetadataRepository;
 
@@ -215,7 +215,7 @@ public class HibernateStorage implements Storage {
         internalInit();
     }
 
-    private void internalInit() {
+    protected void internalInit() {
         if (!dataSource.supportFullText()) {
             LOGGER.warn("Storage '" + storageName + "' (" + storageType + ") is not configured to support full text queries.");
         }
@@ -1125,9 +1125,11 @@ public class HibernateStorage implements Storage {
                             // references
                             for (ReferenceFieldMetadata reference : references) {
                                 if (reference.isMany()) {
+                                    // No need to check for mandatory collections of references since constraint cannot
+                                    // be expressed in db schema
                                     String formattedTableName = tableResolver.getCollectionTable(reference);
                                     session.createSQLQuery("delete from " + formattedTableName).executeUpdate(); //$NON-NLS-1$
-                                } else {
+                                } else if(!reference.isMandatory()) {
                                     String referenceTableName = tableResolver.get(reference.getContainingType());
                                     List<String> fkColumnNames;
                                     if (reference.getReferencedField() instanceof CompoundFieldMetadata) {
@@ -1140,6 +1142,10 @@ public class HibernateStorage implements Storage {
                                     } else {
                                         fkColumnNames = Collections.singletonList(tableResolver.get(
                                                 reference.getReferencedField(), reference.getName()));
+                                    }
+                                    for (String fkColumnName : fkColumnNames) {
+                                        session.createSQLQuery(
+                                                "update " + referenceTableName + " set " + fkColumnName + " = NULL").executeUpdate(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                     }
                                     for (String fkColumnName : fkColumnNames) {
                                         session.createSQLQuery(

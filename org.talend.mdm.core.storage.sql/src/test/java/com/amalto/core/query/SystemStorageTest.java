@@ -614,8 +614,6 @@ public class SystemStorageTest extends TestCase {
         try {
             ComplexTypeMetadata user = repository.getComplexType("User"); //$NON-NLS-1$
             UserQueryBuilder qb = from(user);
-            qb.start(0);
-            qb.limit(2);
             StorageResults results = storage.fetch(qb.getSelect());
             assertEquals(2, results.getCount());
             try {

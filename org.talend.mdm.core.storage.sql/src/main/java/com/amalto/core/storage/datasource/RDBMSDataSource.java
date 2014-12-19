@@ -20,6 +20,12 @@ import java.util.Map;
 
 public class RDBMSDataSource implements DataSource {
 
+    private boolean generateConstraints;
+
+    public boolean generateConstraints() {
+        return generateConstraints;
+    }
+
     public static enum ContainsOptimization {
         FULL_TEXT, LIKE, DISABLED
     }
@@ -118,6 +124,7 @@ public class RDBMSDataSource implements DataSource {
         connectionPoolMaxSize = dataSource.connectionPoolMaxSize;
         containsOptimization = dataSource.containsOptimization;
         generateTechnicalFK = dataSource.generateTechnicalFK;
+        generateConstraints = dataSource.generateConstraints;
     }
 
     public RDBMSDataSource(String name,
@@ -138,7 +145,8 @@ public class RDBMSDataSource implements DataSource {
                            ContainsOptimization containsOptimization,
                            String initPassword,
                            String initUserName,
-                           String initConnectionURL) {
+                           String initConnectionURL,
+                           boolean generateConstraints) {
         if ("MySQL".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.MYSQL;
         } else if ("H2".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
@@ -182,6 +190,7 @@ public class RDBMSDataSource implements DataSource {
         this.advancedProperties = advancedProperties;
         this.containsOptimization = containsOptimization;
         this.generateTechnicalFK = generateTechnicalFK;
+        this.generateConstraints = generateConstraints;
         // Disable full text index for update reports.
         if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(name)) {
             if (LOGGER.isDebugEnabled() && supportFullText()) {

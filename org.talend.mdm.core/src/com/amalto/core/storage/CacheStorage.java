@@ -71,7 +71,8 @@ public class CacheStorage implements Storage {
     }
 
     public int getCacheEntryUsage(Expression expression) {
-        return cache.get(expression).tokenCount.get();
+        CacheValue cacheValue = cache.get(expression);
+        return cacheValue == null ? 0 : cacheValue.tokenCount.get();
     }
 
     public int getMaxCacheEntryUsage() {
@@ -128,6 +129,9 @@ public class CacheStorage implements Storage {
 
     @Override
     public StorageResults fetch(Expression userQuery) {
+        if (userQuery == null) {
+            throw new IllegalArgumentException("Query cannot be null.");
+        }
         if (userQuery.cache()) {
             CacheValue cacheValue = cache.get(userQuery);
             if (cacheValue != null) {
@@ -140,7 +144,7 @@ public class CacheStorage implements Storage {
                                 + ").");
                     }
                     cacheValue.lastAccessTime = System.currentTimeMillis();
-                    return new CacheResults(cacheValue.results);
+                    return new CachedResults(cacheValue.results);
                 } else {
                     // Cache hit! (but value expired in cache)
                     if (LOGGER.isDebugEnabled()) {
@@ -169,8 +173,10 @@ public class CacheStorage implements Storage {
             }
             cacheValue.lastAccessTime = System.currentTimeMillis();
             cache.put(userQuery, cacheValue);
-            return new CacheResults(records);
+            return new CachedResults(records);
         } else {
+            // TMDM-8035: Invalidate cache if query was already cached
+            cache.remove(userQuery);
             return delegate.fetch(userQuery);
         }
     }
@@ -276,31 +282,4 @@ public class CacheStorage implements Storage {
 
     }
 
-    private static class CacheResults implements StorageResults {
-
-        private final List<DataRecord> records;
-
-        public CacheResults(List<DataRecord> records) {
-            this.records = records;
-        }
-
-        @Override
-        public int getSize() {
-            return records.size();
-        }
-
-        @Override
-        public int getCount() {
-            return records.size();
-        }
-
-        @Override
-        public void close() {
-        }
-
-        @Override
-        public Iterator<DataRecord> iterator() {
-            return records.iterator();
-        }
-    }
 }

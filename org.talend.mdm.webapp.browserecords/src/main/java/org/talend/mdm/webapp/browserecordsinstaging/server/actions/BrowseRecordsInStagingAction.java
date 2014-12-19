@@ -43,7 +43,7 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
 
     private final Messages MESSAGES = MessagesFactory
             .getMessages(
-                    "org.talend.mdm.webapp.browserecordsinstaging.client.i18n.BrowseRecordsInStagingMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
+                    "org.talend.mdm.webapp.browserecordsinstaging.client.i18n.BrowseRecordsInStagingMessages", this.getClass().getClassLoader()); //$NON-NLS-1$)
 
     @Override
     public ViewBean getView(String viewPk, String language) throws ServiceException {
@@ -78,6 +78,26 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
 
     @Override
     public ItemBasePageLoadResult<ItemBean> queryItemBeans(QueryModel config, String language) throws ServiceException {
+
+        String criteria = config.getCriteria();
+        String value;
+        int end;
+        int start;
+        int index = criteria.indexOf("staging_status"); //$NON-NLS-1$
+        if (index != -1) {
+            Locale locale = new Locale(language);
+            end = criteria.indexOf(')', index);
+            if (end == -1) {// for simple criteria
+                end = criteria.length();
+            }
+            start = criteria.lastIndexOf(' ', end - 1) + 1;
+            value = criteria.substring(start, end);
+
+            if (!"*".equals(value) && !value.matches("\\d+")) { //$NON-NLS-1$ //$NON-NLS-2$
+                throw new ServiceException(MESSAGES.getMessage(locale, "status_format")); //$NON-NLS-1$
+            }
+        }
+
         if (!config.getDataClusterPK().endsWith(StorageAdmin.STAGING_SUFFIX)) {
             config.setDataClusterPK(config.getDataClusterPK() + StorageAdmin.STAGING_SUFFIX);
         }

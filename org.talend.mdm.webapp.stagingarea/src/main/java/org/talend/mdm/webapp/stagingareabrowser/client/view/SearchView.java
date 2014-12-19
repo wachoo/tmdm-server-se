@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
@@ -66,7 +67,7 @@ public class SearchView extends AbstractView {
 
     private ComboBox<BaseModel> stateCombo;
 
-    private TextField<String> statusCodeField;
+    private NumberField statusCodeField;
 
     private FieldSet fieldSet;
 
@@ -130,7 +131,9 @@ public class SearchView extends AbstractView {
         stateCombo.setDisplayField("name"); //$NON-NLS-1$
         stateCombo.setValueField("value"); //$NON-NLS-1$
         stateCombo.setWidth(250);
-        statusCodeField = new TextField<String>();
+        statusCodeField = new NumberField();
+        statusCodeField.setPropertyEditorType(Integer.class);
+        statusCodeField.setValue(0);
         statusCodeField.setFieldLabel(messages.status_code());
         statusCodeField.setWidth(250);
 
@@ -239,7 +242,7 @@ public class SearchView extends AbstractView {
                 if (stateCombo.getValue() != null) {
                     searchModel.setState((Integer) stateCombo.getValue().get("value")); //$NON-NLS-1$
                 }
-                searchModel.setStatusCode(statusCodeField.getValue());
+                searchModel.setStatusCode((Integer) statusCodeField.getValue());
                 searchModel.setStartDate(startDate.getValue());
                 searchModel.setEndDate(endDate.getValue());
                 ControllerContainer.get().getResultsController().searchResult(searchModel);

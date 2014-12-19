@@ -179,6 +179,10 @@ public class UserQueryBuilder {
         return new Compare(new Field(left), Predicate.EQUALS, right);
     }
 
+    public static Condition eq(TypedExpression left, TypedExpression right) {
+        return new Compare(left, Predicate.EQUALS, right);
+    }
+
     public static Condition eq(FieldMetadata field, String constant) {
         assertNullField(field);
         Field userField = new Field(field);
@@ -534,7 +538,6 @@ public class UserQueryBuilder {
             typedExpression = new Field(field);
         }
         expressionAsSelect().getSelectedFields().add(typedExpression);
-        expressionAsSelect().setProjection(true);
         return this;
     }
 
@@ -782,7 +785,6 @@ public class UserQueryBuilder {
                 throw new UnsupportedOperationException("Can't select twice a non-field expression.");
             }
         }
-        select.setProjection(true);
         return this;
     }
 

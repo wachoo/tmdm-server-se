@@ -51,6 +51,19 @@ public class CacheStorageTest extends StorageTestCase {
         assertEquals(cacheStorage.getMaxCacheEntryUsage(), cacheStorage.getCacheEntryUsage(select));
     }
 
+    public void testEvictionWithCacheParameter() throws Exception {
+        UserQueryBuilder qb = from(person).selectId(person).cache();
+        Select select = qb.getSelect();
+        assertFalse(cacheStorage.hasCache(select));
+        cacheStorage.fetch(select);
+        assertTrue(cacheStorage.hasCache(select));
+        // Cache = false should invalidate cache
+        qb = from(person).selectId(person).nocache();
+        cacheStorage.fetch(qb.getSelect());
+        assertFalse(cacheStorage.hasCache(select));
+        assertEquals(0, cacheStorage.getCacheEntryUsage(select));
+    }
+
     public void testTimeEviction() throws Exception {
         cacheStorage.setMaxCacheEntryLifetime(2000); // Change eviction time to avoid long running tests
         UserQueryBuilder qb = from(person).selectId(person).cache();

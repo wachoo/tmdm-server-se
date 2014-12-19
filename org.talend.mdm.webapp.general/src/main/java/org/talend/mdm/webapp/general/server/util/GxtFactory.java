@@ -1,116 +1,115 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.general.server.util;
 
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 public class GxtFactory {
 
-    private static final Logger          LOGGER           = Logger.getLogger(GxtFactory.class);
+    private static final Logger LOG = Logger.getLogger(GxtFactory.class);
 
-    // the collection of actions that we know about
-    private final Map<String, String>    entries          = new HashMap<String, String>();
+    private static final String GXT_PROPERTIES = "mdm.gxt.properties"; //$NON-NLS-1$
 
-    private final Map<String, Boolean>   excludingMapping = new HashMap<String, Boolean>();
+    private static final String GXT_EXCLUDED_PROPERTIES = "mdm.gxt.excluded.properties"; //$NON-NLS-1$
 
-    private Map<String, GxtProjectModel> gxtProjects;
+    private static final String GXT_CSS_PROPERTIES = "mdm.gxt.css.properties"; //$NON-NLS-1$
 
-    /**
-     * Creates a new instance, using the given configuration file.
-     */
-    public GxtFactory(String gxtRegisterFileName, String excludingFileName, String gxtResources) {
+    private static GxtFactory instance;
+
+    /** the collection of actions that we know about */
+    private Properties entries;
+
+    private Properties excludedEntries;
+
+    private Properties cssResources;
+
+    public synchronized static final GxtFactory getInstance() {
+        if (instance == null) {
+            instance = new GxtFactory();
+        }
+        return instance;
+    }
+
+    private GxtFactory() {
+        init();
+    }
+    
+    private void init() {
         try {
-            // load the properties file containing the name -> class name mapping
-            InputStream in = getClass().getClassLoader().getResourceAsStream(gxtRegisterFileName);
-            Properties props = new Properties();
-            props.load(in);
-            // and store them in a HashMap
-            Enumeration<?> e = props.propertyNames();
-            String actionName;
-            String className;
-            while (e.hasMoreElements()) {
-                actionName = (String) e.nextElement();
-                className = props.getProperty(actionName);
-                entries.put(actionName, className);
-            }
-            InputStream excludingIn = getClass().getClassLoader().getResourceAsStream(excludingFileName);
-            Properties excludeProps = new Properties();
-            excludeProps.load(excludingIn);
-            Enumeration<?> excludeEnum = excludeProps.propertyNames();
-            String appName;
-            Boolean isExcluding;
-            while (excludeEnum.hasMoreElements()) {
-                appName = (String) excludeEnum.nextElement();
-                isExcluding = Boolean.valueOf(excludeProps.getProperty(appName));
-                excludingMapping.put(appName, isExcluding);
-            }
-            InputStream gxtResourceIn = getClass().getClassLoader().getResourceAsStream(gxtResources);
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document gxtResourceDoc = builder.parse(gxtResourceIn);
-            Element resourcesEl = gxtResourceDoc.getDocumentElement();
-            NodeList childNodes = resourcesEl.getChildNodes();
-            if (childNodes != null) {
-                gxtProjects = new HashMap<String, GxtProjectModel>();
-                for (int i = 0; i < childNodes.getLength(); i++) {
-                    Node projectNode = childNodes.item(i);
-                    if (projectNode.getNodeType() == Node.ELEMENT_NODE && projectNode.getNodeName().equals("project")) { //$NON-NLS-1
-                        Element projectEl = (Element) projectNode;
-                        GxtProjectModel gxtPro = new GxtProjectModel();
-                        gxtPro.setContext(projectEl.getAttribute("context")); //$NON-NLS-1
-                        gxtPro.setApplication(projectEl.getAttribute("application")); //$NON-NLS-1
-                        gxtPro.setModel(projectEl.getAttribute("module")); //$NON-NLS-1
-                        gxtProjects.put(gxtPro.getContext() + "." + gxtPro.getApplication(), gxtPro);
-                        NodeList styleNodes = projectEl.getChildNodes();
-                        if (styleNodes != null) {
-                            List<String> cssAddresses = new ArrayList<String>();
-                            for (int j = 0; j < styleNodes.getLength(); j++) {
-                                Node styleNode = styleNodes.item(j);
-                                if (styleNode.getNodeType() == Node.ELEMENT_NODE && styleNode.getNodeName().equals("style")) { //$NON-NLS-1
-                                    Element styleEl = (Element) styleNode;
-                                    cssAddresses.add(styleEl.getAttribute("src")); //$NON-NLS-1
-                                }
-                            }
-                            gxtPro.setCss_addresses(cssAddresses);
-                        }
-                    }
-                }
-            }
+            entries = loadProperties(GXT_PROPERTIES);
+            excludedEntries = loadProperties(GXT_EXCLUDED_PROPERTIES);
+            cssResources = loadProperties(GXT_CSS_PROPERTIES);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
     public String getGxtEntryModule(String context, String application) {
         String key = context + '.' + application;
-        if (entries != null && entries.containsKey(key)) {
-            return entries.get(key) == null ? null : entries.get(key);
-        }
-        return null;
+        return entries.getProperty(key);
     }
 
-    public GxtProjectModel getGxtCss(String context, String application) {
+    public String[] getGxtCss(String context, String application) {
         String key = context + '.' + application;
-        if (gxtProjects != null && gxtProjects.containsKey(key)) {
-            return gxtProjects.get(key) == null ? null : gxtProjects.get(key);
-        }
-        return null;
+        String cssString = cssResources.getProperty(key);
+        return StringUtils.split(cssString, ',');
     }
 
     public Boolean isExcluded(String context, String application) {
         String key = context + '.' + application;
-        Boolean isExcluded = excludingMapping.get(key);
-        if (isExcluded != null) {
-            return isExcluded;
-        }
-        return false;
+        String value = excludedEntries.getProperty(key);
+        return Boolean.valueOf(value);
     }
-
+    
+    private Properties loadProperties(String location) throws IOException {
+        Enumeration<URL> resourceUrls = getClass().getClassLoader().getResources(location);
+        Properties props = new Properties();
+        URL url;
+        while (resourceUrls.hasMoreElements()) {
+            url = resourceUrls.nextElement();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Loading properties from " + url.getFile()); //$NON-NLS-1$
+            }
+            InputStream is = null;
+            try {
+                is = url.openStream();
+                props.load(is);
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                } catch (Exception e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            }
+        }
+        if(LOG.isDebugEnabled()) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            props.list(pw);
+            LOG.debug("-- " + location + " --"); //$NON-NLS-1$ //$NON-NLS-2$            
+            LOG.debug(sw.toString());
+        }
+        return props;
+    }
 }

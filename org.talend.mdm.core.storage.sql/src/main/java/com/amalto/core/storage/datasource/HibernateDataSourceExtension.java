@@ -91,7 +91,7 @@ public class HibernateDataSourceExtension implements DataSourceExtension {
             return new RDBMSDataSource(name, dialectName, driverClassName, userName, password, connectionPoolMinSize,
                     connectionPoolMaxSize, indexDirectory, cacheDirectory, caseSensitiveSearch, schemaGeneration,
                     generateTechnicalFK, advancedProperties, connectionURL, databaseName, containsOptimization, initPassword,
-                    initUserName, initConnectionURL);
+                    initUserName, initConnectionURL, true);
         } catch (XPathExpressionException e) {
             throw new RuntimeException("Unable to parse datasource configuration.", e);
         }
