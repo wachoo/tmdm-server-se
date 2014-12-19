@@ -292,6 +292,9 @@ class ScatteredTypeMapping extends TypeMapping {
                         }
                     }
                 } else {
+                    if (userField.isMany()) {
+                        value = getFullList((PersistentList) value);
+                    }
                     to.set(userField, value);
                 }
             }

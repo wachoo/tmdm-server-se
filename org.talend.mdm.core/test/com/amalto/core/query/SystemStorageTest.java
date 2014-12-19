@@ -610,8 +610,6 @@ public class SystemStorageTest extends TestCase {
         try {
             ComplexTypeMetadata user = repository.getComplexType("User"); //$NON-NLS-1$
             UserQueryBuilder qb = from(user);
-            qb.start(0);
-            qb.limit(2);
             StorageResults results = storage.fetch(qb.getSelect());
             assertEquals(2, results.getCount());
             try {
@@ -619,7 +617,10 @@ public class SystemStorageTest extends TestCase {
                 int count = 0;
                 while (it.hasNext()) {
                     count++;
-                    it.next();
+                    DataRecord next = it.next();
+                    Object list = next.get("roles/role");
+                    assertTrue(list instanceof List);
+                    assertEquals(2, ((List) list).size());
                 }
                 assertEquals(2, count);
             } finally {
