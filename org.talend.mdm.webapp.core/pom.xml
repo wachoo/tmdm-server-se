@@ -117,7 +117,7 @@
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.commmon</artifactId>
+            <artifactId>org.talend.mdm.common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
