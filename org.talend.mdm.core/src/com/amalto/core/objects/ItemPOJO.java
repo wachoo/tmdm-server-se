@@ -17,8 +17,6 @@ import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.objects.datamodel.DataModelPOJOPK;
-import com.amalto.core.objects.synchronization.SynchronizationPlanPOJOPK;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.server.api.Item;
 import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.LocalUser;
@@ -27,7 +25,6 @@ import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.talend.mdm.commmon.util.bean.ItemCacheKey;
@@ -60,11 +57,7 @@ public class ItemPOJO implements Serializable {
 
     private static Pattern pLoad = Pattern.compile(".*?(<c>.*?</taskId>|<c>.*?</t>).*?(<p>(.*)</p>|<p/>).*", Pattern.DOTALL); //$NON-NLS-1$
 
-    private static Map cachedPojo;
-
     public static Logger LOG = Logger.getLogger(ItemPOJO.class);
-
-    private static int MAX_CACHE_SIZE = 5000;
 
     public static Pattern pathWithoutConditions = Pattern.compile("(.*?)[\\[|/].*");
 
@@ -76,8 +69,6 @@ public class ItemPOJO implements Serializable {
 
     private DataClusterPOJOPK dataClusterPOJOPK;
 
-    private SynchronizationPlanPOJOPK planPK;
-
     private long insertionTime;
 
     private String[] itemIds;
@@ -85,18 +76,6 @@ public class ItemPOJO implements Serializable {
     private Element projection;
 
     private String taskId;
-
-    static {
-        String max_cache_size = (String) MDMConfiguration.getConfiguration().get("max_cache_size"); //$NON-NLS-1$
-        if (max_cache_size != null) {
-            MAX_CACHE_SIZE = Integer.valueOf(max_cache_size);
-        }
-        if (MAX_CACHE_SIZE == 0) {
-            cachedPojo = new EmptyMap(); // Disables MDM cache (useful when 2 MDM instance share same database).
-        } else {
-            cachedPojo = Collections.synchronizedMap(new LRUMap(MAX_CACHE_SIZE));
-        }
-    }
 
     public ItemPOJO() {
     }
@@ -107,7 +86,6 @@ public class ItemPOJO implements Serializable {
         this.insertionTime = time;
         this.itemIds = ids;
         this.projection = projection;
-        this.planPK = null;
     }
 
     public ItemPOJO(DataClusterPOJOPK clusterPK, String concept, String[] ids, long time, String projectionAsString) {
@@ -116,7 +94,6 @@ public class ItemPOJO implements Serializable {
         this.insertionTime = time;
         this.itemIds = ids;
         this.projectionString = projectionAsString;
-        this.planPK = null;
     }
 
     public String getTaskId() {
@@ -183,20 +160,6 @@ public class ItemPOJO implements Serializable {
      */
     public void setInsertionTime(long insertionTime) {
         this.insertionTime = insertionTime;
-    }
-
-    /**
-     * If the item was not changed since last synchronization, this will contain the name of the plan that synchronized
-     * it
-     * 
-     * @return The {@link SynchronizationPlanPOJOPK}
-     */
-    public SynchronizationPlanPOJOPK getPlanPK() {
-        return planPK;
-    }
-
-    public void setPlanPK(SynchronizationPlanPOJOPK planPK) {
-        this.planPK = planPK;
     }
 
     /**
@@ -289,50 +252,15 @@ public class ItemPOJO implements Serializable {
     }
 
     /**
-     * Loads an Item. User rights are checked.
-     * 
-     * @return the {@link ItemPOJO}
-     * @throws XtentisException
-     */
-    public static ItemPOJO load(ItemPOJOPK itemPOJOPK) throws XtentisException {
-        // Check authorizations
-        ILocalUser user = LocalUser.getLocalUser();
-        checkAccess(user, itemPOJOPK, false, "read");
-        // get the universe and revision ID
-        UniversePOJO universe = getNonNullUniverse(user);
-        String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
-
-        // load the item
-        return load(revisionID, itemPOJOPK);
-
-    }
-
-    public static ItemPOJO adminLoad(ItemPOJOPK itemPOJOPK) throws XtentisException {
-        ILocalUser user = LocalUser.getLocalUser();
-        
-        // get the universe and revision ID
-        UniversePOJO universe = getNonNullUniverse(user);
-        String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
-
-        // load the item
-        return load(revisionID, itemPOJOPK);
-    }
-
-    /**
      * Loads an Item<br/>
      * @return the {@link ItemPOJO}
      */
-    public static ItemPOJO load(String revisionID, ItemPOJOPK itemPOJOPK) throws XtentisException {
+    public static ItemPOJO load(ItemPOJOPK itemPOJOPK) throws XtentisException {
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
             // retrieve the item
             String id = itemPOJOPK.getUniqueID();
-            ItemCacheKey key = new ItemCacheKey(revisionID, id, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
-            String item = (String) cachedPojo.get(key);
-            if (item == null) {
-                item = server.getDocumentAsString(revisionID, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), id);
-                // TODO Store in cache in case when there's no inheritance.
-            }
+            String item = server.getDocumentAsString(itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), id);
             if (item == null) {
                 return null;
             }
@@ -372,12 +300,6 @@ public class ItemPOJO implements Serializable {
                         LOG.error(e);
                     }
                 }
-                String plan = Util.getFirstTextNode(header, "sp"); //$NON-NLS-1$
-                if (plan != null) {
-                    newItem.setPlanPK(new SynchronizationPlanPOJOPK(plan));
-                } else {
-                    newItem.setPlanPK(null);
-                }
                 String taskId = Util.getFirstTextNode(header, "taskId"); //$NON-NLS-1$
                 if (taskId != null) {
                     newItem.setTaskId(taskId);
@@ -412,15 +334,11 @@ public class ItemPOJO implements Serializable {
         ILocalUser user = LocalUser.getLocalUser();
         checkAccess(user, itemPOJOPK, true, "delete"); //$NON-NLS-1$
         // get the universe and revision ID
-        UniversePOJO universe = getNonNullUniverse(user);
-        String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
             // remove the doc
             String clusterName = itemPOJOPK.getDataClusterPOJOPK().getUniqueId();
-            server.deleteDocument(revisionID, clusterName, itemPOJOPK.getUniqueID());
-            ItemCacheKey key = new ItemCacheKey(revisionID, itemPOJOPK.getUniqueID(), clusterName);
-            cachedPojo.remove(key);
+            server.deleteDocument(clusterName, itemPOJOPK.getUniqueID());
             return itemPOJOPK;
         } catch (Exception e) {
             String err = "Unable to remove the item " + itemPOJOPK.getUniqueID() + ": " + e.getClass().getName() + ": "
@@ -443,24 +361,21 @@ public class ItemPOJO implements Serializable {
         }
         ILocalUser user = LocalUser.getLocalUser();
         checkAccess(user, itemPOJOPK, true, "drop"); //$NON-NLS-1$
-        // get the universe and revision ID
-        UniversePOJO universe = getNonNullUniverse(user);
-        String revisionID = universe.getConceptRevisionID(itemPOJOPK.getConceptName());
         // get XmlServerSLWrapperLocal
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
             // init MDMItemsTrash Cluster
-            if (ObjectPOJO.load(null, DataClusterPOJO.class, new DataClusterPOJOPK("MDMItemsTrash")) == null) { //$NON-NLS-1$
+            if (ObjectPOJO.load(DataClusterPOJO.class, new DataClusterPOJOPK("MDMItemsTrash")) == null) { //$NON-NLS-1$
                 // create record
                 DataClusterPOJO dataCluster = new DataClusterPOJO("MDMItemsTrash", "Holds logical deleted items", null);
-                ObjectPOJOPK pk = dataCluster.store(null);
+                ObjectPOJOPK pk = dataCluster.store();
                 if (pk == null) {
                     throw new XtentisException("Unable to create the Data Cluster. Please check the XML Server logs");
                 }
                 // create cluster
-                boolean exist = server.existCluster(null, pk.getUniqueId());
+                boolean exist = server.existCluster(pk.getUniqueId());
                 if (!exist) {
-                    server.createCluster(null, pk.getUniqueId());
+                    server.createCluster(pk.getUniqueId());
                 }
                 // log
                 LOG.info("Init MDMItemsTrash Cluster");
@@ -470,7 +385,7 @@ public class ItemPOJO implements Serializable {
             StringBuilder xmlDocument = new StringBuilder();
             Document sourceDoc = null;
             NodeList toDeleteNodeList = null;
-            String xml = server.getDocumentAsString(revisionID, dataClusterName, uniqueID, null);
+            String xml = server.getDocumentAsString(dataClusterName, uniqueID, null);
             if (xml == null) {
                 return null;
             }
@@ -511,7 +426,7 @@ public class ItemPOJO implements Serializable {
                 String leftSourceDoc = Util.nodeToString(sourceDoc);
                 ItemPOJO itemPOJO = parse(leftSourceDoc);
                 if (itemPOJO.getDataModelName() != null) {
-                    DataModelPOJO dataModelPOJO = ObjectPOJO.load(itemPOJO.getDataModelRevision(), DataModelPOJO.class,
+                    DataModelPOJO dataModelPOJO = ObjectPOJO.load(DataModelPOJO.class,
                             new DataModelPOJOPK(itemPOJO.getDataModelName()));
                     if (dataModelPOJO != null) {
                         Element projection;
@@ -527,7 +442,7 @@ public class ItemPOJO implements Serializable {
                 }
             }
             // str 2 pojo
-            DroppedItemPOJO droppedItemPOJO = new DroppedItemPOJO(revisionID,
+            DroppedItemPOJO droppedItemPOJO = new DroppedItemPOJO(
                     itemPOJOPK.getDataClusterPOJOPK(),
                     uniqueID,
                     itemPOJOPK.getConceptName(),
@@ -542,7 +457,7 @@ public class ItemPOJO implements Serializable {
             // copy item content
             server.start("MDMItemsTrash"); //$NON-NLS-1$
             long res = server.putDocumentFromString(sw.toString(), droppedItemPOJO.obtainDroppedItemPK().getUniquePK(),
-                    "MDMItemsTrash", null); //$NON-NLS-1$
+                    "MDMItemsTrash"); //$NON-NLS-1$
             server.commit("MDMItemsTrash"); //$NON-NLS-1$
             if (res == -1) {
                 server.rollback("MDMItemsTrash"); //$NON-NLS-1$
@@ -551,20 +466,16 @@ public class ItemPOJO implements Serializable {
             // delete source item
             try {
                 if (partPath.equals("/")) { //$NON-NLS-1$
-                    server.deleteDocument(revisionID, dataClusterName, uniqueID);
+                    server.deleteDocument(dataClusterName, uniqueID);
                 } else {
                     String xmlString = Util.nodeToString(sourceDoc);
                     server.start(dataClusterName);
-                    server.putDocumentFromString(xmlString, uniqueID, dataClusterName, revisionID);
+                    server.putDocumentFromString(xmlString, uniqueID, dataClusterName);
                     server.commit(dataClusterName);
                 }
             } catch (Exception e) {
-                server.deleteDocument(null, "MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK()); //$NON-NLS-1$
+                server.deleteDocument("MDMItemsTrash", droppedItemPOJO.obtainDroppedItemPK().getUniquePK()); //$NON-NLS-1$
                 throw new XtentisException(e);
-            } finally {
-                // update the cache
-                ItemCacheKey key = new ItemCacheKey(revisionID, uniqueID, dataClusterName);
-                cachedPojo.remove(key);
             }
             return droppedItemPOJO.obtainDroppedItemPK();
         } catch (SAXException e) {
@@ -579,16 +490,6 @@ public class ItemPOJO implements Serializable {
         }
     }
 
-    /**
-     * Stores the item in DB. Users rights will be checked
-     * 
-     * @return The {@link ItemPOJOPK} of the stored item
-     * @throws XtentisException
-     */
-    public ItemPOJOPK store() throws XtentisException {
-        return store(true);
-    }
-    
     public ItemPOJOPK store(boolean putInCache) throws XtentisException {
         ItemPOJOPK itemPK = getItemPOJOPK();
         if (itemPK == null) {
@@ -596,18 +497,7 @@ public class ItemPOJO implements Serializable {
         }
         ILocalUser user = LocalUser.getLocalUser();
         checkAccess(user,getItemPOJOPK(), true, "write"); //$NON-NLS-1$
-        // get the universe and revision ID
-        UniversePOJO universe = getNonNullUniverse(user);    
-        String revisionID = universe.getConceptRevisionID(itemPK.getConceptName());
-        // used for binding data model
-        if (getDataModelName() != null) {
-            String objectName = ObjectPOJO.getObjectsClasses2NamesMap().get(DataModelPOJO.class);
-            String dataModelRevisionID = universe.getXtentisObjectsRevisionIDs().get(objectName);
-            if (dataModelRevisionID != null) {
-                this.dataModelRevision = dataModelRevisionID;
-            }
-        }
-        return store(revisionID, putInCache);
+        return store();
     }
 
     /**
@@ -615,22 +505,9 @@ public class ItemPOJO implements Serializable {
      * Users rights will NOT be checked
      * 
      * @return The {@link ItemPOJOPK} of the stored item
-     * @throws XtentisException
-     */
-    public ItemPOJOPK store(String revisionID) throws XtentisException {
-       return store(revisionID,true); 
-    }
-    
-    /**
-     * Stores the item in DB.<br/>
-     * Users rights will NOT be checked
-     * 
-     * @param revisionID Revision id or <code>null</code> for HEAD.
-     * @param putInCache <code>true</code> to store object in cache.
-     * @return The {@link ItemPOJOPK} of the stored item
      * @throws XtentisException In case of internal exception.
      */
-    public ItemPOJOPK store(String revisionID, boolean putInCache) throws XtentisException {
+    public ItemPOJOPK store() throws XtentisException {
         ItemPOJOPK itemPK = getItemPOJOPK();
         try {
             String xml = serialize();
@@ -640,13 +517,8 @@ public class ItemPOJO implements Serializable {
             String uniqueId = itemPK.getUniqueID();
             String clusterId = getDataClusterPOJOPK().getUniqueId();
             XmlServer server = Util.getXmlServerCtrlLocal();
-            if (-1 == server.putDocumentFromString(xml,uniqueId ,clusterId, revisionID)) {
+            if (-1 == server.putDocumentFromString(xml,uniqueId ,clusterId)) {
                 return null;
-            }
-            // invalidate the cache
-            if(putInCache) {
-                ItemCacheKey key = new ItemCacheKey(revisionID, uniqueId, clusterId);
-                cachedPojo.remove(key);
             }
             return itemPK;
         } catch (Exception e) {
@@ -679,12 +551,6 @@ public class ItemPOJO implements Serializable {
                 newItem.setDataClusterPK(new DataClusterPOJOPK(Util.getFirstTextNode(header, "c"))); //$NON-NLS-1$
                 newItem.setItemIds(Util.getTextNodes(header, "i")); //$NON-NLS-1$
                 newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t"))); //$NON-NLS-1$
-                String plan = Util.getFirstTextNode(header, "sp"); //$NON-NLS-1$
-                if (plan != null) {
-                    newItem.setPlanPK(new SynchronizationPlanPOJOPK(plan));
-                } else {
-                    newItem.setPlanPK(null);
-                }
                 if (m.group(2) == null || m.group(2).equals("<p/>")) { //$NON-NLS-1$
                     newItem.setProjectionAsString(""); //$NON-NLS-1$
                 } else {
@@ -733,11 +599,6 @@ public class ItemPOJO implements Serializable {
                     streamWriter.writeCharacters(dataModelRevision);
                     streamWriter.writeEndElement();
                 }
-                if (planPK != null) {
-                    streamWriter.writeStartElement("sp"); //$NON-NLS-1$
-                    streamWriter.writeCharacters(planPK.getUniqueId());
-                    streamWriter.writeEndElement();
-                }
                 String[] ids = getItemIds();
                 for (String id : ids) {
                     if (id != null) {
@@ -779,68 +640,6 @@ public class ItemPOJO implements Serializable {
         return stringWriter.toString();
     }
 
-    /**
-     * Retrieve all {@link ItemPOJOPK}s of items matching a particular concept Pattern and instance pattern, and that
-     * are unsynchronized against a particular plan<br/>
-     * The user must have the "administration" role to perform this task
-     *
-     * @return a Collection of ObjectPOJOPK
-     * @throws XtentisException
-     */
-    public static ArrayList<ItemPOJOPK> findAllUnsynchronizedPKs(DataClusterPOJOPK dataClusterPOJOPK,
-                                                                 String conceptName,
-                                                                 String instancePattern,
-                                                                 SynchronizationPlanPOJOPK planPK,
-                                                                 int start,
-                                                                 int limit) throws XtentisException {
-        try {
-            // check if we are admin
-            ILocalUser user = LocalUser.getLocalUser();
-            if (!user.getRoles().contains("administration")) { //$NON-NLS-1$
-                String err = "Only an user with the 'administration' role can call the synchronization methods";
-                LOG.error(err);
-                throw new XtentisException(err);
-            }
-            // query the xml server wrapper
-            Item itemBean = Util.getItemCtrl2Local();
-            List<IWhereItem> conditions = new LinkedList<IWhereItem>();
-            if (instancePattern != null && !".*".equals(instancePattern)) {
-                IWhereItem idCondition = new WhereCondition(conceptName + "/i", //$NON-NLS-1$
-                        WhereCondition.CONTAINS,
-                        instancePattern,
-                        WhereCondition.PRE_NONE);
-                conditions.add(idCondition);
-            }
-            if (planPK != null && planPK.getIds() != null) {
-                IWhereItem planCondition = new WhereCondition(conceptName + "/sp", //$NON-NLS-1$
-                        WhereCondition.EQUALS,
-                        planPK.getUniqueId(),
-                        WhereCondition.PRE_NOT);
-                conditions.add(planCondition);
-            }
-            IWhereItem whereItem = new WhereAnd(conditions);
-            ArrayList<String> elements = new ArrayList<String>();
-            elements.add(conceptName + "/i"); //$NON-NLS-1$
-            ArrayList<String> ids = itemBean.xPathsSearch(dataClusterPOJOPK,
-                    null,
-                    elements,
-                    whereItem,
-                    -1,
-                    start,
-                    limit,
-                    false);
-            ArrayList<ItemPOJOPK> results = new ArrayList<ItemPOJOPK>(ids.size());
-            for (String id : ids) {
-                results.add(new ItemPOJOPK(dataClusterPOJOPK, conceptName, id.split("."))); //$NON-NLS-1$
-            }
-            return results;
-        } catch (Exception e) {
-            String err = "Error Finding All Unsynchronized PKs" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOG.error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
-
     @Override
     public String toString() {
         try {
@@ -868,14 +667,6 @@ public class ItemPOJO implements Serializable {
         }
     }
 
-    public static void clearCache() {
-        cachedPojo.clear();
-    }
-
-    public static Map getCache() {
-        return cachedPojo;
-    }
-
     private static void checkAccess(ILocalUser user, ItemPOJOPK itemPOJOPK, boolean mutableAccess, String accessLabel) throws XtentisException {
         assert user != null;
         boolean authorizedAccess;
@@ -887,7 +678,7 @@ public class ItemPOJO implements Serializable {
         } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId())) {
             authorizedAccess = true;
         } else {
-            ItemPOJO itemPOJO = adminLoad(itemPOJOPK);
+            ItemPOJO itemPOJO = load(itemPOJOPK);
             if(mutableAccess) {
                 authorizedAccess = user.userItemCanWrite(itemPOJO, itemPOJOPK.getDataClusterPOJOPK().getUniqueId(), itemPOJOPK.getConceptName());
             } else {
@@ -900,15 +691,5 @@ public class ItemPOJO implements Serializable {
             throw new XtentisException(err);
         }
     }
-        
-    private static UniversePOJO getNonNullUniverse(ILocalUser user) throws XtentisException {
-        // get the universe and revision ID
-        UniversePOJO universe = user.getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            LOG.error(err);
-            throw new XtentisException(err);
-        }
-        return universe;
-    }
+
 }

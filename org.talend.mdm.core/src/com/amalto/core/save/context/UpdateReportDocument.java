@@ -32,7 +32,6 @@ class UpdateReportDocument extends DOMDocument {
     public UpdateReportDocument(Document updateReportDocument) {
         super(updateReportDocument,
                 internalGetType(),
-                StringUtils.EMPTY,
                 XSystemObjects.DC_UPDATE_PREPORT.getName(),
                 UpdateReport.UPDATE_REPORT_DATA_MODEL);
         this.updateReportDocument = updateReportDocument;

@@ -32,8 +32,6 @@ public class Select implements Expression {
 
     private Condition condition;
 
-    private String revisionId = "1"; //$NON-NLS-1$
-
     private boolean isProjection;
 
     private boolean forUpdate = false;
@@ -49,10 +47,6 @@ public class Select implements Expression {
         if (!types.contains(metadata)) {
             types.add(metadata);
         }
-    }
-
-    public void setRevisionId(String revisionId) {
-        this.revisionId = revisionId;
     }
 
     public List<TypedExpression> getSelectedFields() {
@@ -99,10 +93,6 @@ public class Select implements Expression {
 
     public List<ComplexTypeMetadata> getTypes() {
         return types;
-    }
-
-    public String getRevisionId() {
-        return revisionId;
     }
 
     public Paging getPaging() {
@@ -152,7 +142,6 @@ public class Select implements Expression {
      */
     public Select copy() {
         Select copy = new Select();
-        copy.setRevisionId(this.revisionId);
         for (TypedExpression selectedField : selectedFields) {
             copy.getSelectedFields().add(selectedField);
         }
@@ -197,9 +186,6 @@ public class Select implements Expression {
         if (!paging.equals(select.paging)) {
             return false;
         }
-        if (revisionId != null ? !revisionId.equals(select.revisionId) : select.revisionId != null) {
-            return false;
-        }
         if (!selectedFields.equals(select.selectedFields)) {
             return false;
         }
@@ -216,7 +202,6 @@ public class Select implements Expression {
         result = 31 * result + types.hashCode();
         result = 31 * result + paging.hashCode();
         result = 31 * result + (condition != null ? condition.hashCode() : 0);
-        result = 31 * result + (revisionId != null ? revisionId.hashCode() : 0);
         result = 31 * result + (orderBy.hashCode());
         result = 31 * result + (isProjection ? 1 : 0);
         return result;

@@ -38,7 +38,7 @@ class ServerParserCallback implements LoadParserCallback {
 
     public void flushDocument(XMLReader docReader, InputSource input) {
         try {
-            server.putDocumentFromSAX(dataClusterName, docReader, input, null);
+            server.putDocumentFromSAX(dataClusterName, docReader, input);
             currentCount++;
 
             if (currentCount % 1000 == 0) {

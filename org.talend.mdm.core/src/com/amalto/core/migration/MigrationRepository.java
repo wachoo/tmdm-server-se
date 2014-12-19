@@ -1,26 +1,25 @@
 package com.amalto.core.migration;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import com.amalto.core.util.Util;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.amalto.core.objects.ItemPOJO;
-import com.amalto.core.objects.ObjectPOJO;
-import com.amalto.core.util.Util;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MigrationRepository{
+public class MigrationRepository {
 
-    private static boolean isExecuted = false;
+    private static final Logger        LOGGER     = Logger.getLogger(MigrationRepository.class);
+
+    private static boolean             isExecuted = false;
 
     private static MigrationRepository repository = null;
 
@@ -41,7 +40,8 @@ public class MigrationRepository{
             try {
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 InputStream in = MigrationRepository.class.getResourceAsStream("/com/amalto/core/migration/migration.xml"); //$NON-NLS-1$
-                InputStream extIn = MigrationRepository.class.getResourceAsStream("/com/amalto/core/migration/migration-extension.xml"); //$NON-NLS-1$
+                InputStream extIn = MigrationRepository.class
+                        .getResourceAsStream("/com/amalto/core/migration/migration-extension.xml"); //$NON-NLS-1$
                 parseConfigList(list, builder, in);
                 if (extIn != null) {
                     parseConfigList(list, builder, extIn);
@@ -56,20 +56,17 @@ public class MigrationRepository{
                         e.printStackTrace();
                     }
                 }
-                //clear the cache objects, is this still need?
+                // clear the cache objects, is this still need?
                 Util.getXmlServerCtrlLocal().clearCache();
-                ObjectPOJO.clearCache();
-                ItemPOJO.clearCache();
             } catch (Exception e) {
-                org.apache.log4j.Logger.getLogger(this.getClass()).error(e.getCause());
+                LOGGER.error(e.getCause());
                 return;
             }
         }
         isExecuted = true;
     }
 
-    private void parseConfigList(List<String> list, DocumentBuilder builder,
-                                 InputStream in) throws SAXException, IOException {
+    private void parseConfigList(List<String> list, DocumentBuilder builder, InputStream in) throws SAXException, IOException {
         Document doc = builder.parse(in);
         NodeList nodelist = doc.getElementsByTagName("Root"); //$NON-NLS-1$
         Node root = nodelist.item(0);

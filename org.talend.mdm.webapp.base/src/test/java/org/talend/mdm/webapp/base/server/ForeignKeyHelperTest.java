@@ -59,7 +59,7 @@ public class ForeignKeyHelperTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("product.xsd");
         String xsd = inputStream2String(stream);
 
-        ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product", null)));
+        ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product")));
 
         // 1. ForeignKeyInfo = ProductFamily/Name
         MDMConfiguration.getConfiguration().setProperty("xmldb.type", EDBType.QIZX.getName()); //$NON-NLS-1$
@@ -309,7 +309,7 @@ public class ForeignKeyHelperTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("product.xsd");
         String xsd = inputStream2String(stream);
 
-        ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product", null)));
+        ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product")));
 
         // ForeignKeyInfo = ProductFamily/Name, user user "*" as only filter value
         ForeignKeyHelper.ForeignKeyHolder result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model,
@@ -336,7 +336,7 @@ public class ForeignKeyHelperTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("product.xsd");
         String xsd = inputStream2String(stream);
 
-        ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product", null)));
+        ForeignKeyHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID("Product")));
 
         // ForeignKeyInfo = ProductFamily/Name, user user "*" as only filter value
         ForeignKeyHelper.ForeignKeyHolder result = ForeignKeyHelper.getForeignKeyHolder(xml, dataCluster, currentXpath, model,
@@ -479,13 +479,13 @@ public class ForeignKeyHelperTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("metadata.xsd");
         String xsd = inputStream2String(stream);
 
-        SchemaMockAgent schemaMockAgent = new SchemaMockAgent(xsd, new DataModelID("Territory", null));
+        SchemaMockAgent schemaMockAgent = new SchemaMockAgent(xsd, new DataModelID("Territory"));
         assertFalse(schemaMockAgent.isPolymorphismTypeFK("Country"));
 
         stream = getClass().getResourceAsStream("person.xsd");
         xsd = inputStream2String(stream);
 
-        schemaMockAgent = new SchemaMockAgent(xsd, new DataModelID("ProductEntity", null));
+        schemaMockAgent = new SchemaMockAgent(xsd, new DataModelID("ProductEntity"));
         assertTrue(schemaMockAgent.isPolymorphismTypeFK("Party"));
         assertTrue(schemaMockAgent.isPolymorphismTypeFK("Individual"));
         assertTrue(schemaMockAgent.isPolymorphismTypeFK("Company"));

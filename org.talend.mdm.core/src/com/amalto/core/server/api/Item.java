@@ -10,14 +10,12 @@ import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.objects.transformers.TransformerV2POJOPK;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 public interface Item {
@@ -43,14 +41,6 @@ public interface Item {
      * @throws com.amalto.core.util.XtentisException
      */
     public ItemPOJO getItem(ItemPOJOPK pk)
-            throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-
-    /**
-     * Get item with revisionID
-     *
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public ItemPOJO getItem(java.lang.String revisionID, ItemPOJOPK pk)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
@@ -210,7 +200,7 @@ public interface Item {
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
-     * Extract results thru a view and transform them using a transformer<br/> This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
+     * Extract results thru a view and transform them using a transformer<br/> This call is asynchronous and results will be pushed via the passed {@link com.amalto.core.objects.transformers.util.TransformerCallBack}
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param context           The {@link com.amalto.core.objects.transformers.util.TransformerContext} containi the inital context and the transformer name
@@ -227,7 +217,7 @@ public interface Item {
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
-     * Extract results thru a view and transform them using a transformer<br/> This call is asynchronous and results will be pushed via the passed {@link TransformerCallBack}
+     * Extract results thru a view and transform them using a transformer<br/> This call is asynchronous and results will be pushed via the passed {@link com.amalto.core.objects.transformers.util.TransformerCallBack}
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param transformerPOJOPK The transformer to use
@@ -242,29 +232,17 @@ public interface Item {
     public com.amalto.core.objects.transformers.util.TransformerContext extractUsingTransformerThroughView(DataClusterPOJOPK dataClusterPOJOPK, TransformerV2POJOPK transformerPOJOPK, ViewPOJOPK viewPOJOPK, com.amalto.xmlserver.interfaces.IWhereItem whereItem, int spellThreshold, java.lang.String orderBy, java.lang.String direction, int start, int limit)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
-    public java.util.ArrayList runQuery(java.lang.String revisionID, DataClusterPOJOPK dataClusterPOJOPK, java.lang.String query, java.lang.String[] parameters)
+    public java.util.ArrayList runQuery(DataClusterPOJOPK dataClusterPOJOPK, String query, String[] parameters)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     /**
      * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
      *
      * @param dataClusterPOJOPK
-     * @param universe
      * @return A {@link java.util.Map} of concept names to revision IDs
      * @throws com.amalto.core.util.XtentisException
      */
-    public java.util.Map getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK)
-            throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
-
-    /**
-     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
-     *
-     * @param dataClusterPOJOPK
-     * @param universe
-     * @return A {@link java.util.Map} of concept names to revision IDs
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public java.util.Map getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK, UniversePOJO universe)
+    public List<String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK)
             throws com.amalto.core.util.XtentisException, java.rmi.RemoteException;
 
     public long countItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, java.lang.String conceptName, java.lang.String injectedXpath)

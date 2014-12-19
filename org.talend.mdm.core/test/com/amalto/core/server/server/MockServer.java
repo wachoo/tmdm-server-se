@@ -59,11 +59,6 @@ public class MockServer implements Server {
     }
 
     @Override
-    public DataSourceDefinition getDefinition(String dataSourceName, String container, String revisionId) {
-        return dataSourceFactory.getDataSource(getDatasourcesInputStream(), dataSourceName, container, revisionId);
-    }
-
-    @Override
     public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
         boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(getDatasourcesInputStream(), dataSourceName);
         if (isDataSourceDefinitionPresent) {
@@ -77,7 +72,7 @@ public class MockServer implements Server {
                 throw new NotImplementedException("Not supported: " + type);
             }
         }
-        return isDataSourceDefinitionPresent;
+        return false;
     }
 
     @Override

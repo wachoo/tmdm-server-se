@@ -6,7 +6,6 @@ package com.amalto.core.server.api;
 import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJO;
 import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJOPK;
 import com.amalto.core.objects.routing.ActiveRoutingOrderV2POJO;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.util.XtentisException;
 
 public interface RoutingOrder {
@@ -22,13 +21,7 @@ public interface RoutingOrder {
     */
    public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder) throws XtentisException;
 
-   /**
-    * Executes a Routing Order now in a particular universe
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder, UniversePOJO universePOJO) throws XtentisException;
-
-   /**
+    /**
     * Executes a Routing Order in delay milliseconds
     * @throws com.amalto.core.util.XtentisException
     */

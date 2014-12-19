@@ -11,8 +11,7 @@ public interface DocumentHistory {
      * @param dataModelName Data model of the document.
      * @param conceptName Concept name of the document.
      * @param id Id of the document (typed as array to support composite keys).
-     * @param revisionId A document's revision id.
      * @return A {@link DocumentHistoryNavigator} that allow navigation through document's versions.
      */
-    DocumentHistoryNavigator getHistory(String dataClusterName, String dataModelName, String conceptName, String[] id, String revisionId);
+    DocumentHistoryNavigator getHistory(String dataClusterName, String dataModelName, String conceptName, String[] id);
 }

@@ -598,9 +598,8 @@ public class Util {
     public static void storeProvisioning(String username, String xmlString) throws Exception {
         XmlServer server = com.amalto.core.util.Util.getXmlServerCtrlLocal();
         server.start("PROVISIONING"); //$NON-NLS-1$
-        server.putDocumentFromString(xmlString, "PROVISIONING" + "." + "User" + "." + username, "PROVISIONING", null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        server.putDocumentFromString(xmlString, "PROVISIONING" + "." + "User" + "." + username, "PROVISIONING"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
         server.commit("PROVISIONING"); //$NON-NLS-1$
-        ItemPOJO.clearCache();
     }
 
     /**

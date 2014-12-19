@@ -86,7 +86,7 @@ public class DefaultSaverSource implements SaverSource {
         }
     }
 
-    public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String revisionId, String[] key) {
+    public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String[] key) {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append(dataClusterName).append('.').append(typeName).append('.');
@@ -97,7 +97,7 @@ public class DefaultSaverSource implements SaverSource {
                 }
             }
             String uniqueId = builder.toString();
-            String documentAsString = database.getDocumentAsString(revisionId, dataClusterName, uniqueId, "UTF-8"); //$NON-NLS-1$
+            String documentAsString = database.getDocumentAsString(dataClusterName, uniqueId, "UTF-8"); //$NON-NLS-1$
             if (documentAsString == null) {
                 return null;
             }
@@ -106,7 +106,7 @@ public class DefaultSaverSource implements SaverSource {
             ComplexTypeMetadata type = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(dataModelName).getComplexType(typeName);
             Document databaseDomDocument = documentBuilder.parse(new ByteArrayInputStream(documentAsString.getBytes("UTF-8")));
             Element userXmlElement = getUserXmlElement(databaseDomDocument);
-            return new DOMDocument(userXmlElement, type, revisionId, dataClusterName, dataModelName);
+            return new DOMDocument(userXmlElement, type, dataClusterName, dataModelName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -133,8 +133,8 @@ public class DefaultSaverSource implements SaverSource {
         throw new IllegalStateException("Element 'p' is expected to have an XML element as child.");
     }
 
-    public boolean exist(String dataCluster, String dataModelName, String typeName, String revisionId, String[] key) {
-        return get(dataCluster, dataModelName, typeName, revisionId, key) != null;
+    public boolean exist(String dataCluster, String dataModelName, String typeName, String[] key) {
+        return get(dataCluster, dataModelName, typeName, key) != null;
     }
 
     public MetadataRepository getMetadataRepository(String dataModelName) {
@@ -156,14 +156,6 @@ public class DefaultSaverSource implements SaverSource {
             }
             return new ByteArrayInputStream(schemasAsString.get(dataModelName).getBytes("UTF-8")); //$NON-NLS-1$
         } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String getUniverse() {
-        try {
-            return LocalUser.getLocalUser().getUniverse().getName();
-        } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
     }
@@ -195,17 +187,9 @@ public class DefaultSaverSource implements SaverSource {
         }
     }
 
-    public boolean existCluster(String revisionID, String dataClusterName) {
+    public boolean existCluster(String dataClusterName) {
         try {
-            return database.existCluster(revisionID, dataClusterName);
-        } catch (XtentisException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String getConceptRevisionID(String typeName) {
-        try {
-            return LocalUser.getLocalUser().getUniverse().getConceptRevisionID(typeName);
+            return database.existCluster(dataClusterName);
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
@@ -247,7 +231,7 @@ public class DefaultSaverSource implements SaverSource {
         AutoIncrementGenerator.get().saveState(Util.getXmlServerCtrlLocal());
     }
 
-    public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {
+    public String nextAutoIncrementId(String dataCluster, String dataModelName, String conceptName) {
         String autoIncrementId = null;
         String concept;
         String field;

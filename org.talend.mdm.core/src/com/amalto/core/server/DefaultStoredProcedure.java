@@ -103,9 +103,9 @@ public class DefaultStoredProcedure implements StoredProcedure {
      * Executes the stored procedure and return the result as a Collection
      */
     @Override
-    public Collection<String> execute(StoredProcedurePOJOPK sppk, String revisionID, DataClusterPOJOPK dcpk, String[] parameters) throws XtentisException {
+    public Collection<String> execute(StoredProcedurePOJOPK sppk, DataClusterPOJOPK dcpk, String[] parameters) throws XtentisException {
         try {
-            return getStoredProcedure(sppk).execute(revisionID, dcpk, parameters);
+            return getStoredProcedure(sppk).execute(dcpk, parameters);
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {

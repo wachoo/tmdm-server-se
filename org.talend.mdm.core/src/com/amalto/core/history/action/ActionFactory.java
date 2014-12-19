@@ -27,10 +27,9 @@ public interface ActionFactory {
      * @param dataModelName   The data model name for the document.
      * @param conceptName     The document concept name.
      * @param id              The id of the document.
-     * @param revisionId      Revision id for the document.
      * @return The list of action(s) performed on the document. These actions can then be used to replay actions
      *         performed on the document.
      */
-    List<Action> createActions(String dataClusterName, String dataModelName, String conceptName, String[] id, String revisionId);
+    List<Action> createActions(String dataClusterName, String dataModelName, String conceptName, String[] id);
 
 }

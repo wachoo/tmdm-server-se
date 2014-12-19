@@ -19,20 +19,13 @@ public class DataModelID {
 
     private String uniqueID;
 
-    private String revisionID;
-
-    public DataModelID(String uniqueID, String revisionID) {
+    public DataModelID(String uniqueID) {
         super();
         this.uniqueID = uniqueID;
-        this.revisionID = revisionID;
     }
 
     public String getUniqueID() {
         return uniqueID;
-    }
-
-    public String getRevisionID() {
-        return revisionID;
     }
 
     @Override
@@ -40,7 +33,6 @@ public class DataModelID {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((uniqueID == null) ? 0 : uniqueID.hashCode());
-        result = prime * result + ((revisionID == null) ? 0 : revisionID.hashCode());
         return result;
     }
 
@@ -57,11 +49,6 @@ public class DataModelID {
             if (other.uniqueID != null)
                 return false;
         } else if (!uniqueID.equals(other.uniqueID))
-            return false;
-        if (revisionID == null) {
-            if (other.revisionID != null)
-                return false;
-        } else if (!revisionID.equals(other.revisionID))
             return false;
         return true;
     }

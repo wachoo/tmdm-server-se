@@ -73,10 +73,8 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
         for (String id : ids) {
             referencedId.append('[').append(id).append(']');
         }
-        LinkedHashMap<String, String> conceptPatternsToClusterName = new LinkedHashMap<String, String>();
-        conceptPatternsToClusterName.put(".*", clusterName); //$NON-NLS-1$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage storage = storageAdmin.get(clusterName, storageAdmin.getType(clusterName), null);
+        Storage storage = storageAdmin.get(clusterName, storageAdmin.getType(clusterName));
         MetadataRepository repository = storage.getMetadataRepository();
         ComplexTypeMetadata complexType = repository.getComplexType(fromTypeName);
         Set<List<FieldMetadata>> paths = StorageMetadataUtils.paths(complexType, fromReference);
@@ -92,10 +90,7 @@ class DefaultCheckDataSource implements FKIntegrityCheckDataSource {
                     WhereCondition.EQUALS,
                     referencedId.toString(),
                     WhereCondition.NO_OPERATOR);
-            inboundReferenceCount += Util.getXmlServerCtrlLocal().countItems(new LinkedHashMap<String, String>(),
-                    conceptPatternsToClusterName,
-                    fromTypeName,
-                    whereItem);
+            inboundReferenceCount += Util.getXmlServerCtrlLocal().countItems(clusterName, fromTypeName, whereItem);
         }
         return inboundReferenceCount;
     }

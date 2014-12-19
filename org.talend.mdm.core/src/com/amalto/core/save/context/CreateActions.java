@@ -52,8 +52,6 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     private final String userName;
 
-    private final String universe;
-
     private final SaverSource saverSource;
 
     private final String dataCluster;
@@ -77,20 +75,18 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
     }
 
     CreateActions(MutableDocument document,
-            Date date,
-            String source,
-            String userName,
-            String dataCluster,
-            String dataModel,
-            String universe,
-            SaverSource saverSource) {
+                  Date date,
+                  String source,
+                  String userName,
+                  String dataCluster,
+                  String dataModel,
+                  SaverSource saverSource) {
         this.document = document;
         this.date = date;
         this.source = source;
         this.userName = userName;
         this.dataCluster = dataCluster;
         this.dataModel = dataModel;
-        this.universe = universe;
         this.saverSource = saverSource;
     }
 
@@ -242,7 +238,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         // Note #2: This code generate values even for non-mandatory fields (but this is expected behavior).
         if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(field.getType().getName()) && doCreate) {
             String conceptName = rootTypeName + "." + field.getName().replaceAll("/", "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            String autoIncrementValue = saverSource.nextAutoIncrementId(universe, dataCluster, dataModel, conceptName);
+            String autoIncrementValue = saverSource.nextAutoIncrementId(dataCluster, dataModel, conceptName);
             actions.add(new FieldUpdateAction(date, source, userName, currentPath, StringUtils.EMPTY, autoIncrementValue,
                     field));
         } else if (EUUIDCustomType.UUID.getName().equalsIgnoreCase(field.getType().getName()) && doCreate) {

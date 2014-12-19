@@ -274,7 +274,7 @@ public interface Storage {
 
     /**
      * @return Name of this storage instance. This is the name used for creation in
-     * {@link com.amalto.core.server.StorageAdmin#create(String, String, StorageType, String, String)}.
+     * {@link com.amalto.core.server.StorageAdmin#create(String, String, StorageType, String)}.
      */
     String getName();
 

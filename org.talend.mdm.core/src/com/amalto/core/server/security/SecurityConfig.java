@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configureMDMAuthentication(AuthenticationManagerBuilder auth) throws Exception {
         // Create users based on information in database
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         ComplexTypeMetadata userType = systemStorage.getMetadataRepository().getComplexType("User"); //$NON-NLS-1$
         UserQueryBuilder qb = from(userType);
         qb.start(0); //TODO

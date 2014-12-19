@@ -3,11 +3,9 @@ package com.amalto.core.delegator;
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.ObjectPOJO;
-import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.role.RolePOJO;
 import com.amalto.core.objects.role.RolePOJOPK;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.objects.view.ViewPOJO;
 import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.query.user.OrderBy;
@@ -31,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,13 +41,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
 
     public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, IWhereItem whereItem,
                                         String orderBy, String direction, int start, int limit) throws XtentisException {
-        // get the universe and revision ID
-        UniversePOJO universe = getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            LOGGER.error(err);
-            throw new XtentisException(err);
-        }
         try {
             ViewPOJO view = getViewPOJO(viewPOJOPK);
             whereItem = Util.fixWebConditions(whereItem, getLocalUser().getUserXML());
@@ -117,12 +107,11 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             }
             // Find revision id for type
             String typeName = view.getSearchableBusinessElements().getList().get(0).split("/")[0]; //$NON-NLS-1$
-            String revisionId = universe.getConceptRevisionID(typeName);
             // Try to get storage for revision
             Server server = ServerContext.INSTANCE.get();
             String dataModelName = dataClusterPOJOPK.getUniqueId();
             StorageAdmin storageAdmin = server.getStorageAdmin();
-            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
+            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName));
             MetadataRepository repository = storage.getMetadataRepository();
             // Build query (from 'main' type)
             ComplexTypeMetadata type = repository.getComplexType(typeName);
@@ -248,8 +237,6 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             LOGGER.trace("putItem() " + item.getItemPOJOPK().getUniqueID());
         }
         try {
-            // make sure the plan is reset
-            item.setPlanPK(null);
             // used for binding data model
             if (dataModelName != null) {
                 item.setDataModelName(dataModelName);
@@ -293,20 +280,11 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalCountOnFirstRow)
             throws XtentisException {
-        // get the universe and revision ID
-        ILocalUser user = getLocalUser();
-        UniversePOJO universe = user.getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
-            LOGGER.error(err);
-            throw new XtentisException(err);
-        }
         isExistDataCluster(dataClusterPOJOPK);
         Server server = ServerContext.INSTANCE.get();
-        String revisionId = universe.getConceptRevisionID(conceptName);
         StorageAdmin storageAdmin = server.getStorageAdmin();
         String dataContainerName = dataClusterPOJOPK.getUniqueId();
-        Storage storage = storageAdmin.get(dataContainerName, storageAdmin.getType(dataContainerName), revisionId);
+        Storage storage = storageAdmin.get(dataContainerName, storageAdmin.getType(dataContainerName));
         MetadataRepository repository = storage.getMetadataRepository();
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type == null) {

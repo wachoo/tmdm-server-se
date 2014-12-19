@@ -39,14 +39,8 @@ class Init implements DocumentSaver {
         // check cluster exist or not
         if (!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, dataClusterName)) {
             // get the universe and revision ID
-            String universe = saverSource.getUniverse();
-            if (universe == null) {
-                throw new RuntimeException("No universe set for user '" + saverSource.getUserName() + "'");
-            }
-            String revisionID = saverSource.getConceptRevisionID(type.getName());
-            context.setRevisionId(revisionID);
-            if (!saverSource.existCluster(revisionID, dataClusterName)) {
-                throw new RuntimeException("Data container '" + dataClusterName + "' does not exist in revision '" + revisionID + "'.");
+            if (!saverSource.existCluster(dataClusterName)) {
+                throw new RuntimeException("Data container '" + dataClusterName + "' does not exist.");
             }
         }
         // Start a transaction on data container

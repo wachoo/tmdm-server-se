@@ -26,15 +26,15 @@ public class ConfigurationHelper {
         return server;
     }
 
-    public static void createCluster(String revisionID, Class<? extends ObjectPOJO> objectClass) throws XtentisException {
-        createCluster(revisionID, ObjectPOJO.getCluster(objectClass));
+    public static void createCluster(Class<? extends ObjectPOJO> objectClass) throws XtentisException {
+        createCluster(ObjectPOJO.getCluster(objectClass));
     }
 
-    public static void createCluster(String revisionID, String clusterName) throws XtentisException {
+    public static void createCluster(String clusterName) throws XtentisException {
         try {
-            boolean exist = getServer().existCluster(revisionID, clusterName);
+            boolean exist = getServer().existCluster(clusterName);
             if (!exist) {
-                getServer().createCluster(revisionID, clusterName);
+                getServer().createCluster(clusterName);
                 logger.info("Created a new data cluster " + clusterName);
             }
         } catch (Exception e) {
@@ -43,11 +43,11 @@ public class ConfigurationHelper {
 
     }
 
-    public static void removeCluster(String revisionID, String clusterName) throws XtentisException {
+    public static void removeCluster(String clusterName) throws XtentisException {
         try {
-            boolean exist = getServer().existCluster(revisionID, clusterName);
+            boolean exist = getServer().existCluster(clusterName);
             if (exist) {
-                getServer().deleteCluster(revisionID, clusterName);
+                getServer().deleteCluster(clusterName);
                 logger.info("Deleted a data cluster " + clusterName);
             }
         } catch (Exception e) {
@@ -57,10 +57,10 @@ public class ConfigurationHelper {
 
     public static void putDocument(String dataCluster, String xmlString, String uniqueID) throws XtentisException {
         XmlServer server = getServer();
-        if (server.getDocumentAsString(null, dataCluster, uniqueID) == null) {
+        if (server.getDocumentAsString(dataCluster, uniqueID) == null) {
             server.start(dataCluster);
             try {
-                server.putDocumentFromString(xmlString, uniqueID, dataCluster, null);
+                server.putDocumentFromString(xmlString, uniqueID, dataCluster);
                 server.commit(dataCluster);
             } catch (Exception e) {
                 server.rollback(dataCluster);
@@ -70,11 +70,11 @@ public class ConfigurationHelper {
         }
     }
 
-    public static void deleteDocument(String revisionID, String clusterName, String uniqueID) throws XtentisException {
+    public static void deleteDocument(String clusterName, String uniqueID) throws XtentisException {
         XmlServer server = getServer();
-        if (server.getDocumentAsString(null, clusterName, uniqueID) != null) {
+        if (server.getDocumentAsString(clusterName, uniqueID) != null) {
             try {
-                server.deleteDocument(revisionID, clusterName, uniqueID);
+                server.deleteDocument(clusterName, uniqueID);
             } catch (Exception e) {
                 throw new XtentisException(e);
             }

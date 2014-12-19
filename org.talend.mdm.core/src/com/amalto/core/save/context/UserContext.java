@@ -37,8 +37,6 @@ class UserContext implements DocumentSaverContext {
 
     private UserAction userAction;
 
-    private String revisionId = null;
-
     private String[] id = new String[0];
 
     private MutableDocument userDocument;
@@ -117,18 +115,8 @@ class UserContext implements DocumentSaverContext {
     }
 
     @Override
-    public String getRevisionID() {
-        return revisionId;
-    }
-
-    @Override
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         this.dataBaseDocument = databaseDocument;
-    }
-
-    @Override
-    public void setRevisionId(String revisionID) {
-        this.revisionId = revisionID;
     }
 
     @Override

@@ -37,7 +37,7 @@ public class CoreUpgrades {
         if (forceUpgrade || isNeedUpgrade) {
             // reset
             if (isNeedUpgrade) {
-                ConfigurationHelper.removeCluster(null, AbstractMigrationTask.CLUSTER_MIGRATION);
+                ConfigurationHelper.removeCluster(AbstractMigrationTask.CLUSTER_MIGRATION);
                 LOGGER.info("Reset migration history records...");
                 if (forceUpgrade) {
                     MDMConfiguration.getConfiguration().setProperty("cluster_override", "true");

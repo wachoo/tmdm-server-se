@@ -14,7 +14,6 @@ import com.amalto.core.objects.transformers.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TypedContent;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.objects.view.ViewPOJO;
 import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.query.user.OrderBy;
@@ -109,33 +108,6 @@ public class DefaultItem implements Item {
     }
 
     /**
-     * Get item with revisionID
-     *
-     * @param revisionID The item revision
-     * @param pk         The item PK
-     * @return The MDM record for the PK.
-     * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
-     */
-    public ItemPOJO getItem(String revisionID, ItemPOJOPK pk) throws XtentisException {
-        try {
-            ItemPOJO pojo = ItemPOJO.load(revisionID, pk);
-            if (pojo == null) {
-                String err = "The item '" + pk.getUniqueID() + "' cannot be found.";
-                LOGGER.error(err);
-                throw new XtentisException(err);
-            }
-            return pojo;
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to get the item " + pk.toString() + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
-            LOGGER.error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
-
-    /**
      * Is Item modified by others - no exception is thrown: true|false.
      *
      * @param item A record PK.
@@ -144,7 +116,7 @@ public class DefaultItem implements Item {
      * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
      */
     public boolean isItemModifiedByOther(ItemPOJOPK item, long time) throws XtentisException {
-        ItemPOJO pojo = ItemPOJO.adminLoad(item);
+        ItemPOJO pojo = ItemPOJO.load(item);
         return pojo == null || time != pojo.getInsertionTime();
     }
 
@@ -219,28 +191,10 @@ public class DefaultItem implements Item {
     // TODO override is not taken into account here?
     public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellThreshold, boolean override)
             throws XtentisException {
-        // get the universe and revision ID
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            LOGGER.error(err);
-            throw new XtentisException(err);
-        }
-        // build the patterns to revision ID map
-        LinkedHashMap<String, String> patternsToRevisionID = new LinkedHashMap<String, String>(universe.getItemsRevisionIDs());
-        if (universe.getDefaultItemRevisionID() != null) {
-            patternsToRevisionID.put(".*", universe.getDefaultItemRevisionID());
-        }
         // build the patterns to cluster map - only one cluster at this stage
-        LinkedHashMap<String, String> patternsToClusterName = new LinkedHashMap<String, String>();
-        patternsToClusterName.put(".*", dataClusterPOJOPK.getUniqueId());
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
-            int count = server.deleteItems(patternsToRevisionID, patternsToClusterName, conceptName, search);
-            if (count > 0){
-                ItemPOJO.clearCache();
-            }
-            return count;
+            return server.deleteItems(dataClusterPOJOPK.getUniqueId(), conceptName, search);
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
@@ -386,18 +340,10 @@ public class DefaultItem implements Item {
                 throw new XtentisException("Unauthorized read access on data cluster '" + dataModelName + "' by user '"
                         + user.getUsername() + "'");
             }
-            // get the universe and revision ID
-            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                LOGGER.error(err);
-                throw new XtentisException(err);
-            }
             Server server = ServerContext.INSTANCE.get();
             String typeName = StringUtils.substringBefore(viewablePaths.get(0), "/"); //$NON-NLS-1$
-            String revisionId = universe.getConceptRevisionID(typeName);
             StorageAdmin storageAdmin = server.getStorageAdmin();
-            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
+            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName));
             MetadataRepository repository = storage.getMetadataRepository();
             ComplexTypeMetadata type = repository.getComplexType(typeName);
             UserQueryBuilder qb = from(type);
@@ -478,18 +424,10 @@ public class DefaultItem implements Item {
     public long count(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem, int spellThreshold)
             throws XtentisException {
         try {
-            // get the universe and revision ID
-            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                LOGGER.error(err);
-                throw new XtentisException(err);
-            }
             Server server = ServerContext.INSTANCE.get();
-            String revisionId = universe.getConceptRevisionID(conceptName);
             String dataModelName = dataClusterPOJOPK.getUniqueId();
             StorageAdmin storageAdmin = server.getStorageAdmin();
-            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
+            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName));
             MetadataRepository repository = storage.getMetadataRepository();
             Collection<ComplexTypeMetadata> types;
             if ("*".equals(conceptName)) {
@@ -792,11 +730,11 @@ public class DefaultItem implements Item {
      * @param parameters Optional parameter values to replace the %n in the query before execution
      * @return Query results as list of String.
      */
-    public ArrayList<String> runQuery(String revisionID, DataClusterPOJOPK dataClusterPOJOPK, String query, String[] parameters)
+    public ArrayList<String> runQuery(DataClusterPOJOPK dataClusterPOJOPK, String query, String[] parameters)
             throws XtentisException {
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
-            return server.runQuery(revisionID,
+            return server.runQuery(
                     (dataClusterPOJOPK == null ? null : dataClusterPOJOPK.getUniqueId()), query, parameters);
         } catch (Exception e) {
             String err = "Unable to perform a direct query: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
@@ -816,33 +754,13 @@ public class DefaultItem implements Item {
         }
     }
 
-    /**
-     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
-     *
-     * @param dataClusterPOJOPK A data cluster PK.
-     * @return A {@link java.util.TreeMap} of concept names to revision IDs
-     * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
-     */
-    public Map<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK) throws XtentisException {
-        return getConceptsInDataCluster(dataClusterPOJOPK, null);
-    }
-
-    /**
-     * Returns a map with keys being the concepts found in the Data Cluster and as value the revisionID
-     *
-     * @param dataClusterPOJOPK A data cluster PK.
-     * @param universe Universe
-     * @return A {@link java.util.TreeMap} of concept names to revision IDs
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public Map<String, String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK, UniversePOJO universe)
-            throws XtentisException {
+    public List<String> getConceptsInDataCluster(DataClusterPOJOPK dataClusterPOJOPK) throws XtentisException {
         String dataModelName = dataClusterPOJOPK.getUniqueId();
         try {
-            Map<String, String> concepts = new LinkedHashMap<String, String>();
+            List<String> concepts = new ArrayList<String>();
             Server server = ServerContext.INSTANCE.get();
             StorageAdmin storageAdmin = server.getStorageAdmin();
-            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), null);
+            Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName));
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
             if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
@@ -855,10 +773,6 @@ public class DefaultItem implements Item {
                         + " by user " + user.getUsername());
             }
             // This should be moved to ItemCtrl
-            // get the universe
-            if (universe == null) {
-                universe = user.getUniverse();
-            }
             MetadataRepository repository = storage.getMetadataRepository();
             Collection<ComplexTypeMetadata> types;
             if (DispatchWrapper.isMDMInternal(dataClusterPOJOPK.getUniqueId())) {
@@ -867,7 +781,7 @@ public class DefaultItem implements Item {
                 types = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
             }
             for (ComplexTypeMetadata type : types) {
-                concepts.put(type.getName(), universe.getConceptRevisionID(type.getName()));
+                concepts.add(type.getName());
             }
             return concepts;
         } catch (Exception e) {

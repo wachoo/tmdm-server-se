@@ -38,9 +38,9 @@ public abstract class SchemaManager {
         }
     };
 
-    public DataModelBean updateToDatamodelPool(String revisionID, String uniqueID, String dataModelSchema)
+    public DataModelBean updateToDatamodelPool(String uniqueID, String dataModelSchema)
             throws SchemaManagerException, SAXException {
-        DataModelID dataModelID = new DataModelID(uniqueID, revisionID);
+        DataModelID dataModelID = new DataModelID(uniqueID);
         if (dataModelSchema == null)
             throw new SchemaManagerException("Data model schema can not be empty! ");
         // check exist in pool
@@ -119,16 +119,6 @@ public abstract class SchemaManager {
         }
     }
 
-    /**
-     * DOC HSHU Comment method "removeFromDatamodelPool".
-     * 
-     * @param revisionID
-     * @param uniqueID
-     */
-    public void removeFromDatamodelPool(String revisionID, String uniqueID) {
-        removeFromPool(new DataModelID(uniqueID, revisionID));
-    }
-    
     /**
      * DOC HSHU Comment method "getBusinessConcepts".
      * @param dataModelID

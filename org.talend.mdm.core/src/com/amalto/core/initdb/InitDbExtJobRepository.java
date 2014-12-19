@@ -67,8 +67,6 @@ public class InitDbExtJobRepository {
             }
             //clear the cache objects, is this still need?
             Util.getXmlServerCtrlLocal().clearCache();
-            ObjectPOJO.clearCache();
-            ItemPOJO.clearCache();
         } catch (Exception e) {
             logger.error(e.getLocalizedMessage(), e);
         }

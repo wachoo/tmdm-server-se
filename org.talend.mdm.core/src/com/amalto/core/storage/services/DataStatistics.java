@@ -48,7 +48,7 @@ public class DataStatistics {
             String language, @QueryParam("top")//$NON-NLS-1$
             Integer top) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
+        Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER);
         if (dataStorage == null) {
             throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
         }

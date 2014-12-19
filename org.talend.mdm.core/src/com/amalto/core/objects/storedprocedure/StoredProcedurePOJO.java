@@ -1,6 +1,5 @@
 package com.amalto.core.objects.storedprocedure;
 
-import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
 import com.amalto.core.metadata.LongString;
@@ -66,20 +65,17 @@ public class StoredProcedurePOJO extends ObjectPOJO {
         this.procedure = procedure;
     }
 
-    public Collection<String> execute(String revisionID, DataClusterPOJOPK dataClusterPOJOPK, String[] parameters) throws XtentisException {
+    public Collection<String> execute(DataClusterPOJOPK dataClusterPOJOPK, String[] parameters) throws XtentisException {
         if (getProcedure() == null) {
             return null;
         }
         try {
-            if (refreshCache) {
-                ItemPOJO.clearCache();
-            }
             XmlServer server = Util.getXmlServerCtrlLocal();
             String cluster = null;
             if (dataClusterPOJOPK != null) {
                 cluster = dataClusterPOJOPK.getUniqueId();
             }
-            return server.runQuery(revisionID, cluster, getProcedure(), parameters);
+            return server.runQuery(cluster, getProcedure(), parameters);
         } catch (Exception e) {
             String err = "Unable to execute the Stored Procedure " + getPK().getUniqueId()
                     + ": " + e.getLocalizedMessage();

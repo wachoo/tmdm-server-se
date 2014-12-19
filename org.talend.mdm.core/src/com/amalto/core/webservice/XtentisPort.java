@@ -15,8 +15,6 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public WSString ping(WSPing wsPing) throws RemoteException;
 
-    public WSString refreshCache(WSRefreshCache refreshCache) throws RemoteException;
-
     public WSString logout(WSLogout wsLogout) throws RemoteException;
 
     public WSInt initMDM(WSInitData initData) throws RemoteException;
@@ -193,8 +191,6 @@ public interface XtentisPort extends java.rmi.Remote {
     public WSBackgroundJob getBackgroundJob(WSGetBackgroundJob wsGetBackgroundJob) throws RemoteException;
 
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsPutBackgroundJob) throws RemoteException;
-
-    public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException;
 
     public WSItemPK recoverDroppedItem(WSRecoverDroppedItem wsRecoverDroppedItem) throws RemoteException;
 

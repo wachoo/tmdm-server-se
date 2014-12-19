@@ -68,7 +68,7 @@ public class ExportServlet extends HttpServlet {
 
         try {
             resp.setContentType("text/xml");
-            server.exportDocuments(revisionId, clusterName, start, end, includeMetadata, outputStream);
+            server.exportDocuments(clusterName, start, end, includeMetadata, outputStream);
         } catch (XtentisException e) {
             throw new ServletException(e);
         } finally {

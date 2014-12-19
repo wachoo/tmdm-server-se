@@ -11,7 +11,7 @@ public class RemoveOldMigrationClusterTask extends AbstractMigrationTask{
 		
 		try {
 			
-			ConfigurationHelper.removeCluster(null, "MIGRATION");
+			ConfigurationHelper.removeCluster("MIGRATION");
 			
 			
 		} catch (Exception e) {

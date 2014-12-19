@@ -50,62 +50,53 @@ public interface IXmlServerSLWrapper {
 
     /**
      * Get all clusters for a particular revision
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
-     * 
      * @throws XmlServerException
      */
-    public String[] getAllClusters(String revisionID) throws XmlServerException;
+    public String[] getAllClusters() throws XmlServerException;
     
     /**
      * Delete a cluster for particular revision
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @param clusterName
      *          The name of the cluster
      * @return the milliseconds to perform the operation
      * @throws XmlServerException
      * 
      */
-    public long deleteCluster(String revisionID, String clusterName) throws XmlServerException;
+    public long deleteCluster(String clusterName) throws XmlServerException;
     
     /**
      * Delete All clusters for a particular revision
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @return the milliseconds to perform the operation
      * @throws XmlServerException
      * 
      */
-    public long deleteAllClusters(String revisionID) throws XmlServerException;
+    public long deleteAllClusters() throws XmlServerException;
     
 
     /**
      * Create a cluster for a particular revision
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @param clusterName
      *          The name of the cluster
      * @return the milliseconds to perform the operation
      * @throws XmlServerException
      * 
      */
-    public long createCluster(String revisionID, String clusterName) throws XmlServerException;
+    public long createCluster(String clusterName) throws XmlServerException;
     
     /**
      * Reads a document from a file and stores it in the DB 
+     * @param revisionID
+     *          The ID of the revision, <code>null</code> for the head
      * @param fileName
      *          The full path of the file
      * @param uniqueID
      *          The unique ID of the document
      * @param clusterName
      *          The unique ID of the cluster
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @return the milliseconds to perform the operation
      * @throws XmlServerException
      */
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException;
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName) throws XmlServerException;
     
     /**
      * Reads a document from a file and stores it in the DB
@@ -115,37 +106,29 @@ public interface IXmlServerSLWrapper {
      *          The unique ID of the document
      * @param clusterName
      *          The unique ID of the cluster
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @param documentType
      *          "DOCUMENT" for and XML document, "BINARY" otherwise
      * @return the milliseconds to perform the operation
      * @throws XmlServerException
      */
-    public long putDocumentFromFile(
-        String fileName, 
-        String uniqueID, 
-        String clusterName,
-        String revisionID,
-        String documentType
-    ) throws XmlServerException;
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String documentType) throws XmlServerException;
     
-    public boolean existCluster(String revision,String cluster)throws XmlServerException;
+    public boolean existCluster(String cluster)throws XmlServerException;
     
     /**
      * Read a document from s String an store it in the DB as "DOCUMENT"
+     * @param revisionID
+     *          The ID of the revision, <code>null</code> for the head
      * @param xmlString
      *          The xml string
      * @param uniqueID
      *          The unique ID of the document
      * @param clusterName
      *          The unique ID of the cluster
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @return the time to store the document
      * @throws XmlServerException
      */
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID) throws XmlServerException;
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName) throws XmlServerException;
     
     /**
      * Read a document from a String and store it in the DB
@@ -155,36 +138,33 @@ public interface IXmlServerSLWrapper {
      *          The unique ID of the document
      * @param clusterName
      *          The unique ID of the cluster
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @param documentType
      *          "DOCUMENT" for and XML document, "BINARY" otherwise
      * @return the time to store the document
      * @throws XmlServerException
      */
     public long putDocumentFromString(
-        String string, 
-        String uniqueID, 
-        String clusterName, 
-        String revisionID,
-        String documentType 
+            String string,
+            String uniqueID,
+            String clusterName,
+            String documentType
     ) throws XmlServerException;
 
     
     /**
      * Stores a document from its DOM root element
+     * @param revisionID
+     *          The ID of the revision, <code>null</code> for the head
      * @param root
      *          The DOM root element
      * @param uniqueID
      *          The unique ID of the document
      * @param clusterName
      *          The unique ID of the cluster
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @return the time to store the document
      * @throws XmlServerException
      */
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID) throws XmlServerException;
+    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName) throws XmlServerException;
 
     /**
      * Load a document using a SAX parser.
@@ -192,122 +172,98 @@ public interface IXmlServerSLWrapper {
      * @param dataClusterName The unique ID of the cluster
      * @param docReader A SAX reader
      * @param input A SAX input
-     * @param revisionId The revision id (<code>null</code> for head).
      * @throws XmlServerException If anything goes wrong in underlying storage
      */
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException;
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input) throws XmlServerException;
 
     /**
      * Gets an XML document from the DB<br>
      * The XML instruction will have an encoding specified as UTF-16
-     * @param uniqueID
-     *          The unique ID of the document
-     * @param clusterName
-     *          The unique ID of the cluster
      * @param revisionID
      *          The ID of the revision, <code>null</code> for the head
+     * @param clusterName
+     *          The unique ID of the cluster
+     * @param uniqueID
+     *          The unique ID of the document
      * @return the document as A string
      * @throws XmlServerException
      */
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XmlServerException;
+    public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException;
     
     /**
      * Gets an XML document from the DB<br>
      * The XML instruction will have the encoding specified in the encoding parameter<br>
      * If encoding is null, the document will not have an XML instruction
-     * @param uniqueID
-     *          The unique ID of the document
-     * @param clusterName
-     *          The unique ID of the cluster
      * @param revisionID
      *          The ID of the revision, <code>null</code> for the head
+     * @param clusterName
+     *          The unique ID of the cluster
+     * @param uniqueID
+     *          The unique ID of the document
      * @param encoding
      *          The encoding of the XML instruction (e.g. UTF-16, UTF-8, etc...).
      * @return the document as A string
      * @throws XmlServerException
      */
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding) throws XmlServerException;
+    public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException;
         
     /**
      * Gets the bytes of a document from the DB<br>
      * For an xml "DOCUMENT" type, the bytes will be encoded using UTF-16
      * 
-     * @param uniqueID
-     *          The unique ID of the document
-     * @param clusterName
-     *          The unique ID of the cluster
      * @param revisionID
      *          The ID of the revision, <code>null</code> for the head
+     * @param clusterName
+     *          The unique ID of the cluster
+     * @param uniqueID
+     *          The unique ID of the document
      * @param documentType
      *          "DOCUMENT" for and XML document, "BINARY" otherwise
      * @return the document as A string
      * @throws XmlServerException
      */
-    public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException;
+    public byte[] getDocumentBytes(String clusterName, String uniqueID, String documentType) throws XmlServerException;
     
     /**
      * The list of documents unique ids in a cluster of a particular revision
      * 
      * @param clusterName
      *          The unique ID of the cluster
-     * @param revisionID
-     *          The ID of the revision, <code>null</code> for the head
      * @return the list of document unique IDs
      * @throws XmlServerException
      */
-    public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException;
+    public String[] getAllDocumentsUniqueID(String clusterName) throws XmlServerException;
     
     /**
      * Delete a document
-     * @param uniqueID
-     *          The unique ID of the document
-     * @param clusterName
-     *          The unique ID of the cluster
      * @param revisionID
      *          The ID of the revision, <code>null</code> for the head
+     * @param clusterName
+     *          The unique ID of the cluster
+     * @param uniqueID
+     *          The unique ID of the document
      * @return the time to perform the delete
      * @throws XmlServerException
      */
-    public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException;
+    public long deleteDocument(String clusterName, String uniqueID, String documentType) throws XmlServerException;
 
     /**
-     * Delete Xtentis Objects matching a particular condition<br> 
-     * @param objectRootElementNameToRevisionID
-     *          A map that gives the revision ID of an Object XML Root Element Name
-     * @param objectRootElementNameToClusterName
-     *          An ordered map that gives the cluster name of an Object XML Root Element Name
-     * @param objectRootElementName
-     *          The objectType (its name)
-     * @param whereItem
-     *          The condition
-     * @return the number of items deleted
-     * @throws XmlServerException
-     */
-    public int deleteXtentisObjects(
-        HashMap<String, String> objectRootElementNameToRevisionID,
-        HashMap<String, String> objectRootElementNameToClusterName,
-        String objectRootElementName,
-        IWhereItem whereItem
-    ) throws XmlServerException;
-    
-    /**
      * Delete Items matching a particular condition<br> 
-     * @param conceptPatternsToClusterName
-     *          An ordered map that gives the cluster name of a Concept when matching the first pattern found
      * @param conceptPatternsToRevisionID
      *          An ordered map that gives the revision ID of a Concept when matching the first pattern found
-     * @param conceptName
+     * @param conceptPatternsToClusterName
+     *          An ordered map that gives the cluster name of a Concept when matching the first pattern found
+     * @param clusterName
+     *@param conceptName
      *          The Concept of the items being deleted
      * @param whereItem
-     *          The condition
-     * @return the number of items deleted
+ *          The condition   @return the number of items deleted
      * @throws XmlServerException
      */
     public int deleteItems(
-        LinkedHashMap<String, String> conceptPatternsToRevisionID,
-        LinkedHashMap<String, String> conceptPatternsToClusterName,
-        String conceptName, 
-        IWhereItem whereItem
+            String clusterName,
+            String conceptName,
+            IWhereItem whereItem
     ) throws XmlServerException;
 
     
@@ -331,226 +287,20 @@ public interface IXmlServerSLWrapper {
      *          A map that gives the revision ID of a pattern matching a concept name Concept (isItemQuery is true) or Xtentis Object (isItemQuery is false)
      * @param conceptPatternsToClusterName
      *          An ordered map that gives the cluster name of a Concept when matching the first pattern found
-     * @param conceptName
+     * @param clusterName
+     *@param conceptName
      *          The name of the concept
      * @param whereItem
-     *          The condition to apply
-     * @return the number of items meeting the conditions
+ *          The condition to apply   @return the number of items meeting the conditions
      * @throws XmlServerException
      */
     public long countItems(
-        Map<String, String> conceptPatternsToRevisionID,
-        Map<String, String> conceptPatternsToClusterName,
-        String conceptName,
-        IWhereItem whereItem
-    ) throws XmlServerException;
-    
-    /**
-     * Count Xtentis Objects based on conditions
-     * @param objectRootElementNameToRevisionID
-     *          A map that gives the revision ID of an Xtentis Object based on its XML Root Element Name 
-     * @param objectRootElementNameToClusterName
-     *          An ordered map that gives the cluster name of an Object based on its XML Root Element Name
-     * @param mainObjectRootElementName
-     *          An optional object XML root element name that will serve as the main pivot<br/>
-     *          If not specified, the pivots will be in ordered of those in the viewableBusinessElements
-     * @param whereItem 
-     *          The condition to apply
-     * @return the number of items meeting the conditions
-     * @throws XmlServerException
-     */
-    public long countXtentisObjects(
-        HashMap<String, String> objectRootElementNameToRevisionID,
-        HashMap<String, String> objectRootElementNameToClusterName,
-        String mainObjectRootElementName,
-        IWhereItem whereItem
-    ) throws XmlServerException;
-    
-    /**
-     * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
-     *
-     * @param conceptPatternsToRevisionID
-     *          A map that gives the revision ID of a pattern matching a concept name Concept (isItemQuery is true) or Xtentis Object (isItemQuery is false)
-     * @param conceptPatternsToClusterName
-     *          An ordered map that gives the cluster name of a Concept when matching the first pattern found
-     * @param forceMainPivot
-     *          An optional pivot that will appear first in the list of pivots in the query<br>:
-     *          This allows forcing cartesian products: for instance Order Header vs Order Line
-     * @param viewableFullPaths
-     *          The xPaths of the elements and their sub elements that constitute the top elements of the returned documents
-     * @param whereItem
-     *          The condition to apply
-     * @param orderBy
-     *          The path of the element to order by. <code>null</code> to avoid ordering
-     * @param direction
-     *          If orderBy is not <code>null</code>, the direction. One of {@link #ORDER_ASCENDING} or {@link #ORDER_DESCENDING}
-     * @param start
-     *          The index of the first element to return (start at 0)
-     * @param limit
-     *          The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
-     * @return the XQuery in the native language of the database
-     * @throws XmlServerException
-     * @deprecated
-     */
-    public String getItemsQuery(
-        Map<String, String> conceptPatternsToRevisionID,
-        Map<String, String> conceptPatternsToClusterName,
-        String forceMainPivot,
-        ArrayList<String> viewableFullPaths,    
-        IWhereItem whereItem,
-        String orderBy,
-        String direction,
-        int start,
-        int limit
-    ) throws XmlServerException;
-    
-    /**
-     * Builds an Items query in the native language of the DB (for instance XQuery) based on conditions
-     *
-     * @return the XQuery in the native language of the database
-     * @throws XmlServerException
-     * @deprecated
-     */
-    public String getItemsQuery(
-            Map<String, String> conceptPatternsToRevisionID,
-            Map<String, String> conceptPatternsToClusterName,
-            String forceMainPivot,
-            ArrayList<String> viewableFullPaths,    
-            IWhereItem whereItem,
-            String orderBy,
-            String direction,
-            int start,
-            long limit,
-            boolean totalCountOnfirstRow,
-            Map<String, ArrayList<String>> metaDataTypes
-    ) throws XmlServerException;
-    
-    /**
-     * Builds a query in the native language of the DB (for instance XQuery) based on conditions
-     * @param objectRootElementNameToRevisionID
-     *          A map that gives the revision ID of an Xtentis Object based on its XML Root Element Name 
-     * @param objectRootElementNameToClusterName
-     *          An ordered map that gives the cluster name of an Object based on its XML Root Element Name
-     * @param mainObjectRootElementName
-     *          An optional object XML root element name that will serve as the main pivot<br/>
-     *          If not specified, the pivots will be in ordered of those in the viewableBusinessElements
-     * @param viewableFullPaths 
-     *          The xPaths of the elements and their sub elements that constitute the top elements of the returned documents
-     * @param whereItem 
-     *          The condition to apply
-     * @param orderBy
-     *          The path of the element to order by. <code>null</code> to avoid ordering
-     * @param direction
-     *          If orderBy is not <code>null</code>, the direction. One of {@link #ORDER_ASCENDING} or {@link #ORDER_DESCENDING}
-     * @param start
-     *          The index of the first element to return (start at 0)
-     * @param limit
-     *          The index of the last element to search. A negative value or {@value Integer#MAX_VALUE} means no limit
-     * @return the XQuery in the native language of the database
-     * @throws XmlServerException
-     * @deprecated
-     */
-    public String getXtentisObjectsQuery(
-        HashMap<String, String> objectRootElementNameToRevisionID,
-        HashMap<String, String> objectRootElementNameToClusterName,
-        String mainObjectRootElementName,
-        ArrayList<String> viewableFullPaths,
-        IWhereItem whereItem,
-        String orderBy,
-        String direction,
-        int start,
-        int limit
-    ) throws XmlServerException;
-    
-    /**
-     * Builds a query in the native language of the DB (for instance XQuery) based on conditions
-     * @param objectRootElementNameToRevisionID
-     * @param objectRootElementNameToClusterName
-     * @param mainObjectRootElementName
-     * @param viewableFullPaths
-     * @param whereItem
-     * @param orderBy
-     * @param direction
-     * @param start
-     * @param limit
-     * @param totalCountOnfirstRow
-     * @return the XQuery in the native language of the database
-     * @throws XmlServerException
-     * @deprecated
-     */
-    public String getXtentisObjectsQuery(
-            LinkedHashMap<String, String> objectRootElementNameToRevisionID,
-            LinkedHashMap<String, String> objectRootElementNameToClusterName,
-            String mainObjectRootElementName,
-            ArrayList<String> viewableFullPaths,
-            IWhereItem whereItem,
-            String orderBy,
-            String direction,
-            int start,
-            long limit,
-            boolean totalCountOnfirstRow
-        ) throws XmlServerException;
-    
-    /**
-     * @param clusterName
-     * @param mainPivotName
-     * @param pivotWithKeys
-     * @param indexPaths
-     * @param whereItem
-     * @param pivotDirections
-     * @param indexDirections
-     * @param start
-     * @param limit
-     * @return
-     * @throws XmlServerException
-     * @deprecated
-     */
-    public String getPivotIndexQuery(
-            String clusterName, 
-            String mainPivotName,
-            LinkedHashMap<String, String[]> pivotWithKeys,
-            LinkedHashMap<String, String> itemsRevisionIDs,
-            String defaultRevisionID,
-            String[] indexPaths,
-            IWhereItem whereItem, 
-            String[] pivotDirections,
-            String[] indexDirections, 
-            int start, 
-            int limit
-    ) throws XmlServerException;
-    
-    
-    
-    /**
-     * @param clusterName
-     * @param conceptName
-     * @param PKXpaths
-     * @param FKXpath
-     * @param labelXpath
-     * @param fatherPK
-     * @param itemsRevisionIDs
-     * @param defaultRevisionID
-     * @param whereItem
-     * @param start
-     * @param limit
-     * @return
-     * @throws XmlServerException
-     * @deprecated
-     */
-    public String getChildrenItemsQuery(
-            String clusterName, 
+            String clusterName,
             String conceptName,
-            String[] PKXpaths,
-            String FKXpath,
-            String labelXpath,
-            String fatherPK,
-            LinkedHashMap<String, String> itemsRevisionIDs,
-            String defaultRevisionID,
-            IWhereItem whereItem,
-            int start, 
-            int limit
+            IWhereItem whereItem
     ) throws XmlServerException;
-    
+
+
     /**
      * Performs a query on the db with optional parameters<br>
      * The parameters are specified as %n in the query where n is the parameter number starting with 0
@@ -558,18 +308,18 @@ public interface IXmlServerSLWrapper {
      *          The ID of the revision, <code>null</code> to run the query from the head
      * @param clusterName
      *          The unique ID of the cluster, <code>null</code> to run the query from the head
-     * @param query 
+     * @param query
      *          The query in the native language
-     * @param parameters 
+     * @param parameters
      *          The parameter values to replace the %n in the query before execution
      * @return the result of the Query as a Collection of Strings
      * @throws XmlServerException
      */
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException;
+    public ArrayList<String> runQuery(String clusterName, String query, String[] parameters) throws XmlServerException;
     
     
-    public ArrayList<String> runQuery(String revisionID, String clusterName,
-            String query, String[] parameters, final int start, final int limit, final boolean withTotalCount)
+    public ArrayList<String> runQuery(String clusterName,
+                                      String query, String[] parameters, final int start, final int limit, final boolean withTotalCount)
             throws XmlServerException ;
     /**
      * 
@@ -592,5 +342,5 @@ public interface IXmlServerSLWrapper {
     public void end(String dataClusterName) throws XmlServerException;
     public void close() throws XmlServerException;
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException;
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException;
+    public void exportDocuments(String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException;
 }

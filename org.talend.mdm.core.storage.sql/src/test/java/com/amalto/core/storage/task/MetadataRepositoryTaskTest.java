@@ -78,9 +78,9 @@ public class MetadataRepositoryTaskTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
 
-        Storage staging = storageAdmin.create(metadataRepositoryId, "Storage", StorageType.STAGING, "H2-DS1", null); //$NON-NLS-1$//$NON-NLS-2$
+        Storage staging = storageAdmin.create(metadataRepositoryId, "Storage", StorageType.STAGING, "H2-DS1"); //$NON-NLS-1$//$NON-NLS-2$
 
-        Storage user = storageAdmin.create(metadataRepositoryId, "Storage", StorageType.MASTER, "H2-DS1", null); //$NON-NLS-1$//$NON-NLS-2$
+        Storage user = storageAdmin.create(metadataRepositoryId, "Storage", StorageType.MASTER, "H2-DS1"); //$NON-NLS-1$//$NON-NLS-2$
 
         MetadataRepository userRepository = user.getMetadataRepository();
 
@@ -335,7 +335,6 @@ public class MetadataRepositoryTaskTest extends TestCase {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Commit on '" + dataCluster + "'");
             }
-            ItemPOJO.getCache().clear();
         }
 
         @Override

@@ -154,14 +154,11 @@ public class GeneralAction implements GeneralService {
                 givenname = Util.getFirstTextNode(d, "//givenname"); //$NON-NLS-1$
                 familyname = Util.getFirstTextNode(d, "//familyname"); //$NON-NLS-1$
             }
-
-            String universe = LocalUser.getLocalUser().getUniverse().getName();
             if (familyname != null && givenname != null) {
                 userBean.setName(givenname + " " + familyname); //$NON-NLS-1$
             } else {
                 userBean.setName(LocalUser.getLocalUser().getUsername());
             }
-            userBean.setUniverse(universe);
             return userBean;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

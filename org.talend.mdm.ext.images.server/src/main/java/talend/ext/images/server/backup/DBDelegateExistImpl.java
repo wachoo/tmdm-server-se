@@ -24,7 +24,7 @@ public class DBDelegateExistImpl implements DBDelegate {
 
     public byte[] getResource(ResourcePK resourcePK) {
         try {
-            return server.getDocumentBytes(null, CLUSTER_NAME, resourcePK.toString(), "BINARY"); //$NON-NLS-1$
+            return server.getDocumentBytes(CLUSTER_NAME, resourcePK.toString(), "BINARY"); //$NON-NLS-1$
         } catch (XtentisException e) {
             logger.error("Error during getResource call.", e);
             return null;
@@ -33,7 +33,7 @@ public class DBDelegateExistImpl implements DBDelegate {
 
     public boolean putResource(ResourcePK resourcePK, String fileName) {
         try {
-            long rtnStatus = server.putDocumentFromFile(fileName, resourcePK.toString(), CLUSTER_NAME, null, "BINARY"); //$NON-NLS-1$
+            long rtnStatus = server.putDocumentFromFile(fileName, resourcePK.toString(), CLUSTER_NAME, "BINARY"); //$NON-NLS-1$
             return rtnStatus != -1;
         } catch (Exception e) {
             logger.error("Error during putResource call.", e);
@@ -43,7 +43,7 @@ public class DBDelegateExistImpl implements DBDelegate {
 
     public boolean deleteResource(ResourcePK resourcePK) {
         try {
-            long rtnStatus = server.deleteDocument(null, CLUSTER_NAME, resourcePK.toString(), "BINARY"); //$NON-NLS-1$
+            long rtnStatus = server.deleteDocument(CLUSTER_NAME, resourcePK.toString(), "BINARY"); //$NON-NLS-1$
             return rtnStatus != -1;
         } catch (XtentisException e) {
             logger.error("Error during deleteResource call.", e);

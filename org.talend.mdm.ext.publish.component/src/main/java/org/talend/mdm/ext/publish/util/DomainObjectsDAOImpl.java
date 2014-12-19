@@ -26,14 +26,14 @@ public class DomainObjectsDAOImpl implements DomainObjectsDAO {
     }
 
     public String[] getAllPKs() throws XtentisException {
-        return server.getAllDocumentsUniqueID(null, CLUSTER_NAME);
+        return server.getAllDocumentsUniqueID(CLUSTER_NAME);
     }
 
     public boolean putResource(String domainObjectName, String xmlContent) {
 
         try {
             server.start(CLUSTER_NAME);
-            long rtnStatus = server.putDocumentFromString(xmlContent, domainObjectName, CLUSTER_NAME, null);
+            long rtnStatus = server.putDocumentFromString(xmlContent, domainObjectName, CLUSTER_NAME);
             if (rtnStatus == -1) {
                 server.rollback(CLUSTER_NAME);
                 return false;
@@ -50,7 +50,7 @@ public class DomainObjectsDAOImpl implements DomainObjectsDAO {
     }
 
     public String getResource(String domainObjectName) throws XtentisException {
-        return server.getDocumentAsString(null, CLUSTER_NAME, domainObjectName);
+        return server.getDocumentAsString(CLUSTER_NAME, domainObjectName);
     }
 
 }

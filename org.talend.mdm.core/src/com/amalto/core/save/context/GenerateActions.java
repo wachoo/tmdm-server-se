@@ -51,7 +51,6 @@ class GenerateActions implements DocumentSaver {
         SaverSource saverSource = session.getSaverSource();
         String userName = saverSource.getUserName();
         ComplexTypeMetadata type = context.getUserDocument().getType();
-        String universe = saverSource.getUniverse();
         // Generate actions
         List<Action> actions;
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(context.getDataModelName());
@@ -62,7 +61,7 @@ class GenerateActions implements DocumentSaver {
         switch (userAction) {
         case CREATE:
             CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(),
-                    context.getDataModelName(), universe, saverSource);
+                    context.getDataModelName(), saverSource);
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, type);
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();

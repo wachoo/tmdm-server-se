@@ -8,29 +8,16 @@ public class DroppedItemPOJOPK implements Serializable {
 	
 	private String partPath;
 	
-	private String revisionId;
-
-    public DroppedItemPOJOPK(String revisionId, ItemPOJOPK refItemPOJOPK, String partPath) {
-        this.revisionId = (revisionId == null ? "" : (revisionId)); //$NON-NLS-1$
+    public DroppedItemPOJOPK(ItemPOJOPK refItemPOJOPK, String partPath) {
         this.refItemPOJOPK = refItemPOJOPK;
         this.partPath = partPath;
     }
 
     public String getUniquePK() {
-        if (revisionId == null || revisionId.equals("")) {  //$NON-NLS-1$
-            revisionId = "head"; //$NON-NLS-1$
-        }
-        return revisionId + "." + refItemPOJOPK.getUniqueID() + convertItemPartPath(partPath);  //$NON-NLS-1$
+        return "head." + refItemPOJOPK.getUniqueID() + convertItemPartPath(partPath);  //$NON-NLS-1$
     }
 
-    public String getRevisionId() {
-        if (revisionId != null && revisionId.toLowerCase().equals("head")) { //$NON-NLS-1$
-            revisionId = null;
-        }
-        return revisionId;
-	}
-
-	public ItemPOJOPK getRefItemPOJOPK() {
+    public ItemPOJOPK getRefItemPOJOPK() {
 		return refItemPOJOPK;
 	}
 	

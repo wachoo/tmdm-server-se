@@ -97,7 +97,7 @@ public class StorageDocument implements MutableDocument {
             dataRecord = ((StorageDocument) content).getDataRecord();
         } else {
             DataRecordReader<String> reader = new XmlStringDataRecordReader();
-            dataRecord = reader.read(content.getRevision(), repository, dataRecord.getType(), content.exportToString());
+            dataRecord = reader.read(null, repository, dataRecord.getType(), content.exportToString());
         }
         accessorCache.clear();
         return this;
@@ -106,7 +106,7 @@ public class StorageDocument implements MutableDocument {
     @Override
     public MutableDocument setContent(MutableDocument content) {
         XmlStringDataRecordReader reader = new XmlStringDataRecordReader();
-        dataRecord = reader.read(content.getRevision(), repository, dataRecord.getType(), content.exportToString());
+        dataRecord = reader.read(null, repository, dataRecord.getType(), content.exportToString());
         accessorCache.clear();
         return this;
     }
@@ -215,11 +215,6 @@ public class StorageDocument implements MutableDocument {
     @Override
     public String getDataModel() {
         return dataModelName;
-    }
-
-    @Override
-    public String getRevision() {
-        return dataRecord.getRevisionId();
     }
 
     @Override

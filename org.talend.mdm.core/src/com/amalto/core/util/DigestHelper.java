@@ -22,9 +22,7 @@ import com.amalto.core.objects.menu.MenuPOJO;
 import com.amalto.core.objects.role.RolePOJO;
 import com.amalto.core.objects.routing.RoutingRulePOJO;
 import com.amalto.core.objects.storedprocedure.StoredProcedurePOJO;
-import com.amalto.core.objects.synchronization.SynchronizationPlanPOJO;
 import com.amalto.core.objects.transformers.TransformerV2POJO;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.objects.view.ViewPOJO;
 import org.apache.log4j.Logger;
 
@@ -91,10 +89,6 @@ public class DigestHelper {
             name = MenuPOJO.class.getName();
         } else if (TYPE_STORED_PROCEDURE.equals(type)) {
             name = StoredProcedurePOJO.class.getName();
-        } else if (TYPE_UNIVERSE.equals(type)) {
-            name = UniversePOJO.class.getName();
-        } else if (TYPE_SYNCHRONIZATION_PLAN.equals(type)) {
-            name = SynchronizationPlanPOJO.class.getName();
         } else if (TYPE_TRANSFORMER.equals(type)) {
             name = TransformerV2POJO.class.getName();
         } else if (TYPE_ROUTING_RULE.equals(type)) {

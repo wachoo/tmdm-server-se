@@ -56,7 +56,6 @@ class UpdateReport implements DocumentSaver {
                 setHeader(updateReportDocument, "UserName", session.getSaverSource().getLegitimateUser()); //$NON-NLS-1$
                 setHeader(updateReportDocument, "Source", String.valueOf(action.getSource())); //$NON-NLS-1$
                 setHeader(updateReportDocument, "TimeInMillis", String.valueOf(action.getDate().getTime())); //$NON-NLS-1$
-                setHeader(updateReportDocument, "RevisionID", String.valueOf(context.getRevisionID())); //$NON-NLS-1$
                 setHeader(updateReportDocument, "DataCluster", String.valueOf(context.getDataCluster())); //$NON-NLS-1$
                 setHeader(updateReportDocument, "DataModel", String.valueOf(context.getDataModelName())); //$NON-NLS-1$
                 setHeader(updateReportDocument, "Concept", String.valueOf(type.getName())); //$NON-NLS-1$

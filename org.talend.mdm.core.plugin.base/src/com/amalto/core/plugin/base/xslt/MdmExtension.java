@@ -27,7 +27,7 @@ public class MdmExtension {
             //parse ids
             String[] idArray = ids.split("\\.");
             ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), conceptName, idArray);
-            ItemPOJO itemPOJO = itemCtrl2Local.getItem(revision, itemPOJOPK);
+            ItemPOJO itemPOJO = itemCtrl2Local.getItem(itemPOJOPK);
             if (itemPOJO != null) {
                 itemProjection = itemPOJO.getProjectionAsString();
             }

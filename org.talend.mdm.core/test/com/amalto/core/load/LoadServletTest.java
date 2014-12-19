@@ -103,7 +103,7 @@ public class LoadServletTest extends TestCase {
         protected DataClusterPOJO getDataCluster(String dataClusterName) {
             for (String clusterName : dataClusterNames) {
                 if (clusterName.equals(dataClusterName)) {
-                    return new DataClusterPOJO(null, clusterName);
+                    return new DataClusterPOJO(clusterName);
                 }
             }
 

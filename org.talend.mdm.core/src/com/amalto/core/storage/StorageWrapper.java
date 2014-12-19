@@ -75,7 +75,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 qb.where(eq(keyField, splitUniqueId[currentIndex++]));
             }
         }
-        qb.getSelect().setRevisionId(revisionId);
         return qb.getSelect();
     }
 
@@ -106,49 +105,49 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return getStorageAdmin() != null;
     }
 
-    public String[] getAllClusters(String revisionID) throws XmlServerException {
-        return getStorageAdmin().getAll(revisionID);
+    public String[] getAllClusters() throws XmlServerException {
+        return getStorageAdmin().getAll();
     }
 
-    public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
+    public long deleteCluster(String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
             // TMDM-4692 Delete both master and staging data containers.
-            getStorageAdmin().delete(clusterName, StorageType.MASTER, revisionID, true);
-            getStorageAdmin().delete(clusterName, StorageType.STAGING, revisionID, true);
+            getStorageAdmin().delete(clusterName, StorageType.MASTER, true);
+            getStorageAdmin().delete(clusterName, StorageType.STAGING, true);
         }
         return System.currentTimeMillis() - start;
     }
 
-    public long deleteAllClusters(String revisionID) throws XmlServerException {
+    public long deleteAllClusters() throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            getStorageAdmin().deleteAll(revisionID, true);
+            getStorageAdmin().deleteAll(true);
         }
         return System.currentTimeMillis() - start;
     }
 
-    public long createCluster(String revisionID, String clusterName) throws XmlServerException {
+    public long createCluster(String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
             StorageAdmin admin = getStorageAdmin();
             String dataSourceName = admin.getDatasource(clusterName);
-            admin.create(clusterName, clusterName, admin.getType(clusterName), dataSourceName, null);
+            admin.create(clusterName, clusterName, admin.getType(clusterName), dataSourceName);
         }
         return System.currentTimeMillis() - start;
     }
 
-    public boolean existCluster(String revision, String cluster) throws XmlServerException {
+    public boolean existCluster(String cluster) throws XmlServerException {
         StorageType storageType = cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? StorageType.STAGING : StorageType.MASTER;
-        return getStorageAdmin().exist(cluster, storageType, revision);
+        return getStorageAdmin().exist(cluster, storageType);
     }
 
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName) throws XmlServerException {
 
-        return putDocumentFromFile(fileName, uniqueID, clusterName, revisionID, IXmlServerSLWrapper.TYPE_DOCUMENT);
+        return putDocumentFromFile(fileName, uniqueID, clusterName, IXmlServerSLWrapper.TYPE_DOCUMENT);
     }
 
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String documentType) throws XmlServerException {
 
         long startTime = System.currentTimeMillis();
         File file = new File(fileName);
@@ -162,26 +161,26 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             } else {
                 content = FileUtils.readFileToString(file);
             }
-            putDocumentFromString(content, uniqueID, clusterName, revisionID);
+            putDocumentFromString(content, uniqueID, clusterName);
         } catch (Exception e) {
             throw new XmlServerException("Can not save document file.", e); //$NON-NLS-1$
         }
         return System.currentTimeMillis() - startTime;
     }
 
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName) throws XmlServerException {
 
-        return putDocumentFromString(xmlString, uniqueID, clusterName, revisionID, null);
+        return putDocumentFromString(xmlString, uniqueID, clusterName, null);
     }
 
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String documentType) throws XmlServerException {
 
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
-            Storage storage = getStorage(clusterName, revisionID);
+            Storage storage = getStorage(clusterName);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = xmlStringReader.read(revisionID, repository, repository.getComplexType(typeName), xmlString);
+            DataRecord record = xmlStringReader.read(null, repository, repository.getComplexType(typeName), xmlString);
             try {
                 storage.update(record);
             } catch (Exception e) {
@@ -191,58 +190,58 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName) throws XmlServerException {
 
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
-            Storage storage = getStorage(clusterName, revisionID);
+            Storage storage = getStorage(clusterName);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = reader.read(revisionID, repository, repository.getComplexType(typeName), root);
+            DataRecord record = reader.read(null, repository, repository.getComplexType(typeName), root);
             storage.update(record);
         }
         return System.currentTimeMillis() - start;
     }
 
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException {
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input) throws XmlServerException {
 
         String typeName = getTypeName(input.getPublicId());
         long start = System.currentTimeMillis();
         {
-            Storage storage = getStorage(dataClusterName, revisionId);
+            Storage storage = getStorage(dataClusterName);
             if (storage == null) {
                 throw new XmlServerException("Data cluster '" + dataClusterName + "' does not exist.");
             }
             DataRecordReader<XmlSAXDataRecordReader.Input> reader = new XmlSAXDataRecordReader();
             XmlSAXDataRecordReader.Input readerInput = new XmlSAXDataRecordReader.Input(docReader, input);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = reader.read(revisionId, repository, repository.getComplexType(typeName), readerInput);
+            DataRecord record = reader.read(null, repository, repository.getComplexType(typeName), readerInput);
             storage.update(record);
         }
         return System.currentTimeMillis() - start;
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XmlServerException {
+    public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException {
         // TODO Web UI sends incomplete ids (in case of save of instance with auto increment). Fix caller code in
         // IXtentisRMIPort.
         if (uniqueID.split("\\.").length < 3) { //$NON-NLS-1$
             return null;
         }
-        return getDocumentAsString(revisionID, clusterName, uniqueID, "UTF-8"); //$NON-NLS-1$
+        return getDocumentAsString(clusterName, uniqueID, "UTF-8"); //$NON-NLS-1$
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding) throws XmlServerException {
+    public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException {
 
         if (encoding == null) {
             encoding = "UTF-8"; //$NON-NLS-1$
         }
         String[] splitUniqueId = uniqueID.split("\\."); //$NON-NLS-1$
-        Storage storage = getStorage(clusterName, revisionID);
+        Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         String typeName = splitUniqueId[1];
         ComplexTypeMetadata type = repository.getComplexType(typeName);
-        Select select = getSelectTypeById(type, revisionID, splitUniqueId, uniqueID);
+        Select select = getSelectTypeById(type, null, splitUniqueId, uniqueID);
         StorageResults records = null;
         try {
             storage.begin();
@@ -280,18 +279,18 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException {
+    public byte[] getDocumentBytes(String clusterName, String uniqueID, String documentType) throws XmlServerException {
 
         try {
-            return getDocumentAsString(revisionID, clusterName, uniqueID).getBytes("UTF-8"); //$NON-NLS-1$
+            return getDocumentAsString(clusterName, uniqueID).getBytes("UTF-8"); //$NON-NLS-1$
         } catch (UnsupportedEncodingException e) {
             throw new XmlServerException(e);
         }
     }
 
-    public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
+    public String[] getAllDocumentsUniqueID(String clusterName) throws XmlServerException {
         List<String> uniqueIds = new LinkedList<String>();
-        Storage storage = getStorage(clusterName, revisionID);
+        Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         Collection<ComplexTypeMetadata> typeToQuery;
         if (clusterName.contains("/")) { //$NON-NLS-1$
@@ -303,7 +302,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             }
             typeToQuery = Collections.singletonList(complexType);
         } else {
-            typeToQuery = getClusterTypes(clusterName, revisionID);
+            typeToQuery = getClusterTypes(clusterName);
         }
         try {
             storage.begin();
@@ -331,15 +330,15 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public long deleteDocument(String revisionID, String clusterName, final String uniqueID, String documentType) throws XmlServerException {
+    public long deleteDocument(String clusterName, final String uniqueID, String documentType) throws XmlServerException {
 
         long start = System.currentTimeMillis();
         {
             String typeName = getTypeName(uniqueID);
             String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
-            Storage storage = getStorage(clusterName, revisionID);
+            Storage storage = getStorage(clusterName);
             ComplexTypeMetadata type = storage.getMetadataRepository().getComplexType(typeName);
-            Select select = getSelectTypeById(type, revisionID, splitUniqueID, uniqueID);
+            Select select = getSelectTypeById(type, null, splitUniqueID, uniqueID);
             try {
                 storage.begin();
                 storage.delete(select);
@@ -354,37 +353,14 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return System.currentTimeMillis() - start;
     }
 
-    public int deleteXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String objectRootElementName, IWhereItem whereItem) throws XmlServerException {
-
-
-        // Storage does not handle MDM internal data, thus supporting this method seems useless.
-        throw new UnsupportedOperationException();
-    }
-
-    public int deleteItems(LinkedHashMap<String, String> conceptPatternsToRevisionID, LinkedHashMap<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
-
-
+    public int deleteItems(String clusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
         if (conceptName == null) {
             throw new IllegalArgumentException("Concept name can not be null.");
-        }
-        String clusterName = null;
-        for (Map.Entry<String, String> entry : conceptPatternsToClusterName.entrySet()) {
-            if (conceptName.matches(entry.getKey())) {
-                clusterName = entry.getValue();
-                break;
-            }
         }
         if (clusterName == null) {
             throw new IllegalArgumentException("Could not find cluster name for concept '" + conceptName + "'.");
         }
-        String revisionId = null;
-        for (Map.Entry<String, String> entry : conceptPatternsToRevisionID.entrySet()) {
-            if (conceptName.matches(entry.getKey())) {
-                revisionId = entry.getValue();
-                break;
-            }
-        }
-        Storage storage = getStorage(clusterName, revisionId);
+        Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type == null) {
@@ -418,29 +394,14 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         throw new NotImplementedException();
     }
 
-    public long countItems(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
-
+    public long countItems(String clusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
         if (conceptName == null) {
             throw new IllegalArgumentException("Concept name can not be null.");
-        }
-        String clusterName = null;
-        for (Map.Entry<String, String> entry : conceptPatternsToClusterName.entrySet()) {
-            if (conceptName.matches(entry.getKey())) {
-                clusterName = entry.getValue();
-                break;
-            }
         }
         if (clusterName == null) {
             throw new IllegalArgumentException("Could not find cluster name for concept '" + conceptName + "'.");
         }
-        String revisionId = null;
-        for (Map.Entry<String, String> entry : conceptPatternsToRevisionID.entrySet()) {
-            if (conceptName.matches(entry.getKey())) {
-                revisionId = entry.getValue();
-                break;
-            }
-        }
-        Storage storage = getStorage(clusterName, revisionId);
+        Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         Collection<ComplexTypeMetadata> types;
         if ("*".equals(conceptName)) { //$NON-NLS-1$
@@ -475,66 +436,12 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return count;
     }
 
-    public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, IWhereItem whereItem) throws XmlServerException {
-
-
-        // Storage does not handle MDM internal data, thus supporting this method seems useless.
-        throw new UnsupportedOperationException();
+    public ArrayList<String> runQuery(String clusterName, String query, String[] parameters) throws XmlServerException {
+        return runQuery(clusterName, query, parameters, 0, 0, false);
     }
 
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
-
-
-        // Don't support query text stuff
-        throw new UnsupportedOperationException();
-    }
-
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
-
-
-
-        // Don't support query text stuff
-        throw new UnsupportedOperationException();
-    }
-
-    public String getXtentisObjectsQuery(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
-
-
-
-        // Don't support query text stuff
-        throw new UnsupportedOperationException();
-    }
-
-    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID, LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow) throws XmlServerException {
-
-
-
-        // Don't support query text stuff
-        throw new UnsupportedOperationException();
-    }
-
-    public String getPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap<String, String[]> pivotWithKeys, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections, String[] indexDirections, int start, int limit) throws XmlServerException {
-
-
-        // Don't support query text stuff
-        throw new UnsupportedOperationException();
-    }
-
-    public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXPaths, String FKXpath, String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, IWhereItem whereItem, int start, int limit) throws XmlServerException {
-
-
-        // Don't support query text stuff
-        throw new UnsupportedOperationException();
-    }
-
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException {
-
-        return runQuery(revisionID, clusterName, query, parameters, 0, 0, false);
-    }
-
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
-
-        Storage storage = getStorage(clusterName, revisionID);
+    public ArrayList<String> runQuery(String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
+        Storage storage = getStorage(clusterName);
         // replace parameters in the procedure
         if (parameters != null) {
             for (int i = 0; i < parameters.length; i++) {
@@ -566,13 +473,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
         String clusterName = criteria.getClusterName();
-        Storage storage = getStorage(clusterName, criteria.getRevisionId());
+        Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
-
         int totalCount = 0;
         List<String> itemPKResults = new LinkedList<String>();
         String typeName = criteria.getConceptName();
-
         try {
             storage.begin();
             if (typeName != null && !typeName.isEmpty()) {
@@ -581,7 +486,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                         .getComplexType(typeName).getName()));
             } else {
                 // TMDM-4651: Returns type in correct dependency order.
-                Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
+                Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName);
                 int maxCount = criteria.getMaxItems();
                 if (criteria.getSkip() < 0) { // MDM Studio may send negative values
                     criteria.setSkip(0);
@@ -614,8 +519,8 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return itemPKResults;
     }
 
-    protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName, String revisionID) {
-        Storage storage = getStorage(clusterName, revisionID);
+    protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName) {
+        Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         return MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
     }
@@ -635,7 +540,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         UserQueryBuilder qb = from(type).select(alias(timestamp(), "timestamp")) //$NON-NLS-1$
                 .select(alias(taskId(), "taskid")) //$NON-NLS-1$
                 .selectId(type).limit(criteria.getMaxItems()).start(criteria.getSkip());
-
         List<String> list = new LinkedList<String>();
         StorageResults results = storage.fetch(buildQueryBuilder(qb, criteria, type).getSelect());
         DataRecordWriter writer = new ItemPKCriteriaResultsWriter(resultElementName, type);
@@ -770,16 +674,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     protected Storage getStorage(String dataClusterName) {
-        return getStorage(dataClusterName, null);
-    }
-
-    protected Storage getStorage(String dataClusterName, String revisionId) {
         StorageAdmin admin = getStorageAdmin();
-        if (!admin.exist(dataClusterName, admin.getType(dataClusterName), revisionId)) {
-            throw new IllegalStateException("Data container '" + dataClusterName + "' (revision: '" + revisionId
-                    + "') does not exist.");
+        if (!admin.exist(dataClusterName, admin.getType(dataClusterName))) {
+            throw new IllegalStateException("Data container '" + dataClusterName + "'.");
         }
-        return admin.get(dataClusterName, admin.getType(dataClusterName), revisionId);
+        return admin.get(dataClusterName, admin.getType(dataClusterName));
     }
 
     public void start(String dataClusterName) throws XmlServerException {
@@ -807,7 +706,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
-        Storage storage = getStorage(dataCluster, null);
+        Storage storage = getStorage(dataCluster);
         MetadataRepository repository = storage.getMetadataRepository();
         Iterator<ComplexTypeMetadata> types = repository.getUserComplexTypes().iterator();
         if (types.hasNext()) {
@@ -864,7 +763,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
+    public void exportDocuments(String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
         // No support for bulk export when using SQL storages (this could be in HibernateStorage but would require to define new API).
 
 

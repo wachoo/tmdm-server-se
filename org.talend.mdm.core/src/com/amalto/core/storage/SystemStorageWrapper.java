@@ -80,9 +80,9 @@ public class SystemStorageWrapper extends StorageWrapper {
         DOCUMENT_BUILDER_FACTORY.setNamespaceAware(true);
         // Create "system" storage
         StorageAdmin admin = getStorageAdmin();
-        if (!admin.exist(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null)) {
+        if (!admin.exist(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM)) {
             String datasource = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
-            admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, datasource, null);
+            admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, datasource);
         }
     }
 
@@ -120,7 +120,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     @Override
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
         String clusterName = criteria.getClusterName();
-        Storage storage = getStorage(clusterName, criteria.getRevisionId());
+        Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
 
         int totalCount = 0;
@@ -139,7 +139,7 @@ public class SystemStorageWrapper extends StorageWrapper {
                 itemPKResults.addAll(getTypeItems(criteria, repository.getComplexType(internalTypeName), storage, typeName));
             } else {
                 // TMDM-4651: Returns type in correct dependency order.
-                Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName, criteria.getRevisionId());
+                Collection<ComplexTypeMetadata> types = getClusterTypes(clusterName);
                 int maxCount = criteria.getMaxItems();
                 if (criteria.getSkip() < 0) { // MDM Studio may send negative values
                     criteria.setSkip(0);
@@ -181,43 +181,37 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     @Override
     protected Storage getStorage(String dataClusterName) {
-        return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
     }
 
     @Override
-    protected Storage getStorage(String dataClusterName, String revisionId) {
-        return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-    }
-
-    @Override
-    public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
+    public long deleteCluster(String clusterName) throws XmlServerException {
         return 0;
     }
 
     @Override
-    public String[] getAllClusters(String revisionID) throws XmlServerException {
+    public String[] getAllClusters() throws XmlServerException {
         Set<String> internalClusterNames = DispatchWrapper.getInternalClusterNames();
         return internalClusterNames.toArray(new String[internalClusterNames.size()]);
     }
 
     @Override
-    public long deleteAllClusters(String revisionID) throws XmlServerException {
+    public long deleteAllClusters() throws XmlServerException {
         return 0;
     }
 
     @Override
-    public long createCluster(String revisionID, String clusterName) throws XmlServerException {
+    public long createCluster(String clusterName) throws XmlServerException {
         return 0;
     }
 
     @Override
-    public boolean existCluster(String revision, String cluster) throws XmlServerException {
+    public boolean existCluster(String cluster) throws XmlServerException {
         return true;
     }
 
-    @Override
-    protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName, String revisionID) {
-        Storage storage = getStorage(clusterName, revisionID);
+    protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName) {
+        Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         return filter(repository, clusterName);
     }
@@ -274,8 +268,8 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
-        Storage storage = getStorage(clusterName, revisionID);
+    public String[] getAllDocumentsUniqueID(String clusterName) throws XmlServerException {
+        Storage storage = getStorage(clusterName);
         ComplexTypeMetadata type = getType(clusterName, storage, null);
         if (type != null) {
             FieldMetadata keyField = type.getKeyFields().iterator().next();
@@ -304,12 +298,12 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID)
+    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName)
             throws XmlServerException {
         long start = System.currentTimeMillis();
         {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
-            Storage storage = getStorage(clusterName, revisionID);
+            Storage storage = getStorage(clusterName);
             ComplexTypeMetadata type = getType(clusterName, storage, uniqueID);
             if (type == null) {
                 return -1; // TODO
@@ -319,7 +313,7 @@ public class SystemStorageWrapper extends StorageWrapper {
                 uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
             }
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = reader.read(revisionID, repository, type, root);
+            DataRecord record = reader.read(null, repository, type, root);
             for (FieldMetadata keyField : type.getKeyFields()) {
                 if (record.get(keyField) == null) {
                     LOGGER.warn("Ignoring update for record '" + uniqueID + "' (does not provide key information).");
@@ -332,7 +326,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId)
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input)
             throws XmlServerException {
         long start = System.currentTimeMillis();
         {
@@ -343,37 +337,37 @@ public class SystemStorageWrapper extends StorageWrapper {
             }
             DataRecordReader<XmlSAXDataRecordReader.Input> reader = new XmlSAXDataRecordReader();
             XmlSAXDataRecordReader.Input readerInput = new XmlSAXDataRecordReader.Input(docReader, input);
-            DataRecord record = reader.read(revisionId, storage.getMetadataRepository(), type, readerInput);
+            DataRecord record = reader.read(null, storage.getMetadataRepository(), type, readerInput);
             storage.update(record);
         }
         return System.currentTimeMillis() - start;
     }
 
     @Override
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID)
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName)
             throws XmlServerException {
-        return putDocumentFromString(xmlString, uniqueID, clusterName, revisionID, null);
+        return putDocumentFromString(xmlString, uniqueID, clusterName, null);
     }
 
     @Override
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID,
-            String documentType) throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName,
+                                      String documentType) throws XmlServerException {
         try {
             InputSource source = new InputSource(new StringReader(xmlString));
             Document document = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder().parse(source);
-            return putDocumentFromDOM(document.getDocumentElement(), uniqueID, clusterName, revisionID);
+            return putDocumentFromDOM(document.getDocumentElement(), uniqueID, clusterName);
         } catch (Exception e) {
             throw new XmlServerException(e);
         }
     }
 
     @Override
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XmlServerException {
-        return getDocumentAsString(revisionID, clusterName, uniqueID, "UTF-8");
+    public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException {
+        return getDocumentAsString(clusterName, uniqueID, "UTF-8");
     }
 
     @Override
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding)
+    public String getDocumentAsString(String clusterName, String uniqueID, String encoding)
             throws XmlServerException {
         if (encoding == null) {
             encoding = "UTF-8"; //$NON-NLS-1$
@@ -391,8 +385,6 @@ public class SystemStorageWrapper extends StorageWrapper {
             if (uniqueID.endsWith("-")) { //$NON-NLS-1$
                 uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
             }
-            // TODO Filter by revision
-            // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             // TODO Code may not correctly handle composite id (but no system objects use this)
             String documentUniqueId;
             if (StringUtils.countMatches(uniqueID, ".") >= 3) { //$NON-NLS-1$
@@ -471,7 +463,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType)
+    public long deleteDocument(String clusterName, String uniqueID, String documentType)
             throws XmlServerException {
         Storage storage = getStorage(clusterName);
         ComplexTypeMetadata type = getType(clusterName, storage, uniqueID);
@@ -481,8 +473,6 @@ public class SystemStorageWrapper extends StorageWrapper {
         if (DROPPED_ITEM_TYPE.equals(type.getName())) {
             // head.Product.Product.0-
             uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
-            // TODO Filter by revision
-            // String revisionId = StringUtils.substringBefore(uniqueID, ".");
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
         } else if (!COMPLETED_ROUTING_ORDER.equals(type.getName()) && !FAILED_ROUTING_ORDER.equals(type.getName())
                 && !ACTIVE_ROUTING_ORDER.equals(type.getName()) && !CUSTOM_FORM_TYPE.equals(type.getName())

@@ -23,9 +23,8 @@ public interface DocumentFactory {
      * @param dataModelName data model name of the document.
      * @param conceptName Concept name of the document.
      * @param id Id of the MDM document.
-     * @param revisionId Revision id for the document.
      * @return A {@link MutableDocument} that can be modified with{@link Action}
      */
-    MutableDocument create(String dataClusterName, String dataModelName, String conceptName, String[] id, String revisionId);
+    MutableDocument create(String dataClusterName, String dataModelName, String conceptName, String[] id);
 
 }

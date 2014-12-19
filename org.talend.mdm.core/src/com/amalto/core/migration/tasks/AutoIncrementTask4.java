@@ -21,7 +21,7 @@ public class AutoIncrementTask4 extends AbstractMigrationTask {
     @Override
     protected Boolean execute() {
         try {
-            String xml = Util.getXmlServerCtrlLocal().getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), "Auto_Increment"); //$NON-NLS-1$
+            String xml = Util.getXmlServerCtrlLocal().getDocumentAsString(XSystemObjects.DC_CONF.getName(), "Auto_Increment"); //$NON-NLS-1$
             if (xml == null) {
                 return true;
             }
@@ -47,9 +47,9 @@ public class AutoIncrementTask4 extends AbstractMigrationTask {
                     xmlString //actual data
             );
             pojo.setDataModelName(XSystemObjects.DM_CONF.getName());
-            pojo.store(null);
+            pojo.store();
             //delete the original file
-            Util.getXmlServerCtrlLocal().deleteDocument(null, XSystemObjects.DC_CONF.getName(), "Auto_Increment"); //$NON-NLS-1$
+            Util.getXmlServerCtrlLocal().deleteDocument(XSystemObjects.DC_CONF.getName(), "Auto_Increment"); //$NON-NLS-1$
         } catch (Exception e) {
             Logger.getLogger(AutoIncrementTask4.class).error("Autoincrement exception.", e);
         }

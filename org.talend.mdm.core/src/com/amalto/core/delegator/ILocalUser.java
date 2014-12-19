@@ -14,7 +14,6 @@ package com.amalto.core.delegator;
 
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -34,9 +33,7 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 
 import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
@@ -62,17 +59,9 @@ public abstract class ILocalUser implements IBeanDelegator {
         return set;
     }
 
-    public UniversePOJO getUniverse() {
-        HashMap<String, String> map = new HashMap<String, String>();
-        for (String name : UniversePOJO.getXtentisObjectName()) {
-            map.put(name, null);
-        }
-        return new UniversePOJO("[HEAD]", "", map, new LinkedHashMap<String, String>()); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
     public String getUserXML() {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         ComplexTypeMetadata userType = systemStorage.getMetadataRepository().getComplexType("User"); //$NON-NLS-1$
         UserQueryBuilder qb = from(userType).where(eq(userType.getField("username"), getUsername())); //$NON-NLS-1$
         DataRecordWriter writer = new SystemDataRecordXmlWriter((ClassRepository) systemStorage.getMetadataRepository(), userType);
@@ -115,9 +104,6 @@ public abstract class ILocalUser implements IBeanDelegator {
     }
 
     public void setRoles(HashSet<String> roles) {
-    }
-
-    public void setUniverse(UniversePOJO universe) {
     }
 
     public void setUserXML(String userXML) {

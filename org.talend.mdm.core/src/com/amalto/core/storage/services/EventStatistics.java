@@ -48,7 +48,7 @@ public class EventStatistics {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEventStatistics(@QueryParam("timeframe") Long timeFrame, @QueryParam("top") Integer top) { //$NON-NLS-1$ //$NON-NLS-2
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage system = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        Storage system = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         // Build statistics
         StringWriter stringWriter = new StringWriter();
         JSONWriter writer = new JSONWriter(stringWriter);

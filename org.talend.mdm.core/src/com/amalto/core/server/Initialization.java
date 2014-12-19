@@ -63,8 +63,8 @@ public class Initialization implements InitializingBean {
         LOGGER.info("Starting system storage...");
         StorageAdmin storageAdmin = server.getStorageAdmin();
         String systemDataSourceName = storageAdmin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
-        storageAdmin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, systemDataSourceName, null);
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        storageAdmin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, systemDataSourceName);
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         if (systemStorage == null) {
             LOGGER.error("System storage could not start.");
             throw new IllegalStateException("Could not start server (unable to initialize system storage).");
@@ -114,9 +114,9 @@ public class Initialization implements InitializingBean {
             // storageAdmin.create(containerName, containerName, StorageType.MASTER, "MySQL-Default", null);
             String datasource = storageAdmin.getDatasource(containerName);
             DataSourceDefinition dataSourceDefinition = server.getDefinition(datasource, containerName);
-            storageAdmin.create(containerName, containerName, StorageType.MASTER, datasource, null);
+            storageAdmin.create(containerName, containerName, StorageType.MASTER, datasource);
             if(dataSourceDefinition.hasStaging()) {
-                storageAdmin.create(containerName, containerName, StorageType.STAGING, datasource, null);
+                storageAdmin.create(containerName, containerName, StorageType.STAGING, datasource);
             }
             LOGGER.info("Storage " + containerName + " started.");
             i++;

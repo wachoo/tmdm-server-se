@@ -108,7 +108,6 @@ public class BeforeSaving implements DocumentSaver {
                             // set back the modified item by the process
                             DOMDocument document = new DOMDocument(node,
                                     context.getUserDocument().getType(),
-                                    context.getRevisionID(),
                                     context.getDataCluster(),
                                     context.getDataModelName());
                             context.setUserDocument(document);

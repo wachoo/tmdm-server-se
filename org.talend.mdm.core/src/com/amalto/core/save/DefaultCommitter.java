@@ -86,7 +86,7 @@ public class DefaultCommitter implements SaverSession.Committer {
                     document.exportToString());
             item.setTaskId(document.getTaskId());
             item.setDataModelName(document.getDataModel()); // it need to set dataModelName
-            item.store(document.getRevision(), putInCache);
+            item.store(putInCache);
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
@@ -114,7 +114,7 @@ public class DefaultCommitter implements SaverSession.Committer {
                     document.exportToString());
             item.setTaskId(document.getTaskId());
             item.setDataModelName(document.getDataModel()); // it need to set dataModelName
-            item.store(document.getRevision(), putInCache);
+            item.store(putInCache);
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }

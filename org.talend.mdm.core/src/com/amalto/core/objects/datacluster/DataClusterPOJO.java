@@ -20,7 +20,7 @@ public class DataClusterPOJO extends ObjectPOJO{
     public DataClusterPOJO() {
     }
 
-	public DataClusterPOJO(String revisionID, String name) {
+	public DataClusterPOJO(String name) {
 		super();
 		this.name = name;
 	}

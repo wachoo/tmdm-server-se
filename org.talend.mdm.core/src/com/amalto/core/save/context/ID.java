@@ -80,13 +80,12 @@ class ID implements DocumentSaver {
         }
         // now has an id, so load database document
         String[] xmlDocumentId = ids.toArray(new String[ids.size()]);
-        String revisionID = context.getRevisionID();
-        if (xmlDocumentId.length > 0 && database.exist(dataCluster, dataModelName, typeName, revisionID, xmlDocumentId)) {
+        if (xmlDocumentId.length > 0 && database.exist(dataCluster, dataModelName, typeName, xmlDocumentId)) {
             if (context.getUserAction() == UserAction.AUTO) {
                 context.setUserAction(UserAction.UPDATE);
             }
             context.setId(xmlDocumentId);
-            context.setDatabaseDocument(database.get(dataCluster, dataModelName, typeName, revisionID, xmlDocumentId));
+            context.setDatabaseDocument(database.get(dataCluster, dataModelName, typeName, xmlDocumentId));
         } else {
             // Throw an exception if trying to update a document that does not exist.
             switch (context.getUserAction()) {
@@ -104,7 +103,7 @@ class ID implements DocumentSaver {
             }
             // Creation... so mark context
             context.setUserAction(UserAction.CREATE);
-            context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOCUMENT_BUILDER.newDocument(), type, context.getRevisionID(), dataCluster, context.getDataModelName()));
+            context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOCUMENT_BUILDER.newDocument(), type, dataCluster, context.getDataModelName()));
         }
         // Continue save
         savedTypeName = type.getName();

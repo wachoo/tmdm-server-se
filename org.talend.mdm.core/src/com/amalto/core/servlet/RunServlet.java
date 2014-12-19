@@ -113,7 +113,7 @@ public class RunServlet extends HttpServlet {
                 } else {
                     String revision = req.getParameter("revision");
                     StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-                    Storage storage = storageAdmin.get(container, storageAdmin.getType(container), revision);
+                    Storage storage = storageAdmin.get(container, storageAdmin.getType(container));
                     storage.reindex();
                 }
             } else {

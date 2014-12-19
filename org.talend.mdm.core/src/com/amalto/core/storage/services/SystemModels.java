@@ -64,15 +64,12 @@ public class SystemModels {
 
     public SystemModels() {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         MetadataRepository repository = systemStorage.getMetadataRepository();
         dataModelType = repository.getComplexType("data-model-pOJO"); //$NON-NLS-1$
     }
 
     private static void reloadDataModel(String modelName) {
-        // Invalidate data model from object cache
-        ObjectPOJO.invalidateCache(null, DataModelPOJO.class,
-                new DataModelPOJOPK(StringUtils.substringBeforeLast(modelName, "#"))); //$NON-NLS-1$
         // Force update in metadata repository admin
         MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
         metadataRepositoryAdmin.update(modelName);
@@ -129,7 +126,7 @@ public class SystemModels {
             }
         }
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
+        Storage storage = storageAdmin.get(modelName, StorageType.MASTER);
         if (storage == null) {
             throw new IllegalArgumentException("Container '" + modelName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -146,7 +143,7 @@ public class SystemModels {
         // Ask the storage to adapt its structure following the changes
         storage.adapt(newRepository, force);
         if (storageAdmin.supportStaging(modelName)) {
-            Storage stagingStorage = storageAdmin.get(modelName, StorageType.STAGING, null);
+            Storage stagingStorage = storageAdmin.get(modelName, StorageType.STAGING);
             if (stagingStorage != null) {
                 // TMDM-7312: Don't forget to add staging types (otherwise, staging storage will complain about removed
                 // types).
@@ -208,7 +205,7 @@ public class SystemModels {
             }
         } else {
             StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-            Storage storage = storageAdmin.get(modelName, StorageType.MASTER, null);
+            Storage storage = storageAdmin.get(modelName, StorageType.MASTER);
             if (storage == null) {
                 LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change."); //$NON-NLS-1$//$NON-NLS-2$
                 return StringUtils.EMPTY;

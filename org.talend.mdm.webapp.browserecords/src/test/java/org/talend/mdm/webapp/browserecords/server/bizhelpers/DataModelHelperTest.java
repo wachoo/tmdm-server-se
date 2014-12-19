@@ -68,7 +68,7 @@ public class DataModelHelperTest extends TestCase {
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(true);
 
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
 
@@ -131,7 +131,7 @@ public class DataModelHelperTest extends TestCase {
         InputStream stream = getClass().getResourceAsStream("RTE.xsd");
         String xsd = inputStream2String(stream);
 
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
@@ -154,7 +154,7 @@ public class DataModelHelperTest extends TestCase {
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(true);
 
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
 
@@ -181,7 +181,7 @@ public class DataModelHelperTest extends TestCase {
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
 
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
@@ -195,7 +195,7 @@ public class DataModelHelperTest extends TestCase {
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
 
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema("Contract", "Contract", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, newModel,
                 Arrays.asList(roles));
         metaDataTypes = newModel.getMetaDataTypes();
@@ -222,7 +222,7 @@ public class DataModelHelperTest extends TestCase {
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
 
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema("RTE", "Eda", DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
@@ -314,7 +314,7 @@ public class DataModelHelperTest extends TestCase {
         String concept = "Product";
         String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
 
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         XSElementDecl decl = DataModelHelper.getBusinessConcept(datamodelName, concept);
         assertNotNull(decl);
         assertEquals(concept, decl.getName());
@@ -341,7 +341,7 @@ public class DataModelHelperTest extends TestCase {
         String[] ids = { "" };
         String[] roles = { "Demo_User", "Demo_Manager", "System_Admin", "authenticated", "administration" };
         String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
         Map<String, TypeModel> metaDataTypes = entityModel.getMetaDataTypes();
@@ -499,7 +499,7 @@ public class DataModelHelperTest extends TestCase {
 
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, employeeModel,
                 Arrays.asList(roles));
 
@@ -548,7 +548,7 @@ public class DataModelHelperTest extends TestCase {
         entityList.add("Store");
         entityList.add("MyTest");
         String xsd = inputStream2String(this.getClass().getResourceAsStream("Product.xsd"));
-        SchemaMockAgent schemaAgent = new SchemaMockAgent(xsd, new DataModelID(datamodelName, null));
+        SchemaMockAgent schemaAgent = new SchemaMockAgent(xsd, new DataModelID(datamodelName));
         List<BusinessConcept> list = schemaAgent.getAllBusinessConcepts();
         assertEquals(4, list.size());
         for (BusinessConcept businessConcept : list) {

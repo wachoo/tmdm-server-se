@@ -17,11 +17,11 @@ public class RenameMenuEntriesTask extends AbstractMigrationTask {
         //Update Menu POJOS
         LOGGER.info("Updating Menus"); //$NON-NLS-1$
         try {
-            String[] ids = ConfigurationHelper.getServer().getAllDocumentsUniqueID(null, "amaltoOBJECTSMenu"); //$NON-NLS-1$
+            String[] ids = ConfigurationHelper.getServer().getAllDocumentsUniqueID("amaltoOBJECTSMenu"); //$NON-NLS-1$
             if (ids != null) {
                 Menu menuCtrl = Util.getMenuCtrlLocal();
                 for (String id : ids) {
-                    String xml = ConfigurationHelper.getServer().getDocumentAsString(null, "amaltoOBJECTSMenu", id); //$NON-NLS-1$
+                    String xml = ConfigurationHelper.getServer().getDocumentAsString("amaltoOBJECTSMenu", id); //$NON-NLS-1$
                     xml = xml.replaceAll("java:com.amalto.core.ejb.MenuEntryPOJO", "java:com.amalto.core.objects.menu.ejb.MenuEntryPOJO"); //$NON-NLS-1$
                     MenuPOJO menu = ObjectPOJO.unmarshal(MenuPOJO.class, xml);
                     menuCtrl.putMenu(menu);

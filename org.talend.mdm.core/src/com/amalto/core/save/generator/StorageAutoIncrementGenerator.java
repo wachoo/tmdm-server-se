@@ -38,7 +38,7 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
      * context).
      */
     StorageAutoIncrementGenerator() {
-        this(ServerContext.INSTANCE.get().getStorageAdmin().get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null));
+        this(ServerContext.INSTANCE.get().getStorageAdmin().get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM));
     }
 
     /**

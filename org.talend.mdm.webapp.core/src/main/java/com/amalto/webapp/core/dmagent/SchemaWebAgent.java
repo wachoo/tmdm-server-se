@@ -76,32 +76,7 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
 
     @Override
     protected DataModelBean getFromPool(DataModelID dataModelID) throws Exception {
-        DataModelBean dataModelBean = DataModelWebPool.getUniqueInstance().get(dataModelID);
-        if (dataModelBean == null) {
-            boolean matchedRevision = false;
-            String targetRevision = dataModelID.getRevisionID();
-            String currentRevision = getMyDatamodelRevision();
-            if (currentRevision == null) {
-                if (targetRevision == null) {
-                    matchedRevision = true;
-                }
-            } else {
-                if (targetRevision != null && targetRevision.equals(currentRevision)) {
-                    matchedRevision = true;
-                }
-            }
-            if (matchedRevision) {
-                // reload it
-                WSDataModel wsDataModel = Util.getPort().getDataModel(
-                        new WSGetDataModel(new WSDataModelPK(dataModelID.getUniqueID())));
-                String xsdSchema = wsDataModel.getXsdSchema();
-                dataModelBean = updateToDatamodelPool(dataModelID.getRevisionID(), dataModelID.getUniqueID(), xsdSchema);
-            } else {
-                // FIXME:NPE will happen here
-            }
-
-        }
-        return dataModelBean;
+        return DataModelWebPool.getUniqueInstance().get(dataModelID);
     }
 
     @Override
@@ -195,25 +170,7 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
     private DataModelID getMyDataModelTicket() throws Exception {
         Configuration config = Configuration.getConfiguration();
         String dataModelPK = config.getModel();
-        String dataModelRevision = getMyDatamodelRevision();
-        return new DataModelID(dataModelPK, dataModelRevision);
-    }
-
-    private String getMyDatamodelRevision() throws RemoteException, XtentisWebappException {
-        String revision = null;
-        WSUniverse wsUniverse = Util.getPort().getCurrentUniverse(new WSGetCurrentUniverse());
-        if (wsUniverse == null) {
-            return revision;
-        }
-        WSUniverseXtentisObjectsRevisionIDs[] wsUniverseXtentisObjectsRevisionIDsArray = wsUniverse
-                .getXtentisObjectsRevisionIDs();
-        for (WSUniverseXtentisObjectsRevisionIDs wsUniverseXtentisObjectsRevisionIDs : wsUniverseXtentisObjectsRevisionIDsArray) {
-            String objectName = wsUniverseXtentisObjectsRevisionIDs.getXtentisObjectName();
-            if (objectName != null && objectName.equals("Data Model")) {
-                revision = wsUniverseXtentisObjectsRevisionIDs.getRevisionID();
-            }
-        }
-        return revision;
+        return new DataModelID(dataModelPK);
     }
 
     public Map<String, String> getReferenceEntities(ReusableType reusableType, String entityName) {

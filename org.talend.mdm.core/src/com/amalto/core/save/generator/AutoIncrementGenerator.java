@@ -22,7 +22,7 @@ public class AutoIncrementGenerator {
     static {
         // Initialize Storage auto increment generator (only if system SQL is available).
         StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
-        if (admin.exist(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null)) {
+        if (admin.exist(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM)) {
             storageAutoIncrementGenerator = new StorageAutoIncrementGenerator();
         } else {
             storageAutoIncrementGenerator = null;

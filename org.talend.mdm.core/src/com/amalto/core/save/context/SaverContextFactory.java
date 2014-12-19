@@ -174,7 +174,7 @@ public class SaverContextFactory {
             if (type == null) {
                 throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data model '" + dataModelName + "'.");
             }
-            userDocument = new DOMDocument(userDomDocument.getDocumentElement(), type, StringUtils.EMPTY, dataCluster, dataModelName);
+            userDocument = new DOMDocument(userDomDocument.getDocumentElement(), type, dataCluster, dataModelName);
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse document to save.", e);
         }
@@ -258,7 +258,7 @@ public class SaverContextFactory {
         // Choose right context implementation
         DocumentSaverContext context;
         StorageAdmin storageAdmin = server.getStorageAdmin();
-        Storage storage = storageAdmin.get(dataCluster, storageAdmin.getType(dataCluster), null);
+        Storage storage = storageAdmin.get(dataCluster, storageAdmin.getType(dataCluster));
         //TMDM-6316: disable update report generation & before Checking for Staging data operation: creation,update
         if (dataCluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
             invokeBeforeSaving = false;

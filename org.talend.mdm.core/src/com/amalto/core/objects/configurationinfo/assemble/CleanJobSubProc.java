@@ -24,8 +24,8 @@ public class CleanJobSubProc extends AssembleSubProc{
         }
         // zap Background jobs
         try {
-            server.deleteCluster(null, ObjectPOJO.getCluster(BackgroundJobPOJO.class));
-            server.createCluster(null, ObjectPOJO.getCluster(BackgroundJobPOJO.class));
+            server.deleteCluster(ObjectPOJO.getCluster(BackgroundJobPOJO.class));
+            server.createCluster(ObjectPOJO.getCluster(BackgroundJobPOJO.class));
         } catch (XtentisException e) {
             LOGGER.warn("Cleanup of Jobs failed!", e);
         }

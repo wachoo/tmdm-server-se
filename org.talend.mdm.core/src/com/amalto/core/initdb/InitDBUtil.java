@@ -133,7 +133,7 @@ public class InitDBUtil {
         for (Entry<String, List<String>> entry : initdb.entrySet()) {
             String dataCluster = entry.getKey();
             try {
-                ConfigurationHelper.createCluster(null, dataCluster);// slow but more reliable
+                ConfigurationHelper.createCluster(dataCluster);// slow but more reliable
             } catch (Exception e) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Could not create cluster.", e); //$NON-NLS-1$
@@ -154,7 +154,7 @@ public class InitDBUtil {
                     }
                     uniqueID = uniqueID.replaceAll("\\+", " "); //$NON-NLS-1$ //$NON-NLS-2$
                     if (Boolean.valueOf((String) MDMConfiguration.getConfiguration().get("cluster_override"))) { //$NON-NLS-1$
-                        ConfigurationHelper.deleteDocument(null, dataCluster, uniqueID);
+                        ConfigurationHelper.deleteDocument(dataCluster, uniqueID);
                     }
                     ConfigurationHelper.putDocument(dataCluster, xmlString, uniqueID);
                 } catch (Exception e) {

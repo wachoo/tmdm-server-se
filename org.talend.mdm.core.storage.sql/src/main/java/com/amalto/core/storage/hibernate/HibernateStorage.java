@@ -86,24 +86,6 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.*;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
-
 public class HibernateStorage implements Storage {
 
     public static final HibernateStorage.LocalEntityResolver ENTITY_RESOLVER = new HibernateStorage.LocalEntityResolver();
@@ -1026,7 +1008,7 @@ public class HibernateStorage implements Storage {
             }
             // Clean update reports
             StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-            Storage storage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER, null);
+            Storage storage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
             try {
                 if (storage == null) {
                     LOGGER.warn("No update report storage available.");

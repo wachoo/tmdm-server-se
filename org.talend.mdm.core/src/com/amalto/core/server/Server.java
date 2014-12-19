@@ -43,7 +43,7 @@ public interface Server {
      *                       one per storage type), this parameter is needed.
      * @return <code>true</code> if a datasource that fulfills all parameter is available, <code>false</code> otherwise.
      * @see com.amalto.core.storage.StorageType
-     * @see StorageAdmin#create(String, String, com.amalto.core.storage.StorageType, String, String)
+     * @see StorageAdmin#create(String, String, com.amalto.core.storage.StorageType, String)
      */
     boolean hasDataSource(String dataSourceName, String container, StorageType type);
 
@@ -55,21 +55,9 @@ public interface Server {
      * @param container      A name of a container.
      * @return A {@link com.amalto.core.storage.datasource.DataSourceDefinition definition} for the given datasource
      * name or <code>null</code> if not found.
-     * @see #getDefinition(String, String, String)
+     * @see #getDefinition(String, String)
      */
     DataSourceDefinition getDefinition(String dataSourceName, String container);
-
-    /**
-     * Returns the {@link com.amalto.core.storage.datasource.DataSourceDefinition definition} for the given datasource
-     * name. If datasource name doesn't exist in configuration, returns <code>null</code>.
-     *
-     * @param dataSourceName A datasource name in the datasource configuration content.
-     * @param container      A name of a container.
-     * @param revisionId     A revision id.
-     * @return A {@link com.amalto.core.storage.datasource.DataSourceDefinition definition} for the given datasource
-     * name or <code>null</code> if not found.
-     */
-    DataSourceDefinition getDefinition(String dataSourceName, String container, String revisionId);
 
     /**
      * @return The {@link StorageAdmin admin} that takes care of all {@link com.amalto.core.storage.Storage storage}

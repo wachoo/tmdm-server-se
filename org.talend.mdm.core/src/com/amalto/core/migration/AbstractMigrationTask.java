@@ -34,8 +34,8 @@ public abstract class AbstractMigrationTask {
     protected boolean isDone() {
         String content = null;
         try {
-            Util.getXmlServerCtrlLocal().createCluster(null, CLUSTER_MIGRATION);
-            content = Util.getXmlServerCtrlLocal().getDocumentAsString(null, CLUSTER_MIGRATION, UNIQUE_MIGRATION);
+            Util.getXmlServerCtrlLocal().createCluster(CLUSTER_MIGRATION);
+            content = Util.getXmlServerCtrlLocal().getDocumentAsString(CLUSTER_MIGRATION, UNIQUE_MIGRATION);
         } catch (Exception e) {
             LOGGER.error("Communication with XML server.", e);
         }
@@ -76,7 +76,7 @@ public abstract class AbstractMigrationTask {
 			MigrationTaskBox newBox=new MigrationTaskBox(handlerMap);
             XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             xmlServerCtrlLocal.start(CLUSTER_MIGRATION);
-            xmlServerCtrlLocal.putDocumentFromString(newBox.toString(), UNIQUE_MIGRATION, CLUSTER_MIGRATION, null);
+            xmlServerCtrlLocal.putDocumentFromString(newBox.toString(), UNIQUE_MIGRATION, CLUSTER_MIGRATION);
             xmlServerCtrlLocal.commit(CLUSTER_MIGRATION);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());

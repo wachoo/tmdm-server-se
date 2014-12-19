@@ -33,7 +33,6 @@ import com.amalto.core.objects.transformers.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
 import com.amalto.core.objects.transformers.util.TypedContent;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.SaveException;
@@ -317,9 +316,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSBoolean existsDBDataCluster(WSExistsDBDataCluster wsExistsDataCluster) throws RemoteException {
         try {
-            String revisionId = wsExistsDataCluster.getRevisionID();
             String clusterName = wsExistsDataCluster.getName();
-            boolean exist = Util.getXmlServerCtrlLocal().existCluster(revisionId, clusterName);
+            boolean exist = Util.getXmlServerCtrlLocal().existCluster(clusterName);
             return new WSBoolean(exist);
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -361,9 +359,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster) throws RemoteException {
         try {
-            Util.getXmlServerCtrlLocal().createCluster(wsDataCluster.getRevisionID(), wsDataCluster.getName());
+            Util.getXmlServerCtrlLocal().createCluster(wsDataCluster.getName());
             DataClusterPOJO pojo = new DataClusterPOJO(wsDataCluster.getName(), "", ""); //$NON-NLS-1$ //$NON-NLS-2$
-            pojo.store(wsDataCluster.getRevisionID());
+            pojo.store();
             return new WSBoolean(true);
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -372,9 +370,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSStringArray getConceptsInDataCluster(WSGetConceptsInDataCluster wsGetConceptsInDataCluster) throws RemoteException {
         try {
-            Set<String> concepts = Util.getItemCtrl2Local()
-                    .getConceptsInDataCluster(new DataClusterPOJOPK(wsGetConceptsInDataCluster.getWsDataClusterPK().getPk()))
-                    .keySet();
+            Collection<String> concepts = Util.getItemCtrl2Local()
+                    .getConceptsInDataCluster(new DataClusterPOJOPK(wsGetConceptsInDataCluster.getWsDataClusterPK().getPk()));
             return new WSStringArray(concepts.toArray(new String[concepts.size()]));
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage()));
@@ -386,30 +383,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
             WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
         try {
-            UniversePOJO pojo = null;
-            if (wsGetConceptsInDataClusterWithRevisions == null
-                    || wsGetConceptsInDataClusterWithRevisions.getUniversePK() == null
-                    || wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk() == null
-                    || "".equals(wsGetConceptsInDataClusterWithRevisions.getUniversePK().getPk())) { //$NON-NLS-1$
-                pojo = new UniversePOJO();// default head revision
-            }
             // get conceptRevisions
             DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(wsGetConceptsInDataClusterWithRevisions
                     .getDataClusterPOJOPK().getPk());
-            Map concepts = Util.getItemCtrl2Local().getConceptsInDataCluster(dataClusterPOJOPK, pojo);
+            List<String> concepts = Util.getItemCtrl2Local().getConceptsInDataCluster(dataClusterPOJOPK);
             if (concepts == null) {
                 return null;
             }
             // convert
             WSConceptRevisionMapMapEntry[] mapEntry = new WSConceptRevisionMapMapEntry[concepts.size()];
             int i = 0;
-            for (Iterator iterator = concepts.keySet().iterator(); iterator.hasNext(); i++) {
-                String concept = (String) iterator.next();
-                String revisionId = (String) concepts.get(concept);
-                if (revisionId == null) {
-                    revisionId = ""; //$NON-NLS-1$
-                }
-                WSConceptRevisionMapMapEntry entry = new WSConceptRevisionMapMapEntry(concept, revisionId);
+            for (String concept : concepts) {
+                WSConceptRevisionMapMapEntry entry = new WSConceptRevisionMapMapEntry(concept, null);
                 mapEntry[i] = entry;
             }
             return new WSConceptRevisionMap(mapEntry);
@@ -592,20 +577,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             // force the concept to be specified by the user.
             // It would be too demanding to get all the concepts in all revisions (?)
             // The meat of this method should be ported to ItemCtrlBean
-            String revisionID;
             String conceptName = wsGetItemPKsByCriteria.getConceptName();
-            if (conceptName == null) {
-                if (user.getUniverse().getItemsRevisionIDs().size() > 0) {
-                    throw new RemoteException("User " + user.getUsername() + " is using items coming from multiple revisions."
-                            + " In that particular case, the concept must be specified");
-                } else {
-                    revisionID = user.getUniverse().getDefaultItemRevisionID();
-                }
-            } else {
-                revisionID = user.getUniverse().getConceptRevisionID(conceptName);
-            }
             ItemPKCriteria criteria = new ItemPKCriteria();
-            criteria.setRevisionId(revisionID);
             criteria.setClusterName(dataClusterName);
             criteria.setConceptName(conceptName);
             criteria.setContentKeywords(wsGetItemPKsByCriteria.getContentKeywords());
@@ -1026,13 +999,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         } else {
             userName = user.getUsername();
         }
-        String revisionID = ""; //$NON-NLS-1$
-        UniversePOJO universe = user.getUniverse();
-        if (universe != null) {
-            revisionID = universe.getConceptRevisionID(concept);
-        }
         UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept, Util.joinStrings(ids, "."), operationType, //$NON-NLS-1$
-                source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, revisionID, updateReportItemsMap);
+                source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, updateReportItemsMap);
         WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK(UpdateReportPOJO.DATA_CLUSTER), updateReportPOJO.serialize(),
                 new WSDataModelPK(UpdateReportPOJO.DATA_MODEL), false));
         if (trigger) {
@@ -1127,7 +1095,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             DataClusterPOJOPK dcpk = (wsRunQuery.getWsDataClusterPK() == null) ? null : new DataClusterPOJOPK(wsRunQuery
                     .getWsDataClusterPK().getPk());
-            Collection<String> result = Util.getItemCtrl2Local().runQuery(wsRunQuery.getRevisionID(), dcpk,
+            Collection<String> result = Util.getItemCtrl2Local().runQuery(dcpk,
                     wsRunQuery.getQuery(), wsRunQuery.getParameters());
             // stored procedure may modify the db, so we need to clear the cache
             Util.getXmlServerCtrlLocal().clearCache();
@@ -1164,7 +1132,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 dcpk = new DataClusterPOJOPK(wsExecuteStoredProcedure.getWsDataClusterPK().getPk());
             }
             Collection collection = ctrl.execute(new StoredProcedurePOJOPK(wsExecuteStoredProcedure.getWsStoredProcedurePK()
-                    .getPk()), wsExecuteStoredProcedure.getRevisionID(), dcpk, wsExecuteStoredProcedure.getParameters());
+                    .getPk()), dcpk, wsExecuteStoredProcedure.getParameters());
             if (collection == null) {
                 return null;
             }
@@ -1321,20 +1289,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     .putBackgroundJob(XConverter.WS2POJO(wsPutJob.getWsBackgroundJob())).getUniqueId());
         } catch (Exception e) {
             throw new RuntimeException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
-    public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
-        try {
-            // Fetch the user
-            ILocalUser user = LocalUser.getLocalUser();
-            return XConverter.POJO2WS(user.getUniverse());
-        } catch (Exception e) {
-            if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
-            }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
         }
     }
 
@@ -1992,14 +1946,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             if (request == null) {
-                String xml = xmlServerCtrlLocal.getDocumentAsString(null, XSystemObjects.DC_CONF.getName(), "Auto_Increment");//$NON-NLS-1$
+                String xml = xmlServerCtrlLocal.getDocumentAsString(XSystemObjects.DC_CONF.getName(), "Auto_Increment");//$NON-NLS-1$
                 if (xml != null) {
                     return new WSAutoIncrement(xml);
                 }
             } else {
                 xmlServerCtrlLocal.start(XSystemObjects.DC_CONF.getName());
                 xmlServerCtrlLocal.putDocumentFromString(request.getAutoincrement(), "Auto_Increment",//$NON-NLS-1$
-                        XSystemObjects.DC_CONF.getName(), null);
+                        XSystemObjects.DC_CONF.getName());
                 xmlServerCtrlLocal.commit(XSystemObjects.DC_CONF.getName());
                 return request;
             }
@@ -2014,12 +1968,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             if (request == null) {
                 // create and retrieve an empty treeObject Category from xdb in the case of request being null
-                String category = xmlServerCtrlLocal.getDocumentAsString(null, "CONF", "CONF.TREEOBJECT.CATEGORY");//$NON-NLS-1$ //$NON-NLS-2$
+                String category = xmlServerCtrlLocal.getDocumentAsString("CONF", "CONF.TREEOBJECT.CATEGORY");//$NON-NLS-1$ //$NON-NLS-2$
                 if (category == null) {
                     String empty = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";//$NON-NLS-1$
                     empty += "<" + ICoreConstants.DEFAULT_CATEGORY_ROOT + "/>";//$NON-NLS-1$ //$NON-NLS-2$
                     xmlServerCtrlLocal.start("CONF");
-                    xmlServerCtrlLocal.putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF", "");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    xmlServerCtrlLocal.putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     xmlServerCtrlLocal.commit("CONF");
                     category = empty;
                 }
@@ -2027,7 +1981,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             } else {
                 xmlServerCtrlLocal.start("CONF"); //$NON-NLS-1$
                 xmlServerCtrlLocal.putDocumentFromString(request.getCategorySchema(), "CONF.TREEOBJECT.CATEGORY",//$NON-NLS-1$
-                        "CONF", null);//$NON-NLS-1$
+                        "CONF");//$NON-NLS-1$
                 xmlServerCtrlLocal.commit("CONF"); //$NON-NLS-1$
                 return request;
             }
@@ -2046,7 +2000,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String xmlData = null;
             XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             try {
-                xmlData = xmlServerCtrlLocal.getDocumentAsString(null, MDM_TIS_JOB, JOB);
+                xmlData = xmlServerCtrlLocal.getDocumentAsString(MDM_TIS_JOB, JOB);
             } catch (Exception e) {
                 LOGGER.error("IXtentisWSDelegator.putMDMJob error.", e);
             }
@@ -2065,7 +2019,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             jobElem.appendChild(newOne);
 
             xmlServerCtrlLocal.start(MDM_TIS_JOB);
-            xmlServerCtrlLocal.putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), JOB, MDM_TIS_JOB, null);
+            xmlServerCtrlLocal.putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), JOB, MDM_TIS_JOB);
             xmlServerCtrlLocal.commit(MDM_TIS_JOB);
             return new WSBoolean(true);
         } catch (Exception e) {
@@ -2080,7 +2034,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             String xmlData = null;
             XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             try {
-                xmlData = xmlServerCtrlLocal.getDocumentAsString(null, MDM_TIS_JOB, JOB);
+                xmlData = xmlServerCtrlLocal.getDocumentAsString(MDM_TIS_JOB, JOB);
             } catch (Exception e) {
                 LOGGER.error("IXtentisWSDelegator.deleteMDMJob error.", e);
             }
@@ -2093,7 +2047,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 doc.getDocumentElement().removeChild(list.item(0));
                 xmlData = Util.nodeToString(doc);
                 xmlServerCtrlLocal.start(MDM_TIS_JOB);
-                xmlServerCtrlLocal.putDocumentFromString(xmlData, JOB, MDM_TIS_JOB, null);
+                xmlServerCtrlLocal.putDocumentFromString(xmlData, JOB, MDM_TIS_JOB);
                 xmlServerCtrlLocal.commit(MDM_TIS_JOB);
                 return new WSBoolean(true);
             }
@@ -2155,16 +2109,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public WSString refreshCache(WSRefreshCache refreshCache) {
-        ItemPOJO.clearCache();
-        ObjectPOJO.clearCache();
-        return new WSString("Refresh the item and object cache successfully!");
-    }
-
     public WSDigest getDigest(WSDigestKey wsDigestKey) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         // Retrieves SYSTEM storage
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         // This repository holds all system object types
         MetadataRepository repository = systemStorage.getMetadataRepository();
         String type = wsDigestKey.getType();
@@ -2199,7 +2147,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSLong updateDigest(WSDigest wsDigest) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         // Retrieves SYSTEM storage
-        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+        Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         // This repository holds all system object types
         MetadataRepository repository = systemStorage.getMetadataRepository();
         String type = wsDigest.getWsDigestKey().getType();
@@ -2374,7 +2322,4 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public WSUniversePKArray getUniversePKs(WSGetUniversePKs regex) throws RemoteException {
-        throw new UnsupportedOperationException();
-    }
 }

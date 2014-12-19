@@ -56,7 +56,7 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
                     xmlString // actual data
             );
             pojo.setDataModelName(XSystemObjects.DM_CONF.getName());
-            pojo.store(null);
+            pojo.store();
         } catch (Exception e) {
             logger.error(e.getLocalizedMessage(), e);
         }

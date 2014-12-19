@@ -1,6 +1,5 @@
 package com.amalto.core.server;
 
-import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.ObjectPOJO;
@@ -10,10 +9,8 @@ import com.amalto.core.objects.backgroundjob.BackgroundJobPOJOPK;
 import com.amalto.core.objects.transformers.TransformerV2POJO;
 import com.amalto.core.objects.transformers.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.util.*;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.util.JobActionInfo;
-import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.NotImplementedException;
@@ -187,7 +184,6 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             //launch job in background
             JobActionInfo actionInfo = new JobActionInfo(
                     bgPOJO.getId(),
-                    LocalUser.getLocalUser().getUniverse(),
                     context.getTransformerV2POJOPK().getUniqueId(), //action
                     context
             );
@@ -202,32 +198,6 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
-    }
-
-    /**
-     * Executes the Transformer Asynchronously by specifying the universe<br/>
-     * The user must have the 'administration" role
-     */
-    @Override
-    public void execute(
-            UniversePOJO universe,
-            TransformerContext context,
-            TransformerCallBack callBack
-    ) throws XtentisException {
-        ILocalUser user = LocalUser.getLocalUser();
-        if (!user.getRoles().contains("administration")) {
-            String err = "The user '" + LocalUser.getLocalUser().getUsername() + "' does not have the 'administration' role";
-            LOGGER.error(err);
-            throw new XtentisException(err);
-        }
-        //switch the Universe
-        user.setUniverse(universe);
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Executing as Job Transformer '" + context.getTransformerV2POJOPK().getUniqueId() + "' " +
-                            "with user '" + user.getUsername() + "' in Universe '" + user.getUniverse().getName() + "'"
-            );
-        }
-        execute(context, callBack);
     }
 
     /**

@@ -12,12 +12,10 @@ import com.amalto.core.objects.menu.MenuPOJO;
 import com.amalto.core.objects.role.RolePOJO;
 import com.amalto.core.objects.routing.*;
 import com.amalto.core.objects.storedprocedure.StoredProcedurePOJO;
-import com.amalto.core.objects.synchronization.*;
 import com.amalto.core.objects.transformers.TransformerV2POJO;
 import com.amalto.core.objects.transformers.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.util.*;
 import com.amalto.core.objects.transformers.util.TypedContent;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.objects.view.ViewPOJO;
 import com.amalto.core.server.api.Transformer;
 import com.amalto.core.webservice.*;
@@ -877,59 +875,6 @@ public class XConverter {
         return pojo;
     }
 
-    public static WSUniverse POJO2WS(UniversePOJO universePOJO) {
-        WSUniverse ws = new WSUniverse();
-        ws.setName(universePOJO.getName());
-        ws.setDescription(universePOJO.getDescription());
-        // objects
-        Set<String> objectTypes = universePOJO.getXtentisObjectsRevisionIDs().keySet();
-        ArrayList<WSUniverseXtentisObjectsRevisionIDs> wsObjectsToRevisionIDs = new ArrayList<WSUniverseXtentisObjectsRevisionIDs>();
-        for (String objectType : objectTypes) {
-            String revisionID = universePOJO.getXtentisObjectsRevisionIDs().get(objectType);
-            wsObjectsToRevisionIDs.add(new WSUniverseXtentisObjectsRevisionIDs(objectType, revisionID));
-        }
-        ws.setXtentisObjectsRevisionIDs(wsObjectsToRevisionIDs
-                .toArray(new WSUniverseXtentisObjectsRevisionIDs[wsObjectsToRevisionIDs.size()]));
-        // default items
-        ws.setDefaultItemsRevisionID(universePOJO.getDefaultItemRevisionID());
-        // items
-        Set<String> patterns = universePOJO.getItemsRevisionIDs().keySet();
-        ArrayList<WSUniverseItemsRevisionIDs> wsItemsToRevisionIDs = new ArrayList<WSUniverseItemsRevisionIDs>();
-        for (String pattern : patterns) {
-            String revisionID = universePOJO.getItemsRevisionIDs().get(pattern);
-            wsItemsToRevisionIDs.add(new WSUniverseItemsRevisionIDs(pattern, revisionID));
-        }
-        ws.setItemsRevisionIDs(wsItemsToRevisionIDs.toArray(new WSUniverseItemsRevisionIDs[wsItemsToRevisionIDs.size()]));
-        return ws;
-    }
-
-    public static UniversePOJO WS2POJO(WSUniverse wsUniverse) {
-        UniversePOJO pojo = new UniversePOJO();
-        pojo.setName(wsUniverse.getName());
-        pojo.setDescription(wsUniverse.getDescription());
-        // Xtentis Objects
-        HashMap<String, String> xtentisObjectsRevisionIDs = new HashMap<String, String>();
-        if (wsUniverse.getXtentisObjectsRevisionIDs() != null) {
-            for (int i = 0; i < wsUniverse.getXtentisObjectsRevisionIDs().length; i++) {
-                xtentisObjectsRevisionIDs.put(wsUniverse.getXtentisObjectsRevisionIDs()[i].getXtentisObjectName(), wsUniverse
-                        .getXtentisObjectsRevisionIDs()[i].getRevisionID());
-            }// for specifications
-        }
-        pojo.setXtentisObjectsRevisionIDs(xtentisObjectsRevisionIDs);
-        // Default Items
-        pojo.setDefaultItemRevisionID(wsUniverse.getDefaultItemsRevisionID());
-        // Items
-        LinkedHashMap<String, String> itemRevisionIDs = new LinkedHashMap<String, String>();
-        if (wsUniverse.getItemsRevisionIDs() != null) {
-            for (int i = 0; i < wsUniverse.getItemsRevisionIDs().length; i++) {
-                itemRevisionIDs.put(wsUniverse.getItemsRevisionIDs()[i].getConceptPattern(), wsUniverse.getItemsRevisionIDs()[i]
-                        .getRevisionID());
-            }// for specifications
-        }
-        pojo.setItemsRevisionIDs(itemRevisionIDs);
-        return pojo;
-    }
-
     public static WSRoutingOrderV2PK POJO2WS(AbstractRoutingOrderV2POJOPK pojo) throws Exception {
         if (pojo == null)
             return null;
@@ -1008,228 +953,19 @@ public class XConverter {
         }
     }
 
-    public static WSSynchronizationPlan POJO2WS(SynchronizationPlanPOJO synchronizationPlanPOJO) {
-        WSSynchronizationPlan ws = new WSSynchronizationPlan();
-        ws.setName(synchronizationPlanPOJO.getName());
-        ws.setDescription(synchronizationPlanPOJO.getDescription());
-        ws.setRemoteSystemName(synchronizationPlanPOJO.getRemoteSystemName());
-        ws.setRemoteSystemURL(synchronizationPlanPOJO.getRemoteSystemURL());
-        ws.setRemoteSystemUsername(synchronizationPlanPOJO.getRemoteSystemUsername());
-        ws.setRemoteSystemPassword(synchronizationPlanPOJO.getRemoteSystemPassword());
-        ws.setTisURL(synchronizationPlanPOJO.getTisURL());
-        ws.setTisUsername(synchronizationPlanPOJO.getTisUsername());
-        ws.setTisPassword(synchronizationPlanPOJO.getTisPassword());
-        ws.setTisParameters(synchronizationPlanPOJO.getTisParameters());
-        // objects
-        Set<String> objectNames = synchronizationPlanPOJO.getXtentisObjectsSynchronizations().keySet();
-        ArrayList<WSSynchronizationPlanXtentisObjectsSynchronizations> wsObjectsSynchroTables = new ArrayList<WSSynchronizationPlanXtentisObjectsSynchronizations>();
-        for (String objectType : objectNames) {
-            ArrayListHolder<SynchronizationPlanObjectLine> linesMap = synchronizationPlanPOJO.getXtentisObjectsSynchronizations()
-                    .get(objectType);
-            ArrayList<WSSynchronizationPlanXtentisObjectsSynchronizationsSynchronizations> wsLines = new ArrayList<WSSynchronizationPlanXtentisObjectsSynchronizationsSynchronizations>();
-            for (SynchronizationPlanObjectLine line : linesMap.getList()) {
-                wsLines.add(new WSSynchronizationPlanXtentisObjectsSynchronizationsSynchronizations(line.getInstancePattern(),
-                        line.getSourceRevisionID(), line.getDestinationRevisionID(), line.getAlgorithm()));
-            }
-            wsObjectsSynchroTables.add(new WSSynchronizationPlanXtentisObjectsSynchronizations(objectType, wsLines
-                    .toArray(new WSSynchronizationPlanXtentisObjectsSynchronizationsSynchronizations[wsLines.size()])));
-        }
-        ws.setXtentisObjectsSynchronizations(wsObjectsSynchroTables
-                .toArray(new WSSynchronizationPlanXtentisObjectsSynchronizations[wsObjectsSynchroTables.size()]));
-
-        // items
-        ArrayList<WSSynchronizationPlanItemsSynchronizations> wsItemsSynchroTable = new ArrayList<WSSynchronizationPlanItemsSynchronizations>();
-        for (SynchronizationPlanItemLine line : synchronizationPlanPOJO.getItemsSynchronizations()) {
-            wsItemsSynchroTable.add(new WSSynchronizationPlanItemsSynchronizations(line.getConceptName(), line.getIdsPattern(),
-                    line.getLocalClusterPOJOPK().getUniqueId(), line.getLocalRevisionID(), line.getRemoteClusterPOJOPK()
-                    .getUniqueId(), line.getRemoteRevisionID(), line.getAlgorithm()));
-        }
-        ws.setItemsSynchronizations(wsItemsSynchroTable
-                .toArray(new WSSynchronizationPlanItemsSynchronizations[wsItemsSynchroTable.size()]));
-
-        // Current statuses are obtained using action(GET_STATUS)
-        // Calendar lastRunStartedCalendar = Calendar.getInstance();
-        // lastRunStartedCalendar.setTimeInMillis(synchronizationPlanPOJO.getLastRunStarted());
-        // ws.setLastRunStarted(lastRunStartedCalendar);
-        //		
-        // Calendar lastRunStoppedCalendar = Calendar.getInstance();
-        // lastRunStoppedCalendar.setTimeInMillis(synchronizationPlanPOJO.getLastRunStopped());
-        // ws.setLastRunStopped(lastRunStoppedCalendar);
-        //		
-        // String statusCode = synchronizationPlanPOJO.getCurrentStatusCode();
-        // WSSynchronizationPlanStatusCode wsStatusCode = null;
-        // if (SynchronizationPlanPOJO.STATUS_COMPLETED.equals(statusCode)) {
-        // wsStatusCode = WSSynchronizationPlanStatusCode.COMPLETED;
-        // } else if (SynchronizationPlanPOJO.STATUS_FAILED.equals(statusCode)) {
-        // wsStatusCode = WSSynchronizationPlanStatusCode.FAILED;
-        // } else if (SynchronizationPlanPOJO.STATUS_RUNNING.equals(statusCode)) {
-        // wsStatusCode = WSSynchronizationPlanStatusCode.RUNNING;
-        // } else if (SynchronizationPlanPOJO.STATUS_SCHEDULED.equals(statusCode)) {
-        // wsStatusCode = WSSynchronizationPlanStatusCode.SCHEDULED;
-        // } else if (SynchronizationPlanPOJO.STATUS_STOPPING.equals(statusCode)) {
-        // wsStatusCode = WSSynchronizationPlanStatusCode.STOPPING;
-        // }
-        //		
-        // ws.setWsCurrentStatusCode(wsStatusCode);
-        // ws.setCurrentStatusMessage(synchronizationPlanPOJO.getCurrentStatusMessage());
-
-        return ws;
-    }
-
-    public static SynchronizationPlanPOJO WS2POJO(WSSynchronizationPlan wsSynchronizationPlan) {
-        SynchronizationPlanPOJO pojo = new SynchronizationPlanPOJO();
-        pojo.setName(wsSynchronizationPlan.getName());
-        pojo.setDescription(wsSynchronizationPlan.getDescription());
-        pojo.setRemoteSystemName(wsSynchronizationPlan.getRemoteSystemName());
-        pojo.setRemoteSystemURL(wsSynchronizationPlan.getRemoteSystemURL());
-        pojo.setRemoteSystemUsername(wsSynchronizationPlan.getRemoteSystemUsername());
-        pojo.setRemoteSystemPassword(wsSynchronizationPlan.getRemoteSystemPassword());
-        pojo.setTisURL(wsSynchronizationPlan.getTisURL());
-        pojo.setTisUsername(wsSynchronizationPlan.getTisUsername());
-        pojo.setTisPassword(wsSynchronizationPlan.getTisPassword());
-        pojo.setTisParameters(wsSynchronizationPlan.getTisParameters());
-
-        // Xtentis Objects
-        HashMap<String, ArrayListHolder<SynchronizationPlanObjectLine>> xtentisObjectsSynchronizations = new HashMap<String, ArrayListHolder<SynchronizationPlanObjectLine>>();
-        WSSynchronizationPlanXtentisObjectsSynchronizations[] wsTables = wsSynchronizationPlan
-                .getXtentisObjectsSynchronizations();
-        if (wsTables != null) {
-            for (WSSynchronizationPlanXtentisObjectsSynchronizations wsTable : wsTables) {
-                ArrayListHolder<SynchronizationPlanObjectLine> objectLines = new ArrayListHolder<SynchronizationPlanObjectLine>();
-                WSSynchronizationPlanXtentisObjectsSynchronizationsSynchronizations[] wsSynchronizations = wsTable
-                        .getSynchronizations();
-                if (wsSynchronizations != null) {
-                    for (WSSynchronizationPlanXtentisObjectsSynchronizationsSynchronizations wsSynchronization : wsSynchronizations) {
-                        objectLines.getList().add(
-                                new SynchronizationPlanObjectLine(wsSynchronization.getInstancePattern(),
-                                        wsSynchronization.getLocalRevisionID(), wsSynchronization.getRemoteRevisionID(),
-                                        wsSynchronization.getAlgorithm()));
-                    }
-                }
-                xtentisObjectsSynchronizations.put(wsTable.getXtentisObjectName(), objectLines);
-            }
-        }
-        pojo.setXtentisObjectsSynchronizations(xtentisObjectsSynchronizations);
-
-        // Items
-        ArrayList<SynchronizationPlanItemLine> patternsMap = new ArrayList<SynchronizationPlanItemLine>();
-        WSSynchronizationPlanItemsSynchronizations[] wsSynchronizations = wsSynchronizationPlan.getItemsSynchronizations();
-        if (wsSynchronizations != null) {
-            for (WSSynchronizationPlanItemsSynchronizations wsSynchronization : wsSynchronizations) {
-                patternsMap.add(new SynchronizationPlanItemLine(wsSynchronization.getConceptName(), wsSynchronization
-                        .getIdsPattern(), new DataClusterPOJOPK(wsSynchronization.getLocalCluster()), wsSynchronization
-                        .getLocalRevisionID(), new DataClusterPOJOPK(wsSynchronization.getRemoteCluster()),
-                        wsSynchronization.getRemoteRevisionID(), wsSynchronization.getAlgorithm()));
-            }
-        }
-        pojo.setItemsSynchronizations(patternsMap);
-
-        // Current statuses and messages cannot be set from "outside"
-
-        // //status code
-        // if (WSSynchronizationPlanStatusCode.COMPLETED.equals(wsSynchronizationPlan.getWsCurrentStatusCode())) {
-        // pojo.setCurrentStatusCode(SynchronizationPlanPOJO.STATUS_COMPLETED);
-        // } else if (WSSynchronizationPlanStatusCode.FAILED.equals(wsSynchronizationPlan.getWsCurrentStatusCode())) {
-        // pojo.setCurrentStatusCode(SynchronizationPlanPOJO.STATUS_FAILED);
-        // } else if (WSSynchronizationPlanStatusCode.RUNNING.equals(wsSynchronizationPlan.getWsCurrentStatusCode())) {
-        // pojo.setCurrentStatusCode(SynchronizationPlanPOJO.STATUS_RUNNING);
-        // } else if (WSSynchronizationPlanStatusCode.SCHEDULED.equals(wsSynchronizationPlan.getWsCurrentStatusCode()))
-        // {
-        // pojo.setCurrentStatusCode(SynchronizationPlanPOJO.STATUS_SCHEDULED);
-        // } else if (WSSynchronizationPlanStatusCode.STOPPING.equals(wsSynchronizationPlan.getWsCurrentStatusCode())) {
-        // pojo.setCurrentStatusCode(SynchronizationPlanPOJO.STATUS_STOPPING);
-        // }
-        //		
-        // //status message
-        // pojo.setCurrentStatusMessage(wsSynchronizationPlan.getCurrentStatusMessage());
-        //		
-        // //times
-        // pojo.setLastRunStarted(wsSynchronizationPlan.getLastRunStarted().getTimeInMillis());
-        // pojo.setLastRunStopped(wsSynchronizationPlan.getLastRunStopped().getTimeInMillis());
-
-        return pojo;
-    }
-
-    public static WSSynchronizationItem POJO2WS(SynchronizationItemPOJO synchronizationItemPOJO) {
-        WSSynchronizationItem ws = new WSSynchronizationItem();
-        ws.setLastRunPlan(synchronizationItemPOJO.getLastRunPlan());
-        ws.setLocalRevisionID(synchronizationItemPOJO.getLocalRevisionID());
-        ws.setResolvedProjection(synchronizationItemPOJO.getResolvedProjection());
-        ws.setWsItemPK(XConverter.POJO2WS(synchronizationItemPOJO.getItemPOJOPK()));
-
-        switch (synchronizationItemPOJO.getStatus()) {
-        case SynchronizationItemPOJO.STATUS_EXECUTED:
-            ws.setStatus(WSSynchronizationItemStatus.EXECUTED);
-            break;
-        case SynchronizationItemPOJO.STATUS_MANUAL:
-            ws.setStatus(WSSynchronizationItemStatus.MANUAL);
-            break;
-        case SynchronizationItemPOJO.STATUS_PENDING:
-            ws.setStatus(WSSynchronizationItemStatus.PENDING);
-            break;
-        case SynchronizationItemPOJO.STATUS_RESOLVED:
-            ws.setStatus(WSSynchronizationItemStatus.RESOLVED);
-            break;
-        }
-
-        // remote instances
-        ArrayList<WSSynchronizationItemRemoteInstances> wsInstances = new ArrayList<WSSynchronizationItemRemoteInstances>();
-        for (SynchronizationRemoteInstance instance : synchronizationItemPOJO.getRemoteIntances().values()) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(instance.getLastLocalSynchronizationTime());
-            WSSynchronizationItemRemoteInstances wsInstance = new WSSynchronizationItemRemoteInstances(instance
-                    .getRemoteSystemName(), instance.getRevisionID(), instance.getXml(), cal);
-            wsInstances.add(wsInstance);
-        }
-        ws.setRemoteInstances(wsInstances.toArray(new WSSynchronizationItemRemoteInstances[wsInstances.size()]));
-
-        return ws;
-    }
-
-    public static SynchronizationItemPOJO WS2POJO(WSSynchronizationItem wsSynchronizationItem) {
-        SynchronizationItemPOJO pojo = new SynchronizationItemPOJO();
-        pojo.setItemPOJOPK(XConverter.WS2POJO(wsSynchronizationItem.getWsItemPK()));
-        pojo.setLastRunPlan(wsSynchronizationItem.getLastRunPlan());
-        pojo.setLocalRevisionID(wsSynchronizationItem.getLocalRevisionID());
-        pojo.setResolvedProjection(wsSynchronizationItem.getResolvedProjection());
-
-        if (WSSynchronizationItemStatus.EXECUTED.equals(wsSynchronizationItem.getStatus())) {
-            pojo.setStatus(SynchronizationItemPOJO.STATUS_EXECUTED);
-        } else if (WSSynchronizationItemStatus.MANUAL.equals(wsSynchronizationItem.getStatus())) {
-            pojo.setStatus(SynchronizationItemPOJO.STATUS_MANUAL);
-        } else if (WSSynchronizationItemStatus.PENDING.equals(wsSynchronizationItem.getStatus())) {
-            pojo.setStatus(SynchronizationItemPOJO.STATUS_PENDING);
-        } else if (WSSynchronizationItemStatus.RESOLVED.equals(wsSynchronizationItem.getStatus())) {
-            pojo.setStatus(SynchronizationItemPOJO.STATUS_RESOLVED);
-        }
-
-        HashMap<String, SynchronizationRemoteInstance> instances = new HashMap<String, SynchronizationRemoteInstance>();
-        WSSynchronizationItemRemoteInstances[] wsInstances = wsSynchronizationItem.getRemoteInstances();
-        if (wsInstances != null) {
-            for (WSSynchronizationItemRemoteInstances wsInstance : wsInstances) {
-                SynchronizationRemoteInstance instance = new SynchronizationRemoteInstance(wsInstance.getRemoteSystemName(),
-                        wsInstance.getRemoteRevisionID(), wsInstance.getXml(), wsInstance
-                        .getLastLocalSynchronizationTime().getTimeInMillis());
-                instances.put(instance.getKey(), instance);
-            }
-        }
-        pojo.setRemoteIntances(instances);
-        return pojo;
-    }
-
     public static WSDroppedItemPK POJO2WS(DroppedItemPOJOPK droppedItemPOJOPK) {
         ItemPOJOPK refItemPOJOPK = droppedItemPOJOPK.getRefItemPOJOPK();
-        return new WSDroppedItemPK(POJO2WS(refItemPOJOPK), droppedItemPOJOPK.getPartPath(), droppedItemPOJOPK.getRevisionId());
+        return new WSDroppedItemPK(POJO2WS(refItemPOJOPK), droppedItemPOJOPK.getPartPath(), null);
     }
 
     public static DroppedItemPOJOPK WS2POJO(WSDroppedItemPK wsDroppedItemPK) {
         ItemPOJOPK refItemPOJOPK = WS2POJO(wsDroppedItemPK.getWsItemPK());
-        return new DroppedItemPOJOPK(wsDroppedItemPK.getRevisionId(), refItemPOJOPK, wsDroppedItemPK.getPartPath());
+        return new DroppedItemPOJOPK(refItemPOJOPK, wsDroppedItemPK.getPartPath());
     }
 
     public static WSDroppedItem POJO2WS(DroppedItemPOJO droppedItemPOJO) {
 
-        return new WSDroppedItem(droppedItemPOJO.getRevisionID(), new WSDataClusterPK(droppedItemPOJO
+        return new WSDroppedItem(null, new WSDataClusterPK(droppedItemPOJO
                 .getDataClusterPOJOPK().getUniqueId()), droppedItemPOJO.getUniqueId(), droppedItemPOJO.getConceptName(),
                 droppedItemPOJO.getIds(), droppedItemPOJO.getPartPath(), droppedItemPOJO.getInsertionUserName(), droppedItemPOJO
                         .getInsertionTime(), droppedItemPOJO.getProjection());
@@ -1238,7 +974,7 @@ public class XConverter {
 
     public static DroppedItemPOJO WS2POJO(WSDroppedItem wsDroppedItem) {
 
-        return new DroppedItemPOJO(wsDroppedItem.getRevisionID(), new DataClusterPOJOPK(wsDroppedItem
+        return new DroppedItemPOJO(new DataClusterPOJOPK(wsDroppedItem
                 .getWsDataClusterPK().getPk()), wsDroppedItem.getUniqueId(), wsDroppedItem.getConceptName(), wsDroppedItem
                 .getIds(), wsDroppedItem.getPartPath(), wsDroppedItem.getProjection(), wsDroppedItem.getInsertionUserName(),
                 wsDroppedItem.getInsertionTime());

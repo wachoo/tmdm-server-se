@@ -29,7 +29,6 @@ import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
 
@@ -38,8 +37,6 @@ public class DroppedItemPOJO implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(DroppedItemPOJO.class);
 
     private static final String MDM_ITEMS_TRASH = "MDMItemsTrash"; //$NON-NLS-1$
-
-    private String revisionID;
 
     private DataClusterPOJOPK dataClusterPOJOPK;
 
@@ -60,8 +57,7 @@ public class DroppedItemPOJO implements Serializable {
     public DroppedItemPOJO() {
     }
 
-    public DroppedItemPOJO(String revisionID,
-                           DataClusterPOJOPK dataClusterPOJOPK,
+    public DroppedItemPOJO(DataClusterPOJOPK dataClusterPOJOPK,
                            String uniqueId,
                            String conceptName,
                            String[] ids,
@@ -69,7 +65,6 @@ public class DroppedItemPOJO implements Serializable {
                            String projection,
                            String insertionUserName,
                            long insertionTime) {
-        this.revisionID = revisionID;
         this.dataClusterPOJOPK = dataClusterPOJOPK;
         this.uniqueId = uniqueId;
         this.conceptName = conceptName;
@@ -78,14 +73,6 @@ public class DroppedItemPOJO implements Serializable {
         this.projection = projection;
         this.insertionUserName = insertionUserName;
         this.insertionTime = insertionTime;
-    }
-
-    public String getRevisionID() {
-        return revisionID;
-    }
-
-    public void setRevisionID(String revisionID) {
-        this.revisionID = revisionID;
     }
 
     public DataClusterPOJOPK getDataClusterPOJOPK() {
@@ -155,7 +142,6 @@ public class DroppedItemPOJO implements Serializable {
 
     public DroppedItemPOJOPK obtainDroppedItemPK() {
         return new DroppedItemPOJOPK(
-                revisionID,
                 obtainRefItemPK(),
                 partPath
         );
@@ -201,12 +187,10 @@ public class DroppedItemPOJO implements Serializable {
         // for recover we need to be admin, or have a role of admin, or role of write on instance
         rolesFilter(refItemPOJOPK, actionName, "w"); //$NON-NLS-1$
         // get the universe and revision ID
-        universeFilter(refItemPOJOPK);
-        String sourceItemRevision = droppedItemPOJOPK.getRevisionId();
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
             // load dropped content
-            String doc = server.getDocumentAsString(null,
+            String doc = server.getDocumentAsString(
                     MDM_ITEMS_TRASH,
                     droppedItemPOJOPK.getUniquePK(),
                     null);
@@ -221,8 +205,8 @@ public class DroppedItemPOJO implements Serializable {
             try {
                 server.putDocumentFromString(droppedItemPOJO.getProjection(),
                         refItemPOJOPK.getUniqueID(),
-                        clusterName,
-                        sourceItemRevision);
+                        clusterName
+                );
                 server.commit(clusterName);
             } catch (Exception e) {
                 server.rollback(clusterName);
@@ -231,7 +215,6 @@ public class DroppedItemPOJO implements Serializable {
             //delete dropped item
             try {
                 server.deleteDocument(
-                        null,
                         MDM_ITEMS_TRASH,
                         droppedItemPOJOPK.getUniquePK()
                 );
@@ -239,11 +222,6 @@ public class DroppedItemPOJO implements Serializable {
                 server.rollback(MDM_ITEMS_TRASH);
                 throw e;
             }
-            // It needs to be removed from cache, because it could still be loaded from cache.
-            ItemPOJO.getCache().remove(
-                    new ItemCacheKey(droppedItemPOJOPK.getRevisionId(),
-                            droppedItemPOJOPK.getRefItemPOJOPK().getUniqueID(),
-                            droppedItemPOJOPK.getRefItemPOJOPK().getDataClusterPOJOPK().getUniqueId()));
             return refItemPOJOPK;
         } catch (Exception e) {
             String err = "Unable to " + actionName + " the dropped item " + droppedItemPOJOPK.getUniquePK()
@@ -257,7 +235,6 @@ public class DroppedItemPOJO implements Serializable {
      * find all pks of dropped items
      */
     public static List<DroppedItemPOJOPK> findAllPKs(String regex) throws XtentisException {
-        universeFilter();
         // get XmlServerSLWrapperLocal
         XmlServer server = Util.getXmlServerCtrlLocal();
         if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -265,7 +242,7 @@ public class DroppedItemPOJO implements Serializable {
         }
         try {
             //retrieve the item
-            String[] ids = server.getAllDocumentsUniqueID(null, MDM_ITEMS_TRASH);
+            String[] ids = server.getAllDocumentsUniqueID(MDM_ITEMS_TRASH);
             if (ids == null) {
                 return Collections.emptyList();
             }
@@ -307,7 +284,7 @@ public class DroppedItemPOJO implements Serializable {
                             uidValues, 3, uidValues.length));
                 }
                 // set revision id as ""
-                DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK("", refItemPOJOPK, "/"); //$NON-NLS-1$ //$NON-NLS-2$
+                DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(refItemPOJOPK, "/"); //$NON-NLS-1$ //$NON-NLS-2$
                 if (regex != null) {
                     if (uid.matches(regex)) {
                         list.add(droppedItemPOJOPK);
@@ -341,7 +318,7 @@ public class DroppedItemPOJO implements Serializable {
         //load the dropped item
         try {
             //retrieve the dropped item
-            String droppedItemStr = server.getDocumentAsString(null,
+            String droppedItemStr = server.getDocumentAsString(
                     MDM_ITEMS_TRASH,
                     droppedItemPOJOPK.getUniquePK());
             if (droppedItemStr == null) {
@@ -373,7 +350,6 @@ public class DroppedItemPOJO implements Serializable {
         try {
             //remove the record
             long res = server.deleteDocument(
-                    null,
                     MDM_ITEMS_TRASH,
                     droppedItemPOJOPK.getUniquePK()
             );
@@ -389,21 +365,6 @@ public class DroppedItemPOJO implements Serializable {
         }
     }
 
-    private static String universeFilter(ItemPOJOPK refItemPOJOPK) throws XtentisException {
-        UniversePOJO universe = universeFilter();
-        return universe.getConceptRevisionID(refItemPOJOPK.getConceptName());
-    }
-
-    private static UniversePOJO universeFilter() throws XtentisException {
-        UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-        if (universe == null) {
-            String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-            LOGGER.error(err);
-            throw new XtentisException(err);
-        }
-        return universe;
-    }
-
     private static String rolesFilter(ItemPOJOPK refItemPOJOPK, String actionName, String authorizeMode) throws XtentisException {
         boolean authorized = false;
         ILocalUser user = LocalUser.getLocalUser();
@@ -413,14 +374,14 @@ public class DroppedItemPOJO implements Serializable {
                     || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
             } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId())
-                    || user.userItemCanWrite(ItemPOJO.adminLoad(refItemPOJOPK), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), refItemPOJOPK.getConceptName())) {
+                    || user.userItemCanWrite(ItemPOJO.load(refItemPOJOPK), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), refItemPOJOPK.getConceptName())) {
                 authorized = true;
             }
         } else if (authorizeMode.equals("r")) {
             if (MDMConfiguration.getAdminUser().equals(user.getUsername())
                     || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
                 authorized = true;
-            } else if (user.userItemCanRead(ItemPOJO.adminLoad(refItemPOJOPK))) {
+            } else if (user.userItemCanRead(ItemPOJO.load(refItemPOJOPK))) {
                 authorized = true;
             }
         }

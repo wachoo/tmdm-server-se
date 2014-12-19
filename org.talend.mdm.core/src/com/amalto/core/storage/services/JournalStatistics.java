@@ -78,11 +78,11 @@ public class JournalStatistics {
     String containerName, @QueryParam("lang") //$NON-NLS-1$
     String language, @QueryParam("timeframe") Long timeFrame, @QueryParam("top") Integer top) { //$NON-NLS-1$ //$NON-NLS-2$
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER, null);
+        Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER);
         if (dataStorage == null) {
             throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
         }
-        Storage updateReportStorage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER, null);
+        Storage updateReportStorage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
         ComplexTypeMetadata updateType = updateReportStorage.getMetadataRepository().getComplexType("Update");//$NON-NLS-1$
         // Get the top N types
         MetadataRepository repository = dataStorage.getMetadataRepository();

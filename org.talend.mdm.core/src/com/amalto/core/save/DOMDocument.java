@@ -23,8 +23,6 @@ import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
-import java.util.HashSet;
-import java.util.Set;
 
 public class DOMDocument implements DOMMutableDocument {
 
@@ -36,8 +34,6 @@ public class DOMDocument implements DOMMutableDocument {
 
     private final ComplexTypeMetadata type;
 
-    private final String revisionId;
-
     private final String dataModelName;
 
     private final String dataCluster;
@@ -46,17 +42,15 @@ public class DOMDocument implements DOMMutableDocument {
 
     private boolean isDeleted = false;
 
-    public DOMDocument(org.w3c.dom.Document domDocument, ComplexTypeMetadata type, String revisionId, String dataCluster, String dataModelName) {
+    public DOMDocument(org.w3c.dom.Document domDocument, ComplexTypeMetadata type, String dataCluster, String dataModelName) {
         this.type = type;
-        this.revisionId = revisionId;
         this.dataCluster = dataCluster;
         this.dataModelName = dataModelName;
         init(domDocument);
     }
 
-    public DOMDocument(Node node, ComplexTypeMetadata type, String revisionId, String dataCluster, String dataModelName) {
+    public DOMDocument(Node node, ComplexTypeMetadata type, String dataCluster, String dataModelName) {
         this.type = type;
-        this.revisionId = revisionId;
         this.dataCluster = dataCluster;
         this.dataModelName = dataModelName;
         DocumentBuilder documentBuilder = SaverContextFactory.DOCUMENT_BUILDER;
@@ -88,7 +82,7 @@ public class DOMDocument implements DOMMutableDocument {
     }
 
     public MutableDocument copy() {
-        return new DOMDocument((org.w3c.dom.Document) domDocument.cloneNode(true), type, revisionId, dataCluster, dataModelName);
+        return new DOMDocument((org.w3c.dom.Document) domDocument.cloneNode(true), type, dataCluster, dataModelName);
     }
 
     @Override
@@ -172,11 +166,6 @@ public class DOMDocument implements DOMMutableDocument {
     @Override
     public String getDataModel() {
         return dataModelName;
-    }
-
-    @Override
-    public String getRevision() {
-        return revisionId;
     }
 
     @Override

@@ -71,7 +71,7 @@ public class JournalHistoryService {
 
     public String getComparisionTreeString(JournalParameters parameter) throws Exception {
         DocumentHistoryNavigator navigator = documentHistory.getHistory(parameter.getDataClusterName(),
-                parameter.getDataModelName(), parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
+                parameter.getDataModelName(), parameter.getConceptName(), parameter.getId());
         MetadataRepository metadataRepository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin()
                 .get(parameter.getDataModelName());
         if (metadataRepository == null) {
@@ -122,7 +122,7 @@ public class JournalHistoryService {
         if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(parameter.getOperationType())) {
             ItemPOJOPK refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(parameter.getDataClusterName()),
                     parameter.getConceptName(), parameter.getId());
-            DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(parameter.getRevisionId(), refItemPOJOPK, "/"); //$NON-NLS-1$
+            DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(refItemPOJOPK, "/"); //$NON-NLS-1$
             if (DroppedItemPOJO.load(droppedItemPOJOPK) == null) {
                 throw new ServiceException(MESSAGES.getMessage(new Locale(language), "restore_logic_delete_fail")); //$NON-NLS-1$              
             }
@@ -138,7 +138,7 @@ public class JournalHistoryService {
         }
         Date historyDate = new Date(parameter.getDate());
         DocumentHistoryNavigator navigator = documentHistory.getHistory(parameter.getDataClusterName(),
-                parameter.getDataModelName(), parameter.getConceptName(), parameter.getId(), parameter.getRevisionId());
+                parameter.getDataModelName(), parameter.getConceptName(), parameter.getId());
         navigator.goTo(historyDate);
         com.amalto.core.history.Document document = EmptyDocument.INSTANCE;
         if (CURRENT_ACTION.equalsIgnoreCase(parameter.getAction())) {

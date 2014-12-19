@@ -42,7 +42,7 @@ class TomcatMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
                 repository = new MetadataRepository();
                 Server server = ServerContext.INSTANCE.get();
                 StorageAdmin storageAdmin = server.getStorageAdmin();
-                Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
+                Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
                 String dataModelTypeName = ClassRepository.format("DataModelPOJO"); //$NON-NLS-1$
                 ComplexTypeMetadata dataModelType = systemStorage.getMetadataRepository().getComplexType(dataModelTypeName);
                 UserQueryBuilder qb = from(dataModelType).where(eq(dataModelType.getField("name"), metadataRepositoryId)); //$NON-NLS-1$

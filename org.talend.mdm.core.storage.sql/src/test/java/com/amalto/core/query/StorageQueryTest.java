@@ -555,20 +555,16 @@ public class StorageQueryTest extends StorageTestCase {
         StorageWrapper wrapper = new StorageWrapper() {
 
             @Override
-            protected Storage getStorage(String dataClusterName, String revisionId) {
-                return storage;
-            }
-
-            @Override
             protected Storage getStorage(String dataClusterName) {
                 return storage;
             }
+
         };
         // Get document by id
-        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier.127.0.0.1");
+        String documentAsString = wrapper.getDocumentAsString("Test", "Test.Supplier.127.0.0.1");
         assertNotNull(documentAsString);
         // Get cluster ids
-        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        String[] ids = wrapper.getAllDocumentsUniqueID("Test");
         boolean found = false;
         for (String id : ids) {
             if ("Test.Supplier.127.0.0.1".equals(id)) {
@@ -578,9 +574,9 @@ public class StorageQueryTest extends StorageTestCase {
         }
         assertTrue(found);
         // Delete document
-        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier.127.0.0.1", "");
+        long result = wrapper.deleteDocument("Test", "Test.Supplier.127.0.0.1", "");
         assertTrue(result >= 0);
-        wrapper.getAllDocumentsUniqueID(null, "Test");
+        wrapper.getAllDocumentsUniqueID("Test");
     }
 
     public void testSelectByIdIncludingDots2() throws Exception {
@@ -604,20 +600,16 @@ public class StorageQueryTest extends StorageTestCase {
         StorageWrapper wrapper = new StorageWrapper() {
 
             @Override
-            protected Storage getStorage(String dataClusterName, String revisionId) {
-                return storage;
-            }
-
-            @Override
             protected Storage getStorage(String dataClusterName) {
                 return storage;
             }
+
         };
         // Get document by id
-        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier..127");
+        String documentAsString = wrapper.getDocumentAsString("Test", "Test.Supplier..127");
         assertNotNull(documentAsString);
         // Get cluster ids
-        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        String[] ids = wrapper.getAllDocumentsUniqueID("Test");
         boolean found = false;
         for (String id : ids) {
             if ("Test.Supplier..127".equals(id)) {
@@ -627,9 +619,9 @@ public class StorageQueryTest extends StorageTestCase {
         }
         assertTrue(found);
         // Delete document
-        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier..127", "");
+        long result = wrapper.deleteDocument("Test", "Test.Supplier..127", "");
         assertTrue(result >= 0);
-        wrapper.getAllDocumentsUniqueID(null, "Test");
+        wrapper.getAllDocumentsUniqueID("Test");
     }
 
     public void testSelectByIdIncludingDots3() throws Exception {
@@ -653,20 +645,16 @@ public class StorageQueryTest extends StorageTestCase {
         StorageWrapper wrapper = new StorageWrapper() {
 
             @Override
-            protected Storage getStorage(String dataClusterName, String revisionId) {
-                return storage;
-            }
-
-            @Override
             protected Storage getStorage(String dataClusterName) {
                 return storage;
             }
+
         };
         // Get document by id
-        String documentAsString = wrapper.getDocumentAsString(null, "Test", "Test.Supplier.127.");
+        String documentAsString = wrapper.getDocumentAsString("Test", "Test.Supplier.127.");
         assertNotNull(documentAsString);
         // Get cluster ids
-        String[] ids = wrapper.getAllDocumentsUniqueID(null, "Test");
+        String[] ids = wrapper.getAllDocumentsUniqueID("Test");
         boolean found = false;
         for (String id : ids) {
             if ("Test.Supplier.127.".equals(id)) {
@@ -676,9 +664,9 @@ public class StorageQueryTest extends StorageTestCase {
         }
         assertTrue(found);
         // Delete document
-        long result = wrapper.deleteDocument(null, "Test", "Test.Supplier.127.", "");
+        long result = wrapper.deleteDocument("Test", "Test.Supplier.127.", "");
         assertTrue(result >= 0);
-        wrapper.getAllDocumentsUniqueID(null, "Test");
+        wrapper.getAllDocumentsUniqueID("Test");
     }
 
     public void testSelectByIdExclusion() throws Exception {

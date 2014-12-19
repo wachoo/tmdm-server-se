@@ -24,15 +24,13 @@ import java.util.Set;
  */
 public interface SaverSource {
 
-    MutableDocument get(String dataClusterName, String dataModelName, String typeName, String revisionId, String[] key);
+    MutableDocument get(String dataClusterName, String dataModelName, String typeName, String[] key);
 
-    boolean exist(String dataCluster, String dataModelName, String typeName, String revisionId, String[] key);
+    boolean exist(String dataCluster, String dataModelName, String typeName, String[] key);
 
     MetadataRepository getMetadataRepository(String dataModelName);
 
     InputStream getSchema(String dataModelName);
-
-    String getUniverse();
 
     OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument);
 
@@ -42,9 +40,7 @@ public interface SaverSource {
     
     String getLegitimateUser();
 
-    boolean existCluster(String revisionID, String dataClusterName);
-
-    String getConceptRevisionID(String typeName);
+    boolean existCluster(String dataClusterName);
 
     void resetLocalUsers();
 
@@ -56,5 +52,5 @@ public interface SaverSource {
 
     void saveAutoIncrement();
 
-    String nextAutoIncrementId(String universe, String dataCluster, String dataModel, String conceptName);
+    String nextAutoIncrementId(String dataCluster, String dataModel, String conceptName);
 }

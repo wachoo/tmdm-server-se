@@ -79,11 +79,6 @@ public class EmptyDocument implements MutableDocument {
     }
 
     @Override
-    public String getRevision() {
-        return StringUtils.EMPTY;
-    }
-
-    @Override
     public String getDataCluster() {
         return StringUtils.EMPTY;
     }

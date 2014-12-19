@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.server;
@@ -20,19 +19,17 @@ import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DefaultXmlServer implements XmlServer {
 
-    private static final Logger LOG = Logger.getLogger(DefaultXmlServer.class);
-
-    private static String SERVER_CLASS;
+    private static String             SERVER_CLASS;
 
     static {
         SERVER_CLASS = MDMConfiguration.getConfiguration().getProperty("xmlserver.class"); //$NON-NLS-1$
@@ -51,9 +48,9 @@ public class DefaultXmlServer implements XmlServer {
         }
     }
 
-    public String[] getAllClusters(String revisionID) throws XtentisException {
+    public String[] getAllClusters() throws XtentisException {
         try {
-            return server.getAllClusters(revisionID);
+            return server.getAllClusters();
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -63,161 +60,131 @@ public class DefaultXmlServer implements XmlServer {
         server.clearCache();
     }
 
-    public long deleteCluster(String revisionID, String clusterName) throws XtentisException {
+    public long deleteCluster(String clusterName) throws XtentisException {
         try {
-            return server.deleteCluster(revisionID, clusterName);
+            return server.deleteCluster(clusterName);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public long createCluster(String revisionID, String clusterName) throws XtentisException {
+    public long createCluster(String clusterName) throws XtentisException {
         try {
-            return server.createCluster(revisionID, clusterName);
+            return server.createCluster(clusterName);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public long putDocumentFromFile(
-            String fileName,
-            String uniqueID,
-            String clusterName,
-            String revisionID,
-            String documentType
-    ) throws XtentisException {
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String documentType)
+            throws XtentisException {
         try {
-            return server.putDocumentFromFile(fileName, uniqueID, clusterName, revisionID, documentType);
+            return server.putDocumentFromFile(fileName, uniqueID, clusterName, documentType);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID) throws XtentisException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName) throws XtentisException {
         try {
-            return server.putDocumentFromString(xmlString, uniqueID, clusterName, revisionID);
+            return server.putDocumentFromString(xmlString, uniqueID, clusterName);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public long putDocumentFromString(
-            String string,
-            String uniqueID,
-            String clusterName,
-            String revisionID,
-            String documentType
-    ) throws XtentisException {
+    public long putDocumentFromString(String string, String uniqueID, String clusterName, String documentType)
+            throws XtentisException {
         try {
-            return server.putDocumentFromString(string, uniqueID, clusterName, revisionID, documentType);
+            return server.putDocumentFromString(string, uniqueID, clusterName, documentType);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws com.amalto.core.util.XtentisException {
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input)
+            throws com.amalto.core.util.XtentisException {
         try {
-            return server.putDocumentFromSAX(dataClusterName, docReader, input, revisionId);
+            return server.putDocumentFromSAX(dataClusterName, docReader, input);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XtentisException {
+    public String getDocumentAsString(String clusterName, String uniqueID) throws XtentisException {
         try {
-            return server.getDocumentAsString(revisionID, clusterName, uniqueID);
+            return server.getDocumentAsString(clusterName, uniqueID);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public boolean existCluster(String revision, String cluster) throws XtentisException {
+    public boolean existCluster(String cluster) throws XtentisException {
         try {
             if (cluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
                 cluster = StringUtils.substringBeforeLast(cluster, "#");
             }
-            return server.existCluster(revision, cluster);
+            return server.existCluster(cluster);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding) throws XtentisException {
+    public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XtentisException {
         try {
-            return server.getDocumentAsString(revisionID, clusterName, uniqueID, encoding);
+            return server.getDocumentAsString(clusterName, uniqueID, encoding);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType) throws XtentisException {
+    public byte[] getDocumentBytes(String clusterName, String uniqueID, String documentType) throws XtentisException {
         try {
-            return server.getDocumentBytes(revisionID, clusterName, uniqueID, documentType);
+            return server.getDocumentBytes(clusterName, uniqueID, documentType);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XtentisException {
+    public String[] getAllDocumentsUniqueID(String clusterName) throws XtentisException {
         try {
-            return server.getAllDocumentsUniqueID(revisionID, clusterName);
+            return server.getAllDocumentsUniqueID(clusterName);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public long deleteDocument(String revisionID, String clusterName, String uniqueID) throws XtentisException {
-        return deleteDocument(revisionID, clusterName, uniqueID, IXmlServerSLWrapper.TYPE_DOCUMENT);
+    public long deleteDocument(String clusterName, String uniqueID) throws XtentisException {
+        return deleteDocument(clusterName, uniqueID, IXmlServerSLWrapper.TYPE_DOCUMENT);
     }
 
-    public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType) throws XtentisException {
+    public long deleteDocument(String clusterName, String uniqueID, String documentType) throws XtentisException {
         try {
-            return server.deleteDocument(revisionID, clusterName, uniqueID, documentType);
+            return server.deleteDocument(clusterName, uniqueID, documentType);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public int deleteItems(
-            LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName,
-            String conceptName,
-            IWhereItem whereItem
-    ) throws XtentisException {
+    public int deleteItems(String clusterName, String conceptName, IWhereItem whereItem) throws XtentisException {
         try {
-            return server.deleteItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+            return server.deleteItems(clusterName, conceptName, whereItem);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public long countItems(
-            LinkedHashMap<String, String> conceptPatternsToRevisionID,
-            LinkedHashMap<String, String> conceptPatternsToClusterName,
-            String conceptName,
-            IWhereItem whereItem
-    ) throws XtentisException {
+    public long countItems(String clusterName, String conceptName, IWhereItem whereItem) throws XtentisException {
         try {
-            return server.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+            return server.countItems(clusterName, conceptName, whereItem);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
     }
 
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XtentisException {
+    public ArrayList<String> runQuery(String clusterName, String query, String[] parameters) throws XtentisException {
         try {
-            return server.runQuery(revisionID, clusterName, query, parameters);
-        } catch (XmlServerException e) {
-            throw new XtentisException(e);
-        }
-    }
-
-    public ArrayList<String> runQuery(String revisionID, String clusterName,
-                                      String query, String[] parameters, final int start, final int limit, final boolean withTotalCount)
-            throws XtentisException {
-        try {
-            return server.runQuery(revisionID, clusterName, query, parameters, start, limit, withTotalCount);
+            return server.runQuery(clusterName, query, parameters);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -275,7 +242,8 @@ public class DefaultXmlServer implements XmlServer {
         }
     }
 
-    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws com.amalto.core.util.XtentisException {
+    public List<String> globalSearch(String dataCluster, String keyword, int start, int end)
+            throws com.amalto.core.util.XtentisException {
         try {
             return server.globalSearch(dataCluster, keyword, start, end);
         } catch (XmlServerException e) {
@@ -283,9 +251,10 @@ public class DefaultXmlServer implements XmlServer {
         }
     }
 
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws com.amalto.core.util.XtentisException {
+    public void exportDocuments(String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream)
+            throws com.amalto.core.util.XtentisException {
         try {
-            server.exportDocuments(revisionId, clusterName, start, end, includeMetadata, outputStream);
+            server.exportDocuments(clusterName, start, end, includeMetadata, outputStream);
         } catch (XmlServerException e) {
             throw new XtentisException(e);
         }
@@ -296,7 +265,7 @@ public class DefaultXmlServer implements XmlServer {
             return false;
         }
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataCluster, StorageType.STAGING, null);
+        Storage storage = server.getStorageAdmin().get(dataCluster, StorageType.STAGING);
         return storage != null;
     }
 }

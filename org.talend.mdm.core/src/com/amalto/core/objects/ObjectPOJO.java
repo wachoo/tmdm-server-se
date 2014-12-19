@@ -11,13 +11,11 @@ import com.amalto.core.objects.menu.MenuPOJO;
 import com.amalto.core.objects.role.RolePOJO;
 import com.amalto.core.objects.routing.*;
 import com.amalto.core.objects.storedprocedure.StoredProcedurePOJO;
-import com.amalto.core.objects.synchronization.SynchronizationItemPOJO;
-import com.amalto.core.objects.synchronization.SynchronizationObjectPOJO;
-import com.amalto.core.objects.synchronization.SynchronizationPlanPOJO;
 import com.amalto.core.objects.transformers.TransformerPluginV2POJO;
 import com.amalto.core.objects.transformers.TransformerV2POJO;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.objects.view.ViewPOJO;
+import com.amalto.core.server.api.Item;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.BAMLogger;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -26,15 +24,10 @@ import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
-import org.talend.mdm.commmon.util.bean.ItemCacheKey;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import com.amalto.core.server.api.Item;
-import com.amalto.core.server.api.XmlServer;
 import org.xml.sax.InputSource;
 
 import javax.xml.stream.XMLEventReader;
@@ -48,91 +41,61 @@ import java.util.*;
 public abstract class ObjectPOJO implements Serializable {
 
     // Don't change this id, it forces compatibility with pre-5.3 versions (even if structure slightly changed).
-    public static final long serialVersionUID = 3157316606545297572l;
-
-    private static Logger LOG = Logger.getLogger(ObjectPOJO.class);
-
-    private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-
+    public static final long                                      serialVersionUID                = 3157316606545297572l;
+    private static final XMLInputFactory                          xmlInputFactory                 = XMLInputFactory.newInstance();
+    private static final Map<Class<?>, String>                    OBJECTS_CLASSES_TO_NAMES_MAP    = new HashMap<Class<?>, String>();
+    private static final Map<String, Class<? extends ObjectPOJO>> OBJECTS_NAMES_TO_CLASSES_MAP    = new HashMap<String, Class<? extends ObjectPOJO>>();
+    private static final Map<String, String>                      OBJECTS_NAMES_TO_ROOT_NAMES_MAP = new HashMap<String, String>();
+    public static Object[][]                                      OBJECT_TYPES                    = new Object[][] {
+            { "Data Cluster", DataClusterPOJO.class }, //$NON-NLS-1$
+            { "Data Model", DataModelPOJO.class }, //$NON-NLS-1$
+            { "Role", RolePOJO.class }, //$NON-NLS-1$
+            { "Routing Rule", RoutingRulePOJO.class }, //$NON-NLS-1$
+            { "Service", Service.class }, //$NON-NLS-1$
+            { "Stored Procedure", StoredProcedurePOJO.class }, //$NON-NLS-1$
+            { "Transformer Plugin V2", TransformerPluginV2POJO.class }, //$NON-NLS-1$
+            { "Transformer V2", TransformerV2POJO.class }, //$NON-NLS-1$
+            { "View", ViewPOJO.class }, //$NON-NLS-1$
+            { "Menu", MenuPOJO.class }, //$NON-NLS-1$
+            { "Background Job", BackgroundJobPOJO.class }, //$NON-NLS-1$
+            { "Configuration Info", ConfigurationInfoPOJO.class }, //$NON-NLS-1$
+            { "Routing Order V2 Active", ActiveRoutingOrderV2POJO.class }, //$NON-NLS-1$
+            { "Routing Order V2 Failed", FailedRoutingOrderV2POJO.class }, //$NON-NLS-1$
+            { "Routing Order V2 Completed", CompletedRoutingOrderV2POJO.class }, //$NON-NLS-1$
+            { "Routing Engine V2", RoutingEngineV2POJO.class }, //$NON-NLS-1$
+            { "Custom Layout", CustomFormPOJO.class }, //$NON-NLS-1$
+            { "Item", ItemPOJO.class }                                                           //$NON-NLS-1$
+                                                                                                  };
+    private static Logger                                         LOG                             = Logger.getLogger(ObjectPOJO.class);
     /**
-     * Cache the records to improve performance: this is a <b>READ</b> cache only -> only records read from
-     * underlying storage should be cached (don't cache what user provide to {@link #store()} for instance).
+     * Cache the records to improve performance: this is a <b>READ</b> cache only -> only records read from underlying
+     * storage should be cached (don't cache what user provide to {@link #store()} for instance).
      */
-    private static Map cachedPojo;
+    private static int                                            MAX_CACHE_SIZE                  = 5000;
+    private static Object[][]                                     OBJECT_ROOT_ELEMENT_NAMES       = new Object[][] {
+            { "Data Cluster", "data-cluster-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Data Model", "data-model-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Role", "role-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Routing Rule", "routing-rule-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Service", "service" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Stored Procedure", "stored-procedure-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Transformer Plugin V2", "transformer-plugin-v2-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Transformer V2", "transformer-v2-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "View", "view-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Menu", "menu-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Background Job", "background-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Configuration Info", "configuration-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Routing Order V2 Active", "active-routing-order-v2-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Routing Order V2 Failed", "failed-routing-order-v2-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Routing Order V2 Completed", "completed-routing-order-v2-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Routing Engine V2", "routing-engine-v2-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Universe", "universe-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Synchronization Plan", "synchronization-plan-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+            { "Synchronization Conflict", "synchronization-item-pOJO" }                          //$NON-NLS-1$ //$NON-NLS-2$
+                                                                                                  };
+    private String                                                digest;
 
-    private static int MAX_CACHE_SIZE = 5000;
-
-    private static Object[][] OBJECT_ROOT_ELEMENT_NAMES =
-            new Object[][]{
-                    {"Data Cluster", "data-cluster-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Data Model", "data-model-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Role", "role-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Routing Rule", "routing-rule-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Service", "service"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Stored Procedure", "stored-procedure-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Transformer Plugin V2", "transformer-plugin-v2-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Transformer V2", "transformer-v2-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"View", "view-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Menu", "menu-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Background Job", "background-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Configuration Info", "configuration-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Routing Order V2 Active", "active-routing-order-v2-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Routing Order V2 Failed", "failed-routing-order-v2-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Routing Order V2 Completed", "completed-routing-order-v2-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Routing Engine V2", "routing-engine-v2-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Universe", "universe-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Synchronization Plan", "synchronization-plan-pOJO"}, //$NON-NLS-1$ //$NON-NLS-2$
-                    {"Synchronization Conflict", "synchronization-item-pOJO"} //$NON-NLS-1$ //$NON-NLS-2$
-            };
-
-    public static Object[][] OBJECT_TYPES =
-            new Object[][]{
-                    {"Data Cluster", DataClusterPOJO.class}, //$NON-NLS-1$
-                    {"Data Model", DataModelPOJO.class}, //$NON-NLS-1$
-                    {"Role", RolePOJO.class}, //$NON-NLS-1$
-                    {"Routing Rule", RoutingRulePOJO.class}, //$NON-NLS-1$
-                    {"Service", Service.class}, //$NON-NLS-1$
-                    {"Stored Procedure", StoredProcedurePOJO.class}, //$NON-NLS-1$
-                    {"Transformer Plugin V2", TransformerPluginV2POJO.class}, //$NON-NLS-1$
-                    {"Transformer V2", TransformerV2POJO.class}, //$NON-NLS-1$
-                    {"View", ViewPOJO.class}, //$NON-NLS-1$
-                    {"Menu", MenuPOJO.class}, //$NON-NLS-1$
-                    {"Background Job", BackgroundJobPOJO.class}, //$NON-NLS-1$
-                    {"Configuration Info", ConfigurationInfoPOJO.class}, //$NON-NLS-1$
-                    {"Routing Order V2 Active", ActiveRoutingOrderV2POJO.class}, //$NON-NLS-1$
-                    {"Routing Order V2 Failed", FailedRoutingOrderV2POJO.class}, //$NON-NLS-1$
-                    {"Routing Order V2 Completed", CompletedRoutingOrderV2POJO.class}, //$NON-NLS-1$
-                    {"Routing Engine V2", RoutingEngineV2POJO.class}, //$NON-NLS-1$
-                    {"Universe", UniversePOJO.class}, //$NON-NLS-1$
-                    {"Synchronization Plan", SynchronizationPlanPOJO.class}, //$NON-NLS-1$
-                    {"Synchronization Conflict", SynchronizationItemPOJO.class}, //$NON-NLS-1$
-                    {"Synchronization Object", SynchronizationObjectPOJO.class}, //$NON-NLS-1$
-                    {"Custom Layout", CustomFormPOJO.class}, //$NON-NLS-1$
-                    {"Item", ItemPOJO.class} //$NON-NLS-1$
-            };
-
-    private static final Map<Class<?>, String> OBJECTS_CLASSES_TO_NAMES_MAP = new HashMap<Class<?>, String>();
-
-    private static final Map<String, Class<? extends ObjectPOJO>> OBJECTS_NAMES_TO_CLASSES_MAP = new HashMap<String, Class<? extends ObjectPOJO>>();
-
-    private static final Map<String, String> OBJECTS_NAMES_TO_ROOT_NAMES_MAP = new HashMap<String, String>();
-
-    private transient String lastError = "";  //$NON-NLS-1$
-
-    private String lastSynch = null;
-    
-    private String digest;
-
-    static {
-        String max_cache_size = (String) MDMConfiguration.getConfiguration().get("max_cache_size"); //$NON-NLS-1$
-        if (max_cache_size != null) {
-            MAX_CACHE_SIZE = Integer.valueOf(max_cache_size);
-        }
-        if (MAX_CACHE_SIZE == 0) {
-            cachedPojo = new EmptyMap(); // Disables MDM cache (useful when 2 MDM instance share same database).
-        } else {
-            cachedPojo = Collections.synchronizedMap(new LRUMap(MAX_CACHE_SIZE));
-        }
+    public ObjectPOJO() {
     }
 
     public static String getCluster(Class<? extends ObjectPOJO> objectClass) {
@@ -209,131 +172,25 @@ public abstract class ObjectPOJO implements Serializable {
         return OBJECTS_NAMES_TO_ROOT_NAMES_MAP.get(name);
     }
 
-    public ObjectPOJO() {
-    }
-
     /**
-     * Returns the last XML Server Error
-     * @return the error
-     */
-    public String getLastError() {
-        return lastError;
-    }
-
-    /**
-     * Set the last XML Server Error
-     * @param lastError the error
-     */
-    protected void setLastError(String lastError) {
-        this.lastError = lastError;
-    }
-
-    public String getLastSynch() {
-        return lastSynch;
-    }
-
-    public void setLastSynch(String lastSynchronizationPlanRun) {
-        this.lastSynch = lastSynchronizationPlanRun;
-    }
-
-    public String getDigest() {
-        return this.digest;
-    }
-
-    public void setDigest(String digest) {
-        this.digest = digest;
-    }
-
-    /**
-     * The PK
-     * @return the pk, null if undefined
-     */
-    public abstract ObjectPOJOPK getPK();
-
-    /**
-     * Loads an object in the user Universe after checking the user roles
-     * @return The loaded Object
+     * Loads an object of a particular revision ID<br/>
+     * NO Check is done on user rights
+     *
+     * @return the instance of the object
      * @throws XtentisException
      */
     public static <T extends ObjectPOJO> T load(Class<T> objectClass, ObjectPOJOPK objectPOJOPK) throws XtentisException {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("load() " + objectPOJOPK.getUniqueId()); //$NON-NLS-1$
-        }
-        try {
-            ILocalUser user = LocalUser.getLocalUser();
-            //get the universe
-            UniversePOJO universe = user.getUniverse();
-            if (universe == null) {
-                universe = new UniversePOJO();
-                /*String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
-                LOG.error(err);
-                throw new XtentisException(err);*/
-            }
-            // Determine revision ID
-            String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectName(objectClass));
-            if (BAMLogger.log) {
-                BAMLogger.log("DATA MANAGER", user.getUsername(), "read", objectClass, objectPOJOPK, true); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-            T loadedObject = load(revisionID, objectClass, objectPOJOPK);
-            if (loadedObject==null && ViewPOJO.class.equals(objectClass)) {
-                throw new Exception("Object does not exist"); 
-            }
-            // for the user have a role of administration , or role of write on instance or role of read on instance
-           /* if (!user.userCanRead(objectClass, objectPOJOPK.getUniqueId())) {
-                String err =
-                        "Unauthorized read access by " +
-                                "user '" + user.getUsername() + "' on object " + ObjectPOJO.getObjectName(objectClass) + " [" + objectPOJOPK.getUniqueId() + "] ";
-                LOG.error(err);
-                throw new XtentisException(err);
-            }*/
-            return loadedObject;
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to load the Object  " + objectPOJOPK.getUniqueId() + " in Cluster " + getCluster(objectClass)
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOG.error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
-
-    /**
-     * Loads an object of a particular revision ID<br/>
-     * NO Check is done on user rights
-     * @return the instance of the object
-     * @throws XtentisException
-     */
-    public static <T extends ObjectPOJO> T load(String revisionID, Class<T> objectClass, ObjectPOJOPK objectPOJOPK) throws XtentisException {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("load() " + revisionID + "/" + objectClass + " [" + objectPOJOPK.getUniqueId() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            LOG.trace("load() " + objectClass + " [" + objectPOJOPK.getUniqueId() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
         String url = objectPOJOPK.getUniqueId();
-        ItemCacheKey key = new ItemCacheKey(revisionID, url, getCluster(objectClass));
         try {
-            //retrieve the item
-            String item = (String) cachedPojo.get(key);
-            if (item == null) {
-                //get the xml server wrapper
-                XmlServer server = Util.getXmlServerCtrlLocal();
-                item = server.getDocumentAsString(revisionID, getCluster(objectClass), url, null);
-                //aiming add see 9603 if System Object load fails try to load it from HEAD universe
-                if (!(revisionID == null || revisionID.length() == 0) && item == null) {
-                    if (XSystemObjects.isExist(url)) {
-                        item = server.getDocumentAsString(null, getCluster(objectClass), url, null);
-                    }
-                }
-                if (item != null) {
-                    cachedPojo.put(key, item);
-                }
-            }
-            if (item == null) {
-                return null;
-            }
-            return unmarshal(objectClass, item);
+            // retrieve the item
+            XmlServer server = Util.getXmlServerCtrlLocal();
+            return unmarshal(objectClass, server.getDocumentAsString(getCluster(objectClass), url, null));
         } catch (Exception e) {
-            cachedPojo.remove(key); // Don't cache a xml element that failed the unmarshal.
-            String err = "Unable to load the Object  " + objectClass.getName() + "[" + objectPOJOPK.getUniqueId() + "] in Cluster " + getCluster(objectClass)
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to load the Object  " + objectClass.getName() + "[" + objectPOJOPK.getUniqueId()
+                    + "] in Cluster " + getCluster(objectClass) + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOG.error(err, e);
             throw new XtentisException(err, e);
         }
@@ -341,7 +198,8 @@ public abstract class ObjectPOJO implements Serializable {
 
     /**
      * Remove the item from the DB
-     * @return the Primary Key  of the object removed
+     *
+     * @return the Primary Key of the object removed
      * @throws XtentisException
      */
     public static ObjectPOJOPK remove(Class<? extends ObjectPOJO> objectClass, ObjectPOJOPK objectPOJOPK) throws XtentisException {
@@ -352,12 +210,13 @@ public abstract class ObjectPOJO implements Serializable {
             return null;
         }
         try {
-            //for delete we need to be admin, or have a role of admin , or role of write on instance
+            // for delete we need to be admin, or have a role of admin , or role of write on instance
             boolean authorized = false;
             ILocalUser user = LocalUser.getLocalUser();
-            if (user.getUsername() == null) return null;
+            if (user.getUsername() == null)
+                return null;
             if (MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$ 
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.isAdmin(objectClass)) {
                 authorized = true;
@@ -365,144 +224,24 @@ public abstract class ObjectPOJO implements Serializable {
                 authorized = true;
             }
             if (!authorized) {
-                String err =
-                        "Unauthorized access on delete for " +
-                                "user " + user.getUsername() + " of object " + ObjectPOJO.getObjectName(objectClass) + " [" + objectPOJOPK.getUniqueId() + "] ";
+                String err = "Unauthorized access on delete for " + "user " + user.getUsername() + " of object "
+                        + ObjectPOJO.getObjectName(objectClass) + " [" + objectPOJOPK.getUniqueId() + "] ";
                 LOG.error(err);
                 throw new XtentisException(err);
             }
-            //get the universe
-            UniversePOJO universe = user.getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
-                LOG.error(err);
-                throw new XtentisException(err);
-            }
-            String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(objectClass));
-            if (BAMLogger.log) {
-                BAMLogger.log("DATA MANAGER", user.getUsername(), "delete", objectClass, objectPOJOPK, authorized); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-            //get the xml server wrapper
+            // get the xml server wrapper
             XmlServer server = Util.getXmlServerCtrlLocal();
-            //remove the doc
-            long res = server.deleteDocument(
-                    revisionID,
-                    getCluster(objectClass),
-                    objectPOJOPK.getUniqueId()
-            );
+            // remove the doc
+            long res = server.deleteDocument(getCluster(objectClass), objectPOJOPK.getUniqueId());
             if (res == -1) {
                 return null;
             }
-            //remove the cache
-            ItemCacheKey key = new ItemCacheKey(revisionID, objectPOJOPK.getUniqueId(), getCluster(objectClass));
-            cachedPojo.remove(key);
             return objectPOJOPK;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to remove the Object  " + objectPOJOPK.getUniqueId() + " from Cluster " + getCluster(objectClass)
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOG.error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
-
-    /**
-     * Store the current item in the DB
-     *
-     * @return the pk of the item
-     * @throws XtentisException
-     */
-    public ObjectPOJOPK store() throws XtentisException {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("store() " + getPK().getUniqueId()); //$NON-NLS-1$
-        }
-        try {
-            //for storing we need to be admin, or have a role of admin , or role of write on instance
-            boolean authorized = false;
-            ILocalUser user = LocalUser.getLocalUser();
-            if (user.getUsername() == null
-                    || MDMConfiguration.getAdminUser().equals(user.getUsername())
-                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
-                authorized = true;
-            } else if (user.userCanWrite(this.getClass(), this.getPK().getUniqueId())) {
-                authorized = true;
-            }
-            if (!authorized) {
-                String err =
-                        "Unauthorized write access by " +
-                                "user " + user.getUsername() + " on object " + ObjectPOJO.getObjectName(this.getClass()) + " [" + getPK().getUniqueId() + "] ";
-                LOG.error(err);
-                throw new XtentisException(err);
-            }
-            //get the universe and revision ID
-            UniversePOJO universe = user.getUniverse();
-            if (universe == null) {
-                universe = new UniversePOJO();
-                /*String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
-                LOG.error(err);
-                throw new XtentisException(err);*/
-            }
-            String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(this.getClass()));
-            if (BAMLogger.log) {
-                BAMLogger.log("DATA MANAGER", user.getUsername(), "save", this.getClass(), getPK(), authorized); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-            return store(revisionID);
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to store the Object  " + getPK().getUniqueId() + " in Cluster " + getCluster(this.getClass())
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOG.error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
-
-    /**
-     * Performs the actual marshaling and storage of the object<br/>
-     * User rights are NOT checked when using this method
-     *
-     * @return The {@link ObjectPOJOPK} of the stored object
-     * @throws XtentisException
-     */
-    public ObjectPOJOPK store(String revisionID) throws XtentisException {
-        if (getPK() == null) {
-            setLastError("Unable to store: the object PK is Null");
-            return null;
-        }
-
-        try {
-            //get the xml server wrapper
-            XmlServer server = Util.getXmlServerCtrlLocal();
-            //Clear the synchronization Plan flag - this object is no more Synchronized
-            this.lastSynch = null;
-            //Marshal
-            StringWriter sw = new StringWriter();
-            Marshaller.marshal(this, sw);
-            //store
-            String dataClusterName = getCluster(this.getClass());
-            server.start(dataClusterName);
-            if (-1 == server.putDocumentFromString(
-                    sw.toString(),
-                    getPK().getUniqueId(),
-                    dataClusterName,
-                    revisionID)) {
-                setLastError("Unable to store: check The XML Server Wrapper Logs");
-                server.rollback(dataClusterName);
-                return null;
-            }
-            server.commit(dataClusterName);
-
-            setLastError(""); //$NON-NLS-1$ 
-            // invalidate the cache for entry
-            ItemCacheKey key = new ItemCacheKey(revisionID, getPK().getUniqueId(), dataClusterName);
-            cachedPojo.remove(key);
-            return getPK();
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to store the Object " + this.getClass().getName() + " --> " + getPK().getUniqueId()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to remove the Object  " + objectPOJOPK.getUniqueId() + " from Cluster "
+                    + getCluster(objectClass) + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOG.error(err, e);
             throw new XtentisException(err, e);
         }
@@ -510,46 +249,35 @@ public abstract class ObjectPOJO implements Serializable {
 
     /**
      * Retrieve all the PKs - will fetch only the PKs for which the user is authorized
+     *
      * @return a Collection of ObjectPOJOPK
      * @throws XtentisException
      */
-    public static ArrayList<ObjectPOJOPK> findAllPKs(Class<? extends ObjectPOJO> objectClass, String regex) throws XtentisException {
+    public static ArrayList<ObjectPOJOPK> findAllPKs(Class<? extends ObjectPOJO> objectClass, String regex)
+            throws XtentisException {
         try {
             int numItems = 0;
-
-            //check if we are admin
+            // check if we are admin
             ILocalUser user = LocalUser.getLocalUser();
-
-            //get the universe and revision ID
-            UniversePOJO universe = user.getUniverse();
-            if (universe == null) {
-                universe = new UniversePOJO();
-                /*String err = "ERROR: no Universe set for user '" + user.getUsername() + "'";
-                LOG.error(err);
-                throw new XtentisException(err);*/
-            }
-            String revisionID = universe.getXtentisObjectsRevisionIDs().get(getObjectsClasses2NamesMap().get(objectClass));
-
-            if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex))  {//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            if ("".equals(regex) || "*".equals(regex) || ".*".equals(regex)) {//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 regex = null;
             }
-
-            //get the xml server wrapper
+            // get the xml server wrapper
             XmlServer server = Util.getXmlServerCtrlLocal();
 
             String cluster = getCluster(objectClass);
-            //retrieve the item
-            String[] ids = server.getAllDocumentsUniqueID(revisionID, cluster);
-            //see 0013859            
+            // retrieve the item
+            String[] ids = server.getAllDocumentsUniqueID(cluster);
+            // see 0013859
             if (ids == null || ids.length == 0) {
                 ids = new String[0];
             }
-            //add system default object ids
+            // add system default object ids
             Set<String> allId = new HashSet<String>();
             allId.addAll(Arrays.asList(ids));
 
             ids = allId.toArray(new String[allId.size()]);
-            //build PKs collection
+            // build PKs collection
             ArrayList<ObjectPOJOPK> list = new ArrayList<ObjectPOJOPK>();
             for (String id : ids) {
                 if (LOG.isTraceEnabled()) {
@@ -570,19 +298,19 @@ public abstract class ObjectPOJO implements Serializable {
                 }
             }
             if (BAMLogger.log) {
-                BAMLogger.log("DATA MANAGER", user.getUsername(), "find all", objectClass, new ObjectPOJOPK(numItems + " Items"), numItems > 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                BAMLogger
+                        .log("DATA MANAGER", user.getUsername(), "find all", objectClass, new ObjectPOJOPK(numItems + " Items"), numItems > 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
             return list;
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to find all the Object identifiers for object " + getObjectName(objectClass) + " using regex " + regex
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to find all the Object identifiers for object " + getObjectName(objectClass) + " using regex "
+                    + regex + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOG.error(err, e);
             throw new XtentisException(err, e);
         }
     }
-
 
     /**
      * Retrieve all PKs of an object type unsynchronized against a particular plan<br/>
@@ -591,9 +319,8 @@ public abstract class ObjectPOJO implements Serializable {
      * @return a Collection of ObjectPOJOPK
      * @throws XtentisException
      */
-    public static ArrayList<String> findAllUnsynchronizedPKs(String objectName,
-                                                             String instancePattern,
-                                                             String synchronizationPlanName) throws XtentisException {
+    public static ArrayList<String> findAllUnsynchronizedPKs(String objectName, String instancePattern,
+            String synchronizationPlanName) throws XtentisException {
         try {
             // check if we are admin
             ILocalUser user = LocalUser.getLocalUser();
@@ -606,39 +333,26 @@ public abstract class ObjectPOJO implements Serializable {
             String clusterName = getCluster(getObjectClass(objectName));
             String rootElementName = getObjectRootElementName(objectName);
 
-
             Item itemCtrl2Bean = Util.getItemCtrl2Local();
             List<IWhereItem> conditions = new LinkedList<IWhereItem>();
             if (instancePattern != null && !".*".equals(instancePattern)) {
                 WhereCondition idCondition = new WhereCondition(rootElementName + "/../../i", //$NON-NLS-1$
-                        WhereCondition.CONTAINS,
-                        instancePattern,
-                        WhereCondition.PRE_NONE);
+                        WhereCondition.CONTAINS, instancePattern, WhereCondition.PRE_NONE);
                 conditions.add(idCondition);
             }
             if (synchronizationPlanName != null && !synchronizationPlanName.isEmpty()) {
                 WhereCondition planCondition = new WhereCondition(rootElementName + "/last-synch", //$NON-NLS-1$
-                        WhereCondition.EQUALS,
-                        synchronizationPlanName,
-                        WhereCondition.PRE_NOT);
+                        WhereCondition.EQUALS, synchronizationPlanName, WhereCondition.PRE_NOT);
                 conditions.add(planCondition);
             }
             IWhereItem whereItem = new WhereAnd(conditions);
             ArrayList<String> elements = new ArrayList<String>();
             elements.add(rootElementName + "/../../i"); //$NON-NLS-1$
-            return itemCtrl2Bean.xPathsSearch(new DataClusterPOJOPK(clusterName),
-                    null,
-                    elements,
-                    whereItem,
-                    -1,
-                    0,
-                    -1,
-                    false);
+            return itemCtrl2Bean.xPathsSearch(new DataClusterPOJOPK(clusterName), null, elements, whereItem, -1, 0, -1, false);
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Error Finding All Unsynchronized PKs" + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
+            String err = "Error Finding All Unsynchronized PKs" + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOG.error(err, e);
             throw new XtentisException(err, e);
         }
@@ -647,26 +361,21 @@ public abstract class ObjectPOJO implements Serializable {
     /**
      * Get the records for which the user is authorized and matching certain conditions
      *
-     * @param objectClass    The class of the XtentisObject
-     * @param idsPaths       The full path (starting with the object element root name) of the ids
-     * @param whereItem      The condition
-     * @param orderBy        An option full path to order by
-     * @param direction      The direction if orderBy is not <code>null</code>. One of
-     *                       {@link IXmlServerSLWrapper#ORDER_ASCENDING}, {@link IXmlServerSLWrapper#ORDER_DESCENDING}
-     * @param start          The first item index (starts at zero)
-     * @param limit          The maximum number of items to return
+     * @param objectClass The class of the XtentisObject
+     * @param idsPaths The full path (starting with the object element root name) of the ids
+     * @param whereItem The condition
+     * @param orderBy An option full path to order by
+     * @param direction The direction if orderBy is not <code>null</code>. One of
+     * {@link IXmlServerSLWrapper#ORDER_ASCENDING}, {@link IXmlServerSLWrapper#ORDER_DESCENDING}
+     * @param start The first item index (starts at zero)
+     * @param limit The maximum number of items to return
      * @param withTotalCount If true, return total search count as first result.
      * @return The list of results
      * @throws XtentisException
      */
     public static Collection<ObjectPOJOPK> findPKsByCriteriaWithPaging(Class<? extends ObjectPOJO> objectClass,
-                                                                      String[] idsPaths,
-                                                                      IWhereItem whereItem,
-                                                                      String orderBy,
-                                                                      String direction,
-                                                                      int start,
-                                                                      int limit,
-                                                                      boolean withTotalCount) throws XtentisException {
+            String[] idsPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit,
+            boolean withTotalCount) throws XtentisException {
         try {
             // check if we are admin
             ILocalUser user = LocalUser.getLocalUser();
@@ -677,27 +386,12 @@ public abstract class ObjectPOJO implements Serializable {
             } else if (user.isAdmin(objectClass)) {
                 isAdmin = true;
             }
-            // get the universe and revision ID
-            UniversePOJO universe = user.getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + userName + "'"; //$NON-NLS-1$ //$NON-NLS-2$
-                LOG.error(err);
-                throw new XtentisException(err);
-            }
             // Get the values from databases
             Item itemCtrl = Util.getItemCtrl2Local();
             DataClusterPOJOPK dataCluster = new DataClusterPOJOPK(ObjectPOJO.getCluster(objectClass));
             ArrayList<String> xPaths = new ArrayList<String>(Arrays.asList(idsPaths));
-            ArrayList<String> results = itemCtrl.xPathsSearch(dataCluster,
-                    null,
-                    xPaths,
-                    whereItem,
-                    -1,
-                    orderBy,
-                    direction,
-                    start,
-                    limit,
-                    withTotalCount);
+            ArrayList<String> results = itemCtrl.xPathsSearch(dataCluster, null, xPaths, whereItem, -1, orderBy, direction,
+                    start, limit, withTotalCount);
             // no result --> we are done
             if (results == null) {
                 return Collections.emptyList();
@@ -714,12 +408,12 @@ public abstract class ObjectPOJO implements Serializable {
                 int idIndex = 0;
                 while (xmlEvent.getEventType() != XMLEvent.END_DOCUMENT) {
                     switch (xmlEvent.getEventType()) {
-                        case XMLEvent.CHARACTERS:
-                            String data = xmlEvent.asCharacters().getData().trim();
-                            if (!data.isEmpty()) {
-                                idValues[idIndex++] = data;
-                            }
-                            break;
+                    case XMLEvent.CHARACTERS:
+                        String data = xmlEvent.asCharacters().getData().trim();
+                        if (!data.isEmpty()) {
+                            idValues[idIndex++] = data;
+                        }
+                        break;
                     }
                     xmlEvent = reader.nextEvent();
                 }
@@ -738,64 +432,6 @@ public abstract class ObjectPOJO implements Serializable {
             throw new XtentisException(err, e);
         }
 
-    }
-
-    /**
-     * Find all Keys of an object for which the user is authorized and matching certain conditions
-     *
-     * @param objectClass The class of the XtentisObject
-     * @param idsPaths    The full path (starting with the object element root name) of the ids
-     * @param whereItem   The condition
-     * @param orderBy     An option full path to order by
-     * @param direction   The direction if orderBy is not <code>null</code>.
-     *                    One of {@link IXmlServerSLWrapper#ORDER_ASCENDING}, {@link IXmlServerSLWrapper#ORDER_DESCENDING}
-     * @return An orders
-     * @throws XtentisException
-     */
-    public static Collection<ObjectPOJOPK> findAllPKsByCriteria(
-            Class<? extends ObjectPOJO> objectClass,
-            String[] idsPaths,
-            IWhereItem whereItem,
-            String orderBy,
-            String direction) throws XtentisException {
-        return findPKsByCriteriaWithPaging(objectClass, idsPaths, whereItem, orderBy, direction, 0, Integer.MAX_VALUE, false);
-    }
-
-    /**
-     * Returns a marshaled version of the object<br/>
-     * Identical to calling {@link #marshal()} but does not throw an Exception,
-     * returns <code>null</code> instead
-     */
-    @Override
-    public String toString() {
-        try {
-            return marshal();
-        } catch (XtentisException e) {
-            LOG.error(e.getMessage(), e);
-            return null;
-        }
-    }
-
-    /**
-     * Returns a marshaled version of the object<br/>
-     *
-     * @return The marshaled object
-     * @throws XtentisException
-     */
-    public String marshal() throws XtentisException {
-        //Marshal
-        StringWriter sw = new StringWriter();
-        try {
-            Marshaller marshaller = new Marshaller(sw);
-            marshaller.setValidation(false);
-
-            marshaller.marshal(this);
-        } catch (Throwable t) {
-            String err = "Unable to marshal '" + this.getPK().getUniqueId() + "'";
-            LOG.error(err, t);
-            throw new XtentisException(err, t);
-        }
-        return sw.toString();
     }
 
     /**
@@ -823,21 +459,117 @@ public abstract class ObjectPOJO implements Serializable {
         }
     }
 
-    public static void clearCache() {
-        cachedPojo.clear();
+    public String getDigest() {
+        return this.digest;
     }
 
-    public static Map getCache() {
-        return cachedPojo;
+    public void setDigest(String digest) {
+        this.digest = digest;
     }
-    
-    public static void invalidateCache(String revisionID, Class<? extends ObjectPOJO> objectClass, ObjectPOJOPK objectPOJOPK) {
+
+    /**
+     * The PK
+     *
+     * @return the pk, null if undefined
+     */
+    public abstract ObjectPOJOPK getPK();
+
+    /**
+     * Store the current item in the DB
+     *
+     * @return the pk of the item
+     * @throws XtentisException
+     */
+    public ObjectPOJOPK store() throws XtentisException {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("invalidateCache() " + revisionID + "/" + objectClass + " [" + objectPOJOPK.getUniqueId() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            LOG.trace("store() " + getPK().getUniqueId()); //$NON-NLS-1$
         }
-        String url = objectPOJOPK.getUniqueId();
-        ItemCacheKey key = new ItemCacheKey(revisionID, url, getCluster(objectClass));
-        cachedPojo.remove(key);
+        try {
+            // for storing we need to be admin, or have a role of admin , or role of write on instance
+            boolean authorized = false;
+            ILocalUser user = LocalUser.getLocalUser();
+            if (user.getUsername() == null || MDMConfiguration.getAdminUser().equals(user.getUsername())
+                    || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+                authorized = true;
+            } else if (user.userCanWrite(this.getClass(), this.getPK().getUniqueId())) {
+                authorized = true;
+            }
+            if (!authorized) {
+                String err = "Unauthorized write access by " + "user " + user.getUsername() + " on object "
+                        + ObjectPOJO.getObjectName(this.getClass()) + " [" + getPK().getUniqueId() + "] ";
+                LOG.error(err);
+                throw new XtentisException(err);
+            }
+            if (getPK() == null) {
+                return null;
+            }
+            try {
+                // get the xml server wrapper
+                XmlServer server = Util.getXmlServerCtrlLocal();
+                // Marshal
+                StringWriter sw = new StringWriter();
+                Marshaller.marshal(this, sw);
+                // store
+                String dataClusterName = getCluster(this.getClass());
+                server.start(dataClusterName);
+                if (-1 == server.putDocumentFromString(sw.toString(), getPK().getUniqueId(), dataClusterName)) {
+                    server.rollback(dataClusterName);
+                    return null;
+                }
+                server.commit(dataClusterName);
+                return getPK();
+            } catch (XtentisException e) {
+                throw (e);
+            } catch (Exception e) {
+                String err = "Unable to store the Object " + this.getClass().getName() + " --> " + getPK().getUniqueId() + ": "
+                        + e.getClass().getName() + ": " + e.getLocalizedMessage();
+                LOG.error(err, e);
+                throw new XtentisException(err, e);
+            }
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to store the Object  " + getPK().getUniqueId() + " in Cluster " + getCluster(this.getClass())
+                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            LOG.error(err, e);
+            throw new XtentisException(err, e);
+        }
+    }
+
+    /**
+     * Returns a marshaled version of the object<br/>
+     * Identical to calling {@link #marshal()} but does not throw an Exception, returns <code>null</code> instead
+     */
+    @Override
+    public String toString() {
+        try {
+            return marshal();
+        } catch (XtentisException e) {
+            LOG.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Returns a marshaled version of the object<br/>
+     *
+     * @return The marshaled object
+     * @throws XtentisException
+     */
+    public String marshal() throws XtentisException {
+        // Marshal
+        StringWriter sw = new StringWriter();
+        try {
+            Marshaller marshaller = new Marshaller(sw);
+            marshaller.setValidation(false);
+
+            marshaller.marshal(this);
+        } catch (Throwable t) {
+            String err = "Unable to marshal '" + this.getPK().getUniqueId() + "'";
+            LOG.error(err, t);
+            throw new XtentisException(err, t);
+        }
+        return sw.toString();
     }
 
 }

@@ -404,11 +404,6 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
-    public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getCurrentUniverse(wsGetCurrentUniverse);
-    }
-
-    @Override
     public WSTransformer getTransformer(WSGetTransformer wsGetTransformer) throws RemoteException {
         throw new NotImplementedException(); // TODO
     }
@@ -667,11 +662,6 @@ public class XtentisWSBean implements XtentisPort {
             throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
                 .getItemsByCustomFKFilters(wsGetItemsByCustomFKFilters);
-    }
-
-    @Override
-    public WSString refreshCache(WSRefreshCache refreshCache) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().refreshCache(refreshCache);
     }
 
     @Override

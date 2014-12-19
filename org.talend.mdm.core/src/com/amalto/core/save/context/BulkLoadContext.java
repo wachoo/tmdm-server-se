@@ -83,15 +83,7 @@ class BulkLoadContext implements DocumentSaverContext {
         return dataModelName;
     }
 
-    public String getRevisionID() {
-        throw new UnsupportedOperationException();
-    }
-
     public void setDatabaseDocument(MutableDocument databaseDocument) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setRevisionId(String revisionID) {
         throw new UnsupportedOperationException();
     }
 

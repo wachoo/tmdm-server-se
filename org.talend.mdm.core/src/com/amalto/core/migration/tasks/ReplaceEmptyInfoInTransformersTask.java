@@ -20,11 +20,11 @@ public class ReplaceEmptyInfoInTransformersTask extends AbstractMigrationTask{
 		org.apache.log4j.Logger.getLogger(ReplaceEmptyInfoInTransformersTask.class).info("Updating Transformers");
 		try {
 			
-			String[] ids = ConfigurationHelper.getServer().getAllDocumentsUniqueID(null, ObjectPOJO.getCluster(TransformerV2POJO.class));
+			String[] ids = ConfigurationHelper.getServer().getAllDocumentsUniqueID(ObjectPOJO.getCluster(TransformerV2POJO.class));
 			if (ids != null) {
 				Transformer tCtrl = Util.getTransformerV2CtrlLocal();
                 for (String id : ids) {
-                    String xml = ConfigurationHelper.getServer().getDocumentAsString(null, ObjectPOJO.getCluster(TransformerV2POJO.class), id);
+                    String xml = ConfigurationHelper.getServer().getDocumentAsString(ObjectPOJO.getCluster(TransformerV2POJO.class), id);
                     TransformerV2POJO transformer = ObjectPOJO.unmarshal(TransformerV2POJO.class, xml);
                     ArrayList<TransformerProcessStep> steps = transformer.getProcessSteps();
                     if (steps != null) {

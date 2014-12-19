@@ -130,7 +130,7 @@ public class UploadServiceTest extends TestCase {
         entityModel = new EntityModel();
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(dataModel, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(dataModel)));
         DataModelHelper.parseSchema(dataModel, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), keys, entityModel,
                 Arrays.asList(roles));
         return entityModel;

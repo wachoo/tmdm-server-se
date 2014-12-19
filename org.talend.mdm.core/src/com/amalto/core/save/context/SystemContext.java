@@ -28,8 +28,6 @@ class SystemContext implements DocumentSaverContext {
 
     private final List<Action> actions = new LinkedList<Action>();
 
-    private String revisionId;
-
     private String[] id = new String[0];
 
     private MutableDocument userDocument;
@@ -93,18 +91,8 @@ class SystemContext implements DocumentSaverContext {
     }
 
     @Override
-    public String getRevisionID() {
-        return revisionId;
-    }
-
-    @Override
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         this.databaseDocument = databaseDocument;
-    }
-
-    @Override
-    public void setRevisionId(String revisionID) {
-        this.revisionId = revisionID;
     }
 
     @Override

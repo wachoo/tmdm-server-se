@@ -115,11 +115,6 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSString refreshCache(WSRefreshCache refreshCache) throws RemoteException {
-        return delegate.refreshCache(refreshCache);
-    }
-
-    @Override
     public WSString logout(WSLogout wsLogout) throws RemoteException {
         return delegate.logout(wsLogout);
     }
@@ -597,11 +592,6 @@ public class XtentisWebPort implements XtentisPort {
     @Override
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsPutBackgroundJob) throws RemoteException {
         return delegate.putBackgroundJob(wsPutBackgroundJob);
-    }
-
-    @Override
-    public WSUniverse getCurrentUniverse(WSGetCurrentUniverse wsGetCurrentUniverse) throws RemoteException {
-        return delegate.getCurrentUniverse(wsGetCurrentUniverse);
     }
 
     @Override

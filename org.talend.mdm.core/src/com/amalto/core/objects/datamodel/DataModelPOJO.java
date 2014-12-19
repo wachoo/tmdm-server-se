@@ -104,15 +104,10 @@ public class DataModelPOJO extends ObjectPOJO{
 	}
 	
 
-	@Override
-	public ObjectPOJOPK store() throws XtentisException {
-        return store(null);
-	}
-
     @Override
-    public ObjectPOJOPK store(String revisionID) throws XtentisException {
+    public ObjectPOJOPK store() throws XtentisException {
         String previousSchema = getSchema();
-        ObjectPOJOPK objectPK = super.store(revisionID);
+        ObjectPOJOPK objectPK = super.store();
         // TMDM-4621: Update operation has to be synchronous
         String updatedDataModelName = getPK().getUniqueId();
         if (isUserDataModel(updatedDataModelName)) { // Do not update system data clusters
@@ -120,7 +115,7 @@ public class DataModelPOJO extends ObjectPOJO{
             MetadataRepositoryAdmin metadataRepositoryAdmin = server.getMetadataRepositoryAdmin();
             metadataRepositoryAdmin.remove(updatedDataModelName);
             StorageAdmin storageAdmin = server.getStorageAdmin();
-            Storage storage = storageAdmin.get(updatedDataModelName, storageAdmin.getType(updatedDataModelName), revisionID);
+            Storage storage = storageAdmin.get(updatedDataModelName, storageAdmin.getType(updatedDataModelName));
             // Storage already exists so update it.
             MetadataRepository repository = metadataRepositoryAdmin.get(updatedDataModelName);
             // Check if data model update is possible without issues
@@ -132,7 +127,7 @@ public class DataModelPOJO extends ObjectPOJO{
                 if (!changes.isEmpty()) {
                     // Restore previous version
                     setSchema(previousSchema);
-                    super.store(revisionID);
+                    super.store();
                     throw new IllegalArgumentException("Can not update '" + updatedDataModelName
                             + "': " + changes.size()
                             + " changes cause storage issues.");
@@ -142,7 +137,7 @@ public class DataModelPOJO extends ObjectPOJO{
             storage.prepare(repository, indexedExpressions, true, false);
 
             if (storageAdmin.supportStaging(updatedDataModelName)) {
-                Storage stagingStorage = storageAdmin.get(updatedDataModelName, StorageType.STAGING, revisionID);
+                Storage stagingStorage = storageAdmin.get(updatedDataModelName, StorageType.STAGING);
                 if (stagingStorage != null) {
                     // Storage already exists so update it.
                     MetadataRepository stagingRepository = metadataRepositoryAdmin.get(updatedDataModelName);
@@ -159,7 +154,7 @@ public class DataModelPOJO extends ObjectPOJO{
         }
         // synchronize with outer agents
         DataModelChangeNotifier dmUpdateEventNotifier = new DataModelChangeNotifier();
-        dmUpdateEventNotifier.addUpdateMessage(new DMUpdateEvent(getPK().getUniqueId(), revisionID));
+        dmUpdateEventNotifier.addUpdateMessage(new DMUpdateEvent(getPK().getUniqueId()));
         dmUpdateEventNotifier.sendMessages();
         return objectPK;
     }

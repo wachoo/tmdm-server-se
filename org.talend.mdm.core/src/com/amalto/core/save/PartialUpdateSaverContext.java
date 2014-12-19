@@ -104,20 +104,10 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
     }
 
     @Override
-    public String getRevisionID() {
-        return delegate.getRevisionID();
-    }
-
-    @Override
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         String localName = databaseDocument.asDOM().getDocumentElement().getLocalName();
         pivot = StringUtils.substringAfter(pivot, localName + '/');
         delegate.setDatabaseDocument(databaseDocument);
-    }
-
-    @Override
-    public void setRevisionId(String revisionID) {
-        delegate.setRevisionId(revisionID);
     }
 
     @Override

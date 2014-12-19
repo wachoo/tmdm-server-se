@@ -19,15 +19,12 @@ public class MdmGroovyExtension {
         if (ids == null) {
             return itemProjection;
         }
-        if (revision != null && (revision.trim().equals("") || revision.trim().equals("null"))) {
-            revision = null;
-        }
         try {
             Item itemCtrl2Local = Util.getItemCtrl2Local();
             //parse ids
             String[] idArray = ids.split("\\.");
             ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(clusterName), conceptName, idArray);
-            ItemPOJO itemPOJO = itemCtrl2Local.getItem(revision, itemPOJOPK);
+            ItemPOJO itemPOJO = itemCtrl2Local.getItem(itemPOJOPK);
             if (itemPOJO != null) {
                 itemProjection = itemPOJO.getProjectionAsString();
             }

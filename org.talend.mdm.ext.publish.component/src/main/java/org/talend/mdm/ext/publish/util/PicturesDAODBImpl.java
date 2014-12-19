@@ -25,7 +25,7 @@ public class PicturesDAODBImpl implements PicturesDAO {
 
     public String[] getAllPKs() throws XtentisException {
 
-        String[] pks = server.getAllDocumentsUniqueID(null, CLUSTER_NAME);
+        String[] pks = server.getAllDocumentsUniqueID(CLUSTER_NAME);
         return pks;
 
     }

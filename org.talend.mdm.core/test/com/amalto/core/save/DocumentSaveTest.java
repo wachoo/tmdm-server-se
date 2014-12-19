@@ -14,7 +14,6 @@ import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
@@ -2183,7 +2182,6 @@ public class DocumentSaveTest extends TestCase {
         session.end(committer);
 
         assertTrue(committer.hasSaved());
-        assertTrue(ItemPOJO.getCache().get(new ItemCacheKey("HEAD", "12", "TestFK")) == null);
     }
 
     public void testPartialUpdateWithEmptyString() throws Exception {
@@ -2771,7 +2769,6 @@ public class DocumentSaveTest extends TestCase {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Commit on '" + dataCluster + "'");
             }
-            ItemPOJO.getCache().clear();
         }
 
         @Override
@@ -2837,7 +2834,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String revisionId, String[] key) {
+        public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String[] key) {
             try {
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 DocumentBuilder documentBuilder;
@@ -2847,10 +2844,10 @@ public class DocumentSaveTest extends TestCase {
                 Element userXmlElement = getUserXmlElement(databaseDomDocument);
                 if (USE_STORAGE_OPTIMIZATIONS) {
                     DataRecordReader<String> reader = new XmlStringDataRecordReader();
-                    DataRecord dataRecord = reader.read(revisionId, repository, type, Util.nodeToString(userXmlElement));
+                    DataRecord dataRecord = reader.read(null, repository, type, Util.nodeToString(userXmlElement));
                     return new StorageDocument(dataClusterName, repository, dataRecord);
                 } else {
-                    return new DOMDocument(userXmlElement, type, revisionId, dataClusterName, dataClusterName);
+                    return new DOMDocument(userXmlElement, type, dataClusterName, dataClusterName);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -2873,7 +2870,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public boolean exist(String dataCluster, String dataModelName, String typeName, String revisionId, String[] key) {
+        public boolean exist(String dataCluster, String dataModelName, String typeName, String[] key) {
             return exist;
         }
 
@@ -2896,11 +2893,6 @@ public class DocumentSaveTest extends TestCase {
                 schemasAsString.put(dataModelName, schemaAsString);
             }
             return DocumentSaveTest.class.getResourceAsStream(schemaFileName);
-        }
-
-        @Override
-        public String getUniverse() {
-            return "Universe";
         }
 
         @Override
@@ -2929,13 +2921,8 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public boolean existCluster(String revisionID, String dataClusterName) {
+        public boolean existCluster(String dataClusterName) {
             return true;
-        }
-
-        @Override
-        public String getConceptRevisionID(String typeName) {
-            return "HEAD";
         }
 
         @Override
@@ -2965,7 +2952,7 @@ public class DocumentSaveTest extends TestCase {
         }
 
         @Override
-        public String nextAutoIncrementId(String universe, String dataCluster, String dataModel, String conceptName) {
+        public String nextAutoIncrementId(String dataCluster, String dataModel, String conceptName) {
             return String.valueOf(currentId++);
         }
 

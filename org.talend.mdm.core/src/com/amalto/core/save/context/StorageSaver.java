@@ -30,8 +30,6 @@ public class StorageSaver implements DocumentSaverContext {
 
     private List<Action> actions = new LinkedList<Action>();
 
-    private String revisionId = "HEAD"; //$NON-NLS-1$
-
     private String taskId = StringUtils.EMPTY;
 
     private UserAction userAction;
@@ -152,18 +150,8 @@ public class StorageSaver implements DocumentSaverContext {
     }
 
     @Override
-    public String getRevisionID() {
-        return revisionId;
-    }
-
-    @Override
     public void setDatabaseDocument(MutableDocument databaseDocument) {
         this.databaseDocument = databaseDocument;
-    }
-
-    @Override
-    public void setRevisionId(String revisionID) {
-        revisionId = revisionID;
     }
 
     @Override

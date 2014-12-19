@@ -84,14 +84,7 @@ public interface DocumentSaverContext {
      */
     String getDataModelName();
 
-    /**
-     * @return The revision of the record being saved.
-     */
-    String getRevisionID();
-
     void setDatabaseDocument(MutableDocument databaseDocument);
-
-    void setRevisionId(String revisionID);
 
     void setTaskId(String taskId);
 

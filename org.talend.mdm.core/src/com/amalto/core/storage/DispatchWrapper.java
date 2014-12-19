@@ -155,152 +155,135 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         return internalClusterNames;
     }
 
-    private static String getClusterName(Map<String, String> conceptPatternsToClusterName, String conceptName) {
-        String clusterName = null;
-        for (Map.Entry<String, String> conceptPattern : conceptPatternsToClusterName.entrySet()) {
-            if (conceptName.matches(conceptPattern.getKey())) {
-                clusterName = conceptPattern.getValue();
-            }
-        }
-        if (clusterName == null) {
-            throw new IllegalArgumentException("Type '" + conceptName + "' did not match any pattern.");
-        }
-        return clusterName;
-    }
-
-    public String[] getAllClusters(String revisionID) throws XmlServerException {
-        String[] internalClusters = mdmInternalWrapper.getAllClusters(revisionID);
-        String[] userClusters = userStorageWrapper.getAllClusters(revisionID);
+    public String[] getAllClusters() throws XmlServerException {
+        String[] internalClusters = mdmInternalWrapper.getAllClusters();
+        String[] userClusters = userStorageWrapper.getAllClusters();
         return joinArrays(internalClusters, userClusters);
     }
 
-    public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
+    public long deleteCluster(String clusterName) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.deleteCluster(revisionID, clusterName);
+            return mdmInternalWrapper.deleteCluster(clusterName);
         } else {
-            return userStorageWrapper.deleteCluster(revisionID, clusterName);
+            return userStorageWrapper.deleteCluster(clusterName);
         }
     }
 
-    public long deleteAllClusters(String revisionID) throws XmlServerException {
+    public long deleteAllClusters() throws XmlServerException {
         long start = System.currentTimeMillis();
         {
-            mdmInternalWrapper.deleteAllClusters(revisionID);
-            userStorageWrapper.deleteAllClusters(revisionID);
+            mdmInternalWrapper.deleteAllClusters();
+            userStorageWrapper.deleteAllClusters();
         }
         return System.currentTimeMillis() - start;
     }
 
-    public long createCluster(String revisionID, String clusterName) throws XmlServerException {
+    public long createCluster(String clusterName) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.createCluster(revisionID, clusterName);
+            return mdmInternalWrapper.createCluster(clusterName);
         } else {
-            return userStorageWrapper.createCluster(revisionID, clusterName);
+            return userStorageWrapper.createCluster(clusterName);
         }
     }
 
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.putDocumentFromFile(fileName, uniqueID, clusterName, revisionID);
+            return mdmInternalWrapper.putDocumentFromFile(fileName, uniqueID, clusterName);
         } else {
-            return userStorageWrapper.putDocumentFromFile(fileName, uniqueID, clusterName, revisionID);
+            return userStorageWrapper.putDocumentFromFile(fileName, uniqueID, clusterName);
         }
     }
 
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String documentType) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.putDocumentFromFile(fileName, uniqueID, clusterName, revisionID, documentType);
+            return mdmInternalWrapper.putDocumentFromFile(fileName, uniqueID, clusterName, documentType);
         } else {
-            return userStorageWrapper.putDocumentFromFile(fileName, uniqueID, clusterName, revisionID, documentType);
+            return userStorageWrapper.putDocumentFromFile(fileName, uniqueID, clusterName, documentType);
         }
     }
 
-    public boolean existCluster(String revision, String cluster) throws XmlServerException {
+    public boolean existCluster(String cluster) throws XmlServerException {
         if (isMDMInternal(cluster)) {
-            return mdmInternalWrapper.existCluster(revision, cluster);
+            return mdmInternalWrapper.existCluster(cluster);
         } else {
-            return userStorageWrapper.existCluster(revision, cluster);
+            return userStorageWrapper.existCluster(cluster);
         }
     }
 
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.putDocumentFromString(xmlString, uniqueID, clusterName, revisionID);
+            return mdmInternalWrapper.putDocumentFromString(xmlString, uniqueID, clusterName);
         } else {
-            return userStorageWrapper.putDocumentFromString(xmlString, uniqueID, clusterName, revisionID);
+            return userStorageWrapper.putDocumentFromString(xmlString, uniqueID, clusterName);
         }
     }
 
-    public long putDocumentFromString(String string, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    public long putDocumentFromString(String string, String uniqueID, String clusterName, String documentType) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.putDocumentFromString(string, uniqueID, clusterName, revisionID, documentType);
+            return mdmInternalWrapper.putDocumentFromString(string, uniqueID, clusterName, documentType);
         } else {
-            return userStorageWrapper.putDocumentFromString(string, uniqueID, clusterName, revisionID, documentType);
+            return userStorageWrapper.putDocumentFromString(string, uniqueID, clusterName, documentType);
         }
     }
 
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.putDocumentFromDOM(root, uniqueID, clusterName, revisionID);
+            return mdmInternalWrapper.putDocumentFromDOM(root, uniqueID, clusterName);
         } else {
-            return userStorageWrapper.putDocumentFromDOM(root, uniqueID, clusterName, revisionID);
+            return userStorageWrapper.putDocumentFromDOM(root, uniqueID, clusterName);
         }
     }
 
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException {
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input) throws XmlServerException {
         if (isMDMInternal(dataClusterName)) {
-            return mdmInternalWrapper.putDocumentFromSAX(dataClusterName, docReader, input, revisionId);
+            return mdmInternalWrapper.putDocumentFromSAX(dataClusterName, docReader, input);
         } else {
-            return userStorageWrapper.putDocumentFromSAX(dataClusterName, docReader, input, revisionId);
+            return userStorageWrapper.putDocumentFromSAX(dataClusterName, docReader, input);
         }
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XmlServerException {
+    public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.getDocumentAsString(revisionID, clusterName, uniqueID);
+            return mdmInternalWrapper.getDocumentAsString(clusterName, uniqueID);
         } else {
-            return userStorageWrapper.getDocumentAsString(revisionID, clusterName, uniqueID);
+            return userStorageWrapper.getDocumentAsString(clusterName, uniqueID);
         }
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding) throws XmlServerException {
+    public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.getDocumentAsString(revisionID, clusterName, uniqueID, encoding);
+            return mdmInternalWrapper.getDocumentAsString(clusterName, uniqueID, encoding);
         } else {
-            return userStorageWrapper.getDocumentAsString(revisionID, clusterName, uniqueID, encoding);
+            return userStorageWrapper.getDocumentAsString(clusterName, uniqueID, encoding);
         }
     }
 
-    public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException {
+    public byte[] getDocumentBytes(String clusterName, String uniqueID, String documentType) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.getDocumentBytes(revisionID, clusterName, uniqueID, documentType);
+            return mdmInternalWrapper.getDocumentBytes(clusterName, uniqueID, documentType);
         } else {
-            return userStorageWrapper.getDocumentBytes(revisionID, clusterName, uniqueID, documentType);
+            return userStorageWrapper.getDocumentBytes(clusterName, uniqueID, documentType);
         }
     }
 
-    public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
+    public String[] getAllDocumentsUniqueID(String clusterName) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.getAllDocumentsUniqueID(revisionID, clusterName);
+            return mdmInternalWrapper.getAllDocumentsUniqueID(clusterName);
         } else {
-            return userStorageWrapper.getAllDocumentsUniqueID(revisionID, clusterName);
+            return userStorageWrapper.getAllDocumentsUniqueID(clusterName);
         }
     }
 
-    public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException {
+    public long deleteDocument(String clusterName, String uniqueID, String documentType) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.deleteDocument(revisionID, clusterName, uniqueID, documentType);
+            return mdmInternalWrapper.deleteDocument(clusterName, uniqueID, documentType);
         } else {
-            return userStorageWrapper.deleteDocument(revisionID, clusterName, uniqueID, documentType);
+            return userStorageWrapper.deleteDocument(clusterName, uniqueID, documentType);
         }
     }
 
-    public int deleteXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String objectRootElementName, IWhereItem whereItem) throws XmlServerException {
-        return mdmInternalWrapper.deleteXtentisObjects(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, objectRootElementName, whereItem);
-    }
-
-    public int deleteItems(LinkedHashMap<String, String> conceptPatternsToRevisionID, LinkedHashMap<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
-        return userStorageWrapper.deleteItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
+    public int deleteItems(String clusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
+        return userStorageWrapper.deleteItems(clusterName, conceptName, whereItem);
     }
 
     public long moveDocumentById(String sourceRevisionID, String sourceClusterName, String uniqueID, String targetRevisionID, String targetClusterName) throws XmlServerException {
@@ -317,59 +300,27 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public long countItems(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
-        if (isMDMInternal(getClusterName(conceptPatternsToClusterName, conceptName))) {
-            return mdmInternalWrapper.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
-        } else {
-            return userStorageWrapper.countItems(conceptPatternsToRevisionID, conceptPatternsToClusterName, conceptName, whereItem);
-        }
-    }
-
-    public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, IWhereItem whereItem) throws XmlServerException {
-        if (isMDMInternal(getClusterName(objectRootElementNameToClusterName, mainObjectRootElementName))) {
-            return mdmInternalWrapper.countItems(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, whereItem);
-        } else {
-            return userStorageWrapper.countItems(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, whereItem);
-        }
-    }
-
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
-        return mdmInternalWrapper.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit);
-    }
-
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
-        return mdmInternalWrapper.getItemsQuery(conceptPatternsToRevisionID, conceptPatternsToClusterName, forceMainPivot, viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnFirstRow, metaDataTypes);
-    }
-
-    public String getXtentisObjectsQuery(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
-        return mdmInternalWrapper.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, viewableFullPaths, whereItem, orderBy, direction, start, limit);
-    }
-
-    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID, LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow) throws XmlServerException {
-        return mdmInternalWrapper.getXtentisObjectsQuery(objectRootElementNameToRevisionID, objectRootElementNameToClusterName, mainObjectRootElementName, viewableFullPaths, whereItem, orderBy, direction, start, limit, totalCountOnFirstRow);
-    }
-
-    public String getPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap<String, String[]> pivotWithKeys, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections, String[] indexDirections, int start, int limit) throws XmlServerException {
-        return mdmInternalWrapper.getPivotIndexQuery(clusterName, mainPivotName, pivotWithKeys, itemsRevisionIDs, defaultRevisionID, indexPaths, whereItem, pivotDirections, indexDirections, start, limit);
-    }
-
-    public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXPaths, String FKXpath, String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, IWhereItem whereItem, int start, int limit) throws XmlServerException {
-        return mdmInternalWrapper.getChildrenItemsQuery(clusterName, conceptName, PKXPaths, FKXpath, labelXpath, fatherPK, itemsRevisionIDs, defaultRevisionID, whereItem, start, limit);
-    }
-
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException {
+    public long countItems(String clusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.runQuery(revisionID, clusterName, query, parameters);
+            return mdmInternalWrapper.countItems(clusterName, conceptName, whereItem);
         } else {
-            return userStorageWrapper.runQuery(revisionID, clusterName, query, parameters);
+            return userStorageWrapper.countItems(clusterName, conceptName, whereItem);
         }
     }
 
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
+    public ArrayList<String> runQuery(String clusterName, String query, String[] parameters) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            return mdmInternalWrapper.runQuery(revisionID, clusterName, query, parameters, start, limit, withTotalCount);
+            return mdmInternalWrapper.runQuery(clusterName, query, parameters);
         } else {
-            return userStorageWrapper.runQuery(revisionID, clusterName, query, parameters, start, limit, withTotalCount);
+            return userStorageWrapper.runQuery(clusterName, query, parameters);
+        }
+    }
+
+    public ArrayList<String> runQuery(String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
+        if (isMDMInternal(clusterName)) {
+            return mdmInternalWrapper.runQuery(clusterName, query, parameters, start, limit, withTotalCount);
+        } else {
+            return userStorageWrapper.runQuery(clusterName, query, parameters, start, limit, withTotalCount);
         }
     }
 
@@ -451,11 +402,11 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
+    public void exportDocuments(String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
         if (isMDMInternal(clusterName)) {
-            mdmInternalWrapper.exportDocuments(revisionId, clusterName, start, end, includeMetadata, outputStream);
+            mdmInternalWrapper.exportDocuments(clusterName, start, end, includeMetadata, outputStream);
         } else {
-            userStorageWrapper.exportDocuments(revisionId, clusterName, start, end, includeMetadata, outputStream);
+            userStorageWrapper.exportDocuments(clusterName, start, end, includeMetadata, outputStream);
         }
     }
 }

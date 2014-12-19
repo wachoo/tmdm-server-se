@@ -22,7 +22,6 @@ public interface StoredProcedure {
 
     Collection<String> execute(
             StoredProcedurePOJOPK sppk,
-            String revisionID,
             DataClusterPOJOPK dcpk,
             String[] parameters
     )throws XtentisException;

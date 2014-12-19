@@ -76,8 +76,8 @@ public class StorageSaverSource implements SaverSource {
     }
 
     @Override
-    public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String revisionId, String[] key) {
-        Storage storage = getStorage(dataClusterName, revisionId);
+    public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String[] key) {
+        Storage storage = getStorage(dataClusterName);
         StorageResults results = storage.fetch(buildQueryByID(storage, typeName, key));
         try {
             Iterator<DataRecord> iterator = results.iterator();
@@ -92,14 +92,14 @@ public class StorageSaverSource implements SaverSource {
         }
     }
 
-    private Storage getStorage(String dataClusterName, String revisionId) {
+    private Storage getStorage(String dataClusterName) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-        return storageAdmin.get(dataClusterName, storageAdmin.getType(dataClusterName), revisionId);
+        return storageAdmin.get(dataClusterName, storageAdmin.getType(dataClusterName));
     }
 
     @Override
-    public boolean exist(String dataCluster, String dataModelName, String typeName, String revisionId, String[] key) {
-        Storage storage = getStorage(dataCluster, revisionId);
+    public boolean exist(String dataCluster, String dataModelName, String typeName, String[] key) {
+        Storage storage = getStorage(dataCluster);
         if (storage == null) {
             return false;
         }
@@ -114,7 +114,7 @@ public class StorageSaverSource implements SaverSource {
 
     @Override
     public MetadataRepository getMetadataRepository(String dataModelName) {
-        Storage storage = getStorage(dataModelName, null);
+        Storage storage = getStorage(dataModelName);
         if (storage == null) {
             throw new IllegalArgumentException("No storage available for '" + dataModelName + "'.");
         }
@@ -132,14 +132,6 @@ public class StorageSaverSource implements SaverSource {
             }
             return new ByteArrayInputStream(schemasAsString.get(dataModelName).getBytes("UTF-8")); //$NON-NLS-1$
         } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String getUniverse() {
-        try {
-            return LocalUser.getLocalUser().getUniverse().getName();
-        } catch (XtentisException e) {
             throw new RuntimeException(e);
         }
     }
@@ -171,16 +163,8 @@ public class StorageSaverSource implements SaverSource {
         }
     }
 
-    public boolean existCluster(String revisionID, String dataClusterName) {
+    public boolean existCluster(String dataClusterName) {
         return true;
-    }
-
-    public String getConceptRevisionID(String typeName) {
-        try {
-            return LocalUser.getLocalUser().getUniverse().getConceptRevisionID(typeName);
-        } catch (XtentisException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void resetLocalUsers() {
@@ -219,7 +203,7 @@ public class StorageSaverSource implements SaverSource {
         AutoIncrementGenerator.get().saveState(Util.getXmlServerCtrlLocal());
     }
 
-    public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {
+    public String nextAutoIncrementId(String dataCluster, String dataModelName, String conceptName) {
         String autoIncrementId = null;
         String field = null;
         String concept;

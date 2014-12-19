@@ -23,7 +23,6 @@ import com.amalto.core.objects.transformers.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TypedContent;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.server.*;
 import com.amalto.core.webservice.WSMDMJob;
 import com.amalto.core.webservice.WSVersion;
@@ -938,7 +937,7 @@ public class Util {
                 ItemPOJO pojo = ItemPOJO.load(itemPk);
                 String xml = null;
                 if (pojo == null) {// load from recyclebin
-                    DroppedItemPOJOPK droppedItemPk = new DroppedItemPOJOPK(null, itemPk, "/");//$NON-NLS-1$
+                    DroppedItemPOJOPK droppedItemPk = new DroppedItemPOJOPK(itemPk, "/");//$NON-NLS-1$
                     DroppedItemPOJO dpPojo = Util.getDroppedItemCtrlLocal().loadDroppedItem(droppedItemPk);
                     if (dpPojo != null) {
                         xml = dpPojo.getProjection();
@@ -1043,10 +1042,6 @@ public class Util {
         String revisionId = "";
         try {
             username = LocalUser.getLocalUser().getUsername();
-            UniversePOJO pojo = LocalUser.getLocalUser().getUniverse();
-            if (pojo != null) {
-                revisionId = pojo.getConceptRevisionID(concept);
-            }
         } catch (Exception e1) {
             Logger.getLogger(Util.class).error(e1);
             throw e1;

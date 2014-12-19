@@ -3,8 +3,6 @@ package com.amalto.core.server;
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
 import com.amalto.core.objects.routing.*;
-import com.amalto.core.objects.universe.UniversePOJO;
-import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.RoutingException;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -41,12 +39,6 @@ public class DefaultRoutingOrder implements RoutingOrder {
      * Executes a Routing Order now
      */
     public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder) throws XtentisException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(
-                    "executeSynchronously()   " + routingOrderPOJO.getName() + " : " + routingOrderPOJO.getItemPOJOPK().getUniqueID()
-            );
-        }
-
         switch (routingOrderPOJO.getStatus()) {
             case AbstractRoutingOrderV2POJO.ACTIVE:
                 //run as designed
@@ -117,57 +109,6 @@ public class DefaultRoutingOrder implements RoutingOrder {
                 true
         );
         return result;
-    }
-
-    /**
-     * Executes a Routing Order now in a particular universe
-     */
-    public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO,
-            boolean cleanUpRoutingOrder, UniversePOJO universePOJO)
-            throws XtentisException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(
-                    "executeSynchronously()   " + routingOrderPOJO.getName()
-                            + " : "
-                            + routingOrderPOJO.getItemPOJOPK().getUniqueID()
-                            + " in Universe " + universePOJO.getPK().getUniqueId()
-            );
-        }
-        // set the universe for the anonymous user
-        if (universePOJO != null) {
-            try {
-                LocalUser.getLocalUser().setUniverse(universePOJO);
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(
-                            "executeSynchronously: Routing Order '"
-                                    + routingOrderPOJO.getItemPOJOPK()
-                                    .getUniqueID()
-                                    + "' in Universe '"
-                                    + universePOJO.getPK().getUniqueId()
-                                    + "'"
-
-                    );
-                }
-            } catch (XtentisException e) {
-                String err = "Unable to set Universe "
-                        + universePOJO.getPK().getUniqueId() +
-
-                        " for Routing Order "
-                        + routingOrderPOJO.getPK().getUniqueId()
-                        + ". Staying with HEAD." +
-
-                        " The service: '" + routingOrderPOJO.getServiceJNDI()
-                        + "' failed. ";
-                if (e.getCause() != null) {
-                    err += (e.getCause() instanceof XtentisException ? "" : e
-                            .getCause().getClass().getName()
-                            + ": ")
-                            + e.getCause().getMessage();
-                }
-                moveToFailedQueue(routingOrderPOJO, err, e, cleanUpRoutingOrder);
-            }
-        }
-        return executeSynchronously(routingOrderPOJO, cleanUpRoutingOrder);
     }
 
     private void moveToFailedQueue(AbstractRoutingOrderV2POJO routingOrderPOJO, String message, Exception e, boolean cleanUpRoutingOrder) throws XtentisException {

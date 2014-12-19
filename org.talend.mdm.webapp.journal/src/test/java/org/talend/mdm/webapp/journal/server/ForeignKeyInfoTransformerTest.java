@@ -214,7 +214,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
     private void executeTestFor(String id, String concept) {
         typeMetadata = (ComplexTypeMetadata) metadataRepository.getType(concept);
 
-        document = new DOMDocument(getDocument(id), typeMetadata, revisionId, clusterName, modelName);
+        document = new DOMDocument(getDocument(id), typeMetadata, clusterName, modelName);
 
         transformer = new ForeignKeyInfoTransformer(typeMetadata, clusterName);
         ((ForeignKeyInfoTransformer) transformer).setMetadataRepository(metadataRepository);

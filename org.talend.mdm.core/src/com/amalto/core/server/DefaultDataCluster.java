@@ -5,7 +5,6 @@ import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
-import com.amalto.core.objects.universe.UniversePOJO;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -35,14 +34,6 @@ public class DefaultDataCluster implements DataCluster {
             }
             //create the actual physical cluster
             try {
-                //get the universe and revision ID for Clusters
-                UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-                if (universe == null) {
-                    String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                    LOGGER.error(err);
-                    throw new XtentisException(err);
-                }
-                String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(DataClusterPOJO.class));
                 //get the xml server wrapper
                 XmlServer server;
                 try {
@@ -52,9 +43,9 @@ public class DefaultDataCluster implements DataCluster {
                     LOGGER.error(err, e);
                     throw new XtentisException(err, e);
                 }
-                boolean exist = server.existCluster(revisionID, pk.getUniqueId());
+                boolean exist = server.existCluster(pk.getUniqueId());
                 if (!exist) {
-                    server.createCluster(revisionID, pk.getUniqueId());
+                    server.createCluster(pk.getUniqueId());
                 }
             } catch (Exception e) {
                 String err = "Unable to physically create the data cluster " + pk.getUniqueId() + ": " + e.getClass().getName()
@@ -158,17 +149,9 @@ public class DefaultDataCluster implements DataCluster {
         //remove the actual physical cluster - do it asynchronously
         try {
             String dataClusterName = pk.getUniqueId();
-            //get the universe and revision ID for Clusters - this assumes the user is kept across the timeout call...
-            UniversePOJO universe = LocalUser.getLocalUser().getUniverse();
-            if (universe == null) {
-                String err = "ERROR: no Universe set for user '" + LocalUser.getLocalUser().getUsername() + "'";
-                LOGGER.error(err);
-                throw new XtentisException(err);
-            }
-            String revisionID = universe.getXtentisObjectsRevisionIDs().get(ObjectPOJO.getObjectsClasses2NamesMap().get(DataClusterPOJO.class));
             //get the xml server wrapper
             XmlServer server = Util.getXmlServerCtrlLocal();
-            server.deleteCluster(revisionID, dataClusterName);
+            server.deleteCluster(dataClusterName);
         } catch (Exception e) {
             String err = "Unable to physically delete the data cluster " + pk.getUniqueId() +
                     ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();

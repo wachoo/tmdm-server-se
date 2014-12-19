@@ -55,14 +55,10 @@ public class ItemPKCriteriaResultsWriterTest extends TestCase {
                 return storage;
             }
 
-            @Override
-            protected Storage getStorage(String dataClusterName, String revisionId) {
-                return storage;
-            }
         };
 
         String xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>333</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>333</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.putDocumentFromString(xml, "Product.Product.333", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+        wrapper.putDocumentFromString(xml, "Product.Product.333", "Product"); //$NON-NLS-1$ //$NON-NLS-2$
 
         ComplexTypeMetadata typeForSelect = repository.getComplexType("Product"); //$NON-NLS-1$
         Select select = getSelectTypeById(typeForSelect, null, new String[] { "Product", "Product", "333" }); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -81,7 +77,7 @@ public class ItemPKCriteriaResultsWriterTest extends TestCase {
         assertTrue(resultXml.contains("<i>333</i>")); //$NON-NLS-1$
 
         xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>&quot;5&lt;6&gt;4&quot;&amp;7</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>&quot;5&lt;6&gt;4&quot;&amp;7</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.putDocumentFromString(xml, "Product.Product.\"5<6>4\"&7", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+        wrapper.putDocumentFromString(xml, "Product.Product.\"5<6>4\"&7", "Product"); //$NON-NLS-1$ //$NON-NLS-2$
 
         typeForSelect = repository.getComplexType("Product"); //$NON-NLS-1$
         select = getSelectTypeById(typeForSelect, null, new String[] { "Product", "Product", "\"5<6>4\"&7" }); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -123,7 +119,6 @@ public class ItemPKCriteriaResultsWriterTest extends TestCase {
         for (FieldMetadata keyField : keyFields) {
             qb.where(eq(keyField, splitUniqueId[currentIndex++]));
         }
-        qb.getSelect().setRevisionId(revisionId);
         return qb.getSelect();
     }
 

@@ -266,7 +266,7 @@ public class CommonUtilTest extends TestCase {
 
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, employeeModel,
                 Arrays.asList(roles));
 
@@ -293,7 +293,7 @@ public class CommonUtilTest extends TestCase {
 
         PowerMockito.mockStatic(Util.class);
         Mockito.when(Util.isEnterprise()).thenReturn(false);
-        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName, null)));
+        DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
         DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, testModel,
                 Arrays.asList(roles));
 

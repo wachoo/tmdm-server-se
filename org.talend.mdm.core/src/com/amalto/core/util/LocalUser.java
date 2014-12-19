@@ -2,7 +2,6 @@ package com.amalto.core.util;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.objects.universe.UniversePOJO;
 
 import java.util.HashSet;
 
@@ -30,14 +29,6 @@ public class LocalUser {
 
     public void setUsername(String username) {
         findLocalUser().setUsername(username);
-    }
-
-    public UniversePOJO getUniverse() {
-        return findLocalUser().getUniverse();
-    }
-
-    public void setUniverse(UniversePOJO universe) {
-        findLocalUser().setUniverse(universe);
     }
 
     /**

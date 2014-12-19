@@ -93,12 +93,12 @@ public abstract class TypeMapping {
         }
     }
 
-    protected static Object readValue(DataRecord from, FieldMetadata sourceField, FieldMetadata targetField, Session session) {
+    public static Object readValue(DataRecord from, FieldMetadata sourceField, FieldMetadata targetField, Session session) {
         Object value = from.get(sourceField);
         return _serializeValue(value, sourceField, targetField, session);
     }
 
-    protected static Object readValue(Wrapper from, FieldMetadata sourceField, FieldMetadata targetField) {
+    public static Object readValue(Wrapper from, FieldMetadata sourceField, FieldMetadata targetField) {
         Object value = from.get(sourceField.getName());
         return _deserializeValue(value, sourceField, targetField);
     }

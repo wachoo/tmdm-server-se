@@ -49,12 +49,7 @@ class TomcatServer implements Server {
 
     @Override
     public DataSourceDefinition getDefinition(String dataSourceName, String container) {
-        return getDefinition(dataSourceName, container, null);
-    }
-
-    @Override
-    public DataSourceDefinition getDefinition(String dataSourceName, String container, String revisionId) {
-        return dataSourceFactory.getDataSource(dataSourceName, container, revisionId);
+        return dataSourceFactory.getDataSource(dataSourceName, container, null);
     }
 
     public StorageAdmin getStorageAdmin() {

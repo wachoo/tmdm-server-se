@@ -35,75 +35,71 @@ class NoOpWrapper implements IXmlServerSLWrapper{
         return true;
     }
 
-    public String[] getAllClusters(String revisionID) throws XmlServerException {
+    public String[] getAllClusters() throws XmlServerException {
         return new String[0];
     }
 
-    public long deleteCluster(String revisionID, String clusterName) throws XmlServerException {
+    public long deleteCluster(String clusterName) throws XmlServerException {
         return 0;  
     }
 
-    public long deleteAllClusters(String revisionID) throws XmlServerException {
+    public long deleteAllClusters() throws XmlServerException {
         return 0;  
     }
 
-    public long createCluster(String revisionID, String clusterName) throws XmlServerException {
+    public long createCluster(String clusterName) throws XmlServerException {
         return 0;  
     }
 
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName) throws XmlServerException {
         return 0;  
     }
 
-    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String documentType) throws XmlServerException {
         return 0;  
     }
 
-    public boolean existCluster(String revision, String cluster) throws XmlServerException {
+    public boolean existCluster(String cluster) throws XmlServerException {
         return true;
     }
 
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName) throws XmlServerException {
         return 0;  
     }
 
-    public long putDocumentFromString(String string, String uniqueID, String clusterName, String revisionID, String documentType) throws XmlServerException {
+    public long putDocumentFromString(String string, String uniqueID, String clusterName, String documentType) throws XmlServerException {
         return 0;  
     }
 
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName, String revisionID) throws XmlServerException {
+    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName) throws XmlServerException {
         return 0;  
     }
 
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input, String revisionId) throws XmlServerException {
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input) throws XmlServerException {
         return 0;  
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID) throws XmlServerException {
+    public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException {
         return "";
     }
 
-    public String getDocumentAsString(String revisionID, String clusterName, String uniqueID, String encoding) throws XmlServerException {
+    public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException {
         return "";
     }
 
-    public byte[] getDocumentBytes(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException {
+    public byte[] getDocumentBytes(String clusterName, String uniqueID, String documentType) throws XmlServerException {
         return new byte[0];
     }
 
-    public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
+    public String[] getAllDocumentsUniqueID(String clusterName) throws XmlServerException {
         return new String[0];
     }
 
-    public long deleteDocument(String revisionID, String clusterName, String uniqueID, String documentType) throws XmlServerException {
+    public long deleteDocument(String clusterName, String uniqueID, String documentType) throws XmlServerException {
         return 0;  
     }
 
-    public int deleteXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String objectRootElementName, IWhereItem whereItem) throws XmlServerException {
-        return 0;  
-    }
-
-    public int deleteItems(LinkedHashMap<String, String> conceptPatternsToRevisionID, LinkedHashMap<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
+    public int deleteItems(String clusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
         return 0;  
     }
 
@@ -111,43 +107,15 @@ class NoOpWrapper implements IXmlServerSLWrapper{
         return 0;  
     }
 
-    public long countItems(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
+    public long countItems(String clusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
         return 0;  
     }
 
-    public long countXtentisObjects(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, IWhereItem whereItem) throws XmlServerException {
-        return 0;  
-    }
-
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
+    public ArrayList<String> runQuery(String clusterName, String query, String[] parameters) throws XmlServerException {
         return null;  
     }
 
-    public String getItemsQuery(Map<String, String> conceptPatternsToRevisionID, Map<String, String> conceptPatternsToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
-        return null;  
-    }
-
-    public String getXtentisObjectsQuery(HashMap<String, String> objectRootElementNameToRevisionID, HashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, int limit) throws XmlServerException {
-        return null;  
-    }
-
-    public String getXtentisObjectsQuery(LinkedHashMap<String, String> objectRootElementNameToRevisionID, LinkedHashMap<String, String> objectRootElementNameToClusterName, String mainObjectRootElementName, ArrayList<String> viewableFullPaths, IWhereItem whereItem, String orderBy, String direction, int start, long limit, boolean totalCountOnFirstRow) throws XmlServerException {
-        return null;  
-    }
-
-    public String getPivotIndexQuery(String clusterName, String mainPivotName, LinkedHashMap<String, String[]> pivotWithKeys, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, String[] indexPaths, IWhereItem whereItem, String[] pivotDirections, String[] indexDirections, int start, int limit) throws XmlServerException {
-        return null;  
-    }
-
-    public String getChildrenItemsQuery(String clusterName, String conceptName, String[] PKXPaths, String FKXpath, String labelXpath, String fatherPK, LinkedHashMap<String, String> itemsRevisionIDs, String defaultRevisionID, IWhereItem whereItem, int start, int limit) throws XmlServerException {
-        return null;  
-    }
-
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters) throws XmlServerException {
-        return null;  
-    }
-
-    public ArrayList<String> runQuery(String revisionID, String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
+    public ArrayList<String> runQuery(String clusterName, String query, String[] parameters, int start, int limit, boolean withTotalCount) throws XmlServerException {
         return null;  
     }
 
@@ -187,7 +155,7 @@ class NoOpWrapper implements IXmlServerSLWrapper{
         return null;  
     }
 
-    public void exportDocuments(String revisionId, String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
+    public void exportDocuments(String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
         
     }
 }
