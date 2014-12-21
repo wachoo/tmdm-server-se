@@ -11,19 +11,11 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.metadata.ClassRepository;
-import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
-import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
-import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
-import com.amalto.core.objects.datacluster.DataClusterPOJO;
-import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.storage.DispatchWrapper;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.util.Version;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
@@ -31,10 +23,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
+import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
+import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.server.security.SecurityConfig;
+import com.amalto.core.storage.DispatchWrapper;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.util.Version;
 
 public class Initialization implements InitializingBean {
 
@@ -76,8 +78,15 @@ public class Initialization implements InitializingBean {
         AssembleConcreteBuilder concreteBuilder = new AssembleConcreteBuilder();
         AssembleDirector director = new AssembleDirector(concreteBuilder);
         director.constructAll();
-        AssembleProc assembleProc = concreteBuilder.getAssembleProc();
-        assembleProc.run();
+        final AssembleProc assembleProc = concreteBuilder.getAssembleProc();
+        SecurityConfig.invokeSynchronousPrivateInternal(new Runnable() {
+			
+			@Override
+			public void run() {
+				assembleProc.run();
+			}
+		});
+        
         LOGGER.info("Initialization and migration done.");
         // Find configured containers
         MetadataRepository repository = systemStorage.getMetadataRepository();

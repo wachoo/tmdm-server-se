@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -331,7 +332,7 @@ public class DefaultItem implements Item {
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
             String dataModelName = dataClusterPOJOPK.getUniqueId();
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) { //$NON-NLS-1$
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())) { //$NON-NLS-1$
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataModelName)) {
                 authorized = true;
@@ -763,7 +764,7 @@ public class DefaultItem implements Item {
             Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName));
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
-            if ("admin".equals(user.getUsername()) || LocalUser.UNAUTHENTICATED_USER.equals(user.getUsername())) {
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataModelName)) {
                 authorized = true;

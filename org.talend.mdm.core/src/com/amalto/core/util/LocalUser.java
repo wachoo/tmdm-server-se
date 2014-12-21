@@ -6,11 +6,7 @@ import com.amalto.core.delegator.ILocalUser;
 import java.util.HashSet;
 
 public class LocalUser {
-    /*
-     * A very special user that is triggered by scheduled, timeout or startup processes
-     */
-    public final static String UNAUTHENTICATED_USER = "anonymous"; //$NON-NLS-1$
-
+    
     private static ILocalUser findLocalUser() {
         return BeanDelegatorContainer.getInstance().getLocalUserDelegator();
     }

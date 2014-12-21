@@ -667,7 +667,7 @@ public class ItemPOJO implements Serializable {
         String username = user.getUsername();
         if(user.isAdmin(ItemPOJO.class)) {
             authorizedAccess = true;
-        } else if (MDMConfiguration.getAdminUser().equals(username) || LocalUser.UNAUTHENTICATED_USER.equals(username)) {
+        } else if (MDMConfiguration.getAdminUser().equals(username)) {
             authorizedAccess = true;
         } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, itemPOJOPK.getDataClusterPOJOPK().getUniqueId())) {
             authorizedAccess = true;
