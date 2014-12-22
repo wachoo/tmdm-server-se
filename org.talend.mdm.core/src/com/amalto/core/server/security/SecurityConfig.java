@@ -38,7 +38,6 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
-import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -46,7 +45,6 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.util.LocalUser;
 
 @EnableWebSecurity
 @Configuration

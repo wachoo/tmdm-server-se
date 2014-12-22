@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<web-app
-        xmlns="http://java.sun.com/xml/ns/j2ee"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
-        version="2.4">
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
     <display-name>Talend MDM</display-name>
     <description>Talend MDM server</description>
     <!-- Spring initialization -->
@@ -11,11 +8,18 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>WEB-INF/beans.xml</param-value>
     </context-param>
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>WEB-INF/log4j.xml</param-value>
+    </context-param>
+    
     <listener>
-        <listener-class>
-            org.springframework.web.context.ContextLoaderListener
-        </listener-class>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
     </listener>
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>    
+        
     <!-- Additional MDM filters -->
     <filter>
         <filter-name>errorFilter</filter-name>
@@ -79,9 +83,7 @@
     </servlet>
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
-        <servlet-class>
-            org.apache.cxf.transport.servlet.CXFServlet
-        </servlet-class>
+        <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
@@ -399,5 +401,6 @@
         <servlet-name>ImageServerInfoServlet</servlet-name>
         <url-pattern>/ext/images/serverinfo</url-pattern>
     </servlet-mapping>
+ 
 </web-app>
 

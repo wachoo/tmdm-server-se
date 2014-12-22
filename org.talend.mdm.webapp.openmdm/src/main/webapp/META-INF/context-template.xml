@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context>
+    <Parameter name="log4jConfigLocation" value="file:///tmp/log4j.xml" override="false" />
+</Context>
