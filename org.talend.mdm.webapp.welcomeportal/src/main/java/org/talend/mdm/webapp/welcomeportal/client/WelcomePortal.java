@@ -117,7 +117,9 @@ public class WelcomePortal implements EntryPoint {
 		tabPanel.setSelection(panel.getItemId());
 
 		var removeTabEvent = function(tabPanel, tabItem) {
-			instance.@org.talend.mdm.webapp.welcomeportal.client.WelcomePortal::removeWelcomePortal()();
+			if (tabItem.getId() == "Welcome") {
+				instance.@org.talend.mdm.webapp.welcomeportal.client.WelcomePortal::removeWelcomePortal()();
+			}
 			return true;
 		};
 		tabPanel.on("beforeremove", removeTabEvent);
