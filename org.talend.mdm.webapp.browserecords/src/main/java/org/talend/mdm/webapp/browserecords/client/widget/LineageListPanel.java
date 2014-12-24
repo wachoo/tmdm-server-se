@@ -172,8 +172,9 @@ public class LineageListPanel extends ContentPanel {
                             sortedData.add(null);
                             for (int i = 0; i < data.size(); i++) {
                                 ItemBean itemBean = data.get(i);
-                                if (StagingConstants.SUCCESS_VALIDATE.equals(itemBean.get(itemBean.getConcept()
-                                        + StagingConstant.STAGING_STATUS))) {
+                                Object statusObject = itemBean.get(itemBean.getConcept() + StagingConstant.STAGING_STATUS);
+                                if (StagingConstants.SUCCESS_VALIDATE.equals(statusObject)
+                                        || StagingConstants.SUCCESS_MERGED_RECORD.equals(statusObject)) {
                                     sortedData.set(0, itemBean);
                                 } else {
                                     sortedData.add(itemBean);
@@ -241,12 +242,12 @@ public class LineageListPanel extends ContentPanel {
     }
 
     private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
-                                                                              return stagingAreaConfig.dataContainer;
-                                                                              }-*/;
+		return stagingAreaConfig.dataContainer;
+    }-*/;
 
     private native String getCriteria(JavaScriptObject stagingAreaConfig)/*-{
-                                                                         return stagingAreaConfig.criteria;
-                                                                         }-*/;
+		return stagingAreaConfig.criteria;
+    }-*/;
 
     private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
         RecordsPagingConfig rpConfig = new RecordsPagingConfig();
@@ -583,15 +584,15 @@ public class LineageListPanel extends ContentPanel {
     }
 
     private native void selectStagingGridPanel()/*-{
-                                                var tabPanel = $wnd.amalto.core.getTabPanel();
-                                                var panel = tabPanel.getItem("Staging Data Viewer");
-                                                if (panel != undefined) {
-                                                tabPanel.setSelection(panel.getItemId());
-                                                }
-                                                }-*/;
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = tabPanel.getItem("Staging Data Viewer");
+		if (panel != undefined) {
+			tabPanel.setSelection(panel.getItemId());
+		}
+    }-*/;
 
     private native boolean initDSC(String taskId)/*-{
-                                                 $wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-                                                 return true;
-                                                 }-*/;
+		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
+		return true;
+    }-*/;
 }
