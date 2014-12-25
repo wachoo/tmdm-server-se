@@ -32,7 +32,6 @@ import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -68,7 +67,7 @@ public abstract class BasePortlet extends Portlet {
 
     protected WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
 
-    protected Portal portal;
+    protected MainFramePanel portal;
 
     protected String portletName;
 
@@ -106,20 +105,20 @@ public abstract class BasePortlet extends Portlet {
 
                     @Override
                     public void componentSelected(IconButtonEvent ce) {
-                        final List<BasePortlet> portlets = ((MainFramePanel) portal).getPortlets();
+                        final List<BasePortlet> portlets = portal.getPortlets();
                         final int index = portlets.indexOf(BasePortlet.this);
 
-                        ((MainFramePanel) portal).removeAllPortlets();
+                        portal.removeAllPortlets();
                         portlets.remove(index);
-                        ((MainFramePanel) portal).refresh();
-                        String portletToLocationsStr = ((MainFramePanel) portal).getUpdatedLocations().toString();
+                        portal.refresh();
+                        String portletToLocationsStr = portal.getUpdatedLocations().toString();
 
                         service.savePortalConfig(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocationsStr,
                                 new SessionAwareAsyncCallback<Void>() {
 
                                     @Override
                                     public void onSuccess(Void result1) {
-                                        ((MainFramePanel) portal).render();
+                                        portal.render();
                                         unmarkPortlet(portletName);
                                         boolean auto = BasePortlet.this.isAutoOn();
                                         if (auto) {
@@ -132,10 +131,10 @@ public abstract class BasePortlet extends Portlet {
                                     @Override
                                     protected void doOnFailure(Throwable caught) {
                                         super.doOnFailure(caught);
-                                        ((MainFramePanel) portal).removeAllPortlets();
+                                        portal.removeAllPortlets();
 
                                         portlets.add(index, BasePortlet.this);
-                                        ((MainFramePanel) portal).refresh();
+                                        portal.refresh();
                                     }
                                 });
                     }
@@ -154,7 +153,7 @@ public abstract class BasePortlet extends Portlet {
         this.getHeader().addTool(refreshBtn);
     }
 
-    public BasePortlet(String name, Portal portal) {
+    public BasePortlet(String name, MainFramePanel portal) {
 
         this();
 
@@ -182,14 +181,14 @@ public abstract class BasePortlet extends Portlet {
         this.setHeading();
         this.setIcon();
 
-        portalConfigs = ((MainFramePanel) portal).getProps();
+        portalConfigs = portal.getProps();
         Boolean autoRefreshOn = portalConfigs.getAutoRefreshStatus(portletName);
         if (autoRefreshOn == null) {
-            startedAsOn = ((MainFramePanel) portal).getStartedAsOn();
+            startedAsOn = portal.getStartedAsOn();
         } else {
             startedAsOn = autoRefreshOn;
         }
-        interval = ((MainFramePanel) portal).getInterval();
+        interval = portal.getInterval();
 
         // init and used for non-chart portlets, overwritten in chart portlets
         configModel = new BaseConfigModel(startedAsOn);

@@ -23,7 +23,6 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
@@ -33,7 +32,7 @@ public class ProcessPortlet extends BasePortlet {
 
     private List<String> data;
 
-    public ProcessPortlet(Portal portal) {
+    public ProcessPortlet(MainFramePanel portal) {
         super(WelcomePortal.PROCESS, portal);
 
         initConfigSettings();
@@ -119,7 +118,7 @@ public class ProcessPortlet extends BasePortlet {
                                             @Override
                                             public void handleEvent(MessageBoxEvent be) {
                                                 if (result2.length() > 0) {
-                                                    ((MainFramePanel) portal).openWindow(result2);
+                                                    portal.openWindow(result2);
                                                 }
                                             }
                                         });

@@ -20,7 +20,6 @@ import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
@@ -31,7 +30,7 @@ import com.google.gwt.user.client.ui.TextBox;
 
 public class SearchPortlet extends BasePortlet {
 
-    public SearchPortlet(Portal portal) {
+    public SearchPortlet(MainFramePanel portal) {
         super(WelcomePortal.SEARCH, portal);
 
         init();
@@ -90,6 +89,6 @@ public class SearchPortlet extends BasePortlet {
         if (Cookies.isCookieEnabled()) {
             Cookies.setCookie("org.talend.mdm.search.query", textBox.getText()); //$NON-NLS-1$
         }
-        ((MainFramePanel) portal).itemClick("search", "Search"); //$NON-NLS-1$ //$NON-NLS-2$
+        portal.itemClick("search", "Search"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }
