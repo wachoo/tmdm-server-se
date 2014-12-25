@@ -91,7 +91,7 @@
         <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
         <init-param>
             <param-name>logFile</param-name>
-            <param-value>${jboss.server.log.dir}/server.log</param-value>
+            <param-value>${webapp.root}/WEB-INF/mdm.log</param-value>
         </init-param>
         <init-param>
             <param-name>maxLinesByChunk</param-name>
@@ -103,7 +103,7 @@
         <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
         <init-param>
             <param-name>logFile</param-name>
-            <param-value>${jboss.server.log.dir}/match.log</param-value>
+            <param-value>${webapp.root}/WEB-INF/mdm-match.log</param-value>
         </init-param>
         <init-param>
             <param-name>maxLinesByChunk</param-name>

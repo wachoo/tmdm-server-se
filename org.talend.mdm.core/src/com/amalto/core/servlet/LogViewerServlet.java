@@ -15,6 +15,7 @@ package com.amalto.core.servlet;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -28,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.springframework.util.ResourceUtils;
+import org.springframework.util.SystemPropertyUtils;
 
 import com.amalto.core.servlet.FileChunkLoader.FileChunkInfo;
 
@@ -44,8 +47,12 @@ public class LogViewerServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        String filename = config.getInitParameter("logFile"); //$NON-NLS-1$
-        file = getLogFile(filename);
+        String location = config.getInitParameter("logFile"); //$NON-NLS-1$
+        try {
+            file = getLogFile(location);
+        } catch (FileNotFoundException e) {
+            throw new ServletException(e.getMessage(), e);
+        }
 
         String defaultMaxLinesString = config.getInitParameter("maxLinesByChunk"); //$NON-NLS-1$
         defaultMaxLines = Integer.parseInt(defaultMaxLinesString);
@@ -125,15 +132,12 @@ public class LogViewerServlet extends HttpServlet {
         }
     }
 
-    private File getLogFile(String filepath) throws ServletException {
-        if (filepath.contains("${jboss.server.log.dir}")) { //$NON-NLS-1$
-            String jbossLogDir = System.getProperty("jboss.server.log.dir"); //$NON-NLS-1$
-            if (jbossLogDir != null) {
-                filepath.replace("${jboss.server.log.dir}", jbossLogDir); //$NON-NLS-1$
-            } else {
-                throw new ServletException("Wrong logFile parameter " + filepath); //$NON-NLS-1$
-            }
+    private File getLogFile(String location) throws FileNotFoundException {
+        String resolvedLocation = SystemPropertyUtils.resolvePlaceholders(location);
+        File file = ResourceUtils.getFile(resolvedLocation);
+        if (!file.exists()) {
+            throw new FileNotFoundException("Log file [" + resolvedLocation + "] not found");
         }
-        return new File(filepath);
+        return file;
     }
 }
