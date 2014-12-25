@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.HTML;
@@ -44,7 +44,7 @@ import com.googlecode.gflot.client.options.PlotOptions;
 
 public class MatchingChart extends ChartPortlet {
 
-    public MatchingChart(Portal portal) {
+    public MatchingChart(MainFramePanel portal) {
         super(WelcomePortal.CHART_MATCHING, portal);
 
         String setting = portalConfigs.getChartSetting(portletName);

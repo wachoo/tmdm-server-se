@@ -19,12 +19,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.googlecode.gflot.client.DataPoint;
@@ -48,7 +48,7 @@ public class RoutingChart extends ChartPortlet {
 
     private static String ROUTING_STATUS_COMPLETED = "completed"; //$NON-NLS-1$
 
-    public RoutingChart(Portal portal) {
+    public RoutingChart(MainFramePanel portal) {
         super(WelcomePortal.CHART_ROUTING_EVENT, portal);
 
         String setting = portalConfigs.getChartSetting(portletName);
@@ -204,8 +204,8 @@ public class RoutingChart extends ChartPortlet {
             Map<String, Integer> statusNew;
             for (String appName : chartData.keySet()) {
                 status = (Map<String, Integer>) chartData.get(appName);
-                statusNew = newData.get(appName) != null? (Map<String, Integer>) newData.get(appName) : null ;
-                if(statusNew == null) {
+                statusNew = newData.get(appName) != null ? (Map<String, Integer>) newData.get(appName) : null;
+                if (statusNew == null) {
                     return true;
                 }
 

@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.View;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 /**
@@ -44,7 +43,7 @@ public class WelcomePortalView extends View {
 
     private int numColumns;
 
-    private Portal portal;
+    private MainFramePanel portal;
 
     private boolean isEnterprise;
 
@@ -128,7 +127,7 @@ public class WelcomePortalView extends View {
     }
 
     public void removePortal() {
-        ((MainFramePanel) portal).stopAutoRefresh();
+        portal.stopAutoRefresh();
         portal.removeAll();
         GenerateContainer.getContentPanel().remove(portal);
     }

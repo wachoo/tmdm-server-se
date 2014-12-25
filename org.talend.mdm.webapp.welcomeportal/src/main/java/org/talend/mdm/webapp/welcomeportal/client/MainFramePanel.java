@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -150,6 +151,9 @@ public class MainFramePanel extends Portal {
             public void handleEvent(PortalEvent pe) {
 
                 updateLocations();
+                removeAllPortlets();
+                sortPortletsAndLocations();
+                refresh();
                 service.savePortalConfig(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString(),
                         new SessionAwareAsyncCallback<Void>() {
 
@@ -555,29 +559,29 @@ public class MainFramePanel extends Portal {
         }
     }
 
-    private void sortPortlets(Map<String, List<Integer>> portletToLocs) {
-        assert (portletToLocs.keySet().equals(new HashSet<String>(getPortletNames())));
+    private void sortPortletsAndLocations() {
+        assert (portletToLocations.keySet().equals(new HashSet<String>(getPortletNames())));
 
         List<BasePortlet> sorted = new ArrayList<BasePortlet>(portlets.size());
 
         SortedMap<List<Integer>, String> locationToPortlets = new TreeMap<List<Integer>, String>(getLocationComparator());
-        for (String portletName : portletToLocs.keySet()) {
-            locationToPortlets.put(portletToLocs.get(portletName), portletName);
+        for (String portletName : portletToLocations.keySet()) {
+            locationToPortlets.put(portletToLocations.get(portletName), portletName);
         }
 
-        for (String name : locationToPortlets.values()) {
-            sorted.add((BasePortlet) getPortlet(name));
+        portletToLocations.clear();
+        for (Entry<List<Integer>, String> entry : locationToPortlets.entrySet()) {
+            sorted.add((BasePortlet) getPortlet(entry.getValue()));
+            portletToLocations.put(entry.getValue(), entry.getKey());
         }
 
         portlets.clear();
         portlets = sorted;
-
     }
 
-    // called for config change (checked/unchecked update, no column number change) triggered
-    // from Action Panel
+    // For basic config change (checked/unchecked update, no column number change)
+    // triggered from Action Panel
     public void refresh(final List<String> userConfigUpdates) {
-        // final Map<String, List<Integer>> portletToLocationsCp = props.getPortletToLocations();
 
         removeAllPortlets();
 
@@ -615,7 +619,7 @@ public class MainFramePanel extends Portal {
                         // destoryed if success, now need to add them back
                         addToPortlets(toDestroy);
 
-                        sortPortlets(portletToLocations);
+                        sortPortletsAndLocations();
 
                         refresh();
 
