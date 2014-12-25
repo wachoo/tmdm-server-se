@@ -163,6 +163,7 @@ public class JournalDataPanel extends FormPanel {
                 JournalGridModel preGridModel = journalNavigateList.get(0);
                 if (preGridModel != null) {
                     JournalDataPanel.this.updateTabPanel(preGridModel);
+                    toggleOpenRecordButton(preGridModel);
                 } else {
                     retrieveNeighbourJournalInOtherPages();
                 }
@@ -179,6 +180,7 @@ public class JournalDataPanel extends FormPanel {
                 JournalGridModel nextGridModel = journalNavigateList.get(1);
                 if (nextGridModel != null) {
                     JournalDataPanel.this.updateTabPanel(nextGridModel);
+                    toggleOpenRecordButton(nextGridModel);
                 } else {
                     retrieveNeighbourJournalInOtherPages();
                 }
@@ -244,8 +246,7 @@ public class JournalDataPanel extends FormPanel {
                 if (turnPage) {
                     JournalGridModel targetGridModel;
                     // here need to check current journal(iso prev/next one) has its data record exists(then open the
-                    // journal), thus
-                    // need to use adjusted index value
+                    // journal), thus need to use adjusted index value
                     if (naviToPrevious) {
                         targetGridModel = getPrevJournalWithExistentRecord(currentDataList.size());
                     } else {
@@ -254,13 +255,13 @@ public class JournalDataPanel extends FormPanel {
 
                     if (targetGridModel != null) {
                         JournalDataPanel.this.updateTabPanel(targetGridModel);
+                        toggleOpenRecordButton(targetGridModel);
                     } else {
                         backupToPreviousPage();
                     }
                     turnPage = false;
                 } else {// updateJournalNavigationList only called from here when the JournalDataPanel opened from
-                        // gridPanel,
-                    // other calls to this fuction is issued from update()
+                        // gridPanel, other calls to this fuction is issued from update()
                     JournalSearchCriteria criteriaForPhysicalDeleted = new JournalSearchCriteria();
                     criteriaForPhysicalDeleted.setOperationType(UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
                     PagingLoadConfig loadConfig = new BasePagingLoadConfig();
@@ -287,6 +288,15 @@ public class JournalDataPanel extends FormPanel {
         });
 
         localLoader.load(localPagingLoadConfig);
+    }
+
+    protected void toggleOpenRecordButton(JournalGridModel journalGridModel) {
+        if (UpdateReportPOJO.OPERATION_TYPE_LOGICAL_DELETE.equals(journalGridModel.getOperationType())
+                || UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE.equals(journalGridModel.getOperationType())) {
+            openRecordButton.disable();
+        } else {
+            openRecordButton.enable();
+        }
     }
 
     private SelectionListener<ButtonEvent> createUpdateReportListener() {
