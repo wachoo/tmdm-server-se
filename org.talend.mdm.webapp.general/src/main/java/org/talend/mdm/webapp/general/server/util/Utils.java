@@ -175,16 +175,15 @@ public class Utils {
 				String tmp = "<script type=\"text/javascript\" src=\"" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						+ gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
 				if ("browserecords".equals(context) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
-					imports.add("<script type=\"text/javascript\" src=\"" + context + "secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
-					imports.add("<script type=\"text/javascript\" src=\"" + context + "secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
-					imports.add("<script type=\"text/javascript\" src=\"" + context + "secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+					imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
+					imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
 				}
 				if (!imports.contains(tmp)) {
 					imports.add(tmp);
 				}
                     
                 if (context.equals("stagingarea")) { //$NON-NLS-1$
-                    tmp = "<script type=\"text/javascript\" src=\"stagingarea/stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
+                    tmp = "<script type=\"text/javascript\" src=\"stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
                     imports.add(tmp);
                 }
                 i++;
