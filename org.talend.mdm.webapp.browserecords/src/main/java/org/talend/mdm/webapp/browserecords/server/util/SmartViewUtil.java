@@ -25,8 +25,8 @@ import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions.SmartVie
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.core.webservice.WSTransformerPK;
 
 
 /**
@@ -44,7 +44,7 @@ public class SmartViewUtil {
         Pattern smp = Pattern.compile(smRegex);
         SmartViewDescriptions smDescs = new SmartViewDescriptions();
         // get process
-        WSTransformerPK[] wstpks = provider.getWSTransformerPKs();
+        WSTransformerV2PK[] wstpks = provider.getWSTransformerV2PKs();
         for (int i = 0; i < wstpks.length; i++) {
             if (wstpks[i].getPk().matches(smRegex)) {
                 SmartViewDescription smDesc = new SmartViewDescription(concept);

@@ -14,15 +14,12 @@ package org.talend.mdm.webapp.browserecords.server.provider;
 
 import java.rmi.RemoteException;
 
+import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.core.webservice.WSTransformerPK;
 
-/**
- * DOC Administrator  class global comment. Detailled comment
- */
 public interface SmartViewProvider {
 
-    public WSTransformerPK[] getWSTransformerPKs() throws XtentisWebappException, RemoteException;
+    public WSTransformerV2PK[] getWSTransformerV2PKs() throws XtentisWebappException, RemoteException;
 
-    public String getDescription(WSTransformerPK transformerPK) throws XtentisWebappException, RemoteException;
+    public String getDescription(WSTransformerV2PK transformerV2PK) throws XtentisWebappException, RemoteException;
 }

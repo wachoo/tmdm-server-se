@@ -12,15 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
-import com.amalto.core.objects.ItemPOJOPK;
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import com.amalto.core.objects.customform.CustomFormPOJO;
-import com.amalto.core.objects.customform.CustomFormPOJOPK;
-import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.Util;
-import com.extjs.gxt.ui.client.Style.SortDir;
-import com.sun.xml.xsom.parser.XSOMParser;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URLEncoder;
@@ -54,8 +45,6 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.task.StagingConstants;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
@@ -73,7 +62,10 @@ import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
-import org.talend.mdm.webapp.browserecords.client.model.*;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
+import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
@@ -82,21 +74,35 @@ import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.model.SearchTemplate;
 import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.*;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.ItemHelper;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.TypeModelNotFoundException;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.provider.DefaultSmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.provider.SmartViewProvider;
 import org.talend.mdm.webapp.browserecords.server.ruleengine.DisplayRuleEngine;
 import org.talend.mdm.webapp.browserecords.server.util.BrowseRecordsConfiguration;
 import org.talend.mdm.webapp.browserecords.server.util.DynamicLabelUtil;
 import org.talend.mdm.webapp.browserecords.server.util.SmartViewUtil;
-import org.talend.mdm.webapp.browserecords.shared.*;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
+import org.talend.mdm.webapp.browserecords.shared.SmartViewDescriptions;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.UpdateReportPOJO;
+import com.amalto.core.objects.customform.CustomFormPOJO;
+import com.amalto.core.objects.customform.CustomFormPOJOPK;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.util.EntityNotFoundException;
 import com.amalto.core.util.FieldNotFoundException;
 import com.amalto.core.util.LocalUser;
@@ -119,6 +125,8 @@ import com.amalto.core.webservice.WSGetDataModel;
 import com.amalto.core.webservice.WSGetItem;
 import com.amalto.core.webservice.WSGetTransformer;
 import com.amalto.core.webservice.WSGetTransformerPKs;
+import com.amalto.core.webservice.WSGetTransformerV2;
+import com.amalto.core.webservice.WSGetTransformerV2PKs;
 import com.amalto.core.webservice.WSGetView;
 import com.amalto.core.webservice.WSGetViewPKs;
 import com.amalto.core.webservice.WSInt;
@@ -133,6 +141,7 @@ import com.amalto.core.webservice.WSTransformer;
 import com.amalto.core.webservice.WSTransformerContext;
 import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
 import com.amalto.core.webservice.WSTransformerPK;
+import com.amalto.core.webservice.WSTransformerV2;
 import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.core.webservice.WSTypedContent;
 import com.amalto.core.webservice.WSView;
@@ -145,15 +154,19 @@ import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOperator;
 import com.amalto.core.webservice.WSWhereOr;
 import com.amalto.core.webservice.WSXPathsSearch;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
+import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XmlUtil;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.parser.XSOMParser;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -1812,10 +1825,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String model = this.getCurrentDataModel();
             String[] businessConcepts = Util.getPort().getBusinessConcepts(new WSGetBusinessConcepts(new WSDataModelPK(model)))
                     .getStrings();
-            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$
-            for (WSTransformerPK transformerPK : wst) {
+            WSTransformerV2PK[] wst = Util.getPort().getTransformerV2PKs(new WSGetTransformerV2PKs("*")).getWsTransformerV2PK(); //$NON-NLS-1$
+            for (WSTransformerV2PK transformerPK : wst) {
                 if (isMyRunnableProcess(transformerPK.getPk(), businessConcept, businessConcepts)) {
-                    WSTransformer trans = Util.getPort().getTransformer(new WSGetTransformer(transformerPK));
+                    WSTransformerV2 trans = Util.getPort().getTransformerV2(new WSGetTransformerV2(transformerPK));
                     String description = trans.getDescription();
                     String name = MultilanguageMessageParser.pickOutISOMessage(description, language);
                     if ("".equals(name)) {//$NON-NLS-1$
@@ -1960,18 +1973,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             // check binding transformer
             // we can leverage the exception mechanism also
             boolean isATransformerExist = false;
-            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
-            for (WSTransformerPK element : wst) {
+            WSTransformerV2PK[] wst = Util.getPort().getTransformerV2PKs(new WSGetTransformerV2PKs("*")).getWsTransformerV2PK(); //$NON-NLS-1$
+            for (WSTransformerV2PK element : wst) {
                 if (element.getPk().equals(transformerPK)) {
                     isATransformerExist = true;
                     break;
                 }
             }
             // execute
-            WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(new WSTransformerPK(transformerPK)));
-            if (wsTransformer.getPluginSpecs() == null || wsTransformer.getPluginSpecs().length == 0) {
-                throw new ServiceException(MESSAGES.getMessage("plugin_specs_undefined")); //$NON-NLS-1$
-            }
             WSTransformerContextPipelinePipelineItem[] entries = null;
             if (isATransformerExist) {
 

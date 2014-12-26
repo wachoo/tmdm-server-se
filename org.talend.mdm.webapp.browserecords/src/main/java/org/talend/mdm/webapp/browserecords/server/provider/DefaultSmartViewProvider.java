@@ -14,25 +14,21 @@ package org.talend.mdm.webapp.browserecords.server.provider;
 
 import java.rmi.RemoteException;
 
+import com.amalto.core.webservice.WSGetTransformerV2;
+import com.amalto.core.webservice.WSGetTransformerV2PKs;
+import com.amalto.core.webservice.WSTransformerV2;
+import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.core.webservice.WSGetTransformer;
-import com.amalto.core.webservice.WSGetTransformerPKs;
-import com.amalto.core.webservice.WSTransformer;
-import com.amalto.core.webservice.WSTransformerPK;
 
-
-/**
- * DOC Administrator  class global comment. Detailled comment
- */
 public class DefaultSmartViewProvider implements SmartViewProvider {
 
-    public WSTransformerPK[] getWSTransformerPKs() throws XtentisWebappException, RemoteException {
-        return Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK();//$NON-NLS-1$;
+    public WSTransformerV2PK[] getWSTransformerV2PKs() throws XtentisWebappException, RemoteException {
+        return Util.getPort().getTransformerV2PKs(new WSGetTransformerV2PKs("*")).getWsTransformerV2PK(); //$NON-NLS-1$;
     }
 
-    public String getDescription(WSTransformerPK transformerPK) throws XtentisWebappException, RemoteException {
-        WSTransformer wst = Util.getPort().getTransformer(new WSGetTransformer(transformerPK));
+    public String getDescription(WSTransformerV2PK transformerPK) throws XtentisWebappException, RemoteException {
+        WSTransformerV2 wst = Util.getPort().getTransformerV2(new WSGetTransformerV2(transformerPK));
         return wst.getDescription();
     }
 }
