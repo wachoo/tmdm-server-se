@@ -153,9 +153,8 @@ public class DataModelPOJO extends ObjectPOJO{
             }
         }
         // synchronize with outer agents
-        DataModelChangeNotifier dmUpdateEventNotifier = new DataModelChangeNotifier();
-        dmUpdateEventNotifier.addUpdateMessage(new DMUpdateEvent(getPK().getUniqueId()));
-        dmUpdateEventNotifier.sendMessages();
+        DataModelChangeNotifier dmUpdateEventNotifier = DataModelChangeNotifier.createInstance();
+        dmUpdateEventNotifier.notifyChange(new DMUpdateEvent(getPK().getUniqueId()));
         return objectPK;
     }
 

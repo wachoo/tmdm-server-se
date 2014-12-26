@@ -18,6 +18,15 @@ http://cxf.apache.org/schemas/jaxws.xsd">
     <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
     <bean class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer"/>
 
+    <!-- Data Model synchronization -->
+    <bean id="dataModelSynchronizer" class="com.amalto.webapp.core.dmagent.DataModelSynchronizer" />
+    <bean class="com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier" factory-method="createInstance">
+        <property name="listeners">
+            <list>
+                <ref bean="dataModelSynchronizer" />
+            </list>
+        </property>
+    </bean>
 
     <!-- Indicates a Tomcat environment -->
     <bean class="com.amalto.core.server.lifecycle.tomcat.TomcatServerLifecycle" />

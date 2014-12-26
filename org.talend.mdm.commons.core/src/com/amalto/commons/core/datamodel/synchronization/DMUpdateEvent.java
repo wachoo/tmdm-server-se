@@ -27,11 +27,7 @@ public class DMUpdateEvent implements Serializable {
 
     public static final String EVENT_TYPE_DELETE = "DELETE";
 
-    private static final String DATA_MODEL_DEFAULT_VERSION = null;
-
     private String dataModelPK;
-
-    private String dataModelVersion;
 
     private String eventType;
 
@@ -41,17 +37,12 @@ public class DMUpdateEvent implements Serializable {
     }
 
     public DMUpdateEvent(String dataModelPK) {
-        this(dataModelPK, DATA_MODEL_DEFAULT_VERSION, EVENT_TYPE_UPDATE);
+        this(dataModelPK, EVENT_TYPE_UPDATE);
     }
 
-    public DMUpdateEvent(String dataModelPK, String dataModelVersion) {
-        this(dataModelPK, dataModelVersion, EVENT_TYPE_UPDATE);
-    }
-
-    public DMUpdateEvent(String dataModelPK, String dataModelVersion, String eventType) {
+    public DMUpdateEvent(String dataModelPK, String eventType) {
         super();
         this.dataModelPK = dataModelPK;
-        this.dataModelVersion = dataModelVersion;
         this.eventType = eventType;
         this.updateTime = System.currentTimeMillis();
     }
@@ -62,14 +53,6 @@ public class DMUpdateEvent implements Serializable {
 
     public void setDataModelPK(String dataModelPK) {
         this.dataModelPK = dataModelPK;
-    }
-
-    public String getDataModelVersion() {
-        return dataModelVersion;
-    }
-
-    public void setDataModelVersion(String dataModelVersion) {
-        this.dataModelVersion = dataModelVersion;
     }
 
     public String getEventType() {
@@ -90,8 +73,7 @@ public class DMUpdateEvent implements Serializable {
 
     @Override
     public String toString() {
-        return "DMUpdateEvent [dataModelPK=" + dataModelPK + ", dataModelVersion=" + dataModelVersion + ", eventType="
-                + eventType + ", updateTime=" + updateTime + "]";
+        return "DMUpdateEvent [dataModelPK=" + dataModelPK + ", eventType=" + eventType + ", updateTime=" + updateTime + "]";
     }
 
 }

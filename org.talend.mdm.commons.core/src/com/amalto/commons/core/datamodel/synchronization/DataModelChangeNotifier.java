@@ -12,22 +12,33 @@
 // ============================================================================
 package com.amalto.commons.core.datamodel.synchronization;
 
-import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.commons.lang.NotImplementedException;
 
 public class DataModelChangeNotifier {
 
-    private final List<DMUpdateEvent> messageList = new LinkedList<DMUpdateEvent>();
+    private static DataModelChangeNotifier instance;
 
-    public void addUpdateMessage(DMUpdateEvent dmUpdateEvent) {
-        synchronized (messageList) {
-            messageList.add(dmUpdateEvent);
+    private List<DataModelChangeListener> listeners;
+
+    private DataModelChangeNotifier() {
+    }
+
+    public synchronized static final DataModelChangeNotifier createInstance() {
+        if (instance == null) {
+            instance = new DataModelChangeNotifier();
+        }
+        return instance;
+    }
+
+    public synchronized void notifyChange(DMUpdateEvent dmUpdateEvent) {
+        synchronized (listeners) {
+            for (DataModelChangeListener listener : listeners) {
+                listener.onChange(dmUpdateEvent);
+            }
         }
     }
 
-    public void sendMessages() {
-        throw new NotImplementedException();
+    public synchronized void setListeners(List<DataModelChangeListener> listeners) {
+        this.listeners = listeners;
     }
 }

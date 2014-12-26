@@ -118,6 +118,10 @@ public abstract class SchemaManager {
                 dataModelBean.addReusableType(new ReusableType(t));
         }
     }
+    
+    public void removeFromDatamodelPool(String uniqueID) {
+        removeFromPool(new DataModelID(uniqueID));
+    }
 
     /**
      * DOC HSHU Comment method "getBusinessConcepts".

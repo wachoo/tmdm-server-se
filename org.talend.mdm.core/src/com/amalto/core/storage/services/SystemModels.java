@@ -184,9 +184,8 @@ public class SystemModels {
             }
         }
         // synchronize with outer agents
-        DataModelChangeNotifier dmUpdateEventNotifier = new DataModelChangeNotifier();
-        dmUpdateEventNotifier.addUpdateMessage(new DMUpdateEvent(modelName, null));
-        dmUpdateEventNotifier.sendMessages();
+        DataModelChangeNotifier dmUpdateEventNotifier = DataModelChangeNotifier.createInstance();
+        dmUpdateEventNotifier.notifyChange(new DMUpdateEvent(modelName));
     }
 
     private boolean isSystemStorageAvailable() {

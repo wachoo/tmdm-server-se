@@ -12,14 +12,12 @@
 // ============================================================================
 package com.amalto.webapp.core.dmagent;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amalto.core.util.LocalUser;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelBean;
 import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
@@ -28,16 +26,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.util.LocalUser;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dwr.CommonDWR;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XtentisWebappException;
-import com.amalto.core.webservice.WSDataModel;
-import com.amalto.core.webservice.WSDataModelPK;
-import com.amalto.core.webservice.WSGetCurrentUniverse;
-import com.amalto.core.webservice.WSGetDataModel;
-import com.amalto.core.webservice.WSUniverse;
-import com.amalto.core.webservice.WSUniverseXtentisObjectsRevisionIDs;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
