@@ -3,6 +3,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
     <display-name>Talend MDM</display-name>
     <description>Talend MDM server</description>
+    
     <!-- Spring initialization -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
@@ -402,5 +403,11 @@
         <url-pattern>/ext/images/serverinfo</url-pattern>
     </servlet-mapping>
  
+    <env-entry>
+        <description>MDM configuration file location</description>
+        <env-entry-name>mdmConfigLocation</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>/WEB-INF/conf/mdm.conf</env-entry-value>
+    </env-entry>
 </web-app>
 
