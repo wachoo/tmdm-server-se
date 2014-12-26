@@ -379,7 +379,7 @@ public class DataModelHelper {
         } else if (xsParticle.getTerm().asElementDecl() != null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
             travelXSElement(subElement,
-                    currentXPath + "/" + subElement.getName(), entityModel, parentTypeModel, roles, xsParticle.getMinOccurs().intValue(), xsParticle.getMaxOccurs().intValue()); //$NON-NLS-1$
+                    currentXPath + "/" + subElement.getName(), entityModel, parentTypeModel, roles, xsParticle.getMinOccurs(), xsParticle.getMaxOccurs()); //$NON-NLS-1$
         }
     }
 
