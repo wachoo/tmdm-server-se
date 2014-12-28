@@ -1,26 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
     <display-name>Talend MDM</display-name>
     <description>Talend MDM server</description>
-    
+
     <!-- Spring initialization -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>WEB-INF/beans.xml</param-value>
     </context-param>
     <context-param>
-        <param-name>log4jConfigLocation</param-name>
-        <param-value>WEB-INF/log4j.xml</param-value>
+        <param-name>mdmRootLocation</param-name>
+        <param-value>WEB-INF</param-value>
     </context-param>
-    
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>file://${mdm.root}/conf/log4j.xml</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.talend.mdm.webapp.general.server.servlet.MDMContextListener</listener-class>
+    </listener>
     <listener>
         <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
     </listener>
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>    
-        
+    </listener>
+
     <!-- Additional MDM filters -->
     <filter>
         <filter-name>errorFilter</filter-name>
@@ -92,7 +99,7 @@
         <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
         <init-param>
             <param-name>logFile</param-name>
-            <param-value>${webapp.root}/WEB-INF/mdm.log</param-value>
+            <param-value>${mdm.root}/log/mdm.log</param-value>
         </init-param>
         <init-param>
             <param-name>maxLinesByChunk</param-name>
@@ -104,7 +111,7 @@
         <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
         <init-param>
             <param-name>logFile</param-name>
-            <param-value>${webapp.root}/WEB-INF/mdm-match.log</param-value>
+            <param-value>${mdm.root}/log/mdm-match.log</param-value>
         </init-param>
         <init-param>
             <param-name>maxLinesByChunk</param-name>
@@ -402,12 +409,6 @@
         <servlet-name>ImageServerInfoServlet</servlet-name>
         <url-pattern>/ext/images/serverinfo</url-pattern>
     </servlet-mapping>
- 
-    <env-entry>
-        <description>MDM configuration file location</description>
-        <env-entry-name>mdmConfigLocation</env-entry-name>
-        <env-entry-type>java.lang.String</env-entry-type>
-        <env-entry-value>/WEB-INF/conf/mdm.conf</env-entry-value>
-    </env-entry>
+
 </web-app>
 

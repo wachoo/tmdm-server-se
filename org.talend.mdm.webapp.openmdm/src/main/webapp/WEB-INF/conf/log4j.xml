@@ -13,7 +13,7 @@
     </appender>
 
     <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="${webapp.root}/WEB-INF/mdm.log" />
+        <param name="File" value="${mdm.root}/log/mdm.log" />
         <param name="Append" value="true" />
         <param name="DatePattern" value="'.'yyyy-MM-dd" />
         <param name="Threshold" value="INFO" />
@@ -23,7 +23,7 @@
     </appender>
 
     <appender name="MATCH_LOG_FILE" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="${webapp.root}/WEB-INF/mdm-match.log" />
+        <param name="File" value="${mdm.root}/log/mdm-match.log" />
         <param name="Append" value="false" />
         <param name="DatePattern" value="'.'yyyy-MM-dd" />
         <param name="Threshold" value="INFO" />

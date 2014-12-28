@@ -14,6 +14,7 @@ import com.amalto.core.server.api.DataSourceExtension;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.util.SystemPropertyUtils;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -51,10 +52,11 @@ public class DataSourceFactory {
 
     private static synchronized InputStream readDataSourcesConfiguration() {
         Properties configuration = MDMConfiguration.getConfiguration();
-        String dataSourcesFileName = (String) configuration.get(DB_DATASOURCES);
-        if (dataSourcesFileName == null) { // DB_DATASOURCES property is mandatory to continue.
+        String dataSourcesLocation = (String) configuration.get(DB_DATASOURCES);
+        if (dataSourcesLocation == null) { // DB_DATASOURCES property is mandatory to continue.
             throw new IllegalStateException(DB_DATASOURCES + " is not defined in MDM configuration.");
         }
+        String dataSourcesFileName = SystemPropertyUtils.resolvePlaceholders(dataSourcesLocation);
         InputStream configurationAsStream = null;
         // 1- Try from file (direct lookup)
         File file = new File(dataSourcesFileName);

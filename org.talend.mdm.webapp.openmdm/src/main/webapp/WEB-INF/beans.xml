@@ -11,16 +11,14 @@ http://www.springframework.org/schema/jee http://www.springframework.org/schema/
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
 
-    <!-- Properties -->
-    <context:property-placeholder />
-    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" />
-    <bean class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer" />
+    <!-- Properties -->    
     <context:annotation-config />
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" />
+
 
     <!-- MDM Configuration -->
-    <jee:jndi-lookup id="mdmConfigLocation" jndi-name="mdmConfigLocation" />
     <bean class="org.talend.mdm.commmon.util.core.MDMConfiguration" factory-method="createConfiguration">
-        <constructor-arg ref="mdmConfigLocation" />
+        <constructor-arg value="${mdm.root}/conf/mdm.conf" />
     </bean>
 
     <!-- Data Model synchronization -->

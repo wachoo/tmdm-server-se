@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Context>
-    <Parameter name="log4jConfigLocation" value="file:///tmp/conf/log4j.xml" override="false" />
-    <Environment name="mdmConfigLocation" value="/tmp/conf/mdm.conf" type="java.lang.String" override="false"/>
+    <Parameter name="mdmRootLocation" value="file:///tmp/mdm" override="false" />
 </Context>
