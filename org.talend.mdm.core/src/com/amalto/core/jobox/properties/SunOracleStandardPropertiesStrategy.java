@@ -14,9 +14,9 @@
 package com.amalto.core.jobox.properties;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -76,11 +76,11 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
             bufferedReader.close();
 
             // Log4J configuration for Jobs
-            String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
-            if (jbossServerDir != null) {
-                properties.put("jboss.server.home.dir", jbossServerDir); //$NON-NLS-1$
-                URL joboxLog4j = SunOracleStandardPropertiesStrategy.class.getResource("log4j-jobox.properties"); //$NON-NLS-1$
-                properties.put("log4j.configuration", joboxLog4j.toExternalForm()); //$NON-NLS-1$
+            String mdmRootDir = System.getProperty("mdm.root"); //$NON-NLS-1$
+            if (mdmRootDir != null) {
+                properties.put("mdm.root", mdmRootDir); //$NON-NLS-1$
+                File joboxLog4jFile = new File(mdmRootDir + File.separator +  "conf" + File.separator + "log4j-jobox.properties"); //$NON-NLS-1$ //$NON-NLS-2$
+                properties.put("log4j.configuration", joboxLog4jFile.toURI().toURL().toExternalForm()); //$NON-NLS-1$
             } else {
                 LOGGER.error("Jobox Log4J environment not set"); //$NON-NLS-1$
             }
@@ -104,5 +104,15 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
 
         }
         return filteredValue;
+    }
+    
+    public static void main(String[] args) {
+        try {
+            String mdmRootDir = "/tmp/titi"; //$NON-NLS-1$
+             File joboxLog4jFile = new File(mdmRootDir + "/conf/log4j-jobox.properties"); //$NON-NLS-1$
+                System.out.println(joboxLog4jFile.toURI().toURL().toExternalForm()); //$NON-NLS-1$
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
