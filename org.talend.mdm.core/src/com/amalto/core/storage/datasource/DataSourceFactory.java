@@ -66,21 +66,6 @@ public class DataSourceFactory {
                 throw new IllegalStateException("Unexpected state (file exists but can't create a stream from it).", e);
             }
         }
-        // 1- Try from file (from the JBoss configuration directory)
-        if (configurationAsStream == null) {
-            String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
-            if (jbossServerDir != null) {
-                file = new File(jbossServerDir + File.separator + "conf", dataSourcesFileName); //$NON-NLS-1$
-                LOGGER.info("Reading from datasource file at '" + file.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
-                if (file.exists()) {
-                    try {
-                        configurationAsStream = new FileInputStream(file);
-                    } catch (FileNotFoundException e) {
-                        throw new IllegalStateException("Unexpected state (file exists but can't create a stream from it).", e);
-                    }
-                }
-            }
-        }
         // 2- From class path
         if (configurationAsStream == null) {
             List<String> filePaths = Arrays.asList(dataSourcesFileName);

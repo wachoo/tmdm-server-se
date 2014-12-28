@@ -171,34 +171,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <!-- Apply dev mode exclusions -->
-                    <execution>
-                        <id>devmode-exclusions</id>
-                        <phase>prepare-package</phase>
-                    </execution>
-                    <!-- Deploy to Jboss -->
-                    <execution>
-                        <id>deploy-jboss</id>
-                        <configuration>
-                            <tasks>
-                                <delete file="${jboss.deploy.dir}/${project.name}.war" />
-                                <delete file="${jboss.lib.dir}/${project.name}.jar" />
-
-                                <copy file="${project.build.directory}/${project.build.finalName}.war"
-                                    tofile="${jboss.deploy.dir}/${project.name}.war" />
-                                <copy
-                                    file="${project.build.directory}/${project.build.finalName}-lib.jar"
-                                    tofile="${jboss.lib.dir}/${project.name}.jar" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 </project>
