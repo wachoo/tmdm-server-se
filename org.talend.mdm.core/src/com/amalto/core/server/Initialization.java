@@ -120,14 +120,20 @@ public class Initialization implements InitializingBean {
         int i = 1;
         for (String containerName : containerNames) {
             LOGGER.info("Starting storage " + containerName + "(" + i + " of " + containerNames.size() + ") ...");
-            // storageAdmin.create(containerName, containerName, StorageType.MASTER, "MySQL-Default", null);
-            String datasource = storageAdmin.getDatasource(containerName);
-            DataSourceDefinition dataSourceDefinition = server.getDefinition(datasource, containerName);
-            storageAdmin.create(containerName, containerName, StorageType.MASTER, datasource);
-            if(dataSourceDefinition.hasStaging()) {
-                storageAdmin.create(containerName, containerName, StorageType.STAGING, datasource);
+            try {
+                String datasource = storageAdmin.getDatasource(containerName);
+                DataSourceDefinition dataSourceDefinition = server.getDefinition(datasource, containerName);
+                storageAdmin.create(containerName, containerName, StorageType.MASTER, datasource);
+                if(dataSourceDefinition.hasStaging()) {
+                    storageAdmin.create(containerName, containerName, StorageType.STAGING, datasource);
+                }
+                LOGGER.info("Storage " + containerName + " started.");
+            } catch (Exception e) {
+                LOGGER.warn("Skipping container '" + containerName + "'.");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Skipping container '" + containerName + "' due to exception.", e);
+                }
             }
-            LOGGER.info("Storage " + containerName + " started.");
             i++;
         }
         LOGGER.info("Talend MDM " + version + " started.");
