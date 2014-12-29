@@ -8,7 +8,7 @@ import com.amalto.core.server.api.Item;
 
 public class MdmExtension {
 
-    public static String getItemProjection(String revision, String clusterName, String conceptName, String ids) {
+    public static String getItemProjection(String clusterName, String conceptName, String ids) {
         String itemProjection = "";
         if (clusterName == null || clusterName.length() == 0) {
             return itemProjection;
@@ -18,9 +18,6 @@ public class MdmExtension {
         }
         if (ids == null) {
             return itemProjection;
-        }
-        if (revision != null && (revision.trim().equals("") || revision.trim().equals("null"))) {
-            revision = null;
         }
         try {
             Item itemCtrl2Local = Util.getItemCtrl2Local();

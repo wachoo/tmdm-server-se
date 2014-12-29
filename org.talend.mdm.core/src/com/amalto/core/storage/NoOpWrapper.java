@@ -103,7 +103,7 @@ class NoOpWrapper implements IXmlServerSLWrapper{
         return 0;  
     }
 
-    public long moveDocumentById(String sourceRevisionID, String sourceClusterName, String uniqueID, String targetRevisionID, String targetClusterName) throws XmlServerException {
+    public long moveDocumentById(String sourceClusterName, String uniqueID, String targetClusterName) throws XmlServerException {
         return 0;  
     }
 

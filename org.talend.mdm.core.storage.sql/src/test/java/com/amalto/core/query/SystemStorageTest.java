@@ -207,7 +207,7 @@ public class SystemStorageTest extends TestCase {
                 continue;
             }
             try {
-                dataRecordReader.read("1", repository, complexType, document.getDocumentElement());
+                dataRecordReader.read(repository, complexType, document.getDocumentElement());
             } catch (Exception e) {
                 error++;
             }
@@ -242,7 +242,7 @@ public class SystemStorageTest extends TestCase {
             }
             FileInputStream fis2 = new FileInputStream(file);
             try {
-                dataRecordReader.read("1", repository, complexType, new XmlSAXDataRecordReader.Input(reader,
+                dataRecordReader.read(repository, complexType, new XmlSAXDataRecordReader.Input(reader,
                         new InputSource(fis2)));
             } catch (Exception e) {
                 System.out.println("Error: " + file);
@@ -279,7 +279,7 @@ public class SystemStorageTest extends TestCase {
                 continue;
             }
             try {
-                dataRecordReader.read("1", repository, complexType, FileUtils.readFileToString(file));
+                dataRecordReader.read(repository, complexType, FileUtils.readFileToString(file));
             } catch (Exception e) {
                 error++;
             }
@@ -470,7 +470,7 @@ public class SystemStorageTest extends TestCase {
             }
             presentTypes.add(complexType);
             try {
-                records.add(dataRecordReader.read("1", repository, complexType, document.getDocumentElement()));
+                records.add(dataRecordReader.read(repository, complexType, document.getDocumentElement()));
             } catch (Exception e) {
                 System.out.println("Error: " + file);
                 e.printStackTrace();
@@ -548,7 +548,7 @@ public class SystemStorageTest extends TestCase {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_1.xml"));
         Element element = (Element) document.getElementsByTagName("User").item(0);
-        reader.read(null, repository, repository.getComplexType("User"), element);
+        reader.read(repository, repository.getComplexType("User"), element);
     }
 
     public void testUserInformationWithRoles() throws Exception {
@@ -601,10 +601,10 @@ public class SystemStorageTest extends TestCase {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_2.xml")); //$NON-NLS-1$
         Element element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
-        records.add(dataRecordReader.read("1", repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(dataRecordReader.read(repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
         document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_3.xml")); //$NON-NLS-1$
         element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
-        records.add(dataRecordReader.read("1", repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(dataRecordReader.read(repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
         // Commit users
         storage.begin();
         storage.update(records);

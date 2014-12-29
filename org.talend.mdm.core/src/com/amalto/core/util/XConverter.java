@@ -955,7 +955,7 @@ public class XConverter {
 
     public static WSDroppedItemPK POJO2WS(DroppedItemPOJOPK droppedItemPOJOPK) {
         ItemPOJOPK refItemPOJOPK = droppedItemPOJOPK.getRefItemPOJOPK();
-        return new WSDroppedItemPK(POJO2WS(refItemPOJOPK), droppedItemPOJOPK.getPartPath(), null);
+        return new WSDroppedItemPK(POJO2WS(refItemPOJOPK), droppedItemPOJOPK.getPartPath());
     }
 
     public static DroppedItemPOJOPK WS2POJO(WSDroppedItemPK wsDroppedItemPK) {
@@ -965,7 +965,7 @@ public class XConverter {
 
     public static WSDroppedItem POJO2WS(DroppedItemPOJO droppedItemPOJO) {
 
-        return new WSDroppedItem(null, new WSDataClusterPK(droppedItemPOJO
+        return new WSDroppedItem(new WSDataClusterPK(droppedItemPOJO
                 .getDataClusterPOJOPK().getUniqueId()), droppedItemPOJO.getUniqueId(), droppedItemPOJO.getConceptName(),
                 droppedItemPOJO.getIds(), droppedItemPOJO.getPartPath(), droppedItemPOJO.getInsertionUserName(), droppedItemPOJO
                         .getInsertionTime(), droppedItemPOJO.getProjection());

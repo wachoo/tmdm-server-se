@@ -19,8 +19,6 @@ public class ItemPKCriteria implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String revisionId;
-
     private String clusterName;
 
     private String conceptName;
@@ -46,9 +44,8 @@ public class ItemPKCriteria implements Serializable {
     public ItemPKCriteria() {
     }
 
-    public ItemPKCriteria(String revisionId, String clusterName, String conceptName, String contentKeywords, String keysKeywords,
-            boolean compoundKeyKeywords, Long fromDate, Long toDate, int skip, int maxItems, boolean useFTSearch) {
-        this.revisionId = revisionId;
+    public ItemPKCriteria(String clusterName, String conceptName, String contentKeywords, String keysKeywords,
+                          boolean compoundKeyKeywords, Long fromDate, Long toDate, int skip, int maxItems, boolean useFTSearch) {
         this.clusterName = clusterName;
         this.conceptName = conceptName;
         this.contentKeywords = contentKeywords;
@@ -59,14 +56,6 @@ public class ItemPKCriteria implements Serializable {
         this.skip = skip;
         this.maxItems = maxItems;
         this.useFTSearch = useFTSearch;
-    }
-
-    public String getRevisionId() {
-        return revisionId;
-    }
-
-    public void setRevisionId(String revisionId) {
-        this.revisionId = revisionId;
     }
 
     public String getClusterName() {

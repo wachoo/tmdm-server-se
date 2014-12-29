@@ -119,7 +119,7 @@ public class RecycleBinAction implements RecycleBinService {
         return new ItemsTrashItem(item.getConceptName(), values[1],
                 Util.joinStrings(item.getIds(), "."), values[0] != null ? values[0] : "", df.format(new Date(//$NON-NLS-1$ //$NON-NLS-2$
                         item.getInsertionTime())), item.getInsertionUserName(), item.getWsDataClusterPK().getPk(),
-                item.getPartPath(), item.getProjection(), item.getRevisionID(), item.getUniqueId());
+                item.getPartPath(), item.getProjection(), item.getUniqueId());
     }
 
     @Override
@@ -146,7 +146,7 @@ public class RecycleBinAction implements RecycleBinService {
             String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
             WSDataClusterPK dataClusterPK = new WSDataClusterPK(clusterName);
             WSItemPK wsItemPK = new WSItemPK(dataClusterPK, conceptName, ids1);
-            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, partPath, revisionId);
+            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, partPath);
             WSRemoveDroppedItem wsRemoveDroppedItem = new WSRemoveDroppedItem(wsDroppedItemPK);
             Util.getPort().removeDroppedItem(wsRemoveDroppedItem);
             Locale locale = new Locale(language);
@@ -188,7 +188,7 @@ public class RecycleBinAction implements RecycleBinService {
             String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(clusterName);
             WSItemPK wsItemPK = new WSItemPK(wsDataClusterPK, conceptName, ids1);
-            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, partPath, revisionId);
+            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, partPath);
             WSRecoverDroppedItem recoverDroppedItem = new WSRecoverDroppedItem(wsDroppedItemPK);
             Util.getPort().recoverDroppedItem(recoverDroppedItem);
         } catch (Exception e) {

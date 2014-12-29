@@ -107,7 +107,7 @@ public class StorageWrapperTest extends TestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         String recordXml = "<C><subelement>1</subelement><A xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"B\"><a>7</a><B>6</B></A><A xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"A\"><a>5</a></A><A xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"B\"><a>4</a><B>3</B></A><Aa xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"B\"><a>2</a><B>1</B></Aa></C>"; //$NON-NLS-1$
         List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read("1", repository, repository.getComplexType("C"), recordXml)); //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(factory.read(repository, repository.getComplexType("C"), recordXml)); //$NON-NLS-1$ //$NON-NLS-2$
         storage.begin();
         storage.update(records);
         storage.commit();
@@ -132,7 +132,7 @@ public class StorageWrapperTest extends TestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read("1", repository, repository.getComplexType("Employee"), //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(factory.read(repository, repository.getComplexType("Employee"), //$NON-NLS-1$ //$NON-NLS-2$
                 "<Employee><Id>22</Id><Holiday>2014-04-17T12:00:00</Holiday><birthday>2014-04-16T12:00:00</birthday></Employee>")); //$NON-NLS-1$
         storage.begin();
         storage.update(records);
@@ -195,7 +195,7 @@ public class StorageWrapperTest extends TestCase {
         factory = new XmlStringDataRecordReader();
 
         records.clear();
-        records.add(factory.read("1", repository2, repository2.getComplexType("CustomDate"), //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(factory.read(repository2, repository2.getComplexType("CustomDate"), //$NON-NLS-1$ //$NON-NLS-2$
                 "<CustomDate><Id>22</Id><MyDate>2014-04-17</MyDate></CustomDate>")); //$NON-NLS-1$
         storage2.begin();
         storage2.update(records);

@@ -8,7 +8,7 @@ import com.amalto.core.server.api.Item;
 
 public class MdmGroovyExtension {
 
-    public static String getItemProjection(String revision, String clusterName, String conceptName, String ids) {
+    public static String getItemProjection(String clusterName, String conceptName, String ids) {
         String itemProjection = "";
         if (clusterName == null || clusterName.length() == 0) {
             return itemProjection;

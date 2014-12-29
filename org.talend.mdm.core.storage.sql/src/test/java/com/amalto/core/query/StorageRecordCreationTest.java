@@ -37,17 +37,17 @@ public class StorageRecordCreationTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 country,
                                 "<Country><id>1000</id><name>France</name><creationDate>2010-05-10</creationDate><creationTime>2010-05-10T00:00:00</creationTime></Country>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 address,
                                 "<Address><id>1000</id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
-        allRecords.add(factory.read("1", repository, product, "<Product>\n"
+        allRecords.add(factory.read(repository, product, "<Product>\n"
                 + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n"
                 + "    <ShortDescription>Short description word</ShortDescription>\n"
@@ -157,7 +157,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         DataRecord record = factory
-                .read("1",
+                .read(
                         repository,
                         person,
                         "<Person><id>1001</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[1000][false]</address></addresses><age>10</age><Status>Employee</Status></Person>");
@@ -192,7 +192,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         DataRecord record = factory
-                .read("1",
+                .read(
                         repository,
                         person,
                         "<Person><id>1002</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[900][true]</address></addresses><age>10</age><Status>Employee</Status></Person>");
@@ -241,12 +241,12 @@ public class StorageRecordCreationTest extends StorageTestCase {
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         DataRecord fail = factory
-                .read("1",
+                .read(
                         repository,
                         person,
                         "<Person><id>1002</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[900][false]</address></addresses><age>10</age><Status>Employee</Status></Person>");
         DataRecord success = factory
-                .read("1",
+                .read(
                         repository,
                         person,
                         "<Person><id>1003</id><lastname>Dupond</lastname><middlename>David</middlename><firstname>Julien</firstname><age>10</age><score>10</score><addresses><address>[1000][true]</address></addresses><age>10</age><Status>Employee</Status></Person>");
@@ -289,7 +289,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         DataRecord record = factory
-                .read("1", repository, type,
+                .read(repository, type,
                         "<EntityWithQuiteALongNameWithoutIncludingAnyUnderscore><Id>1003</Id></EntityWithQuiteALongNameWithoutIncludingAnyUnderscore>");
         storage.begin();
         storage.update(record);
@@ -311,7 +311,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 address,
                                 "<Address><id>9999</id><Street>Street1</Street><country>1000</country><ZipCode>10000</ZipCode><City>City1</City><enterprise>false</enterprise></Address>"));
@@ -338,7 +338,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
     public void testNotNullConstraintOnFlatMapping() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("1", repository, ff, "<ff>\n"
+        allRecords.add(factory.read(repository, ff, "<ff>\n"
                 + "    <fd>Id</fd>"
                 + "</ff>"));
         storage.begin();
@@ -365,7 +365,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 address,
                                 "<Address><id>1111</id><Street>Street1</Street><country>[1000]</country><ZipCode>10000</ZipCode>" +
@@ -400,7 +400,7 @@ public class StorageRecordCreationTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("1", repository, product, "<Product>\n"
+        allRecords.add(factory.read(repository, product, "<Product>\n"
                 + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n"
                 + "    <ShortDescription>Short description word</ShortDescription>\n"

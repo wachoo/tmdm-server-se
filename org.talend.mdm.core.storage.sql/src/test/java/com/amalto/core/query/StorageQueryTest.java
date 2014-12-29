@@ -69,132 +69,132 @@ public class StorageQueryTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 country,
                                 "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name><notes><note>Country note</note><comment>repeatable comment 1</comment><comment>Repeatable comment 2</comment></notes></Country>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 address,
                                 "<Address><id>1</id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 address,
                                 "<Address><id>1</id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 address,
                                 "<Address><id>2&amp;2</id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 address,
                                 "<Address><id>3</id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 address,
                                 "<Address><id>4</id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 person,
                                 "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2&amp;2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 person,
                                 "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2&amp;2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 person,
                                 "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 person,
                                 "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Julien</firstname><age>30</age><Status>Friend</Status></Person>"));
-        allRecords.add(factory.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
-        allRecords.add(factory.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
-        allRecords.add(factory.read("1", repository, a,
+        allRecords.add(factory.read(repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
+        allRecords.add(factory.read(repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
+        allRecords.add(factory.read(repository, a,
                 "<A><id>1</id><textA>TextA</textA><nestedB><text>Text1</text></nestedB></A>"));
-        allRecords.add(factory.read("1", repository, a,
+        allRecords.add(factory.read(repository, a,
                 "<A><id>2</id><textA>TextA</textA><nestedB><text>Text2</text></nestedB><refA>[1]</refA></A>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>4</id><refB tmdm:type=\"D\">[2]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>5</id><refB tmdm:type=\"B\">[2]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
 
-        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
+        allRecords.add(factory.read(repository, supplier, "<Supplier>\n" + "    <Id>1</Id>\n"
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
-        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>.127</Id>\n"
+        allRecords.add(factory.read(repository, supplier, "<Supplier>\n" + "    <Id>.127</Id>\n"
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
-        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>127.</Id>\n"
+        allRecords.add(factory.read(repository, supplier, "<Supplier>\n" + "    <Id>127.</Id>\n"
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
-        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>127.0.0.1</Id>\n"
+        allRecords.add(factory.read(repository, supplier, "<Supplier>\n" + "    <Id>127.0.0.1</Id>\n"
                 + "    <SupplierName>Renault</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Voiture</Name>\n"
                 + "        <Phone>33123456789</Phone>\n" + "        <Email>test@test.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
-        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
+        allRecords.add(factory.read(repository, supplier, "<Supplier>\n" + "    <Id>2</Id>\n"
                 + "    <SupplierName>Starbucks Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Cafe</Name>\n"
                 + "        <Phone>33234567890</Phone>\n" + "        <Email>test@testfactory.org</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
-        allRecords.add(factory.read("1", repository, supplier, "<Supplier>\n" + "    <Id>3</Id>\n"
+        allRecords.add(factory.read(repository, supplier, "<Supplier>\n" + "    <Id>3</Id>\n"
                 + "    <SupplierName>Talend</SupplierName>\n" + "    <Contact>" + "        <Name>Jean Paul</Name>\n"
                 + "        <Phone>33234567890</Phone>\n" + "        <Email>test@talend.com</Email>\n" + "    </Contact>\n"
                 + "</Supplier>"));
-        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
+        allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
+        allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>3</Id>\n"
+        allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>3</Id>\n"
                 + "    <Name>test name3</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>4</Id>\n"
+        allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>4</Id>\n"
                 + "    <Name>test_name4</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>5</Id>\n"
+        allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>5</Id>\n"
                 + "    <Name>test name5</Name>\n" + "</ProductFamily>"));
-        allRecords.add(factory.read("1", repository, store, "<Store>\n" + "    <Id>1</Id>\n" + "    <Name>Store #1</Name>\n"
+        allRecords.add(factory.read(repository, store, "<Store>\n" + "    <Id>1</Id>\n" + "    <Name>Store #1</Name>\n"
                 + "</Store>"));
-        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+        allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
@@ -202,7 +202,7 @@ public class StorageQueryTest extends StorageTestCase {
                 + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
                 + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Family>[2]</Family>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
-        allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n"
+        allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Renault car</Name>\n" + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
@@ -211,52 +211,52 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n" + "    <Supplier>[1]</Supplier>\n"
                 + "<Stores><Store>[1]</Store></Stores></Product>"));
 
-        allRecords.add(factory.read("1", repository, e1, E1_Record1));
-        allRecords.add(factory.read("1", repository, e1, E1_Record2));
-        allRecords.add(factory.read("1", repository, e1, E1_Record3));
+        allRecords.add(factory.read(repository, e1, E1_Record1));
+        allRecords.add(factory.read(repository, e1, E1_Record2));
+        allRecords.add(factory.read(repository, e1, E1_Record3));
 
-        allRecords.add(factory.read("1", repository, e2, E2_Record1));
-        allRecords.add(factory.read("1", repository, e2, E2_Record2));
-        allRecords.add(factory.read("1", repository, e2, E2_Record3));
-        allRecords.add(factory.read("1", repository, e2, E2_Record4));
-        allRecords.add(factory.read("1", repository, e2, E2_Record5));
-        allRecords.add(factory.read("1", repository, e2, E2_Record6));
-        allRecords.add(factory.read("1", repository, e2, E2_Record7));
-        allRecords.add(factory.read("1", repository, e2, E2_Record7));
-        allRecords.add(factory.read("1", repository, e2, E2_Record7));
+        allRecords.add(factory.read(repository, e2, E2_Record1));
+        allRecords.add(factory.read(repository, e2, E2_Record2));
+        allRecords.add(factory.read(repository, e2, E2_Record3));
+        allRecords.add(factory.read(repository, e2, E2_Record4));
+        allRecords.add(factory.read(repository, e2, E2_Record5));
+        allRecords.add(factory.read(repository, e2, E2_Record6));
+        allRecords.add(factory.read(repository, e2, E2_Record7));
+        allRecords.add(factory.read(repository, e2, E2_Record7));
+        allRecords.add(factory.read(repository, e2, E2_Record7));
         allRecords
                 .add(factory
-                        .read("1", repository, manager1,
+                        .read(repository, manager1,
                                 "<Manager1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><birthday>2014-05-01T12:00:00</birthday><id>1</id></Manager1>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 employee1,
                                 "<Employee1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>1</Id><Holiday>2014-05-16T12:00:00</Holiday><birthday>2014-05-23T12:00:00</birthday><manager>[1][2014-05-01T12:00:00]</manager></Employee1>"));
-        allRecords.add(factory.read("1", repository, entityA,
+        allRecords.add(factory.read(repository, entityA,
                 "<EntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdA>100</IdA></EntityA>"));
-        allRecords.add(factory.read("1", repository, entityB,
+        allRecords.add(factory.read(repository, entityB,
                 "<EntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><IdB>B1</IdB><A_FK>[100]</A_FK></EntityB>"));
         allRecords
                 .add(factory
-                        .read("1", repository, ContainedEntityB,
+                        .read(repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record1</id></ContainedEntityB>"));
         allRecords
                 .add(factory
-                        .read("1", repository, ContainedEntityB,
+                        .read(repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record2</id></ContainedEntityB>"));
         allRecords
                 .add(factory
-                        .read("1", repository, ContainedEntityB,
+                        .read(repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record3</id></ContainedEntityB>"));
         allRecords
                 .add(factory
-                        .read("1", repository, ContainedEntityB,
+                        .read(repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record4</id></ContainedEntityB>"));
         allRecords
                 .add(factory
-                        .read("1", repository, ContainedEntityB,
+                        .read(repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record5</id></ContainedEntityB>"));
         try {
             storage.begin();
@@ -1497,7 +1497,7 @@ public class StorageQueryTest extends StorageTestCase {
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         DataRecord record = factory
-                .read("1",
+                .read(
                         repository,
                         person,
                         "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>");
@@ -1908,7 +1908,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testCollectionClean() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+        DataRecord productInstance = factory.read(repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
@@ -1938,7 +1938,7 @@ public class StorageQueryTest extends StorageTestCase {
             storage.commit();
         }
 
-        productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+        productInstance = factory.read(repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
@@ -1967,7 +1967,7 @@ public class StorageQueryTest extends StorageTestCase {
             storage.commit();
         }
 
-        productInstance = factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n"
+        productInstance = factory.read(repository, product, "<Product>\n" + "    <Id>1</Id>\n"
                 + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
@@ -2008,7 +2008,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        DataRecord report = dataRecordReader.read(repository, updateReport, builder.toString());
 
         try {
             storage.begin();
@@ -2078,7 +2078,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        DataRecord report = dataRecordReader.read(repository, updateReport, builder.toString());
 
         try {
             storage.begin();
@@ -2120,7 +2120,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        DataRecord report = dataRecordReader.read(repository, updateReport, builder.toString());
         try {
             storage.begin();
             storage.update(report);
@@ -2154,7 +2154,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        DataRecord report = dataRecordReader.read(repository, updateReport, builder.toString());
         try {
             storage.begin();
             storage.update(report);
@@ -2210,7 +2210,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        DataRecord report = dataRecordReader.read(repository, updateReport, builder.toString());
         try {
             storage.begin();
             storage.update(report);
@@ -2277,7 +2277,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        DataRecord report = dataRecordReader.read(repository, updateReport, builder.toString());
 
         try {
             storage.begin();
@@ -2320,7 +2320,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord report = dataRecordReader.read("1", repository, updateReport, builder.toString());
+        DataRecord report = dataRecordReader.read(repository, updateReport, builder.toString());
         try {
             storage.begin();
             storage.update(report);
@@ -2540,7 +2540,7 @@ public class StorageQueryTest extends StorageTestCase {
     public void testValueCollectionSearchInNested() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("1", repository, person,
+        allRecords.add(factory.read(repository, person,
                 "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
                         + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
                         + "</address><address>[1][false]</address></addresses><age>30</age>"
@@ -2575,7 +2575,7 @@ public class StorageQueryTest extends StorageTestCase {
     public void testValueSelectInNested() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("1", repository, person,
+        allRecords.add(factory.read(repository, person,
                 "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
                         + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
                         + "</address><address>[1][false]</address></addresses><age>30</age>"
@@ -2609,9 +2609,9 @@ public class StorageQueryTest extends StorageTestCase {
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("1", repository, a2,
+        allRecords.add(factory.read(repository, a2,
                 "<a2><subelement>1</subelement><subelement1>10</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
-        allRecords.add(factory.read("1", repository, a1,
+        allRecords.add(factory.read(repository, a1,
                 "<a1><subelement>1</subelement><subelement1>11</subelement1><b1>String b1</b1><b2>[1][10]</b2></a1>"));
         storage.begin();
         storage.update(allRecords);
@@ -3016,7 +3016,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testStringFieldConstraint() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        DataRecord dataRecord = factory.read("1", repository, product, "<Product>\n" + "    <Id>3</Id>\n"
+        DataRecord dataRecord = factory.read(repository, product, "<Product>\n" + "    <Id>3</Id>\n"
                 + "    <Name>A long name to be short due to constraints</Name>\n"
                 + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
@@ -3035,7 +3035,7 @@ public class StorageQueryTest extends StorageTestCase {
             storage.rollback();
         }
 
-        dataRecord = factory.read("1", repository, product, "<Product>\n" + "    <Id>3</Id>\n" + "    <Name>A long nam</Name>\n"
+        dataRecord = factory.read(repository, product, "<Product>\n" + "    <Id>3</Id>\n" + "    <Name>A long nam</Name>\n"
                 + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
@@ -3143,7 +3143,7 @@ public class StorageQueryTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
@@ -3219,7 +3219,7 @@ public class StorageQueryTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
@@ -3319,7 +3319,7 @@ public class StorageQueryTest extends StorageTestCase {
     public void testJoinOptimization() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("1", repository, person,
+        allRecords.add(factory.read(repository, person,
                 "<Person><id>5</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John"
                         + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
                         + "</address><address>[1][false]</address></addresses><age>30</age>"
@@ -3343,7 +3343,7 @@ public class StorageQueryTest extends StorageTestCase {
     public void testJoinOptimizationWithOr() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("1", repository, person,
+        allRecords.add(factory.read(repository, person,
                 "<Person><id>5</id><score>20000.00</score><lastname>Leblanc</lastname><middlename>John"
                         + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
                         + "</address><address>[1][false]</address></addresses><age>30</age>"
@@ -3352,7 +3352,7 @@ public class StorageQueryTest extends StorageTestCase {
                         + "<knownAddress><Street>Street 2</Street><City>City 2</City><Phone>567890"
                         + "</Phone><Notes><Note>test note</Note></Notes></knownAddress></knownAddresses>"
                         + "<Status>Friend</Status></Person>"));
-        allRecords.add(factory.read("1", repository, person,
+        allRecords.add(factory.read(repository, person,
                 "<Person><id>6</id><score>666.00</score><lastname>Leblanc</lastname><middlename>John"
                         + "</middlename><firstname>Juste</firstname><addresses><address>[3][false]"
                         + "</address><address>[1][false]</address></addresses><age>30</age>"
@@ -3940,7 +3940,7 @@ public class StorageQueryTest extends StorageTestCase {
         // Update 'FKtoMultiB' list records (record1..record5)
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid>[B_record1]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record2]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record3]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record4]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record5]</Bid></FKtoMultiB></ContainedEntityA>"));
@@ -3951,7 +3951,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid>[B_record1]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record2]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record3]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record4]</Bid></FKtoMultiB></ContainedEntityA>"));
@@ -3976,7 +3976,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid></Bid></FKtoMultiB></ContainedEntityA>"));
@@ -4005,7 +4005,7 @@ public class StorageQueryTest extends StorageTestCase {
         // Add 'record1'
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid>[B_record1]</Bid></FKtoB></ContainedEntityA>"));
@@ -4016,7 +4016,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid>[B_record2]</Bid></FKtoB></ContainedEntityA>"));
@@ -4032,7 +4032,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid></Bid></FKtoB><FKtoMultiB><Bid/></FKtoMultiB></ContainedEntityA>"));
@@ -4084,7 +4084,7 @@ public class StorageQueryTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         // Add 'record6' to ContainedEntityB
-        allRecords.add(factory.read("1", repository, ContainedEntityB,
+        allRecords.add(factory.read(repository, ContainedEntityB,
                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>record6</id></ContainedEntityB>"));
         storage.begin();
         storage.update(allRecords);
@@ -4093,7 +4093,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ContainedEntityC,
                                 "<ContainedEntityC xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Cid>c1</Cid><FK_to_B>[record6]</FK_to_B></ContainedEntityC>"));

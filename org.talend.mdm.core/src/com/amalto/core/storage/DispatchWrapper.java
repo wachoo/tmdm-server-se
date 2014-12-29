@@ -286,17 +286,17 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
         return userStorageWrapper.deleteItems(clusterName, conceptName, whereItem);
     }
 
-    public long moveDocumentById(String sourceRevisionID, String sourceClusterName, String uniqueID, String targetRevisionID, String targetClusterName) throws XmlServerException {
+    public long moveDocumentById(String sourceClusterName, String uniqueID, String targetClusterName) throws XmlServerException {
         if (isMDMInternal(sourceClusterName)) {
             if (!isMDMInternal(targetClusterName)) {
                 throw new IllegalArgumentException("Cannot copy to user data cluster '" + targetClusterName + "'");
             }
-            return mdmInternalWrapper.moveDocumentById(sourceRevisionID, sourceClusterName, uniqueID, targetRevisionID, targetClusterName);
+            return mdmInternalWrapper.moveDocumentById(sourceClusterName, uniqueID, targetClusterName);
         } else {
             if (isMDMInternal(targetClusterName)) {
                 throw new IllegalArgumentException("Cannot copy to internal data cluster '" + targetClusterName + "'");
             }
-            return userStorageWrapper.moveDocumentById(sourceRevisionID, sourceClusterName, uniqueID, targetRevisionID, targetClusterName);
+            return userStorageWrapper.moveDocumentById(sourceClusterName, uniqueID, targetClusterName);
         }
     }
 

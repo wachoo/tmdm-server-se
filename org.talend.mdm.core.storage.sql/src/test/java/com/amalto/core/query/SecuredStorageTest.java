@@ -32,19 +32,19 @@ public class SecuredStorageTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 person,
                                 "<Person><id>1</id><score>130000</score><lastname>Dupond</lastname><middlename>John</middlename><firstname>Julien</firstname><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 person,
                                 "<Person><id>2</id><score>170000</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 person,
                                 "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><age>30</age><Status>Friend</Status></Person>"));

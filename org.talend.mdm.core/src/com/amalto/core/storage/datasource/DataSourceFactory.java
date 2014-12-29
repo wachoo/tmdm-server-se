@@ -168,12 +168,11 @@ public class DataSourceFactory {
         return dataSourceMap.get(dataSourceName) != null;
     }
 
-    public DataSourceDefinition getDataSource(String dataSourceName, String container, String revisionId) {
-        return getDataSource(readDataSourcesConfiguration(), dataSourceName, container, revisionId);
+    public DataSourceDefinition getDataSource(String dataSourceName, String container) {
+        return getDataSource(readDataSourcesConfiguration(), dataSourceName, container);
     }
 
-    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container,
-            String revisionId) {
+    public DataSourceDefinition getDataSource(InputStream configurationStream, String dataSourceName, String container) {
         if (dataSourceName == null) {
             throw new IllegalArgumentException("Data source name can not be null.");
         }
@@ -185,7 +184,7 @@ public class DataSourceFactory {
         if (dataSource == null) {
             throw new IllegalArgumentException("Data source '" + dataSourceName + "' can not be found in configuration.");
         }
-        return dataSource.transform(container, revisionId);
+        return dataSource.transform(container);
     }
 
 }

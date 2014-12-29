@@ -147,13 +147,6 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
-    public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
-            WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .getConceptsInDataClusterWithRevisions(wsGetConceptsInDataClusterWithRevisions);
-    }
-
-    @Override
     public WSView getView(WSGetView wsViewGet) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getView(wsViewGet);
     }
@@ -709,11 +702,6 @@ public class XtentisWSBean implements XtentisPort {
     @Override
     public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteRole(wsRoleDelete);
-    }
-
-    @Override
-    public WSUniversePKArray getUniversePKs(WSGetUniversePKs wsGetUniversePKs) throws RemoteException {
-        return new WSUniversePKArray(new WSUniversePK[] { new WSUniversePK("HEAD")}); //$NON-NLS-1$
     }
 
     @Override

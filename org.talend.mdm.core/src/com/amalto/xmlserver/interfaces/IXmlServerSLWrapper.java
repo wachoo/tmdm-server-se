@@ -270,15 +270,14 @@ public interface IXmlServerSLWrapper {
     /**
      * Move a document between two clusters of particular revision
      * 
-     * @param uniqueID The unique ID of the document
-     * @param sourceclusterName The unique ID of the source cluster
-     * @param sourceRevisionID The ID of the source revision
-     * @param targetclusterName The unique ID of the target cluster
      * @param targetRevisionID The ID of the target revision
+     * @param sourceclusterName The unique ID of the source cluster
+     * @param uniqueID The unique ID of the document
+     * @param targetclusterName The unique ID of the target cluster
      * @return the time to perform the move
      * @throws XmlServerException
      */
-    public long moveDocumentById(String sourceRevisionID, String sourceclusterName, String uniqueID, String targetRevisionID, String targetclusterName) throws XmlServerException;
+    public long moveDocumentById(String sourceclusterName, String uniqueID, String targetclusterName) throws XmlServerException;
 
     /**
      * Count Items based on conditions

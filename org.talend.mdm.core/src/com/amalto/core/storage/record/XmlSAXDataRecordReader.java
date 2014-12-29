@@ -53,7 +53,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
     }
 
     @Override
-    public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, Input input) {
+    public DataRecord read(MetadataRepository repository, ComplexTypeMetadata type, Input input) {
         try {
             InputSource inputSource = input.input;
             XMLReader xmlReader = input.reader;
@@ -61,7 +61,6 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             xmlReader.setContentHandler(handler);
             xmlReader.parse(inputSource);
             DataRecord dataRecord = handler.getDataRecord();
-            dataRecord.setRevisionId(revisionId);
             return dataRecord;
         } catch (Exception e) {
             throw new RuntimeException(e);

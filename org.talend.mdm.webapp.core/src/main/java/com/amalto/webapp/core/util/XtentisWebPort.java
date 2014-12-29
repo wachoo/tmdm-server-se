@@ -220,12 +220,6 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
-            WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException {
-        return delegate.getConceptsInDataClusterWithRevisions(wsGetConceptsInDataClusterWithRevisions);
-    }
-
-    @Override
     public WSViewPKArray getViewPKs(WSGetViewPKs regexp) throws RemoteException {
         return delegate.getViewPKs(regexp);
     }
@@ -823,11 +817,6 @@ public class XtentisWebPort implements XtentisPort {
     @Override
     public WSBoolean supportStaging(WSDataClusterPK dataClusterPK) throws RemoteException {
         return delegate.supportStaging(dataClusterPK);
-    }
-
-    @Override
-    public WSUniversePKArray getUniversePKs(WSGetUniversePKs wsGetUniversePKs) throws RemoteException {
-        return delegate.getUniversePKs(wsGetUniversePKs);
     }
 
     @Override

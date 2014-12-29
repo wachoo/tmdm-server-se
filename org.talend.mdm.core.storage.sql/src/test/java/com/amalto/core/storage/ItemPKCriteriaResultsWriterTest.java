@@ -61,7 +61,7 @@ public class ItemPKCriteriaResultsWriterTest extends TestCase {
         wrapper.putDocumentFromString(xml, "Product.Product.333", "Product"); //$NON-NLS-1$ //$NON-NLS-2$
 
         ComplexTypeMetadata typeForSelect = repository.getComplexType("Product"); //$NON-NLS-1$
-        Select select = getSelectTypeById(typeForSelect, null, new String[] { "Product", "Product", "333" }); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        Select select = getSelectTypeById(typeForSelect, new String[] { "Product", "Product", "333" }); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
         StorageResults records = storage.fetch(select);
         Iterator<DataRecord> iterator = records.iterator();
@@ -80,7 +80,7 @@ public class ItemPKCriteriaResultsWriterTest extends TestCase {
         wrapper.putDocumentFromString(xml, "Product.Product.\"5<6>4\"&7", "Product"); //$NON-NLS-1$ //$NON-NLS-2$
 
         typeForSelect = repository.getComplexType("Product"); //$NON-NLS-1$
-        select = getSelectTypeById(typeForSelect, null, new String[] { "Product", "Product", "\"5<6>4\"&7" }); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+        select = getSelectTypeById(typeForSelect, new String[] { "Product", "Product", "\"5<6>4\"&7" }); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 
         records = storage.fetch(select);
         iterator = records.iterator();
@@ -97,7 +97,7 @@ public class ItemPKCriteriaResultsWriterTest extends TestCase {
         assertTrue(resultXml.contains("<i>&quot;5&lt;6&gt;4&quot;&amp;7</i>")); //$NON-NLS-1$
     }
 
-    private static Select getSelectTypeById(ComplexTypeMetadata type, String revisionId, String[] splitUniqueId) {
+    private static Select getSelectTypeById(ComplexTypeMetadata type, String[] splitUniqueId) {
         ComplexTypeMetadata typeForSelect = type;
         while (typeForSelect.getSuperTypes() != null && !typeForSelect.getSuperTypes().isEmpty()
                 && typeForSelect.getSuperTypes().size() > 0) {

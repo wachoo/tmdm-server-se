@@ -34,7 +34,7 @@ class TomcatServer implements Server {
     public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
         boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(dataSourceName);
         if (isDataSourceDefinitionPresent) {
-            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container, null);
+            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container);
             switch (type) {
             case MASTER:
                 return dataSource.getMaster() != null;
@@ -49,7 +49,7 @@ class TomcatServer implements Server {
 
     @Override
     public DataSourceDefinition getDefinition(String dataSourceName, String container) {
-        return dataSourceFactory.getDataSource(dataSourceName, container, null);
+        return dataSourceFactory.getDataSource(dataSourceName, container);
     }
 
     public StorageAdmin getStorageAdmin() {

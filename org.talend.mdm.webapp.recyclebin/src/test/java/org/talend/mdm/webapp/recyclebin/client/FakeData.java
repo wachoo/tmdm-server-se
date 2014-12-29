@@ -22,16 +22,16 @@ public class FakeData {
 
     private static List<ItemsTrashItem> items = new ArrayList<ItemsTrashItem>();
     static {
-        items.add(new ItemsTrashItem("Product", "Product", "000", "", "", "", "000", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "111", "", "", "", "111", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "222", "", "", "", "222", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "333", "", "", "", "333", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "444", "", "", "", "444", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "555", "", "", "", "555", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "666", "", "", "", "666", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "777", "", "", "", "777", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "888", "", "", "", "888", "", "", "", ""));
-        items.add(new ItemsTrashItem("Product", "Product", "999", "", "", "", "999", "", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "000", "", "", "", "000", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "111", "", "", "", "111", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "222", "", "", "", "222", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "333", "", "", "", "333", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "444", "", "", "", "444", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "555", "", "", "", "555", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "666", "", "", "", "666", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "777", "", "", "", "777", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "888", "", "", "", "888", "", "", ""));
+        items.add(new ItemsTrashItem("Product", "Product", "999", "", "", "", "999", "", "", ""));
     }
 
     public static List<ItemsTrashItem> getItems() {

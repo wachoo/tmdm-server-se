@@ -47,7 +47,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public StorageWrapper() {
     }
 
-    private static Select getSelectTypeById(ComplexTypeMetadata type, String revisionId, String[] splitUniqueId, String uniqueID) {
+    private static Select getSelectTypeById(ComplexTypeMetadata type, String[] splitUniqueId, String uniqueID) {
         ComplexTypeMetadata typeForSelect = type;
         while (typeForSelect.getSuperTypes() != null && !typeForSelect.getSuperTypes().isEmpty()
                 && typeForSelect.getSuperTypes().size() > 0) {
@@ -180,7 +180,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         {
             Storage storage = getStorage(clusterName);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = xmlStringReader.read(null, repository, repository.getComplexType(typeName), xmlString);
+            DataRecord record = xmlStringReader.read(repository, repository.getComplexType(typeName), xmlString);
             try {
                 storage.update(record);
             } catch (Exception e) {
@@ -198,7 +198,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
             Storage storage = getStorage(clusterName);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = reader.read(null, repository, repository.getComplexType(typeName), root);
+            DataRecord record = reader.read(repository, repository.getComplexType(typeName), root);
             storage.update(record);
         }
         return System.currentTimeMillis() - start;
@@ -216,7 +216,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             DataRecordReader<XmlSAXDataRecordReader.Input> reader = new XmlSAXDataRecordReader();
             XmlSAXDataRecordReader.Input readerInput = new XmlSAXDataRecordReader.Input(docReader, input);
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = reader.read(null, repository, repository.getComplexType(typeName), readerInput);
+            DataRecord record = reader.read(repository, repository.getComplexType(typeName), readerInput);
             storage.update(record);
         }
         return System.currentTimeMillis() - start;
@@ -241,7 +241,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         MetadataRepository repository = storage.getMetadataRepository();
         String typeName = splitUniqueId[1];
         ComplexTypeMetadata type = repository.getComplexType(typeName);
-        Select select = getSelectTypeById(type, null, splitUniqueId, uniqueID);
+        Select select = getSelectTypeById(type, splitUniqueId, uniqueID);
         StorageResults records = null;
         try {
             storage.begin();
@@ -338,7 +338,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
             Storage storage = getStorage(clusterName);
             ComplexTypeMetadata type = storage.getMetadataRepository().getComplexType(typeName);
-            Select select = getSelectTypeById(type, null, splitUniqueID, uniqueID);
+            Select select = getSelectTypeById(type, splitUniqueID, uniqueID);
             try {
                 storage.begin();
                 storage.delete(select);
@@ -389,8 +389,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         }
     }
 
-    public long moveDocumentById(String sourceRevisionID, String sourceClusterName, String uniqueID, String targetRevisionID, String targetClusterName) throws XmlServerException {
-
+    public long moveDocumentById(String sourceClusterName, String uniqueID, String targetClusterName) throws XmlServerException {
         throw new NotImplementedException();
     }
 

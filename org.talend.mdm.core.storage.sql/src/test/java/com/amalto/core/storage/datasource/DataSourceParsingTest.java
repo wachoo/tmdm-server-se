@@ -19,21 +19,21 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testInvalidParameters() {
         try {
-            DataSourceFactory.getInstance().getDataSource(null, null, null);
+            DataSourceFactory.getInstance().getDataSource(null, null);
             fail();
         } catch (Exception e) {
             // Expected
         }
 
         try {
-            DataSourceFactory.getInstance().getDataSource("Test-1", null, null);
+            DataSourceFactory.getInstance().getDataSource("Test-1", null);
             fail();
         } catch (Exception e) {
             // Expected
         }
 
         try {
-            DataSourceFactory.getInstance().getDataSource(null, "MDM", null);
+            DataSourceFactory.getInstance().getDataSource(null, "MDM");
             fail();
         } catch (Exception e) {
             // Expected
@@ -42,7 +42,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testParsing() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-0", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-0", "MDM");
         DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
@@ -68,7 +68,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testContainerChange1() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-1", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-1", "MDM");
         DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
@@ -84,7 +84,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testContainerChange2() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-2", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-2", "MDM");
         DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
@@ -100,7 +100,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testSchemaGeneration() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM");
         DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
@@ -111,7 +111,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testAdvancedProperties() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM");
         DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
@@ -126,7 +126,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testCaseSensitiveConfiguration() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-3", "MDM");
         DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
@@ -135,7 +135,7 @@ public class DataSourceParsingTest extends TestCase {
         assertTrue(rdbmsDataSource.isCaseSensitiveSearch()); // Default is case sensitive search
 
         stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-4", "MDM", null);
+        dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-4", "MDM");
         dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);
@@ -146,7 +146,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testPostgresLowercasePostProcess() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-5", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-5", "MDM");
         DataSource master = dataSourceDefinition.getMaster();
         assertNotNull(master);
         assertTrue(master instanceof RDBMSDataSource);
@@ -163,7 +163,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testMySQLHyphenSubstitution() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-6", "A-A-1_B", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-6", "A-A-1_B");
         DataSource master = dataSourceDefinition.getMaster();
         assertNotNull(master);
         assertTrue(master instanceof RDBMSDataSource);
@@ -175,7 +175,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testDatasourceSharedStatus() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-7", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-7", "MDM");
         DataSource master = dataSourceDefinition.getMaster();
         assertNotNull(master);
         assertTrue(master.isShared());
@@ -191,7 +191,7 @@ public class DataSourceParsingTest extends TestCase {
 
     public void testAdvancedPropertiesReplace() throws Exception {
         InputStream stream = DataSourceParsingTest.class.getResourceAsStream("datasources1.xml");
-        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-8", "MDM", null);
+        DataSourceDefinition dataSourceDefinition = DataSourceFactory.getInstance().getDataSource(stream, "Test-8", "MDM");
         DataSource dataSource = dataSourceDefinition.getMaster();
         assertNotNull(dataSource);
         assertTrue(dataSource instanceof RDBMSDataSource);

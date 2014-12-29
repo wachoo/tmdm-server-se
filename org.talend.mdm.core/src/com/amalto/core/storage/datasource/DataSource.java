@@ -38,7 +38,6 @@ public interface DataSource {
     /**
      * Returns a copy of current {@link com.amalto.core.storage.datasource.DataSource datasource} suited for given parameters.
      * @param container A MDM container name.
-     * @param revisionId A revision id (or <code>null</code> is not used).
      */
-    DataSource transform(String container, String revisionId);
+    DataSource transform(String container);
 }

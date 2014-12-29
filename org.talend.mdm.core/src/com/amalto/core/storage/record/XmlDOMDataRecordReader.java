@@ -20,7 +20,6 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import com.amalto.core.util.Util;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 import org.w3c.dom.*;
 
@@ -30,12 +29,10 @@ import java.util.Collection;
 
 public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
 
-    private static final Logger LOGGER = Logger.getLogger(XmlDOMDataRecordReader.class);
-
     public XmlDOMDataRecordReader() {
     }
 
-    public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, Element element) {
+    public DataRecord read(MetadataRepository repository, ComplexTypeMetadata type, Element element) {
         long lastModificationTime = 0;
         String taskId = null;
         // Initialization from DOM values (timestamp, taskId...)
@@ -53,7 +50,6 @@ public class XmlDOMDataRecordReader implements DataRecordReader<Element> {
         }
         DataRecordMetadata metadata = new DataRecordMetadataImpl(lastModificationTime, taskId);
         DataRecord dataRecord = new DataRecord(type, metadata);
-        dataRecord.setRevisionId(revisionId);
         // Parse all record values from DOM
         NodeList userPayloadElement = element.getElementsByTagName("p"); //$NON-NLS-1$
         Element singleUserPayloadElement = (Element) userPayloadElement.item(0);

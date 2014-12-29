@@ -95,7 +95,7 @@ class UpdateReportTypeMapping extends TypeMapping {
     public DataRecord setValues(Wrapper from, DataRecord to) {
         String itemXmlContent = (String) from.get("x_items_xml"); //$NON-NLS-1$
         DataRecordReader<String> itemReader = new XmlStringDataRecordReader();
-        DataRecord items = itemReader.read("HEAD", repository, updateReportType, "<Update>" + itemXmlContent + "</Update>");  //$NON-NLS-1$ //$NON-NLS-2$
+        DataRecord items = itemReader.read(repository, updateReportType, "<Update>" + itemXmlContent + "</Update>");  //$NON-NLS-1$ //$NON-NLS-2$
 
         to.set(updateReportType.getField("UserName"), from.get("x_user_name")); //$NON-NLS-1$ //$NON-NLS-2$
         to.set(updateReportType.getField("Source"), from.get("x_source")); //$NON-NLS-1$ //$NON-NLS-2$

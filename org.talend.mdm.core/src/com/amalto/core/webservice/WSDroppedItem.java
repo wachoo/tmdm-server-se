@@ -7,7 +7,6 @@ package com.amalto.core.webservice;
 
 
 public class WSDroppedItem {
-    protected java.lang.String revisionID;
     protected com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK;
     protected java.lang.String uniqueId;
     protected java.lang.String conceptName;
@@ -20,8 +19,7 @@ public class WSDroppedItem {
     public WSDroppedItem() {
     }
     
-    public WSDroppedItem(java.lang.String revisionID, com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String uniqueId, java.lang.String conceptName, java.lang.String[] ids, java.lang.String partPath, java.lang.String insertionUserName, java.lang.Long insertionTime, java.lang.String projection) {
-        this.revisionID = revisionID;
+    public WSDroppedItem(WSDataClusterPK wsDataClusterPK, String uniqueId, String conceptName, String[] ids, String partPath, String insertionUserName, Long insertionTime, String projection) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.uniqueId = uniqueId;
         this.conceptName = conceptName;
@@ -31,15 +29,7 @@ public class WSDroppedItem {
         this.insertionTime = insertionTime;
         this.projection = projection;
     }
-    
-    public java.lang.String getRevisionID() {
-        return revisionID;
-    }
-    
-    public void setRevisionID(java.lang.String revisionID) {
-        this.revisionID = revisionID;
-    }
-    
+
     public com.amalto.core.webservice.WSDataClusterPK getWsDataClusterPK() {
         return wsDataClusterPK;
     }

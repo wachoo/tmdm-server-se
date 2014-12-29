@@ -76,7 +76,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read("1", repository, repository.getComplexType("MyType"),
+        records.add(factory.read(repository, repository.getComplexType("MyType"),
                 "<MyType><subelement>22</subelement><myDatetime>2014-04-17T12:00:00</myDatetime><myDate>2014-04-17</myDate></MyType>"));
         storage.begin();
         storage.update(records);
@@ -105,11 +105,10 @@ public class DataRecordCreationTest extends StorageTestCase {
 
         List<DataRecord> records = new LinkedList<DataRecord>();
         records.add(factory.read(
-                "1",
                 repository,
                 repository.getComplexType("EOR"),
                 "<EOR>  <UG_EOR>1</UG_EOR>  <TYP_EOR>1</TYP_EOR>  <L_TYP_EOR>1</L_TYP_EOR>  <CAT_TYP_EOR>1</CAT_TYP_EOR>  <D_DEB_EOR>2014-04-21</D_DEB_EOR>  <UG_EOR_FILLES/>  <UG_EOR_MERES/>  <GARES>    <GARE>[1][2]</GARE>  </GARES> </EOR>"));
-        records.add(factory.read("1", repository, repository.getComplexType("GARE"),
+        records.add(factory.read(repository, repository.getComplexType("GARE"),
                 "<GARE>  <IFE>1</IFE>  <ETFE>2</ETFE>  <UG_EOR>[1][1][2014-04-21]</UG_EOR> </GARE>"));
         storage.begin();
         storage.update(records);
@@ -138,9 +137,9 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read("1", repository, repository.getComplexType("DateInKey"),
+        records.add(factory.read(repository, repository.getComplexType("DateInKey"),
                 "<DateInKey><id>22</id><name>22</name><date1>2014-04-17</date1></DateInKey>"));
-        records.add(factory.read("1", repository, repository.getComplexType("DateTimeInKey"),
+        records.add(factory.read(repository, repository.getComplexType("DateTimeInKey"),
                 "<DateTimeInKey><code>22</code><db1>2014-04-17T12:00:00</db1><aaa>aaa</aaa></DateTimeInKey>"));
         storage.begin();
         storage.update(records);
@@ -219,7 +218,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord dataRecord = dataRecordReader.read("1", repository, product, builder.toString());
+        DataRecord dataRecord = dataRecordReader.read(repository, product, builder.toString());
 
         performAsserts(dataRecord);
     }
@@ -240,7 +239,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord dataRecord = dataRecordReader.read("1", repository, product, builder.toString());
+        DataRecord dataRecord = dataRecordReader.read(repository, product, builder.toString());
 
         performAsserts(dataRecord);
         performMetadataAsserts(dataRecord);
@@ -272,7 +271,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         }
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
-        DataRecord dataRecord = dataRecordReader.read("1", repository, c, builder.toString());
+        DataRecord dataRecord = dataRecordReader.read(repository, c, builder.toString());
 
         performInheritanceAsserts(dataRecord);
     }
@@ -289,7 +288,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
                 .getResourceAsStream("DataRecordCreationTest_1.xml")));
-        DataRecord dataRecord = dataRecordReader.read("1", repository, product, input);
+        DataRecord dataRecord = dataRecordReader.read(repository, product, input);
 
         performAsserts(dataRecord);
     }
@@ -306,7 +305,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
                 .getResourceAsStream("DataRecordCreationTest_3.xml")));
-        DataRecord dataRecord = dataRecordReader.read("1", repository, product, input);
+        DataRecord dataRecord = dataRecordReader.read(repository, product, input);
 
         performAsserts(dataRecord);
         performMetadataAsserts(dataRecord);
@@ -321,7 +320,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
                 .getResourceAsStream("DataRecordCreationTest_2.xml")));
-        DataRecord dataRecord = dataRecordReader.read("1", repository, c, input);
+        DataRecord dataRecord = dataRecordReader.read(repository, c, input);
         performInheritanceAsserts(dataRecord);
     }
 
@@ -343,15 +342,15 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
         XmlSAXDataRecordReader.Input input = new XmlSAXDataRecordReader.Input(xmlReader, new InputSource(this.getClass()
                 .getResourceAsStream(resourceName)));
-        DataRecord dataRecord = dataRecordReader.read("1", repository, recordType, input);
+        DataRecord dataRecord = dataRecordReader.read(repository, recordType, input);
         records.add(dataRecord);
         // Read using DOM
         DataRecordReader<Element> documentDataRecordReader = new XmlDOMDataRecordReader();
         Document document = Util.parse(IOUtils.toString(this.getClass().getResourceAsStream(resourceName)));
-        records.add(documentDataRecordReader.read("1", repository, company, document.getDocumentElement()));
+        records.add(documentDataRecordReader.read(repository, company, document.getDocumentElement()));
         // Read using String
         DataRecordReader<String> stringDataRecordReader = new XmlStringDataRecordReader();
-        DataRecord record = stringDataRecordReader.read("1", repository, company, IOUtils.toString(this.getClass().getResourceAsStream(resourceName)));
+        DataRecord record = stringDataRecordReader.read(repository, company, IOUtils.toString(this.getClass().getResourceAsStream(resourceName)));
         records.add(record);
         return records;
     }
@@ -420,7 +419,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
                 .parse(this.getClass().getResourceAsStream("DataRecordCreationTest_1.xml"));
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
-        DataRecord dataRecord = dataRecordReader.read("1", repository, product, document.getDocumentElement());
+        DataRecord dataRecord = dataRecordReader.read(repository, product, document.getDocumentElement());
 
         performAsserts(dataRecord);
     }
@@ -438,7 +437,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         InputStream stream = this.getClass().getResourceAsStream("DataRecordCreationTest_3.xml");
         Document document = documentBuilder.parse(stream);
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
-        DataRecord dataRecord = dataRecordReader.read("1", repository, product, document.getDocumentElement());
+        DataRecord dataRecord = dataRecordReader.read(repository, product, document.getDocumentElement());
 
         performAsserts(dataRecord);
         performMetadataAsserts(dataRecord);
@@ -456,7 +455,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
         Document document = documentBuilder.parse(this.getClass().getResourceAsStream("DataRecordCreationTest_2.xml"));
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
-        DataRecord dataRecord = dataRecordReader.read("1", repository, c, document.getDocumentElement());
+        DataRecord dataRecord = dataRecordReader.read(repository, c, document.getDocumentElement());
 
         performInheritanceAsserts(dataRecord);
     }
@@ -538,12 +537,12 @@ public class DataRecordCreationTest extends StorageTestCase {
 
     public void testUserXmlData() {
         DataRecordReader<String> xmlReader = new XmlStringDataRecordReader();
-        DataRecord r1 = xmlReader.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>");
-        DataRecord r2 = xmlReader.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>");
-        DataRecord r3 = xmlReader.read("1", repository, persons, "<Persons><name>person</name><age>20</age></Persons>");
-        DataRecord r4 = xmlReader.read("1", repository, employee,
+        DataRecord r1 = xmlReader.read(repository, b, "<B><id>1</id><textB>TextB</textB></B>");
+        DataRecord r2 = xmlReader.read(repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>");
+        DataRecord r3 = xmlReader.read(repository, persons, "<Persons><name>person</name><age>20</age></Persons>");
+        DataRecord r4 = xmlReader.read(repository, employee,
                 "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>");
-        DataRecord r5 = xmlReader.read("1", repository, manager,
+        DataRecord r5 = xmlReader.read(repository, manager,
                 "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>");
 
         assertNotNull(r1);
@@ -574,20 +573,20 @@ public class DataRecordCreationTest extends StorageTestCase {
 
     public void testUserXmlDataWithInnerProperties() {
         DataRecordReader<String> xmlReader = new XmlStringDataRecordReader();
-        DataRecord r1 = xmlReader.read("1", repository, b,
+        DataRecord r1 = xmlReader.read(repository, b,
                 "<ii><t>1365488764093</t><taskId>123456</taskId><p><B><id>1</id><textB>TextB</textB></B></p></ii>");
         DataRecord r2 = xmlReader
-                .read("1", repository, d,
+                .read(repository, d,
                         "<ii><t>1365488764093</t><taskId>123456</taskId><p><D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D></p></ii>");
-        DataRecord r3 = xmlReader.read("1", repository, persons,
+        DataRecord r3 = xmlReader.read(repository, persons,
                 "<ii><t>1365488764093</t><taskId>123456</taskId><p><Persons><name>person</name><age>20</age></Persons></p></ii>");
         DataRecord r4 = xmlReader
-                .read("1",
+                .read(
                         repository,
                         employee,
                         "<ii><t>1365488764093</t><taskId>123456</taskId><p><Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee></p></ii>");
         DataRecord r5 = xmlReader
-                .read("1",
+                .read(
                         repository,
                         manager,
                         "<ii><t>1365488764093</t><taskId>123456</taskId><p><Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager></p></ii>");

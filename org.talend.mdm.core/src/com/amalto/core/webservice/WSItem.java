@@ -9,7 +9,6 @@ package com.amalto.core.webservice;
 public class WSItem {
     protected com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK;
     protected java.lang.String dataModelName;
-    protected java.lang.String dataModelRevision;
     protected java.lang.String conceptName;
     protected java.lang.String[] ids;
     protected long insertionTime;
@@ -19,10 +18,9 @@ public class WSItem {
     public WSItem() {
     }
     
-    public WSItem(com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String dataModelName, java.lang.String dataModelRevision, java.lang.String conceptName, java.lang.String[] ids, long insertionTime, java.lang.String taskId, java.lang.String content) {
+    public WSItem(WSDataClusterPK wsDataClusterPK, String dataModelName, String conceptName, String[] ids, long insertionTime, String taskId, String content) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.dataModelName = dataModelName;
-        this.dataModelRevision = dataModelRevision;
         this.conceptName = conceptName;
         this.ids = ids;
         this.insertionTime = insertionTime;
@@ -44,14 +42,6 @@ public class WSItem {
     
     public void setDataModelName(java.lang.String dataModelName) {
         this.dataModelName = dataModelName;
-    }
-    
-    public java.lang.String getDataModelRevision() {
-        return dataModelRevision;
-    }
-    
-    public void setDataModelRevision(java.lang.String dataModelRevision) {
-        this.dataModelRevision = dataModelRevision;
     }
     
     public java.lang.String getConceptName() {

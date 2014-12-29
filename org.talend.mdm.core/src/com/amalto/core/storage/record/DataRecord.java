@@ -28,8 +28,6 @@ public class DataRecord {
 
     private ComplexTypeMetadata type;
 
-    private String revisionId;
-
     /**
      * @param type Type as {@link ComplexTypeMetadata} of the data record
      * @param recordMetadata Record specific metadata (e.g. last modification timestamp...)
@@ -92,14 +90,6 @@ public class DataRecord {
             i++;
         }
         return keyValues;
-    }
-
-    public String getRevisionId() {
-        return revisionId;
-    }
-
-    public void setRevisionId(String revisionId) {
-        this.revisionId = revisionId;
     }
 
     public ComplexTypeMetadata getType() {

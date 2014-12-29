@@ -46,8 +46,8 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
     }
 
     public ItemsTrashItem(String conceptName, String dataModelName, String ids, String itemName, String insertionTime,
-            String insertionUserName, String dataClusterName, String partPath, String projection, String revisionID,
-            String uniqueId) {
+                          String insertionUserName, String dataClusterName, String partPath, String projection,
+                          String uniqueId) {
         this.conceptName = conceptName;
         this.dataModelName = dataModelName;
         this.ids = ids;

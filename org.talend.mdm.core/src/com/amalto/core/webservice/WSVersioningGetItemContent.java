@@ -9,15 +9,13 @@ package com.amalto.core.webservice;
 public class WSVersioningGetItemContent {
     protected java.lang.String versioningSystemName;
     protected com.amalto.core.webservice.WSItemPK wsItemPK;
-    protected java.lang.String revision;
-    
+
     public WSVersioningGetItemContent() {
     }
     
-    public WSVersioningGetItemContent(java.lang.String versioningSystemName, com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String revision) {
+    public WSVersioningGetItemContent(String versioningSystemName, WSItemPK wsItemPK) {
         this.versioningSystemName = versioningSystemName;
         this.wsItemPK = wsItemPK;
-        this.revision = revision;
     }
     
     public java.lang.String getVersioningSystemName() {
@@ -35,12 +33,5 @@ public class WSVersioningGetItemContent {
     public void setWsItemPK(com.amalto.core.webservice.WSItemPK wsItemPK) {
         this.wsItemPK = wsItemPK;
     }
-    
-    public java.lang.String getRevision() {
-        return revision;
-    }
-    
-    public void setRevision(java.lang.String revision) {
-        this.revision = revision;
-    }
+
 }

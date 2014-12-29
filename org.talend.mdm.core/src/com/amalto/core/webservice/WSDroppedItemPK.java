@@ -9,15 +9,13 @@ package com.amalto.core.webservice;
 public class WSDroppedItemPK {
     protected com.amalto.core.webservice.WSItemPK wsItemPK;
     protected java.lang.String partPath;
-    protected java.lang.String revisionId;
-    
+
     public WSDroppedItemPK() {
     }
     
-    public WSDroppedItemPK(com.amalto.core.webservice.WSItemPK wsItemPK, java.lang.String partPath, java.lang.String revisionId) {
+    public WSDroppedItemPK(WSItemPK wsItemPK, String partPath) {
         this.wsItemPK = wsItemPK;
         this.partPath = partPath;
-        this.revisionId = revisionId;
     }
     
     public com.amalto.core.webservice.WSItemPK getWsItemPK() {
@@ -35,12 +33,5 @@ public class WSDroppedItemPK {
     public void setPartPath(java.lang.String partPath) {
         this.partPath = partPath;
     }
-    
-    public java.lang.String getRevisionId() {
-        return revisionId;
-    }
-    
-    public void setRevisionId(java.lang.String revisionId) {
-        this.revisionId = revisionId;
-    }
+
 }

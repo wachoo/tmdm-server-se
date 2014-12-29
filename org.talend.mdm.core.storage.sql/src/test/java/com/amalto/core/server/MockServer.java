@@ -55,14 +55,14 @@ public class MockServer implements Server {
 
     @Override
     public DataSourceDefinition getDefinition(String dataSourceName, String container) {
-        return dataSourceFactory.getDataSource(getDatasourcesInputStream(), dataSourceName, container, null);
+        return dataSourceFactory.getDataSource(getDatasourcesInputStream(), dataSourceName, container);
     }
 
     @Override
     public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
         boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(getDatasourcesInputStream(), dataSourceName);
         if (isDataSourceDefinitionPresent) {
-            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container, null);
+            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container);
             switch (type) {
             case MASTER:
                 return dataSource.getMaster() != null;

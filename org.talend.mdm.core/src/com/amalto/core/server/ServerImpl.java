@@ -36,7 +36,7 @@ class ServerImpl implements Server {
     public boolean hasDataSource(String dataSourceName, String container, StorageType type) {
         boolean isDataSourceDefinitionPresent = dataSourceFactory.hasDataSource(dataSourceName);
         if (isDataSourceDefinitionPresent) {
-            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container, null);
+            DataSourceDefinition dataSource = dataSourceFactory.getDataSource(dataSourceName, container);
             switch (type) {
                 case MASTER:
                     return dataSource.getMaster() != null;

@@ -2838,7 +2838,7 @@ public class DocumentSaveTest extends TestCase {
                 Element userXmlElement = getUserXmlElement(databaseDomDocument);
                 if (USE_STORAGE_OPTIMIZATIONS) {
                     DataRecordReader<String> reader = new XmlStringDataRecordReader();
-                    DataRecord dataRecord = reader.read(null, repository, type, Util.nodeToString(userXmlElement));
+                    DataRecord dataRecord = reader.read(repository, type, Util.nodeToString(userXmlElement));
                     return new StorageDocument(dataClusterName, repository, dataRecord);
                 } else {
                     return new DOMDocument(userXmlElement, type, dataClusterName, dataClusterName);

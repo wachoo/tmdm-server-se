@@ -7,7 +7,6 @@ package com.amalto.core.webservice;
 
 
 public class WSRunQuery {
-    protected java.lang.String revisionID;
     protected com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK;
     protected java.lang.String query;
     protected java.lang.String[] parameters;
@@ -15,19 +14,10 @@ public class WSRunQuery {
     public WSRunQuery() {
     }
     
-    public WSRunQuery(java.lang.String revisionID, com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String query, java.lang.String[] parameters) {
-        this.revisionID = revisionID;
+    public WSRunQuery(WSDataClusterPK wsDataClusterPK, String query, String[] parameters) {
         this.wsDataClusterPK = wsDataClusterPK;
         this.query = query;
         this.parameters = parameters;
-    }
-    
-    public java.lang.String getRevisionID() {
-        return revisionID;
-    }
-    
-    public void setRevisionID(java.lang.String revisionID) {
-        this.revisionID = revisionID;
     }
     
     public com.amalto.core.webservice.WSDataClusterPK getWsDataClusterPK() {

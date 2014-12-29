@@ -7,25 +7,15 @@ package com.amalto.core.webservice;
 
 
 public class WSExistsDBDataCluster {
-    protected java.lang.String revisionID;
     protected java.lang.String name;
     
     public WSExistsDBDataCluster() {
     }
     
-    public WSExistsDBDataCluster(java.lang.String revisionID, java.lang.String name) {
-        this.revisionID = revisionID;
+    public WSExistsDBDataCluster(String name) {
         this.name = name;
     }
-    
-    public java.lang.String getRevisionID() {
-        return revisionID;
-    }
-    
-    public void setRevisionID(java.lang.String revisionID) {
-        this.revisionID = revisionID;
-    }
-    
+
     public java.lang.String getName() {
         return name;
     }

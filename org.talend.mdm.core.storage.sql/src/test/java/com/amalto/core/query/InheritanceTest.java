@@ -39,42 +39,42 @@ public class InheritanceTest extends StorageTestCase {
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        allRecords.add(factory.read("1", repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
-        allRecords.add(factory.read("1", repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
-        allRecords.add(factory.read("1", repository, persons, "<Persons><name>person</name><age>20</age></Persons>"));
-        allRecords.add(factory.read("1", repository, employee,
+        allRecords.add(factory.read(repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
+        allRecords.add(factory.read(repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
+        allRecords.add(factory.read(repository, persons, "<Persons><name>person</name><age>20</age></Persons>"));
+        allRecords.add(factory.read(repository, employee,
                 "<Employee><name>employee</name><age>21</age><jobTitle>Test</jobTitle></Employee>"));
-        allRecords.add(factory.read("1", repository, employee,
+        allRecords.add(factory.read(repository, employee,
                 "<Employee><name>employee2</name><age>22</age><jobTitle>Test2</jobTitle></Employee>"));
-        allRecords.add(factory.read("1", repository, manager,
+        allRecords.add(factory.read(repository, manager,
                 "<Manager><name>manager</name><age>25</age><jobTitle>Test</jobTitle><dept>manager</dept></Manager>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><refB tmdm:type=\"D\">[2]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 c,
                                 "<C xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><refB tmdm:type=\"D\">[2]</refB><textA>TextAC</textA><nestedB xsi:type=\"SubNested\"><text>Text</text><subText>SubText</subText></nestedB><textC>TextCC</textC></C>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ss,
                                 "<SS xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></SS>"));
         allRecords
                 .add(factory
-                        .read("1",
+                        .read(
                                 repository,
                                 ss,
                                 "<SS xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><nestedB xsi:type=\"SubNested\"><text>Text</text><subText>SubText</subText></nestedB></SS>"));

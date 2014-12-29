@@ -31,8 +31,6 @@ public class ExportServlet extends HttpServlet {
 
     private static final String PARAMETER_CLUSTER = "cluster";
 
-    private static final String PARAMETER_REVISION = "revision";
-
     private static final String PARAMETER_START = "start";
 
     private static final String PARAMETER_END = "end";
@@ -53,7 +51,6 @@ public class ExportServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse resp) throws ServletException {
         XmlServer server = Util.getXmlServerCtrlLocal();
-        String revisionId = getParameter(request, PARAMETER_REVISION, true);
         String clusterName = getParameter(request, PARAMETER_CLUSTER, true);
         int start = Integer.parseInt(getParameter(request, PARAMETER_START, true));
         int end = Integer.parseInt(getParameter(request, PARAMETER_END, true));

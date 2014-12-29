@@ -52,7 +52,7 @@ public class ConcurrentQueryTest extends StorageTestCase {
         storage.begin();
         {
             DataRecordReader<String> reader = new XmlStringDataRecordReader();
-            DataRecord initialRecord = reader.read(null, repository, concurrent, "<Concurrent><Id>1</Id><Value>0</Value></Concurrent>");
+            DataRecord initialRecord = reader.read(repository, concurrent, "<Concurrent><Id>1</Id><Value>0</Value></Concurrent>");
             storage.update(initialRecord);
         }
         storage.commit();

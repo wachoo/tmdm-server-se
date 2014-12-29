@@ -247,7 +247,6 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
             sb.append("'description':'").append(MESSAGES.getMessage(locale, "updatereport.timeline.label.userName")).append(":").append(model.getUserName()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$ //$NON-NLS-4$
                     .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.source")).append(":").append(model.getSource()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
                     .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.entity")).append(":").append(model.getEntity()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
-                    .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.revision")).append(":").append(model.getRevisionId()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
                     .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.dataContainer")).append(":").append(model.getDataContainer()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
                     .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.dataModel")).append(":").append(model.getDataModel()).append("<br>") //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$
                     .append(MESSAGES.getMessage(locale, "updatereport.timeline.label.key")).append(":").append(model.getKey()).append("<br>"); //$NON-NLS-1$ //$NON-NLS-2$  //$NON-NLS-3$

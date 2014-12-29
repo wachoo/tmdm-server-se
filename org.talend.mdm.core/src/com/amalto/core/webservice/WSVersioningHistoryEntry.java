@@ -8,7 +8,6 @@ package com.amalto.core.webservice;
 
 public class WSVersioningHistoryEntry {
     protected java.lang.String tag;
-    protected java.lang.String revision;
     protected java.lang.String date;
     protected java.lang.String author;
     protected java.lang.String comments;
@@ -16,9 +15,8 @@ public class WSVersioningHistoryEntry {
     public WSVersioningHistoryEntry() {
     }
     
-    public WSVersioningHistoryEntry(java.lang.String tag, java.lang.String revision, java.lang.String date, java.lang.String author, java.lang.String comments) {
+    public WSVersioningHistoryEntry(String tag, String date, String author, String comments) {
         this.tag = tag;
-        this.revision = revision;
         this.date = date;
         this.author = author;
         this.comments = comments;
@@ -30,14 +28,6 @@ public class WSVersioningHistoryEntry {
     
     public void setTag(java.lang.String tag) {
         this.tag = tag;
-    }
-    
-    public java.lang.String getRevision() {
-        return revision;
-    }
-    
-    public void setRevision(java.lang.String revision) {
-        this.revision = revision;
     }
     
     public java.lang.String getDate() {

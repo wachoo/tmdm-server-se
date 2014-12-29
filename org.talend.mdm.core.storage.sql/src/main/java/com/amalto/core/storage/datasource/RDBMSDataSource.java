@@ -60,8 +60,6 @@ public class RDBMSDataSource implements DataSource {
 
     private static final Logger LOGGER = Logger.getLogger(RDBMSDataSource.class);
 
-    private static final String REVISION_PLACEHOLDER = "${revision}"; //$NON-NLS-1$
-
     private static final String CONTAINER_PLACEHOLDER = "${container}"; //$NON-NLS-1$
 
     private final boolean generateTechnicalFK;
@@ -367,11 +365,10 @@ public class RDBMSDataSource implements DataSource {
     }
 
     @Override
-    public DataSource transform(String container, String revisionId) {
+    public DataSource transform(String container) {
         RDBMSDataSource copy = new RDBMSDataSource(this);
         // Additional post parsing (replace potential ${container} with container parameter value).
         replacePlaceholder(copy, CONTAINER_PLACEHOLDER, container);
-        replacePlaceholder(copy, REVISION_PLACEHOLDER, revisionId == null ? StringUtils.EMPTY : revisionId);
         return copy;
     }
 

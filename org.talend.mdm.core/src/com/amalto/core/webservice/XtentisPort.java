@@ -57,9 +57,6 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public WSStringArray getConceptsInDataCluster(WSGetConceptsInDataCluster wsGetConceptsInDataCluster) throws RemoteException;
 
-    public WSConceptRevisionMap getConceptsInDataClusterWithRevisions(
-            WSGetConceptsInDataClusterWithRevisions wsGetConceptsInDataClusterWithRevisions) throws RemoteException;
-
     public WSViewPKArray getViewPKs(WSGetViewPKs regexp) throws RemoteException;
 
     public WSView getView(WSGetView wsViewPK) throws RemoteException;
@@ -290,8 +287,6 @@ public interface XtentisPort extends java.rmi.Remote {
     public WSBoolean isPagingAccurate(WSInt wsInt) throws RemoteException;
 
     public WSBoolean supportStaging(WSDataClusterPK dataClusterPK) throws RemoteException;
-
-    public WSUniversePKArray getUniversePKs(WSGetUniversePKs wsGetUniversePKs) throws RemoteException;
 
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) throws RemoteException;
 

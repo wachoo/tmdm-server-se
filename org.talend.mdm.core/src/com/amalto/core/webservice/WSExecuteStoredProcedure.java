@@ -8,16 +8,14 @@ package com.amalto.core.webservice;
 
 public class WSExecuteStoredProcedure {
     protected com.amalto.core.webservice.WSStoredProcedurePK wsStoredProcedurePK;
-    protected java.lang.String revisionID;
     protected com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK;
     protected java.lang.String[] parameters;
     
     public WSExecuteStoredProcedure() {
     }
     
-    public WSExecuteStoredProcedure(com.amalto.core.webservice.WSStoredProcedurePK wsStoredProcedurePK, java.lang.String revisionID, com.amalto.core.webservice.WSDataClusterPK wsDataClusterPK, java.lang.String[] parameters) {
+    public WSExecuteStoredProcedure(WSStoredProcedurePK wsStoredProcedurePK, WSDataClusterPK wsDataClusterPK, String[] parameters) {
         this.wsStoredProcedurePK = wsStoredProcedurePK;
-        this.revisionID = revisionID;
         this.wsDataClusterPK = wsDataClusterPK;
         this.parameters = parameters;
     }
@@ -29,15 +27,7 @@ public class WSExecuteStoredProcedure {
     public void setWsStoredProcedurePK(com.amalto.core.webservice.WSStoredProcedurePK wsStoredProcedurePK) {
         this.wsStoredProcedurePK = wsStoredProcedurePK;
     }
-    
-    public java.lang.String getRevisionID() {
-        return revisionID;
-    }
-    
-    public void setRevisionID(java.lang.String revisionID) {
-        this.revisionID = revisionID;
-    }
-    
+
     public com.amalto.core.webservice.WSDataClusterPK getWsDataClusterPK() {
         return wsDataClusterPK;
     }

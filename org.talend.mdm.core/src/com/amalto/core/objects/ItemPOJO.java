@@ -57,8 +57,6 @@ public class ItemPOJO implements Serializable {
 
     private String dataModelName;// used for binding data model
 
-    private String dataModelRevision;// used for binding data model
-
     private String conceptName;
 
     private DataClusterPOJOPK dataClusterPOJOPK;
@@ -104,14 +102,6 @@ public class ItemPOJO implements Serializable {
 
     public void setDataModelName(String dataModelName) {
         this.dataModelName = dataModelName;
-    }
-
-    public String getDataModelRevision() {
-        return dataModelRevision;
-    }
-
-    public void setDataModelRevision(String dataModelRevision) {
-        this.dataModelRevision = dataModelRevision;
     }
 
     /**
@@ -273,9 +263,6 @@ public class ItemPOJO implements Serializable {
                     dm = Util.getFirstTextNode(header, "dm");//$NON-NLS-1$
                 }
                 newItem.setDataModelName(dm); //$NON-NLS-1$
-                if (Util.getFirstTextNode(header, "dmr") != null) { //$NON-NLS-1$
-                    newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr")); //$NON-NLS-1$
-                }
                 //if <t> after <taskId> then see 0021697
                 String time = null;
                 if (!m.group(1).contains("<t>")) { //$NON-NLS-1$
@@ -539,9 +526,6 @@ public class ItemPOJO implements Serializable {
                 if (Util.getFirstTextNode(header, "dmn") != null) { //$NON-NLS-1$
                     newItem.setDataModelName(Util.getFirstTextNode(header, "dmn")); //$NON-NLS-1$
                 }
-                if (Util.getFirstTextNode(header, "dmr") != null) { //$NON-NLS-1$
-                    newItem.setDataModelRevision(Util.getFirstTextNode(header, "dmr")); //$NON-NLS-1$
-                }
                 newItem.setDataClusterPK(new DataClusterPOJOPK(Util.getFirstTextNode(header, "c"))); //$NON-NLS-1$
                 newItem.setItemIds(Util.getTextNodes(header, "i")); //$NON-NLS-1$
                 newItem.setInsertionTime(Long.parseLong(Util.getFirstTextNode(header, "t"))); //$NON-NLS-1$
@@ -586,11 +570,6 @@ public class ItemPOJO implements Serializable {
                 if (dataModelName != null) {
                     streamWriter.writeStartElement("dmn"); //$NON-NLS-1$
                     streamWriter.writeCharacters(dataModelName);
-                    streamWriter.writeEndElement();
-                }
-                if (dataModelRevision != null) {
-                    streamWriter.writeStartElement("dmr"); //$NON-NLS-1$
-                    streamWriter.writeCharacters(dataModelRevision);
                     streamWriter.writeEndElement();
                 }
                 String[] ids = getItemIds();

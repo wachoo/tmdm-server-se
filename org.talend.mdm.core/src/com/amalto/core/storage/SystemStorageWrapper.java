@@ -223,16 +223,8 @@ public class SystemStorageWrapper extends StorageWrapper {
             return Collections.emptyList(); // TODO Support crossreferencing
         } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
             return filter(repository, "User", "Role"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else if (XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName().equals(clusterName)) {
-            return filter(repository, "Reporting", "hierarchical-report"); //$NON-NLS-1$ //$NON-NLS-2$
         } else if (XSystemObjects.DC_SEARCHTEMPLATE.getName().equals(clusterName)) {
             return filter(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else if (XSystemObjects.DC_JCAADAPTERS.getName().equals(clusterName)) {
-            // Not supported
-            return Collections.emptyList();
-        } else if (XSystemObjects.DC_INBOX.getName().equals(clusterName)) {
-            // Not supported
-            return Collections.emptyList();
         } else {
             return repository.getUserComplexTypes();
         }
@@ -313,7 +305,7 @@ public class SystemStorageWrapper extends StorageWrapper {
                 uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
             }
             MetadataRepository repository = storage.getMetadataRepository();
-            DataRecord record = reader.read(null, repository, type, root);
+            DataRecord record = reader.read(repository, type, root);
             for (FieldMetadata keyField : type.getKeyFields()) {
                 if (record.get(keyField) == null) {
                     LOGGER.warn("Ignoring update for record '" + uniqueID + "' (does not provide key information).");
@@ -337,7 +329,7 @@ public class SystemStorageWrapper extends StorageWrapper {
             }
             DataRecordReader<XmlSAXDataRecordReader.Input> reader = new XmlSAXDataRecordReader();
             XmlSAXDataRecordReader.Input readerInput = new XmlSAXDataRecordReader.Input(docReader, input);
-            DataRecord record = reader.read(null, storage.getMetadataRepository(), type, readerInput);
+            DataRecord record = reader.read(storage.getMetadataRepository(), type, readerInput);
             storage.update(record);
         }
         return System.currentTimeMillis() - start;

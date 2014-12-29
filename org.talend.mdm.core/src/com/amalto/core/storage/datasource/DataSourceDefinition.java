@@ -131,22 +131,21 @@ public class DataSourceDefinition {
      * Transforms the current datasource definitions for the given <code>container</code> and <code>revisionId</code>.
      * 
      * @param container A MDM container name.
-     * @param revisionId A revision name (or <code>null</code> for no revision).
      * @return A copy of current {@link com.amalto.core.storage.datasource.DataSourceDefinition definition} with
      * {@link com.amalto.core.storage.datasource.DataSource datasources} modified for given parameters.
      */
-    public DataSourceDefinition transform(String container, String revisionId) {
+    public DataSourceDefinition transform(String container) {
         DataSource transformedMaster = null;
         if (master != null) {
-            transformedMaster = master.transform(container, revisionId);
+            transformedMaster = master.transform(container);
         }
         DataSource transformedStaging = null;
         if (staging != null) {
-            transformedStaging = staging.transform(container, revisionId);
+            transformedStaging = staging.transform(container);
         }
         DataSource transformedSystem = null;
         if (system != null) {
-            transformedSystem = system.transform(container, revisionId);
+            transformedSystem = system.transform(container);
         }
         return new DataSourceDefinition(transformedMaster, transformedStaging, transformedSystem);
     }

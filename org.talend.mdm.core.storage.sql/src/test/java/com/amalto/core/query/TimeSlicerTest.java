@@ -40,7 +40,7 @@ public class TimeSlicerTest extends StorageTestCase {
         for (int i = 0; i < 6; i++) {
             storage.begin();
             storage.update(factory
-                    .read("1",
+                    .read(
                             repository,
                             country,
                             "<Country><id>" + i + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
@@ -85,7 +85,7 @@ public class TimeSlicerTest extends StorageTestCase {
         for (int i = 0; i < 6; i++) {
             storage.begin();
             storage.update(factory
-                    .read("1",
+                    .read(
                             repository,
                             country,
                             "<Country><id>"
@@ -153,7 +153,7 @@ public class TimeSlicerTest extends StorageTestCase {
         for (int i = 0; i < 6; i++) {
             storage.begin();
             storage.update(factory
-                    .read("1",
+                    .read(
                             repository,
                             country,
                             "<Country><id>" + i + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
@@ -178,7 +178,7 @@ public class TimeSlicerTest extends StorageTestCase {
         for (int i = 0; i < 6; i++) {
             storage.begin();
             storage.update(factory
-                    .read("1",
+                    .read(
                             repository,
                             country,
                             "<Country><id>" + i + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));

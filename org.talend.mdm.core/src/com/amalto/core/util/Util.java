@@ -13,7 +13,6 @@
 package com.amalto.core.util;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
-import com.amalto.core.delegator.IXtentisWSDelegator;
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.objects.*;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
@@ -25,7 +24,6 @@ import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.server.*;
 import com.amalto.core.webservice.WSMDMJob;
-import com.amalto.core.webservice.WSVersion;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereLogicOperator;
@@ -1039,7 +1037,6 @@ public class Util {
     public static String createUpdateReport(String[] ids, String concept, String operationType,
             Map<String, UpdateReportItem> updatedPath, String dataModelPK, String dataClusterPK) throws Exception {
         String username;
-        String revisionId = "";
         try {
             username = LocalUser.getLocalUser().getUsername();
         } catch (Exception e1) {
@@ -1058,7 +1055,7 @@ public class Util {
         }
         String xml2 = "" + "<Update>" + "<UserName>" + username + "</UserName>" + "<Source>genericUI</Source>" + "<TimeInMillis>"
                 + System.currentTimeMillis() + "</TimeInMillis>" + "<OperationType>" + StringEscapeUtils.escapeXml(operationType)
-                + "</OperationType>" + "<RevisionID>" + revisionId + "</RevisionID>" + "<DataCluster>" + dataClusterPK
+                + "</OperationType>" + "<DataCluster>" + dataClusterPK
                 + "</DataCluster>" + "<DataModel>" + dataModelPK + "</DataModel>" + "<Concept>"
                 + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>" + StringEscapeUtils.escapeXml(key) + "</Key>";
         if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
@@ -1081,17 +1078,6 @@ public class Util {
         }
         xml2 += "</Update>";
         return xml2;
-    }
-
-    public static String checkOnVersionCompatibility(WSVersion old) {
-        Version version = Version.getVersion(IXtentisWSDelegator.class);
-        String oldVersion = old.getMajor() + "." + old.getMinor() + "." + old.getRevision();
-        String newVersion = version.getMajor() + "." + version.getMinor() + "." + version.getRevision();
-        String str = "The two MDM Servers is not compatible, one is " + oldVersion + ", another is " + newVersion;
-        if (version.getMajor() != old.getMajor() || version.getMinor() != old.getMinor()) {
-            return str;
-        }
-        return null;
     }
 
     public static String getAppServerDeployDir() {
