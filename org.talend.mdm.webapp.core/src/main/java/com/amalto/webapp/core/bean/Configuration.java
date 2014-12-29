@@ -182,8 +182,8 @@ public class Configuration {
 
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if ("cluster".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                if (Util.getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
+            if ("cluster".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                if (com.amalto.core.util.Util.getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
                     com.amalto.core.util.Util.getNodeList(node, "value").item(0).appendChild(d.createTextNode(cluster)); //$NON-NLS-1$
                 } else {
                     com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(cluster); //$NON-NLS-1$
@@ -192,8 +192,8 @@ public class Configuration {
         }
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if ("model".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                if (Util.getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
+            if ("model".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                if (com.amalto.core.util.Util.getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
                     com.amalto.core.util.Util.getNodeList(node, "value").item(0).appendChild(d.createTextNode(model)); //$NON-NLS-1$
                 } else {
                     com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(model); //$NON-NLS-1$
@@ -243,7 +243,7 @@ public class Configuration {
         NodeList nodeList = com.amalto.core.util.Util.getNodeList(user, "//property"); //$NON-NLS-1$
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if ("cluster".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
+            if ("cluster".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
                 Node fchild = com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild(); //$NON-NLS-1$
                 if (fchild != null) {
                     WSExistsDataCluster wsExistsDataCluster = new WSExistsDataCluster();
@@ -259,7 +259,7 @@ public class Configuration {
         }
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
-            if ("model".equals(Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
+            if ("model".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
                 Node fchild = com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild(); //$NON-NLS-1$
                 if (fchild != null) {
                     WSExistsDataModel wsExistsDataModel = new WSExistsDataModel();

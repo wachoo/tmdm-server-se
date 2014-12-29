@@ -10,12 +10,6 @@
         </create>          
         <convert converter="bean" match="com.amalto.webapp.v3.adapter.logging.dwr.LoggingServiceDWR"/>
         <convert converter="bean" match="com.amalto.webapp.util.webservices.WSServiceGetConfiguration"/> 
-        
-        <convert converter="bean" match="com.amalto.webapp.v3.adapter.logging.dwr.LoggingSmtpConfigurationBean"/>        
-        <create creator="new" javascript="LoggingSmtpInterface">
-            <param name="class" value="com.amalto.webapp.v3.adapter.logging.dwr.LoggingSmtpDWR"/>
-        </create>  
-        
     </allow>
 
 </dwr>

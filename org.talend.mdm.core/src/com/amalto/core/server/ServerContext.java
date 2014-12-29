@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import com.amalto.core.storage.*;
+import com.amalto.core.storage.datasource.DataSource;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -121,12 +122,35 @@ public class ServerContext {
             // Invoke extensions for storage extensions
             ServiceLoader<StorageExtension> extensions = ServiceLoader.load(StorageExtension.class);
             for (StorageExtension extension : extensions) {
-                if (extension.accept(definition, storageType)) {
+                if (extension.accept(definition.get(storageType))) {
                     Storage extensionStorage = extension.create(storageName, storageType);
                     extensionStorage.init(definition);
                     storageForDispatch.add(defaultWrap(extensionStorage));
                 } else {
                     LOGGER.debug("Extension '" + extension + "' is not eligible for datasource '" + definition + "'.");
+                }
+            }
+            // Create actual storage
+            int size = storageForDispatch.size();
+            if (size > 1) {
+                return new CompositeStorage(storageForDispatch.toArray(new Storage[size]));
+            } else {
+                return storageForDispatch.get(0); // Don't wrap in composite if there's no extension
+            }
+        }
+
+        @Override
+        public Storage createTemporaryStorage(DataSource dataSource, StorageType storageType) {
+            List<Storage> storageForDispatch = new LinkedList<Storage>();
+            // Invoke extensions for storage extensions
+            ServiceLoader<StorageExtension> extensions = ServiceLoader.load(StorageExtension.class);
+            for (StorageExtension extension : extensions) {
+                if (extension.accept(dataSource)) {
+                    Storage extensionStorage = extension.createTemporary(storageType);
+                    extensionStorage.init(null);
+                    storageForDispatch.add(defaultWrap(extensionStorage));
+                } else {
+                    LOGGER.debug("Extension '" + extension + "' is not eligible for datasource '" + dataSource + "'.");
                 }
             }
             // Create actual storage

@@ -12,7 +12,7 @@ package com.amalto.core.server;
 
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.datasource.DataSource;
 
 /**
  * A storage extension that can be implemented to provide additional {@link com.amalto.core.storage.Storage}
@@ -23,14 +23,13 @@ public interface StorageExtension {
     /**
      * Test if this extension can accept some initialization parameters.
      * 
-     * @param definition A {@link com.amalto.core.storage.datasource.DataSourceDefinition datasource} to check with this
+     * @param dataSource A {@link com.amalto.core.storage.datasource.DataSourceDefinition datasource} to check with this
      * storage extension.
-     * @param storageType The {@link com.amalto.core.storage.StorageType type} of the storage that is checked.
      * @return <code>true</code> if a {@link com.amalto.core.storage.Storage storage} can be created with the supplied
      * parameters.
      * @see #create(String, com.amalto.core.storage.StorageType)
      */
-    boolean accept(DataSourceDefinition definition, StorageType storageType);
+    boolean accept(DataSource dataSource);
 
     /**
      * Returns an implementation of {@link com.amalto.core.storage.Storage storage}. Implementation is <b>not</b>
@@ -42,4 +41,7 @@ public interface StorageExtension {
      * @return A {@link com.amalto.core.storage.Storage storage} ready to be initialized.
      */
     Storage create(String storageName, StorageType storageType);
+
+
+    Storage createTemporary(StorageType storageType);
 }

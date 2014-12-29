@@ -4,6 +4,7 @@ import com.amalto.core.objects.DroppedItemPOJO;
 import com.amalto.core.objects.DroppedItemPOJOPK;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
+import com.amalto.core.objects.customform.CustomFormPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
@@ -1017,5 +1018,25 @@ public class XConverter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static WSCustomForm POJO2WS(CustomFormPOJO customFormPOJO) throws Exception {
+        WSCustomForm ws = new WSCustomForm();
+        ws.setEntity(customFormPOJO.getEntity());
+        ws.setDatamodel(customFormPOJO.getDatamodel());
+        ws.setXml(customFormPOJO.getXml());
+        ws.setName(customFormPOJO.getName());
+        ws.setRole(customFormPOJO.getRole());
+        return ws;
+    }
+
+    public static CustomFormPOJO WS2POJO(WSCustomForm wsCustomForm) throws Exception {
+        CustomFormPOJO pojo = new CustomFormPOJO();
+        pojo.setEntity(wsCustomForm.getEntity());
+        pojo.setDatamodel(wsCustomForm.getDatamodel());
+        pojo.setXml(wsCustomForm.getXml());
+        pojo.setName(wsCustomForm.getName());
+        pojo.setRole(wsCustomForm.getRole());
+        return pojo;
     }
 }

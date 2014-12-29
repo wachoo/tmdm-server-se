@@ -1,7 +1,6 @@
 package com.amalto.core.storage.inmemory;
 
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;

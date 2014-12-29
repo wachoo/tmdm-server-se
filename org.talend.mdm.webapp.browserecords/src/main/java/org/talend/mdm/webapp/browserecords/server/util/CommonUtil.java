@@ -381,7 +381,7 @@ public class CommonUtil {
         if (xpathPKInfos != null && xpathPKInfos.size() > 0 && itemBean.getIds() != null) {
             for (String pkInfoPath : xpathPKInfos) {
                 if (pkInfoPath != null && pkInfoPath.length() > 0) {
-                    String pkInfo = Util.getFirstTextNode(document, pkInfoPath);
+                    String pkInfo = com.amalto.core.util.Util.getFirstTextNode(document, pkInfoPath);
                     if (pkInfo != null) {
                         if (entityModel.getTypeModel(pkInfoPath).getType().equals(DataTypeConstants.MLS)) {
                             String value = MultilanguageMessageParser.getValueByLanguage(pkInfo, language);

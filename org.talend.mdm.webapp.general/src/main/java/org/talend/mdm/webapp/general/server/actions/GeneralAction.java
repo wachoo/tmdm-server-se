@@ -1,13 +1,11 @@
 package org.talend.mdm.webapp.general.server.actions;
 
 import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.util.LicenseUserNumberValidationException;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.Messages;
-import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.util.*;
 import com.amalto.core.webservice.*;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.*;
+import com.amalto.webapp.core.util.Util;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -151,8 +149,8 @@ public class GeneralAction implements GeneralService {
             String xml = LocalUser.getLocalUser().getUserXML();
             if (xml != null) {
                 Document d = Util.parse(xml);
-                givenname = Util.getFirstTextNode(d, "//givenname"); //$NON-NLS-1$
-                familyname = Util.getFirstTextNode(d, "//familyname"); //$NON-NLS-1$
+                givenname = com.amalto.core.util.Util.getFirstTextNode(d, "//givenname"); //$NON-NLS-1$
+                familyname = com.amalto.core.util.Util.getFirstTextNode(d, "//familyname"); //$NON-NLS-1$
             }
             if (familyname != null && givenname != null) {
                 userBean.setName(givenname + " " + familyname); //$NON-NLS-1$

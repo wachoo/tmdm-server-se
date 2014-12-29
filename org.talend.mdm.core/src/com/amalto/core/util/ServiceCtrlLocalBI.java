@@ -10,67 +10,84 @@ import java.io.Serializable;
 /**
  * Local Business interface for ServiceCtrl.
  */
-public interface ServiceCtrlLocalBI
-{
-   /**
-    * To be Implemented. Returns the unique JNDI name of the service. The JNDI name must be of the type amalto/local/service/[NAME] where [NAME] matchs the pattern "[a-zA-Z][a-zA-Z0-9]*" and is unique accross services
-    * @throws XtentisException
-    */
-   public java.lang.String getJNDIName(  ) throws com.amalto.core.util.XtentisException;
+public interface ServiceCtrlLocalBI {
 
-   /**
-    * To be Implemented. Returns the description of the service. Can be null
-    * @throws XtentisException
-    */
-   public java.lang.String getDescription( java.lang.String twoLettersLanguageCode ) throws com.amalto.core.util.XtentisException;
+    /**
+     * To be Implemented. Returns the unique JNDI name of the service. The JNDI name must be of the type
+     * amalto/local/service/[NAME] where [NAME] matchs the pattern "[a-zA-Z][a-zA-Z0-9]*" and is unique accross services
+     * 
+     * @throws XtentisException
+     */
+    public java.lang.String getJNDIName() throws com.amalto.core.util.XtentisException;
 
-   /**
-    * To be Implemented. Starts if needed the service Can be null
-    * @throws XtentisException
-    */
-   public void start(  ) throws com.amalto.core.util.XtentisException;
+    /**
+     * To be Implemented. Returns the description of the service. Can be null
+     * 
+     * @throws XtentisException
+     */
+    public java.lang.String getDescription(java.lang.String twoLettersLanguageCode) throws com.amalto.core.util.XtentisException;
 
-   /**
-    * To be Implemented. Stops if needed the service Can be null
-    * @throws XtentisException
-    */
-   public void stop(  ) throws com.amalto.core.util.XtentisException;
+    /**
+     * To be Implemented. Starts if needed the service Can be null
+     * 
+     * @throws XtentisException
+     */
+    public void start() throws com.amalto.core.util.XtentisException;
 
-   /**
-    * To be Implemented. Returns a status of the service Can be null
-    * @throws XtentisException
-    */
-   public java.lang.String getStatus(  ) throws com.amalto.core.util.XtentisException;
+    /**
+     * To be Implemented. Stops if needed the service Can be null
+     * 
+     * @throws XtentisException
+     */
+    public void stop() throws com.amalto.core.util.XtentisException;
 
-   /**
-    * To be implemented Runs the service. The object received ins an HashMap made of -username - String -password - String -contentType - String -charset - String -bytes - bytes[] -paramameters - HashMap
-    * @throws XtentisException
-    * @return Serializable - a serializable Object to be passed backed to the connector
-    */
-   public java.io.Serializable receiveFromOutbound( java.util.HashMap<String, Serializable> map ) throws com.amalto.core.util.XtentisException;
+    /**
+     * To be Implemented. Returns a status of the service Can be null
+     * 
+     * @throws XtentisException
+     */
+    public java.lang.String getStatus() throws com.amalto.core.util.XtentisException;
 
-   /**
-    * To be implemented Runs the service. The item receieved in an XML String
-    * @throws XtentisException
-    */
-   public java.lang.String receiveFromInbound( ItemPOJOPK itemPK,java.lang.String routingOrderID,java.lang.String parameters ) throws com.amalto.core.util.XtentisException;
+    /**
+     * To be implemented Runs the service. The object received ins an HashMap made of -username - String -password -
+     * String -contentType - String -charset - String -bytes - bytes[] -paramameters - HashMap
+     * 
+     * @throws XtentisException
+     * @return Serializable - a serializable Object to be passed backed to the connector
+     */
+    public java.io.Serializable receiveFromOutbound(java.util.HashMap<String, Serializable> map)
+            throws com.amalto.core.util.XtentisException;
 
-   /**
-    * Configuration received from outbound, typically a portlet The default implementation stores the configuration string "as is"
-    * @throws XtentisException
-    */
-   public void putConfiguration( java.lang.String configuration ) throws com.amalto.core.util.XtentisException;
+    /**
+     * To be implemented Runs the service. The item receieved in an XML String
+     * 
+     * @throws XtentisException
+     */
+    public java.lang.String receiveFromInbound(ItemPOJOPK itemPK, java.lang.String routingOrderID, java.lang.String parameters)
+            throws com.amalto.core.util.XtentisException;
 
-   /**
-    * Retrieves the configuration The default implementation renders the configuration string "as stored" and ignore the optional parameter
-    * @throws XtentisException
-    */
-   public java.lang.String getConfiguration( java.lang.String optionalParameter ) throws com.amalto.core.util.XtentisException;
+    /**
+     * Configuration received from outbound, typically a portlet The default implementation stores the configuration
+     * string "as is"
+     * 
+     * @throws XtentisException
+     */
+    public void putConfiguration(java.lang.String configuration) throws com.amalto.core.util.XtentisException;
 
-   /**
-    * Configuration received from outbound, typically a portlet The default implementation stores the configuration string "as is"
-    * @throws XtentisException
-    */
-   public void putServiceData( java.lang.String serviceData ) throws com.amalto.core.util.XtentisException;
+    /**
+     * Retrieves the configuration The default implementation renders the configuration string "as stored" and ignore
+     * the optional parameter
+     * 
+     * @throws XtentisException
+     */
+    public java.lang.String getConfiguration(java.lang.String optionalParameter) throws com.amalto.core.util.XtentisException;
+
+    /**
+     * Configuration received from outbound, typically a portlet The default implementation stores the configuration
+     * string "as is"
+     * 
+     * @throws XtentisException
+     */
+    public void putServiceData(java.lang.String serviceData) throws com.amalto.core.util.XtentisException;
 
 }

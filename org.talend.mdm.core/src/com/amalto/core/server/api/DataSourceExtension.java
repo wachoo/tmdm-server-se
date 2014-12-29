@@ -10,9 +10,8 @@
 
 package com.amalto.core.server.api;
 
-import org.w3c.dom.Node;
-
 import com.amalto.core.storage.datasource.DataSource;
+import org.w3c.dom.Node;
 
 /**
  * A datasource extension that can be implemented to provide additional
@@ -30,9 +29,9 @@ public interface DataSourceExtension {
      * Parse the datasource type specific part and returns a {@link com.amalto.core.storage.datasource.DataSource
      * datasource}.
      * 
-     *
      * @param datasourceNode The XML node in the datasource configuration file to parse.
-     * @param name
+     * @param name The name of the data source to be created (as returned by
+     * {@link com.amalto.core.storage.datasource.DataSource#getName()} after creation).
      * @return A {@link com.amalto.core.storage.datasource.DataSource datasource} implementation.
      */
     DataSource create(Node datasourceNode, String name);

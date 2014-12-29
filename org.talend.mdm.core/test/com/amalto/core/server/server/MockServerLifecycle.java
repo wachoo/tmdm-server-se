@@ -13,6 +13,7 @@ package com.amalto.core.server.server;
 import com.amalto.core.server.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import org.apache.commons.lang.NotImplementedException;
@@ -53,6 +54,11 @@ public class MockServerLifecycle implements ServerLifecycle {
 
     @Override
     public Storage createStorage(String storageName, StorageType storageType, DataSourceDefinition definition) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public Storage createTemporaryStorage(DataSource dataSource, StorageType storageType) {
         throw new NotImplementedException();
     }
 

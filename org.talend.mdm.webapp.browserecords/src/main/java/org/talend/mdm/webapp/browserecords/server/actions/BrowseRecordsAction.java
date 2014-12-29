@@ -840,7 +840,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$
             idsArray.clear();
             for (String key : entityModel.getKeys()) {
-                String id = Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
+                String id = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
                 if (id != null) {
                     idsArray.add(id);
                 }
@@ -866,7 +866,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         }
                     }
                 } else {
-                    dataText = Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+                    dataText = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
                 }
 
                 if (dataText != null) {
@@ -2056,7 +2056,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 for (String xpath : lookupFieldsForWSItemDoc) {
-                    String firstValue = Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
+                    String firstValue = com.amalto.core.util.Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
                     if (null != firstValue && firstValue.length() != 0) {
                         NodeList list = com.amalto.core.util.Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
                         if (list != null && list.getLength() > 0) {
@@ -2173,7 +2173,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 Document doc = parseResultDocument(results[1], "result"); //$NON-NLS-1$
 
                 for (String key : keys) {
-                    String id = Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
+                    String id = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
                     if (id != null) {
                         if (ids.length() != 0) {
                             ids.append("."); //$NON-NLS-1$

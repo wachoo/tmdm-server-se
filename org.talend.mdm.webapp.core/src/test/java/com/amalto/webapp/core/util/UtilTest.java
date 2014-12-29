@@ -129,7 +129,7 @@ public class UtilTest extends TestCase {
             } else {
                 // build a dash separated string of xPath Infos
                 for (String xpath : xpathInfos) {
-                    String fkInfoValue = Util.getFirstTextNode(root, xpath.split("/")[1]);
+                    String fkInfoValue = com.amalto.core.util.Util.getFirstTextNode(root, xpath.split("/")[1]);
                     fkInfoValue = fkInfoValue != null && fkInfoValue.trim().length() > 0 ? fkInfoValue : "";
                     if (infos.length() == 0) {
                         infos += fkInfoValue;

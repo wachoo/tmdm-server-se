@@ -12,19 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.server.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.util.Util;
+import com.amalto.core.webservice.*;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.sun.xml.xsom.XSElementDecl;
 import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.DocumentException;
@@ -37,27 +29,19 @@ import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.objects.datamodel.DataModelPOJO;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.core.webservice.WSDataClusterPK;
-import com.amalto.core.webservice.WSGetItem;
-import com.amalto.core.webservice.WSItem;
-import com.amalto.core.webservice.WSItemPK;
-import com.amalto.core.webservice.WSStringArray;
-import com.amalto.core.webservice.WSWhereItem;
-import com.extjs.gxt.ui.client.Style.SortDir;
-import com.sun.xml.xsom.XSElementDecl;
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * The server side implementation of the RPC service.
  */
 public class JournalDBService {
 
-    private static final Logger LOG = Logger.getLogger(JournalDBService.class);
-
-    private WebService webService;
-
+    private static final Logger           LOG = Logger.getLogger(JournalDBService.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
+    private WebService                    webService;
 
     public JournalDBService(WebService webService) {
         this.webService = webService;
@@ -65,7 +49,7 @@ public class JournalDBService {
 
     public Object[] getResultListByCriteria(JournalSearchCriteria criteria, int start, int limit, String sort, String field)
             throws Exception {
-        Map<String,Boolean> visitableEntityMap = null;
+        Map<String, Boolean> visitableEntityMap = null;
         List<WSWhereItem> conditions = org.talend.mdm.webapp.journal.server.util.Util.buildWhereItems(criteria);
 
         int totalSize = 0;
@@ -87,14 +71,15 @@ public class JournalDBService {
             JournalGridModel journalGridModel = parseString2Model(result);
             if (webService.isEnterpriseVersion()) {
                 if (visitableEntityMap == null) {
-                    visitableEntityMap = new HashMap<String,Boolean>();
+                    visitableEntityMap = new HashMap<String, Boolean>();
                 }
                 if (visitableEntityMap.get(journalGridModel.getEntity()) == null) {
                     boolean canReadModel = webService.userCanRead(DataModelPOJO.class, journalGridModel.getDataModel());
-                    boolean canReadEntity = webService.checkReadAccess(journalGridModel.getDataModel(), journalGridModel.getEntity());
-                    visitableEntityMap.put(journalGridModel.getEntity(), (canReadModel&&canReadEntity));
+                    boolean canReadEntity = webService.checkReadAccess(journalGridModel.getDataModel(),
+                            journalGridModel.getEntity());
+                    visitableEntityMap.put(journalGridModel.getEntity(), (canReadModel && canReadEntity));
                 }
-                
+
                 if (!visitableEntityMap.get(journalGridModel.getEntity())) {
                     continue;
                 }
@@ -140,7 +125,8 @@ public class JournalDBService {
         root.add(new JournalTreeModel("Key:" + checkNull(Util.getFirstTextNode(doc, "/Update/Key")))); //$NON-NLS-1$ //$NON-NLS-2$                       
 
         XSElementDecl decl = webService.getXSElementDecl(dataModel, concept);
-        Set<String> roleSet = Util.getNoAccessRoleSet(decl);
+        // TODO
+        Set<String> roleSet = null;
         boolean isAuth = webService.isAuth(roleSet);
         root.setAuth(isAuth);
 
