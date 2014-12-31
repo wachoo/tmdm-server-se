@@ -35,4 +35,4 @@ Feel free to share your Talend components on [Talend Exchange](http://www.talend
 
 ## License
 
-Copyright (c) 2006-2014 Talend
+Copyright (c) 2006-2015 Talend
