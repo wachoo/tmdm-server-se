@@ -221,7 +221,7 @@ public class BrowseRecordsController extends Controller {
                                         .equals(itemBean.getConcept());
 
                         // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
-                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall() && !detailToolBar.isFkToolBar()) {
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
                             if (isSameConcept && detailToolBar.getType() == ItemDetailToolBar.TYPE_DEFAULT) {
                                 itemBean.setIds(result.getReturnValue());
                                 ItemsListPanel.getInstance().refreshGrid(itemBean);
@@ -261,10 +261,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-		$wnd.setTimeout(function() {
-			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-		}, millisecond);
-    }-*/;
+                                                                      $wnd.setTimeout(function() {
+                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+                                                                      }, millisecond);
+                                                                      }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
