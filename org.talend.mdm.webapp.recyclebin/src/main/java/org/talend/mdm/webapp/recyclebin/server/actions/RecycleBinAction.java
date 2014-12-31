@@ -19,8 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import com.amalto.core.server.ServerContext;
-import com.amalto.webapp.core.bean.Configuration;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
@@ -32,15 +30,14 @@ import org.talend.mdm.webapp.recyclebin.shared.DroppedItemBeforeDeletingExceptio
 import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.BeforeDeletingErrorException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.DataModelAccessor;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.Webapp;
+import com.amalto.core.util.Util.BeforeDeleteResult;
 import com.amalto.core.webservice.WSConceptKey;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
@@ -54,6 +51,11 @@ import com.amalto.core.webservice.WSItemPK;
 import com.amalto.core.webservice.WSLoadDroppedItem;
 import com.amalto.core.webservice.WSRecoverDroppedItem;
 import com.amalto.core.webservice.WSRemoveDroppedItem;
+import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.DataModelAccessor;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
 
 public class RecycleBinAction implements RecycleBinService {
 
@@ -152,7 +154,7 @@ public class RecycleBinAction implements RecycleBinService {
             Locale locale = new Locale(language);
             return MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$;
         } catch (RemoteException e) {
-            if(e.getCause() != null && BeforeDeletingErrorException.class.isInstance(e.getCause())){
+            if (e.getCause() != null && BeforeDeletingErrorException.class.isInstance(e.getCause())) {
                 BeforeDeletingErrorException exception = (BeforeDeletingErrorException) e.getCause();
                 throw new DroppedItemBeforeDeletingException(exception.getMessageType(), exception.getMessage());
             }
@@ -160,6 +162,22 @@ public class RecycleBinAction implements RecycleBinService {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public String getBeforeDeletingMessageType(String clusterName, String modelName, String concept, String ids)
+            throws ServiceException {
+        try {
+            WSGetBusinessConceptKey conceptKey = new WSGetBusinessConceptKey(new WSDataModelPK(modelName), concept);
+            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(conceptKey);
+            String[] idsArray = CommonUtil.extractIdWithDots(key.getFields(), ids);
+            BeforeDeleteResult result = com.amalto.core.util.Util.beforeDeleting(clusterName, concept, idsArray,
+                    UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
+            return result.type;
+        } catch (Exception exception) {
+            LOG.error(exception.getMessage(), exception);
+            throw new ServiceException(exception.getLocalizedMessage());
         }
     }
 

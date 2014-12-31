@@ -37,4 +37,6 @@ public interface RecycleBinService extends RemoteService {
     boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException;
 
     boolean checkConflict(String clusterName, String conceptName, String id) throws ServiceException;
+
+    String getBeforeDeletingMessageType(String clusterName, String modelName, String concept, String ids) throws ServiceException;
 }

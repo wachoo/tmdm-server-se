@@ -107,19 +107,23 @@ public class MainFramePanel extends ContentPanel {
     private int outstandingDeleteCallFailCount = 0;
 
     private List<ItemsTrashItem> outstandingDeleteCallFailRecords = new LinkedList<ItemsTrashItem>();
-    
+
     private List<ItemResult> deleteMessages = new ArrayList<ItemResult>();
 
     private static final int COLUMN_WIDTH = 100;
-    
+
     public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
-    
+
     public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
 
     public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
-    
+
     public static final String SUCCESS_KEYWORD = "SUCCESS";//$NON-NLS-1$
-    
+
+    private String type = ""; //$NON-NLS-1$
+
+    private int status = 0;
+
     private MainFramePanel() {
         setLayout(new FitLayout());
         setBodyBorder(false);
@@ -592,7 +596,7 @@ public class MainFramePanel extends ContentPanel {
 
                 @Override
                 protected void doOnFailure(Throwable caught) {
-                    deleteSelectedCheckFinished(r, false, ERROR_KEYWORD, caught.getMessage(), false);                
+                    deleteSelectedCheckFinished(r, false, ERROR_KEYWORD, caught.getMessage(), false);
                 }
 
                 @Override
@@ -635,16 +639,23 @@ public class MainFramePanel extends ContentPanel {
                             r.getConceptName(), r.getIds(), UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
                                 @Override
-                                public void onSuccess(String msg) {
-                                    deleteSelectedCheckFinished(r, true, SUCCESS_KEYWORD, msg, false);                                
+                                public void onSuccess(final String msg) {
+                                    service.getBeforeDeletingMessageType(r.getDataClusterName(), r.getDataModelName(),
+                                            r.getConceptName(), r.getIds(), new SessionAwareAsyncCallback<String>() {
+
+                                                @Override
+                                                public void onSuccess(String type) {
+                                                    deleteSelectedCheckFinished(r, true, type, msg, false);
+                                                }
+                                            });
                                 }
 
                                 @Override
                                 protected void doOnFailure(Throwable caught) {
-                                    String errorMsg = caught.getLocalizedMessage();                                    
-                                    if(caught instanceof DroppedItemBeforeDeletingException){
-                                        DroppedItemBeforeDeletingException e = (DroppedItemBeforeDeletingException)caught;
-                                        deleteSelectedCheckFinished(r, false, e.getMessageType(), e.getMessage(), true);                                    
+                                    String errorMsg = caught.getLocalizedMessage();
+                                    if (caught instanceof DroppedItemBeforeDeletingException) {
+                                        DroppedItemBeforeDeletingException e = (DroppedItemBeforeDeletingException) caught;
+                                        deleteSelectedCheckFinished(r, false, e.getMessageType(), e.getMessage(), true);
                                     } else {
                                         if (errorMsg == null) {
                                             if (Log.isDebugEnabled()) {
@@ -654,7 +665,7 @@ public class MainFramePanel extends ContentPanel {
                                                 errorMsg = BaseMessagesFactory.getMessages().unknown_error();
                                             }
                                         }
-                                        deleteSelectedCheckFinished(r, false, ERROR_KEYWORD, errorMsg, false);                                    
+                                        deleteSelectedCheckFinished(r, false, ERROR_KEYWORD, errorMsg, false);
                                     }
                                 }
                             });
@@ -663,25 +674,32 @@ public class MainFramePanel extends ContentPanel {
         }
     }
 
-    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success, String messageType, String msg, boolean isBeforeDeletingMessage) {        --outstandingDeleteCallCount;
+    public void deleteSelectedCheckFinished(ItemsTrashItem r, boolean success, String messageType, String msg,
+            boolean isBeforeDeletingMessage) {
+        --outstandingDeleteCallCount;
 
         if (isBeforeDeletingMessage) {
             ItemResult message = new ItemResult();
-            if(r != null){
+            if (r != null) {
                 message.setKey(r.getIds());
             }
-            
-            if(messageType != null && INFO_KEYWORD.equalsIgnoreCase(messageType)){
+            if (messageType != null && INFO_KEYWORD.equalsIgnoreCase(messageType)) {
                 message.setStatus(1);
-                message.setMessage(BaseMessagesFactory.getMessages().delete_success_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
-            } else if(messageType != null && FAIL_KEYWORD.equalsIgnoreCase(messageType)){
+                message.setMessage(BaseMessagesFactory.getMessages().delete_success_prefix()
+                        + MultilanguageMessageParser.pickOutISOMessage(msg));
+            } else if (messageType != null && FAIL_KEYWORD.equalsIgnoreCase(messageType)) {
                 message.setStatus(2);
-                message.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
-            } else if(messageType != null && ERROR_KEYWORD.equalsIgnoreCase(messageType)){
+                message.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix()
+                        + MultilanguageMessageParser.pickOutISOMessage(msg));
+            } else if (messageType != null && ERROR_KEYWORD.equalsIgnoreCase(messageType)) {
                 message.setStatus(3);
-                message.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
+                message.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix()
+                        + MultilanguageMessageParser.pickOutISOMessage(msg));
             }
-            
+            if (status < message.getStatus()) {
+                type = messageType;
+                status = message.getStatus();
+            }
             deleteMessages.add(message);
         }
 
@@ -702,16 +720,17 @@ public class MainFramePanel extends ContentPanel {
                 outstandingDeleteCallFailRecords.clear();
             }
 
-            if(deleteMessages != null && deleteMessages.size() > 0){
+            if (deleteMessages != null && deleteMessages.size() > 0) {
                 OperationMessageWindow messageWindow = new OperationMessageWindow(deleteMessages);
-                messageWindow.setHeading(BaseMessagesFactory.getMessages().info_title());
+                messageWindow.setHeading(getMessageWindowTitle(type));
                 messageWindow.show();
             } else {
                 if (msg != null) {
-                    MessageBox.info(BaseMessagesFactory.getMessages().info_title(),
-                            MultilanguageMessageParser.pickOutISOMessage(msg), null);
+                    MessageBox.info(getMessageWindowTitle(messageType), MultilanguageMessageParser.pickOutISOMessage(msg), null);
                 }
             }
+            type = ""; //$NON-NLS-1$
+            status = 0;
         }
     }
 
@@ -783,5 +802,15 @@ public class MainFramePanel extends ContentPanel {
                         }
                     }
                 });
+    }
+
+    private String getMessageWindowTitle(String messageType) {
+        String title = BaseMessagesFactory.getMessages().info_title();
+        if (messageType != null) {
+            if (FAIL_KEYWORD.equalsIgnoreCase(messageType) || ERROR_KEYWORD.equalsIgnoreCase(messageType)) {
+                title = BaseMessagesFactory.getMessages().error_title();
+            }
+        }
+        return title;
     }
 }
