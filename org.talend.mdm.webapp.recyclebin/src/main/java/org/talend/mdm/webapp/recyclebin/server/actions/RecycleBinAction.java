@@ -166,22 +166,6 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     @Override
-    public String getBeforeDeletingMessageType(String clusterName, String modelName, String concept, String ids)
-            throws ServiceException {
-        try {
-            WSGetBusinessConceptKey conceptKey = new WSGetBusinessConceptKey(new WSDataModelPK(modelName), concept);
-            WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(conceptKey);
-            String[] idsArray = CommonUtil.extractIdWithDots(key.getFields(), ids);
-            BeforeDeleteResult result = com.amalto.core.util.Util.beforeDeleting(clusterName, concept, idsArray,
-                    UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE);
-            return result.type;
-        } catch (Exception exception) {
-            LOG.error(exception.getMessage(), exception);
-            throw new ServiceException(exception.getLocalizedMessage());
-        }
-    }
-
-    @Override
     public boolean checkConflict(String clusterName, String conceptName, String id) throws ServiceException {
         try {
             String ids[] = { id };

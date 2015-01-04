@@ -54,9 +54,4 @@ public class RecycleBinServiceAsyncMock implements RecycleBinServiceAsync {
         callback.onSuccess("[EN:del succ][FR:del succ]");
     }
 
-    @Override
-    public void getBeforeDeletingMessageType(String clusterName, String modelName, String concept, String ids,
-            AsyncCallback<String> callback) {
-    }
-
 }
