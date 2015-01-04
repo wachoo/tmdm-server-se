@@ -366,10 +366,6 @@ public class MetadataRepository implements MetadataVisitable, XmlSchemaVisitor {
 
         // TODO If allowWriteUsers is empty, put ICoreConstants.admin???
 
-        if (foreignKeyInfo != null && fieldType == null) {
-            throw new IllegalArgumentException("Invalid foreign key definition for field '" + fieldName + "' in type '" + containingType.getName() + "'.");
-        }
-
         XmlSchemaType schemaType = element.getSchemaType();
         if (schemaType instanceof XmlSchemaSimpleType) {
             XmlSchemaSimpleType simpleSchemaType = (XmlSchemaSimpleType) schemaType;
