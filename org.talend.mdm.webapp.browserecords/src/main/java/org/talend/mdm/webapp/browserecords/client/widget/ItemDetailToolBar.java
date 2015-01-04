@@ -546,7 +546,7 @@ public class ItemDetailToolBar extends ToolBar {
             moreActionsButton.setToolTip(MessagesFactory.getMessages().moreActions_tip());
             if (subActionsMenu == null) {
                 subActionsMenu = new Menu();
-                boolean notFKAndHasTaskId = !isFkToolBar && itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()
+                boolean hasTaskId = itemBean.getTaskId() != null && !itemBean.getTaskId().isEmpty()
                         && !"null".equalsIgnoreCase(itemBean.getTaskId().trim()); //$NON-NLS-1$
 
                 if (openTab && openTabMenuItem == null) {
@@ -632,7 +632,7 @@ public class ItemDetailToolBar extends ToolBar {
                 if (journalMenuItem != null) {
                     separatorIndex = subActionsMenu.indexOf(journalMenuItem) + 1;
                 }
-                if (notFKAndHasTaskId) {
+                if (hasTaskId) {
                     if (isStaging) {
                         getBrowseRecordsService().getGoldenRecordIdByGroupId(
                                 BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
@@ -699,9 +699,6 @@ public class ItemDetailToolBar extends ToolBar {
                             subActionsMenu.add(dataLineageMenuItem);
                         }
                     }
-                }
-
-                if (notFKAndHasTaskId) {
                     if (explainMenuItem == null) {
                         explainMenuItem = new MenuItem(MessagesFactory.getMessages().explain_button());
                         explainMenuItem.setId("explainMenuItem"); //$NON-NLS-1$
