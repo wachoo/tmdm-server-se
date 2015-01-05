@@ -36,9 +36,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import talend.ext.images.server.backup.DBDelegate;
-import talend.ext.images.server.backup.ResourcePK;
-import talend.ext.images.server.util.ReflectionUtil;
 import talend.ext.images.server.util.Uuid;
 
 public class ImageUploadServlet extends ImageServerInfoServlet {
@@ -56,12 +53,6 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
     private String defaultFileNamefieldName = ""; //$NON-NLS-1$
 
     private String outputFormat = "xml"; //$NON-NLS-1$
-
-    private String bakInDB = "false"; //$NON-NLS-1$
-
-    private String dbDelegateClass = ""; //$NON-NLS-1$
-
-    private String bakUseTransaction = "false"; //$NON-NLS-1$
 
     private String sourceFileName = ""; //$NON-NLS-1$
 
@@ -88,9 +79,6 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
         defaultFileNamefieldName = config.getInitParameter("default-filename-field-name"); //$NON-NLS-1$
         defaultCatalogfieldName = config.getInitParameter("default-catalog-field-name"); //$NON-NLS-1$
         outputFormat = config.getInitParameter("output-format"); //$NON-NLS-1$
-        bakInDB = config.getInitParameter("bak-in-db"); //$NON-NLS-1$
-        dbDelegateClass = config.getInitParameter("db-delegate-class"); //$NON-NLS-1$
-        bakUseTransaction = config.getInitParameter("bak-use-transaction"); //$NON-NLS-1$
     }
 
     @Override
@@ -171,8 +159,7 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
                             targetFileShortName = name;
                         }
 
-                        int rtnStatus = processUploadedFile(uploadFileItem, true, Boolean.parseBoolean(bakInDB),
-                                Boolean.parseBoolean(bakUseTransaction));
+                        int rtnStatus = processUploadedFile(uploadFileItem, true);
 
                         if (rtnStatus == 1) {
                             logger.info(sourceFileName + " has been uploaded successfully!"); //$NON-NLS-1$
@@ -207,13 +194,10 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
     /**
      * @param item
      * @param writeToFile
-     * @param bakInDB
-     * @param bakUseTransaction
-     * @return 1 :success 0 :unknown failure -1:nonsupport type -2:roll back, failure in DB Backup
+     * @return 1:success, 0:unknown failure, -1:unsupported type
      * @throws Exception
      */
-    private int processUploadedFile(FileItem item, boolean writeToFile, boolean inBakInDB, boolean inBakUseTransaction)
-            throws Exception {
+    private int processUploadedFile(FileItem item, boolean writeToFile) throws Exception {
 
         if (!item.isFormField()) {
             String fileName = item.getName();
@@ -254,20 +238,6 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
 
                 File uploadedFile = new File(upath.toString());
                 item.write(uploadedFile);
-
-                if (inBakInDB) {
-                    boolean isBakOK = false;
-
-                    DBDelegate dbDelegate = (DBDelegate) ReflectionUtil.newInstance(dbDelegateClass, new Object[0]);
-                    isBakOK = dbDelegate.putResource(new ResourcePK(targetCatalogName, targetFileName), upath.toString());
-
-                    if (!isBakOK && inBakUseTransaction) {
-                        uploadedFile.delete();
-                        logger.debug("Rolled back in image server. "); //$NON-NLS-1$
-                        return -2;
-                    }
-
-                }
 
                 return 1;
 

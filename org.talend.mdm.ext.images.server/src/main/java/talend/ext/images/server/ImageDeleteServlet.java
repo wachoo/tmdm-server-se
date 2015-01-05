@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package talend.ext.images.server;
 
 import java.io.File;
@@ -15,31 +27,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import talend.ext.images.server.backup.DBDelegate;
-import talend.ext.images.server.backup.DBDelegateException;
-import talend.ext.images.server.backup.ResourcePK;
-import talend.ext.images.server.util.IOUtil;
-import talend.ext.images.server.util.ReflectionUtil;
-
 public class ImageDeleteServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
 
     private static final Logger logger = Logger.getLogger(ImageDeleteServlet.class);
 
-    private String outputFormat = ""; //$NON-NLS-1$
-
-    private String deleteInDB = "false"; //$NON-NLS-1$
-
-    private String dbDelegateClass = ""; //$NON-NLS-1$
-
-    private String deleteUseTransaction = "false"; //$NON-NLS-1$
+    private String outputFormat;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         outputFormat = config.getInitParameter("output-format"); //$NON-NLS-1$
-        deleteInDB = config.getInitParameter("delete-in-db"); //$NON-NLS-1$
-        dbDelegateClass = config.getInitParameter("db-delegate-class"); //$NON-NLS-1$
-        deleteUseTransaction = config.getInitParameter("delete-use-transaction"); //$NON-NLS-1$
     }
 
     @Override
@@ -60,64 +59,32 @@ public class ImageDeleteServlet extends HttpServlet {
         try {
             String uri = request.getParameter("uri"); //$NON-NLS-1$
             if (logger.isDebugEnabled()) {
-                logger.debug("Input URI: " + uri);
+                logger.debug("Input URI: " + uri); //$NON-NLS-1$
             }
             if (uri == null || uri.length() == 0) {
-                return buildDeleteResult(false, "Request parameter 'uri' can not be empty!");
+                return buildDeleteResult(false, "Request parameter 'uri' can not be empty!"); //$NON-NLS-1$
             }
             String contextPath = request.getSession().getServletContext().getContextPath();
             // normalize uri
             uri = normalizeURI(uri, contextPath);
             String toDeleteFilePath = buildDeleteFilePath(uri);
             if (logger.isDebugEnabled()) {
-                logger.debug("To Delete File Path: " + toDeleteFilePath);
+                logger.debug("To Delete File Path: " + toDeleteFilePath); //$NON-NLS-1$
             }
             // delete on file system
             // TODO care about synchronized when delete file
             File toDeleteFile = new File(toDeleteFilePath);
             if (toDeleteFile.exists()) {
                 if (toDeleteFile.delete()) {
-                    // also delete in backup db
-                    if (Boolean.parseBoolean(deleteInDB)) {
-                        DBDelegate dbDelegate = (DBDelegate) ReflectionUtil.newInstance(dbDelegateClass, new Object[0]);
-                        ResourcePK resourcePK = new ResourcePK(uri);
-                        if (dbDelegate.deleteResource(resourcePK)) {
-                            return buildDeleteResult(true,
-                                    "The target file has been deleted from MDM Image Server successfully! ");
-                        } else if (Boolean.parseBoolean(deleteUseTransaction)) {
-                            // roll back
-                            byte[] fileBytes = dbDelegate.getResource(resourcePK);
-                            if (fileBytes != null) {
-                                if (IOUtil.byteToImage(fileBytes, toDeleteFilePath)) {
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug("Roll back while deleting!");
-                                    }
-                                    return buildDeleteResult(false,
-                                            "Failed in deleting in backup database, Roll back while deleting! ");
-                                } else {
-                                    throw new DBDelegateException("Roll back failed!");
-                                }
-                            } else {
-                                throw new DBDelegateException("Roll back failed: Can not get resource!");
-                            }
-
-                        } else {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("Deleting from file system is OK, but from backup db failed. It's still OK, since no Transaction!");
-                            }
-                            return buildDeleteResult(true, "The target file has been deleted from MDM Image Server successfully!");
-                        }
-                    } else {
-                        return buildDeleteResult(true, "The target file has been deleted from MDM Image Server successfully!");
-                    }
+                    return buildDeleteResult(true, "The target file has been deleted from MDM Image Server successfully! "); //$NON-NLS-1$
                 } else {
-                    return buildDeleteResult(false, "To delete the target file from file system failed!");
+                    return buildDeleteResult(false, "To delete the target file from file system failed!"); //$NON-NLS-1$
                 }
             } else {
-                return buildDeleteResult(false, "The target file does not exist on file system!");
+                return buildDeleteResult(false, "The target file does not exist on file system!"); //$NON-NLS-1$
             }
         } catch (Exception e) {
-            String err = "Exception occurred during deleting!";
+            String err = "Exception occurred during deleting!"; //$NON-NLS-1$
             logger.error(err, e);
             return buildDeleteResult(false, err);
         }
@@ -133,7 +100,7 @@ public class ImageDeleteServlet extends HttpServlet {
         return uri;
     }
 
-    public static String buildDeleteFilePath(String uri) throws Exception {
+    private static String buildDeleteFilePath(String uri) throws Exception {
         try {
             StringBuffer fullFilename = new StringBuffer();
             String filename = URLDecoder.decode(uri, "UTF-8").substring(uri.indexOf("/") + 1); //$NON-NLS-1$ //$NON-NLS-2$

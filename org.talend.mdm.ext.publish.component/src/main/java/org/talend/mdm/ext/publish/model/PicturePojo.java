@@ -26,15 +26,12 @@ public class PicturePojo implements Serializable {
 
     private String uri;
 
-    private String redirectUri;
-
-    public PicturePojo(String name, String fileName, String catalog, String uri, String redirectUri) {
+    public PicturePojo(String name, String fileName, String catalog, String uri) {
         super();
         this.name = name;
         this.fileName = fileName;
         this.catalog = catalog;
         this.uri = uri;
-        this.redirectUri = redirectUri;
     }
 
     public String getName() {
@@ -68,13 +65,4 @@ public class PicturePojo implements Serializable {
     public void setUri(String uri) {
         this.uri = uri;
     }
-
-    public String getRedirectUri() {
-        return redirectUri;
-    }
-
-    public void setRedirectUri(String redirectUri) {
-        this.redirectUri = redirectUri;
-    }
-
 }

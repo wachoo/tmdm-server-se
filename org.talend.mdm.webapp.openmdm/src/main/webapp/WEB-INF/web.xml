@@ -17,6 +17,14 @@
         <param-name>log4jConfigLocation</param-name>
         <param-value>file://${mdm.root}/conf/log4j.xml</param-value>
     </context-param>
+    <context-param>
+        <param-name>org.restlet.enableLog</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param>
+        <param-name>org.restlet.application</param-name>
+        <param-value>org.talend.mdm.ext.publish.ServerServletApplication</param-value>
+    </context-param>
 
     <listener>
         <listener-class>org.talend.mdm.webapp.general.server.servlet.MDMContextListener</listener-class>
@@ -307,7 +315,7 @@
     </filter>
     <filter-mapping>
         <filter-name>SetCharacterEncoding</filter-name>
-        <url-pattern>/ext/images/*</url-pattern>
+        <url-pattern>/imageserver/*</url-pattern>
     </filter-mapping>
     <servlet>
         <servlet-name>ImageUploadServlet</servlet-name>
@@ -332,18 +340,6 @@
             <param-name>output-format</param-name>
             <param-value>json</param-value>
         </init-param>
-        <init-param>
-            <param-name>bak-in-db</param-name>
-            <param-value>false</param-value>
-        </init-param>
-        <init-param>
-            <param-name>db-delegate-class</param-name>
-            <param-value>talend.ext.images.server.backup.DBDelegateExistImpl</param-value>
-        </init-param>
-        <init-param>
-            <param-name>bak-use-transaction</param-name>
-            <param-value>true</param-value>
-        </init-param>
     </servlet>
     <servlet>
         <servlet-name>ImageDeleteServlet</servlet-name>
@@ -352,38 +348,22 @@
             <param-name>output-format</param-name>
             <param-value>json</param-value>
         </init-param>
-        <init-param>
-            <param-name>delete-in-db</param-name>
-            <param-value>false</param-value>
-        </init-param>
-        <init-param>
-            <param-name>db-delegate-class</param-name>
-            <param-value>talend.ext.images.server.backup.DBDelegateExistImpl</param-value>
-        </init-param>
-        <init-param>
-            <param-name>delete-use-transaction</param-name>
-            <param-value>true</param-value>
-        </init-param>
     </servlet>
     <servlet>
         <servlet-name>ImageScaleServlet</servlet-name>
         <servlet-class>com.mchange.v2.ssim.SsimServlet</servlet-class>
         <init-param>
-            <param-name>cacheDir</param-name>
-            <param-value>/scale_tmp</param-value>
-        </init-param>
-        <init-param>
-            <param-name>use-db-backup</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <init-param>
-            <param-name>db-delegate-class</param-name>
-            <param-value>talend.ext.images.server.backup.DBDelegateExistImpl</param-value>
+            <param-name>allowDomains</param-name>
+            <param-value>all</param-value>
         </init-param>
     </servlet>
     <servlet>
         <servlet-name>ImageLocateServlet</servlet-name>
         <servlet-class>talend.ext.images.server.ImageLocateServlet</servlet-class>
+        <init-param>
+            <param-name>scalePath</param-name>
+            <param-value>/imageserver/scale</param-value>
+        </init-param>
     </servlet>
     <servlet>
         <servlet-name>ImageServerInfoServlet</servlet-name>
@@ -391,24 +371,32 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>ImageUploadServlet</servlet-name>
-        <url-pattern>/ext/images/ImageUploadServlet</url-pattern>
+        <url-pattern>/imageserver/ImageUploadServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageDeleteServlet</servlet-name>
-        <url-pattern>/ext/images/ImageDeleteServlet</url-pattern>
+        <url-pattern>/imageserver/secure/ImageDeleteServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageScaleServlet</servlet-name>
-        <url-pattern>/ext/images/*</url-pattern>
+        <url-pattern>/imageserver/scale</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageLocateServlet</servlet-name>
-        <url-pattern>/ext/images/locator</url-pattern>
+        <url-pattern>/imageserver/upload/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageServerInfoServlet</servlet-name>
-        <url-pattern>/ext/images/serverinfo</url-pattern>
+        <url-pattern>/imageserver/serverinfo</url-pattern>
     </servlet-mapping>
-
+    <!-- org.talend.mdm.ext.publish.component -->
+    <servlet>
+        <servlet-name>RestletServlet</servlet-name>
+        <servlet-class>com.noelios.restlet.ext.servlet.ServerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RestletServlet</servlet-name>
+        <url-pattern>/pubcomponent/*</url-pattern>
+    </servlet-mapping>
 </web-app>
 

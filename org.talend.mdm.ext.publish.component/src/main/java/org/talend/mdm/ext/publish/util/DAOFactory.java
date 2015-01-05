@@ -15,10 +15,10 @@ import org.apache.log4j.Logger;
 
 public class DAOFactory {
 
-    private static final Logger logger = Logger.getLogger(DAOFactory.class);
+    private static final Logger LOGGER = Logger.getLogger(DAOFactory.class);
 
     /** unique instance */
-    private static DAOFactory sInstance = null;
+    private static DAOFactory instance = null;
 
     private XmlServer server;
 
@@ -28,33 +28,23 @@ public class DAOFactory {
             server = Util.getXmlServerCtrlLocal();
         } catch (Exception e) {
             String err = "Unable to access the XML Server wrapper";
-            logger.error(err, e);
+            LOGGER.error(err, e);
         }
     }
-
-    /**
-     * Get the unique instance of this class.
-     */
+    
     public static synchronized DAOFactory getUniqueInstance() {
-
-        if (sInstance == null) {
-            sInstance = new DAOFactory();
+        if (instance == null) {
+            instance = new DAOFactory();
         }
-
-        return sInstance;
-
+        return instance;
     }
 
     public DomainObjectsDAO getDomainObjectDAO() {
-
         return new DomainObjectsDAOImpl(this.server);
-
     }
 
-    public PicturesDAO getPicturesDAO(String hostURL) {
-
-        return new PicturesDAOFSImpl(hostURL);
-
+    public PicturesDAO getPicturesDAO(String picturesLocation) {
+        return new PicturesDAOFSImpl(picturesLocation);
     }
 
 }

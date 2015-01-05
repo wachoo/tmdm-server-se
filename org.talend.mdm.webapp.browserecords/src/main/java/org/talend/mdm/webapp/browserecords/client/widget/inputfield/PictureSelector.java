@@ -60,6 +60,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -177,7 +178,8 @@ public class PictureSelector extends ContentPanel {
             protected void load(Object loadConfig,
                     final AsyncCallback<List<org.talend.mdm.webapp.base.client.model.Image>> callback) {
 
-                RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, '/' + ImageUtil.IMAGE_SERVER_PATH);
+                RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, Location.getPath() + "/../"
+                        + ImageUtil.IMAGE_SERVER_PATH);
                 requestBuilder.setCallback(new RequestCallback() {
 
                     public void onResponseReceived(Request request, Response response) {

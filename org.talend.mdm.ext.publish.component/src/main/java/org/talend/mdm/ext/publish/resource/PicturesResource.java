@@ -12,9 +12,11 @@
 // ============================================================================
 package org.talend.mdm.ext.publish.resource;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -22,13 +24,10 @@ import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.ext.publish.model.PicturePojo;
 import org.talend.mdm.ext.publish.util.CommonUtil;
 import org.talend.mdm.ext.publish.util.DAOFactory;
 import org.talend.mdm.ext.publish.util.PicturesDAO;
-
-import com.amalto.core.util.XtentisException;
 
 /**
  * Resource which has only one representation.
@@ -36,22 +35,20 @@ import com.amalto.core.util.XtentisException;
  */
 public class PicturesResource extends BaseResource {
 
-    PicturesDAO picturesDAO = null;
+    private static final Logger LOGGER = Logger.getLogger(PicturesResource.class);
 
-    List<PicturePojo> PicturePojos = null;
+    // TODO See talend.ext.images.server.ImageServerInfoServlet#getUploadPath
+    private static final String picturesLocation = System.getProperty("mdm.root") + File.separator + "resources" + File.separator + "upload"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-    /**
-     * DOC Starkey PicturesResource constructor comment.
-     * 
-     * @param context
-     * @param request
-     * @param response
-     */
+    private PicturesDAO picturesDAO = null;
+
+    private List<PicturePojo> PicturePojos = null;
+
     public PicturesResource(Context context, Request request, Response response) {
 
         super(context, request, response);
 
-        picturesDAO = DAOFactory.getUniqueInstance().getPicturesDAO("http://localhost:" + MDMConfiguration.getHttpPort()); //$NON-NLS-1$
+        picturesDAO = DAOFactory.getUniqueInstance().getPicturesDAO(picturesLocation);
 
         // get resource
         PicturePojos = new ArrayList<PicturePojo>();
@@ -62,23 +59,16 @@ public class PicturesResource extends BaseResource {
                     String fileName = parseFileName(pk);
                     String catalog = parseCatalog(pk);
                     String uri = parsePath(pk);
-                    String redirectUri = parseRedirectUri(pk);
 
-                    PicturePojos.add(new PicturePojo(pk, fileName, catalog, uri, redirectUri));
+                    PicturePojos.add(new PicturePojo(pk, fileName, catalog, uri));
                 }
             }
-        } catch (XtentisException e1) {
-            e1.printStackTrace();
+        } catch (Exception e1) {
+            LOGGER.error(e1.getMessage(), e1);
         }
 
     }
 
-    /**
-     * DOC Starkey Comment method "parsePath".
-     * 
-     * @param pk
-     * @return
-     */
     private String parsePath(String pk) {
 
         if (pk == null) {
@@ -108,42 +98,6 @@ public class PicturesResource extends BaseResource {
         return path;
     }
 
-    /**
-     * DOC Starkey Comment method "parseRedirectUri".
-     * 
-     * @param pk
-     * @return
-     */
-    private String parseRedirectUri(String pk) {
-
-        if (pk == null) {
-            return ""; //$NON-NLS-1$
-        }
-
-        String path = "/imageserver/locator"; //$NON-NLS-1$
-        String catalog = ""; //$NON-NLS-1$
-        String file;
-
-        int pos = pk.indexOf("-"); //$NON-NLS-1$
-        if (pos != -1) {
-            catalog = pk.substring(0, pos);
-            file = pk.substring(pos + 1);
-        } else {
-            file = pk;
-        }
-
-        if (file != null && file.length() > 0 && catalog != null && catalog.length() > 0) {
-            path = path + "?imgId=" + CommonUtil.urlEncode(file) + "&imgCatalog=" + CommonUtil.urlEncode(catalog); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        return path;
-    }
-
-    /**
-     * DOC Starkey Comment method "parseFileName".
-     * 
-     * @param pk
-     * @return
-     */
     private String parseFileName(String pk) {
 
         String file;
@@ -158,12 +112,6 @@ public class PicturesResource extends BaseResource {
         return file;
     }
 
-    /**
-     * DOC Starkey Comment method "parseCatalog".
-     * 
-     * @param pk
-     * @return
-     */
     private String parseCatalog(String pk) {
 
         if (pk.indexOf("-") == -1) {

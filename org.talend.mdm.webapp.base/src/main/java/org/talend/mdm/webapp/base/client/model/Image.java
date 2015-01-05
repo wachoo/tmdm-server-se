@@ -25,8 +25,6 @@ public class Image extends ItemBaseModel implements IsSerializable{
     private String catalog;
 
     private String uri;
-    
-    private String redirectUri;
 
     public String getName() {
         return name;
@@ -58,13 +56,5 @@ public class Image extends ItemBaseModel implements IsSerializable{
     
     public void setUri(String uri) {
         this.uri = uri;
-    }
-    
-    public String getRedirectUri() {
-        return redirectUri;
-    }
-    
-    public void setRedirectUri(String redirectUri) {
-        this.redirectUri = redirectUri;
     }
 }

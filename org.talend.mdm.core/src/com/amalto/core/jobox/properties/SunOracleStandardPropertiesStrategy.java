@@ -105,14 +105,4 @@ class SunOracleStandardPropertiesStrategy implements StandardPropertiesStrategy 
         }
         return filteredValue;
     }
-    
-    public static void main(String[] args) {
-        try {
-            String mdmRootDir = "/tmp/titi"; //$NON-NLS-1$
-             File joboxLog4jFile = new File(mdmRootDir + "/conf/log4j-jobox.properties"); //$NON-NLS-1$
-                System.out.println(joboxLog4jFile.toURI().toURL().toExternalForm()); //$NON-NLS-1$
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

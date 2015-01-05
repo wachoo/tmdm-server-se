@@ -29,7 +29,7 @@ public class AccessControlFilter extends Filter {
 
         try {
             String inputPath = request.getResourceRef().getPath();
-            Pattern pattern = Pattern.compile("/pubcomponent/secure/(.*)");//$NON-NLS-1$
+            Pattern pattern = Pattern.compile("/pubcomponent/(.*)");//$NON-NLS-1$
             Matcher matcher = pattern.matcher(inputPath);
             while (matcher.find())
 

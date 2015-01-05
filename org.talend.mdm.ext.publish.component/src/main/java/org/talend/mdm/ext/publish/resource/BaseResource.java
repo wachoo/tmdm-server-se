@@ -73,8 +73,7 @@ public abstract class BaseResource extends Resource {
             try {
                 attribute = URLDecoder.decode(attribute, "UTF-8"); //$NON-NLS-1$
             } catch (UnsupportedEncodingException uee) {
-                org.apache.log4j.Logger.getLogger(this.getClass()).warn(
-                        "Unable to decode the string with the UTF-8 character set.", uee);
+                log.warn("Unable to decode the string with the UTF-8 character set.", uee); //$NON-NLS-1$
             }
         }
 
@@ -183,11 +182,6 @@ public abstract class BaseResource extends Resource {
                         Element entryUriElement = d.createElement("uri"); //$NON-NLS-1$
                         entryUriElement.appendChild(d.createTextNode(entry.getUri()));
                         entryElement.appendChild(entryUriElement);
-
-                        Element entryRedirectUriElement = d.createElement("redirectUri"); //$NON-NLS-1$
-                        entryRedirectUriElement.appendChild(d.createTextNode(entry.getRedirectUri()));
-                        entryElement.appendChild(entryRedirectUriElement);
-
                     }
                 }
             }

@@ -40,7 +40,7 @@ public class ServerServletApplication extends Application {
         Router router = new Router(getContext());
 
         // Defines a route for the resource "list of dataModels"
-        router.attach("/" + ResourceType.DATAMODELS.getName(), DataModelsResource.class); //$NON-NLS-1$ 
+        router.attach("/pubcomponent/" + ResourceType.DATAMODELS.getName(), DataModelsResource.class); //$NON-NLS-1$ 
         // Defines a route for the resource "dataModel"
         router.attach("/" + ResourceType.DATAMODELS.getName() + "/{dataModelName}", DataModelResource.class); //$NON-NLS-1$ //$NON-NLS-2$
 

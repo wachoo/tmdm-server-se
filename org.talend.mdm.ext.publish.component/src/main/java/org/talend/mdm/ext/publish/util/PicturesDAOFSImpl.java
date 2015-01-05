@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.ext.publish.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,38 +22,29 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
-import org.restlet.Client;
-import org.restlet.data.ChallengeResponse;
-import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Method;
-import org.restlet.data.Protocol;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
-import org.restlet.data.Status;
-import org.restlet.resource.Representation;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
-import com.amalto.core.util.XtentisException;
+import org.apache.log4j.Logger;
 
 public class PicturesDAOFSImpl implements PicturesDAO {
-	
-    private String resourceURL;
-    
+
+    private static final Logger LOGGER = Logger.getLogger(PicturesDAOFSImpl.class);
+
+    private String picturesLocation;
+
     private static final String FILTER_IMAGR_START_SYMBOL = "."; //$NON-NLS-1$
-	
-    public PicturesDAOFSImpl(String hostURL) {
-        this.resourceURL = hostURL + "/imageserver/secure/serverinfo?action=getUploadHome"; //$NON-NLS-1$
-	}
-	
-    public String[] getAllPKs() throws XtentisException{
+
+    public PicturesDAOFSImpl(String picturesLocation) {
+        this.picturesLocation = picturesLocation; 
+    }
+
+    public String[] getAllPKs() {
 
         List<String> pks = new ArrayList<String>();
-        String imageUploadPath = retrieveImageUploadPath();
+        
         // The imageserver upload home conversion:
         // Use catalog folders under root directory
         // Store imagefiles within each catalog folder
         // Do not support multi level catalogs
-        File uploadHome=new File(imageUploadPath);
+        File uploadHome = new File(picturesLocation);
         if (uploadHome.exists()) {
             File[] catalogs = uploadHome.listFiles();
             for (int i = 0; i < catalogs.length; i++) {
@@ -87,11 +77,9 @@ public class PicturesDAOFSImpl implements PicturesDAO {
         }
 
         return (String[]) pks.toArray(new String[pks.size()]);
-	}
-    
+    }
 
     private boolean allowedImageResource(File file) {
-
         if (file == null)
             return false;
 
@@ -101,75 +89,35 @@ public class PicturesDAOFSImpl implements PicturesDAO {
         return false;
     }
 
-
     private boolean isImage(File file) {
-
         ImageInputStream is = null;
         try {
-
             is = ImageIO.createImageInputStream(file);
             if (is == null) {
                 return false;
             }
 
-            Iterator iter = ImageIO.getImageReaders(is);
+            Iterator<ImageReader> iter = ImageIO.getImageReaders(is);
             if (!iter.hasNext()) {
                 return false;
             } else {
-                ImageReader reader = (ImageReader) iter.next();
+                ImageReader reader = iter.next();
                 if (reader.getFormatName() != null && reader.getFormatName().length() > 0)
                     return true;
             }
 
         } catch (IOException e) {
-            org.apache.log4j.Logger.getLogger(this.getClass()).error("Error on creating image inputstream! ", e); //$NON-NLS-1$
+            LOGGER.error("Error on creating image inputstream! ", e); //$NON-NLS-1$
         } finally {
             try {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (IOException e) {
-                org.apache.log4j.Logger.getLogger(this.getClass()).error("Error on closing image inputstream! ", e); //$NON-NLS-1$
+                LOGGER.error("Error on closing image inputstream! ", e); //$NON-NLS-1$
             }
         }
 
         return false;
     }
-
-    /**
-     * DOC Starkey Comment method "retrieveImageUploadPath".
-     * 
-     * @return
-     */
-    private String retrieveImageUploadPath() {
-
-        String imageUploadPath = null;
-
-        ChallengeResponse authentication = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, MDMConfiguration.getAdminUser(),
-                MDMConfiguration.getAdminPassword());
-
-        if (org.apache.log4j.Logger.getLogger(this.getClass()).isDebugEnabled())
-            org.apache.log4j.Logger.getLogger(this.getClass()).debug("Retrieving image upload home path: " + resourceURL); //$NON-NLS-1$
-
-        Request request = new Request(Method.GET, resourceURL);
-        request.setChallengeResponse(authentication);
-
-        // request and print response
-        Client client = new Client(Protocol.HTTP);
-        final Response response = client.handle(request);
-        
-        if(response.getStatus().equals(Status.CLIENT_ERROR_NOT_FOUND))
-            throw new RuntimeException("Image server home not found! "); //$NON-NLS-1$
-
-        final Representation output = response.getEntity();
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            output.write(baos);
-            imageUploadPath = baos.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return imageUploadPath;
-
-    }
-
 }

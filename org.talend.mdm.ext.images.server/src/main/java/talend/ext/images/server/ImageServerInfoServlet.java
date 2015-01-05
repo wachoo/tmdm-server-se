@@ -43,12 +43,10 @@ public class ImageServerInfoServlet extends HttpServlet {
     private static String tempPath = null;
 
     private static synchronized void initPaths() {
-        String jbossServerDir = System.getProperty("jboss.server.home.dir"); //$NON-NLS-1$
-        if (jbossServerDir != null) {
-            uploadPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
-                    + "mdm_resources" + File.separator + ImageServerInfoServlet.UPLOAD_FOLDER; //$NON-NLS-1$
-            tempPath = jbossServerDir + File.separator + "data" + File.separator //$NON-NLS-1$
-                    + "mdm_resources" + File.separator + ImageServerInfoServlet.TEMP_FOLDER; //$NON-NLS-1$
+        String mdmRootDir = System.getProperty("mdm.root"); //$NON-NLS-1$
+        if (mdmRootDir != null) {
+            uploadPath = mdmRootDir + File.separator + "resources" + File.separator + ImageServerInfoServlet.UPLOAD_FOLDER; //$NON-NLS-1$
+            tempPath = mdmRootDir + File.separator + "resources" + File.separator + ImageServerInfoServlet.TEMP_FOLDER; //$NON-NLS-1$
 
             File uploadFolder = new File(uploadPath);
             File tempUploadFolder = new File(tempPath);

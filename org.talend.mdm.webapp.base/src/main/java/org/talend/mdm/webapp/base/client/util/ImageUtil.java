@@ -25,15 +25,9 @@ import com.google.gwt.xml.client.XMLParser;
 
 public class ImageUtil {
 
-    final public static String IMAGE_SERVER_PATH = "pubcomponent/secure/pictures"; //$NON-NLS-1$
-
-    final public static String IMAGE_SERVER_USERNAME = "administrator"; //$NON-NLS-1$
-
-    final public static String IMAGE_SERVER_PASSWORD = "administrator"; //$NON-NLS-1$
+    final public static String IMAGE_SERVER_PATH = "pubcomponent/pictures"; //$NON-NLS-1$
 
     final public static String IMAGE_PATH = "imageserver/"; //$NON-NLS-1$
-
-    final public static String UPLOAD_PATH = IMAGE_PATH + "upload/"; //$NON-NLS-1$
 
     public static List<Image> getImages(String xml) throws Exception {
 
@@ -57,7 +51,6 @@ public class ImageUtil {
             image.setFileName(getElementTextValue(node, "imageName")); //$NON-NLS-1$
             image.setCatalog(getElementTextValue(node, "catalog")); //$NON-NLS-1$
             image.setUri(getElementTextValue(node, "uri")); //$NON-NLS-1$
-            image.setRedirectUri(getElementTextValue(node, "redirectUri")); //$NON-NLS-1$
             images.add(image);
         }
         return images;

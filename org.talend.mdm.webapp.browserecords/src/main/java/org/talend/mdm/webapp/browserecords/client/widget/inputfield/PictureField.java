@@ -46,6 +46,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -248,20 +249,21 @@ public class PictureField extends TextField<String> {
         }
 
         String oldValue = this.value;
-        this.value = value;
 
         if (value != null && value.length() != 0) {
-            if (!value.startsWith("/")) { //$NON-NLS-1$
-                value = "/" + value; //$NON-NLS-1$
+            if (value.startsWith("/imageserver")) { //$NON-NLS-1$
+                value = value.substring(1); //$NON-NLS-1$
+            }
+            if (!value.startsWith("imageserver")) { //$NON-NLS-1$
+                value = "imageserver/" + value; //$NON-NLS-1$
             }
 
-            if (!value.startsWith("/imageserver")) { //$NON-NLS-1$
-                this.value = "/imageserver" + value; //$NON-NLS-1$
-            }
+            this.value = value;
             image.setUrl(scaleInternalUrl(this.value, DEFAULT_IMAGE_SCALE_SIZE));
             imagePath = this.value;
 
         } else {
+            this.value = value;
             image.setUrl(DefaultImage);
         }
 
@@ -350,7 +352,7 @@ public class PictureField extends TextField<String> {
             FormData formData = new FormData();
             editForm.setEncoding(FormPanel.Encoding.MULTIPART);
             editForm.setMethod(FormPanel.Method.POST);
-            editForm.setAction("/imageserver/secure/ImageUploadServlet"); //$NON-NLS-1$
+            editForm.setAction("imageserver/ImageUploadServlet"); //$NON-NLS-1$
             editForm.setHeaderVisible(false);
             editForm.setBodyBorder(false);
             editForm.setLabelWidth(110);
