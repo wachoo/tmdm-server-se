@@ -528,8 +528,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language,
-                AsyncCallback<ItemResult> callback) {
+        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel,
+                String language, AsyncCallback<ItemResult> callback) {
 
         }
 
@@ -609,7 +609,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Boolean> callback) {
+        public void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Integer> callback) {
 
         }
 

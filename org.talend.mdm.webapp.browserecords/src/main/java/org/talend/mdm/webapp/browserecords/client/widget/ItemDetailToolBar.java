@@ -633,129 +633,140 @@ public class ItemDetailToolBar extends ToolBar {
                     separatorIndex = subActionsMenu.indexOf(journalMenuItem) + 1;
                 }
                 if (hasTaskId) {
-                    if (isStaging) {
-                        getBrowseRecordsService().getGoldenRecordIdByGroupId(
-                                BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
-                                BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
-                                BrowseRecords.getSession().getCurrentEntityModel().getKeys(), itemBean.getTaskId(),
-                                new SessionAwareAsyncCallback<String>() {
+                    getBrowseRecordsService().checkTask(BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
+                            itemBean.getConcept(), itemBean.getTaskId(), new SessionAwareAsyncCallback<Integer>() {
 
-                                    @Override
-                                    public void onSuccess(final String ids) {
-                                        if (!ids.isEmpty()) {
-                                            if (openMasterRecordMenuItem == null) {
-                                                openMasterRecordMenuItem = new MenuItem(MessagesFactory.getMessages()
-                                                        .masterRecords_btn());
-                                                openMasterRecordMenuItem.setId("openMasterRecordMenuItem"); //$NON-NLS-1$
-                                                openMasterRecordMenuItem.setItemId("openMasterRecordMenuItem"); //$NON-NLS-1$
-                                                openMasterRecordMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE
-                                                        .masterRecords()));
-                                                openMasterRecordMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+                                @Override
+                                public void onSuccess(Integer result) {
+                                    int count = result.intValue();
+
+                                    if (isStaging) {
+                                        getBrowseRecordsService().getGoldenRecordIdByGroupId(
+                                                BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
+                                                BrowseRecords.getSession().getCurrentView().getViewPK(), itemBean.getConcept(),
+                                                BrowseRecords.getSession().getCurrentEntityModel().getKeys(),
+                                                itemBean.getTaskId(), new SessionAwareAsyncCallback<String>() {
 
                                                     @Override
-                                                    public void componentSelected(MenuEvent menuEvent) {
+                                                    public void onSuccess(final String ids) {
                                                         if (!ids.isEmpty()) {
-                                                            TreeDetailUtil.initItemsDetailPanelById(
-                                                                    "", ids, itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
-                                                                    isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION, false);
-                                                        } else {
-                                                            MessageBox.alert(
-                                                                    MessagesFactory.getMessages().warning_title(),
-                                                                    MessagesFactory.getMessages().no_golden_record_in_group(
-                                                                            itemBean.getTaskId()), null);
+                                                            if (openMasterRecordMenuItem == null) {
+                                                                openMasterRecordMenuItem = new MenuItem(MessagesFactory
+                                                                        .getMessages().masterRecords_btn());
+                                                                openMasterRecordMenuItem.setId("openMasterRecordMenuItem"); //$NON-NLS-1$
+                                                                openMasterRecordMenuItem.setItemId("openMasterRecordMenuItem"); //$NON-NLS-1$
+                                                                openMasterRecordMenuItem.setIcon(AbstractImagePrototype
+                                                                        .create(Icons.INSTANCE.masterRecords()));
+                                                                openMasterRecordMenuItem
+                                                                        .addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                                                                            @Override
+                                                                            public void componentSelected(MenuEvent menuEvent) {
+                                                                                if (!ids.isEmpty()) {
+                                                                                    TreeDetailUtil
+                                                                                            .initItemsDetailPanelById(
+                                                                                                    "", ids, itemBean.getConcept(), isFkToolBar, //$NON-NLS-1$
+                                                                                                    isHierarchyCall,
+                                                                                                    ItemDetailToolBar.VIEW_OPERATION,
+                                                                                                    false);
+                                                                                } else {
+                                                                                    MessageBox
+                                                                                            .alert(MessagesFactory.getMessages()
+                                                                                                    .warning_title(),
+                                                                                                    MessagesFactory
+                                                                                                            .getMessages()
+                                                                                                            .no_golden_record_in_group(
+                                                                                                                    itemBean.getTaskId()),
+                                                                                                    null);
+                                                                                }
+                                                                            }
+                                                                        });
+                                                            }
+                                                            if (!(subActionsMenu.getItem(separatorIndex) instanceof SeparatorMenuItem)) {
+                                                                subActionsMenu.insert(new SeparatorMenuItem(), separatorIndex);
+                                                            }
+                                                            subActionsMenu.insert(openMasterRecordMenuItem,
+                                                                    ItemDetailToolBar.this.separatorIndex + 1);
                                                         }
                                                     }
                                                 });
-                                            }
-                                            if (!(subActionsMenu.getItem(separatorIndex) instanceof SeparatorMenuItem)) {
-                                                subActionsMenu.insert(new SeparatorMenuItem(), separatorIndex);
-                                            }
-                                            subActionsMenu.insert(openMasterRecordMenuItem,
-                                                    ItemDetailToolBar.this.separatorIndex + 1);
-                                        }
-                                    }
-                                });
-                    } else {
-                        if (dataLineageMenuItem == null) {
-                            dataLineageMenuItem = new MenuItem(MessagesFactory.getMessages().stagingRecords_btn());
-                            dataLineageMenuItem.setId("dataLineageMenuItem"); //$NON-NLS-1$
-                            dataLineageMenuItem.setItemId("dataLineageMenuItem"); //$NON-NLS-1$
-                            dataLineageMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.stagingRecords()));
-                            dataLineageMenuItem.setToolTip(MessagesFactory.getMessages().stagingRecords_tip());
-                            dataLineageMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-                                @Override
-                                public void componentSelected(MenuEvent menuEvent) {
-                                    LineagePanel lineagePanel = LineagePanel.getInstance();
-                                    lineagePanel.init(itemBean.getConcept(), itemBean.getTaskId());
-                                    if (GWT.isScript()) {
-                                        ItemDetailToolBar.this.openLineagePanel(itemBean.getIds(), lineagePanel);
                                     } else {
-                                        ItemDetailToolBar.this.openDebugLineagePanel(itemBean.getIds(), lineagePanel);
-                                    }
-
-                                }
-                            });
-                            subActionsMenu.add(dataLineageMenuItem);
-                        }
-                    }
-                    if (explainMenuItem == null) {
-                        explainMenuItem = new MenuItem(MessagesFactory.getMessages().explain_button());
-                        explainMenuItem.setId("explainMenuItem"); //$NON-NLS-1$
-                        explainMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
-                        explainMenuItem.setToolTip(MessagesFactory.getMessages().explain_tip());
-                        explainMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-                            @Override
-                            public void componentSelected(MenuEvent menuEvent) {
-                                String taskId = itemBean.getTaskId();
-                                if (taskId != null && !taskId.isEmpty()) {
-                                    ExplainRestServiceHandler.get().explainGroupResult(
-                                            BrowseRecords.getSession().getAppHeader().getMasterDataCluster(),
-                                            itemBean.getConcept(), taskId, new SessionAwareAsyncCallback<BaseTreeModel>() {
-
-                                                @Override
-                                                public void onSuccess(BaseTreeModel root) {
-                                                    showExplainResult(root);
-                                                }
-                                            });
-                                } else {
-                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                            .no_taskid_warning_message(), null);
-                                }
-                            }
-                        });
-                        subActionsMenu.add(explainMenuItem);
-                    }
-
-                    if (openTaskMenuItem == null) {
-                        getBrowseRecordsService().checkTask(BrowseRecords.getSession().getAppHeader().getStagingDataCluster(),
-                                itemBean.getConcept(), itemBean.getTaskId(), new SessionAwareAsyncCallback<Boolean>() {
-
-                                    @Override
-                                    public void onSuccess(Boolean result) {
-                                        if (result) {
-                                            openTaskMenuItem = new MenuItem(MessagesFactory.getMessages().open_task());
-                                            openTaskMenuItem.setId("openTaskMenuItem"); //$NON-NLS-1$
-                                            openTaskMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
-                                            openTaskMenuItem.setToolTip(MessagesFactory.getMessages().open_task_tooltip());
-                                            openTaskMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+                                        if (dataLineageMenuItem == null && count > 0) {
+                                            dataLineageMenuItem = new MenuItem(MessagesFactory.getMessages().stagingRecords_btn());
+                                            dataLineageMenuItem.setId("dataLineageMenuItem"); //$NON-NLS-1$
+                                            dataLineageMenuItem.setItemId("dataLineageMenuItem"); //$NON-NLS-1$
+                                            dataLineageMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE
+                                                    .stagingRecords()));
+                                            dataLineageMenuItem.setToolTip(MessagesFactory.getMessages().stagingRecords_tip());
+                                            dataLineageMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 
                                                 @Override
                                                 public void componentSelected(MenuEvent menuEvent) {
-                                                    initDSC(itemBean.getTaskId());
+                                                    LineagePanel lineagePanel = LineagePanel.getInstance();
+                                                    lineagePanel.init(itemBean.getConcept(), itemBean.getTaskId());
+                                                    if (GWT.isScript()) {
+                                                        ItemDetailToolBar.this.openLineagePanel(itemBean.getIds(), lineagePanel);
+                                                    } else {
+                                                        ItemDetailToolBar.this.openDebugLineagePanel(itemBean.getIds(),
+                                                                lineagePanel);
+                                                    }
+
                                                 }
                                             });
-                                            int explainMenuItemIndex = subActionsMenu.indexOf(explainMenuItem);
-                                            if (explainMenuItemIndex != -1) {
-                                                subActionsMenu.insert(openTaskMenuItem, explainMenuItemIndex + 1);
-                                            } else {
-                                                subActionsMenu.add(openTaskMenuItem);
-                                            }
+                                            subActionsMenu.add(dataLineageMenuItem);
                                         }
                                     }
-                                });
-                    }
+                                    if (explainMenuItem == null && count > 0) {
+                                        explainMenuItem = new MenuItem(MessagesFactory.getMessages().explain_button());
+                                        explainMenuItem.setId("explainMenuItem"); //$NON-NLS-1$
+                                        explainMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Save()));
+                                        explainMenuItem.setToolTip(MessagesFactory.getMessages().explain_tip());
+                                        explainMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                                            @Override
+                                            public void componentSelected(MenuEvent menuEvent) {
+                                                String taskId = itemBean.getTaskId();
+                                                if (taskId != null && !taskId.isEmpty()) {
+                                                    ExplainRestServiceHandler.get().explainGroupResult(
+                                                            BrowseRecords.getSession().getAppHeader().getMasterDataCluster(),
+                                                            itemBean.getConcept(), taskId,
+                                                            new SessionAwareAsyncCallback<BaseTreeModel>() {
+
+                                                                @Override
+                                                                public void onSuccess(BaseTreeModel root) {
+                                                                    showExplainResult(root);
+                                                                }
+                                                            });
+                                                } else {
+                                                    MessageBox.alert(MessagesFactory.getMessages().warning_title(),
+                                                            MessagesFactory.getMessages().no_taskid_warning_message(), null);
+                                                }
+                                            }
+                                        });
+                                        subActionsMenu.add(explainMenuItem);
+                                    }
+
+                                    if (openTaskMenuItem == null && count > 1) {
+                                        openTaskMenuItem = new MenuItem(MessagesFactory.getMessages().open_task());
+                                        openTaskMenuItem.setId("openTaskMenuItem"); //$NON-NLS-1$
+                                        openTaskMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
+                                        openTaskMenuItem.setToolTip(MessagesFactory.getMessages().open_task_tooltip());
+                                        openTaskMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                                            @Override
+                                            public void componentSelected(MenuEvent menuEvent) {
+                                                initDSC(itemBean.getTaskId());
+                                            }
+                                        });
+                                        int explainMenuItemIndex = subActionsMenu.indexOf(explainMenuItem);
+                                        if (explainMenuItemIndex != -1) {
+                                            subActionsMenu.insert(openTaskMenuItem, explainMenuItemIndex + 1);
+                                        } else {
+                                            subActionsMenu.add(openTaskMenuItem);
+                                        }
+                                    }
+                                }
+                            });
                 }
 
                 if (subActionsMenu.indexOf(dataLineageMenuItem) != -1 || subActionsMenu.indexOf(openTaskMenuItem) != -1

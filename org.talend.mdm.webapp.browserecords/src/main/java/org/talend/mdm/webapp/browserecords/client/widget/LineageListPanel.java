@@ -288,12 +288,12 @@ public class LineageListPanel extends ContentPanel {
     public void refresh() {
         selectStagingGridPanel();
         browseStagingRecordService.checkTask(cluster, entityModel.getConceptName(), taskId,
-                new SessionAwareAsyncCallback<Boolean>() {
+                new SessionAwareAsyncCallback<Integer>() {
 
                     @Override
-                    public void onSuccess(Boolean result) {
+                    public void onSuccess(Integer result) {
                         int gridContainerHeight = LineageListPanel.this.getHeight();
-                        if (result) {
+                        if (result > 1) {
                             openTaskToolBar.setVisible(true);
                         } else {
                             openTaskToolBar.setVisible(false);
