@@ -77,7 +77,7 @@ public class PicturesResource extends BaseResource {
 
         String catalog;
         String file;
-        String path = "/imageserver/upload"; //$NON-NLS-1$
+        String path = "imageserver/upload"; //$NON-NLS-1$
 
         if (pk.indexOf("-") == -1) {
             pk = "-" + pk; //$NON-NLS-1$ 
