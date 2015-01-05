@@ -126,15 +126,15 @@ public interface BrowseRecordsServiceAsync {
 
     void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback);
 
-    void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language,
-            AsyncCallback<ItemResult> callback);
+    void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel,
+            String language, AsyncCallback<ItemResult> callback);
 
     void updateItems(List<UpdateItemModel> updateItems, String language, AsyncCallback<List<ItemResult>> callback);
 
     void getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId,
             AsyncCallback<String> callback);
 
-    void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Boolean> callback);
+    void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Integer> callback);
 
     void getRecords(String concept, List<String> idsList, AsyncCallback<List<ItemBean>> callback);
 
