@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package talend.ext.images.server.util;
 
 import java.io.DataInput;
@@ -9,21 +21,17 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 
+// TODO Is this class needed??
 public class Uuid implements Serializable {
 	private static final long serialVersionUID = 1118990168975148476L;
 	private long high;
 	private long low;
 	private transient String str36;
 	private static int UUID_HOST_LOCK_PORT = 5504;
-	private static final int MAX_RETRYS = 1200;
-	private static final int INTERVAL_TIME = 100;
 	private static ServerSocket lockSocket;
 	private static long timeStamp;
 	private static long adapterAddress;
 	private static int instanceCounter;
-	private static final long versionMask = 4096L;
-	private static final long reserveMask = 0xe000000000000000L;
-	private static final long randomMask = 0x1fffffffL;
 	private static final char hexDigits[] = { '0', '1', '2', '3', '4', '5',
 			'6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -63,7 +71,7 @@ public class Uuid implements Serializable {
 					& 0xff0000 | addr[0] << 24 & 0xff000000;
 			adapterAddress = (long) raw & 0xffffffffL;
 		} catch (UnknownHostException e) {
-			throw new UuidException("Unexpected failure");
+			throw new UuidException("Unexpected failure"); //$NON-NLS-1$
 		}
 	}
 
@@ -73,7 +81,7 @@ public class Uuid implements Serializable {
 			long newTime = System.currentTimeMillis();
 			if (timeStamp != 0L) {
 				if (newTime < timeStamp)
-					throw new UuidException("Unique identifier clock failure");
+					throw new UuidException("Unique identifier clock failure"); //$NON-NLS-1$
 				if (newTime == timeStamp) {
 					letClockTick(newTime);
 					newTime = System.currentTimeMillis();
@@ -86,18 +94,16 @@ public class Uuid implements Serializable {
 	}
 
 	private static void letClockTick(long curTime) throws UuidException {
-		int timeoutCounter = 0;
 		long sleepTime = 1L;
 		for (long newTime = System.currentTimeMillis(); newTime == curTime; newTime = System
 				.currentTimeMillis()) {
-			timeoutCounter++;
 			sleepTime *= 2L;
 			try {
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException e) {
 			}
 			if (sleepTime > 60000L)
-				throw new UuidException("Unique identifier unexpected failure");
+				throw new UuidException("Unique identifier unexpected failure"); //$NON-NLS-1$
 		}
 
 	}
@@ -105,7 +111,7 @@ public class Uuid implements Serializable {
 	private static void acquireHostLock() throws UuidException {
 		String portProperty = null;
 		try {
-			portProperty = System.getProperty("bluewater.uuid.hostLockPort");
+			portProperty = System.getProperty("bluewater.uuid.hostLockPort"); //$NON-NLS-1$
 		} catch (SecurityException e) {
 		}
 		if (portProperty != null)
@@ -119,14 +125,14 @@ public class Uuid implements Serializable {
 				return;
 			} catch (BindException e) {
 			} catch (IOException e2) {
-				throw new UuidException("Unique identifier unexpected failure");
+				throw new UuidException("Unique identifier unexpected failure"); //$NON-NLS-1$
 			}
 			try {
 				Thread.sleep(100L);
 			} catch (InterruptedException e1) {
 			}
 			if (numberOfRetrys == 1200)
-				throw new UuidException("Unique identifier lock failure");
+				throw new UuidException("Unique identifier lock failure"); //$NON-NLS-1$
 		}
 
 	}
@@ -220,20 +226,5 @@ public class Uuid implements Serializable {
 		low |= Long.parseLong(part, 16);
 		uuid = new Uuid(high, low);
 		return uuid;
-	}
-
-	public static void main(String args[]) {
-		try {
-			long begin = System.currentTimeMillis();
-			for (int i = 0; i < 1; i++) {
-				Uuid uuid = get32Code();
-				System.out.println(uuid.toString());
-			}
-
-			long end = System.currentTimeMillis();
-			System.out.println("total=" + (end - begin) + "ms," + (end - begin)
-					/ 1000L + " second");
-		} catch (Exception ex) {
-		}
 	}
 }

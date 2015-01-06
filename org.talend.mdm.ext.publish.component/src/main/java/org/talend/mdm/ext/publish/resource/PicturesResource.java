@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.ext.publish.resource;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +28,8 @@ import org.talend.mdm.ext.publish.util.CommonUtil;
 import org.talend.mdm.ext.publish.util.DAOFactory;
 import org.talend.mdm.ext.publish.util.PicturesDAO;
 
+import talend.ext.images.server.ImageServerInfo;
+
 /**
  * Resource which has only one representation.
  * 
@@ -37,8 +38,7 @@ public class PicturesResource extends BaseResource {
 
     private static final Logger LOGGER = Logger.getLogger(PicturesResource.class);
 
-    // TODO See talend.ext.images.server.ImageServerInfoServlet#getUploadPath
-    private static final String picturesLocation = System.getProperty("mdm.root") + File.separator + "resources" + File.separator + "upload"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    private static final String picturesLocation = ImageServerInfo.getInstance().getUploadPath();
 
     private PicturesDAO picturesDAO = null;
 
@@ -56,9 +56,10 @@ public class PicturesResource extends BaseResource {
             String[] pks = picturesDAO.getAllPKs();
             if (pks != null && pks.length > 0) {
                 for (String pk : pks) {
-                    String fileName = parseFileName(pk);
-                    String catalog = parseCatalog(pk);
-                    String uri = parsePath(pk);
+                    String[] parsedPK = parsePK(pk);
+                    String fileName = parsedPK[0];
+                    String catalog = parsedPK[1];
+                    String uri = parsedPK[2];
 
                     PicturePojos.add(new PicturePojo(pk, fileName, catalog, uri));
                 }
@@ -69,58 +70,28 @@ public class PicturesResource extends BaseResource {
 
     }
 
-    private String parsePath(String pk) {
-
+    private String[] parsePK(String pk) {
         if (pk == null) {
-            return ""; //$NON-NLS-1$
+            throw new IllegalArgumentException();
         }
-
-        String catalog;
-        String file;
-        String path = "imageserver/upload"; //$NON-NLS-1$
-
-        if (pk.indexOf("-") == -1) {
-            pk = "-" + pk; //$NON-NLS-1$ 
-        }
-        int pos = pk.indexOf("-"); //$NON-NLS-1$
-        if (pos != -1) {
-            catalog = pk.substring(0, pos);
-            file = pk.substring(pos + 1);
-        } else {
-            catalog = ""; //$NON-NLS-1$
-            file = pk;
-        }
-
-        if (!catalog.equals("") && !catalog.equals("/") && !catalog.equals("//")) {
-            path = path + "/" + CommonUtil.urlEncode(catalog); //$NON-NLS-1$
-        }
-        path = path + "/" + CommonUtil.urlEncode(file); //$NON-NLS-1$
-        return path;
-    }
-
-    private String parseFileName(String pk) {
-
-        String file;
-
-        int pos = pk.indexOf("-"); //$NON-NLS-1$
-        if (pos != -1) {
-            file = pk.substring(pos + 1);
-        } else {
-            file = pk;
-        }
-
-        return file;
-    }
-
-    private String parseCatalog(String pk) {
-
-        if (pk.indexOf("-") == -1) {
+        if (pk.indexOf("-") == -1) { //$NON-NLS-1$
             pk = "-" + pk; //$NON-NLS-1$
         }
+
         String[] pkParts = pk.split("-"); //$NON-NLS-1$
         String catalog = pkParts[0];
+        String file = pkParts[1];
+        String requestLocatePath = ImageServerInfo.getInstance().getLocateBaseUrl();
+        if (!catalog.equals("") && !catalog.equals("/") && !catalog.equals("//")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            requestLocatePath = requestLocatePath + "/" + CommonUtil.urlEncode(catalog); //$NON-NLS-1$
+        }
+        requestLocatePath = requestLocatePath + "/" + CommonUtil.urlEncode(file); //$NON-NLS-1$
 
-        return catalog;
+        String[] parsedPK = new String[3];
+        parsedPK[0] = catalog;
+        parsedPK[1] = file;
+        parsedPK[2] = requestLocatePath;
+        return parsedPK;
     }
 
     @Override

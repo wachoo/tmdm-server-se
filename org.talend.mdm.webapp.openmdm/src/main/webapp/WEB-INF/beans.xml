@@ -11,7 +11,7 @@ http://www.springframework.org/schema/jee http://www.springframework.org/schema/
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
 
-    <!-- Properties -->    
+    <!-- Properties -->
     <context:annotation-config />
     <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" />
 
@@ -29,6 +29,13 @@ http://www.springframework.org/schema/jee http://www.springframework.org/schema/
                 <ref bean="dataModelSynchronizer" />
             </list>
         </property>
+    </bean>
+
+    <!-- Image server -->
+    <bean id="imageServerInfo" class="talend.ext.images.server.ImageServerInfo" factory-method="createInstance" init-method="init">
+        <property name="uploadPath" value="${mdm.root}/resources/upload" />
+        <property name="tempPath" value="${mdm.root}/resources/upload_tmp" />
+        <property name="locateBaseUrl" value="imageserver/upload" />
     </bean>
 
     <!-- Indicates a Tomcat environment -->

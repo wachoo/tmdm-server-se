@@ -365,10 +365,6 @@
             <param-value>/imageserver/scale</param-value>
         </init-param>
     </servlet>
-    <servlet>
-        <servlet-name>ImageServerInfoServlet</servlet-name>
-        <servlet-class>talend.ext.images.server.ImageServerInfoServlet</servlet-class>
-    </servlet>
     <servlet-mapping>
         <servlet-name>ImageUploadServlet</servlet-name>
         <url-pattern>/imageserver/ImageUploadServlet</url-pattern>
@@ -384,10 +380,6 @@
     <servlet-mapping>
         <servlet-name>ImageLocateServlet</servlet-name>
         <url-pattern>/imageserver/upload/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ImageServerInfoServlet</servlet-name>
-        <url-pattern>/imageserver/serverinfo</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.ext.publish.component -->
     <servlet>

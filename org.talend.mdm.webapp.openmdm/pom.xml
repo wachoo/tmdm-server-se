@@ -52,21 +52,11 @@
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.ext.images.server</artifactId>
-            <type>war</type>
+            <artifactId>org.talend.mdm.core.storage.sql</artifactId>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.ext.publish.component</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.core.storage.sql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>mchange-commons-java</artifactId>
         </dependency>
     </dependencies>
 </project>

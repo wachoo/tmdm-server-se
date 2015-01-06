@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.talend.mdm.ext.images.server</artifactId>
     <name>org.talend.mdm.ext.images.server</name>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <build>
         <resources>

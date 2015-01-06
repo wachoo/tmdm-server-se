@@ -12,12 +12,15 @@ package org.talend.mdm.ext.publish.util;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 public class SchemaProcessor {
+
+    private static final Logger LOGGER = Logger.getLogger(SchemaProcessor.class);
 
     private static final String elementID = "xsd:element"; //$NON-NLS-1$
 
@@ -27,6 +30,7 @@ public class SchemaProcessor {
             Document doc = DocumentHelper.parseText(infoXML);
 
             // first level only
+            @SuppressWarnings("unchecked")
             List<Element> elements = doc.getRootElement().elements();
             for (Iterator<Element> iterator = elements.iterator(); iterator.hasNext();) {
                 Element element = (Element) iterator.next();
@@ -41,10 +45,10 @@ public class SchemaProcessor {
 
             transformedXml = doc.asXML();
         } catch (DocumentException e) {
-            org.apache.log4j.Logger.getLogger(SchemaProcessor.class).error(e.getLocalizedMessage(), e);
+            LOGGER.error(e.getLocalizedMessage(), e);
             return null;
         } catch (Exception e) {
-            org.apache.log4j.Logger.getLogger(SchemaProcessor.class).error(e.getLocalizedMessage(), e);
+            LOGGER.error(e.getLocalizedMessage(), e);
             return null;
         }
 

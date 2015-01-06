@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -38,7 +39,7 @@ import org.apache.log4j.Logger;
 
 import talend.ext.images.server.util.Uuid;
 
-public class ImageUploadServlet extends ImageServerInfoServlet {
+public class ImageUploadServlet extends HttpServlet {
 
     private static final long serialVersionUID = 5281522568086790496L;
 
@@ -112,7 +113,7 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
 
                 DiskFileItemFactory factory = new DiskFileItemFactory();
                 factory.setSizeThreshold(4096);
-                factory.setRepository(new File(getTempPath()));
+                factory.setRepository(new File(ImageServerInfo.getInstance().getTempPath()));
 
                 ServletFileUpload sevletFileUpload = new ServletFileUpload(factory);
                 sevletFileUpload.setSizeMax(4 * 1024 * 1024);
@@ -223,7 +224,7 @@ public class ImageUploadServlet extends ImageServerInfoServlet {
                     targetCatalogName = generateCatalogName();
                 }
 
-                upath.append(getUploadPath());
+                upath.append(ImageServerInfo.getInstance().getUploadPath());
                 if (!targetCatalogName.equals("/")) { //$NON-NLS-1$
                     upath.append(File.separator).append(targetCatalogName);
                 }

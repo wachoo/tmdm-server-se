@@ -105,7 +105,7 @@ public class ImageDeleteServlet extends HttpServlet {
             StringBuffer fullFilename = new StringBuffer();
             String filename = URLDecoder.decode(uri, "UTF-8").substring(uri.indexOf("/") + 1); //$NON-NLS-1$ //$NON-NLS-2$
             filename = StringUtils.replace(filename, "/", File.separator); //$NON-NLS-1$
-            fullFilename.append(ImageUploadServlet.getUploadPath()).append(File.separator).append(filename);
+            fullFilename.append(ImageServerInfo.getInstance().getUploadPath()).append(File.separator).append(filename);
             return fullFilename.toString();
         } catch (UnsupportedEncodingException e) {
             logger.error("Exception occured during decoding URI:" + uri, e); //$NON-NLS-1$

@@ -36,7 +36,7 @@ public class ImageLocateServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(ImageLocateServlet.class);
 
     private String scalePath;
-    
+
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         scalePath = config.getInitParameter("scalePath"); //$NON-NLS-1$
@@ -79,7 +79,7 @@ public class ImageLocateServlet extends HttpServlet {
                 rd.forward(request, response);
 
             } else {
-                LOGGER.error("Resource file '" + resourceFilePath + "' not found!"); //$NON-NLS-1 //$NON-NLS-2$
+                LOGGER.error("Resource file '" + resourceFilePath + "' not found!"); //$NON-NLS-1$ //$NON-NLS-2$
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource not found!"); //$NON-NLS-1$
                 return;
             }
@@ -98,7 +98,7 @@ public class ImageLocateServlet extends HttpServlet {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        path = ImageServerInfoServlet.getUploadPath() + File.separator + path;
+        path = ImageServerInfo.getInstance().getUploadPath() + File.separator + path;
         path = path.replaceAll("\\\\", "/"); //$NON-NLS-1$//$NON-NLS-2$
         return path;
     }
