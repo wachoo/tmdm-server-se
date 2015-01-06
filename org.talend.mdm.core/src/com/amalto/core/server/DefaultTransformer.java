@@ -1,4 +1,29 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.server;
+
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
 
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
@@ -8,19 +33,25 @@ import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.BackgroundJobPOJOPK;
 import com.amalto.core.objects.transformers.TransformerV2POJO;
 import com.amalto.core.objects.transformers.TransformerV2POJOPK;
-import com.amalto.core.objects.transformers.util.*;
+import com.amalto.core.objects.transformers.util.TransformerCallBack;
+import com.amalto.core.objects.transformers.util.TransformerContext;
+import com.amalto.core.objects.transformers.util.TransformerGlobalContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginCallBack;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginV2LocalInterface;
+import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TransformerProcessStep;
+import com.amalto.core.objects.transformers.util.TransformerVariablesMapping;
+import com.amalto.core.objects.transformers.util.TypedContent;
+import com.amalto.core.objects.transformers.util.TypedContent_Do_Not_Process;
+import com.amalto.core.objects.transformers.util.TypedContent_Drop_Variable;
+import com.amalto.core.objects.transformers.util.TypedContent_Use_Default;
 import com.amalto.core.query.user.DateTimeConstant;
+import com.amalto.core.server.api.Transformer;
 import com.amalto.core.util.JobActionInfo;
+import com.amalto.core.util.PluginRegistry;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.log4j.Logger;
-import com.amalto.core.server.api.Transformer;
-
-import java.io.ByteArrayOutputStream;
-import java.util.*;
-import java.util.regex.Pattern;
-
 
 public class DefaultTransformer implements TransformerPluginCallBack, com.amalto.core.server.api.Transformer {
 
@@ -37,10 +68,10 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             LOGGER.trace("putTransformer() " + transformer.getName());
         }
         try {
-            //Check and compile the parameters one by one
+            // Check and compile the parameters one by one
             ArrayList<TransformerProcessStep> specs = transformer.getProcessSteps();
             for (TransformerProcessStep step : specs) {
-                //get the plugin
+                // get the plugin
                 TransformerPluginV2LocalInterface plugin = getPlugin(step.getPluginJNDI());
                 step.setCompiledParameters(plugin.compileParameters(step.getParameters()));
             }
@@ -48,8 +79,8 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to create/update the Transfomer " + transformer.getName()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to create/update the Transfomer " + transformer.getName() + ": " + e.getClass().getName() + ": "
+                    + e.getLocalizedMessage();
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -71,8 +102,8 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to get the Transformer " + pk.toString()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to get the Transformer " + pk.toString() + ": " + e.getClass().getName() + ": "
+                    + e.getLocalizedMessage();
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -88,8 +119,8 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         } catch (XtentisException e) {
             return null;
         } catch (Exception e) {
-            String info = "Could not check whether this Transformer exists:  " + pk.toString()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String info = "Could not check whether this Transformer exists:  " + pk.toString() + ": " + e.getClass().getName()
+                    + ": " + e.getLocalizedMessage();
             LOGGER.debug("existsTransformer() " + info, e);
             return null;
         }
@@ -99,8 +130,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
      * Remove an item
      */
     @Override
-    public TransformerV2POJOPK removeTransformer(TransformerV2POJOPK pk)
-            throws XtentisException {
+    public TransformerV2POJOPK removeTransformer(TransformerV2POJOPK pk) throws XtentisException {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("removeTransformer() " + pk.getUniqueId());
         }
@@ -109,8 +139,8 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to remove the Transformer " + pk.toString()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to remove the Transformer " + pk.toString() + ": " + e.getClass().getName() + ": "
+                    + e.getLocalizedMessage();
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -130,29 +160,23 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     }
 
     /**
-     * Read an item and process it through a transformer.
-     * The content of the item is mapped to the {@link #DEFAULT_VARIABLE} variable
-     *
+     * Read an item and process it through a transformer. The content of the item is mapped to the
+     * {@link #DEFAULT_VARIABLE} variable
+     * 
      * @return The pipeline after the transformer is run
      * @throws com.amalto.core.util.XtentisException
      */
     @Override
-    public TransformerContext extractThroughTransformer(
-            TransformerV2POJOPK transformerV2POJOPK,
-            ItemPOJOPK itemPOJOPK
-    ) throws XtentisException {
+    public TransformerContext extractThroughTransformer(TransformerV2POJOPK transformerV2POJOPK, ItemPOJOPK itemPOJOPK)
+            throws XtentisException {
         TransformerContext ctx = new TransformerContext(transformerV2POJOPK);
         try {
             ItemPOJO item = Util.getItemCtrl2Local().getItem(itemPOJOPK);
-            ctx.putInPipeline(
-                    Transformer.DEFAULT_VARIABLE,
-                    new TypedContent(
-                            item.getProjectionAsString().getBytes("UTF-8"),
-                            "text/xml; charset=utf-8"
-                    )
-            );
+            ctx.putInPipeline(Transformer.DEFAULT_VARIABLE, new TypedContent(item.getProjectionAsString().getBytes("UTF-8"),
+                    "text/xml; charset=utf-8"));
         } catch (Exception e) {
-            String err = "Unable to extract '" + itemPOJOPK.getUniqueID() + "' through the Transformer '" + transformerV2POJOPK.getUniqueId() + "'";
+            String err = "Unable to extract '" + itemPOJOPK.getUniqueID() + "' through the Transformer '"
+                    + transformerV2POJOPK.getUniqueId() + "'";
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -165,14 +189,12 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
      * Executes theTransformer
      */
     @Override
-    public BackgroundJobPOJOPK executeAsJob(
-            TransformerContext context,
-            TransformerCallBack callBack
-    ) throws XtentisException {
+    public BackgroundJobPOJOPK executeAsJob(TransformerContext context, TransformerCallBack callBack) throws XtentisException {
         try {
-            //create a Background Job
+            // create a Background Job
             BackgroundJobPOJO bgPOJO = new BackgroundJobPOJO();
-            bgPOJO.setDescription("Execute Transformer " + context.getTransformerV2POJOPK().getUniqueId() + " as a Background Job");
+            bgPOJO.setDescription("Execute Transformer " + context.getTransformerV2POJOPK().getUniqueId()
+                    + " as a Background Job");
             bgPOJO.setMessage("Scheduling the job");
             bgPOJO.setPercentage(-1);
             bgPOJO.setSerializedObject(null);
@@ -181,20 +203,17 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                 bgPOJO.setTimestamp(DateTimeConstant.DATE_FORMAT.format(new Date(System.currentTimeMillis())));
             }
             bgPOJO.store();
-            //launch job in background
-            JobActionInfo actionInfo = new JobActionInfo(
-                    bgPOJO.getId(),
-                    context.getTransformerV2POJOPK().getUniqueId(), //action
-                    context
-            );
+            // launch job in background
+            JobActionInfo actionInfo = new JobActionInfo(bgPOJO.getId(), context.getTransformerV2POJOPK().getUniqueId(), // action
+                    context);
             throw new NotImplementedException();
             // TODO create timer
             // return new BackgroundJobPOJOPK(bgPOJO.getPK());
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to execute the Transformer: " + context.getTransformerV2POJOPK().getUniqueId()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to execute the Transformer: " + context.getTransformerV2POJOPK().getUniqueId() + ": "
+                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -204,45 +223,40 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
      * Executes the Transformer Asynchronously
      */
     @Override
-    public void execute(
-            TransformerContext context,
-            TransformerCallBack callBack
-    ) throws XtentisException {
-        //transform the context as a global context if not already done
-        //The context will be a TransformerContext if called directly,
-        //a TransformerGlobalCOntext if called from process
+    public void execute(TransformerContext context, TransformerCallBack callBack) throws XtentisException {
+        // transform the context as a global context if not already done
+        // The context will be a TransformerContext if called directly,
+        // a TransformerGlobalCOntext if called from process
         TransformerGlobalContext globalContext = null;
         if (context instanceof TransformerGlobalContext) {
             globalContext = (TransformerGlobalContext) context;
         } else {
             globalContext = new TransformerGlobalContext(context);
         }
-        //sets the callback in the transformers used by the plugins when the content is ready
-        //{@link contentIsReady}
+        // sets the callback in the transformers used by the plugins when the content is ready
+        // {@link contentIsReady}
         globalContext.setExecuteCallBack(callBack);
         try {
-            //and run the plugin
+            // and run the plugin
             TransformerV2POJO transformerPOJO = globalContext.getTransformerPOJO();
-            if (
-                    (transformerPOJO.getProcessSteps() != null) &&
-                            (transformerPOJO.getProcessSteps().size() > 0)
-                    ) {
+            if ((transformerPOJO.getProcessSteps() != null) && (transformerPOJO.getProcessSteps().size() > 0)) {
                 executePlugin(globalContext, 0);
-                //signal done to the call back
+                // signal done to the call back
                 callBack.done(globalContext);
             }
 
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to execute the Transformer: " + context.getTransformerV2POJOPK().getUniqueId()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to execute the Transformer: " + context.getTransformerV2POJOPK().getUniqueId() + ": "
+                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOGGER.error(err, e);
             throw new XtentisException(err);
         } finally {
-            //End the plugins
+            // End the plugins
             try {
-                LinkedHashMap<Integer, TransformerPluginV2LocalInterface> instantiatedPlugins = globalContext.getInstantiatedPlugins();
+                LinkedHashMap<Integer, TransformerPluginV2LocalInterface> instantiatedPlugins = globalContext
+                        .getInstantiatedPlugins();
                 Set<Integer> pluginNumbers = instantiatedPlugins.keySet();
                 for (Integer pluginNumber : pluginNumbers) {
                     TransformerPluginV2LocalInterface plugin = instantiatedPlugins.get(pluginNumber);
@@ -256,33 +270,26 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     }
 
     /**
-     * Executes the Transformer Synchronously
-     * The Typed Content passed is stored in the DEFAULT pipeline variable
+     * Executes the Transformer Synchronously The Typed Content passed is stored in the DEFAULT pipeline variable
      */
     @Override
-    public void execute(
-            TransformerContext context,
-            TypedContent content,
-            TransformerCallBack callBack
-    ) throws XtentisException {
+    public void execute(TransformerContext context, TypedContent content, TransformerCallBack callBack) throws XtentisException {
         if (content != null) {
             context.putInPipeline(DEFAULT_VARIABLE, content);
         }
         execute(context, callBack);
     }
 
-
     /**
      * Executes the Transformer and returns only when it is done
      */
     @Override
-    public TransformerContext executeUntilDone(
-            TransformerContext context
-    ) throws XtentisException {
-        //Set ready variable
+    public TransformerContext executeUntilDone(TransformerContext context) throws XtentisException {
+        // Set ready variable
         context.put("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready", Boolean.FALSE);
-        //execute the Transformer
+        // execute the Transformer
         execute(context, new TransformerCallBack() {
+
             public void contentIsReady(TransformerContext context) throws XtentisException {
             }
 
@@ -300,17 +307,13 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         return context;
     }
 
-
     /**
-     * Executes the Transformer and returns only when it is done
-     * The Typed Content passed is stored in the DEFAULT pipeline variable
+     * Executes the Transformer and returns only when it is done The Typed Content passed is stored in the DEFAULT
+     * pipeline variable
      */
     @Override
-    public TransformerContext executeUntilDone(
-            TransformerContext context,
-            TypedContent content
-    ) throws XtentisException {
-        //Store the content in the default pipeline variable
+    public TransformerContext executeUntilDone(TransformerContext context, TypedContent content) throws XtentisException {
+        // Store the content in the default pipeline variable
         context.putInPipeline(DEFAULT_VARIABLE, content);
         return executeUntilDone(context);
     }
@@ -318,71 +321,65 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     /**
      * Executes a plugin
      */
-    protected void executePlugin(
-            TransformerGlobalContext globalContext,
-            int pluginNumber
-    ) throws XtentisException {
-        //fetch the Transformer and the instantiated plugins
+    protected void executePlugin(TransformerGlobalContext globalContext, int pluginNumber) throws XtentisException {
+        // fetch the Transformer and the instantiated plugins
         TransformerV2POJO transformerPOJO = globalContext.getTransformerPOJO();
-        //fetch the Process Step
+        // fetch the Process Step
         TransformerProcessStep processStep = transformerPOJO.getProcessSteps().get(pluginNumber);
-        //fetch the Plugin context
+        // fetch the Plugin context
         TransformerPluginContext pluginContext = globalContext.getTransformerPluginContext(pluginNumber);
         /*******************************************************************
-         * Initialize the Plugin  - if not already done
+         * Initialize the Plugin - if not already done
          *******************************************************************/
         HashMap<Integer, TransformerPluginV2LocalInterface> instantiatedPlugins = globalContext.getInstantiatedPlugins();
-        //get the plugin parameters
+        // get the plugin parameters
         String parameters = processStep.getCompiledParameters();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("executePlugin() " + processStep.getDescription() + " -- Initializing plugin " + processStep.getPluginJNDI());
+            LOGGER.debug("executePlugin() " + processStep.getDescription() + " -- Initializing plugin "
+                    + processStep.getPluginJNDI());
         }
-        //Check if plugin is already instantiated and initialized
+        // Check if plugin is already instantiated and initialized
         TransformerPluginV2LocalInterface plugin = null;
         if ((plugin = instantiatedPlugins.get(new Integer(pluginNumber))) == null) {
             try {
-                //fetch and initialize the plugin
+                // fetch and initialize the plugin
                 plugin = getPlugin(processStep.getPluginJNDI());
-                //set global context to each plugin by aiming
+                // set global context to each plugin by aiming
                 plugin.setGlobalContext(globalContext);
-                //the plugin handle is the plugin number
-                plugin.init(
-                        globalContext.getTransformerPluginContext(pluginNumber),
-                        parameters
-                );
+                // the plugin handle is the plugin number
+                plugin.init(globalContext.getTransformerPluginContext(pluginNumber), parameters);
             } catch (XtentisException e) {
                 throw (e);
             }
-            //update the Map of running plugins
+            // update the Map of running plugins
             instantiatedPlugins.put(pluginNumber, plugin);
         }
         /*******************************************************************
-         * Check the input mappings
-         *  Stop this Step if a mandatory Input mapping is missing
+         * Check the input mappings Stop this Step if a mandatory Input mapping is missing
          *******************************************************************/
         try {
-            //fetch descriptors
+            // fetch descriptors
             ArrayList<TransformerPluginVariableDescriptor> descriptors = plugin.getInputVariableDescriptors("en");
-            //loop over the input variables - map content and determine if all mandatory variables have content
+            // loop over the input variables - map content and determine if all mandatory variables have content
             for (TransformerPluginVariableDescriptor descriptor : descriptors) {
                 TypedContent content = getMappedInputVariable(descriptor, processStep, globalContext);
                 if (content instanceof TypedContent_Do_Not_Process) {
-                    //we stop the plugin processing
-                    String msg =
-                            "Transformer step '" + processStep.getDescription() + "' of Transformer '" + globalContext.getTransformerV2POJOPK().getUniqueId() + "': " +
-                                    "not executed --> input variable '" + descriptor.getVariableName() + "' is marked as stopped";
+                    // we stop the plugin processing
+                    String msg = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
+                            + globalContext.getTransformerV2POJOPK().getUniqueId() + "': " + "not executed --> input variable '"
+                            + descriptor.getVariableName() + "' is marked as stopped";
                     LOGGER.debug("executeNextPlugin() " + msg);
                     return;
                 }
-                //insert the plugin input variable content in the plugin context
+                // insert the plugin input variable content in the plugin context
                 pluginContext.put(descriptor.getVariableName(), content);
             }
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err =
-                    "Transformer step '" + processStep.getDescription() + "' of Transformer '" + globalContext.getTransformerV2POJOPK().getUniqueId() + "':" +
-                            "the mapping of the input variables failed " + e.getClass().getName() + ": " + e.getMessage();
+            String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
+                    + globalContext.getTransformerV2POJOPK().getUniqueId() + "':" + "the mapping of the input variables failed "
+                    + e.getClass().getName() + ": " + e.getMessage();
             LOGGER.error("executeNextplugin() " + err);
             throw new XtentisException(err, e);
         }
@@ -390,49 +387,46 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
          * Execute the plugin
          *******************************************************************/
         try {
-            //content will be sent through the contentIsReady method below.
+            // content will be sent through the contentIsReady method below.
             pluginContext.setPluginCallBack(this);
-            //check if disabled should not exe this plugin by aiming
+            // check if disabled should not exe this plugin by aiming
             if (!processStep.isDisabled()) {
-                //execute the plugin
+                // execute the plugin
                 plugin.execute(pluginContext);
             } else {
-                //sigal content is ready by aiming
+                // sigal content is ready by aiming
                 pluginContext.getPluginCallBack().contentIsReady(pluginContext);
             }
         } catch (XtentisException e) {
             throw (e);
         }
 
-        //Done
+        // Done
     }
 
     private TransformerPluginV2LocalInterface getPlugin(String pluginJNDI) {
-        return null;
+        return PluginRegistry.getInstance().getPlugin(pluginJNDI);
     }
 
     /**
      * Returns the content to be mapped to the input of a plugin
-     *
+     * 
      * @param descriptor
      * @param processStep
      * @param context
      * @return the TypedContent to be mapped
      * @throws com.amalto.core.util.XtentisException
      */
-    private TypedContent getMappedInputVariable(
-            TransformerPluginVariableDescriptor descriptor,
-            TransformerProcessStep processStep,
-            TransformerContext context
-    ) throws XtentisException {
+    private TypedContent getMappedInputVariable(TransformerPluginVariableDescriptor descriptor,
+            TransformerProcessStep processStep, TransformerContext context) throws XtentisException {
 
         try {
 
             String pluginVariable = descriptor.getVariableName();
 
-            //find input in mappings and detemine pipeline variable name
+            // find input in mappings and detemine pipeline variable name
             TransformerVariablesMapping mapping = null;
-            for (Iterator<TransformerVariablesMapping> iterator = processStep.getInputMappings().iterator(); iterator.hasNext(); ) {
+            for (Iterator<TransformerVariablesMapping> iterator = processStep.getInputMappings().iterator(); iterator.hasNext();) {
                 TransformerVariablesMapping mpg = iterator.next();
                 if (pluginVariable.equals(mpg.getPluginVariable())) {
                     mapping = mpg;
@@ -440,42 +434,44 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                 }
             }
 
-            //Mapping not found
+            // Mapping not found
             if (mapping == null) {
-                //The input variable is mandatory - it is a design time error
+                // The input variable is mandatory - it is a design time error
                 if (descriptor.isMandatory()) {
-                    String err =
-                            "Transformer step '" + processStep.getDescription() + "' of Transformer '" + context.getTransformerV2POJOPK().getUniqueId() + "':" +
-                                    "The input variable '" + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI() +
-                                    "' is mandatory and was not mapped during the Transformer '" + context.getTransformerV2POJOPK().getUniqueId() + "' design.";
+                    String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
+                            + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '"
+                            + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI()
+                            + "' is mandatory and was not mapped during the Transformer '"
+                            + context.getTransformerV2POJOPK().getUniqueId() + "' design.";
                     LOGGER.error("getMappedInputVariable() " + err);
                     throw new XtentisException(err);
                 }
-                //not mandatory --> return the special USE_DEFAULT Typed Content
+                // not mandatory --> return the special USE_DEFAULT Typed Content
                 return new TypedContent_Use_Default();
             }
 
             String pipelineVariable = mapping.getPipelineVariable();
-            if (pipelineVariable == null) pipelineVariable = Transformer.DEFAULT_VARIABLE;
+            if (pipelineVariable == null)
+                pipelineVariable = Transformer.DEFAULT_VARIABLE;
 
             LOGGER.debug("getMappedInputVariable() Mapping pipeline " + pipelineVariable + " ---> " + pluginVariable);
 
-            //Mapping is found --> retrieve the pipeline content;
+            // Mapping is found --> retrieve the pipeline content;
             TypedContent content = context.getFromPipeline(pipelineVariable);
 
-            //if content is null, the variable was never initialized, do not process it
+            // if content is null, the variable was never initialized, do not process it
             if (content == null) {
                 return new TypedContent_Do_Not_Process();
             }
 
-            //if content is marked as do not process, well.... do not process
+            // if content is marked as do not process, well.... do not process
             if (content instanceof TypedContent_Do_Not_Process) {
                 return content;
             }
 
-            //check if content-types match
+            // check if content-types match
             boolean match = false;
-            for (Iterator<Pattern> iter = descriptor.getContentTypesRegex().iterator(); iter.hasNext(); ) {
+            for (Iterator<Pattern> iter = descriptor.getContentTypesRegex().iterator(); iter.hasNext();) {
                 Pattern pattern = iter.next();
                 if (pattern.matcher(Util.extractTypeAndSubType(content.getContentType())).matches()) {
                     match = true;
@@ -483,27 +479,27 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                 }
             }
             if (!match) {
-                String err =
-                        "Transformer step '" + processStep.getDescription() + "' of Transformer '" + context.getTransformerV2POJOPK().getUniqueId() + "':" +
-                                "The input variable '" + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI() +
-                                "' cannot accept the pipeline variable '" + mapping.getPipelineVariable() + "' content-type of '" + content.getContentType() + "'";
+                String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
+                        + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '"
+                        + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI()
+                        + "' cannot accept the pipeline variable '" + mapping.getPipelineVariable() + "' content-type of '"
+                        + content.getContentType() + "'";
                 LOGGER.error("getMappedInputVariable() " + err);
                 throw new XtentisException(err);
             }
 
-            //check possible values regex
-            if ((descriptor.getPossibleValuesRegex() != null) &&
-                    (descriptor.getPossibleValuesRegex().size() != 0) &&
-                    (!descriptor.getPossibleValuesRegex().contains(".*")) &&
-                    (Util.extractTypeAndSubType(content.getContentType()).startsWith("text"))
-                    ) {
+            // check possible values regex
+            if ((descriptor.getPossibleValuesRegex() != null) && (descriptor.getPossibleValuesRegex().size() != 0)
+                    && (!descriptor.getPossibleValuesRegex().contains(".*"))
+                    && (Util.extractTypeAndSubType(content.getContentType()).startsWith("text"))) {
                 String charset = Util.extractCharset(content.getContentType());
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 int b;
-                while ((b = content.getContentStream().read()) != -1) bos.write(b);
+                while ((b = content.getContentStream().read()) != -1)
+                    bos.write(b);
                 String text = new String(bos.toByteArray(), charset);
                 match = false;
-                for (Iterator<Pattern> iter = descriptor.getContentTypesRegex().iterator(); iter.hasNext(); ) {
+                for (Iterator<Pattern> iter = descriptor.getContentTypesRegex().iterator(); iter.hasNext();) {
                     Pattern pattern = iter.next();
                     if (pattern.matcher(text).matches()) {
                         match = true;
@@ -511,10 +507,11 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                     }
                 }
                 if (!match) {
-                    String err =
-                            "Transformer step '" + processStep.getDescription() + "' of Transformer '" + context.getTransformerV2POJOPK().getUniqueId() + "':" +
-                                    "The input variable '" + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI() +
-                                    "' cannot accept the pipeline variable '" + mapping.getPipelineVariable() + "' value of '" + text + "'";
+                    String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
+                            + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '"
+                            + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI()
+                            + "' cannot accept the pipeline variable '" + mapping.getPipelineVariable() + "' value of '" + text
+                            + "'";
                     LOGGER.error("getMappedInputVariable() " + err);
                     throw new XtentisException(err);
                 }
@@ -525,79 +522,76 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             throw (e);
         } catch (Exception e) {
             e.printStackTrace();
-            String err =
-                    "Transformer step '" + processStep.getDescription() + "' of Transformer '" + context.getTransformerV2POJOPK().getUniqueId() + "':" +
-                            "the mapping of the input variables failed " + e.getClass().getName() + ": " + e.getMessage();
+            String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
+                    + context.getTransformerV2POJOPK().getUniqueId() + "':" + "the mapping of the input variables failed "
+                    + e.getClass().getName() + ": " + e.getMessage();
             LOGGER.error("executeNextplugin() " + err);
             throw new XtentisException(err);
         }
 
     }
 
-
     /*****************************************************************
-     *  TransformerPluginCallBack Implementation
+     * TransformerPluginCallBack Implementation
      *****************************************************************/
 
     /**
-     * Implementation of {@link com.amalto.core.objects.transformers.util.TransformerPluginCallBack#contentIsReady(com.amalto.core.objects.transformers.util.TransformerPluginContext)}
+     * Implementation of
+     * {@link com.amalto.core.objects.transformers.util.TransformerPluginCallBack#contentIsReady(com.amalto.core.objects.transformers.util.TransformerPluginContext)}
      */
     @Override
     public void contentIsReady(TransformerPluginContext pluginContext) throws XtentisException {
 
-        //fetch the process step
+        // fetch the process step
         TransformerGlobalContext globalContext = pluginContext.getTransformerGlobalContext();
-        TransformerProcessStep processStep = pluginContext.getTransformerPOJO().getProcessSteps().get(pluginContext.getPluginNumber());
-//		TransformerPluginV2LocalInterface plugin = globalContext.getInstantiatedPlugins().get(new Integer(pluginContext.getPluginNumber()));
+        TransformerProcessStep processStep = pluginContext.getTransformerPOJO().getProcessSteps()
+                .get(pluginContext.getPluginNumber());
+        // TransformerPluginV2LocalInterface plugin = globalContext.getInstantiatedPlugins().get(new
+        // Integer(pluginContext.getPluginNumber()));
 
         /*******************************************************************
          * Map the output variables to the pipeline
          *******************************************************************/
         try {
 
-            //fetch output Mappings
+            // fetch output Mappings
             ArrayList<TransformerVariablesMapping> outputMappings = processStep.getOutputMappings();
 
-            //first create all the pipeline variables
-            for (Iterator<TransformerVariablesMapping> iter = outputMappings.iterator(); iter.hasNext(); ) {
+            // first create all the pipeline variables
+            for (Iterator<TransformerVariablesMapping> iter = outputMappings.iterator(); iter.hasNext();) {
                 TransformerVariablesMapping mapping = iter.next();
                 if (mapping.getPipelineVariable() != null) {
                     String pluginvariable = mapping.getPluginVariable();
                     if (pluginvariable != null) {
-                        //map the output of the plugin to the pipeline variable
+                        // map the output of the plugin to the pipeline variable
                         TypedContent content = (TypedContent) pluginContext.get(pluginvariable);
-                        //check content null
+                        // check content null
                         if (content != null) {
                             if (content instanceof TypedContent_Drop_Variable) {
-                                LOGGER.debug(
-                                        "contentIsReady() Dropping pipeline variable: " + mapping.getPipelineVariable()
-                                );
+                                LOGGER.debug("contentIsReady() Dropping pipeline variable: " + mapping.getPipelineVariable());
                                 globalContext.removeFrompipeline(mapping.getPipelineVariable());
                             } else {
                                 String s = content.toString();
-                                LOGGER.debug(
-                                        "contentIsReady() Mapping plugin variable: " + pluginvariable + " -----> pipeline: " + mapping.getPipelineVariable()
-                                                + "   Content: " + s.substring(0, Math.min(0, s.length())) + "..."
-                                );
+                                LOGGER.debug("contentIsReady() Mapping plugin variable: " + pluginvariable + " -----> pipeline: "
+                                        + mapping.getPipelineVariable() + "   Content: "
+                                        + s.substring(0, Math.min(0, s.length())) + "...");
                                 globalContext.putInPipeline(mapping.getPipelineVariable(), content);
                             }
                         }
                     } else if (mapping.getHardCoding() != null) {
-                        //harcode the value into the pipeline
+                        // harcode the value into the pipeline
                         if (mapping.getHardCoding() instanceof TypedContent_Drop_Variable) {
-                            LOGGER.debug(
-                                    "contentIsReady() Hard Dropping pipeline variable: " + mapping.getPipelineVariable()
-                            );
+                            LOGGER.debug("contentIsReady() Hard Dropping pipeline variable: " + mapping.getPipelineVariable());
                             globalContext.removeFrompipeline(mapping.getPipelineVariable());
                         } else {
-                            LOGGER.debug(
-                                    "contentIsReady() Hard Coding the result in pipeline variable: " + mapping.getPipelineVariable()
-                                            + "   Content: " + mapping.getHardCoding().getContentType().toString().substring(0, 100) + "..."
-                            );
+                            LOGGER.debug("contentIsReady() Hard Coding the result in pipeline variable: "
+                                    + mapping.getPipelineVariable() + "   Content: "
+                                    + mapping.getHardCoding().getContentType().toString().substring(0, 100) + "...");
                             globalContext.putInPipeline(mapping.getPipelineVariable(), mapping.getHardCoding());
                         }
                     } else {
-                        String err = "Output Mapping incorrect for pipeline variable " + mapping.getPipelineVariable() + " in process step " + processStep.getDescription() + ": "
+                        String err = "Output Mapping incorrect for pipeline variable " + mapping.getPipelineVariable()
+                                + " in process step " + processStep.getDescription() + ": "
                                 + "both the plugin variable name and the hard codings are empty";
                         LOGGER.error(err);
                         throw new XtentisException(err);
@@ -605,24 +599,21 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                 }
             }
 
-
         } catch (XtentisException e) {
             throw (e);
         }
 
-
         /*******************************************************************
-         * If more plugins --> Execute the next Plugin
-         * If not, signal to the main callback that content is ready
+         * If more plugins --> Execute the next Plugin If not, signal to the main callback that content is ready
          *******************************************************************/
         if (pluginContext.getPluginNumber() + 1 < pluginContext.getTransformerPOJO().getProcessSteps().size()) {
             executePlugin(globalContext, pluginContext.getPluginNumber() + 1);
             return;
         }
 
-        //end of transformer branch, signal that content is ready
-        String msg =
-                "End of current branch of Transformer '" + pluginContext.getTransformerV2POJOPK().getUniqueId() + "' calling execute callback";
+        // end of transformer branch, signal that content is ready
+        String msg = "End of current branch of Transformer '" + pluginContext.getTransformerV2POJOPK().getUniqueId()
+                + "' calling execute callback";
         LOGGER.debug("contentIsReady() " + msg);
 
         globalContext.getExecuteCallBack().contentIsReady(globalContext);

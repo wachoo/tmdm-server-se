@@ -7,6 +7,7 @@ import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,6 +89,7 @@ import java.util.regex.Pattern;
  *
  *
  */
+@Service("amalto/local/transformer/plugin/fixedlengthparser")
 public class FixedLengthParserTransformerPluginBean extends Plugin {
 
 	public static final String PARAMETERS ="com.amalto.core.plugin.fixedlengthparser.parameters";

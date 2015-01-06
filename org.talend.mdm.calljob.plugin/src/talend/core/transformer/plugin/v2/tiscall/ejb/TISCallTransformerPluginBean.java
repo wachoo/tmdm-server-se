@@ -1,33 +1,53 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package talend.core.transformer.plugin.v2.tiscall.ejb;
 
-import com.amalto.core.objects.Plugin;
-import com.amalto.core.jobox.JobContainer;
-import com.amalto.core.jobox.JobInvokeConfig;
-import com.amalto.core.jobox.component.MDMJobInvoker;
-import com.amalto.core.objects.transformers.util.TransformerContext;
-import com.amalto.core.objects.transformers.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
-import com.amalto.core.objects.transformers.util.TypedContent;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import com.amalto.core.server.api.Transformer;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import talend.core.transformer.plugin.v2.tiscall.CompiledParameters;
 import talend.core.transformer.plugin.v2.tiscall.ConceptMappingParam;
 import talend.core.transformer.plugin.v2.tiscall.ContextParam;
 import talend.core.transformer.plugin.v2.tiscall.util.JSONException;
 import talend.core.transformer.plugin.v2.tiscall.util.JSONObject;
 
-import java.net.URI;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.amalto.core.jobox.JobContainer;
+import com.amalto.core.jobox.JobInvokeConfig;
+import com.amalto.core.jobox.component.MDMJobInvoker;
+import com.amalto.core.objects.Plugin;
+import com.amalto.core.objects.transformers.util.TransformerPluginContext;
+import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TypedContent;
+import com.amalto.core.server.api.Transformer;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 /**
  * @author Bruno Grieder
@@ -45,6 +65,7 @@ import java.util.regex.Pattern;
  * 
  * 
  */
+@Service("amalto/local/transformer/plugin/callJob")
 public class TISCallTransformerPluginBean extends Plugin {
 
     private static final String CONTENT_TYPE = "com.amalto.core.plugin.TISCall.content.type";
@@ -334,10 +355,6 @@ public class TISCallTransformerPluginBean extends Plugin {
             LOGGER.error(err, e);
             throw new XtentisException(e);
         }
-    }
-
-    private TransformerContext getGlobalContext() {
-        throw new NotImplementedException();
     }
 
     /**

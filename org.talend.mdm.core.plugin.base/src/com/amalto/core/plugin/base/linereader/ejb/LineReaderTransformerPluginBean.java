@@ -6,6 +6,8 @@ import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescri
 import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 
 import java.io.BufferedReader;
@@ -74,6 +76,7 @@ import java.util.regex.Pattern;
  *
  *
  */
+@Service("amalto/local/transformer/plugin/linereader")
 public class LineReaderTransformerPluginBean extends Plugin {
 
 	public static final String PARAMETERS ="com.amalto.core.plugin.linereader.parameters";

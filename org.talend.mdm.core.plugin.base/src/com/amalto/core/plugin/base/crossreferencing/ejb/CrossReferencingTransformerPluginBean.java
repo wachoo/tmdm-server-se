@@ -11,6 +11,8 @@ import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.core.server.api.Item;
+
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -144,6 +146,7 @@ import java.util.regex.Pattern;
  *
  *
  */
+@Service("amalto/local/transformer/plugin/crossreferencing")
 public class CrossReferencingTransformerPluginBean extends Plugin {
 	private static final long serialVersionUID = 62487085713480L;
 

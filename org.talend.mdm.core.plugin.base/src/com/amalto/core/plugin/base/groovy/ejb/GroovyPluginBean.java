@@ -8,6 +8,8 @@ import com.amalto.core.plugin.base.groovy.CompiledParameters;
 import com.amalto.core.plugin.base.groovy.EmbedGroovy;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ import java.util.regex.Pattern;
  *
  */
      
-
+@Service("amalto/local/transformer/plugin/groovy")
 public class GroovyPluginBean extends Plugin {
 
 	/**

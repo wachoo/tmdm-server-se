@@ -66,7 +66,7 @@ public abstract class JobInvoker {
         try {
             container.lock(false);
 
-            if (System.getProperties() != isolatedSystemProperties) {
+            if (System.getProperties() != isolatedSystemProperties.getThreadProperties(Thread.currentThread())) {
                 throw new IllegalStateException("Expected system properties to support thread isolation."); //$NON-NLS-1$
             }
 

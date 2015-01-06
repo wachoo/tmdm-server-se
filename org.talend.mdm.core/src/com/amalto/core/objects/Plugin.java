@@ -1,32 +1,51 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.objects;
 
+import com.amalto.core.objects.transformers.util.TransformerGlobalContext;
 import com.amalto.core.objects.transformers.util.TransformerPluginContext;
-import com.amalto.core.objects.transformers.util.TransformerPluginVariableDescriptor;
+import com.amalto.core.objects.transformers.util.TransformerPluginV2LocalInterface;
 import com.amalto.core.util.XtentisException;
-
-import java.util.ArrayList;
 
 /**
  *
  */
-public abstract class Plugin {
-    public abstract String getJNDIName() throws XtentisException;
+public abstract class Plugin implements TransformerPluginV2LocalInterface {
 
-    public abstract String getDescription(String twoLettersLanguageCode) throws XtentisException;
+    private TransformerGlobalContext globalContext;
 
-    public abstract String getDocumentation(String twoLettersLanguageCode) throws XtentisException;
+    @Override
+    public void setGlobalContext(TransformerGlobalContext globalContext) {
+        this.globalContext = globalContext;
+    }
 
-    public abstract ArrayList<TransformerPluginVariableDescriptor> getInputVariableDescriptors(String twoLettersLanguageCode) throws XtentisException;
+    public TransformerGlobalContext getGlobalContext() {
+        return globalContext;
+    }
 
-    public abstract ArrayList<TransformerPluginVariableDescriptor> getOutputVariableDescriptors(String twoLettersLanguageCode) throws XtentisException;
+    @Override
+    public void end(TransformerPluginContext context) throws XtentisException {
+        globalContext.removeAll();
+    }
 
-    public abstract String getParametersSchema() throws XtentisException;
+    @Override
+    public String getConfiguration(String optionalParameters) throws XtentisException {
+        return null;
+    }
 
-    public abstract String compileParameters(String parameters) throws XtentisException;
-
-    public abstract void init(TransformerPluginContext context, String compiledParameters) throws XtentisException;
+    @Override
+    public void putConfiguration(String configuration) throws XtentisException {
+    }
 
     protected abstract String loadConfiguration();
-
-    public abstract void execute(TransformerPluginContext context) throws XtentisException;
 }

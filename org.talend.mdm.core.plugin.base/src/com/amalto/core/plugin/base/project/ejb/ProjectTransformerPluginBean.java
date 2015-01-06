@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -88,6 +89,7 @@ import com.amalto.core.util.XtentisException;
  *
  *
  */
+@Service("amalto/local/transformer/plugin/project")
 public class ProjectTransformerPluginBean extends Plugin {
 
     private final static Pattern declarationPattern = Pattern.compile("<\\?.*?\\?>", Pattern.DOTALL);

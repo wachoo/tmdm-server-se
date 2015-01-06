@@ -7,6 +7,8 @@ import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.plugin.base.xpath.CompiledParameters;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
+
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -88,6 +90,7 @@ import java.util.regex.Pattern;
  *
  *
  */
+@Service("amalto/local/transformer/plugin/xpath")
 public class XPathTransformerPluginBean extends Plugin {
 
 	private static final String PARAMETERS = "com.amalto.core.plugin.xpath.parameters";

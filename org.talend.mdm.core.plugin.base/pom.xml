@@ -25,6 +25,9 @@
                     <include>**/**.xml</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>resources</directory>
+            </resource>
         </resources>
         <plugins>
             <plugin>
@@ -49,8 +52,7 @@
                         <configuration>
                             <tasks>
                                 <delete file="${jboss.deploy.dir}/${lib}.jar" />
-                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                    tofile="${jboss.deploy.dir}/${lib}.jar" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${jboss.deploy.dir}/${lib}.jar" />
                             </tasks>
                         </configuration>
                     </execution>

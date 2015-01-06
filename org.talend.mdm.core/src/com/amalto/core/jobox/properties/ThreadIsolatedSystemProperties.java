@@ -94,7 +94,7 @@ public class ThreadIsolatedSystemProperties extends Properties {
      * @param thread A {@link Thread} instance.
      * @return Returns current thread {@link Properties} instance.
      */
-    Properties getThreadProperties(Thread thread) {
+    public Properties getThreadProperties(Thread thread) {
         synchronized (threadProperties) {
             if (thread == null) {
                 return defaultSystemProperties;

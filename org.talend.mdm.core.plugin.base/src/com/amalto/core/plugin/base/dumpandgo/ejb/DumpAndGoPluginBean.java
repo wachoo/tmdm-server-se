@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Service;
 /**
  *
  * @author Starkey Shu
@@ -36,7 +38,7 @@ import java.util.regex.Pattern;
  *
  */
      
-
+@Service("amalto/local/transformer/plugin/dumpandgo")
 public class DumpAndGoPluginBean extends Plugin {
 
 	private static final long serialVersionUID = 6927070668734342292L;

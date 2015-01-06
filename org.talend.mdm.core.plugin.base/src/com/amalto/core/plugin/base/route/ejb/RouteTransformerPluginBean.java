@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
+import org.springframework.stereotype.Service;
+
 
 
 /**
@@ -57,6 +59,7 @@ import java.util.regex.Pattern;
  *
  *
  */
+@Service("amalto/local/transformer/plugin/route")
 public class RouteTransformerPluginBean extends Plugin {
 
 	//private final static Pattern declarationPattern = Pattern.compile("<\\?.*?\\?>",Pattern.DOTALL);

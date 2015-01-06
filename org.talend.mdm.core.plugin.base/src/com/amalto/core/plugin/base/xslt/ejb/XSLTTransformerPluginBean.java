@@ -17,6 +17,7 @@ import javax.xml.transform.stream.StreamSource;
 import com.amalto.core.util.LocalUser;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -123,6 +124,7 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
  *
  *
  */
+@Service("amalto/local/transformer/plugin/xslt")
 public class XSLTTransformerPluginBean extends Plugin {
 
     private static final long serialVersionUID = 22487085713480L;
