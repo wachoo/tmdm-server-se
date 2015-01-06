@@ -32,7 +32,7 @@ import com.google.gwt.json.client.JSONValue;
  */
 public class StatisticsRestServiceHandler {
 
-    private String restServiceUrl = RestServiceHelper.BASE_URL + "datamanager/services/system/stats"; //$NON-NLS-1$
+    private String restServiceUrl = RestServiceHelper.BASE_URL + "/system/stats/"; //$NON-NLS-1$
 
     private ClientResourceWrapper client;
 
@@ -61,7 +61,7 @@ public class StatisticsRestServiceHandler {
         if (dataContainer == null) {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }
-        client.init(Method.GET, restServiceUrl + '/' + "data" + '/' + dataContainer + "?top=" + configModel.getSettingValue());
+        client.init(Method.GET, restServiceUrl  + "data/" + dataContainer + "?top=" + configModel.getSettingValue()); //$NON-NLS-1$ //$NON-NLS-2$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -84,7 +84,7 @@ public class StatisticsRestServiceHandler {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }
 
-        client.init(Method.GET, restServiceUrl + '/' + "journal" + '/' + dataContainer + "?top=5&timeframe=" + configModel.getSettingValue()); //$NON-NLS-1 //$NON-NLS-2
+        client.init(Method.GET, restServiceUrl + "journal/" + dataContainer + "?top=5&timeframe=" + configModel.getSettingValue()); //$NON-NLS-1$ //$NON-NLS-2$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -108,7 +108,7 @@ public class StatisticsRestServiceHandler {
             throw new IllegalArgumentException("Data container required"); //$NON-NLS-1$
         }
 
-        client.init(Method.GET, restServiceUrl + '/' + "matching" + '/' + dataContainer + "?top=" + configModel.getSettingValue()); //$NON-NLS-1 //$NON-NLS-2
+        client.init(Method.GET, restServiceUrl + "matching/" + dataContainer + "?top=" + configModel.getSettingValue()); //$NON-NLS-1$ //$NON-NLS-2$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -127,7 +127,7 @@ public class StatisticsRestServiceHandler {
     }
 
     public void getRoutingEventStats(ConfigModel configModel, final SessionAwareAsyncCallback<JSONArray> callback) {
-        client.init(Method.GET, restServiceUrl + '/' + "events" + "?top=5&timeframe=" + configModel.getSettingValue()); //$NON-NLS-1 //$NON-NLS-2
+        client.init(Method.GET, restServiceUrl + "events?top=5&timeframe=" + configModel.getSettingValue()); //$NON-NLS-1$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override

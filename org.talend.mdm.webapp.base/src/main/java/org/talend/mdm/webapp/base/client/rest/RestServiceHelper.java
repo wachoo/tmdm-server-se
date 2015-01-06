@@ -21,7 +21,7 @@ import com.google.gwt.core.client.GWT;
 
 public class RestServiceHelper {
 
-    public static final String BASE_URL = GWT.getHostPageBaseURL().replaceAll("/general/secure", ""); //$NON-NLS-1$ //$NON-NLS-2$
+    public static final String BASE_URL = GWT.getHostPageBaseURL() + "services/rest"; //$NON-NLS-1$
 
     private static boolean validResponse(Response response) {
         return response != null && response.getEntity() != null && !(response.getEntity() instanceof EmptyRepresentation);

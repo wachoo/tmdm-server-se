@@ -42,7 +42,7 @@ import com.google.gwt.json.client.JSONValue;
 
 public class ExplainRestServiceHandler {
 
-    private String restServiceUrl = RestServiceHelper.BASE_URL + "datamanager/services/tasks/matching/explain"; //$NON-NLS-1$
+    private String restServiceUrl = RestServiceHelper.BASE_URL + "/tasks/matching/explain"; //$NON-NLS-1$
 
     private ClientResourceWrapper client;
 
@@ -72,7 +72,7 @@ public class ExplainRestServiceHandler {
         Map<String, String> parameterMap = new HashMap<String, String>();
         parameterMap.put("type", concept); //$NON-NLS-1$
         parameterMap.put("group", groupId); //$NON-NLS-1$
-        client.init(Method.GET, restServiceUrl + '/' + dataCluster + '/' + "groups" + '/', parameterMap);
+        client.init(Method.GET, restServiceUrl + '/' + dataCluster + "/groups/", parameterMap); //$NON-NLS-1$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -98,7 +98,7 @@ public class ExplainRestServiceHandler {
         }
         Map<String, String> parameterMap = new HashMap<String, String>();
         parameterMap.put("type", concept); //$NON-NLS-1$
-        client.init(Method.POST, restServiceUrl + '/' + dataCluster + '/' + "records" + '/', parameterMap);
+        client.init(Method.POST, restServiceUrl + '/' + dataCluster + "/records/", parameterMap); //$NON-NLS-1$
         client.setPostEntity(new StringRepresentation(ids, MediaType.TEXT_PLAIN));
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 

@@ -48,7 +48,7 @@ http://www.springframework.org/schema/jee http://www.springframework.org/schema/
     <bean class="com.amalto.core.server.security.SecurityConfig" />
 
     <!-- CXF Services -->
-    <jaxrs:server id="services" address="/services">
+    <jaxrs:server id="services" address="/rest">
         <jaxrs:serviceBeans>
             <!-- MDM Transaction service -->
             <bean class="com.amalto.core.storage.transaction.TransactionService" />
@@ -64,5 +64,5 @@ http://www.springframework.org/schema/jee http://www.springframework.org/schema/
     </jaxrs:server>
 
     <!-- Legacy services -->
-    <jaxws:endpoint implementor="com.amalto.core.webservice.XtentisWSBean" address="/datamanager" />
+    <jaxws:endpoint implementor="com.amalto.core.webservice.XtentisWSBean" address="/soap" />
 </beans>

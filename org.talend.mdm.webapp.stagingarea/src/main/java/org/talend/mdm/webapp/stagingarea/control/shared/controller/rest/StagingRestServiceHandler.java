@@ -12,15 +12,18 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.control.shared.controller.rest;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.restlet.client.Request;
 import org.restlet.client.Response;
 import org.restlet.client.data.MediaType;
 import org.restlet.client.data.Method;
 import org.restlet.client.ext.xml.DomRepresentation;
-import org.restlet.client.representation.InputRepresentation;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
 import org.talend.mdm.webapp.base.client.rest.ResourceSessionAwareCallbackHandler;
@@ -29,15 +32,17 @@ import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaExecuti
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingContainerModel;
 
-import java.util.*;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 public class StagingRestServiceHandler {
 
     private static final StagingRestServiceHandler handler = new StagingRestServiceHandler();
 
-    private final DateTimeFormat             DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ss");         //$NON-NLS-1$
+    private final DateTimeFormat DEFAULT_DATE_FORMAT = DateTimeFormat.getFormat("yyyy-MM-dd'T'HH:mm:ss"); //$NON-NLS-1$
 
-    private final String                     restServiceUrl      = RestServiceHelper.BASE_URL + "core/services/tasks/staging"; //$NON-NLS-1$
+    private final String restServiceUrl = RestServiceHelper.BASE_URL + "/tasks/staging"; //$NON-NLS-1$
 
     private StagingRestServiceHandler() {
     }
@@ -87,7 +92,7 @@ public class StagingRestServiceHandler {
             parameterMap.put("size", String.valueOf(pageSize)); //$NON-NLS-1$
         }
         ClientResourceWrapper client = getClient();
-        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/", parameterMap);
+        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/", parameterMap); //$NON-NLS-1$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -116,9 +121,9 @@ public class StagingRestServiceHandler {
      * Get execution details by Id
      */
     void getStagingAreaExecution(String dataContainer, String exeId,
-                                 final SessionAwareAsyncCallback<StagingAreaExecutionModel> callback) {
+            final SessionAwareAsyncCallback<StagingAreaExecutionModel> callback) {
         ClientResourceWrapper client = getClient();
-        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/" + exeId);
+        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/" + exeId); //$NON-NLS-1$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -146,7 +151,7 @@ public class StagingRestServiceHandler {
             parameterMap.put("before", DEFAULT_DATE_FORMAT.format(before)); //$NON-NLS-1$
         }
         ClientResourceWrapper client = getClient();
-        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/", parameterMap);
+        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/", parameterMap); //$NON-NLS-1$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -199,7 +204,7 @@ public class StagingRestServiceHandler {
      */
     public void getValidationTaskStatus(String dataContainer, final StagingAreaValidationModel model) {
         ClientResourceWrapper client = getClient();
-        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/current");
+        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/current"); //$NON-NLS-1$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
@@ -224,6 +229,7 @@ public class StagingRestServiceHandler {
         client.setPostEntity(entity);
         // Need a callback even if we're not interested in the result
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
+
             @Override
             public void doProcess(Request request, Response response) throws Exception {
             }
@@ -236,9 +242,10 @@ public class StagingRestServiceHandler {
      */
     public void cancelValidationTask(String dataContainer) {
         ClientResourceWrapper client = getClient();
-        client.init(Method.DELETE, restServiceUrl + '/' + dataContainer + "/execs/current");
+        client.init(Method.DELETE, restServiceUrl + '/' + dataContainer + "/execs/current"); //$NON-NLS-1$
         // Need a callback even if we're not interested in the result
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
+
             @Override
             public void doProcess(Request request, Response response) throws Exception {
             }
@@ -255,7 +262,7 @@ public class StagingRestServiceHandler {
         }
         // do request
         ClientResourceWrapper client = getClient();
-        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/count", parameterMap);
+        client.init(Method.GET, restServiceUrl + '/' + dataContainer + "/execs/count", parameterMap); //$NON-NLS-1$
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
