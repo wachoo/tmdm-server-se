@@ -70,10 +70,6 @@
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>deploy-jboss-runtime-libs</id>
-                        <phase>none</phase>
-                    </execution>
                 </executions>
             </plugin>
 
