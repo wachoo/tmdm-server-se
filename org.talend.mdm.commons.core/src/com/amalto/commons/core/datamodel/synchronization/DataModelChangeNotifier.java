@@ -31,7 +31,7 @@ public class DataModelChangeNotifier {
     }
 
     public synchronized void notifyChange(DMUpdateEvent dmUpdateEvent) {
-        synchronized (listeners) {
+        if (listeners != null) {
             for (DataModelChangeListener listener : listeners) {
                 listener.onChange(dmUpdateEvent);
             }

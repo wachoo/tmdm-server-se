@@ -22,29 +22,6 @@
         </layout>
     </appender>
 
-    <appender name="MATCH_LOG_FILE" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="${mdm.root}/log/mdm-match.log" />
-        <param name="Append" value="false" />
-        <param name="DatePattern" value="'.'yyyy-MM-dd" />
-        <param name="Threshold" value="INFO" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p %m%n" />
-        </layout>
-    </appender>
-
-    <!-- LogStash Appenders               -->
-    <!-- NOTE: update RemoteHost and Port -->
-    <!--
-    <appender name="LOG_STASH_SERVER" class="org.apache.log4j.net.SocketAppender">
-        <param name="RemoteHost" value="localhost"/>
-        <param name="Port" value="8053"/>
-    </appender>
-    <appender name="LOG_STASH_MATCH" class="org.apache.log4j.net.SocketAppender">
-        <param name="RemoteHost" value="localhost"/>
-        <param name="Port" value="8054"/>
-    </appender>
-    -->
-
     <!-- ================ -->
     <!--    Categories    -->
     <!-- ================ -->
@@ -58,18 +35,6 @@
 
     <category name="com.amalto">
         <priority value="INFO" />
-    </category>
-
-    <category name="com.amalto.core.storage.task" additivity="false">
-        <priority value="INFO" />
-        <appender-ref ref="MATCH_LOG_FILE" />
-        <!-- <appender-ref ref="LOG_STASH_MATCH"/> -->
-    </category>
-
-    <category name="org.talend.dataquality.matchmerge" additivity="false">
-        <priority value="INFO" />
-        <appender-ref ref="MATCH_LOG_FILE" />
-        <!-- <appender-ref ref="LOG_STASH_MATCH"/> -->
     </category>
 
     <!-- Enable MDM Storage debugging
@@ -98,12 +63,6 @@
         <level value="INFO" />
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
-        <!-- uncomment for logStash
-        <appender-ref ref="LOG_STASH_SERVER"/>
-        -->
-        <!-- uncomment for chainsaw
-        <appender-ref ref="ChainSawPDS"/>
-        -->
     </root>
 
 </log4j:configuration>

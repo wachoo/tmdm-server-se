@@ -48,33 +48,30 @@ public class Initialization implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         String version = Version.getSimpleVersionAsString(Initialization.class);
-        LOGGER.info("=======================================================");
-        LOGGER.info("Talend MDM " + version);
-        LOGGER.info("=======================================================");
-        // Set directory (to find configuration files).
-        String homeDirectory = this.getClass().getResource("/").getPath(); //$NON-NLS-1$
-        LOGGER.info("Setting home directory to: " + homeDirectory);
-        System.setProperty("jboss.server.home.dir", homeDirectory); //$NON-NLS-1$
+        LOGGER.info("======================================================="); //$NON-NLS-1$
+        LOGGER.info("Talend MDM " + version); //$NON-NLS-1$
+        LOGGER.info("======================================================="); //$NON-NLS-1$
+        
         // Initializes server now
         if (serverLifecycle == null) {
-            throw new IllegalStateException("Server lifecycle is not set (is server running on a supported platform?)");
+            throw new IllegalStateException("Server lifecycle is not set (is server running on a supported platform?)"); //$NON-NLS-1$
         }
         Server server = ServerContext.INSTANCE.get(serverLifecycle);
         server.init();
         // Initialize system storage
-        LOGGER.info("Starting system storage...");
+        LOGGER.info("Starting system storage..."); //$NON-NLS-1$
         StorageAdmin storageAdmin = server.getStorageAdmin();
         String systemDataSourceName = storageAdmin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
         storageAdmin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, systemDataSourceName);
         Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         if (systemStorage == null) {
-            LOGGER.error("System storage could not start.");
-            throw new IllegalStateException("Could not start server (unable to initialize system storage).");
+            LOGGER.error("System storage could not start."); //$NON-NLS-1$
+            throw new IllegalStateException("Could not start server (unable to initialize system storage)."); //$NON-NLS-1$
         } else {
-            LOGGER.info("System storage started.");
+            LOGGER.info("System storage started."); //$NON-NLS-1$
         }
         // Migration
-        LOGGER.info("Initialization and migration of system database...");
+        LOGGER.info("Initialization and migration of system database..."); //$NON-NLS-1$
         AssembleConcreteBuilder concreteBuilder = new AssembleConcreteBuilder();
         AssembleDirector director = new AssembleDirector(concreteBuilder);
         director.constructAll();
@@ -87,7 +84,7 @@ public class Initialization implements InitializingBean {
 			}
 		});
         
-        LOGGER.info("Initialization and migration done.");
+        LOGGER.info("Initialization and migration done."); //$NON-NLS-1$
         // Find configured containers
         MetadataRepository repository = systemStorage.getMetadataRepository();
         String className = StringUtils.substringAfterLast(DataClusterPOJO.class.getName(), "."); //$NON-NLS-1$
@@ -98,7 +95,7 @@ public class Initialization implements InitializingBean {
         try {
             StorageResults containers = systemStorage.fetch(qb.getSelect());
             for (DataRecord container : containers) {
-                String name = String.valueOf(container.get("name"));
+                String name = String.valueOf(container.get("name")); //$NON-NLS-1$
                 if (!DispatchWrapper.isMDMInternal(name)) {
                     containerNames.add(name);
                 }
@@ -106,7 +103,7 @@ public class Initialization implements InitializingBean {
             systemStorage.commit();
         } catch (Exception e) {
             systemStorage.rollback();
-            throw new RuntimeException("Could not list configured containers", e);
+            throw new RuntimeException("Could not list configured containers", e); //$NON-NLS-1$
         }
         // Log configured containers
         StringBuilder containerNamesLog = new StringBuilder();
@@ -115,11 +112,11 @@ public class Initialization implements InitializingBean {
             containerNamesLog.append(containerName).append(' ');
         }
         containerNamesLog.append(']');
-        LOGGER.info("Container to initialize (" + containerNames.size() + " found) : " + containerNamesLog);
+        LOGGER.info("Container to initialize (" + containerNames.size() + " found) : " + containerNamesLog); //$NON-NLS-1$ //$NON-NLS-2$
         // Initialize configured containers
         int i = 1;
         for (String containerName : containerNames) {
-            LOGGER.info("Starting storage " + containerName + "(" + i + " of " + containerNames.size() + ") ...");
+            LOGGER.info("Starting storage " + containerName + "(" + i + " of " + containerNames.size() + ") ..."); //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ //$NON-NLS-4$
             try {
                 String datasource = storageAdmin.getDatasource(containerName);
                 DataSourceDefinition dataSourceDefinition = server.getDefinition(datasource, containerName);
@@ -127,15 +124,15 @@ public class Initialization implements InitializingBean {
                 if(dataSourceDefinition.hasStaging()) {
                     storageAdmin.create(containerName, containerName, StorageType.STAGING, datasource);
                 }
-                LOGGER.info("Storage " + containerName + " started.");
+                LOGGER.info("Storage " + containerName + " started."); //$NON-NLS-1$ //$NON-NLS-2$
             } catch (Exception e) {
-                LOGGER.warn("Skipping container '" + containerName + "'.");
+                LOGGER.warn("Skipping container '" + containerName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Skipping container '" + containerName + "' due to exception.", e);
+                    LOGGER.debug("Skipping container '" + containerName + "' due to exception.", e); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
             i++;
         }
-        LOGGER.info("Talend MDM " + version + " started.");
+        LOGGER.info("Talend MDM " + version + " started."); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

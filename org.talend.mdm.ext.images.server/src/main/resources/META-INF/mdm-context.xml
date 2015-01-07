@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- Image server -->
+    <bean id="imageServerInfo" class="talend.ext.images.server.ImageServerInfo" factory-method="createInstance" init-method="init">
+        <property name="uploadPath" value="${mdm.root}/resources/upload" />
+        <property name="tempPath" value="${mdm.root}/resources/upload_tmp" />
+        <property name="locateBaseUrl" value="imageserver/upload" />
+    </bean>
+
+</beans>

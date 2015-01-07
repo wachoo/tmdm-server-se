@@ -1,51 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:jee="http://www.springframework.org/schema/jee"
     xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
-http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd 
-http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
+    <import resource="classpath*:META-INF/mdm-context.xml" />
+
+    <!-- CXF Services -->
     <import resource="classpath:META-INF/cxf/cxf.xml" />
-
-    <!-- Properties -->
-    <context:annotation-config />
-    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" />
-
-
-    <!-- MDM Configuration -->
-    <bean class="org.talend.mdm.commmon.util.core.MDMConfiguration" factory-method="createConfiguration">
-        <constructor-arg value="${mdm.root}/conf/mdm.conf" />
-    </bean>
-
-    <!-- Data Model synchronization -->
-    <bean id="dataModelSynchronizer" class="com.amalto.webapp.core.dmagent.DataModelSynchronizer" />
-    <bean class="com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier" factory-method="createInstance">
-        <property name="listeners">
-            <list>
-                <ref bean="dataModelSynchronizer" />
-            </list>
-        </property>
-    </bean>
-
-    <!-- Image server -->
-    <bean id="imageServerInfo" class="talend.ext.images.server.ImageServerInfo" factory-method="createInstance" init-method="init">
-        <property name="uploadPath" value="${mdm.root}/resources/upload" />
-        <property name="tempPath" value="${mdm.root}/resources/upload_tmp" />
-        <property name="locateBaseUrl" value="imageserver/upload" />
-    </bean>
-
-    <!-- Indicates a Tomcat environment -->
-    <bean class="com.amalto.core.server.lifecycle.tomcat.TomcatServerLifecycle" />
-
-    <!-- Server initialization -->
-    <bean class="com.amalto.core.server.Initialization" />
-
-    <!-- Security authentication manager -->
-    <bean class="com.amalto.core.server.security.SecurityConfig" />
 
     <!-- CXF Services -->
     <jaxrs:server id="services" address="/rest">
@@ -61,6 +26,9 @@ http://www.springframework.org/schema/jee http://www.springframework.org/schema/
             <bean class="com.amalto.core.storage.services.DataStatistics" />
             <bean class="com.amalto.core.storage.services.EventStatistics" />
         </jaxrs:serviceBeans>
+                <jaxrs:providers>
+            <bean class="com.amalto.core.storage.task.staging.SerializableListWriter" />
+        </jaxrs:providers>
     </jaxrs:server>
 
     <!-- Legacy services -->

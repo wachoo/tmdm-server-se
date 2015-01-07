@@ -13,31 +13,6 @@
     <name>org.talend.mdm.ext.images.server</name>
     <packaging>jar</packaging>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <includes>
-                    <include>**/**.conf</include>
-                    <include>**/**.xsd</include>
-                    <include>**/**.xml</include>
-                    <include>**/**.dtd</include>
-                    <include>**/**.properties</include>
-                </includes>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <!-- WAR is packaged outside EAR, so include our external dependencies -->
-                    <packagingExcludes>%regex[WEB-INF/lib/(?!ssim).*.jar]</packagingExcludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>log4j</groupId>
