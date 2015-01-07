@@ -13,7 +13,7 @@
 
     <properties>
         <version.properties>product_version.properties</version.properties>
-        <jackson.version>1.8.6</jackson.version>
+        <jackson.version>1.9.2</jackson.version>
     </properties>
 
     <build>
@@ -297,11 +297,6 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-            <version>1.9.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
