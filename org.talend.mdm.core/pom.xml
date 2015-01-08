@@ -12,7 +12,6 @@
     <name>org.talend.mdm.core</name>
 
     <properties>
-        <version.properties>product_version.properties</version.properties>
         <jackson.version>1.9.2</jackson.version>
     </properties>
 
@@ -20,6 +19,17 @@
         <resources>
             <resource>
                 <directory>resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>product_version.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>product_version.properties</exclude>
+                </excludes>
             </resource>
         </resources>
         <sourceDirectory>src</sourceDirectory>

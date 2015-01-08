@@ -116,7 +116,6 @@
                         <configuration>
                             <includes>
                                 <include>org/talend/mdm/webapp/general/gwt/*.class</include>
-                                <include>${version.properties}</include>
                             </includes>
                         </configuration>
                         <goals>
