@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
 import com.amalto.core.metadata.LongString;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.storage.StorageType;
@@ -16,7 +15,6 @@ import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
 import com.amalto.core.server.MetadataRepositoryAdmin;
@@ -152,9 +150,6 @@ public class DataModelPOJO extends ObjectPOJO{
                 }
             }
         }
-        // synchronize with outer agents
-        DataModelChangeNotifier dmUpdateEventNotifier = DataModelChangeNotifier.createInstance();
-        dmUpdateEventNotifier.notifyChange(new DMUpdateEvent(getPK().getUniqueId()));
         return objectPK;
     }
 

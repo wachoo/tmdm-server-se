@@ -27,7 +27,6 @@ public class AssembleDirector {
 		fBuilder.buildPartStartEngine();
 		fBuilder.buildStartService();
 		fBuilder.buildInitJobox();
-		fBuilder.buildInitDataModelPools();
 	}
 	
 	public void constructCleanPart() {

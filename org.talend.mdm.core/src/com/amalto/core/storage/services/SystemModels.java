@@ -37,11 +37,7 @@ import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
-import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
-import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
-import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
-import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.server.MetadataRepositoryAdmin;
@@ -183,9 +179,6 @@ public class SystemModels {
                 throw new RuntimeException("Could not update data model.", e); //$NON-NLS-1$
             }
         }
-        // synchronize with outer agents
-        DataModelChangeNotifier dmUpdateEventNotifier = DataModelChangeNotifier.createInstance();
-        dmUpdateEventNotifier.notifyChange(new DMUpdateEvent(modelName));
     }
 
     private boolean isSystemStorageAvailable() {
