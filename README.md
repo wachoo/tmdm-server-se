@@ -2,7 +2,7 @@
 http://www.talend.com
 
 
-![alt text](http://www.talend.com/sites/default/files/logo-talend.jpg "Talend")
+![alt text](http://www.talend.com/sites/all/themes/talend_responsive/images/logo.png "Talend")
 
 
 > Contents
@@ -35,4 +35,4 @@ Feel free to share your Talend components on [Talend Exchange](http://www.talend
 
 ## License
 
-Copyright (c) 2006-2014 Talend
+Copyright (c) 2006-2015 Talend

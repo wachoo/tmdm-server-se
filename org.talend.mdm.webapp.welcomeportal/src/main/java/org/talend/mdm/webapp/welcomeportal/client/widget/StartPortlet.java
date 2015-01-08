@@ -21,14 +21,13 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 
 public class StartPortlet extends BasePortlet {
 
-    public StartPortlet(Portal portal) {
+    public StartPortlet(MainFramePanel portal) {
         super(WelcomePortal.START, portal);
 
         label.setText(MessagesFactory.getMessages().useful_links_desc());
@@ -75,7 +74,7 @@ public class StartPortlet extends BasePortlet {
 
                     @Override
                     public void onClick(ClickEvent event) {
-                        ((MainFramePanel) portal).itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
+                        portal.itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
                     }
 
                 });
@@ -90,7 +89,7 @@ public class StartPortlet extends BasePortlet {
 
                     @Override
                     public void onClick(ClickEvent event) {
-                        ((MainFramePanel) portal).itemClick(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
+                        portal.itemClick(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
                     }
 
                 });

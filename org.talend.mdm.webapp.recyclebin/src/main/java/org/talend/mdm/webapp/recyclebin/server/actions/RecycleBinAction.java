@@ -37,10 +37,6 @@ import com.amalto.core.util.BeforeDeletingErrorException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.DataModelAccessor;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.Webapp;
 import com.amalto.core.webservice.WSConceptKey;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
@@ -54,6 +50,10 @@ import com.amalto.core.webservice.WSItemPK;
 import com.amalto.core.webservice.WSLoadDroppedItem;
 import com.amalto.core.webservice.WSRecoverDroppedItem;
 import com.amalto.core.webservice.WSRemoveDroppedItem;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.DataModelAccessor;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
 
 public class RecycleBinAction implements RecycleBinService {
 
@@ -152,7 +152,7 @@ public class RecycleBinAction implements RecycleBinService {
             Locale locale = new Locale(language);
             return MESSAGES.getMessage(locale, "delete_process_validation_success"); //$NON-NLS-1$;
         } catch (RemoteException e) {
-            if(e.getCause() != null && BeforeDeletingErrorException.class.isInstance(e.getCause())){
+            if (e.getCause() != null && BeforeDeletingErrorException.class.isInstance(e.getCause())) {
                 BeforeDeletingErrorException exception = (BeforeDeletingErrorException) e.getCause();
                 throw new DroppedItemBeforeDeletingException(exception.getMessageType(), exception.getMessage());
             }

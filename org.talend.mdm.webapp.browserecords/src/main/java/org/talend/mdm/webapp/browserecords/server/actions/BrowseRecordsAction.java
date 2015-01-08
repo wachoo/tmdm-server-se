@@ -188,9 +188,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
 
     public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
-        
+
     public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
-    
+
     @Override
     public List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
         List<ItemResult> itemResults = new ArrayList<ItemResult>();
@@ -203,36 +203,32 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String concept = item.getConcept();
                 String[] ids = getItemId(repository, item, concept);
 
-                WSDeleteItemWithReport wsDeleteItem  = new WSDeleteItemWithReport(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids),
-                        "genericUI", //$NON-NLS-1$
-                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE,
-                        "/", //$NON-NLS-1$
-                        LocalUser.getLocalUser().getUsername(),
-                        true,
-                        true,
-                        override);
+                WSDeleteItemWithReport wsDeleteItem = new WSDeleteItemWithReport(new WSItemPK(new WSDataClusterPK(dataClusterPK),
+                        concept, ids), "genericUI", //$NON-NLS-1$
+                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, "/", //$NON-NLS-1$
+                        LocalUser.getLocalUser().getUsername(), true, true, override);
 
                 WSString deleteMessage = CommonUtil.getPort().deleteItemWithReport(wsDeleteItem);
-                
+
                 if (deleteMessage == null) {
                     throw new ServiceException(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
                 } else {
                     String message = deleteMessage.getValue();
                     String messageType = wsDeleteItem.getSource();
-                    if(messageType != null && INFO_KEYWORD.equals(messageType)){ 
-                        messageBean.setKey(item.getIds()); 
+                    if (messageType != null && INFO_KEYWORD.equals(messageType)) {
+                        messageBean.setKey(item.getIds());
                         messageBean.setStatus(getMessageTypeStatus(INFO_KEYWORD));
                         messageBean.setMessage(message);
                         itemResults.add(messageBean);
-                    } else if(messageType != null && FAIL_KEYWORD.equals(messageType)){ 
-                        messageBean.setKey(item.getIds()); 
+                    } else if (messageType != null && FAIL_KEYWORD.equals(messageType)) {
+                        messageBean.setKey(item.getIds());
                         messageBean.setStatus(getMessageTypeStatus(FAIL_KEYWORD));
                         messageBean.setMessage(MESSAGES.getMessage("message_fail", locale)); //$NON-NLS-1$
                         itemResults.add(messageBean);
-                    } else if(messageType != null && ERROR_KEYWORD.equals(messageType)){ 
-                        messageBean.setKey(item.getIds()); 
+                    } else if (messageType != null && ERROR_KEYWORD.equals(messageType)) {
+                        messageBean.setKey(item.getIds());
                         messageBean.setStatus(getMessageTypeStatus(ERROR_KEYWORD));
-                        messageBean.setMessage(message); 
+                        messageBean.setMessage(message);
                         itemResults.add(messageBean);
                     }
                 }
@@ -255,14 +251,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         return itemResults;
     }
-    
+
     private int getMessageTypeStatus(String keywords) {
-        int status = 0;        
-        if(INFO_KEYWORD.equalsIgnoreCase(keywords)){
+        int status = 0;
+        if (INFO_KEYWORD.equalsIgnoreCase(keywords)) {
             return 1;
-        } else if(FAIL_KEYWORD.equalsIgnoreCase(keywords)){
+        } else if (FAIL_KEYWORD.equalsIgnoreCase(keywords)) {
             return 2;
-        } else if(ERROR_KEYWORD.equalsIgnoreCase(keywords)){
+        } else if (ERROR_KEYWORD.equalsIgnoreCase(keywords)) {
             return 3;
         }
         return status;
@@ -1701,8 +1697,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @SuppressWarnings("deprecation")
     @Override
-    public ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language)
-            throws ServiceException {
+    public ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml,
+            EntityModel entityModel, String language) throws ServiceException {
         try {
             org.dom4j.Document doc;
             if (xml == null || xml.trim().length() == 0) {
@@ -1726,11 +1722,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
                 org.dom4j.Element element = (org.dom4j.Element) doc.selectSingleNode(xpath);
                 element.setText(value);
-                
-                if(entityModel != null && entityModel.getMetaDataTypes() != null){
+
+                if (entityModel != null && entityModel.getMetaDataTypes() != null) {
                     TypeModel tm = entityModel.getMetaDataTypes().get(xpath);
-                    if (tm != null && tm.getForeignkey() != null && element.attributeValue("type") != null && !element.attributeValue("type").equalsIgnoreCase(tm.getForeignkey().split("/")[0])) {  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-                        element.setAttributeValue("type", tm.getForeignkey().split("/")[0]);  //$NON-NLS-1$//$NON-NLS-2$
+                    if (tm != null
+                            && tm.getForeignkey() != null
+                            && element.attributeValue("type") != null && !element.attributeValue("type").equalsIgnoreCase(tm.getForeignkey().split("/")[0])) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                        element.setAttributeValue("type", tm.getForeignkey().split("/")[0]); //$NON-NLS-1$//$NON-NLS-2$
                     }
                 }
             }
@@ -2190,7 +2188,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public boolean checkTask(String dataClusterPK, String concept, String taskId) throws ServiceException {
+    public int checkTask(String dataClusterPK, String concept, String taskId) throws ServiceException {
         WSWhereCondition whereCondition_Status_SUCCESS_VALIDATE = new WSWhereCondition(concept + StagingConstant.STAGING_STATUS,
                 WSWhereOperator.EQUALS, StagingConstants.SUCCESS_MERGE_CLUSTERS, WSStringPredicate.NONE, false);
         WSWhereItem whereItem_Status_SUCCESS_VALIDATE = new WSWhereItem(whereCondition_Status_SUCCESS_VALIDATE, null, null);
@@ -2204,7 +2202,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSString results = CommonUtil.getPort()
                     .count(new WSCount(new WSDataClusterPK(dataClusterPK), concept, whereItem, -1));
             int resultSize = Integer.parseInt(results.getValue());
-            return resultSize > 1 ? true : false;
+            return resultSize;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

@@ -18,7 +18,6 @@ import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -32,7 +31,7 @@ public class AlertPortlet extends BasePortlet {
 
     private String linkData;
 
-    public AlertPortlet(Portal portal) {
+    public AlertPortlet(MainFramePanel portal) {
         super(WelcomePortal.ALERT, portal);
 
         initConfigSettings();
@@ -143,7 +142,7 @@ public class AlertPortlet extends BasePortlet {
 
                     @Override
                     public void onClick(ClickEvent event) {
-                        ((MainFramePanel) portal).initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
+                        portal.initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
                     }
 
                 });
@@ -165,7 +164,7 @@ public class AlertPortlet extends BasePortlet {
 
                 @Override
                 public void onClick(ClickEvent event) {
-                    ((MainFramePanel) portal).initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
+                    portal.initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
                 }
 
             });

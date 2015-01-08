@@ -113,8 +113,8 @@ public interface BrowseRecordsService extends RemoteService {
 
     ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException;
 
-    ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language)
-            throws ServiceException;
+    ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel,
+            String language) throws ServiceException;
 
     List<ItemResult> updateItems(List<UpdateItemModel> updateItems, String language) throws ServiceException;
 
@@ -144,7 +144,7 @@ public interface BrowseRecordsService extends RemoteService {
     String getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys, String groupId)
             throws ServiceException;
 
-    boolean checkTask(String dataClusterPK, String concept, String groupId) throws ServiceException;
+    int checkTask(String dataClusterPK, String concept, String groupId) throws ServiceException;
 
     List<ItemBean> getRecords(String concept, List<String> idsList) throws ServiceException;
 

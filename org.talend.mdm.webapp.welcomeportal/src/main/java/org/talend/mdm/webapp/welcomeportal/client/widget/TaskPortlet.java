@@ -19,7 +19,6 @@ import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -54,11 +53,11 @@ public class TaskPortlet extends BasePortlet {
 
     private HTML taskHtml_dsc;
 
-    public TaskPortlet(final Portal portal) {
+    public TaskPortlet(final MainFramePanel portal) {
         super(WelcomePortal.TASKS, portal);
 
-        isHiddenWorkFlowTask = ((MainFramePanel) portal).isHiddenWorkFlowTask();
-        isHiddenDSCTask = ((MainFramePanel) portal).isHiddenDSCTask();
+        isHiddenWorkFlowTask = portal.isHiddenWorkFlowTask();
+        isHiddenDSCTask = portal.isHiddenDSCTask();
 
         initConfigSettings();
 
@@ -68,7 +67,7 @@ public class TaskPortlet extends BasePortlet {
 
             @Override
             public void onClick(ClickEvent event) {
-                ((MainFramePanel) portal).itemClick(WelcomePortal.WORKFLOW_TASKCONTEXT, WelcomePortal.WORKFLOW_TASKAPP);
+                portal.itemClick(WelcomePortal.WORKFLOW_TASKCONTEXT, WelcomePortal.WORKFLOW_TASKAPP);
             }
 
         };
@@ -77,7 +76,7 @@ public class TaskPortlet extends BasePortlet {
 
             @Override
             public void onClick(ClickEvent event) {
-                ((MainFramePanel) portal).itemClick(WelcomePortal.DSC_TASKCONTEXT, WelcomePortal.DSC_TASKAPP);
+                portal.itemClick(WelcomePortal.DSC_TASKCONTEXT, WelcomePortal.DSC_TASKAPP);
             }
 
         };
@@ -319,7 +318,8 @@ public class TaskPortlet extends BasePortlet {
         StringBuilder message = new StringBuilder("<IMG SRC=\"secure/img/genericUI/task-list-icon.png\"/>&nbsp;"); //$NON-NLS-1$
         message.append(MessagesFactory.getMessages().waiting_task_prefix());
         message.append("&nbsp;<b style=\"color: red;\">"); //$NON-NLS-1$
-        message.append(MessagesFactory.getMessages().waiting_dsctask(dscTasks.get(DSCTASKTYPE_NEW), dscTasks.get(DSCTASKTYPE_PENDING)));
+        message.append(MessagesFactory.getMessages().waiting_dsctask(dscTasks.get(DSCTASKTYPE_NEW),
+                dscTasks.get(DSCTASKTYPE_PENDING)));
         message.append("</b>&nbsp;"); //$NON-NLS-1$
         message.append(MessagesFactory.getMessages().waiting_dsctask_suffix());
 

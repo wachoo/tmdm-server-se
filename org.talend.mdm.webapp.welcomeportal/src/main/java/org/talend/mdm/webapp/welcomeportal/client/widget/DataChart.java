@@ -17,12 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -52,6 +52,7 @@ import com.googlecode.gflot.client.options.PlotOptions;
 public class DataChart extends ChartPortlet {
 
     public static final String COUNT_NAME = "count"; //$NON-NLS-1$
+
     public static final String PERCENTAGE_NAME = "percentage"; //$NON-NLS-1$
 
     private String hoveringTXT;
@@ -61,10 +62,10 @@ public class DataChart extends ChartPortlet {
     private int cursorY;
 
     final NumberFormat formatter = NumberFormat.getFormat("0.##"); //$NON-NLS-1$
-    
+
     Map<String, Double> percentageValueMap = new HashMap<String, Double>();
 
-    public DataChart(Portal portal) {
+    public DataChart(MainFramePanel portal) {
         super(WelcomePortal.CHART_DATA, portal);
 
         String setting = portalConfigs.getChartSetting(portletName);
@@ -249,7 +250,7 @@ public class DataChart extends ChartPortlet {
                 JSONObject countObject = valueArray.get(j).isObject();
                 String countName = countObject.keySet().iterator().next();
                 if (COUNT_NAME.equals(countName)) {
-                    count = new Double(countObject.get(countName).isNumber().doubleValue()).intValue();                    
+                    count = new Double(countObject.get(countName).isNumber().doubleValue()).intValue();
                 } else if (PERCENTAGE_NAME.equals(countName)) {
                     percentage = Double.parseDouble(countObject.get(countName).isString().stringValue());
                 }

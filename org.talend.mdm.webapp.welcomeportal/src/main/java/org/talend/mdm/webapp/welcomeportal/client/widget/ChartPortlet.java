@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
@@ -28,7 +29,6 @@ import org.talend.mdm.webapp.welcomeportal.client.widget.PortletConfigDialog.Por
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Label;
@@ -59,7 +59,7 @@ public abstract class ChartPortlet extends BasePortlet {
 
     private int plotHeight;
 
-    public ChartPortlet(String name, Portal portal) {
+    public ChartPortlet(String name, MainFramePanel portal) {
         super(name, portal);
 
     }

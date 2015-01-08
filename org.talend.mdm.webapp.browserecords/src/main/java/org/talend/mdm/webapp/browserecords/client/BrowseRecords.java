@@ -74,48 +74,56 @@ public class BrowseRecords implements EntryPoint {
     }
 
     public native void regItemDetails()/*-{
-    $wnd.amalto = $wnd.amalto || {};
-    $wnd.amalto.itemsbrowser = $wnd.amalto.itemsbrowser || {};
-    $wnd.amalto.itemsbrowser.ItemsBrowser = $wnd.amalto.itemsbrowser.ItemsBrowser || {};
-    $wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(fromWhichApp, ids, entity, callback){
-        var checkArgs = true;
-        checkArgs = checkArgs && (arguments.length >= 3);
-        checkArgs = checkArgs && (typeof fromWhichApp === "string");
-        checkArgs = checkArgs && (ids.length >= 1);
-        checkArgs = checkArgs && (typeof entity === "string");
-        if (!checkArgs){
-            throw {message: "argument format error!"};
-        }
+		$wnd.amalto = $wnd.amalto || {};
+		$wnd.amalto.itemsbrowser = $wnd.amalto.itemsbrowser || {};
+		$wnd.amalto.itemsbrowser.ItemsBrowser = $wnd.amalto.itemsbrowser.ItemsBrowser
+				|| {};
+		$wnd.amalto.itemsbrowser.ItemsBrowser.editItemDetails = function(
+				fromWhichApp, ids, entity, callback) {
 
-        var idstr = ids.join(".");
-        @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)(fromWhichApp, idstr, entity, new Boolean(false), new Boolean(false));
-    };
+			var checkArgs = true;
+			checkArgs = checkArgs && (arguments.length >= 3);
+			checkArgs = checkArgs && (typeof fromWhichApp === "string");
+			checkArgs = checkArgs && (ids.length >= 1);
+			checkArgs = checkArgs && (typeof entity === "string");
+			if (!checkArgs) {
+				throw {
+					message : "argument format error!"
+				};
+			}
 
-    $wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem = function (lineageEntities, ids, dataObject){
-        var tabPanel = $wnd.amalto.core.getTabPanel();
+			var idstr = ids.join(".");
+			@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::initItemsDetailPanelById(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZZ)(fromWhichApp, idstr, entity, false, false);
 
-        var searchEntityPanel = tabPanel.getItem("searchEntityPanel");
+		};
 
-        if (searchEntityPanel) {
-            tabPanel.remove(searchEntityPanel);
-            searchEntityPanel.destroy();
-        }
+		$wnd.amalto.itemsbrowser.ItemsBrowser.lineageItem = function(
+				lineageEntities, ids, dataObject) {
+			var tabPanel = $wnd.amalto.core.getTabPanel();
 
-        searchEntityPanel = new $wnd.amalto.itemsbrowser.SearchEntityPanel({
-                    lineageEntities : lineageEntities,
-                    ids : ids,
-                    dataObject : dataObject,
-                    language : $wnd.language
-                });
+			var searchEntityPanel = tabPanel.getItem("searchEntityPanel");
 
-        tabPanel.add(searchEntityPanel);
+			if (searchEntityPanel) {
+				tabPanel.remove(searchEntityPanel);
+				searchEntityPanel.destroy();
+			}
 
-        searchEntityPanel.show();
-        searchEntityPanel.doLayout();
-        searchEntityPanel.doSearchList();
-        $wnd.amalto.core.doLayout();
-    }
-}-*/;
+			searchEntityPanel = new $wnd.amalto.itemsbrowser.SearchEntityPanel(
+					{
+						lineageEntities : lineageEntities,
+						ids : ids,
+						dataObject : dataObject,
+						language : $wnd.language
+					});
+
+			tabPanel.add(searchEntityPanel);
+
+			searchEntityPanel.show();
+			searchEntityPanel.doLayout();
+			searchEntityPanel.doSearchList();
+			$wnd.amalto.core.doLayout();
+		}
+    }-*/;
 
     /**
      * This is the entry point method.

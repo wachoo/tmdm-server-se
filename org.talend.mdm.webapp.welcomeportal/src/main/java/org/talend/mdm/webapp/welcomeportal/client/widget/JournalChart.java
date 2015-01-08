@@ -19,12 +19,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.HTML;
@@ -49,7 +49,7 @@ public class JournalChart extends ChartPortlet {
 
     private static String JOURNAL_ACTION_UPDATE = "update"; //$NON-NLS-1$
 
-    public JournalChart(Portal portal) {
+    public JournalChart(MainFramePanel portal) {
 
         super(WelcomePortal.CHART_JOURNAL, portal);
 
@@ -247,8 +247,8 @@ public class JournalChart extends ChartPortlet {
             Map<String, Integer> eventsNew;
             for (String entityName : chartData.keySet()) {
                 events = (Map<String, Integer>) chartData.get(entityName);
-                eventsNew = newData.get(entityName) != null? (Map<String, Integer>) newData.get(entityName) : null ;
-                if(eventsNew == null) {
+                eventsNew = newData.get(entityName) != null ? (Map<String, Integer>) newData.get(entityName) : null;
+                if (eventsNew == null) {
                     return true;
                 }
 

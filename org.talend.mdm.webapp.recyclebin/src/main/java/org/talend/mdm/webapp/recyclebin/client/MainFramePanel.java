@@ -109,6 +109,8 @@ public class MainFramePanel extends ContentPanel {
     private List<ItemsTrashItem> outstandingDeleteCallFailRecords = new LinkedList<ItemsTrashItem>();
     
     private List<ItemResult> deleteMessages = new ArrayList<ItemResult>();
+    
+    private String messageWindowTitle;
 
     private static final int COLUMN_WIDTH = 100;
     
@@ -592,7 +594,7 @@ public class MainFramePanel extends ContentPanel {
 
                 @Override
                 protected void doOnFailure(Throwable caught) {
-                    deleteSelectedCheckFinished(r, false, ERROR_KEYWORD, caught.getMessage(), false);                
+                    deleteSelectedCheckFinished(r, false, ERROR_KEYWORD, caught.getMessage(), false);
                 }
 
                 @Override
@@ -671,17 +673,27 @@ public class MainFramePanel extends ContentPanel {
                 message.setKey(r.getIds());
             }
             
+            String info_title = BaseMessagesFactory.getMessages().info_title();
+            String fail_title = BaseMessagesFactory.getMessages().message_fail();
+            String error_title = BaseMessagesFactory.getMessages().error_title();
+
             if(messageType != null && INFO_KEYWORD.equalsIgnoreCase(messageType)){
+                if(!error_title.equals(messageWindowTitle) && !fail_title.equals(messageWindowTitle)){
+                    messageWindowTitle = info_title;
+                }
                 message.setStatus(1);
                 message.setMessage(BaseMessagesFactory.getMessages().delete_success_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
             } else if(messageType != null && FAIL_KEYWORD.equalsIgnoreCase(messageType)){
+                if(!error_title.equals(messageWindowTitle)){
+                    messageWindowTitle = fail_title;
+                }
                 message.setStatus(2);
                 message.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
             } else if(messageType != null && ERROR_KEYWORD.equalsIgnoreCase(messageType)){
+                messageWindowTitle = error_title;
                 message.setStatus(3);
                 message.setMessage(BaseMessagesFactory.getMessages().delete_fail_prefix() + MultilanguageMessageParser.pickOutISOMessage(msg));
             }
-            
             deleteMessages.add(message);
         }
 
@@ -704,7 +716,7 @@ public class MainFramePanel extends ContentPanel {
 
             if(deleteMessages != null && deleteMessages.size() > 0){
                 OperationMessageWindow messageWindow = new OperationMessageWindow(deleteMessages);
-                messageWindow.setHeading(BaseMessagesFactory.getMessages().info_title());
+                messageWindow.setHeading(messageWindowTitle);
                 messageWindow.show();
             } else {
                 if (msg != null) {

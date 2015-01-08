@@ -34,4 +34,5 @@ public interface RecycleBinServiceAsync {
     void isEntityPhysicalDeletable(String conceptName, AsyncCallback<Boolean> callback);
 
     void checkConflict(String clusterName, String conceptName, String id, AsyncCallback<Boolean> callback);
+    
 }
