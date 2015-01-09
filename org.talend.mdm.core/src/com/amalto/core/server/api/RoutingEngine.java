@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.server.api;
@@ -18,8 +17,16 @@ import com.amalto.core.objects.routing.RoutingRulePOJOPK;
  *
  */
 public interface RoutingEngine {
+
+    int STOPPED   = 1;
+
+    int RUNNING   = 2;
+
+    int SUSPENDED = 3;
+
     /**
      * Routes a document
+     * 
      * @return the list of routing rules PKs that matched
      * @throws com.amalto.core.util.XtentisException
      */
@@ -27,24 +34,28 @@ public interface RoutingEngine {
 
     /**
      * Starts/restarts the router
+     * 
      * @throws com.amalto.core.util.XtentisException
      */
     void start() throws com.amalto.core.util.XtentisException;
 
     /**
      * Stops the routing queue
+     * 
      * @throws com.amalto.core.util.XtentisException
      */
     void stop() throws com.amalto.core.util.XtentisException;
 
     /**
      * Toggle suspend a routing queue
+     * 
      * @throws com.amalto.core.util.XtentisException
      */
     void suspend(boolean suspend) throws com.amalto.core.util.XtentisException;
 
     /**
-     * Toggle suspend a routing queue
+     * Toggle suspend a routing queue.
+     * 
      * @throws com.amalto.core.util.XtentisException
      */
     int getStatus() throws com.amalto.core.util.XtentisException;

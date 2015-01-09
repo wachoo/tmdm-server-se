@@ -16,8 +16,7 @@ public class StartServiceSubProc extends AssembleSubProc{
 			
 			Object workflowService= 
 				com.amalto.core.util.Util.retrieveComponent(
-					null, 
-					"amalto/local/service/workflow"
+                        "amalto/local/service/workflow"
 				);
 
             try {

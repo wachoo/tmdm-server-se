@@ -1554,7 +1554,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration)
             throws RemoteException {
         try {
-            Object service = Util.retrieveComponent(null, wsGetConfiguration.getJndiName());
+            Object service = Util.retrieveComponent(wsGetConfiguration.getJndiName());
             String configuration = (String) Util.getMethod(service, "getConfiguration").invoke(service, //$NON-NLS-1$
                     wsGetConfiguration.getOptionalParameter());
             return new WSString(configuration);
@@ -1566,7 +1566,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration)
             throws RemoteException {
         try {
-            Object service = Util.retrieveComponent(null, wsPutConfiguration.getJndiName());
+            Object service = Util.retrieveComponent(wsPutConfiguration.getJndiName());
             Util.getMethod(service, "putConfiguration").invoke(service, wsPutConfiguration.getConfiguration());//$NON-NLS-1$
             return new WSString(wsPutConfiguration.getConfiguration());
         } catch (Exception e) {
@@ -1577,7 +1577,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSTransformerPluginV2Details getTransformerPluginV2Details(
             WSGetTransformerPluginV2Details wsGetTransformerPluginDetails) throws RemoteException {
         try {
-            Object service = Util.retrieveComponent(null, wsGetTransformerPluginDetails.getJndiName());
+            Object service = Util.retrieveComponent(wsGetTransformerPluginDetails.getJndiName());
             String description = (String) Util.getMethod(service, "getDescription").invoke(//$NON-NLS-1$
                     service, wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails//$NON-NLS-1$
                             .getLanguage());
@@ -1626,7 +1626,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 NameClassPair nc = list.next();
                 WSTransformerPluginV2SListItem item = new WSTransformerPluginV2SListItem();
                 item.setJndiName(nc.getName());
-                Object service = Util.retrieveComponent(null, "amalto/local/transformer/plugin/" + nc.getName());//$NON-NLS-1$
+                Object service = Util.retrieveComponent("amalto/local/transformer/plugin/" + nc.getName());//$NON-NLS-1$
                 String description = (String) Util.getMethod(service, "getDescription").invoke(//$NON-NLS-1$
                         service, wsGetTransformerPluginsList.getLanguage() == null ? "" : wsGetTransformerPluginsList//$NON-NLS-1$
                                 .getLanguage());

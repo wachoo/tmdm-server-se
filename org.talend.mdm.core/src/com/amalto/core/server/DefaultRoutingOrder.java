@@ -69,7 +69,7 @@ public class DefaultRoutingOrder implements RoutingOrder {
         //Now anything goes right or wrong, we clean up the routing order from the active queue
         Object service = null;
         try {
-            service = Util.retrieveComponent(null, routingOrderPOJO.getServiceJNDI());
+            service = Util.retrieveComponent(routingOrderPOJO.getServiceJNDI());
         } catch (Exception e) {
             String err = "Unable to execute the Routing Order '" + routingOrderPOJO.getName() + "'." +
                     " The service: '" + routingOrderPOJO.getServiceJNDI() + "' is not found. " + e.getMessage();

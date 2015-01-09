@@ -23,6 +23,7 @@ import com.amalto.core.objects.transformers.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.server.*;
+import com.amalto.core.server.routing.DefaultRoutingEngine;
 import com.amalto.core.webservice.WSMDMJob;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -893,8 +894,8 @@ public class Util {
         return false;
     }
 
-    public static Object retrieveComponent(Object o, String jndiName) {
-        return null;
+    public static Object retrieveComponent(String jndiName) {
+        return PluginRegistry.getInstance().getPlugin(jndiName);
     }
 
     public static boolean isEnterprise() {
