@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:security="http://www.springframework.org/schema/security"
     xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
     <context:annotation-config />
 
@@ -11,10 +12,30 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     <bean class="com.amalto.core.server.lifecycle.tomcat.TomcatServerLifecycle" />
 
     <!-- Server initialization -->
-    <bean class="com.amalto.core.server.Initialization" depends-on="mdmConfiguration,dataModelChangeNotifier" />
+    <bean class="com.amalto.core.server.Initialization" depends-on="mdmConfiguration" />
 
-    <!-- Security authentication manager -->
+    <!-- Security -->
     <bean class="com.amalto.core.server.security.SecurityConfig" />
+
+    <security:authentication-manager>
+        <security:authentication-provider ref='jaasAuthenticationProvider' />
+    </security:authentication-manager>
+
+    <bean id="jaasAuthenticationProvider" class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
+        <property name="loginConfig" value="${mdm.root.url}/conf/jaas.conf" />
+        <property name="loginContextName" value="MDM" />
+        <property name="callbackHandlers">
+            <list>
+                <bean class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler" />
+                <bean class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler" />
+            </list>
+        </property>
+        <property name="authorityGranters">
+            <list>
+                <bean class="com.amalto.core.server.security.jaas.DefaultAuthorityGranter" />
+            </list>
+        </property>
+    </bean>
 
     <!-- Plugins -->
     <bean id="pluginFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">

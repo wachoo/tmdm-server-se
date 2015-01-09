@@ -27,7 +27,6 @@ import com.amalto.core.util.XtentisException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import java.io.IOException;
@@ -52,9 +51,6 @@ public abstract class ILocalUser implements IBeanDelegator {
             for (GrantedAuthority authority : authorities) {
                 set.add(authority.getAuthority());
             }
-        } else {
-            set.add("administration"); //$NON-NLS-1$
-            set.add("authenticated"); //$NON-NLS-1$
         }
         return set;
     }
@@ -82,14 +78,15 @@ public abstract class ILocalUser implements IBeanDelegator {
 
     public String getUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        return user.getUsername(); 
+        Object principal = authentication.getPrincipal();
+        return (String)principal; 
     }
 
     public String getPassword() {
+        //TODO this method returns null (see AuthenticationManagerBuilder#eraseCredentials)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        return user.getPassword();
+        Object credentials = authentication.getCredentials();
+        return (String)credentials;
     }
 
     public boolean isAdmin(Class<?> objectTypeClass) throws XtentisException {

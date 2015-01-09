@@ -29,6 +29,8 @@ public class MDMContextListener implements ServletContextListener {
 
     public static final String ROOT_LOCATION_KEY = "mdm.root"; //$NON-NLS-1$
 
+    public static final String ROOT_LOCATION_URL_KEY = "mdm.root.url"; //$NON-NLS-1$
+
     @Override
     public void contextInitialized(ServletContextEvent event) {
         ServletContext servletContext = event.getServletContext();
@@ -44,7 +46,9 @@ public class MDMContextListener implements ServletContextListener {
                 throw new FileNotFoundException("MDM Root folder [" + resolvedLocation + "] not found"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             System.setProperty(ROOT_LOCATION_KEY, file.getAbsolutePath());
+            System.setProperty(ROOT_LOCATION_URL_KEY, resolvedLocation);
             servletContext.log("Set MDM root system property: '" + ROOT_LOCATION_KEY + "' = [" + file.getAbsolutePath() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            servletContext.log("Set MDM root url system property: '" + ROOT_LOCATION_URL_KEY + "' = [" + resolvedLocation + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("Invalid '" + ROOT_LOCATION_PARAM + "' parameter", e); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -53,6 +57,7 @@ public class MDMContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         System.getProperties().remove(ROOT_LOCATION_KEY);
+        System.getProperties().remove(ROOT_LOCATION_URL_KEY);
     }
 
 }
