@@ -12,10 +12,6 @@
     <artifactId>org.talend.mdm.core.plugin.base</artifactId>
     <name>org.talend.mdm.core.plugin.base</name>
 
-    <properties>
-        <lib>zz.40.core.plugin.base.ejb</lib>
-    </properties>
-
     <build>
         <sourceDirectory>src</sourceDirectory>
         <resources>

@@ -45,14 +45,14 @@
 
 .generic-header-background{
 	background-color: #3C3C3C;
-    background-image: url(secure/img/header-back.png);
+    background-image: url(../img/header-back.png);
     background-repeat: repeat-x;
     height:38px;
 }	
 
 
 .generic-header{
-	background-image: url(secure/img/genericUI/header.gif);
+	background-image: url(../img/genericUI/header.gif);
 	background-repeat: repeat-y;
 	background-position:right;
 	font:bold 12px verdana, helvetica;
@@ -181,7 +181,7 @@
 
 #images-view .x-view-over {
   border: 1px solid #dddddd;
-  background: #efefef url(../../gxt/images/default/grid/row-over.gif) repeat-x left top;
+  background: #efefef url(../gxt/images/default/grid/row-over.gif) repeat-x left top;
   padding: 4px;
 }
 
@@ -197,7 +197,7 @@
 
 #images-view .loading-indicator {
   font-size: 11px;
-  background-image: url(../../gxt/resources/images/default/grid/loading.gif);
+  background-image: url(../gxt/resources/images/default/grid/loading.gif);
   background-repeat: no-repeat;
   background-position: left;
   padding-left: 20px;

@@ -12,10 +12,6 @@
     <artifactId>org.talend.mdm.service.dumptoconsole</artifactId>
     <name>org.talend.mdm.service.dumptoconsole</name>
 
-    <properties>
-        <lib>zz.30.mdm.service.dumptoconsole.ejb</lib>
-    </properties>
-
     <build>
         <sourceDirectory>src</sourceDirectory>
         <resources>

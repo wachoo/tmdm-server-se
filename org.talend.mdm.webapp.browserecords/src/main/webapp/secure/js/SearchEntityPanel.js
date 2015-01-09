@@ -16,7 +16,7 @@ var mate = document.getElementById("gwt:property");
 language = mate.content.split("=")[1];
 
 amalto.itemsbrowser.SearchEntity = {};
-amalto.itemsbrowser.SearchEntity.bundle =  new Ext.i18n.Bundle({bundle:'SearchEntity', path:'/browserecords/secure/resources', lang:language});
+amalto.itemsbrowser.SearchEntity.bundle =  new Ext.i18n.Bundle({bundle:'SearchEntity', path:'secure/resources', lang:language});
 amalto.itemsbrowser.SearchEntity.bundle.onReady(function(){
 	var searchEntityBundle = amalto.itemsbrowser.SearchEntity.bundle;
 	Ext.extend(amalto.itemsbrowser.SearchEntityPanel, Ext.Panel, {
@@ -305,7 +305,7 @@ amalto.itemsbrowser.SearchEntity.bundle.onReady(function(){
 			}else{
 				cluster = '';
 			}
-			window.location.href="/browserecords/secure/ExportingServlet?cluster=" + cluster + "&params=" + myParams;	
+			window.location.href="secure/ExportingServlet?cluster=" + cluster + "&params=" + myParams;	
 		},
 	    
 		initListData : function(itemsBroswer){

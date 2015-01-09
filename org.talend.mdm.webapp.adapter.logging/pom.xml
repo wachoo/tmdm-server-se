@@ -13,10 +13,6 @@
     <name>org.talend.mdm.webapp.adapter.logging</name>
     <packaging>war</packaging>
 
-    <properties>
-        <war>zz.20.webapp.adapter.logging</war>
-    </properties>
-
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>

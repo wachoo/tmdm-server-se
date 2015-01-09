@@ -171,19 +171,31 @@ public class Utils {
                     continue;
                 }
                 String gxtEntryModule = GxtFactory.getInstance().getGxtEntryModule(context, application);
-
-				String tmp = "<script type=\"text/javascript\" src=\"" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						+ gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
-				if ("browserecords".equals(context) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
-					imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
-					imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$//$NON-NLS-2$
-				}
-				if (!imports.contains(tmp)) {
-					imports.add(tmp);
-				}
-                    
+                if (gxtEntryModule == null) {
+                    //DWR Application
+                    String tmp = "<script type=\"text/javascript\" src=\"secure/js/" //$NON-NLS-1$
+                            + application + ".js\"></script>\n"; //$NON-NLS-1$
+                    if (!imports.contains(tmp)) {
+                        imports.add(tmp);
+                    }
+                    tmp = "<script type=\"text/javascript\" src=\"secure/dwr/interface/" //$NON-NLS-1$
+                            + application + "Interface.js\"></script>\n"; //$NON-NLS-1$
+                    if (!imports.contains(tmp)) {
+                        imports.add(tmp);
+                    }
+                } else {
+                    String tmp = "<script type=\"text/javascript\" src=\"" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ 
+                            + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
+                    if ("browserecords".equals(context) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$
+                        imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$
+                    }
+                    if (!imports.contains(tmp)) {
+                        imports.add(tmp);
+                    }
+                }
                 if (context.equals("stagingarea")) { //$NON-NLS-1$
-                    tmp = "<script type=\"text/javascript\" src=\"stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
+                    String tmp = "<script type=\"text/javascript\" src=\"stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
                     imports.add(tmp);
                 }
                 i++;

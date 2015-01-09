@@ -12,10 +12,6 @@
     <artifactId>org.talend.mdm.calljob.plugin</artifactId>
     <name>org.talend.mdm.calljob.plugin</name>
 
-    <properties>
-        <lib>zz.40.talend.transformer.plugins.ejb</lib>
-    </properties>
-
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
