@@ -35,8 +35,13 @@ public interface AssembleBuilder {
 	 * This method constructs and assembles a particular part of a Proc.
 	 */
 	public void buildInitJobox();
-
-	/**
+	
+	/** 
+     * This method constructs and assembles a particular part of a Proc.
+     */
+    public void buildInitDataModelPools();
+	
+	/** 
 	 * This method constructs and assembles a particular part of a Proc.
 	 */
 	public void buildStartSchedule();

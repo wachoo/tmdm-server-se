@@ -42,6 +42,10 @@ public class AssembleConcreteBuilder implements AssembleBuilder {
         assembleProc.add(new InitJoboxSubProc());
     }
 
+    public void buildInitDataModelPools() {
+        assembleProc.add(new InitDataModelPoolsSubProc());
+    }
+
     public void buildStartSchedule() {
         assembleProc.add(new StartScheduleSubProc());
     }

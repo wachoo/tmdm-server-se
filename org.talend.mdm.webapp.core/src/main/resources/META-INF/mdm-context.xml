@@ -5,5 +5,13 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 
     <!-- Data Model synchronization -->
     <bean id="dataModelSynchronizer" class="com.amalto.webapp.core.dmagent.DataModelSynchronizer" />
+    <bean id="dataModelChangeNotifier" class="com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier"
+    factory-method="createInstance">
+        <property name="listeners">
+            <list>
+                <ref bean="dataModelSynchronizer" />
+            </list>
+        </property>
+    </bean>
 
 </beans>
