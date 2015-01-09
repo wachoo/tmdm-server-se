@@ -243,23 +243,23 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>readExcelFile</servlet-name>
-        <url-pattern>/upload</url-pattern>
+        <url-pattern>/browserecords/upload</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>readExcelFile4Staging</servlet-name>
-        <url-pattern>/upload4Staging</url-pattern>
+        <url-pattern>/browserecords/upload4Staging</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>exportExcelFile</servlet-name>
-        <url-pattern>/download</url-pattern>
+        <url-pattern>/browserecords/download</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>exportExcelFile4Staging</servlet-name>
-        <url-pattern>/download4Staging</url-pattern>
+        <url-pattern>/browserecords/download4Staging</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SmartViewServlet</servlet-name>
-        <url-pattern>/secure/SmartViewServlet</url-pattern>
+        <url-pattern>/browserecords/SmartViewServlet</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.recyclebin -->
     <servlet>
@@ -285,7 +285,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>journalExportServlet</servlet-name>
-        <url-pattern>/journalExport</url-pattern>
+        <url-pattern>/journal/journalExport</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.stagingarea -->
     <servlet>
@@ -371,7 +371,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageDeleteServlet</servlet-name>
-        <url-pattern>/imageserver/secure/ImageDeleteServlet</url-pattern>
+        <url-pattern>/imageserver/ImageDeleteServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageScaleServlet</servlet-name>

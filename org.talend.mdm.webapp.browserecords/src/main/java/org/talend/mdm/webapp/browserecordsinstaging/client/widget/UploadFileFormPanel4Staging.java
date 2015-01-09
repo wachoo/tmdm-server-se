@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecordsinstaging.client.widget;
 import org.talend.mdm.webapp.browserecords.client.widget.UploadFileFormPanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.google.gwt.core.client.GWT;
 
 public class UploadFileFormPanel4Staging extends UploadFileFormPanel {
 
@@ -30,6 +31,6 @@ public class UploadFileFormPanel4Staging extends UploadFileFormPanel {
 
     @Override
     protected String getActionUrl() {
-        return "/browserecords/upload4Staging"; //$NON-NLS-1$
+        return GWT.getHostPageBaseURL() + "/browserecords/upload4Staging"; //$NON-NLS-1$
     }
 }

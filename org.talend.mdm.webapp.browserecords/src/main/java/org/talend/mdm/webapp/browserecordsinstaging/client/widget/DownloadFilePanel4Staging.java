@@ -17,6 +17,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.DownloadFilePanel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.widget.Window;
+import com.google.gwt.core.client.GWT;
 
 public class DownloadFilePanel4Staging extends DownloadFilePanel {
 
@@ -26,6 +27,6 @@ public class DownloadFilePanel4Staging extends DownloadFilePanel {
 
     @Override
     protected String getActionUrl() {
-        return "/browserecords/download4Staging"; //$NON-NLS-1$
+        return GWT.getHostPageBaseURL() + "/browserecords/download4Staging"; //$NON-NLS-1$
     }
 }

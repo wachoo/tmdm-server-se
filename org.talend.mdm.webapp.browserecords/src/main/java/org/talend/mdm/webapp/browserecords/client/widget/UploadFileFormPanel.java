@@ -44,6 +44,7 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.core.client.GWT;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -388,6 +389,6 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     protected String getActionUrl() {
-        return "/browserecords/upload"; //$NON-NLS-1$
+        return GWT.getHostPageBaseURL() + "/browserecords/upload"; //$NON-NLS-1$
     }
 }

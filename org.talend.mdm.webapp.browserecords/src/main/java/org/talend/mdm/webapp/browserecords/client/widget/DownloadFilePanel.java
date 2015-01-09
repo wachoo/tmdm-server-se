@@ -51,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.core.client.GWT;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -305,6 +306,6 @@ public class DownloadFilePanel extends FormPanel {
     }
 
     protected String getActionUrl() {
-        return "/browserecords/download"; //$NON-NLS-1$
+        return GWT.getHostPageBaseURL() + "/browserecords/download"; //$NON-NLS-1$
     }
 }

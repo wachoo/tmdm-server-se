@@ -50,6 +50,7 @@ import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyCodes;
 
 /**
@@ -273,7 +274,7 @@ public class JournalSearchPanel extends FormPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
-                PostDataUtil.postData("/journal/journalExport", getCriteriaMap()); //$NON-NLS-1$
+                PostDataUtil.postData(GWT.getHostPageBaseURL() + "journal/journalExport", getCriteriaMap()); //$NON-NLS-1$
             }
         });
         this.addButton(exportButton);

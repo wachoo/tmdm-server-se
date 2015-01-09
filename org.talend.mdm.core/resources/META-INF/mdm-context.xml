@@ -12,7 +12,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <bean class="com.amalto.core.server.lifecycle.tomcat.TomcatServerLifecycle" />
 
     <!-- Server initialization -->
-    <bean class="com.amalto.core.server.Initialization" depends-on="mdmConfiguration" />
+    <bean class="com.amalto.core.server.Initialization" depends-on="mdmConfiguration,dataModelChangeNotifier" />
 
     <!-- Security -->
     <bean class="com.amalto.core.server.security.SecurityConfig" />
