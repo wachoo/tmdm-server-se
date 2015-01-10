@@ -17,7 +17,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -527,20 +526,13 @@ public class CrossReferencingTransformerPluginBean extends Plugin {
 		//Retrieve the Item Controller
 		Item itemCtrl = Util.getItemCtrl2Local();
 		ArrayList<String> resList = null;
-        try {
-            resList = itemCtrl.xPathsSearch(
-                    new DataClusterPOJOPK(xrefcluster),
-                    null,
-                    new ArrayList<String>(Arrays.asList(new String[]{xrefOutPath})),
-                    wAnd,
-                    -1,    //spell
-                    0,        //start
-                    1,        //limit
-                    false
-            );
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+
+        resList = itemCtrl.xPathsSearch(new DataClusterPOJOPK(xrefcluster), null,
+                new ArrayList<String>(Arrays.asList(new String[] { xrefOutPath })), wAnd, -1, // spell
+                0, // start
+                1, // limit
+                false );
+        
 
         String val = "";
 
