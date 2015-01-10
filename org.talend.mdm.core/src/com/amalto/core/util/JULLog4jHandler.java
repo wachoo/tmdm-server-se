@@ -1,44 +1,76 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 package com.amalto.core.util;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-public class JULLog4jHandler extends Handler {
+import org.springframework.beans.factory.InitializingBean;
+
+public class JULLog4jHandler extends Handler implements InitializingBean {
 
     private static org.apache.log4j.Logger log4jLogger = org.apache.log4j.LogManager.getLogger(JULLog4jHandler.class);
 
-    /**
-     * Redirect java.util.logging to Log4J.
-     */
-    public static void JULToLog4j(Logger logger, int log4jLevel, boolean removeExistingHandlers) {
+    private boolean removeExistingHandlers = true;
+
+    private org.apache.log4j.Level rootlog4jLevel = null;
+
+    public JULLog4jHandler() {
+        super();
+        setFormatter(new SimpleFormatter());
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Logger rootLogger = LogManager.getLogManager().getLogger(""); //$NON-NLS-1$
+        int rootLog4jLevelToUse;
+        if (rootlog4jLevel == null) {
+            // if not specified by config, use same root level for JUL as the default root logger in Log4J
+            rootLog4jLevelToUse = org.apache.log4j.LogManager.getRootLogger().getLevel().toInt();
+        } else {
+            rootLog4jLevelToUse = rootlog4jLevel.toInt();
+        }
         if (removeExistingHandlers) {
             // remove all handlers
-            for (Handler handler : logger.getHandlers()) {
-                logger.removeHandler(handler);
+            for (Handler handler : rootLogger.getHandlers()) {
+                rootLogger.removeHandler(handler);
             }
         }
         // add our own
-        logger.addHandler(new JULLog4jHandler());
-        Level level = getJULLevelFromLog4jLevel(log4jLevel);
-        logger.setLevel(level);
-        String loggerName = logger.getParent() == null ? "root" : logger.getName(); //$NON-NLS-1$
-        log4jLogger.info("JUL " + loggerName + " logger set to " + level.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+        rootLogger.addHandler(this);
+        Level level = getJULLevelFromLog4jLevel(rootLog4jLevelToUse);
+        rootLogger.setLevel(level);
+        log4jLogger.info("JUL root logger set to " + level.getName()); //$NON-NLS-1$
     }
 
-    public static Level getJULLevelFromLog4jLevel(int log4jLevel) {
+    public boolean isRemoveExistingHandlers() {
+        return removeExistingHandlers;
+    }
+
+    public void setRemoveExistingHandlers(boolean removeExistingHandlers) {
+        this.removeExistingHandlers = removeExistingHandlers;
+    }
+
+    public void setRootLog4jLevel(String rootlog4jLevelStr) {
+        this.rootlog4jLevel = org.apache.log4j.Level.toLevel(rootlog4jLevelStr);
+    }
+
+    public String getRootLog4jLevel() {
+        return rootlog4jLevel == null ? null : rootlog4jLevel.toString();
+    }
+
+    private static Level getJULLevelFromLog4jLevel(int log4jLevel) {
         switch (log4jLevel) {
         case org.apache.log4j.Level.ALL_INT:
             return Level.ALL;
@@ -56,11 +88,6 @@ public class JULLog4jHandler extends Handler {
         default:
             return Level.OFF;
         }
-    }
-
-    public JULLog4jHandler() {
-        super();
-        setFormatter(new SimpleFormatter());
     }
 
     @Override

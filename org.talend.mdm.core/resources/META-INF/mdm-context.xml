@@ -6,8 +6,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
-    <context:annotation-config />
-
     <!-- Indicates a Tomcat environment -->
     <bean class="com.amalto.core.server.lifecycle.tomcat.TomcatServerLifecycle" />
 
@@ -15,12 +13,6 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <bean class="com.amalto.core.server.Initialization" depends-on="mdmConfiguration,dataModelChangeNotifier" />
 
     <!-- Security -->
-    <bean class="com.amalto.core.server.security.SecurityConfig" />
-
-    <security:authentication-manager>
-        <security:authentication-provider ref='jaasAuthenticationProvider' />
-    </security:authentication-manager>
-
     <bean id="jaasAuthenticationProvider" class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
         <property name="loginConfig" value="${mdm.root.url}/conf/jaas.conf" />
         <property name="loginContextName" value="MDM" />
@@ -35,6 +27,48 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
                 <bean class="com.amalto.core.server.security.jaas.DefaultAuthorityGranter" />
             </list>
         </property>
+    </bean>
+
+    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+        <property name="providers">
+            <list>
+                <ref bean="jaasAuthenticationProvider" />
+            </list>
+        </property>
+    </bean>
+
+    <security:http auto-config="false" pattern="/services/**" create-session="never" entry-point-ref="basicAuthenticationEntryPoint"
+        authentication-manager-ref="authenticationManager" use-expressions="true">
+        <security:intercept-url pattern="/services/**" requires-channel="any" access="isAuthenticated()" />
+        <security:custom-filter position="BASIC_AUTH_FILTER" ref="basicAuthenticationFilter" />
+    </security:http>
+
+    <security:http auto-config="false" pattern="/**" authentication-manager-ref="authenticationManager"
+        use-expressions="true">
+        <security:intercept-url pattern="/auth/**" access="permitAll" />
+        <security:intercept-url pattern="/**" access="isAuthenticated()" />
+        <security:form-login default-target-url="/ui" authentication-failure-url="/auth/login.jsp?auth=fail"
+            login-processing-url="/auth/j_security_check" login-page="/auth/login.jsp" />
+        <security:logout logout-url="/auth/logout" invalidate-session="true" />
+        <!-- Disable CSRF protection for now (see http://www.gwtproject.org/doc/latest/DevGuideSecurityRpcXsrf.html) -->
+        <!-- <security:csrf /> -->
+        <security:headers>
+            <!-- X-Frame-Options to SAMEORIGIN -->
+            <security:header ref="sameOriginframeOptionsWriter" />
+        </security:headers>
+    </security:http>
+
+    <bean id="sameOriginframeOptionsWriter" class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter">
+        <constructor-arg value="SAMEORIGIN" />
+    </bean>
+
+    <bean id="basicAuthenticationEntryPoint" class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+        <property name="realmName" value="Talend MDM Services Realm" />
+    </bean>
+
+    <bean id="basicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+        <property name="authenticationManager" ref="authenticationManager" />
+        <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint" />
     </bean>
 
     <!-- Plugins -->

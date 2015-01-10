@@ -7,12 +7,15 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
 http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
+    <!-- Redirect java.util.logging to Log4J -->
+    <bean class="com.amalto.core.util.JULLog4jHandler" />
+
+    <!-- MDM -->
     <import resource="classpath*:META-INF/mdm-context.xml" />
 
     <!-- CXF Services -->
     <import resource="classpath:META-INF/cxf/cxf.xml" />
 
-    <!-- CXF Services -->
     <jaxrs:server id="services" address="/rest">
         <jaxrs:serviceBeans>
             <!-- MDM Transaction service -->
@@ -26,7 +29,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
             <bean class="com.amalto.core.storage.services.DataStatistics" />
             <bean class="com.amalto.core.storage.services.EventStatistics" />
         </jaxrs:serviceBeans>
-                <jaxrs:providers>
+        <jaxrs:providers>
             <bean class="com.amalto.core.storage.task.staging.SerializableListWriter" />
         </jaxrs:providers>
     </jaxrs:server>

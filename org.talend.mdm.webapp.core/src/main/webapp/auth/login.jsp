@@ -7,7 +7,6 @@
     String contextPath = request.getContextPath();
     Locale locale = request.getLocale();
     String language=locale.getLanguage();
-    String error = request.getParameter("error");
     
     String _USERNAME_;
     String _PASSWORD_;
@@ -81,7 +80,7 @@
     <table width="100%" height="65%" cellpadding="0" cellspacing="1">
         <tr>
             <td valign="middle" align="center">
-                <form method="POST" action="" name="loginform">
+                <form method="POST" action="j_security_check" name="loginform">
                     <br>
                     <table width="300" height="150" cellpadding="0" cellspacing="0"
                         class="form">
