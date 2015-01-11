@@ -15,12 +15,13 @@ package com.amalto.core.webservice;
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import org.apache.commons.lang.NotImplementedException;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 import javax.jws.WebService;
 import java.rmi.RemoteException;
 
 @SuppressWarnings({ "deprecation", "unchecked" })
-@WebService(name="datamanager", serviceName="datamanager")
+@WebService(name = "TMDMService", serviceName = "TMDMService", portName = "TMDMPort", targetNamespace = ICoreConstants.TALEND_NAMESPACE)
 public class XtentisWSBean implements XtentisPort {
 
     public XtentisWSBean() {
