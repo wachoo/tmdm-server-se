@@ -11,8 +11,10 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <!-- Server initialization -->
     <bean class="com.amalto.core.server.Initialization" depends-on="mdmConfiguration,dataModelChangeNotifier" />
-
-    <!-- Security -->
+    
+    <!-- ======================== -->
+    <!--  Security configuration  -->
+    <!-- ======================== -->
     <bean id="jaasAuthenticationProvider" class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
         <property name="loginConfig" value="${mdm.root.url}/conf/jaas.conf" />
         <property name="loginContextName" value="MDM" />
@@ -43,14 +45,14 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <security:custom-filter position="BASIC_AUTH_FILTER" ref="basicAuthenticationFilter" />
     </security:http>
 
-    <security:http auto-config="false" pattern="/**" authentication-manager-ref="authenticationManager"
-        use-expressions="true">
+    <security:http auto-config="false" pattern="/**" entry-point-ref="formLoginAuthenticationEntryPoint"
+        authentication-manager-ref="authenticationManager" use-expressions="true">
         <security:intercept-url pattern="/auth/**" access="permitAll" />
         <security:intercept-url pattern="/ui" access="isAuthenticated() and hasRole('UIAuthenticated')" />
         <security:intercept-url pattern="/**" access="isAuthenticated()" />
-        <security:form-login default-target-url="/ui" authentication-failure-url="/auth/login.jsp?auth=fail"
-            login-processing-url="/auth/j_security_check" login-page="/auth/login.jsp" />
-        <security:logout logout-url="/auth/logout" invalidate-session="true" />
+        <security:custom-filter position="FORM_LOGIN_FILTER" ref="formLoginAuthenticationFilter" />
+        <security:custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencySessionFilter" />
+        <security:logout logout-url="/auth/logout" invalidate-session="true" delete-cookies="JSESSIONID" />
         <!-- Disable CSRF protection for now (see http://www.gwtproject.org/doc/latest/DevGuideSecurityRpcXsrf.html) -->
         <!-- <security:csrf /> -->
         <security:headers>
@@ -58,6 +60,8 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <security:header ref="sameOriginframeOptionsWriter" />
         </security:headers>
         <security:access-denied-handler error-page="/auth/login.jsp" />
+
+        <security:session-management session-authentication-strategy-ref="sessionAuthenticationStrategy" />
     </security:http>
 
     <bean id="sameOriginframeOptionsWriter" class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter">
@@ -73,6 +77,50 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint" />
     </bean>
 
+    <bean id="formLoginAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <property name="loginFormUrl" value="/auth/login.jsp" />
+    </bean>
+
+    <bean id="formLoginAuthenticationFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+        <property name="filterProcessesUrl" value="/auth/j_security_check" />
+        <property name="authenticationManager" ref="authenticationManager" />
+        <property name="authenticationFailureHandler" ref="formLoginFailureHandler" />
+        <property name="authenticationSuccessHandler" ref="formLoginSuccessHandler" />
+        <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy" />
+    </bean>
+
+    <bean id="formLoginSuccessHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+        <property name="defaultTargetUrl" value="/ui" />
+    </bean>
+
+    <bean id="formLoginFailureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+        <property name="defaultFailureUrl" value="/auth/login.jsp?auth=fail" />
+    </bean>
+
+    <bean id="concurrencySessionFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+        <property name="sessionRegistry" ref="sessionRegistry" />
+        <property name="expiredUrl" value="/auth/login.jsp" />
+    </bean>
+
+    <bean id="sessionAuthenticationStrategy" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+                    <constructor-arg ref="sessionRegistry" />
+                    <property name="maximumSessions" value="1" />
+                    <property name="exceptionIfMaximumExceeded" value="false" />
+                </bean>
+                <bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
+                </bean>
+                <bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+                    <constructor-arg ref="sessionRegistry" />
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+    
     <!-- Plugins -->
     <bean id="pluginFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
         <property name="serviceLocatorInterface" value="com.amalto.core.util.PluginFactory" />
@@ -81,5 +129,4 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <bean id="pluginRegistry" class="com.amalto.core.util.PluginRegistry" factory-method="createInstance">
         <property name="pluginFactory" ref="pluginFactory" />
     </bean>
-
 </beans>

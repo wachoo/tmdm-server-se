@@ -40,7 +40,9 @@
 %>
 <html>
 <head>
+<title>Talend MDM</title>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+<meta name="description" content="Talend MDM login page"/>
 <style>
     body { 
         background-color:#FFFFFF;
@@ -66,7 +68,7 @@
 <link rel="stylesheet" type="text/css" href="<%= contextPath %>/auth/loginPage.css"/>
 
 </head>
-<body>
+<body onload="document.loginform.j_username.focus();">
 <table width="100%" class="header1" border="0">
       <tr><td height="128" width="50%" class="logo"><img src="<%= contextPath %>/auth/logo.png"></td><td class="version" id="loginVersion"><%=version%></td></tr>
       <tr><td class="suiteName" id="suiteName" colspan="2" height="56">Talend MDM</td></tr>
