@@ -12,12 +12,17 @@
 // ============================================================================
 package talend.core.transformer.plugin.v2.tiscall.ejb;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.mock.env.MockEnvironment;
 
 import com.amalto.core.objects.Plugin;
 import com.amalto.core.util.PluginRegistry;
@@ -25,14 +30,37 @@ import com.amalto.core.util.PluginRegistry;
 @SuppressWarnings("nls")
 public class TISCallTransformerPluginBeanTest {
 
-    @Test
-    public void testGetPlugins() {
+    private static AbstractApplicationContext context;
+
+    @BeforeClass
+    public static void setup() {
         GenericXmlApplicationContext context = new GenericXmlApplicationContext();
         context.setResourceLoader(new PathMatchingResourcePatternResolver());
-        context.load("classpath*:mdm-context.xml");
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("mdm.root", "");
+        env.setProperty("mdm.root.url", "");
+        context.setEnvironment(env);
+        context.load("classpath:mdm-test-context.xml");
+        // FIXME Setting default-lazy-init on the top level beans element seems not applied to beans inside an imported
+        // resource
+        // Workaround: set all beans to be lazy-init programmatically
+        // See also https://gist.github.com/eeichinger/1979033 as an alternative
+        for (String beanName : context.getBeanDefinitionNames()) {
+            context.getBeanDefinition(beanName).setLazyInit(true);
+        }
         context.refresh();
+        TISCallTransformerPluginBeanTest.context = context;
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        context.destroy();
+    }
+
+    @Test
+    public void testGetPlugins() {
         PluginRegistry registry = (PluginRegistry) context.getBean("pluginRegistry");
-        Plugin plugin = registry.getPlugin("amalto/local/transformer/plugin/callJob");
+        Plugin plugin = registry.getPlugin(TISCallTransformerPluginBean.PLUGIN_NAME);
         assertNotNull(plugin);
         assert (plugin instanceof TISCallTransformerPluginBean);
         try {

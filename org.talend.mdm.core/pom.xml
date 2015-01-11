@@ -13,7 +13,6 @@
 
     <properties>
         <jackson.version>1.9.2</jackson.version>
-        <spring.version>4.1.4.RELEASE</spring.version>
         <spring.security.version>3.2.5.RELEASE</spring.security.version>
     </properties>
 

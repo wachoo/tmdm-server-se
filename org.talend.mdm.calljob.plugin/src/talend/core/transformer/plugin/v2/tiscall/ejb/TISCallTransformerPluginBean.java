@@ -65,7 +65,7 @@ import com.amalto.core.util.XtentisException;
  * 
  * 
  */
-@Service("amalto/local/transformer/plugin/callJob")
+@Service(TISCallTransformerPluginBean.PLUGIN_NAME)
 public class TISCallTransformerPluginBean extends Plugin {
 
     private static final String CONTENT_TYPE = "com.amalto.core.plugin.TISCall.content.type";
@@ -86,7 +86,7 @@ public class TISCallTransformerPluginBean extends Plugin {
 
     private static final Logger LOGGER = Logger.getLogger(TISCallTransformerPluginBean.class);
 
-    private static final String JNDI_NAME = "amalto/local/transformer/plugin/callJob";
+    public static final String PLUGIN_NAME = "amalto/local/transformer/plugin/callJob";
 
     private transient boolean configurationLoaded = false;
 
@@ -99,7 +99,7 @@ public class TISCallTransformerPluginBean extends Plugin {
      */
     @Override
     public String getJNDIName() throws XtentisException {
-        return JNDI_NAME;
+        return PLUGIN_NAME;
     }
 
     /**
@@ -282,8 +282,8 @@ public class TISCallTransformerPluginBean extends Plugin {
 
             if (invokeConfig != null) { // Local test job invocation
 
-                argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER,
-                        new String(context.getFromPipeline(Transformer.DEFAULT_VARIABLE).getContentBytes(), charset));
+                argsMap.put(MDMJobInvoker.EXCHANGE_XML_PARAMETER, new String(context
+                        .getFromPipeline(Transformer.DEFAULT_VARIABLE).getContentBytes(), charset));
                 String[][] result = JobContainer.getUniqueInstance()
                         .getJobInvoker(invokeConfig.getJobName(), invokeConfig.getJobVersion()).call(argsMap);
                 for (String[] currentResult : result) {
