@@ -80,7 +80,7 @@
     <table width="100%" height="65%" cellpadding="0" cellspacing="1">
         <tr>
             <td valign="middle" align="center">
-                <form method="POST" action="j_security_check" name="loginform">
+                <form method="POST" action="<%= contextPath %>/auth/j_security_check" name="loginform">
                     <br>
                     <table width="300" height="150" cellpadding="0" cellspacing="0"
                         class="form">

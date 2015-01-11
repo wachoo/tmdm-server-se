@@ -11,6 +11,8 @@
 package com.amalto.core.server.security;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -21,6 +23,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 public class SecurityConfig {
 
@@ -28,11 +31,20 @@ public class SecurityConfig {
 
     private static final String PRIVATE_INTERNAL_USER = "MDMInternalUser"; //$NON-NLS-1$
 
-    public static final String AUTHENTICATED_ROLE = "authenticated"; //$NON-NLS-1$
+    private static Set<String> SECURITY_PERMISSIONS;
 
-    public static final String ADMINISTRATION_ROLE = "administration"; //$NON-NLS-1$
+    static {
+        SECURITY_PERMISSIONS = new TreeSet<String>();
+        SECURITY_PERMISSIONS.add(ICoreConstants.ADMIN_PERMISSION);
+        SECURITY_PERMISSIONS.add(ICoreConstants.AUTHENTICATED_PERMISSION);
+        SECURITY_PERMISSIONS.add(ICoreConstants.UI_AUTHENTICATED_PERMISSION);
+    }
 
     private SecurityConfig() {
+    }
+
+    public static boolean isSecurityPermission(String role) {
+        return SECURITY_PERMISSIONS.contains(role);
     }
 
     public static void invokeSynchronousPrivateInternal(Runnable runnable) {
@@ -43,7 +55,8 @@ public class SecurityConfig {
             runnable.run();
         } else {
             context = SecurityContextHolder.createEmptyContext();
-            List<GrantedAuthority> roles = AuthorityUtils.createAuthorityList(ADMINISTRATION_ROLE, AUTHENTICATED_ROLE);
+            List<GrantedAuthority> roles = AuthorityUtils.createAuthorityList(ICoreConstants.ADMIN_PERMISSION,
+                    ICoreConstants.AUTHENTICATED_PERMISSION);
             authentication = new UsernamePasswordAuthenticationToken(PRIVATE_INTERNAL_USER, "", roles); //$NON-NLS-1$
             context.setAuthentication(authentication);
             SyncTaskExecutor delegateExecutor = new SyncTaskExecutor();

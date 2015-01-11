@@ -24,6 +24,7 @@ import com.amalto.core.util.RoleSpecification;
 import com.amalto.core.util.XtentisException;
 import org.apache.log4j.Logger;
 import com.amalto.core.server.api.CustomForm;
+import com.amalto.core.server.security.SecurityConfig;
 
 import java.util.*;
 
@@ -87,7 +88,7 @@ public class DefaultCustomForm implements CustomForm {
             ILocalUser user = LocalUser.getLocalUser();
             HashSet<String> roleNames = user.getRoles();
             for (String roleName : roleNames) {
-                if ("administration".equals(roleName) || "authenticated".equals(roleName)) { //$NON-NLS-1$ //$NON-NLS-2$
+                if (SecurityConfig.isSecurityPermission(roleName)) {
                     continue;
                 }
                 //load Role

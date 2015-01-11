@@ -629,8 +629,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     /**
-     * @ejb.interface-method view-type = "service-endpoint"
-     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
+     * 
      */
     public WSStringArray quickSearch(WSQuickSearch wsQuickSearch) throws RemoteException {
         try {
@@ -880,8 +879,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     /**
      * @param wsPutItemWithCustomReport Information about a put item with report that includes a special user name.
-     * @ejb.interface-method view-type = "service-endpoint"
-     * @ejb.permission role-name = "authenticated" view-type = "service-endpoint"
      * @return The PK of the newly created record.
      * @throws java.rmi.RemoteException In case of server exception.
      */

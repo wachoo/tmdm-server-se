@@ -26,6 +26,7 @@ import javax.security.auth.spi.LoginModule;
 
 import org.apache.log4j.Logger;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.server.security.MDMPrincipal;
@@ -149,12 +150,14 @@ public abstract class AbstractLoginModule implements LoginModule {
         try {
             if (isAdminUser()) {
                 principal = new MDMPrincipal(username);
-                principal.addRole(SecurityConfig.ADMINISTRATION_ROLE);
+                principal.addRole(ICoreConstants.ADMIN_PERMISSION);
             } else {
                 principal = doCommit();
+                // Any other user has access to the UI
+                principal.addRole(ICoreConstants.UI_AUTHENTICATED_PERMISSION);
             }
-            // Add authenticated role
-            principal.addRole(SecurityConfig.AUTHENTICATED_ROLE);
+            // Add authenticated role for all users
+            principal.addRole(ICoreConstants.AUTHENTICATED_PERMISSION);
             Set<Principal> principals = subject.getPrincipals();
             if (!principals.contains(principal)) {
                 subject.getPrincipals().add(principal);

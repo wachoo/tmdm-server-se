@@ -46,6 +46,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <security:http auto-config="false" pattern="/**" authentication-manager-ref="authenticationManager"
         use-expressions="true">
         <security:intercept-url pattern="/auth/**" access="permitAll" />
+        <security:intercept-url pattern="/ui" access="isAuthenticated() and hasRole('UIAuthenticated')" />
         <security:intercept-url pattern="/**" access="isAuthenticated()" />
         <security:form-login default-target-url="/ui" authentication-failure-url="/auth/login.jsp?auth=fail"
             login-processing-url="/auth/j_security_check" login-page="/auth/login.jsp" />
@@ -56,6 +57,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
             <!-- X-Frame-Options to SAMEORIGIN -->
             <security:header ref="sameOriginframeOptionsWriter" />
         </security:headers>
+        <security:access-denied-handler error-page="/auth/login.jsp" />
     </security:http>
 
     <bean id="sameOriginframeOptionsWriter" class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter">

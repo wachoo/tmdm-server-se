@@ -3,6 +3,7 @@ package com.amalto.webapp.core.util;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import com.amalto.core.server.security.SecurityConfig;
 import com.amalto.core.util.LocalUser;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.CommonUtil;
@@ -167,7 +168,7 @@ public class Menu {
             // not admin
             for (String role : LocalUser.getLocalUser().getRoles()) {
                 LOGGER.debug("getMenuIndex() ROLE " + role);
-                if (!("authenticated".equals(role) || "administration".equals(role) || "disabled".equals(role))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                if (!SecurityConfig.isSecurityPermission(role)) {
                     WSRole wsRole = Util.getPort().getRole(new WSGetRole(new WSRolePK(role)));
                     LOGGER.debug("getMenuIndex() WSROLE " + wsRole.getName());
                     WSRoleSpecification[] specifications = wsRole.getSpecification();

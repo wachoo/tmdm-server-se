@@ -16,6 +16,7 @@ import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.server.security.SecurityConfig;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -59,7 +60,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             String objectType = "View"; //$NON-NLS-1$
             ArrayList<IWhereItem> roleWhereConditions = new ArrayList<IWhereItem>();
             for (String roleName : roleNames) {
-                if ("administration".equals(roleName) || "authenticated".equals(roleName)) { //$NON-NLS-1$ //$NON-NLS-2$
+                if (SecurityConfig.isSecurityPermission(roleName)) {
                     continue;
                 }
                 // load Role
