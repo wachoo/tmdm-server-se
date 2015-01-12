@@ -11,6 +11,7 @@
 package com.amalto.core.server;
 
 import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.storage.SQLWrapper;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.util.XtentisException;
@@ -19,7 +20,6 @@ import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -29,14 +29,7 @@ import java.util.List;
 
 public class DefaultXmlServer implements XmlServer {
 
-    private static String             SERVER_CLASS;
-
-    static {
-        SERVER_CLASS = MDMConfiguration.getConfiguration().getProperty("xmlserver.class"); //$NON-NLS-1$
-        if ((SERVER_CLASS == null) || SERVER_CLASS.length() == 0) {
-            SERVER_CLASS = "com.amalto.xmldb.XmldbSLWrapper"; //$NON-NLS-1$
-        }
-    }
+    private static String             SERVER_CLASS = SQLWrapper.class.getName();
 
     private final IXmlServerSLWrapper server;
 

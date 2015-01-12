@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd">
+    <!-- Import standard MDM components -->
+    <import resource="classpath*:META-INF/mdm-context.xml" />
+    <!-- Routing engine -->
+    <context:component-scan base-package="com.amalto.core.server.routing"/>
+    <bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL">
+                    <value>vm://localhost</value>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="routingEngineJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory">
+            <ref bean="jmsFactory"/>
+        </property>
+    </bean>
+    <bean id="defaultRoutingEngine" class="com.amalto.core.server.routing.DefaultRoutingEngine"/>
+    <bean id="defaultRoutingRule" class="com.amalto.core.server.routing.MockRoutingRule"/>
+    <bean id="defaultItem" class="com.amalto.core.server.routing.MockItem"/>
+    <jms:listener-container concurrency="5-10" connection-factory="jmsFactory" destination-type="queue">
+        <jms:listener destination="org.talend.mdm.server.routing.events" ref="defaultRoutingEngine" method="consume"/>
+    </jms:listener-container>
+</beans>

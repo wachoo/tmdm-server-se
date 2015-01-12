@@ -100,7 +100,6 @@ public class DefaultRoutingRule implements RoutingRule {
         }
     }
 
-
     /**
      * Retrieve all RoutingRule PKs
      */

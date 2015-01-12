@@ -46,11 +46,11 @@ import java.util.regex.Pattern;
 @Component
 public class DefaultRoutingEngine implements RoutingEngine {
 
-    public static final String    DESTINATION = "org.talend.mdm.server.routing";             //$NON-NLS-1
+    public static final String    EVENTS_DESTINATION = "org.talend.mdm.server.routing.events";      //$NON-NLS-1
 
-    private static final Logger   LOGGER      = Logger.getLogger(DefaultRoutingEngine.class);
+    private static final Logger   LOGGER             = Logger.getLogger(DefaultRoutingEngine.class);
 
-    private final Interpreter     ntp         = new Interpreter();
+    private final Interpreter     ntp                = new Interpreter();
 
     @Autowired
     Item                          item;
@@ -89,9 +89,6 @@ public class DefaultRoutingEngine implements RoutingEngine {
     private static boolean ruleExpressionMatches(ItemPOJO itemPOJO, RoutingRuleExpressionPOJO exp) throws XtentisException {
         Integer contentInt, expInt;
         String expXpath = exp.getXpath();
-        if (!expXpath.startsWith("/")) { //$NON-NLS-1$
-            expXpath = "/" + expXpath; //$NON-NLS-1$
-        }
         try {
             String[] contents = Util.getTextNodes(itemPOJO.getProjection(), expXpath);
             if (contents.length == 0 && exp.getOperator() == RoutingRuleExpressionPOJO.IS_NULL) {
@@ -178,16 +175,22 @@ public class DefaultRoutingEngine implements RoutingEngine {
     public RoutingRulePOJOPK[] route(final ItemPOJOPK itemPOJOPK) throws XtentisException {
         // The cached ItemPOJO - will only be retrieved if needed: we have expressions on the routing rules
         String type = itemPOJOPK.getConceptName();
-        ItemPOJO itemPOJO = null;
+        // Get the item
+        ItemPOJO itemPOJO = item.getItem(itemPOJOPK);
+        if (itemPOJO == null) { // Item does not exist, no rule can apply.
+            return new RoutingRulePOJOPK[0];
+        }
         // Rules that matched
         ArrayList<RoutingRulePOJO> routingRulesThatMatched = new ArrayList<RoutingRulePOJO>();
         ArrayList<RoutingRulePOJOPK> matchedRoutingRulesPks = new ArrayList<RoutingRulePOJOPK>();
         // loop over the known rules
-        Collection<RoutingRulePOJOPK> routingRulePOJOPKs = routingRules.getRoutingRulePKs("*"); //$NON-NLS-1$
+        Collection<RoutingRulePOJOPK> routingRulePOJOPKs = routingRules.getRoutingRulePKs(".*"); //$NON-NLS-1$
         for (RoutingRulePOJOPK routingRulePOJOPK : routingRulePOJOPKs) {
             RoutingRulePOJO routingRule = routingRules.getRoutingRule(routingRulePOJOPK);
             if (routingRule.isDeActive()) {
-                LOGGER.info(routingRule.getName() + " disabled, skip it!");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(routingRule.getName() + " disabled, skip it!");
+                }
                 continue;
             }
             // check if type matches the routing rule
@@ -203,13 +206,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
                 Collection<RoutingRuleExpressionPOJO> routingExpressions = routingRule.getRoutingExpressions();
                 if (routingExpressions != null) {
                     for (RoutingRuleExpressionPOJO routingExpression : routingExpressions) {
-                        // retrieve the itemPOJO if not already done
-                        if (itemPOJO == null) {
-                            itemPOJO = item.getItem(itemPOJOPK);
-                        }
-                        // Match the rule
                         if (!ruleExpressionMatches(itemPOJO, routingExpression)) {
-                            matches = false;
+                            matches = false; // Rule doesn't match: expect a full match to consider routing rule.
                             break;
                         }
                     }
@@ -227,9 +225,6 @@ public class DefaultRoutingEngine implements RoutingEngine {
                             Pattern p1 = Pattern.compile(pojo.getName(), Pattern.CASE_INSENSITIVE);
                             Matcher m1 = p1.matcher(condition);
                             while (m1.find()) {
-                                if (itemPOJO == null) {
-                                    itemPOJO = item.getItem(itemPOJOPK);
-                                }
                                 ntp.set(m1.group(), ruleExpressionMatches(itemPOJO, pojo));
                             }
                         }
@@ -239,9 +234,10 @@ public class DefaultRoutingEngine implements RoutingEngine {
                     boolean result = (Boolean) ntp.get("routingRuleResult"); //$NON-NLS-1$
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(condition + " : " + result);
-                    }
-                    if (result) {
-                        LOGGER.info("Trigger \"" + (routingRule.getName() == null ? "" : routingRule.getName()) + "\" matched! ");
+                        if (result) {
+                            LOGGER.debug("Trigger \"" + (routingRule.getName() == null ? "" : routingRule.getName())
+                                    + "\" matched! ");
+                        }
                     }
                     if (!result) {
                         continue;
@@ -262,7 +258,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
         }
         Collections.sort(routingRulesThatMatched);
         for (final RoutingRulePOJO routingRule : routingRulesThatMatched) {
-            jmsTemplate.send(DESTINATION, new MessageCreator() {
+            jmsTemplate.send(EVENTS_DESTINATION, new MessageCreator() {
 
                 @Override
                 public Message createMessage(Session session) throws JMSException {
@@ -294,30 +290,18 @@ public class DefaultRoutingEngine implements RoutingEngine {
             String type = message.getStringProperty("type");
             String parameters = message.getStringProperty("parameters");
             String pk = message.getStringProperty("pk");
-            System.out.println("rule = " + rule);
-            System.out.println("container = " + container);
-            System.out.println("type = " + type);
-            System.out.println("pk = " + pk);
-            System.out.println("parameters = " + parameters);
-
             final RoutingRulePOJO routingRule = routingRules.getRoutingRule(new RoutingRulePOJOPK(rule));
-            // Re-send the message, apparently rule is not (yet) deployed onto this instance
+            // Apparently rule is not (yet) deployed onto this system's DB instance, but... that 's rather unexpected
+            // since all nodes in cluster are supposed to share same system DB.
             if (routingRule == null) {
-                jmsTemplate.send(DESTINATION, new MessageCreator() {
-
-                    @Override
-                    public Message createMessage(Session session) throws JMSException {
-                        return message;
-                    }
-                });
-                return;
+                throw new RuntimeException("Routing rule '" + rule + "' can not be found.");
             }
             // Proceed with rule execution
             ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, new String[0]);
             try {
                 Service service = (Service) Util.retrieveComponent(routingRule.getServiceJNDI());
                 service.receiveFromInbound(itemPOJOPK, message.getJMSMessageID(), parameters);
-                jmsTemplate.send(DESTINATION + ".completed", new MessageCreator() {
+                jmsTemplate.send(EVENTS_DESTINATION + ".completed", new MessageCreator() {
 
                     @Override
                     public Message createMessage(Session session) throws JMSException {
@@ -329,7 +313,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
             } catch (Exception e) {
                 final String err = "Unable to execute the Routing Order '" + message.getJMSMessageID() + "'." + " The service: '"
                         + routingRule.getServiceJNDI() + "' failed to execute. " + e.getMessage();
-                jmsTemplate.send(DESTINATION + ".failed", new MessageCreator() {
+                jmsTemplate.send(EVENTS_DESTINATION + ".failed", new MessageCreator() {
 
                     @Override
                     public Message createMessage(Session session) throws JMSException {

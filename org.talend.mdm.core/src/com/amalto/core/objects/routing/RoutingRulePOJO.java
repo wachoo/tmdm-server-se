@@ -1,6 +1,7 @@
 package com.amalto.core.objects.routing;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
@@ -16,7 +17,7 @@ public class RoutingRulePOJO extends ObjectPOJO implements Comparable<RoutingRul
 
     private String description;
 
-    private ArrayList<RoutingRuleExpressionPOJO> routingExpressions = new ArrayList<RoutingRuleExpressionPOJO>();
+    private List<RoutingRuleExpressionPOJO> routingExpressions = new ArrayList<RoutingRuleExpressionPOJO>();
 
     private boolean synchronous = false;
 
@@ -105,11 +106,11 @@ public class RoutingRulePOJO extends ObjectPOJO implements Comparable<RoutingRul
         this.parameters = parameters;
     }
 
-    public ArrayList<RoutingRuleExpressionPOJO> getRoutingExpressions() {
+    public List<RoutingRuleExpressionPOJO> getRoutingExpressions() {
         return routingExpressions;
     }
 
-    public void setRoutingExpressions(ArrayList<RoutingRuleExpressionPOJO> routingExpressions) {
+    public void setRoutingExpressions(List<RoutingRuleExpressionPOJO> routingExpressions) {
         this.routingExpressions = routingExpressions;
     }
 
