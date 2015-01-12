@@ -25,7 +25,8 @@ public interface TransactionManager {
     void init();
 
     /**
-     * Clean up all resources and rollbacks any pending transactions.
+     * Clean up all resources and rollbacks any pending transactions. Implementations should provide all necessary code
+     * to allow this method to <b>always</b> complete (no matter what exception occurred during close).
      */
     void close();
 

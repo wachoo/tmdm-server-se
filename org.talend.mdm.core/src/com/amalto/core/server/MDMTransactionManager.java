@@ -137,7 +137,14 @@ public class MDMTransactionManager implements TransactionManager {
         synchronized (activeTransactions) {
             Collection<Transaction> values = new ArrayList<Transaction>(activeTransactions.values());
             for (Transaction transaction : values) {
-                transaction.rollback();
+                try {
+                    transaction.rollback();
+                } catch (Throwable t) {
+                    LOGGER.error("Unable to rollback active transaction #" + transaction.getId());
+                    if(LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Unable to rollback transaction due to exception.", t);
+                    }
+                }
             }
         }
     }
