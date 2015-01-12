@@ -12,25 +12,18 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <!-- Server initialization -->
     <bean class="com.amalto.core.server.Initialization" depends-on="mdmConfiguration,dataModelChangeNotifier" />
     
+    <!-- Plugins -->
+    <bean id="pluginFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
+        <property name="serviceLocatorInterface" value="com.amalto.core.util.PluginFactory" />
+    </bean>
+
+    <bean id="pluginRegistry" class="com.amalto.core.util.PluginRegistry" factory-method="createInstance">
+        <property name="pluginFactory" ref="pluginFactory" />
+    </bean>
+    
     <!-- ======================== -->
     <!--  Security configuration  -->
     <!-- ======================== -->
-    <bean id="jaasAuthenticationProvider" class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
-        <property name="loginConfig" value="${mdm.root.url}/conf/jaas.conf" />
-        <property name="loginContextName" value="MDM" />
-        <property name="callbackHandlers">
-            <list>
-                <bean class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler" />
-                <bean class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler" />
-            </list>
-        </property>
-        <property name="authorityGranters">
-            <list>
-                <bean class="com.amalto.core.server.security.jaas.DefaultAuthorityGranter" />
-            </list>
-        </property>
-    </bean>
-
     <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
         <property name="providers">
             <list>
@@ -41,15 +34,15 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <security:http auto-config="false" pattern="/services/**" create-session="never" entry-point-ref="basicAuthenticationEntryPoint"
         authentication-manager-ref="authenticationManager" use-expressions="true">
-        <security:intercept-url pattern="/services/**" requires-channel="any" access="isAuthenticated()" />
+        <security:intercept-url pattern="/services/**" requires-channel="any" access="hasRole('authenticated')" />
         <security:custom-filter position="BASIC_AUTH_FILTER" ref="basicAuthenticationFilter" />
     </security:http>
 
     <security:http auto-config="false" pattern="/**" entry-point-ref="formLoginAuthenticationEntryPoint"
         authentication-manager-ref="authenticationManager" use-expressions="true">
         <security:intercept-url pattern="/auth/**" access="permitAll" />
-        <security:intercept-url pattern="/ui" access="isAuthenticated() and hasRole('UIAuthenticated')" />
-        <security:intercept-url pattern="/**" access="isAuthenticated()" />
+        <security:intercept-url pattern="/ui" access="hasRole('authenticated') and hasRole('UIAuthenticated')" />
+        <security:intercept-url pattern="/**" access="hasRole('authenticated')" />
         <security:custom-filter position="FORM_LOGIN_FILTER" ref="formLoginAuthenticationFilter" />
         <security:custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencySessionFilter" />
         <security:logout logout-url="/auth/logout" invalidate-session="true" delete-cookies="JSESSIONID" />
@@ -121,12 +114,4 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
 
     <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
     
-    <!-- Plugins -->
-    <bean id="pluginFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
-        <property name="serviceLocatorInterface" value="com.amalto.core.util.PluginFactory" />
-    </bean>
-
-    <bean id="pluginRegistry" class="com.amalto.core.util.PluginRegistry" factory-method="createInstance">
-        <property name="pluginFactory" ref="pluginFactory" />
-    </bean>
 </beans>

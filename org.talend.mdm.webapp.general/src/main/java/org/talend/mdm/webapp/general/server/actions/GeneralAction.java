@@ -224,8 +224,6 @@ public class GeneralAction implements GeneralService {
     @Override
     public void logout() throws ServiceException {
         try {
-            String username = LocalUser.getLocalUser().getUsername();
-            SessionListener.unregisterUser(username);
             Util.getPort().logout(new WSLogout("")).getValue(); //$NON-NLS-1$
             GwtWebContextFactory.get().getSession().invalidate();
         } catch (Exception e) {

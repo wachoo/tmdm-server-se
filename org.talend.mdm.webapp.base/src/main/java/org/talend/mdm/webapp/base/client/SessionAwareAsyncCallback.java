@@ -64,9 +64,6 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
             }
         }
 
-        // TODO Remove that call
-        errorMsg = caught.toString(); // for debugging purpose
-
         errorMsg = Format.htmlEncode(errorMsg);
         MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
     }

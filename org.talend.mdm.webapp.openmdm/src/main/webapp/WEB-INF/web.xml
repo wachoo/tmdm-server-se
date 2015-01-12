@@ -37,7 +37,10 @@
     </listener>
     <listener>
         <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
-    </listener> 
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
 
     <!-- Additional MDM filters -->
     <filter>
@@ -162,9 +165,6 @@
         <url-pattern>/logviewer/match</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.core -->
-    <listener>
-        <listener-class>com.amalto.webapp.core.util.SessionListener</listener-class>
-    </listener>
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
@@ -393,5 +393,10 @@
         <servlet-name>RestletServlet</servlet-name>
         <url-pattern>/pubcomponent/*</url-pattern>
     </servlet-mapping>
+       
+    <session-config>
+        <session-timeout>30</session-timeout>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
 </web-app>
 

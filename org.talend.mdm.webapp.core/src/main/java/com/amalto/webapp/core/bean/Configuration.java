@@ -26,7 +26,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.webapp.core.dwr.CommonDWR;
-import com.amalto.webapp.core.util.SessionListener;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.core.webservice.WSBoolean;
 import com.amalto.core.webservice.WSDataClusterPK;
@@ -104,20 +103,7 @@ public class Configuration {
 
     public static Configuration getInstance(ConfigurationContext configurationContext) throws Exception {
         Configuration instance;
-
-        HttpSession session = configurationContext.getSession();
-        if (session == null) {
-            instance = null;
-        } else {
-            instance = SessionListener.getRegisteredConfiguration(session.getId());
-        }
-        if (instance == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Configuration instance is null, loading ..."); //$NON-NLS-1$
-            }
-            instance = load(session);
-        }
-
+        instance = load(null);
         return instance;
     }
 
@@ -130,11 +116,6 @@ public class Configuration {
         }
 
         store(cluster, model);
-
-        HttpSession session = configurationContext.getSession();
-        if (session != null) {
-            SessionListener.registerConfiguration(session.getId(), new Configuration(cluster, model));
-        }
     }
 
     public static Configuration getInstance(boolean forceReload) throws Exception {
@@ -212,9 +193,6 @@ public class Configuration {
 
     private static Configuration load(HttpSession session) throws Exception {
         Configuration configuration = loadConfigurationFromDB();
-        if (session != null) {
-            SessionListener.registerConfiguration(session.getId(), configuration);
-        }
         if (LOG.isDebugEnabled()) {
             LOG.debug("MDM set up with " + configuration.getCluster() + " and " + configuration.getModel()); //$NON-NLS-1$ //$NON-NLS-2$
         }

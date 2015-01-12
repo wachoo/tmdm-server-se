@@ -36,4 +36,21 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
     <!-- Legacy services -->
     <jaxws:endpoint implementor="com.amalto.core.webservice.XtentisWSBean" address="/soap" />
+
+    <!-- JAAS -->
+    <bean id="jaasAuthenticationProvider" class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
+        <property name="loginConfig" value="${mdm.root.url}/conf/jaas.conf" />
+        <property name="loginContextName" value="MDM" />
+        <property name="callbackHandlers">
+            <list>
+                <bean class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler" />
+                <bean class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler" />
+            </list>
+        </property>
+        <property name="authorityGranters">
+            <list>
+                <bean class="com.amalto.core.server.security.jaas.DefaultAuthorityGranter" />
+            </list>
+        </property>
+    </bean>
 </beans>
