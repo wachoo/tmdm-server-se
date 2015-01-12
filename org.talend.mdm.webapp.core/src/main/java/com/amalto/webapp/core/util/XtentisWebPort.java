@@ -339,11 +339,6 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
-        return delegate.updateItemMetadata(wsUpdateMetadataItem);
-    }
-
-    @Override
     public WSItemPK partialPutItem(WSPartialPutItem wsPartialPutItem) throws RemoteException {
         return delegate.partialPutItem(wsPartialPutItem);
     }

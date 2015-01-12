@@ -720,8 +720,4 @@ public class XtentisWSBean implements XtentisPort {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsRole(wsExistsRole);
     }
 
-    @Override
-    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().updateItemMetadata(wsUpdateMetadataItem);
-    }
 }

@@ -28,13 +28,6 @@ public interface Item {
     public ItemPOJOPK putItem(ItemPOJO item, DataModelPOJO datamodel) throws com.amalto.core.util.XtentisException;
 
     /**
-     * updates a item taskId
-     *
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public ItemPOJOPK updateItemMetadata(ItemPOJO item) throws com.amalto.core.util.XtentisException;
-
-    /**
      * Get item
      *
      * @throws com.amalto.core.util.XtentisException

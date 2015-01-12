@@ -102,8 +102,6 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException;
 
-    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException;
-
     public WSItemPK partialPutItem(WSPartialPutItem wsPartialPutItem) throws RemoteException;
 
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException;

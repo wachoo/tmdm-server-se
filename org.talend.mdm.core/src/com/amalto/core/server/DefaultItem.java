@@ -72,17 +72,6 @@ public class DefaultItem implements Item {
     }
 
     /**
-     * updates a item taskId. Is equivalent to {@link #putItem(com.amalto.core.objects.ItemPOJO, com.amalto.core.objects.datamodel.DataModelPOJO)}.
-     *
-     * @param item The item to update
-     * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
-     * @return A PK to the updated item.
-     */
-    public ItemPOJOPK updateItemMetadata(ItemPOJO item) throws XtentisException {
-        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().putItem(item, null, null);
-    }
-
-    /**
      * Get item
      *
      * @param pk The item PK.
