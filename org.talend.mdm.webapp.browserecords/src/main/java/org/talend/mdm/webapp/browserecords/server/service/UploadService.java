@@ -71,10 +71,6 @@ public class UploadService {
 
     private final String File_CSV_SEPARATOR_SEMICOLON = "semicolon"; //$NON-NLS-1$
 
-    private String clusterName = null;
-
-    private String dataModelName = null;
-
     private String fileType = null;
 
     private boolean headersOnFirstLine = false;
@@ -105,7 +101,7 @@ public class UploadService {
 
     public UploadService(EntityModel entityModel, String fileType, boolean headersOnFirstLine,
             Map<String, Boolean> headerVisibleMap, List<String> inheritanceNodePathList, String multipleValueSeparator,
-            String seperator, String encoding, char textDelimiter, String clusterName, String dataModelName, String language) {
+            String seperator, String encoding, char textDelimiter, String language) {
         this.entityModel = entityModel;
         this.fileType = fileType;
         this.headersOnFirstLine = headersOnFirstLine;
@@ -115,8 +111,6 @@ public class UploadService {
         this.seperator = seperator;
         this.encoding = encoding;
         this.textDelimiter = textDelimiter;
-        this.clusterName = clusterName;
-        this.dataModelName = dataModelName;
         this.language = language;
     }
 
@@ -270,8 +264,8 @@ public class UploadService {
     }
 
     protected WSPutItemWithReport buildWSPutItemWithReport(Document document) throws Exception {
-        return new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(clusterName), document.asXML(), new WSDataModelPK(
-                dataModelName), false), "genericUI", true); //$NON-NLS-1$
+        return new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(getCurrentDataCluster()), document.asXML(),
+                new WSDataModelPK(getCurrentDataModel()), false), "genericUI", true); //$NON-NLS-1$
     }
 
     /*
@@ -462,5 +456,13 @@ public class UploadService {
         if (!value.equals(currentElement.attributeValue(xsiTypeQName))) {
             currentElement.setAttributeValue(xsiTypeQName, value);
         }
+    }
+
+    protected String getCurrentDataCluster() throws Exception {
+        return org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataCluster(false);
+    }
+
+    protected String getCurrentDataModel() throws Exception {
+        return org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataModel();
     }
 }

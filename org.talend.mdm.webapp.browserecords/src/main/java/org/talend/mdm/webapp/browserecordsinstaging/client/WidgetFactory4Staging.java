@@ -25,14 +25,13 @@ import com.extjs.gxt.ui.client.widget.Window;
 public class WidgetFactory4Staging extends WidgetFactory {
 
     @Override
-    public UploadFileFormPanel createUploadFileFormPanel(String dataCluster, ViewBean viewBean, Window window) {
-        return new UploadFileFormPanel4Staging(dataCluster, viewBean, window);
+    public UploadFileFormPanel createUploadFileFormPanel(ViewBean viewBean, Window window) {
+        return new UploadFileFormPanel4Staging(viewBean, window);
     }
 
     @Override
-    public DownloadFilePanel createDownloadFilePanel(ViewBean viewBean,QueryModel queryModel, Window window) {
-        return new DownloadFilePanel4Staging(viewBean,queryModel, window);
+    public DownloadFilePanel createDownloadFilePanel(ViewBean viewBean, QueryModel queryModel, Window window) {
+        return new DownloadFilePanel4Staging(viewBean, queryModel, window);
     }
 
-    
 }

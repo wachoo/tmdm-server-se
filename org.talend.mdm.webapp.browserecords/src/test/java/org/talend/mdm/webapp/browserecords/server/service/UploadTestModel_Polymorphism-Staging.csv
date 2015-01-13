@@ -1,6 +1,6 @@
-id,info/@xsi:type,info/name,Match Group,Status,Source,Error
-1,SuperInfoType,1,,0,,
-2,SubInfoType,2,,0,,
-3,SuperInfoType,,,0,,
-4,SubInfoType,4,,0,,
-5,SubInfoType,,,0,,
+id,info/@xsi:type,info/name
+1,SuperInfoType,1
+2,SubInfoType,2
+3,SuperInfoType,
+4,SubInfoType,4
+5,SubInfoType,

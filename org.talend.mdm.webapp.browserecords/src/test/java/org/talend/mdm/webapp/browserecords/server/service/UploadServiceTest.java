@@ -34,7 +34,6 @@ import org.talend.mdm.commmon.util.datamodel.management.DataModelID;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.SchemaMockAgent;
-import org.xml.sax.SAXException;
 
 import com.amalto.core.util.Util;
 import com.amalto.webapp.util.webservices.WSPutItemWithReport;
@@ -93,8 +92,6 @@ public class UploadServiceTest extends TestCase {
 
     public void testUploadModel_Polymorphism() throws Exception {
         // set test parameter value
-        clusterName = "UploadTestModel"; //$NON-NLS-1$
-        dataModelName = "UploadTestModel"; //$NON-NLS-1$
         String record1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><info xsi:type=\"SuperInfoType\"><name>1</name></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
         String record2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><info xsi:type=\"SubInfoType\"><name>2</name></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
         String record3 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><info xsi:type=\"SuperInfoType\"><name/></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
@@ -104,9 +101,8 @@ public class UploadServiceTest extends TestCase {
         // test upload excel file
         fileType = "xls"; //$NON-NLS-1$
         file = new File(this.getClass().getResource("UploadTestModel_Polymorphism.xls").getFile()); //$NON-NLS-1$
-        UploadService service = new UploadService(entityModel, fileType, headersOnFirstLine, headerVisibleMap,
-                inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, clusterName, dataModelName,
-                language);
+        UploadService service = new TestUploadService(entityModel, fileType, headersOnFirstLine, headerVisibleMap,
+                inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, language);
 
         List<WSPutItemWithReport> wsPutItemWithReportList = service.readUploadFile(file);
         assertEquals(record1, wsPutItemWithReportList.get(0).getWsPutItem().getXmlString());
@@ -117,9 +113,9 @@ public class UploadServiceTest extends TestCase {
 
         // test upload csv file
         fileType = "csv"; //$NON-NLS-1$
-        file = new File(this.getClass().getResource("UploadTestModel_Polymorphism.csv").getFile());
-        service = new UploadService(entityModel, fileType, headersOnFirstLine, headerVisibleMap, inheritanceNodePathList,
-                multipleValueSeparator, seperator, encoding, textDelimiter, clusterName, dataModelName, language);
+        file = new File(this.getClass().getResource("UploadTestModel_Polymorphism.csv").getFile()); //$NON-NLS-1$
+        service = new TestUploadService(entityModel, fileType, headersOnFirstLine, headerVisibleMap, inheritanceNodePathList,
+                multipleValueSeparator, seperator, encoding, textDelimiter, language);
         wsPutItemWithReportList = service.readUploadFile(file);
         assertEquals(record1, wsPutItemWithReportList.get(0).getWsPutItem().getXmlString());
         assertEquals(record2, wsPutItemWithReportList.get(1).getWsPutItem().getXmlString());
@@ -128,8 +124,7 @@ public class UploadServiceTest extends TestCase {
         assertEquals(record5, wsPutItemWithReportList.get(4).getWsPutItem().getXmlString());
     }
 
-    protected EntityModel getEntityModel(String xsdFileName, String dataModel, String concept, String[] keys)
-            throws SAXException, IOException {
+    protected EntityModel getEntityModel(String xsdFileName, String dataModel, String concept, String[] keys) throws Exception {
         String xsd = getFileContent(xsdFileName);
         String[] roles = { "System_Admin", "administration" }; //$NON-NLS-1$//$NON-NLS-2$
         entityModel = new EntityModel();
@@ -152,4 +147,24 @@ public class UploadServiceTest extends TestCase {
         return buffer.toString();
     }
 
+    public class TestUploadService extends UploadService {
+
+        public TestUploadService(EntityModel entityModel, String fileType, boolean headersOnFirstLine,
+                Map<String, Boolean> headerVisibleMap, List<String> inheritanceNodePathList, String multipleValueSeparator,
+                String seperator, String encoding, char textDelimiter, String language) {
+            super(entityModel, fileType, headersOnFirstLine, headerVisibleMap, inheritanceNodePathList, multipleValueSeparator,
+                    seperator, encoding, textDelimiter, language);
+        }
+
+        @Override
+        protected String getCurrentDataCluster() throws Exception {
+            return "UploadTestModel"; //$NON-NLS-1$
+        }
+
+        @Override
+        protected String getCurrentDataModel() throws Exception {
+            return "UploadTestModel"; //$NON-NLS-1$
+        }
+
+    }
 }
