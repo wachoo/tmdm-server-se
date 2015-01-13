@@ -187,6 +187,7 @@ public class Utils {
                     String tmp = "<script type=\"text/javascript\" src=\"" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ 
                             + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
                     if ("browserecords".equals(context) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
+                        imports.add("<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$
                         imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$
                         imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$
                     }
@@ -230,7 +231,7 @@ public class Utils {
                 "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/firefox3-fix.css\" />\n" //$NON-NLS-1$
                 + // CORE
                 "<script type=\"text/javascript\" src=\"proxy_core.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"secure/dwr/interface/LayoutInterface.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n" //$NON-NLS-1$
                 + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/webapp-core.css\" />\n" //$NON-NLS-1$
                 + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/amalto-menus.css\" />\n" //$NON-NLS-1$
                 + // Proxy DWR <-> Ext

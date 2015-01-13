@@ -172,6 +172,12 @@
             <param-name>debug</param-name>
             <param-value>false</param-value>
         </init-param>
+        <!-- TODO FIXME -->
+        <!-- Disables DWR's CSRF protection -->
+        <init-param>
+            <param-name>crossDomainSessionSecurity</param-name>
+            <param-value>false</param-value>
+        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>

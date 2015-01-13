@@ -12,21 +12,15 @@
 // ============================================================================
 package com.amalto.webapp.core.bean;
 
-import java.util.Date;
-
 import javax.servlet.http.HttpSession;
 
-import com.amalto.core.util.LocalUser;
 import org.apache.log4j.Logger;
-import org.directwebremoting.WebContext;
-import org.directwebremoting.WebContextFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.amalto.webapp.core.dwr.CommonDWR;
-import com.amalto.webapp.core.util.Util;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.webservice.WSBoolean;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
@@ -35,52 +29,19 @@ import com.amalto.core.webservice.WSExistsDataModel;
 import com.amalto.core.webservice.WSGetItem;
 import com.amalto.core.webservice.WSItemPK;
 import com.amalto.core.webservice.WSPutItem;
+import com.amalto.webapp.core.dwr.CommonDWR;
+import com.amalto.webapp.core.util.SessionContextHolder;
+import com.amalto.webapp.core.util.Util;
 
 public class Configuration {
 
     private static final Logger LOG = Logger.getLogger(Configuration.class);
 
-    private static ConfigurationContext defaultConfigurationContext = new DefaultConfigurationContext();
-
-    private static ConfigurationContext gwtConfigurationContext;
+    private static final String MDM_CONFIGURATION_ATTRIBUTE = "MDM_CONFIGURATION_ATTRIBUTE"; //$NON-NLS-1$
 
     private String cluster;
 
     private String model;
-
-    public interface ConfigurationContext {
-
-        public HttpSession getSession();
-    }
-
-    private static class DefaultConfigurationContext implements ConfigurationContext {
-
-        @Override
-        public HttpSession getSession() {
-            HttpSession session;
-            WebContext ctx = WebContextFactory.get();
-            if (ctx != null) {
-                // DWR call ?
-                session = ctx.getSession();
-            } else if (gwtConfigurationContext != null) {
-                // GWT call ?
-                session = gwtConfigurationContext.getSession();
-            } else {
-                // Unknown context
-                session = null;
-            }
-
-            if (LOG.isTraceEnabled()) {
-                if (session == null) {
-                    LOG.info("Called with null session"); //$NON-NLS-1$
-                } else {
-                    LOG.info("Session id: " + session.getId() + " ;creation: " + new Date(session.getCreationTime()) //$NON-NLS-1$ //$NON-NLS-2$
-                            + " ;last access: " + new Date(session.getLastAccessedTime())); //$NON-NLS-1$
-                }
-            }
-            return session;
-        }
-    }
 
     private Configuration() {
     }
@@ -90,24 +51,19 @@ public class Configuration {
         this.model = model;
     }
 
-    public static Configuration getInstance(boolean forceReload, ConfigurationContext configurationContext) throws Exception {
-        Configuration instance;
-        if (forceReload) {
-            HttpSession session = configurationContext.getSession();
-            instance = load(session);
-        } else {
-            instance = getInstance();
+    public static synchronized Configuration getConfiguration() throws Exception {
+        Configuration configuration = loadFromSession();
+        if (configuration == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Configuration instance is null, loading ..."); //$NON-NLS-1$
+            }
+            configuration = load();
+            storeInSession(configuration);
         }
-        return instance;
+        return configuration;
     }
 
-    public static Configuration getInstance(ConfigurationContext configurationContext) throws Exception {
-        Configuration instance;
-        instance = load(null);
-        return instance;
-    }
-
-    public static void initialize(String cluster, String model, ConfigurationContext configurationContext) throws Exception {
+    public static synchronized void setConfiguration(String cluster, String model) throws Exception {
         if (cluster == null || cluster.trim().length() == 0) {
             throw new Exception("Data Container can't be empty!");
         }
@@ -116,25 +72,31 @@ public class Configuration {
         }
 
         store(cluster, model);
+        storeInSession(new Configuration(cluster, model));
     }
 
-    public static Configuration getInstance(boolean forceReload) throws Exception {
-        return getInstance(forceReload, defaultConfigurationContext);
+    private static Configuration loadFromSession() {
+        HttpSession session = SessionContextHolder.currentSession();
+        if (session != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Getting registered configuration from session " + session.getId()); //$NON-NLS-1$
+            }
+            return (Configuration) session.getAttribute(MDM_CONFIGURATION_ATTRIBUTE);
+        }
+        return null;
     }
 
-    public static Configuration getInstance() throws Exception {
-        return getInstance(defaultConfigurationContext);
+    private static void storeInSession(Configuration configuration) {
+        HttpSession session = SessionContextHolder.currentSession();
+        if (session != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Registering configuration into session " + session.getId()); //$NON-NLS-1$
+            }
+            session.setAttribute(MDM_CONFIGURATION_ATTRIBUTE, configuration);
+        }
     }
 
-    public static Configuration getConfiguration() throws Exception {
-        return getInstance();
-    }
-
-    public static void initialize(String cluster, String model) throws Exception {
-        initialize(cluster, model, defaultConfigurationContext);
-    }
-
-    private static synchronized void store(String cluster, String model) throws Exception {
+    private static void store(String cluster, String model) throws Exception {
         if (cluster == null || cluster.trim().length() == 0) {
             throw new Exception("nocontainer"); //$NON-NLS-1$
         } else if (model == null || model.trim().length() == 0) {
@@ -144,8 +106,9 @@ public class Configuration {
         String xml = Util
                 .getPort()
                 .getItem(
-                        new WSGetItem(new WSItemPK(
-                                new WSDataClusterPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser().getUsername() }))) //$NON-NLS-1$//$NON-NLS-2$
+                        new WSGetItem(
+                                new WSItemPK(
+                                        new WSDataClusterPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser().getUsername() }))) //$NON-NLS-1$//$NON-NLS-2$
                 .getContent();
         Document d = Util.parse(xml);
         NodeList nodeList = com.amalto.core.util.Util.getNodeList(d, "//property"); //$NON-NLS-1$
@@ -156,7 +119,8 @@ public class Configuration {
             Node node = com.amalto.core.util.Util.getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
             node.appendChild(d.createElement("name")).appendChild(d.createTextNode("cluster")); //$NON-NLS-1$ //$NON-NLS-2$
             node.appendChild(d.createElement("value")).appendChild(d.createTextNode(cluster)); //$NON-NLS-1$
-            Node node2 = com.amalto.core.util.Util.getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
+            Node node2 = com.amalto.core.util.Util
+                    .getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
             node2.appendChild(d.createElement("name")).appendChild(d.createTextNode("model")); //$NON-NLS-1$ //$NON-NLS-2$
             node2.appendChild(d.createElement("value")).appendChild(d.createTextNode(model)); //$NON-NLS-1$
         }
@@ -186,25 +150,12 @@ public class Configuration {
                     new WSPutItem(new WSDataClusterPK("PROVISIONING"), Util.nodeToString(d.getDocumentElement()).replaceAll( //$NON-NLS-1$
                             "<\\?xml.*?\\?>", ""), new WSDataModelPK("PROVISIONING"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else {
-            Util.storeProvisioning(LocalUser.getLocalUser().getUsername(), Util.nodeToString(d.getDocumentElement())
-                    .replaceAll("<\\?xml.*?\\?>", "")); //$NON-NLS-1$ //$NON-NLS-2$
+            Util.storeProvisioning(LocalUser.getLocalUser().getUsername(),
+                    Util.nodeToString(d.getDocumentElement()).replaceAll("<\\?xml.*?\\?>", "")); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
-    private static Configuration load(HttpSession session) throws Exception {
-        Configuration configuration = loadConfigurationFromDB();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("MDM set up with " + configuration.getCluster() + " and " + configuration.getModel()); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        return configuration;
-    }
-
-    public static Configuration loadConfigurationFromDBDirectly() throws Exception {
-        return loadConfigurationFromDB();
-    }
-
-    private static synchronized Configuration loadConfigurationFromDB() throws Exception {
+    private static Configuration load() throws Exception {
         Configuration configuration = new Configuration();
 
         Element user = null;
@@ -285,10 +236,6 @@ public class Configuration {
 
     public void setModel(String model) {
         this.model = model;
-    }
-
-    public static void setGwtConfigurationContext(ConfigurationContext _gwtConfigurationContext) {
-        gwtConfigurationContext = _gwtConfigurationContext;
     }
 
     @Override

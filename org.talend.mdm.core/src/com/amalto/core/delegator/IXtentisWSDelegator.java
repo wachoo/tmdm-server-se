@@ -2207,28 +2207,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
-        try {
-            WSItemPK itemPK = wsUpdateMetadataItem.getWsItemPK();
-            ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(itemPK.getWsDataClusterPK().getPk()),
-                    itemPK.getConceptName(), itemPK.getIds());
-            Item itemCtrl2Local = Util.getItemCtrl2Local();
-            ItemPOJO item = itemCtrl2Local.getItem(itemPk);
-            item.setTaskId(wsUpdateMetadataItem.getTaskId());
-            ItemPOJOPK itemPOJOPK = itemCtrl2Local.updateItemMetadata(item);
-            return new WSItemPK(new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
-                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
-        } catch (XtentisException e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            LOGGER.debug(err, e);
-            throw new RemoteException(e.getLocalizedMessage(), e);
-        } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            LOGGER.debug(err, e);
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
     public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
         try {
             Role ctrl = Util.getRoleCtrlLocal();

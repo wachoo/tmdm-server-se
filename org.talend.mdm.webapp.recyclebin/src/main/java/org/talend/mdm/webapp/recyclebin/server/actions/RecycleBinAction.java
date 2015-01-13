@@ -77,7 +77,7 @@ public class RecycleBinAction implements RecycleBinService {
             for (WSDroppedItemPK pk : items) {
                 WSDroppedItem wsItem = Util.getPort().loadDroppedItem(new WSLoadDroppedItem(pk));
                 String conceptName = wsItem.getConceptName();
-                String modelName = Configuration.getInstance().getCluster();
+                String modelName = Configuration.getConfiguration().getCluster();
                 if (modelName != null) {
                     // TODO Remove isEnterprise
                     // For enterprise version we check the user roles first, if one user don't have read permission on a

@@ -3,20 +3,20 @@ amalto.namespace("amalto.itemsbrowser");
 var atuoValidationFlag = 0;
 var validatinHistory = new Ext.util.MixedCollection();
 
-loadResource("/core/secure/yui-2.4.0/build/treeview/treeview.js", "YAHOO.widget.TreeView", function(){
-loadResource("/core/secure/yui-2.4.0/build/treeview/assets/treeview.css","");
+loadResource("secure/yui-2.4.0/build/treeview/treeview.js", "YAHOO.widget.TreeView", function(){
+loadResource("secure/yui-2.4.0/build/treeview/assets/treeview.css","");
 
 amalto.itemsbrowser.ItemsBrowser = function() {
 
-    loadResource("/itemsbrowser/secure/css/ItemsBrowser.css", "");
+    loadResource("secure/css/ItemsBrowser.css", "");
 
-    loadResource("/itemsbrowser/secure/js/ImprovedDWRProxy.js", "");
+    loadResource("secure/js/ImprovedDWRProxy.js", "");
 
-    loadResource("/talendmdm/secure/js/widget/ForeignKeyField.js", "");
+    loadResource("secure/js/widget/ForeignKeyField.js", "");
 
-    loadResource("/itemsbrowser/secure/js/SearchEntityPanel.js", "");
+    loadResource("secure/js/SearchEntityPanel.js", "");
 
-    loadResource("/itemsbrowser/secure/js/ItemNode.js", ""); 
+    loadResource("secure/js/ItemNode.js", ""); 
     /***************************************************************************
      * Localization
      **************************************************************************/

@@ -177,7 +177,7 @@ public class StagingAreaBrowseAction implements StagingAreaBrowseService {
                 String status = Util.getFirstTextNode(doc, "/result/staging_status"); //$NON-NLS-1$
                 String error = Util.getFirstTextNode(doc, "/result/staging_error"); //$NON-NLS-1$
                 String taskId = Util.getFirstTextNode(doc, "/result/taskId"); //$NON-NLS-1$
-                if (taskId == null || taskId.equals("null")) {
+                if (taskId == null || taskId.equals("null")) { //$NON-NLS-1$
                     taskId = "";//$NON-NLS-1$
                 }
                 ResultItem item = new ResultItem();

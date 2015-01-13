@@ -99,7 +99,6 @@ public class ProxyGWTServiceImpl extends AbstractService {
 
             RPCRequest rpcRequest = RPC.decodeRequest(payload, action.getClass(), this);
             onAfterRequestDeserialized(rpcRequest);
-            GwtWebContextFactory.set(new GwtWebContext(this.getThreadLocalRequest(), this.getThreadLocalResponse(), this));
             return RPC.invokeAndEncodeResponse(action, rpcRequest.getMethod(), rpcRequest.getParameters(),
                     rpcRequest.getSerializationPolicy(), rpcRequest.getFlags());
         } catch (IncompatibleRemoteServiceException ex) {

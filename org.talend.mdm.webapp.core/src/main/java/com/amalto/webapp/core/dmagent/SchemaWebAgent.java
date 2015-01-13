@@ -30,7 +30,6 @@ import com.amalto.core.util.LocalUser;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dwr.CommonDWR;
 import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSComplexType;
 import com.sun.xml.xsom.XSElementDecl;
 import com.sun.xml.xsom.XSParticle;
 
@@ -353,25 +352,8 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
         return types;
     }
 
-    private boolean isFkPoint2Entity(String fkPath, List<String> extendType) {
-        if (fkPath == null || fkPath.length() == 0) {
-            return false;
-        }
-        if (fkPath.startsWith("/")) {
-            fkPath = fkPath.substring(1);
-        }
-        boolean contained = false;
-        for (String type : extendType) {
-            if (fkPath.startsWith(type + "/") || fkPath.equals(type)) {
-                contained = true;
-            }
-        }
-
-        return contained;
-    }
-
     public boolean isEntityDenyPhysicalDeletable(String concept) throws Exception {
-        Configuration config = Configuration.getInstance();
+        Configuration config = Configuration.getConfiguration();
         Map<String, XSElementDecl> conceptMap = CommonDWR.getConceptMap(config.getModel());
         XSElementDecl declaration = conceptMap.get(concept);
         if (declaration == null) {
@@ -398,45 +380,6 @@ public class SchemaWebAgent extends SchemaAbstractWebAgent {
             }
         }
         return false;
-    }
-
-    public Map<String, XSParticle> getXPath2ParticleMap(String concept) throws Exception {
-        Configuration config = Configuration.getInstance();
-        Map<String, XSElementDecl> conceptMap = CommonDWR.getConceptMap(config.getModel());
-        XSComplexType xsct = (XSComplexType) (conceptMap.get(concept).getType());
-        XSParticle[] xsp = xsct.getContentType().asParticle().getTerm().asModelGroup().getChildren();
-        HashMap<String, XSParticle> xpathToParticle = new HashMap<String, XSParticle>();
-        for (XSParticle aXsp : xsp) {
-            getChildrenXpath2Particle(aXsp, concept, xpathToParticle);
-        }
-        return xpathToParticle;
-    }
-
-    private void getChildrenXpath2Particle(XSParticle xsp, String xpathParent, HashMap<String, XSParticle> xpathToParticle) {
-        if (xsp.getTerm().asModelGroup() != null) { // is complex type
-            XSParticle[] particles = xsp.getTerm().asModelGroup().getChildren();
-            for (XSParticle xsp1 : particles) {
-                getChildrenXpath2Particle(xsp1, xpathParent, xpathToParticle);
-            }
-        }
-        if (xsp.getTerm().asElementDecl() == null) {
-            return;
-        }
-        String xpath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
-        if (xsp.getTerm().asElementDecl().getType().isComplexType()) {
-            XSParticle particle = xsp.getTerm().asElementDecl().getType().asComplexType().getContentType().asParticle();
-            if (particle != null) {
-                XSParticle[] particles = particle.getTerm().asModelGroup().getChildren();
-                String particleXPath = xpathParent + "/" + xsp.getTerm().asElementDecl().getName(); //$NON-NLS-1$
-                xpathToParticle.put(particleXPath, xsp);
-                for (XSParticle xsp1 : particles) {
-                    getChildrenXpath2Particle(xsp1, particleXPath, xpathToParticle);
-                }
-            }
-        } else {
-            xpathToParticle.put(xpath, xsp);
-        }
-
     }
 
     @Override

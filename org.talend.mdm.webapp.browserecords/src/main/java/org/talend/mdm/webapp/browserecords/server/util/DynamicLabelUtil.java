@@ -97,7 +97,7 @@ public class DynamicLabelUtil {
             dynamicPathes.add(matcher.group().replaceAll("^\\{", "").replaceAll("\\}$", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         }
 
-        Configuration config = Configuration.getInstance();
+        Configuration config = Configuration.getConfiguration();
         String dataModelPK = config.getModel();
         String xsd = Util.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(dataModelPK))).getXsdSchema();
         Map<String, XSElementDecl> map = com.amalto.core.util.Util.getConceptMap(xsd);
@@ -108,7 +108,7 @@ public class DynamicLabelUtil {
         for (String dyPath : dynamicPathes) {
             Element baseEl = (Element) doc.selectSingleNode(basePath);
             try {
-                List els = (List) baseEl.selectNodes(dyPath);
+                List<?> els = baseEl.selectNodes(dyPath);
                 if (els == null)
                     continue;
                 String multiValue = ""; //$NON-NLS-1$
@@ -235,7 +235,7 @@ public class DynamicLabelUtil {
             // Collections.reverse(ids);
             String concept = Util.getForeignPathFromPath(foreignkey);
             concept = concept.split("/")[0]; //$NON-NLS-1$
-            Configuration config = Configuration.getInstance();
+            Configuration config = Configuration.getConfiguration();
             String dataClusterPK = config.getCluster();
 
             WSItemPK wsItem = new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, (String[]) ids.toArray(new String[ids

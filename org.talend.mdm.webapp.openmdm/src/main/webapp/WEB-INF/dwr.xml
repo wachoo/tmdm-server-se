@@ -2,15 +2,16 @@
 <!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" "http://getahead.org/dwr/dwr20.dtd">
 <dwr>
     <allow>
-        <convert converter="bean" match="com.amalto.webapp.core.bean.Author"/>
         <convert converter="bean" match="com.amalto.webapp.core.bean.ListRange"/>
-        <convert converter="bean" match="com.amalto.webapp.core.bean.ToDoItem"/>
+        <convert converter="bean" match="com.amalto.webapp.core.bean.ComboItemBean"/>
         <convert converter="bean" match="com.amalto.webapp.core.util.XtentisWebappException"/>
         <convert converter="bean" match="java.rmi.RemoteException"/>
         <convert converter="bean" match="java.lang.StackTraceElement"/>
-        <convert converter="bean" match="java.lang.Exception"/>
-        <convert converter="bean" match="com.amalto.webapp.core.bean.ComboItemBean"/>
+        <convert converter="bean" match="java.lang.Exception"/>       
         <convert converter="bean" match="java.lang.NullPointerException"/>
 
+        <create creator="new" javascript="ItemsBrowserInterface">
+            <param name="class" value="org.talend.mdm.webapp.browserecords.server.ItemsBrowserDWR"/>
+        </create>
     </allow>
 </dwr>

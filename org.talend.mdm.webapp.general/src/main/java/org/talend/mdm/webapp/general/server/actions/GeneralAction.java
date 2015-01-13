@@ -1,42 +1,81 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.general.server.actions;
 
-import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.util.*;
-import com.amalto.core.webservice.*;
-import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.util.*;
-import com.amalto.webapp.core.util.Util;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.log4j.Logger;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.server.util.XmlUtil;
 import org.talend.mdm.webapp.general.client.GeneralService;
-import org.talend.mdm.webapp.general.gwt.GWTConfigurationContext;
-import org.talend.mdm.webapp.general.gwt.GwtWebContextFactory;
-import org.talend.mdm.webapp.general.model.*;
+import org.talend.mdm.webapp.general.model.ActionBean;
+import org.talend.mdm.webapp.general.model.ComboBoxModel;
+import org.talend.mdm.webapp.general.model.LanguageBean;
+import org.talend.mdm.webapp.general.model.MenuBean;
+import org.talend.mdm.webapp.general.model.MenuGroup;
+import org.talend.mdm.webapp.general.model.ProductInfo;
+import org.talend.mdm.webapp.general.model.UserBean;
 import org.talend.mdm.webapp.general.server.util.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.util.LicenseUserNumberValidationException;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
+import com.amalto.core.webservice.WSDataCluster;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModel;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetDataCluster;
+import com.amalto.core.webservice.WSGetDataModel;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSLogout;
+import com.amalto.core.webservice.WSRegexDataClusterPKs;
+import com.amalto.core.webservice.WSRegexDataModelPKs;
+import com.amalto.core.webservice.XtentisPort;
+import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.util.Menu;
+import com.amalto.webapp.core.util.SessionContextHolder;
+import com.amalto.webapp.core.util.SystemLocale;
+import com.amalto.webapp.core.util.SystemLocaleFactory;
+import com.amalto.webapp.core.util.SystemLocaleInitializable;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.Webapp;
 
 public class GeneralAction implements GeneralService {
 
-    private static final Logger                  LOG                  = Logger.getLogger(GeneralAction.class);
+    private static final Logger LOG = Logger.getLogger(GeneralAction.class);
 
-    private static final GWTConfigurationContext configurationContext = new GWTConfigurationContext();
-
-    private static final Messages                MESSAGES             = MessagesFactory
-                                                                              .getMessages(
-                                                                                      "org.talend.mdm.webapp.general.client.i18n.GeneralMessages", GeneralAction.class.getClassLoader()); //$NON-NLS-1$
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "org.talend.mdm.webapp.general.client.i18n.GeneralMessages", GeneralAction.class.getClassLoader()); //$NON-NLS-1$
 
     @Override
     public ProductInfo getProductInfo() throws ServiceException {
@@ -70,7 +109,8 @@ public class GeneralAction implements GeneralService {
 
     private List<ComboBoxModel> getClusters() throws Exception {
         List<ComboBoxModel> clusters = new ArrayList<ComboBoxModel>();
-        WSDataClusterPK[] wsDataClustersPKs = Util.getPort().getDataClusterPKs(new WSRegexDataClusterPKs("*")).getWsDataClusterPKs(); //$NON-NLS-1
+        WSDataClusterPK[] wsDataClustersPKs = Util.getPort()
+                .getDataClusterPKs(new WSRegexDataClusterPKs("*")).getWsDataClusterPKs(); //$NON-NLS-1$
         Map<String, XSystemObjects> xDataClustersMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
         for (WSDataClusterPK wsDataClustersPK : wsDataClustersPKs) {
             if (!XSystemObjects.isXSystemObject(xDataClustersMap, wsDataClustersPK.getPk())) {
@@ -84,7 +124,7 @@ public class GeneralAction implements GeneralService {
     private List<ComboBoxModel> getModels() throws Exception {
         List<ComboBoxModel> models = new ArrayList<ComboBoxModel>();
         XtentisPort port = Util.getPort();
-        WSDataModelPK[] wsDataModelsPKs = port.getDataModelPKs(new WSRegexDataModelPKs("*")).getWsDataModelPKs(); //$NON-NLS-1
+        WSDataModelPK[] wsDataModelsPKs = port.getDataModelPKs(new WSRegexDataModelPKs("*")).getWsDataModelPKs(); //$NON-NLS-1$
         Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
         for (WSDataModelPK wsDataModelsPK : wsDataModelsPKs) {
             if (!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPK.getPk())) {
@@ -99,19 +139,18 @@ public class GeneralAction implements GeneralService {
     public ActionBean getAction() throws ServiceException {
         try {
             ActionBean action = new ActionBean();
-            Configuration.setGwtConfigurationContext(configurationContext);
             action.setClusters(getClusters());
             action.setModels(getModels());
-            Configuration configuration = Configuration.getInstance(configurationContext);
+            Configuration configuration = Configuration.getConfiguration();
             action.setCurrentCluster(configuration.getCluster());
             action.setCurrentModel(configuration.getModel());
             return action;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             String err = e.getLocalizedMessage();
-            if (e.getMessage().equals("nocontainer")) {
+            if (e.getMessage().equals("nocontainer")) { //$NON-NLS-1$
                 err = MESSAGES.getMessage("nocontainer"); //$NON-NLS-1$
-            } else if (e.getMessage().equals("nomodel")) {
+            } else if (e.getMessage().equals("nomodel")) { //$NON-NLS-1$
                 err = MESSAGES.getMessage("nomodel"); //$NON-NLS-1$
             }
             throw new ServiceException(err);
@@ -121,7 +160,7 @@ public class GeneralAction implements GeneralService {
     @Override
     public void setClusterAndModel(String cluster, String model) throws ServiceException {
         try {
-            Configuration.initialize(cluster, model, configurationContext);
+            Configuration.setConfiguration(cluster, model);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -225,7 +264,10 @@ public class GeneralAction implements GeneralService {
     public void logout() throws ServiceException {
         try {
             Util.getPort().logout(new WSLogout("")).getValue(); //$NON-NLS-1$
-            GwtWebContextFactory.get().getSession().invalidate();
+            HttpSession session = SessionContextHolder.currentSession();
+            if (session != null) {
+                session.invalidate();
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

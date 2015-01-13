@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.server.servlet;
 
 import java.io.IOException;
@@ -54,7 +66,6 @@ public class ExportingServlet extends HttpServlet {
         HSSFSheet sheet = wb.createSheet("new sheet"); //$NON-NLS-1$
         sheet.setDefaultColumnWidth((short) 20);
 
-        String cluster = request.getParameter("cluster"); //$NON-NLS-1$
         String parametersValues = request.getParameter("params"); //$NON-NLS-1$
         if (parametersValues == null) {
             parametersValues = ""; //$NON-NLS-1$
@@ -107,15 +118,15 @@ public class ExportingServlet extends HttpServlet {
             if (parametersValues != null && parametersValues.length() > 0) {
                 JSONObject criteria = new JSONObject(parametersValues);
 
-                Configuration configuration = Configuration.getInstance(true);
+                Configuration configuration = Configuration.getConfiguration();
                 wsDataClusterPK.setPk(configuration.getCluster());
                 entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : ""; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-                keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : ""; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+                keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : ""; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                 fkvalue = !criteria.isNull("fkvalue") && !"*".equals(criteria.get("fkvalue")) ? (String) criteria.get("fkvalue") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                         : ""; //$NON-NLS-1$
                 dataObject = !criteria.isNull("dataObject") && !"*".equals(criteria.get("dataObject")) ? (String) criteria //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         .get("dataObject") : ""; //$NON-NLS-1$//$NON-NLS-2$
-                contentWords = !criteria.isNull("keyWords") ? (String) criteria.get("keyWords") : ""; //$NON-NLS-1$ //$NON-NLS-2$
+                contentWords = !criteria.isNull("keyWords") ? (String) criteria.get("keyWords") : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
                 if (!criteria.isNull("fromDate")) { //$NON-NLS-1$
                     String startDate = (String) criteria.get("fromDate"); //$NON-NLS-1$

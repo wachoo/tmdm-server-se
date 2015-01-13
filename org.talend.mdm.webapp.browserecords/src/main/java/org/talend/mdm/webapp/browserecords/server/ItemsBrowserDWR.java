@@ -59,7 +59,7 @@ public class ItemsBrowserDWR {
         if (regex != null && regex.length() > 0) {
             JSONObject criteria = new JSONObject(regex);
 
-            Configuration configuration = Configuration.getInstance(true);
+            Configuration configuration = Configuration.getConfiguration();
             wsDataClusterPK.setPk(configuration.getCluster());
             entity = !criteria.isNull("entity") ? (String) criteria.get("entity") : "";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
             keys = !criteria.isNull("key") && !"*".equals(criteria.get("key")) ? (String) criteria.get("key") : "";//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$

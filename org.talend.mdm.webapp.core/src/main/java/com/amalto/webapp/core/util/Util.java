@@ -742,7 +742,7 @@ public class Util {
     public static boolean checkDCAndDM(String dataContainer, String dataModel) {
         Configuration config;
         try {
-            config = Configuration.getInstance(true);
+            config = Configuration.getConfiguration();
             return config.getCluster().equals(dataContainer) && config.getModel().equals(dataModel);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
