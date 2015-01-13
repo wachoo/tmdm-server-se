@@ -16,7 +16,6 @@ import com.amalto.core.util.Util;
 import com.amalto.core.webservice.WSConceptKey;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSGetBusinessConceptKey;
-import com.amalto.core.webservice.WSGetDataModel;
 import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.XtentisWebappException;
@@ -28,7 +27,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
-import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.*;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
@@ -117,16 +115,7 @@ public class DataModelHelper {
     public static XSElementDecl getBusinessConcept(String model, String concept) {
         XSElementDecl eleDecl = null;
         try {
-            if (!BaseConfiguration.isStandalone()) {
-                eleDecl = schemaManager.getBusinessConcept(concept).getE();
-            } else {
-                String xsd = CommonUtil.getPort().getDataModel(new WSGetDataModel(new WSDataModelPK(model))).getXsdSchema();
-                XSOMParser reader = new XSOMParser();
-                reader.setAnnotationParser(new DomAnnotationParserFactory());
-                reader.parse(new StringReader(xsd));
-                XSSchemaSet xss = reader.getResult();
-                eleDecl = getElementDeclByName(concept, xss);
-            }
+            eleDecl = schemaManager.getBusinessConcept(concept).getE();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

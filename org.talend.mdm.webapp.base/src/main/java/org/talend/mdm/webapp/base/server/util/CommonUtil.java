@@ -25,16 +25,11 @@ import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.util.Parser;
-import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.exception.ExceptionConstants;
 import org.talend.mdm.webapp.base.server.exception.WebBaseException;
-import org.talend.mdm.webapp.base.server.mockup.FakeData;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.core.webservice.WSViewPK;
@@ -44,6 +39,9 @@ import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOr;
 import com.amalto.core.webservice.XtentisPort;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XtentisWebappException;
 
 public class CommonUtil {
 
@@ -65,12 +63,7 @@ public class CommonUtil {
      * @throws XtentisWebappException
      */
     public static XtentisPort getPort() throws XtentisWebappException {
-        if (!BaseConfiguration.isStandalone()) {
-            return com.amalto.webapp.core.util.Util.getPort();
-        } else {
-            return com.amalto.webapp.core.util.Util.getPort(FakeData.MDM_DEFAULT_ENDPOINTADDRESS, FakeData.MDM_DEFAULT_USERNAME,
-                    FakeData.MDM_DEFAULT_PASSWORD, com.amalto.webapp.core.util.Util._FORCE_WEB_SERVICE_);
-        }
+        return com.amalto.webapp.core.util.Util.getPort();
     }
 
     /**

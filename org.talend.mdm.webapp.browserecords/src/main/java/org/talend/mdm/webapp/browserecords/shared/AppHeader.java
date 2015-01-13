@@ -14,9 +14,6 @@ package org.talend.mdm.webapp.browserecords.shared;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- */
 public class AppHeader implements IsSerializable {
 
     private String datamodel = null;
@@ -26,8 +23,6 @@ public class AppHeader implements IsSerializable {
     private String masterDataCluster = null;
 
     private String stagingDataCluster = null;
-
-    private boolean isStandAloneMode = false;
 
     private int autoTextAreaLength;
 
@@ -39,19 +34,8 @@ public class AppHeader implements IsSerializable {
 
     private boolean isEnterprise = false;
 
-    /**
-     * DOC HSHU AppHeader constructor comment.
-     */
     public AppHeader() {
 
-    }
-
-    public boolean isStandAloneMode() {
-        return isStandAloneMode;
-    }
-
-    public void setStandAloneMode(boolean isStandAloneMode) {
-        this.isStandAloneMode = isStandAloneMode;
     }
 
     public String getDatamodel() {

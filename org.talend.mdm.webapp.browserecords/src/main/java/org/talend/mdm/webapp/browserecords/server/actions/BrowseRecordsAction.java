@@ -53,7 +53,6 @@ import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.base.client.model.ItemResult;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
-import org.talend.mdm.webapp.base.server.BaseConfiguration;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.talend.mdm.webapp.base.server.exception.WebBaseException;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
@@ -123,8 +122,6 @@ import com.amalto.core.webservice.WSGetBusinessConceptKey;
 import com.amalto.core.webservice.WSGetBusinessConcepts;
 import com.amalto.core.webservice.WSGetDataModel;
 import com.amalto.core.webservice.WSGetItem;
-import com.amalto.core.webservice.WSGetTransformer;
-import com.amalto.core.webservice.WSGetTransformerPKs;
 import com.amalto.core.webservice.WSGetTransformerV2;
 import com.amalto.core.webservice.WSGetTransformerV2PKs;
 import com.amalto.core.webservice.WSGetView;
@@ -137,10 +134,8 @@ import com.amalto.core.webservice.WSPutItemWithReport;
 import com.amalto.core.webservice.WSString;
 import com.amalto.core.webservice.WSStringArray;
 import com.amalto.core.webservice.WSStringPredicate;
-import com.amalto.core.webservice.WSTransformer;
 import com.amalto.core.webservice.WSTransformerContext;
 import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
-import com.amalto.core.webservice.WSTransformerPK;
 import com.amalto.core.webservice.WSTransformerV2;
 import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.core.webservice.WSTypedContent;
@@ -363,7 +358,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
                     xpathForeignKey = xpathForeignKey.substring(1);
                 }
-                String fkEntity; //$NON-NLS-1$                
+                String fkEntity;                
 				if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
                     fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
                 } else {
@@ -1149,7 +1144,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             header.setMasterDataCluster(getCurrentDataCluster(false));
             header.setStagingDataCluster(getCurrentDataCluster(true));
             header.setDatamodel(getCurrentDataModel());
-            header.setStandAloneMode(BaseConfiguration.isStandalone());
             header.setAutoTextAreaLength(BrowseRecordsConfiguration.getAutoTextAreaLength());
             header.setAutoValidate(BrowseRecordsConfiguration.isAutoValidate());
             header.setDataMigrationMultiLingualFieldAuto(BrowseRecordsConfiguration.dataMigrationMultiLingualFieldAuto());

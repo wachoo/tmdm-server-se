@@ -27,6 +27,7 @@ import com.amalto.xmlserver.interfaces.WhereCondition;
 import org.apache.log4j.Logger;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.xml.sax.InputSource;
 
@@ -323,7 +324,7 @@ public abstract class ObjectPOJO implements Serializable {
         try {
             // check if we are admin
             ILocalUser user = LocalUser.getLocalUser();
-            if (!user.getRoles().contains("administration")) { //$NON-NLS-1$
+            if (!user.getRoles().contains(ICoreConstants.ADMIN_PERMISSION)) {
                 String err = "Only an user with the 'administration' role can call the synchronization methods";
                 LOG.error(err);
                 throw new XtentisException(err);

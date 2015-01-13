@@ -305,7 +305,7 @@ amalto.itemsbrowser.SearchEntity.bundle.onReady(function(){
 			}else{
 				cluster = '';
 			}
-			window.location.href="secure/ExportingServlet?cluster=" + cluster + "&params=" + myParams;	
+			window.location.href="browserecords/ExportingServlet?cluster=" + cluster + "&params=" + myParams;	
 		},
 	    
 		initListData : function(itemsBroswer){

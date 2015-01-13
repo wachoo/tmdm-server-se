@@ -18,6 +18,8 @@ import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -41,10 +43,10 @@ class Security implements DocumentSaver {
         Set<String> currentUserRoles = saverSource.getCurrentUserRoles();
 
         // admin has all rights, so bypass security checks
-        boolean bypassSecurityChecks = "admin".equals(saverSource.getUserName()) //$NON-NLS-1$
+        boolean bypassSecurityChecks = MDMConfiguration.getAdminUser().equals(saverSource.getUserName())
                 || "Update".equals(context.getDatabaseDocument().getType().getName()); //$NON-NLS-1$
         // administration has all roles, so bypass security checks
-        if (currentUserRoles.contains("administration")) { //$NON-NLS-1$
+        if (currentUserRoles.contains(ICoreConstants.ADMIN_PERMISSION)) {
             bypassSecurityChecks = true;
         }
 

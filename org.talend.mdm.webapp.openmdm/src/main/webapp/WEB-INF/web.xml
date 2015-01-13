@@ -238,6 +238,10 @@
         <servlet-name>SmartViewServlet</servlet-name>
         <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.SmartViewServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ExportingServlet</servlet-name>
+        <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.ExportingServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>browserecordsServlet</servlet-name>
         <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
@@ -269,6 +273,10 @@
     <servlet-mapping>
         <servlet-name>SmartViewServlet</servlet-name>
         <url-pattern>/browserecords/SmartViewServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ExportingServlet</servlet-name>
+        <url-pattern>/browserecords/ExportingServlet</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.recyclebin -->
     <servlet>

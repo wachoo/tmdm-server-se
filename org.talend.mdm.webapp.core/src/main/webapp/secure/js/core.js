@@ -161,7 +161,7 @@ Ext.extend(Ext.ux.LocaleMap, Ext.util.Observable, {
 	   }
 });
 
-Ext.BLANK_IMAGE_URL = '/core/secure/ext-2.2/resources/images/default/s.gif';
+Ext.BLANK_IMAGE_URL = 'secure/ext-2.2/resources/images/default/s.gif';
 
 var LOGOUT = {
 	'fr':'D&eacute;connexion',

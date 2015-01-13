@@ -15,8 +15,6 @@ package org.talend.mdm.webapp.recyclebin.server.actions;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,8 +26,6 @@ import org.w3c.dom.Document;
 
 @SuppressWarnings("nls")
 public class UtilTest extends TestCase {
-
-    private static final List<String> ROLES = Arrays.asList(new String[] { "System_Admin" });
 
     private String getXSDModel(String filename) throws Exception {
         InputStream is = getClass().getClassLoader().getResourceAsStream(filename);
