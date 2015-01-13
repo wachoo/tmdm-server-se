@@ -39,7 +39,7 @@ public class BreadCrumb extends Composite {
 
     private ItemsDetailPanel itemsDetailPanel;
 
-    public static String DEFAULTNAME = "Talend MDM", DEFAULTLINK = "../talendmdm/secure"; //$NON-NLS-1$ //$NON-NLS-2$
+    public static String DEFAULTNAME = "Talend MDM"; //$NON-NLS-1$
 
     private int viewCode;
 

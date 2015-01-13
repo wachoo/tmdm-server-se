@@ -35,6 +35,7 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.codehaus.jettison.json.JSONObject;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 
@@ -45,7 +46,6 @@ import com.amalto.core.webservice.WSItemPKsByCriteriaResponse;
 import com.amalto.core.webservice.WSItemPKsByCriteriaResponseResults;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
 
 public class ExportingServlet extends HttpServlet {

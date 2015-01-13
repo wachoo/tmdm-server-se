@@ -1,4 +1,6 @@
 *.iml
+.classpath
+.project
+.settings
 */target/*
 .DS_Store
-org.talend.mdm.webapp.openmdm/src/main/webapp/META-INF/context.xml

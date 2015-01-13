@@ -14,11 +14,10 @@ package com.amalto.webapp.core.util;
 
 import junit.framework.TestCase;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import com.amalto.webapp.core.json.JSONArray;
-import com.amalto.webapp.core.json.JSONObject;
 
 @SuppressWarnings("nls")
 public class UtilTest extends TestCase {

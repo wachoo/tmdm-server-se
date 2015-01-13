@@ -225,7 +225,7 @@ public class ItemsDetailPanel extends ContentPanel {
         banner.removeAll();
         banner.layout(true);
         if (isStaging) {
-            Image img = new Image("/browserecords/secure/img/staging.png"); //$NON-NLS-1$
+            Image img = new Image("secure/img/staging.png"); //$NON-NLS-1$
             img.getElement().getStyle().setFloat(Float.RIGHT);
             img.getElement().getStyle().setMarginTop(6D, Unit.PX);
             banner.add(img);

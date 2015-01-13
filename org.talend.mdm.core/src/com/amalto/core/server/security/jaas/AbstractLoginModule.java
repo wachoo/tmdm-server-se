@@ -30,7 +30,6 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.server.security.MDMPrincipal;
-import com.amalto.core.server.security.SecurityConfig;
 
 public abstract class AbstractLoginModule implements LoginModule {
 

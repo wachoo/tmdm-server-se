@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jettison.json.JSONObject;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 
@@ -32,7 +33,7 @@ import com.amalto.core.webservice.WSItemPKsByCriteriaResponse;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.json.JSONObject;
+
 import com.amalto.webapp.core.util.Util;
 
 /**
