@@ -157,9 +157,7 @@ public class UploadData extends HttpServlet {
                 throw new UploadException(MESSAGES.getMessage(locale, "error_missing_mandatory_field")); //$NON-NLS-1$
             }
             UploadService service = generateUploadService(concept, fileType, headersOnFirstLine, headerVisibleMap,
-                    inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter.charAt(0),
-                    org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataCluster(),
-                    org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataModel(), language);
+                    inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter.charAt(0), language);
 
             List<WSPutItemWithReport> wsPutItemWithReportList = service.readUploadFile(file);
             if (wsPutItemWithReportList.size() > 0) {
@@ -201,10 +199,8 @@ public class UploadData extends HttpServlet {
 
     protected UploadService generateUploadService(String concept, String fileType, boolean headersOnFirstLine,
             Map<String, Boolean> headerVisibleMap, List<String> inheritanceNodePathList, String multipleValueSeparator,
-            String seperator, String encoding, char textDelimiter, String clusterName, String dataModelName, String language)
-            throws Exception {
+            String seperator, String encoding, char textDelimiter, String language) throws Exception {
         return new UploadService(getEntityModel(concept), fileType, headersOnFirstLine, headerVisibleMap,
-                inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, clusterName, dataModelName,
-                language);
+                inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, language);
     }
 }

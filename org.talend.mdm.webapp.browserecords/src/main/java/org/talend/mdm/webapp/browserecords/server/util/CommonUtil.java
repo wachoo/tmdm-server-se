@@ -42,6 +42,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.DataModelHelper;
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.RoleHelper;
+import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -259,10 +260,6 @@ public class CommonUtil {
                         String modelType = el
                                 .attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                         itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
-                        itemBean.setForeignkeyDesc(
-                                path + "-" + el.getText(), //$NON-NLS-1$
-                                org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel,
-                        }
                     } else if (typeModel != null && DataTypeConstants.BOOLEAN.equals(typeModel.getType())) {
                         if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(el.getText())
                                 || Constants.BOOLEAN_TRUE_VALUE.equals(el.getText())) {
