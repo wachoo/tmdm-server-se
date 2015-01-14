@@ -1,17 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:context="http://www.springframework.org/schema/context" xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:jms="http://www.springframework.org/schema/jms"
     xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
-http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd">
 
     <!-- Indicates a Tomcat environment -->
     <bean class="com.amalto.core.server.lifecycle.tomcat.TomcatServerLifecycle" />
 
     <!-- Server initialization -->
     <bean class="com.amalto.core.server.Initialization" depends-on="mdmConfiguration,dataModelChangeNotifier" />
-    
+
+    <!-- Internal server components -->
+    <bean id="defaultBackgroundJob" class="com.amalto.core.server.DefaultBackgroundJob"/>
+    <bean id="defaultConfigurationInfo" class="com.amalto.core.server.DefaultConfigurationInfo"/>
+    <bean id="defaultCustomForm" class="com.amalto.core.server.DefaultCustomForm"/>
+    <bean id="defaultDataCluster" class="com.amalto.core.server.DefaultDataCluster"/>
+    <bean id="defaultDataModel" class="com.amalto.core.server.DefaultDataModel"/>
+    <bean id="defaultDroppedItem" class="com.amalto.core.server.DefaultDroppedItem"/>
+    <bean id="defaultDefaultItem" class="com.amalto.core.server.DefaultItem"/>
+    <bean id="defaultMenu" class="com.amalto.core.server.DefaultMenu"/>
+    <bean id="defaultRole" class="com.amalto.core.server.DefaultRole"/>
+    <bean id="defaultRoutingRule" class="com.amalto.core.server.DefaultRoutingRule"/>
+    <bean id="defaultRoutingOrder" class="com.amalto.core.server.DefaultRoutingOrder"/>
+    <bean id="defaultStoredProcedure" class="com.amalto.core.server.DefaultStoredProcedure"/>
+    <bean id="defaultTransformer" class="com.amalto.core.server.DefaultTransformer"/>
+    <bean id="defaultView" class="com.amalto.core.server.DefaultView"/>
+    <bean id="defaultXmlServer" class="com.amalto.core.server.DefaultXmlServer"/>
+    <bean id="defaultRoutingEngine" class="com.amalto.core.server.routing.DefaultRoutingEngine"/>
+    <bean id="util" class="com.amalto.core.util.Util"/>
+
+    <!-- Routing engine -->
+    <context:component-scan base-package="com.amalto.core"/>
+    <bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL">
+                    <value>vm://localhost</value>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="routingEngineJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory">
+            <ref bean="jmsFactory"/>
+        </property>
+    </bean>
+    <jms:listener-container concurrency="5-10" connection-factory="jmsFactory" destination-type="queue">
+        <jms:listener destination="org.talend.mdm.server.routing.events" ref="defaultRoutingEngine" method="consume"/>
+    </jms:listener-container>
+
     <!-- Plugins -->
     <bean id="pluginFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
         <property name="serviceLocatorInterface" value="com.amalto.core.util.PluginFactory" />

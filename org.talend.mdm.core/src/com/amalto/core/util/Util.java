@@ -23,7 +23,6 @@ import com.amalto.core.objects.transformers.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.server.*;
-import com.amalto.core.server.routing.DefaultRoutingEngine;
 import com.amalto.core.webservice.WSMDMJob;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -39,6 +38,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import com.amalto.core.server.api.*;
@@ -75,7 +77,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @SuppressWarnings("deprecation")
-public class Util {
+public class Util implements ApplicationContextAware {
 
     private static final Logger LOGGER = Logger.getLogger(Util.class);
 
@@ -92,37 +94,37 @@ public class Util {
         SCRIPTFACTORY = new ScriptEngineManager();
     }
 
-    private static DefaultXmlServer defaultXmlServer;
+    private static XmlServer defaultXmlServer;
 
     private static DataModel defaultDataModel;
 
-    private static DefaultConfigurationInfo configurationInfo;
+    private static ConfigurationInfo configurationInfo;
 
-    private static DefaultMenu menu;
+    private static Menu menu;
 
-    private static DefaultRole role;
+    private static com.amalto.core.server.api.Role role;
 
-    private static DefaultDataCluster defaultDataCluster;
+    private static DataCluster defaultDataCluster;
 
-    private static DefaultCustomForm defaultCustomForm;
+    private static CustomForm defaultCustomForm;
 
-    private static DefaultBackgroundJob defaultBackgroundJob;
+    private static BackgroundJob defaultBackgroundJob;
 
-    private static DefaultView defaultView;
+    private static View defaultView;
 
-    private static DefaultStoredProcedure defaultStoredProcedure;
+    private static StoredProcedure defaultStoredProcedure;
 
-    private static DefaultItem defaultItem;
+    private static Item defaultItem;
 
-    private static DefaultDroppedItem defaultDroppedItem;
+    private static DroppedItem defaultDroppedItem;
 
-    private static DefaultRoutingRule defaultRoutingRule;
+    private static RoutingRule defaultRoutingRule;
 
-    private static DefaultRoutingEngine defaultRoutingEngine;
+    private static RoutingEngine defaultRoutingEngine;
 
-    private static DefaultRoutingOrder defaultRoutingOrder;
+    private static RoutingOrder defaultRoutingOrder;
 
-    private static DefaultTransformer defaultTransformer;
+    private static com.amalto.core.server.api.Transformer defaultTransformer;
 
     private static synchronized DocumentBuilderFactory getDocumentBuilderFactory() {
         if (nonValidatingDocumentBuilderFactory == null) {
@@ -742,7 +744,7 @@ public class Util {
 
     public static RoutingEngine getRoutingEngineV2CtrlLocal() {
         if (defaultRoutingEngine == null) {
-            defaultRoutingEngine = new DefaultRoutingEngine();
+            throw new IllegalStateException();
         }
         return defaultRoutingEngine;
     }
@@ -900,6 +902,11 @@ public class Util {
 
     public static boolean isEnterprise() {
         return false; // TODO
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        defaultRoutingEngine = applicationContext.getBean(RoutingEngine.class);
     }
 
     public static class BeforeDeleteResult {
