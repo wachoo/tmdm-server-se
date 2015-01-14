@@ -4167,6 +4167,35 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
+    public void testSetValueToFKPointToSelfEntity() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        // Add a record that FK point to self
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                PointToSelfEntity,
+                                "<PointToSelfEntity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>id1</Id><Name>name1</Name><FirstFK>[id1]</FirstFK></PointToSelfEntity>"));
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        
+        // Read record's value
+        storage.begin();
+        UserQueryBuilder qb = from(PointToSelfEntity);
+        StorageResults records = storage.fetch(qb.getSelect());
+        
+        try {
+            for (DataRecord result : records) {
+                assertEquals("id1", result.get(PointToSelfEntity.getField("Id")));
+            }
+            assertEquals(1, records.getCount());
+        } finally {
+            storage.commit();
+        }
+    }
+    
     private static class TestRDBMSDataSource extends RDBMSDataSource {
 
         private ContainsOptimization optimization;

@@ -16,8 +16,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.inmemory.MemoryStorage;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -103,6 +101,8 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata ContainedEntityC;
     
+    protected static final ComplexTypeMetadata PointToSelfEntity;
+    
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
     public static final String DATABASE = "H2";
@@ -147,6 +147,7 @@ public class StorageTestCase extends TestCase {
         ContainedEntityA = repository.getComplexType("ContainedEntityA");
         ContainedEntityB = repository.getComplexType("ContainedEntityB");
         ContainedEntityC = repository.getComplexType("ContainedEntityC");
+        PointToSelfEntity = repository.getComplexType("PointToSelfEntity");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
