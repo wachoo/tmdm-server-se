@@ -906,9 +906,7 @@ public class XConverter {
             return null;
         try {
             AbstractRoutingOrderV2POJOPK pojo = null;
-            if (s.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
-                pojo = new ActiveRoutingOrderV2POJOPK(s.getName());
-            } else if (s.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+            if (s.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
                 pojo = new CompletedRoutingOrderV2POJOPK(s.getName());
             } else if (s.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
                 pojo = new FailedRoutingOrderV2POJOPK(s.getName());

@@ -32,7 +32,7 @@
 
     <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out"/>
-        <param name="Threshold" value="ERROR"/>
+        <param name="Threshold" value="INFO"/>
 
         <layout class="org.apache.log4j.PatternLayout">
             <!-- The default pattern: Date Priority [Category] Message\n -->
@@ -70,7 +70,7 @@
     <!-- ======================= -->
 
     <root>
-        <level value="ERROR" />
+        <level value="DEBUG" />
         <appender-ref ref="CONSOLE"/>
         <!-- <appender-ref ref="rolling-file" />  -->
     </root>

@@ -241,18 +241,6 @@ public interface XtentisPort extends java.rmi.Remote {
     public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginV2SList)
             throws RemoteException;
 
-    public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrderV2) throws RemoteException;
-
-    public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException;
-
-    public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException;
-
-    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
-            WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException;
-
-    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
-            throws RemoteException;
-
     public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(
             WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException;
 
@@ -261,8 +249,6 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(
             WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws RemoteException;
-
-    public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException;
 
     public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException;
 

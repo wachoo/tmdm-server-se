@@ -710,33 +710,6 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
-    public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrderV2) throws RemoteException {
-        return delegate.getRoutingOrderV2(wsGetRoutingOrderV2);
-    }
-
-    @Override
-    public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException {
-        return delegate.existsRoutingOrderV2(wsExistsRoutingOrder);
-    }
-
-    @Override
-    public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
-        return delegate.deleteRoutingOrderV2(wsDeleteRoutingOrder);
-    }
-
-    @Override
-    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
-            WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
-        return delegate.executeRoutingOrderV2Asynchronously(wsExecuteRoutingOrderAsynchronously);
-    }
-
-    @Override
-    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
-            throws RemoteException {
-        return delegate.executeRoutingOrderV2Synchronously(wsExecuteRoutingOrderSynchronously);
-    }
-
-    @Override
     public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(
             WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
         return delegate.getRoutingOrderV2PKsByCriteria(wsGetRoutingOrderV2PKsByCriteria);
@@ -752,11 +725,6 @@ public class XtentisWebPort implements XtentisPort {
     public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(
             WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws RemoteException {
         return delegate.getRoutingOrderV2ByCriteriaWithPaging(wsGetRoutingOrderV2ByCriteriaWithPaging);
-    }
-
-    @Override
-    public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
-        return delegate.routeItemV2(wsRouteItem);
     }
 
     @Override

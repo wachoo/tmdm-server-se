@@ -141,8 +141,6 @@ import java.util.regex.Pattern;
 @Service("amalto/local/transformer/plugin/csvparser")
 public class CSVParserTransformerPluginBean extends Plugin {
 
-//	public static final String CALLBACK = "com.amalto.core.plugin.csvparser.callback";
-//	public static final String HANDLE =  "com.amalto.core.plugin.csvparser.handle";
 	public static final String SEPARATOR ="com.amalto.core.plugin.csvparser.separator";
 	public static final String MULTIPLELINES ="com.amalto.core.plugin.csvparser.multiplelines";
 	public static final String LINESEPARATOR ="com.amalto.core.plugin.csvparser.lineseparator";
@@ -169,9 +167,6 @@ public class CSVParserTransformerPluginBean extends Plugin {
 	}
 
 
-	/* (non-Javadoc)
-	 * @see com.amalto.core.ejb.ServiceCtrlBean#getServiceId()
-	 */
     /**
      * @throws XtentisException
      *

@@ -16,12 +16,11 @@ import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.Service;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
-import com.amalto.core.objects.routing.RoutingRuleExpressionPOJO;
-import com.amalto.core.objects.routing.RoutingRulePOJO;
-import com.amalto.core.objects.routing.RoutingRulePOJOPK;
+import com.amalto.core.objects.routing.*;
 import com.amalto.core.server.api.Item;
 import com.amalto.core.server.api.RoutingEngine;
 import com.amalto.core.server.api.RoutingRule;
+import com.amalto.core.server.security.SecurityConfig;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringUtils;
@@ -89,6 +88,9 @@ public class DefaultRoutingEngine implements RoutingEngine {
     private static boolean ruleExpressionMatches(ItemPOJO itemPOJO, RoutingRuleExpressionPOJO exp) throws XtentisException {
         Integer contentInt, expInt;
         String expXpath = exp.getXpath();
+        if (expXpath.startsWith(itemPOJO.getConceptName())) {
+            expXpath = StringUtils.substringAfter(expXpath, itemPOJO.getConceptName() + '/');
+        }
         try {
             String[] contents = Util.getTextNodes(itemPOJO.getProjection(), expXpath);
             if (contents.length == 0 && exp.getOperator() == RoutingRuleExpressionPOJO.IS_NULL) {
@@ -263,11 +265,11 @@ public class DefaultRoutingEngine implements RoutingEngine {
                 @Override
                 public Message createMessage(Session session) throws JMSException {
                     Message message = session.createMessage();
-                    message.setStringProperty("rule", routingRule.getPK().getUniqueId());
-                    message.setStringProperty("container", itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
-                    message.setStringProperty("type", itemPOJOPK.getConceptName());
-                    message.setStringProperty("pk", Arrays.toString(itemPOJOPK.getIds()));
-                    message.setStringProperty("parameters", routingRule.getParameters());
+                    message.setStringProperty("rule", routingRule.getPK().getUniqueId()); //$NON-NLS-1$
+                    message.setStringProperty("container", itemPOJOPK.getDataClusterPOJOPK().getUniqueId()); //$NON-NLS-1$
+                    message.setStringProperty("type", itemPOJOPK.getConceptName()); //$NON-NLS-1$
+                    message.setStringProperty("pk", Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$
+                    message.setStringProperty("parameters", routingRule.getParameters()); //$NON-NLS-1$
                     return message;
                 }
             });
@@ -285,11 +287,11 @@ public class DefaultRoutingEngine implements RoutingEngine {
     // Called by Spring, do not remove
     public void consume(final Message message) {
         try {
-            String rule = message.getStringProperty("rule");
+            final String rule = message.getStringProperty("rule");
             String container = message.getStringProperty("container");
             String type = message.getStringProperty("type");
-            String parameters = message.getStringProperty("parameters");
-            String pk = message.getStringProperty("pk");
+            final String parameters = message.getStringProperty("parameters");
+            final String pk = message.getStringProperty("pk");
             final RoutingRulePOJO routingRule = routingRules.getRoutingRule(new RoutingRulePOJOPK(rule));
             // Apparently rule is not (yet) deployed onto this system's DB instance, but... that 's rather unexpected
             // since all nodes in cluster are supposed to share same system DB.
@@ -297,33 +299,38 @@ public class DefaultRoutingEngine implements RoutingEngine {
                 throw new RuntimeException("Routing rule '" + rule + "' can not be found.");
             }
             // Proceed with rule execution
-            ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, new String[0]);
-            try {
-                Service service = (Service) Util.retrieveComponent(routingRule.getServiceJNDI());
-                service.receiveFromInbound(itemPOJOPK, message.getJMSMessageID(), parameters);
-                jmsTemplate.send(EVENTS_DESTINATION + ".completed", new MessageCreator() {
-
-                    @Override
-                    public Message createMessage(Session session) throws JMSException {
-                        Message message1 = session.createMessage();
-                        message1.setStringProperty("rule", routingRule.getPK().getUniqueId());
-                        return message1;
+            final ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, pk.split("\\.")); //$NON-NLS-1$
+            final Service service = Util.retrieveComponent(routingRule.getServiceJNDI());
+            SecurityConfig.invokeSynchronousPrivateInternal(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        service.receiveFromInbound(itemPOJOPK, message.getJMSMessageID(), parameters);
+                        message.acknowledge();
+                        // Record routing order was successfully executed.
+                        CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
+                        completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                        completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
+                        completedRoutingOrder.setServiceParameters(routingRule.getParameters());
+                        completedRoutingOrder.store();
+                    } catch (Exception e) {
+                        try {
+                            String err = "Unable to execute the Routing Order '" + message.getJMSMessageID() + "'."
+                                    + " The service: '" + routingRule.getServiceJNDI() + "' failed to execute. " + e.getMessage();
+                            // Record routing order has failed.
+                            FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
+                            failedRoutingOrder.setMessage(err);
+                            failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                            failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
+                            failedRoutingOrder.setServiceParameters(routingRule.getParameters());
+                            failedRoutingOrder.store();
+                        } catch (Exception e1) {
+                            LOGGER.error("Trigger execution execution error.", e);
+                            LOGGER.error("Unable to store trigger execution for '" + rule + "' on '" + pk + "'.", e1);
+                        }
                     }
-                });
-            } catch (Exception e) {
-                final String err = "Unable to execute the Routing Order '" + message.getJMSMessageID() + "'." + " The service: '"
-                        + routingRule.getServiceJNDI() + "' failed to execute. " + e.getMessage();
-                jmsTemplate.send(EVENTS_DESTINATION + ".failed", new MessageCreator() {
-
-                    @Override
-                    public Message createMessage(Session session) throws JMSException {
-                        Message message1 = session.createMessage();
-                        message1.setStringProperty("rule", routingRule.getPK().getUniqueId());
-                        message1.setStringProperty("error", err);
-                        return message1;
-                    }
-                });
-            }
+                }
+            });
         } catch (Exception e) {
             throw new RuntimeException("Unable to process message.", e);
         }

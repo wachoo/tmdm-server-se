@@ -31,7 +31,7 @@ http://www.springframework.org/schema/jms http://www.springframework.org/schema/
     <bean id="defaultView" class="com.amalto.core.server.DefaultView"/>
     <bean id="defaultXmlServer" class="com.amalto.core.server.DefaultXmlServer"/>
     <bean id="defaultRoutingEngine" class="com.amalto.core.server.routing.DefaultRoutingEngine"/>
-    <bean id="util" class="com.amalto.core.util.Util"/>
+    <bean id="routingEngineFactory" class="com.amalto.core.server.routing.RoutingEngineFactory"/>
 
     <!-- Routing engine -->
     <context:component-scan base-package="com.amalto.core"/>

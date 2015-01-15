@@ -4,14 +4,12 @@ import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
 import com.amalto.core.objects.routing.*;
 import com.amalto.core.util.RoutingException;
-import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import org.apache.log4j.Logger;
 import com.amalto.core.server.api.RoutingOrder;
 
-import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,213 +18,7 @@ import java.util.Date;
 
 public class DefaultRoutingOrder implements RoutingOrder {
 
-    private final static String LOGGING_EVENT = "logging_event"; //$NON-NLS-1$
-
-    private final static long DELAY = 5;  //time after which the send is accomplished asynchronously TODO: move to conf file
-
     private final static Logger LOGGER = Logger.getLogger(DefaultRoutingOrder.class);
-
-    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss,SSS"); //$NON-NLS-1$
-
-    /**
-     * Executes a Routing Order now
-     */
-    public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
-        return executeSynchronously(routingOrderPOJO, true);
-    }
-
-    /**
-     * Executes a Routing Order now
-     */
-    public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder) throws XtentisException {
-        switch (routingOrderPOJO.getStatus()) {
-            case AbstractRoutingOrderV2POJO.ACTIVE:
-                //run as designed
-                break;
-            case AbstractRoutingOrderV2POJO.COMPLETED:
-            case AbstractRoutingOrderV2POJO.FAILED:
-                //create an active routing order
-                ActiveRoutingOrderV2POJO activeRO = new ActiveRoutingOrderV2POJO(
-                        routingOrderPOJO.getName(),
-                        routingOrderPOJO.getTimeScheduled(),
-                        routingOrderPOJO.getItemPOJOPK(),
-                        routingOrderPOJO.getMessage(),
-                        routingOrderPOJO.getServiceJNDI(),
-                        routingOrderPOJO.getServiceParameters(),
-                        routingOrderPOJO.getBindingUniverseName(),
-                        routingOrderPOJO.getBindingUserToken()
-                );
-                //delete the existing one
-                if (cleanUpRoutingOrder) {
-                    removeRoutingOrder(routingOrderPOJO.getAbstractRoutingOrderPOJOPK());
-                }
-                //switch variables
-                routingOrderPOJO = activeRO;
-                break;
-        }
-        //update timing flags
-        routingOrderPOJO.setTimeLastRunStarted(System.currentTimeMillis());
-        //Now anything goes right or wrong, we clean up the routing order from the active queue
-        Object service = null;
-        try {
-            service = Util.retrieveComponent(routingOrderPOJO.getServiceJNDI());
-        } catch (Exception e) {
-            String err = "Unable to execute the Routing Order '" + routingOrderPOJO.getName() + "'." +
-                    " The service: '" + routingOrderPOJO.getServiceJNDI() + "' is not found. " + e.getMessage();
-            moveToFailedQueue(routingOrderPOJO, err, e, true);
-        }
-        String result = null;
-        try {
-            if (Util.getMethod(service, "setRoutingOrderPOJO") != null) {
-                Util.getMethod(service, "setRoutingOrderPOJO").invoke(service, routingOrderPOJO);
-            }
-            result = (String) Util.getMethod(service, "receiveFromInbound").invoke(
-                    service,
-                    routingOrderPOJO.getItemPOJOPK(),
-                    routingOrderPOJO.getName(),
-                    routingOrderPOJO.getServiceParameters());
-        } catch (IllegalArgumentException e) {
-            String err = "Unable to execute the Routing Order '" + routingOrderPOJO.getName() + "'." +
-                    " The service: '" + routingOrderPOJO.getServiceJNDI() + "' cannot be executed due to wrong parameters. " + e.getMessage();
-            moveToFailedQueue(routingOrderPOJO, err, e, true);
-        } catch (IllegalAccessException e) {
-            String err = "Unable to execute the Routing Order '" + routingOrderPOJO.getName() + "'." +
-                    " The service: '" + routingOrderPOJO.getServiceJNDI() + "' cannot be executed due to security reasons. " + e.getMessage();
-            moveToFailedQueue(routingOrderPOJO, err, e, true);
-            throw new XtentisException(err);
-        } catch (InvocationTargetException e) {
-            String err = "Unable to execute the Routing Order '" + routingOrderPOJO.getName() + "'." +
-                    " The service: '" + routingOrderPOJO.getServiceJNDI() + "' failed. ";
-            if (e.getCause() != null) {
-                err += (e.getCause() instanceof XtentisException ? "" : e.getCause().getClass().getName() + ": ") + e.getCause().getMessage();
-            }
-            moveToFailedQueue(routingOrderPOJO, err, e, true);
-        }
-        //The service call completed successfully -- add to the COMPLETED queue
-        moveToCompletedQueue(
-                routingOrderPOJO,
-                null,
-                true
-        );
-        return result;
-    }
-
-    private void moveToFailedQueue(AbstractRoutingOrderV2POJO routingOrderPOJO, String message, Exception e, boolean cleanUpRoutingOrder) throws XtentisException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("addToErrorQueue() " + routingOrderPOJO.getName() + ": " + message);
-        }
-        //Log
-        if (LOGGING_EVENT.equals(routingOrderPOJO.getItemPOJOPK().getConceptName())) {
-            LOGGER.info("ERROR SYSTRACE: " + message, e);
-        } else {
-            LOGGER.error(message, e);
-        }
-        //Create Failed Routing Order
-        FailedRoutingOrderV2POJO failedRO;
-        if (routingOrderPOJO instanceof FailedRoutingOrderV2POJO) {
-            failedRO = (FailedRoutingOrderV2POJO) routingOrderPOJO;
-        } else {
-            failedRO = new FailedRoutingOrderV2POJO(routingOrderPOJO);
-            if (cleanUpRoutingOrder) {
-                removeRoutingOrder(routingOrderPOJO.getAbstractRoutingOrderPOJOPK());
-            }
-        }
-        failedRO.setMessage(
-                failedRO.getMessage() +
-                        "\n---> FAILED " + sdf.format(new Date()) + ": " + message
-        );
-        putRoutingOrder(failedRO);
-        throw new RoutingException(message);
-    }
-
-    private void moveToCompletedQueue(AbstractRoutingOrderV2POJO routingOrderPOJO, String message, boolean cleanUpRoutingOrder) throws XtentisException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("moveToCompletedQueue() " + routingOrderPOJO.getName() + ": " + message);
-        }
-        try {
-            //Create the Completed Routing Order
-            CompletedRoutingOrderV2POJO completedRO;
-            if (routingOrderPOJO instanceof CompletedRoutingOrderV2POJO) {
-                completedRO = (CompletedRoutingOrderV2POJO) routingOrderPOJO;
-            } else {
-                completedRO = new CompletedRoutingOrderV2POJO(routingOrderPOJO);
-                if (cleanUpRoutingOrder) {
-                    removeRoutingOrder(routingOrderPOJO.getAbstractRoutingOrderPOJOPK());
-                }
-            }
-            completedRO.setMessage(
-                    completedRO.getMessage() +
-                            "\n---> COMPLETED " + sdf.format(new Date()) + (message != null ? "\n" + message : "")
-            );
-            putRoutingOrder(completedRO);
-        } catch (XtentisException e) {
-            //try to move to the error queue
-            String err = "ERROR SYSTRACE: Moving of routing order '" + routingOrderPOJO.getName() + "' to COMPLETED queue with message  '" + message + "' failed. Moving to FAILED queue.";
-            LOGGER.info(err, e);
-        }
-    }
-
-    /**
-     * Executes a Routing Order in delay milliseconds
-     */
-    public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, long delayInMillis) throws XtentisException {
-        // TODO
-        // createTimer(routingOrderPOJO, delayInMillis);
-    }
-
-    /**
-     * Executes a Routing Order in default DELAY milliseconds
-     */
-    public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
-        // TODO
-        // createTimer(routingOrderPOJO, DELAY);
-    }
-
-    /**
-     * Remove an item
-     */
-    public AbstractRoutingOrderV2POJOPK removeRoutingOrder(AbstractRoutingOrderV2POJOPK pk)
-            throws XtentisException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("removeRoutingOrder() " + pk.getUniqueId());
-        }
-        try {
-            if (ObjectPOJO.load(pk.getRoutingOrderClass(), pk) != null) {
-                ObjectPOJO.remove(pk.getRoutingOrderClass(), pk);
-            }
-            return pk;
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to remove the Routing Order of class " + pk.getRoutingOrderClass() + " and id " + pk.getName()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOGGER.error(err);
-            throw new XtentisException(err, e);
-        }
-    }
-
-    /**
-     * Creates or updates a Transformer
-     */
-    public AbstractRoutingOrderV2POJOPK putRoutingOrder(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("putRouting Order() " + routingOrderPOJO.getName());
-        }
-        try {
-            ObjectPOJOPK pk = routingOrderPOJO.store();
-            if (pk == null) {
-                return null;
-            }
-            return routingOrderPOJO.getAbstractRoutingOrderPOJOPK();
-        } catch (XtentisException e) {
-            throw (e);
-        } catch (Exception e) {
-            String err = "Unable to create/update the Routing Order. " + routingOrderPOJO.getPK().getUniqueId() + " with message\n" + routingOrderPOJO.getMessage()
-                    + "\n Exception: " + e.getClass().getName() + ": " + e.getLocalizedMessage();
-            LOGGER.error(err, e);
-            throw new XtentisException(err, e);
-        }
-    }
 
     /**
      * Get Routing Order
@@ -269,86 +61,6 @@ public class DefaultRoutingOrder implements RoutingOrder {
     }
 
     /**
-     * Find Active Routing Orders
-     */
-    public ActiveRoutingOrderV2POJO[] findActiveRoutingOrders(long lastScheduledTime, int maxRoutingOrders) throws XtentisException {
-        Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrderPKsByCriteriaWithPaging(ActiveRoutingOrderV2POJO.class,
-                null,
-                null,
-                -1,
-                -1,
-                -1,
-                lastScheduledTime,
-                -1,
-                -1,
-                -1,
-                -1,
-                null,
-                null,
-                null,
-                null,
-                null,
-                0,
-                maxRoutingOrders,
-                false);
-        if (pks.isEmpty()) {
-            return new ActiveRoutingOrderV2POJO[0];
-        }
-        ArrayList<ActiveRoutingOrderV2POJO> routingOrdersList = new ArrayList<ActiveRoutingOrderV2POJO>();
-        for (AbstractRoutingOrderV2POJOPK pk : pks) {
-            ActiveRoutingOrderV2POJO routingOrder = ObjectPOJO.load(ActiveRoutingOrderV2POJO.class, pk);
-            routingOrdersList.add(routingOrder);
-        }
-        return routingOrdersList.toArray(new ActiveRoutingOrderV2POJO[routingOrdersList.size()]);
-    }
-
-    /**
-     * Find Dead Routing Orders
-     */
-    public ActiveRoutingOrderV2POJO[] findDeadRoutingOrders(long maxLastRunStartedTime, int maxRoutingOrders) throws XtentisException {
-        Collection<AbstractRoutingOrderV2POJOPK> pks = getRoutingOrderPKsByCriteriaWithPaging(ActiveRoutingOrderV2POJO.class,
-                null,
-                null,
-                -1,
-                -1,
-                -1,
-                -1,
-                maxLastRunStartedTime,
-                -1,
-                -1,
-                -1,
-                null,
-                null,
-                null,
-                null,
-                null,
-                0,
-                maxRoutingOrders,
-                false);
-        if (pks.isEmpty()) {
-            return new ActiveRoutingOrderV2POJO[0];
-        }
-        ArrayList<ActiveRoutingOrderV2POJO> routingOrdersList = new ArrayList<ActiveRoutingOrderV2POJO>();
-        for (AbstractRoutingOrderV2POJOPK pk : pks) {
-            ActiveRoutingOrderV2POJO routingOrder = ObjectPOJO.load(ActiveRoutingOrderV2POJO.class, pk);
-            routingOrdersList.add(routingOrder);
-        }
-        return routingOrdersList.toArray( new ActiveRoutingOrderV2POJO[routingOrdersList.size()]);
-    }
-
-    /**
-     * Retrieve all Active Routing Order PKs
-     */
-    public Collection<ActiveRoutingOrderV2POJOPK> getActiveRoutingOrderPKs(String regex) throws XtentisException {
-        Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(ActiveRoutingOrderV2POJO.class, regex);
-        ArrayList<ActiveRoutingOrderV2POJOPK> l = new ArrayList<ActiveRoutingOrderV2POJOPK>();
-        for (ObjectPOJOPK activeRoutingOrder : c) {
-            l.add(new ActiveRoutingOrderV2POJOPK(activeRoutingOrder));
-        }
-        return l;
-    }
-
-    /**
      * Retrieve all Completed Routing Order PKs
      */
     public Collection<CompletedRoutingOrderV2POJOPK> getCompletedRoutingOrderPKs(String regex) throws XtentisException {
@@ -378,11 +90,9 @@ public class DefaultRoutingOrder implements RoutingOrder {
      */
     public Collection<AbstractRoutingOrderV2POJOPK> getAllRoutingOrderPKs(String regex) throws XtentisException {
         ArrayList<AbstractRoutingOrderV2POJOPK> l = new ArrayList<AbstractRoutingOrderV2POJOPK>();
-        l.addAll(getActiveRoutingOrderPKs(regex));
         l.addAll(getCompletedRoutingOrderPKs(regex));
         l.addAll(getFailedRoutingOrderPKs(regex));
         return l;
-
     }
 
     /**
@@ -469,9 +179,7 @@ public class DefaultRoutingOrder implements RoutingOrder {
         Collection<ObjectPOJOPK> col = ObjectPOJO.findPKsByCriteriaWithPaging(routingOrderV2POJOClass, new String[]{
                 pojoName + "/name", pojoName + "/@status"}, wAnd.getSize() == 0 ? null : wAnd, null, null, start, limit, withTotalCount);//$NON-NLS-1$ //$NON-NLS-2$
         for (ObjectPOJOPK objectPOJOPK : col) {
-            if (routingOrderV2POJOClass.equals(ActiveRoutingOrderV2POJO.class)) {
-                list.add(new ActiveRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
-            } else if (routingOrderV2POJOClass.equals(CompletedRoutingOrderV2POJO.class)) {
+            if (routingOrderV2POJOClass.equals(CompletedRoutingOrderV2POJO.class)) {
                 list.add(new CompletedRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
             } else if (routingOrderV2POJOClass.equals(FailedRoutingOrderV2POJO.class)) {
                 list.add(new FailedRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));

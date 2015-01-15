@@ -200,7 +200,7 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 		String message) {
 		this.message = message;
 	}
-	
+
 	public RoutingEngineV2POJOPK getRoutingEnginePOJOPK() {
 		return routingEnginePOJOPK;
 	}
@@ -235,34 +235,10 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 		this.bindingUserToken = bindingUserToken;
 	}
 
-	public Class<? extends AbstractRoutingOrderV2POJO> getRoutingOrderClass() {
-        switch (this.status) {
-           	case AbstractRoutingOrderV2POJO.ACTIVE:
-           		return ActiveRoutingOrderV2POJO.class;
-           	case AbstractRoutingOrderV2POJO.COMPLETED:
-           		return CompletedRoutingOrderV2POJO.class;
-           	case AbstractRoutingOrderV2POJO.FAILED:
-           		return FailedRoutingOrderV2POJO.class;
-        }
-        return null;
-    }
-	
-	
+
 	@Override
     public ObjectPOJOPK getPK() {
     	return new ObjectPOJOPK(new String[]{name,status+""});
     }
-	
-	public AbstractRoutingOrderV2POJOPK getAbstractRoutingOrderPOJOPK() {
-        switch (this.status) {
-           	case AbstractRoutingOrderV2POJO.ACTIVE:
-           		return new ActiveRoutingOrderV2POJOPK(name);
-           	case AbstractRoutingOrderV2POJO.COMPLETED:
-           		return new CompletedRoutingOrderV2POJOPK(name);
-           	case AbstractRoutingOrderV2POJO.FAILED:
-           		return new FailedRoutingOrderV2POJOPK(name);
-        }
-        return null;
-	}
 
 }

@@ -1,4 +1,4 @@
-package com.amalto.service.dumptoconsole.ejb;
+package com.amalto.service.dumptoconsole;
 
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.Service;
@@ -11,13 +11,10 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 
+@org.springframework.stereotype.Service("amalto/local/service/dumptoconsole")
 public class DumpToConsoleBean extends Service {
 
     private static final Logger LOGGER = Logger.getLogger(DumpToConsoleBean.class);
-
-    public String getServiceId() {
-        return "amalto/local/service/dumptoconsole";
-    }
 
     public String getConfiguration(String optionalParameters) {
         return "";

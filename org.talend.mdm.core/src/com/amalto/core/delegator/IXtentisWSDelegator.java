@@ -1542,7 +1542,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public WSBoolean existsTransformerPluginV2(WSExistsTransformerPluginV2 wsExistsTransformerPlugin) throws RemoteException {
         try {
-            return new WSBoolean(Util.existsComponent(null, wsExistsTransformerPlugin.getJndiName()));
+            return new WSBoolean(Util.existsComponent(wsExistsTransformerPlugin.getJndiName()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1551,10 +1551,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration)
             throws RemoteException {
         try {
-            Object service = Util.retrieveComponent(wsGetConfiguration.getJndiName());
-            String configuration = (String) Util.getMethod(service, "getConfiguration").invoke(service, //$NON-NLS-1$
-                    wsGetConfiguration.getOptionalParameter());
-            return new WSString(configuration);
+            Service service = Util.retrieveComponent(wsGetConfiguration.getJndiName());
+            return new WSString(service.getConfiguration(wsGetConfiguration.getOptionalParameter()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1563,9 +1561,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration)
             throws RemoteException {
         try {
-            Object service = Util.retrieveComponent(wsPutConfiguration.getJndiName());
-            Util.getMethod(service, "putConfiguration").invoke(service, wsPutConfiguration.getConfiguration());//$NON-NLS-1$
-            return new WSString(wsPutConfiguration.getConfiguration());
+            Service service = Util.retrieveComponent(wsPutConfiguration.getJndiName());
+            service.putConfiguration(wsPutConfiguration.getConfiguration());
+            return new WSString();
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1574,15 +1572,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     public WSTransformerPluginV2Details getTransformerPluginV2Details(
             WSGetTransformerPluginV2Details wsGetTransformerPluginDetails) throws RemoteException {
         try {
-            Object service = Util.retrieveComponent(wsGetTransformerPluginDetails.getJndiName());
-            String description = (String) Util.getMethod(service, "getDescription").invoke(//$NON-NLS-1$
-                    service, wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails//$NON-NLS-1$
-                            .getLanguage());
-            String documentation = (String) Util.getMethod(service, "getDocumentation").invoke(//$NON-NLS-1$
-                    service,
-                    wsGetTransformerPluginDetails.getLanguage() == null ? "" : wsGetTransformerPluginDetails.getLanguage());
-            String parametersSchema = (String) Util.getMethod(service, "getParametersSchema").invoke(service);//$NON-NLS-1$
-
+            Service service = Util.retrieveComponent(wsGetTransformerPluginDetails.getJndiName());
+            String description = service.getConfiguration(wsGetTransformerPluginDetails.getLanguage());
+            String documentation = service.getDocumentation(wsGetTransformerPluginDetails.getLanguage());
+            String parametersSchema = service.getDefaultConfiguration();
             ArrayList<TransformerPluginVariableDescriptor> inputVariableDescriptors = (ArrayList<TransformerPluginVariableDescriptor>) Util
                     .getMethod(service, "getInputVariableDescriptors").invoke(//$NON-NLS-1$
                             service, wsGetTransformerPluginDetails.getLanguage() == null ? ""//$NON-NLS-1$
@@ -1623,29 +1616,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 NameClassPair nc = list.next();
                 WSTransformerPluginV2SListItem item = new WSTransformerPluginV2SListItem();
                 item.setJndiName(nc.getName());
-                Object service = Util.retrieveComponent("amalto/local/transformer/plugin/" + nc.getName());//$NON-NLS-1$
-                String description = (String) Util.getMethod(service, "getDescription").invoke(//$NON-NLS-1$
-                        service, wsGetTransformerPluginsList.getLanguage() == null ? "" : wsGetTransformerPluginsList//$NON-NLS-1$
-                                .getLanguage());
+                Service service = Util.retrieveComponent("amalto/local/transformer/plugin/" + nc.getName());//$NON-NLS-1$
+                String description = service.getDocumentation(wsGetTransformerPluginsList.getLanguage());
                 item.setDescription(description);
                 wsList.add(item);
             }
             return new WSTransformerPluginV2SList(wsList.toArray(new WSTransformerPluginV2SListItem[wsList.size()]));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
-    public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrder) throws RemoteException {
-        try {
-            RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
-            return XConverter.POJO2WS(ctrl.getRoutingOrder(XConverter.WS2POJO(wsGetRoutingOrder.getWsRoutingOrderPK())));
-        } catch (Exception e) {
-            if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
-            }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
         }
     }
 
@@ -1662,60 +1640,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
-        try {
-            RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
-            return XConverter.POJO2WS(ctrl.removeRoutingOrder(XConverter.WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
-        } catch (Exception e) {
-            if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
-            }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
-        }
-    }
-
-    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
-            WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
-        try {
-            RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
-            AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderAsynchronously
-                    .getRoutingOrderV2PK()));
-            ctrl.executeAsynchronously(ro);
-            return XConverter.POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
-        } catch (Exception e) {
-            if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
-            }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
-        }
-    }
-
-    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
-            throws RemoteException {
-        try {
-            RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
-            AbstractRoutingOrderV2POJO ro = ctrl
-                    .getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderSynchronously.getRoutingOrderV2PK()));
-            return new WSString(ctrl.executeSynchronously(ro));
-        } catch (Exception e) {
-            if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
-            }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
-        }
-    }
-
     protected Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrdersByCriteria(WSRoutingOrderV2SearchCriteria criteria)
             throws Exception {
         try {
             RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
             Class<? extends AbstractRoutingOrderV2POJO> clazz = null;
-            if (criteria.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
-                clazz = ActiveRoutingOrderV2POJO.class;
-            } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+            if (criteria.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
                 clazz = CompletedRoutingOrderV2POJO.class;
             } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
                 clazz = FailedRoutingOrderV2POJO.class;
@@ -1740,9 +1670,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         try {
             RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
             Class<? extends AbstractRoutingOrderV2POJO> clazz = null;
-            if (criteria.getStatus().equals(WSRoutingOrderV2Status.ACTIVE)) {
-                clazz = ActiveRoutingOrderV2POJO.class;
-            } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
+            if (criteria.getStatus().equals(WSRoutingOrderV2Status.COMPLETED)) {
                 clazz = CompletedRoutingOrderV2POJO.class;
             } else if (criteria.getStatus().equals(WSRoutingOrderV2Status.FAILED)) {
                 clazz = FailedRoutingOrderV2POJO.class;

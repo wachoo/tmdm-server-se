@@ -5,47 +5,11 @@ package com.amalto.core.server.api;
 
 import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJO;
 import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJOPK;
-import com.amalto.core.objects.routing.ActiveRoutingOrderV2POJO;
 import com.amalto.core.util.XtentisException;
 
 public interface RoutingOrder {
-   /**
-    * Executes a Routing Order now
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
-
-   /**
-    * Executes a Routing Order now
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, boolean cleanUpRoutingOrder) throws XtentisException;
 
     /**
-    * Executes a Routing Order in delay milliseconds
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO, long delayInMillis) throws XtentisException;
-
-   /**
-    * Executes a Routing Order in default DELAY milliseconds
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
-
-   /**
-    * Remove an item
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public AbstractRoutingOrderV2POJOPK removeRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
-
-   /**
-    * Creates or updates a Transformer
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public AbstractRoutingOrderV2POJOPK putRoutingOrder(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
-
-   /**
     * Get Routing Order
     * @throws com.amalto.core.util.XtentisException
     */
@@ -57,25 +21,7 @@ public interface RoutingOrder {
     */
    public AbstractRoutingOrderV2POJO existsRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
 
-   /**
-    * Find Active Routing Orders
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public ActiveRoutingOrderV2POJO[] findActiveRoutingOrders(long lastScheduledTime, int maxRoutingOrders) throws XtentisException;
-
-   /**
-    * Find Dead Routing Orders
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public ActiveRoutingOrderV2POJO[] findDeadRoutingOrders(long maxLastRunStartedTime, int maxRoutingOrders) throws XtentisException;
-
-   /**
-    * Retrieve all Active Routing Order PKs
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public java.util.Collection getActiveRoutingOrderPKs(String regex) throws XtentisException;
-
-   /**
+    /**
     * Retrieve all Completed Routing Order PKs
     * @throws com.amalto.core.util.XtentisException
     */

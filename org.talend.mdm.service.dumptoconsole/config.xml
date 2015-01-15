@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<configuration xmlns="http://java.sun.com/xml/ns/jax-rpc/ri/config">
-
-	<wsdl location="/home/bgrieder/workspace/com.amalto.core/src/META-INF/wsdl/webservices.wsdl"
-	packageName="com.amalto.service.dumptoconsole.webservice"/>
-
-</configuration> 

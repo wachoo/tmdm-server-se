@@ -562,35 +562,6 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
-    public WSRoutingOrderV2 getRoutingOrderV2(WSGetRoutingOrderV2 wsGetRoutingOrder) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getRoutingOrderV2(wsGetRoutingOrder);
-    }
-
-    @Override
-    public WSRoutingOrderV2 existsRoutingOrderV2(WSExistsRoutingOrderV2 wsExistsRoutingOrder) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsRoutingOrderV2(wsExistsRoutingOrder);
-    }
-
-    @Override
-    public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteRoutingOrderV2(wsDeleteRoutingOrder);
-    }
-
-    @Override
-    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
-            WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .executeRoutingOrderV2Asynchronously(wsExecuteRoutingOrderAsynchronously);
-    }
-
-    @Override
-    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
-            throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .executeRoutingOrderV2Synchronously(wsExecuteRoutingOrderSynchronously);
-    }
-
-    @Override
     public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(
             WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
@@ -602,11 +573,6 @@ public class XtentisWSBean implements XtentisPort {
             throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
                 .getRoutingOrderV2SByCriteria(wsGetRoutingOrderV2SByCriteria);
-    }
-
-    @Override
-    public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().routeItemV2(wsRouteItem);
     }
 
     @Override

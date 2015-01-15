@@ -24,8 +24,6 @@ public abstract class AbstractRoutingOrderV2POJOPK extends ObjectPOJOPK {
 
     public Class<? extends AbstractRoutingOrderV2POJO> getRoutingOrderClass() throws XtentisException{
         switch (getStatus()) {
-           	case AbstractRoutingOrderV2POJO.ACTIVE:
-           		return ActiveRoutingOrderV2POJO.class;
            	case AbstractRoutingOrderV2POJO.COMPLETED:
            		return CompletedRoutingOrderV2POJO.class;
            	case AbstractRoutingOrderV2POJO.FAILED:

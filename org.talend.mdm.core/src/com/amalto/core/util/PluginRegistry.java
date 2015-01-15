@@ -12,16 +12,17 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-
 import com.amalto.core.objects.Plugin;
+import com.amalto.core.objects.Service;
 
 public class PluginRegistry {
 
     private static PluginRegistry instance;
 
-    private PluginFactory pluginFactory;
+    private PluginFactory         pluginFactory;
+
+    private PluginRegistry() {
+    }
 
     public static synchronized PluginRegistry createInstance() {
         if (instance != null) {
@@ -38,11 +39,12 @@ public class PluginRegistry {
         return instance;
     }
 
-    private PluginRegistry() {
-    }
-
     public Plugin getPlugin(String pluginName) {
         return pluginFactory.getPlugin(pluginName);
+    }
+
+    public Service getService(String serviceName) {
+        return pluginFactory.getService(serviceName);
     }
 
     public void setPluginFactory(PluginFactory pluginFactory) {

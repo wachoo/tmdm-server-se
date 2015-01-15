@@ -23,6 +23,7 @@ import com.amalto.core.objects.transformers.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.server.*;
+import com.amalto.core.server.routing.RoutingEngineFactory;
 import com.amalto.core.webservice.WSMDMJob;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.WhereCondition;
@@ -38,9 +39,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import com.amalto.core.server.api.*;
@@ -77,7 +75,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @SuppressWarnings("deprecation")
-public class Util implements ApplicationContextAware {
+public class Util {
 
     private static final Logger LOGGER = Logger.getLogger(Util.class);
 
@@ -119,8 +117,6 @@ public class Util implements ApplicationContextAware {
     private static DroppedItem defaultDroppedItem;
 
     private static RoutingRule defaultRoutingRule;
-
-    private static RoutingEngine defaultRoutingEngine;
 
     private static RoutingOrder defaultRoutingOrder;
 
@@ -743,10 +739,7 @@ public class Util implements ApplicationContextAware {
     }
 
     public static RoutingEngine getRoutingEngineV2CtrlLocal() {
-        if (defaultRoutingEngine == null) {
-            throw new IllegalStateException();
-        }
-        return defaultRoutingEngine;
+        return RoutingEngineFactory.getRoutingEngine();
     }
 
     private static Pattern extractCharsetPattern = Pattern.compile(".*charset\\s*=(.+)");
@@ -892,21 +885,16 @@ public class Util implements ApplicationContextAware {
         return null;
     }
 
-    public static boolean existsComponent(Object o, String jndiName) {
-        return false;
+    public static boolean existsComponent(String jndiName) {
+        return PluginRegistry.getInstance().getService(jndiName) != null;
     }
 
-    public static Object retrieveComponent(String jndiName) {
-        return PluginRegistry.getInstance().getPlugin(jndiName);
+    public static Service retrieveComponent(String jndiName) {
+        return PluginRegistry.getInstance().getService(jndiName);
     }
 
     public static boolean isEnterprise() {
         return false; // TODO
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        defaultRoutingEngine = applicationContext.getBean(RoutingEngine.class);
     }
 
     public static class BeforeDeleteResult {
@@ -1394,7 +1382,6 @@ public class Util implements ApplicationContextAware {
                         if (dirName.endsWith("undeploy.wsdd")) {
                             Pattern p = Pattern.compile(".*?_(\\d_\\d)/undeploy.wsdd");
                             Matcher m = p.matcher(dirName);
-                            m.groupCount();
                             if (m.matches()) {
                                 jobVersion = m.group(1);
                             }

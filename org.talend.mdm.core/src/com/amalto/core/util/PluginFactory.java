@@ -13,8 +13,11 @@
 package com.amalto.core.util;
 
 import com.amalto.core.objects.Plugin;
+import com.amalto.core.objects.Service;
 
 public interface PluginFactory {
 
     public Plugin getPlugin(String pluginName);
+
+    public Service getService(String serviceName);
 }

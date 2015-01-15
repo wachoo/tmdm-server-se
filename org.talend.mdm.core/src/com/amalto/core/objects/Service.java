@@ -8,12 +8,6 @@ import java.util.HashMap;
 public abstract class Service {
 
     /**
-     * Returns the unique id of the service. The id name must be unique within all other servcices. A id like
-     * "name/of/implementor/service/[NAME]" where [NAME] matchs the pattern "[a-zA-Z][a-zA-Z0-9]*" is expected.
-     */
-    public abstract String getServiceId();
-
-    /**
      * Returns the description of the service. Can be null if not available.
      */
     public abstract String getDescription(String twoLettersLanguageCode);

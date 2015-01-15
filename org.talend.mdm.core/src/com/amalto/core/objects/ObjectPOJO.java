@@ -60,7 +60,6 @@ public abstract class ObjectPOJO implements Serializable {
             { "Menu", MenuPOJO.class }, //$NON-NLS-1$
             { "Background Job", BackgroundJobPOJO.class }, //$NON-NLS-1$
             { "Configuration Info", ConfigurationInfoPOJO.class }, //$NON-NLS-1$
-            { "Routing Order V2 Active", ActiveRoutingOrderV2POJO.class }, //$NON-NLS-1$
             { "Routing Order V2 Failed", FailedRoutingOrderV2POJO.class }, //$NON-NLS-1$
             { "Routing Order V2 Completed", CompletedRoutingOrderV2POJO.class }, //$NON-NLS-1$
             { "Routing Engine V2", RoutingEngineV2POJO.class }, //$NON-NLS-1$
