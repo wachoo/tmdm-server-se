@@ -798,12 +798,12 @@ public class StorageQueryTest extends StorageTestCase {
         // Test ASC direction
         FieldMetadata personLastName = person.getField("lastname");
         UserQueryBuilder qb = from(person).select(personLastName).orderBy(person.getField("id"), OrderBy.Direction.ASC);
-        String[] ascExpectedValues = { "Dupond", "Dupont", "Leblanc", "Leblanc" };
+        String[] ascExpectedValues = { "Dupond", "Dupont", "Leblanc" };
 
         StorageResults results = storage.fetch(qb.getSelect());
         try {
-            assertEquals(4, results.getSize());
-            assertEquals(4, results.getCount());
+            assertEquals(3, results.getSize());
+            assertEquals(3, results.getCount());
 
             int i = 0;
             for (DataRecord result : results) {

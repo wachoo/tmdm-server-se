@@ -239,8 +239,8 @@ public class StorageSaverSource implements SaverSource {
                 if (superType != null) {
                     concept = superType.getName();
                 }                
-                String autoIncrementFiledName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
-                autoIncrementId = AutoIncrementGenerator.get().generateId(dataCluster, conceptName, autoIncrementFiledName);
+                String autoIncrementFieldName = field != null ? field : concept;
+                autoIncrementId = AutoIncrementGenerator.get().generateId(dataCluster, concept, autoIncrementFieldName);
             } 
         }
         return autoIncrementId;

@@ -260,6 +260,10 @@ public class CommonUtil {
                         String modelType = el
                                 .attributeValue(new QName("type", new Namespace("tmdm", "http://www.talend.com/mdm"))); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
                         itemBean.set(path, path + "-" + el.getText()); //$NON-NLS-1$
+                        itemBean.setForeignkeyDesc(
+                                path + "-" + el.getText(), //$NON-NLS-1$
+                                org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyDesc(typeModel,
+                                        el.getText(), false, modelType, map.get(typeModel.getXpath()), language, isStaging));
                     } else if (typeModel != null && DataTypeConstants.BOOLEAN.equals(typeModel.getType())) {
                         if (Constants.BOOLEAN_TRUE_DISPLAY_VALUE.equals(el.getText())
                                 || Constants.BOOLEAN_TRUE_VALUE.equals(el.getText())) {
