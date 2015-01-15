@@ -7,9 +7,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
 http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
-    <!-- Redirect java.util.logging to Log4J -->
-    <bean class="com.amalto.core.util.JULLog4jHandler" />
-
     <!-- MDM -->
     <import resource="classpath*:META-INF/mdm-context.xml" />
 
