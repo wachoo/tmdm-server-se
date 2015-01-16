@@ -809,7 +809,13 @@ public class MainFramePanel extends Portal {
         service.savePortalConfig(props, new SessionAwareAsyncCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                // TODO Nothing to do?
+                return;
+            }
+
+            @Override
+            protected void doOnFailure(Throwable caught) {
+                super.doOnFailure(caught);
+                return;
             }
         });
 
