@@ -30,26 +30,11 @@
                 <!-- Additional properties (optional) -->
                 <properties>
                     <property name="hibernate.show_sql">false</property>
+                    <property name="hibernate.connection.DB_CLOSE_ON_EXIT">FALSE</property>
+                    <property name="hibernate.connection.MVCC">TRUE</property>
                 </properties>
             </rdbms-configuration>
         </master>
-        <staging>
-            <type>RDBMS</type>
-            <rdbms-configuration>
-                <dialect>H2</dialect>
-                <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2://tmp/data/staging/${container}</connection-url>
-                <connection-username>sa</connection-username>
-                <connection-password></connection-password>
-                <!-- Schema generation behavior (optional)                -->
-                <!-- Possible values: update (default)/ create / validate -->
-                <schema-generation>update</schema-generation>
-                <!-- Additional properties (optional) -->
-                <properties>
-                    <property name="hibernate.show_sql">false</property>
-                </properties>
-            </rdbms-configuration>
-        </staging>
         <system>
             <type>RDBMS</type>
             <rdbms-configuration>
@@ -64,6 +49,8 @@
                 <!-- Additional properties (optional) -->
                 <properties>
                     <property name="hibernate.show_sql">false</property>
+                    <property name="hibernate.connection.DB_CLOSE_ON_EXIT">FALSE</property>
+                    <property name="hibernate.connection.MVCC">TRUE</property>
                 </properties>
             </rdbms-configuration>
         </system>

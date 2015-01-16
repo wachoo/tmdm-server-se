@@ -7,12 +7,14 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:/tmp/data/${container}/h2_default;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:/tmp/data/${container}/h2_default</connection-url>
                 <fulltext-index-directory>/tmp/indexes/${container}</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
                 <schema-generation>update</schema-generation>
                 <properties>
                     <property name="hibernate.show_sql">false</property>
+                    <property name="hibernate.connection.DB_CLOSE_ON_EXIT">FALSE</property>
+                    <property name="hibernate.connection.MVCC">TRUE</property>
                 </properties>
             </rdbms-configuration>
         </master>
@@ -21,12 +23,14 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:/tmp/data/system/h2_system;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:/tmp/data/system/h2_system</connection-url>
                 <fulltext-index-directory>/tmp/indexes/H2_SYSTEM</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
                 <schema-generation>update</schema-generation>
                 <properties>
                     <property name="hibernate.show_sql">false</property>
+                    <property name="hibernate.connection.DB_CLOSE_ON_EXIT">FALSE</property>
+                    <property name="hibernate.connection.MVCC">TRUE</property>
                 </properties>
             </rdbms-configuration>
         </system>
