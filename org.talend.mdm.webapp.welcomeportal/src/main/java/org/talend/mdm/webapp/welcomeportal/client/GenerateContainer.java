@@ -45,6 +45,7 @@ public class GenerateContainer {
             // }
         };
         instance.setId(WelcomePortal.WELCOMEPORTAL_ID);
+        instance.setHeaderVisible(false);
         instance.setHeading(MessagesFactory.getMessages().welcome_title());
 
     }

@@ -201,19 +201,11 @@
         <url-pattern>/ui</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.welcomeportal -->
-    <servlet>
-        <servlet-name>welcomeportalServlet</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
-    </servlet>
     <servlet-mapping>
-        <servlet-name>welcomeportalServlet</servlet-name>
+        <servlet-name>GeneralService</servlet-name>
         <url-pattern>/welcomeportal/WelcomePortalService</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.browserecords -->
-    <servlet>
-        <servlet-name>browserecordsServlet</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
-    </servlet>
     <servlet>
         <servlet-name>baseRemoteServlet</servlet-name>
         <servlet-class>org.talend.mdm.webapp.base.server.BaseRemoteServiceImpl</servlet-class>
@@ -243,11 +235,11 @@
         <servlet-class>org.talend.mdm.webapp.browserecords.server.servlet.ExportingServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>browserecordsServlet</servlet-name>
+        <servlet-name>GeneralService</servlet-name>
         <url-pattern>/browserecords/BrowseRecordsService</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>browserecordsServlet</servlet-name>
+        <servlet-name>GeneralService</servlet-name>
         <url-pattern>/browserecordsinstaging/BrowseRecordsService</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -279,25 +271,17 @@
         <url-pattern>/browserecords/ExportingServlet</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.recyclebin -->
-    <servlet>
-        <servlet-name>recyclebinServlet</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
-    </servlet>
     <servlet-mapping>
-        <servlet-name>recyclebinServlet</servlet-name>
+        <servlet-name>GeneralService</servlet-name>
         <url-pattern>/recyclebin/RecycleBinService</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.journal -->
-    <servlet>
-        <servlet-name>journalServlet</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
-    </servlet>
     <servlet>
         <servlet-name>journalExportServlet</servlet-name>
         <servlet-class>org.talend.mdm.webapp.journal.server.servlet.JournalExportServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>journalServlet</servlet-name>
+        <servlet-name>GeneralService</servlet-name>
         <url-pattern>/journal/JournalService</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -305,20 +289,12 @@
         <url-pattern>/journal/journalExport</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.webapp.stagingarea -->
-    <servlet>
-        <servlet-name>stagingareaServlet</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>StagingAreaBrowseService</servlet-name>
-        <servlet-class>org.talend.mdm.webapp.general.gwt.ProxyGWTServiceImpl</servlet-class>
-    </servlet>
     <servlet-mapping>
-        <servlet-name>stagingareaServlet</servlet-name>
+        <servlet-name>GeneralService</servlet-name>
         <url-pattern>/stagingarea/StagingAreaService</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>StagingAreaBrowseService</servlet-name>
+        <servlet-name>GeneralService</servlet-name>
         <url-pattern>/stagingareabrowse/StagingAreaBrowseService</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.ext.images.server -->
