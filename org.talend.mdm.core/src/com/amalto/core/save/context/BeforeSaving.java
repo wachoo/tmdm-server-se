@@ -115,10 +115,13 @@ public class BeforeSaving implements DocumentSaver {
                             context.setDatabaseDocument(null);
                             if (context.getUserAction() == UserAction.CREATE) {
                                 context.setId(new String[0]); // Will re-read id from document.
+                                
+                                // Redo a set of actions and security checks.
+                                // TMDM-4599: Adds UpdateReport phase so a new update report is generated based on latest changes.
+                                next = new ID(new GenerateActions(new Security(new UpdateReport(new ApplyActions(next)))));
+                            } else if (context.getUserAction() == UserAction.UPDATE){
+                                next = new ID(new Security(new UpdateReport(new ApplyActions(next))));
                             }
-                            // Redo a set of actions and security checks.
-                            // TMDM-4599: Adds UpdateReport phase so a new update report is generated based on latest changes.
-                            next = new ID(new GenerateActions(new Security(new UpdateReport(new ApplyActions(next)))));
                         }
                     }
                 }
