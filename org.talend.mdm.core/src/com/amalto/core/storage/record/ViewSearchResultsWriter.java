@@ -19,6 +19,7 @@ import java.io.Writer;
 import javax.xml.XMLConstants;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.talend.mdm.commmon.metadata.AliasedFieldMetadata;
 import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
@@ -103,6 +104,11 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
                 if (!stringValue.startsWith("[")) { //$NON-NLS-1$
                     stringValue = "[" + MetadataUtils.toString(value, ((ReferenceFieldMetadata) fieldMetadata).getReferencedField()) + ']'; //$NON-NLS-1$
                 }
+            }
+        }
+        if (fieldMetadata instanceof AliasedFieldMetadata && ((AliasedFieldMetadata)fieldMetadata).getAliasedField() instanceof ReferenceFieldMetadata) {
+            if (!stringValue.startsWith("[")) { //$NON-NLS-1$
+                stringValue = "[" + MetadataUtils.toString(value, ((ReferenceFieldMetadata) ((AliasedFieldMetadata)fieldMetadata).getAliasedField()).getReferencedField()) + ']'; //$NON-NLS-1$
             }
         }
         out.append(StringEscapeUtils.escapeXml(stringValue));
