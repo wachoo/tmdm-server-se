@@ -30,8 +30,6 @@ public interface Webapp {
 
     public boolean isExpired(String language) throws Exception;
 
-    public boolean isShowMsg() throws Exception;
-
     public boolean isDataSteWardShip() throws Exception;
 
     public boolean isEnterpriseVersion();
@@ -41,10 +39,6 @@ public interface Webapp {
     public Map<Boolean, Integer> getWelcomePortletConfig();
 
     public static final Webapp INSTANCE = WebappFactory.createWebapp();
-
-    public static final String DSCTASK_STATUS_NEW = "new"; //$NON-NLS-1$
-
-    public static final String DSCTASK_STATUS_PENDING = "pending"; //$NON-NLS-1$
 
     public static final class WebappFactory {
 

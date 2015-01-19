@@ -50,6 +50,7 @@
             <artifactId>org.talend.mdm.webapp.stagingarea</artifactId>
             <type>war</type>
         </dependency>
+        <!-- SE lib dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core.storage.sql</artifactId>
@@ -66,5 +67,21 @@
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.calljob.plugin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.service.calljob</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.service.calltransformer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.service.dumptoconsole</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 </project>

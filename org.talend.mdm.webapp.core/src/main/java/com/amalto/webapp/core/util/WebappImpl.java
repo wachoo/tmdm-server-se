@@ -37,9 +37,10 @@ public class WebappImpl implements Webapp {
     @Override
     public Map<String, Integer> getDSCTaskMsg() {
         Map<String, Integer> taskStatus = new HashMap<String, Integer>();
-        taskStatus.put(DSCTASK_STATUS_NEW, 0);
-        taskStatus.put(DSCTASK_STATUS_PENDING, 0);
+        taskStatus.put("new", 0); //$NON-NLS-1$
+        taskStatus.put("pending", 0); //$NON-NLS-1$
         return taskStatus;
+
     }
 
     @Override
@@ -49,11 +50,6 @@ public class WebappImpl implements Webapp {
 
     @Override
     public boolean isExpired(String language) throws Exception {
-        return false;
-    }
-
-    @Override
-    public boolean isShowMsg() throws Exception {
         return false;
     }
 
