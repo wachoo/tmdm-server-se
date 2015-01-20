@@ -78,7 +78,7 @@
     </build>
 
     <dependencies>
-        <!-- 6.0 dependencies -->
+        <!-- 3rd party dependencies -->
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-pool</artifactId>
@@ -90,22 +90,16 @@
             <version>5.7.0</version>
         </dependency>
         <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.neethi</groupId>
             <artifactId>neethi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>2.7.11</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            <version>2.7.11</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
@@ -170,7 +164,6 @@
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
-            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -191,10 +184,6 @@
             <artifactId>org.talend.mdm.commons.core</artifactId>
         </dependency>
         <!-- 3rd dependencies -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-bundle</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.abdera</groupId>
             <artifactId>abdera-core</artifactId>

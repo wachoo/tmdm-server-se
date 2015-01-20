@@ -58,9 +58,9 @@
         </dependency>
         <!-- 3rd party dependencies -->
         <dependency>
-        	<groupId>jstl</groupId>
-        	<artifactId>jstl</artifactId>
-        	<version>1.2</version>
+            <!-- for login.jsp -->
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -118,11 +118,6 @@
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.commons.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-core-api-module</artifactId>
-            <version>1.4.9</version>
         </dependency>
     </dependencies>
 </project>

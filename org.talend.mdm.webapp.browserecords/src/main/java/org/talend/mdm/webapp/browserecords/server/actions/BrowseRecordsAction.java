@@ -1597,7 +1597,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             XSComplexType type = (XSComplexType) decl.getType();
             XSParticle[] xsp = type.getContentType().asParticle().getTerm().asModelGroup().getChildren();
             for (XSParticle obj : xsp) {
-                if (obj.getMinOccurs() == 1 && obj.getMaxOccurs() == 1) {
+                if (obj.getMinOccurs().intValue() == 1 && obj.getMaxOccurs().intValue() == 1) {
                     fieldNames.add(obj.getTerm().asElementDecl().getName());
                 }
             }
