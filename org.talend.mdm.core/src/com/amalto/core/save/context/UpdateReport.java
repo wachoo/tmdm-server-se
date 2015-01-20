@@ -11,10 +11,12 @@
 
 package com.amalto.core.save.context;
 
+import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.w3c.dom.Document;
@@ -37,8 +39,13 @@ class UpdateReport implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
         UpdateReportDocument updateReportDocument;
         Document updateReportAsDOM = (Document) SaverContextFactory.EMPTY_UPDATE_REPORT.cloneNode(true);
+        if(isInvokeBeforeSaving(context)) {
+            if(context.getUpdateReportDocument() != null){
+                updateReportAsDOM = context.getUpdateReportDocument().asDOM();
+            }
+        }       
         updateReportDocument = new UpdateReportDocument(updateReportAsDOM);
-
+        
         StringBuilder key = new StringBuilder();
         String[] id = context.getId();
         for (int i = 0; i < id.length; i++) {
@@ -67,6 +74,9 @@ class UpdateReport implements DocumentSaver {
             action.perform(updateReportDocument);
             action.undo(updateReportDocument);
         }
+        if (context.getUpdateReportDocument() == null) {
+            updateReportDocument.setOperationType(UpdateReportPOJO.OPERATION_TYPE_UPDATE);
+        }
         updateReportDocument.disableRecordFieldChange();
 
         context.setUpdateReportDocument(updateReportDocument);
@@ -76,6 +86,14 @@ class UpdateReport implements DocumentSaver {
     private void setHeader(MutableDocument updateReportDocument, String fieldName, String value) {
         Accessor accessor = updateReportDocument.createAccessor(fieldName);
         accessor.set(value);
+    }
+    
+    private boolean isInvokeBeforeSaving(DocumentSaverContext context) {
+        if (context instanceof ReportDocumentSaverContext && ((ReportDocumentSaverContext)context).getDelegate() instanceof StorageSaver) {
+            StorageSaver saver = (StorageSaver) ((ReportDocumentSaverContext)context).getDelegate();
+            return saver.isInvokeBeforeSaving();
+        }
+        return false;
     }
 
     @Override
