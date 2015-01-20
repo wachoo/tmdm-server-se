@@ -163,4 +163,8 @@ public class ReportDocumentSaverContext extends AbstractDocumentSaverContext {
     public void setId(String[] id) {
         delegate.setId(id);
     }
+
+    public DocumentSaverContext getDelegate() {
+        return this.delegate;
+    }
 }
