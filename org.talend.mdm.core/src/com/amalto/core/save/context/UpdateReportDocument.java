@@ -69,20 +69,7 @@ class UpdateReportDocument extends DOMDocument {
     @Override
     public MutableDocument create(MutableDocument content) {
         isCreated = true;
-        Element item = null;
-        NodeList operationTypeNodeList = updateReportDocument.getElementsByTagName("OperationType"); //$NON-NLS-1$
-        for (int i=0;i<operationTypeNodeList.getLength();i++) {
-            Node operationTypeNode = operationTypeNodeList.item(i);
-            if (Node.ELEMENT_NODE ==  operationTypeNode.getNodeType()) {
-                item = (Element)operationTypeNode;                
-                break;
-            }
-        }
-        if (item == null) {
-            item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
-        }
-        item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_CREATE));
-        updateReportDocument.getDocumentElement().appendChild(item);
+        setOperationType(UpdateReportPOJO.OPERATION_TYPE_CREATE);
         return this;
     }
 
@@ -103,23 +90,33 @@ class UpdateReportDocument extends DOMDocument {
     }
 
     public void disableRecordFieldChange() {
-        if (!isCreated) {
-            Element item = null;
-            NodeList operationTypeNodeList = updateReportDocument.getElementsByTagName("OperationType"); //$NON-NLS-1$
-            for (int i=0;i<operationTypeNodeList.getLength();i++) {
-                Node operationTypeNode = operationTypeNodeList.item(i);
-                if (Node.ELEMENT_NODE ==  operationTypeNode.getNodeType()) {
-                    item = (Element)operationTypeNode;
-                    break;
-                }
-            }
-            if (item == null) {
-                item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
-            }
-            item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_UPDATE));
-            updateReportDocument.getDocumentElement().appendChild(item);
-        }
         isRecordingFieldChange = false;
+    }
+    
+    public void setOperationType(String operationType) {
+        Element item = null;
+        NodeList operationTypeNodeList = updateReportDocument.getElementsByTagName("OperationType"); //$NON-NLS-1$
+        for (int i=0;i<operationTypeNodeList.getLength();i++) {
+            Node operationTypeNode = operationTypeNodeList.item(i);
+            if (Node.ELEMENT_NODE ==  operationTypeNode.getNodeType()) {
+                item = (Element)operationTypeNode;
+                break;
+            }
+        }
+        if (item == null) {
+            item = updateReportDocument.createElement("OperationType"); //$NON-NLS-1$
+        }
+        if (operationType.equalsIgnoreCase(UpdateReportPOJO.OPERATION_TYPE_CREATE)) {
+            if(!item.getTextContent().equalsIgnoreCase(UpdateReportPOJO.OPERATION_TYPE_CREATE)){
+                item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_CREATE));
+                updateReportDocument.getDocumentElement().appendChild(item);
+            }
+        } else if (operationType.equalsIgnoreCase(UpdateReportPOJO.OPERATION_TYPE_UPDATE)) {
+            if (!isCreated) {
+                item.appendChild(updateReportDocument.createTextNode(UpdateReportPOJO.OPERATION_TYPE_UPDATE));
+                updateReportDocument.getDocumentElement().appendChild(item);
+            }
+        }
     }
 
     @Override
