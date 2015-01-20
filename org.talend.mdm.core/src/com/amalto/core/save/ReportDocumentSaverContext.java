@@ -159,4 +159,8 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
     public void setId(String[] id) {
         delegate.setId(id);
     }
+
+    public DocumentSaverContext getDelegate() {
+        return this.delegate;
+    }
 }
