@@ -155,8 +155,7 @@ class GenerateActions implements DocumentSaver {
         }
         // Ignore rest of save chain if there's no change to perform.
         boolean hasModificationActions = hasModificationActions(actions);
-        if (hasModificationActions) {
-            next.save(session, context);
+        if (hasModificationActions || isInvokeBeforeSaving(context)) { // Ignore rest of save chain if there's no change to perform.            next.save(session, context);
         }
     }
 
@@ -165,6 +164,14 @@ class GenerateActions implements DocumentSaver {
             if(!action.isTransient()) {
                 return true;
             }
+        }
+        return false;
+    }
+    
+    private boolean isInvokeBeforeSaving(DocumentSaverContext context) {
+        if (context instanceof ReportDocumentSaverContext && ((ReportDocumentSaverContext)context).getDelegate() instanceof StorageSaver) {
+            StorageSaver saver = (StorageSaver) ((ReportDocumentSaverContext)context).getDelegate();
+            return saver.isInvokeBeforeSaving();
         }
         return false;
     }
