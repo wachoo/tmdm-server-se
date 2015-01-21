@@ -16,6 +16,7 @@ import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.history.action.LogicalDeleteAction;
 import com.amalto.core.history.action.PhysicalDeleteAction;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.util.SynchronizedNow;
