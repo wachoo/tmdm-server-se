@@ -14,6 +14,8 @@ package org.talend.mdm.webapp.general.server.servlet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -21,7 +23,6 @@ import javax.servlet.ServletContextListener;
 
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.util.ServletContextPropertyUtils;
-import org.springframework.web.util.WebUtils;
 
 public class MDMContextListener implements ServletContextListener {
 
@@ -38,18 +39,26 @@ public class MDMContextListener implements ServletContextListener {
         String resolvedLocation = ServletContextPropertyUtils.resolvePlaceholders(location, servletContext);
         servletContext.log("Initializing MDM root folder from [" + resolvedLocation + "]"); //$NON-NLS-1$ //$NON-NLS-2$
         try {
-            if (!ResourceUtils.isUrl(resolvedLocation)) {
-                resolvedLocation = WebUtils.getRealPath(servletContext, resolvedLocation);
+            File file;
+            if (ResourceUtils.isUrl(resolvedLocation)) {
+                URL resolvedLocationURL = new URL(resolvedLocation);
+                file = ResourceUtils.getFile(resolvedLocationURL);
+            } else {
+               file = ResourceUtils.getFile(resolvedLocation);
             }
-            File file = ResourceUtils.getFile(resolvedLocation);
-            if (!file.exists()) {
+            if (!file.exists() || !file.isDirectory()) {
                 throw new FileNotFoundException("MDM Root folder [" + resolvedLocation + "] not found"); //$NON-NLS-1$ //$NON-NLS-2$
             }
+            if (!file.isDirectory()) {
+                throw new FileNotFoundException("MDM Root folder [" + resolvedLocation + "] is not a directory"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
             System.setProperty(ROOT_LOCATION_KEY, file.getAbsolutePath());
-            System.setProperty(ROOT_LOCATION_URL_KEY, resolvedLocation);
+            System.setProperty(ROOT_LOCATION_URL_KEY, file.toURI().toURL().toString());
             servletContext.log("Set MDM root system property: '" + ROOT_LOCATION_KEY + "' = [" + file.getAbsolutePath() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            servletContext.log("Set MDM root url system property: '" + ROOT_LOCATION_URL_KEY + "' = [" + resolvedLocation + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            servletContext.log("Set MDM root url system property: '" + ROOT_LOCATION_URL_KEY + "' = [" + file.toURI().toURL().toString() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("Invalid '" + ROOT_LOCATION_PARAM + "' parameter", e); //$NON-NLS-1$ //$NON-NLS-2$
+        } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid '" + ROOT_LOCATION_PARAM + "' parameter", e); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
