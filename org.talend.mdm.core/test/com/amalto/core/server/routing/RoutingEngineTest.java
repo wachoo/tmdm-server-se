@@ -25,7 +25,6 @@ import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 
-@Ignore
 public class RoutingEngineTest {
 
     private static AbstractApplicationContext context;
@@ -83,6 +82,8 @@ public class RoutingEngineTest {
     @Test
     public void testMatchRuleType() throws Exception {
         RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
+        item.putItem(new ItemPOJO(container, "Person", new String[]{"1", "2"}, 0, "<Person><id>1</id><id2>2</id2></Person>"),
+                dataModel);
         // Match all rule
         clearRules();
         RoutingRulePOJO rule = new RoutingRulePOJO("testTypeMatchRule");
@@ -124,5 +125,34 @@ public class RoutingEngineTest {
         routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "2", "2" }));
         assertEquals(0, routes.length);
     }
+
+    @Test
+    public void testMatchRulesOrder() throws Exception {
+        RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
+        clearRules();
+        RoutingRulePOJO rule1 = new RoutingRulePOJO("testTypeMatchRule1");
+        rule1.setConcept("*");
+        List<RoutingRuleExpressionPOJO> expressions = Arrays.asList(new RoutingRuleExpressionPOJO("Person", "id",
+                RoutingRuleExpressionPOJO.EQUALS, "1"), new RoutingRuleExpressionPOJO("Person", "id2",
+                RoutingRuleExpressionPOJO.EQUALS, "2"));
+        rule1.setRoutingExpressions(expressions);
+        rule1.setExecuteOrder(2);
+        routingRule.putRoutingRule(rule1);
+        RoutingRulePOJO rule2 = new RoutingRulePOJO("testTypeMatchRule2");
+        rule2.setConcept("*");
+        expressions = Arrays.asList(new RoutingRuleExpressionPOJO("Person", "id",
+                RoutingRuleExpressionPOJO.EQUALS, "1"), new RoutingRuleExpressionPOJO("Person", "id2",
+                RoutingRuleExpressionPOJO.EQUALS, "2"));
+        rule2.setRoutingExpressions(expressions);
+        rule2.setExecuteOrder(1);
+        routingRule.putRoutingRule(rule2);
+        item.putItem(new ItemPOJO(container, "Person", new String[] { "1", "2" }, 0, "<Person><id>1</id><id2>2</id2></Person>"),
+                dataModel);
+        RoutingRulePOJOPK[] routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
+        assertEquals(2, routes.length);
+        assertEquals("testTypeMatchRule2", routes[0].getUniqueId());
+        assertEquals("testTypeMatchRule1", routes[1].getUniqueId());
+    }
+
 
 }
