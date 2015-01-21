@@ -124,7 +124,8 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
                 for (DataRecord entry : entries) { // Find entry for type in database object
                     if (key.equals(String.valueOf(entry.get(keyField)))) {
                         Integer integer = (Integer) entry.get(valueField);
-                        entry.set(valueField, integer + 1);
+                        integer ++;
+                        entry.set(valueField, integer);
                         value = integer;
                     }
                 }
