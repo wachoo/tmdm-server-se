@@ -21,6 +21,11 @@ import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.util.SynchronizedNow;
 import org.apache.commons.lang.NotImplementedException;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+
 import java.util.*;
 
 class GenerateActions implements DocumentSaver {
