@@ -38,6 +38,8 @@ public class StatisticsRestServiceHandler {
 
     private static StatisticsRestServiceHandler handler;
 
+    private final int DEFAULT_RESULT_SIZE = 5;
+
     private StatisticsRestServiceHandler() {
         client = new ClientResourceWrapper();
     }
@@ -93,8 +95,14 @@ public class StatisticsRestServiceHandler {
 
                 JsonRepresentation jsonRepresentation = RestServiceHelper.getJsonRepresentationFromResponse(response);
                 if (jsonRepresentation != null) {
-                    JSONValue jsonValue = jsonRepresentation.getJsonObject().get("journal"); //$NON-NLS-1$
-                    callback.onSuccess(jsonValue.isArray());
+                    JSONArray array = new JSONArray();
+                    JSONValue jsonValue = jsonRepresentation.getJsonObject().get("journal"); //$NON-NLS-1$                    
+                    JSONArray resutArray = jsonValue.isArray();
+                    int count = resutArray.size() < DEFAULT_RESULT_SIZE ? resutArray.size() : DEFAULT_RESULT_SIZE;
+                    for (int i = 0; i < count; i++) {
+                        array.set(i, resutArray.get(i));
+                    }
+                    callback.onSuccess(array);
                 }
 
             }

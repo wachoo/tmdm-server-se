@@ -52,10 +52,6 @@ public class JournalStatistics {
 
     private static final int DEFAULT_SLICE_NUMBER = 5;
 
-    private final int MAX_RESULT_SIZE = 5;
-
-    private int count = 0;
-
     private static void writeStatsTo(Storage storage, UserQueryBuilder query, String statName, JSONWriter writer)
             throws JSONException {
         Expression expression = query.getExpression();
@@ -147,7 +143,6 @@ public class JournalStatistics {
         }
         // Build statistics
         try {
-            count = 0;
             StringWriter stringWriter = new StringWriter();
             JSONWriter writer = new JSONWriter(stringWriter);
             updateReportStorage.begin();
@@ -155,9 +150,7 @@ public class JournalStatistics {
             {
                 writer.array();
                 {
-                    Iterator<ComplexTypeMetadata> iterator = types.iterator();
-                    while (iterator.hasNext() && count < MAX_RESULT_SIZE) {
-                        ComplexTypeMetadata type = iterator.next();
+                    for (ComplexTypeMetadata type : types) {
                         writer.object();
                         {
                             // Starts stats for type
@@ -202,7 +195,6 @@ public class JournalStatistics {
                             writer.endArray();
                         }
                         writer.endObject();
-                        count++;
                     }
                 }
                 writer.endArray();
