@@ -15,63 +15,93 @@ package com.amalto.webapp.core.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.amalto.webapp.core.util.dwr.WebappInfo;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
+import com.amalto.core.server.ServerAccess;
 
 public class WebappImpl implements Webapp {
 
+    private static final String WELCOME_PORTLET_REFRESH_ONSTART = "welcomeportal.portlet.refresh.onstart"; //$NON-NLS-1$
+
+    private static final String WELCOME_PORTLET_REFRESH_INTERVAL = "welcomeportal.portlet.refresh.interval"; //$NON-NLS-1$
+
+    private static final int DEFAULT_WELCOME_PORTLET_REFRESH_INTERVAL = 10000;
+
+    private static final int interval;
+
+    private static final boolean onStart;
+
+    static {
+        Object intervalValueObject = MDMConfiguration.getConfiguration().get(WELCOME_PORTLET_REFRESH_INTERVAL);
+        if (intervalValueObject != null) {
+            interval = Integer.parseInt(String.valueOf(intervalValueObject));
+        } else {
+            interval = DEFAULT_WELCOME_PORTLET_REFRESH_INTERVAL;
+        }
+
+        Object onStartObject = MDMConfiguration.getConfiguration().get(WELCOME_PORTLET_REFRESH_ONSTART);
+        if (onStartObject != null) {
+            onStart = Boolean.parseBoolean(String.valueOf(onStartObject));
+        } else {
+            onStart = false;
+        }
+    }
+
+    private ServerAccess serverAccess;
+
+    public WebappImpl(ServerAccess serverAccess) {
+        this.serverAccess = serverAccess;
+    }
+
     @Override
-    public void getInfo(WebappInfo info, String language) {
-        return;
+    public ServerAccessInfo getInfo() {
+        return serverAccess.getInfo();
     }
 
     @Override
     public Map<String, String> getProductInfo() {
-        return null;
+        return serverAccess.getProductInfo();
     }
 
     @Override
-    public int getWorkflowTaskMsg() {
-        return 0;
+    public int getWorkflowTasksCount() {
+        return serverAccess.getWorkflowTasksCount();
     }
-
+    
     @Override
-    public Map<String, Integer> getDSCTaskMsg() {
-        Map<String, Integer> taskStatus = new HashMap<String, Integer>();
-        taskStatus.put("new", 0); //$NON-NLS-1$
-        taskStatus.put("pending", 0); //$NON-NLS-1$
-        return taskStatus;
-
+    public int[] getDSCTasksCount() {
+        return serverAccess.getDSCTasksCount();
     }
 
     @Override
     public boolean isExpired() throws Exception {
-        return isExpired(null);
+        return serverAccess.isExpired();
     }
-
+    
     @Override
     public boolean isExpired(String language) throws Exception {
-        return false;
+        return serverAccess.isExpired(language);
     }
 
     @Override
     public boolean isDataSteWardShip() throws Exception {
-        return false;
+        return serverAccess.isDataSteWardShip();
     }
 
     @Override
     public boolean isEnterpriseVersion() {
-        return false;
+        return serverAccess.isEnterpriseVersion();
     }
 
     @Override
     public String getLicenseWarning(String language) throws Exception {
-        return null;
+        return serverAccess.getLicenseWarning(language);
     }
 
     @Override
     public Map<Boolean, Integer> getWelcomePortletConfig() {
         Map<Boolean, Integer> refreshConfig = new HashMap<Boolean, Integer>(1);
-        refreshConfig.put(false, 10000);
+        refreshConfig.put(onStart, interval);
         return refreshConfig;
     }
 }

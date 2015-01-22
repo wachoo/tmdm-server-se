@@ -178,7 +178,7 @@ public class BrandingBar extends ContentPanel {
 
     public void setProductInfo(ProductInfo info) {
         if (info != null) {
-            logoMdm.setUrl("/general/secure/img/branding/" + info.getProductKey() + "_header.png"); //$NON-NLS-1$//$NON-NLS-2$
+            logoMdm.setUrl("secure/img/branding/" + info.getProductKey() + "_header.png"); //$NON-NLS-1$//$NON-NLS-2$
             versionLabel.setHTML(""); //$NON-NLS-1$
         } else {
             logoMdm.setUrl("secure/img/logo-mdm.png"); //$NON-NLS-1$

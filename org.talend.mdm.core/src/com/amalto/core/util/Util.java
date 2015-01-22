@@ -894,7 +894,7 @@ public class Util {
     }
 
     public static boolean isEnterprise() {
-        return false; // TODO
+       return ServerAccess.INSTANCE.isEnterpriseVersion();
     }
 
     public static class BeforeDeleteResult {

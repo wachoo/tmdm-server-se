@@ -12,17 +12,11 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
-import org.apache.log4j.Logger;
-
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
 import java.util.Map;
 
 public class BeanDelegatorContainer {
 
-    private static final Logger LOGGER = Logger.getLogger(BeanDelegatorContainer.class);
-
-    private static final Map<String, Object> delegatorInstancePool = new HashMap<String, Object>();
+    private Map<String, Object> delegatorInstancePool;
 
     private static final String LOCAL_USER = "LocalUser"; //$NON-NLS-1$
 
@@ -36,38 +30,24 @@ public class BeanDelegatorContainer {
 
     private BeanDelegatorContainer() {
     }
+   
+    public void setDelegatorInstancePool(Map<String, Object> delegatorInstancePool) {
+        this.delegatorInstancePool = delegatorInstancePool;
+    }
 
-    /**
-     * Get the unique instance of this class. In order to improve the performance, removed synchronized, using pseudo
-     * singleton mode
-     */
-    public static synchronized BeanDelegatorContainer getInstance() {
-        if (instance == null) {
-            instance = new BeanDelegatorContainer();
-            instance.init();
+    public static synchronized BeanDelegatorContainer createInstance() {
+        if (instance != null) {
+            throw new IllegalStateException();
         }
+        instance = new BeanDelegatorContainer();
         return instance;
     }
 
-    private void init() {
-        synchronized (delegatorInstancePool) {
-            Map<String, String> beanImplNamesMap = BeanDelegatorConfigReader.readConfiguration();
-            for (Map.Entry<String, String> currentBean : beanImplNamesMap.entrySet()) {
-                try {
-                    Class<?> clazz = Class.forName(currentBean.getValue());
-                    Constructor<?> cons = clazz.getConstructor();
-                    Object beanDelegator = cons.newInstance();
-                    delegatorInstancePool.put(currentBean.getKey(), beanDelegator);
-                    LOGGER.info("Init instance:" + currentBean.getValue()); //$NON-NLS-1$
-                } catch (ClassNotFoundException e) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Class '" + currentBean.getValue() + "' cannot be found.", e);
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Init exception for '" + currentBean.getValue() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
-                }
-            }
+    public static synchronized BeanDelegatorContainer getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException();
         }
+        return instance;
     }
 
     public ILocalUser getLocalUserDelegator() {

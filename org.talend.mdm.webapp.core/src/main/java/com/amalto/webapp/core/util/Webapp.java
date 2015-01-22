@@ -14,28 +14,10 @@ package com.amalto.webapp.core.util;
 
 import java.util.Map;
 
-import com.amalto.webapp.core.util.dwr.WebappInfo;
+import com.amalto.core.server.ServerAccess;
 
-public interface Webapp {
+public interface Webapp extends ServerAccess {
 
-    public void getInfo(WebappInfo info, String language);
-
-    public Map<String, String> getProductInfo();
-
-    public int getWorkflowTaskMsg();
-
-    public Map<String, Integer> getDSCTaskMsg();
-
-    public boolean isExpired() throws Exception;
-
-    public boolean isExpired(String language) throws Exception;
-
-    public boolean isDataSteWardShip() throws Exception;
-
-    public boolean isEnterpriseVersion();
-
-    public String getLicenseWarning(String language) throws Exception;
-    
     public Map<Boolean, Integer> getWelcomePortletConfig();
 
     public static final Webapp INSTANCE = WebappFactory.createWebapp();
@@ -47,12 +29,10 @@ public interface Webapp {
 
         private static Webapp createWebapp() {
             try {
-                //return (Webapp) Class.forName(Webapp.class.getName() + "Impl").newInstance(); //$NON-NLS-1$
-            	return new WebappImpl(); // TODO
+                return new WebappImpl(ServerAccess.INSTANCE);
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
         }
     }
-
 }

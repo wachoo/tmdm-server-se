@@ -53,6 +53,12 @@
         <!-- SE lib dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+            <version>${project.version}</version>
+            <classifier>open</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core.storage.sql</artifactId>
         </dependency>
         <dependency>

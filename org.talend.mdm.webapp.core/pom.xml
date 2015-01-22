@@ -113,6 +113,13 @@
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+            <version>${project.version}</version>
+            <classifier>open</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.common</artifactId>
         </dependency>
         <dependency>

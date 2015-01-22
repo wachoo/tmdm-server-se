@@ -28,6 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.server.ServerAccess;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -48,7 +49,6 @@ import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Menu;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
-import com.amalto.webapp.core.util.dwr.WebappInfo;
 
 /**
  * The server side implementation of the RPC service.
@@ -144,11 +144,10 @@ public class WelcomePortalAction implements WelcomePortalService {
     @Override
     public String getAlertMsg(String language) throws ServiceException {
         try {
-            WebappInfo webappInfo = new WebappInfo();
-            Webapp.INSTANCE.getInfo(webappInfo, language);
-            if (webappInfo.getLicense() == null) {
+            ServerAccess.ServerAccessInfo info = Webapp.INSTANCE.getInfo();
+            if (info.getLicense() == null) {
                 return WelcomePortal.NOLICENSE;
-            } else if (!webappInfo.isLicenseValid()) {
+            } else if (!info.isLicenseValid()) {
                 return WelcomePortal.EXPIREDLICENSE;
             }
             return null;
@@ -175,12 +174,16 @@ public class WelcomePortalAction implements WelcomePortalService {
      */
     @Override
     public int getWorkflowTaskMsg() {
-        return Webapp.INSTANCE.getWorkflowTaskMsg();
+        return Webapp.INSTANCE.getWorkflowTasksCount();
     }
 
     @Override
-    public Map<String, Integer> getDSCTaskMsg() {
-        return Webapp.INSTANCE.getDSCTaskMsg();
+    public Map<String, Integer> getDSCTaskMsg() {       
+        Map<String, Integer> taskStatus = new HashMap<String, Integer>();
+        int[] taskCounts = Webapp.INSTANCE.getDSCTasksCount();
+        taskStatus.put("new", taskCounts[0]); //$NON-NLS-1$
+        taskStatus.put("pending", taskCounts[1]); //$NON-NLS-1$
+        return taskStatus;
     }
 
     @Override
