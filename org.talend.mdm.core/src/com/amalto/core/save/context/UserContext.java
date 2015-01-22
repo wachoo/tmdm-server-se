@@ -199,4 +199,8 @@ class UserContext extends AbstractDocumentSaverContext {
     public void setId(String[] id) {
         this.id = id;
     }
+
+    public boolean isInvokeBeforeSaving() {
+        return this.invokeBeforeSaving;
+    }
 }
