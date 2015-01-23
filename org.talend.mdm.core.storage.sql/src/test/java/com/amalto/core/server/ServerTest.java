@@ -13,6 +13,7 @@
 
 package com.amalto.core.server;
 
+import java.io.File;
 import java.util.Collections;
 
 import com.amalto.core.storage.StorageType;
@@ -97,6 +98,20 @@ public class ServerTest extends TestCase {
      * 
      * storage.reindex(); }
      */
+
+    public void testConnectionCleanUp() throws Exception {
+        Server server = ServerContext.INSTANCE.get();
+        assertNotNull(server);
+        String storageName = "Storage";
+        MetadataRepository metadataRepository = server.getMetadataRepositoryAdmin().get(storageName);
+        assertNotNull(metadataRepository);
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        assertNotNull(storageAdmin);
+        Storage storage = storageAdmin.create(storageName, storageName, StorageType.MASTER, "H2-DS1");
+        assertTrue(new File("data/h2_ds1.lock.db").exists());
+        storage.close(false);
+        assertFalse(new File("data/h2_ds1.lock.db").exists());
+    }
 
     public void testCreateWithSlash() throws Exception {
         Server server = ServerContext.INSTANCE.get();

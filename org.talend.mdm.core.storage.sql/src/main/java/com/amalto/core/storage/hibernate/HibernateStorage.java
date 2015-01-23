@@ -1277,6 +1277,16 @@ public class HibernateStorage implements Storage {
             } catch (Exception e) {
                 LOGGER.error("Exception occurred during Hibernate Search clean up.", e);
             }
+            // TMDM-8117: Excludes storage from transaction and rollback any pending transaction for proper close()
+            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+            List<String> transactions = transactionManager.list();
+            for (String transaction : transactions) {
+                StorageTransaction storageTransaction = transactionManager.get(transaction).exclude(this);
+                if (storageTransaction != null) {
+                    storageTransaction.rollback();
+                }
+            }
+            // Close Hibernate session
             if (factory != null) {
                 factory.close();
                 factory = null; // SessionFactory#close() documentation advises to remove all references to

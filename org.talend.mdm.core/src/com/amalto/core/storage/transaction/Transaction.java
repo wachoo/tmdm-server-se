@@ -108,7 +108,7 @@ public interface Transaction {
      *
      * @param storage A storage implementation.
      * @return The {@link StorageTransaction} instance that handles all operations relative to the <code>storage</code>
-     *         in this transaction.
+     *         in this transaction. If <code>storage</code> wasn't part of transaction, returns <code>null</code>.
      * @see #include(com.amalto.core.storage.Storage)
      */
     StorageTransaction exclude(Storage storage);
