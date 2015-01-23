@@ -1457,8 +1457,8 @@ public class DocumentSaveTest extends TestCase {
         Document doc = updateReportDocument.asDOM();
         String oldValue = (String) evaluate(doc.getDocumentElement(), "Item/oldValue");
         String newValue = (String) evaluate(doc.getDocumentElement(), "Item/newValue");
-        assertEquals("Chicago", oldValue);
-        assertEquals("beforeSaving_Agency", newValue);
+        assertEquals("Portland", oldValue); // the first entry should be the modification before beforesaving process
+        assertEquals("Chicago", newValue);
 
         MutableDocument databaseDocument = context.getDatabaseDocument();
         assertNotNull(databaseDocument);
