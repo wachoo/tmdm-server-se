@@ -46,7 +46,7 @@ public class MDMContextListener implements ServletContextListener {
             } else {
                file = ResourceUtils.getFile(resolvedLocation);
             }
-            if (!file.exists() || !file.isDirectory()) {
+            if (!file.exists()) {
                 throw new FileNotFoundException("MDM Root folder [" + resolvedLocation + "] not found"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             if (!file.isDirectory()) {
