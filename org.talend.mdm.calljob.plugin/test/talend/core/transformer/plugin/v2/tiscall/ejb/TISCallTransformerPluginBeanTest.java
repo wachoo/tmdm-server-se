@@ -13,6 +13,7 @@
 package talend.core.transformer.plugin.v2.tiscall.ejb;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.AfterClass;
@@ -62,7 +63,7 @@ public class TISCallTransformerPluginBeanTest {
         PluginRegistry registry = (PluginRegistry) context.getBean("pluginRegistry");
         Plugin plugin = registry.getPlugin(TISCallTransformerPluginBean.PLUGIN_NAME);
         assertNotNull(plugin);
-        assert (plugin instanceof TISCallTransformerPluginBean);
+        assertTrue(plugin instanceof TISCallTransformerPluginBean);
         try {
             plugin = registry.getPlugin("amalto/local/transformer/plugin/xslt");
             fail();

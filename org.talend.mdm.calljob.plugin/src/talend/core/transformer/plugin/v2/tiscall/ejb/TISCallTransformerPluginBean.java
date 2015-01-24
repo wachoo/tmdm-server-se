@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -35,8 +37,6 @@ import org.w3c.dom.NodeList;
 import talend.core.transformer.plugin.v2.tiscall.CompiledParameters;
 import talend.core.transformer.plugin.v2.tiscall.ConceptMappingParam;
 import talend.core.transformer.plugin.v2.tiscall.ContextParam;
-import talend.core.transformer.plugin.v2.tiscall.util.JSONException;
-import talend.core.transformer.plugin.v2.tiscall.util.JSONObject;
 
 import com.amalto.core.jobox.JobContainer;
 import com.amalto.core.jobox.JobInvokeConfig;
