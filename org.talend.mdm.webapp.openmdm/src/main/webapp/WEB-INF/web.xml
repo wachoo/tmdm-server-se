@@ -160,10 +160,6 @@
         <servlet-name>LogViewerServlet</servlet-name>
         <url-pattern>/logviewer/log</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>MatchingLogViewerServlet</servlet-name>
-        <url-pattern>/logviewer/match</url-pattern>
-    </servlet-mapping>
     <!-- org.talend.mdm.webapp.core -->
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
@@ -331,20 +327,8 @@
         </init-param>
     </servlet>
     <servlet>
-        <servlet-name>ImageScaleServlet</servlet-name>
-        <servlet-class>com.mchange.v2.ssim.SsimServlet</servlet-class>
-        <init-param>
-            <param-name>allowDomains</param-name>
-            <param-value>all</param-value>
-        </init-param>
-    </servlet>
-    <servlet>
         <servlet-name>ImageLocateServlet</servlet-name>
         <servlet-class>talend.ext.images.server.ImageLocateServlet</servlet-class>
-        <init-param>
-            <param-name>scalePath</param-name>
-            <param-value>/imageserver/scale</param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>ImageUploadServlet</servlet-name>
@@ -353,10 +337,6 @@
     <servlet-mapping>
         <servlet-name>ImageDeleteServlet</servlet-name>
         <url-pattern>/imageserver/ImageDeleteServlet</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>ImageScaleServlet</servlet-name>
-        <url-pattern>/imageserver/scale</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageLocateServlet</servlet-name>

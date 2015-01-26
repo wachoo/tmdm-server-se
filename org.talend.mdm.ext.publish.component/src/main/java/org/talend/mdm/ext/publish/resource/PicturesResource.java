@@ -74,13 +74,14 @@ public class PicturesResource extends BaseResource {
         if (pk == null) {
             throw new IllegalArgumentException();
         }
-        if (pk.indexOf("-") == -1) { //$NON-NLS-1$
+        //PK of the form <catalog>-filename
+        int index = pk.indexOf("-"); //$NON-NLS-1$
+        if (index == -1) { 
             pk = "-" + pk; //$NON-NLS-1$
         }
 
-        String[] pkParts = pk.split("-"); //$NON-NLS-1$
-        String catalog = pkParts[0];
-        String file = pkParts[1];
+        String catalog = pk.substring(0, index);
+        String file = pk.substring(index+1, pk.length());
         String requestLocatePath = ImageServerInfo.getInstance().getLocateBaseUrl();
         if (!catalog.equals("") && !catalog.equals("/") && !catalog.equals("//")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             requestLocatePath = requestLocatePath + "/" + CommonUtil.urlEncode(catalog); //$NON-NLS-1$

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -231,12 +232,12 @@ public class ImageUploadServlet extends HttpServlet {
                 locateCatalog(upath);
                 targetFileName = (targetFileShortName + "." + sourceFileType); //$NON-NLS-1$
                 upath.append(File.separator).append(targetFileName);
-
+                               
                 if (!targetCatalogName.equals("/")) { //$NON-NLS-1$
-                    targetUri += ("/" + targetCatalogName); //$NON-NLS-1$
+                    targetUri += ('/' + URLEncoder.encode(targetCatalogName, "UTF-8") ); //$NON-NLS-1$
                 }
-                targetUri += ("/" + targetFileShortName + "." + sourceFileType); //$NON-NLS-1$ //$NON-NLS-2$
-
+                
+                targetUri += ('/' + URLEncoder.encode(targetFileShortName, "UTF-8") + '.' + sourceFileType); //$NON-NLS-1$
                 File uploadedFile = new File(upath.toString());
                 item.write(uploadedFile);
 

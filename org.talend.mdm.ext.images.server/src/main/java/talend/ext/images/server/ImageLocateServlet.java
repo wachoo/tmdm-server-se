@@ -13,17 +13,20 @@
 package talend.ext.images.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.coobird.thumbnailator.Thumbnails;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -35,11 +38,8 @@ public class ImageLocateServlet extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(ImageLocateServlet.class);
 
-    private String scalePath;
-
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        scalePath = config.getInitParameter("scalePath"); //$NON-NLS-1$
     }
 
     /**
@@ -60,23 +60,27 @@ public class ImageLocateServlet extends HttpServlet {
             }
             File resourceFile = new File(resourceFilePath);
             if (resourceFile.exists()) {
-                String imageUrl = resourceFile.toURI().toURL().toExternalForm();
-                String width = request.getParameter("width"); //$NON-NLS-1$
-                String height = request.getParameter("height"); //$NON-NLS-1$
-                String preserveAspectRatio = request.getParameter("preserveAspectRatio"); //$NON-NLS-1$
-                StringBuilder url = new StringBuilder(scalePath);
-                url.append("?imageUrl=").append(imageUrl); //$NON-NLS-1$
-                if (width != null) {
-                    url.append("&width=").append(width); //$NON-NLS-1$
+
+                String strWidth = request.getParameter("width"); //$NON-NLS-1$
+                String strHeight = request.getParameter("height"); //$NON-NLS-1$
+                String strPreserveAspectRatio = request.getParameter("preserveAspectRatio"); //$NON-NLS-1$
+
+                if (strWidth != null && strHeight != null) {
+                    int width = Integer.valueOf(strWidth);
+                    int height = Integer.valueOf(strHeight);
+                    boolean preserveAspectRatio = Boolean.valueOf(strPreserveAspectRatio);
+                    Thumbnails.of(resourceFile).size(width, height).keepAspectRatio(preserveAspectRatio)
+                            .toOutputStream(response.getOutputStream());
+                    response.getOutputStream().flush();
+                } else {
+                    FileInputStream fis = new FileInputStream(resourceFile);
+                    try {
+                        IOUtils.copy(fis, response.getOutputStream());
+                    } finally {
+                        IOUtils.closeQuietly(fis);
+                    }
+                    response.getOutputStream().flush();
                 }
-                if (height != null) {
-                    url.append("&height=").append(height); //$NON-NLS-1$
-                }
-                if (preserveAspectRatio != null) {
-                    url.append("&preserveAspectRatio=").append(preserveAspectRatio); //$NON-NLS-1$
-                }
-                RequestDispatcher rd = request.getRequestDispatcher(url.toString());
-                rd.forward(request, response);
 
             } else {
                 LOGGER.error("Resource file '" + resourceFilePath + "' not found!"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -92,7 +96,16 @@ public class ImageLocateServlet extends HttpServlet {
     }
 
     private String getResourceFilePath(HttpServletRequest req) {
-        String path = req.getPathInfo();
+        // According to the servlet spec:
+        // HttpServletRequest.getPathInfo() should be decoded by the web container;
+        // HttpServletRequest.getRequestURI() should not be decoded by the web container.
+        // In Tomcat connector URIEncoding defaults to ISO-8859-1 but might be changed.
+        // So better to not rely onto getPathInfo() and ensure we got the 
+        // raw UTF-8 value (thx to our CharacterEncodingFilter)
+        String requestURI = req.getRequestURI();
+        String contextPath = req.getContextPath();
+        String servletPath = req.getServletPath();
+        String path = requestURI.substring(contextPath.length() + servletPath.length());
         try {
             path = URLDecoder.decode(path, "UTF-8"); //$NON-NLS-1$
         } catch (UnsupportedEncodingException e) {

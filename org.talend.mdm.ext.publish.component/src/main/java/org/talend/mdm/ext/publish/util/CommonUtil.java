@@ -17,39 +17,28 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
-public class CommonUtil
-{
+public abstract class CommonUtil {
 
-    public CommonUtil()
-    {
+    private CommonUtil() {
     }
 
-    public static String urlEncode(Object value)
-    {
-        if(value == null)
+    public static String urlEncode(Object value) {
+        if (value == null)
             return null;
-        try
-        {
-            String result = URLEncoder.encode(value.toString(), "UTF-8");
-            result = result.replaceAll("\\+", "%20");
+        try {
+            String result = URLEncoder.encode(value.toString(), "UTF-8"); //$NON-NLS-1$
             return result;
-        }
-        catch(UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
 
-    public static String urlDecode(Object value)
-    {
-        if(value == null)
+    public static String urlDecode(Object value) {
+        if (value == null)
             return null;
-        try
-        {
-            return URLDecoder.decode(value.toString(), "UTF-8");
-        }
-        catch(UnsupportedEncodingException e)
-        {
+        try {
+            return URLDecoder.decode(value.toString(), "UTF-8"); //$NON-NLS-1$
+        } catch (UnsupportedEncodingException e) {
             return null;
         }
     }
