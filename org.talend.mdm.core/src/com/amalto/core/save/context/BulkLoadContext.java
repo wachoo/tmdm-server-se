@@ -132,4 +132,9 @@ class BulkLoadContext implements DocumentSaverContext {
     public boolean generateTouchActions() {
         return true;
     }
+
+    @Override
+    public boolean isInvokeBeforeSaving() {
+        return false; // No support in bulk load
+    }
 }

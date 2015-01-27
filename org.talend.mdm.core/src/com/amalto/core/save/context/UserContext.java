@@ -185,4 +185,8 @@ class UserContext implements DocumentSaverContext {
     public void setId(String[] id) {
         this.id = id;
     }
+
+    public boolean isInvokeBeforeSaving() {
+        return this.invokeBeforeSaving;
+    }
 }

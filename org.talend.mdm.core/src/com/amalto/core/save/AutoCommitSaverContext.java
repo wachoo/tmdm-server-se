@@ -72,6 +72,11 @@ public class AutoCommitSaverContext implements DocumentSaverContext {
     }
 
     @Override
+    public boolean isInvokeBeforeSaving() {
+        return delegate.isInvokeBeforeSaving();
+    }
+
+    @Override
     public String getChangeSource() {
         return delegate.getChangeSource();
     }

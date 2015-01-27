@@ -166,6 +166,11 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
     }
 
     @Override
+    public boolean isInvokeBeforeSaving() {
+        return delegate.isInvokeBeforeSaving();
+    }
+
+    @Override
     public String[] getId() {
         return delegate.getId();
     }

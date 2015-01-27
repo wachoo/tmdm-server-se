@@ -141,7 +141,6 @@ public class User implements Cloneable {
             user.setFamilyName(Util.getFirstTextNode(result, "//familyname"));
             user.setPhoneNumber(Util.getFirstTextNode(result, "//phonenumber"));
             user.setCompany(Util.getFirstTextNode(result, "//company"));
-            // user.setID(new Integer(Util.getFirstTextNode(result, "id")));
             user.setSignature(Util.getFirstTextNode(result, "//signature"));
             user.setRealEmail(Util.getFirstTextNode(result, "//realemail"));
             user.setFakeEmail(Util.getFirstTextNode(result, "//fakeemail"));

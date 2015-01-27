@@ -59,10 +59,17 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     private boolean generateConstrains;
 
     public MappingGenerator(Document document, TableResolver resolver, RDBMSDataSource dataSource) {
+        this(document, resolver, dataSource, true);
+    }
+
+    public MappingGenerator(Document document,
+                            TableResolver resolver,
+                            RDBMSDataSource dataSource,
+                            boolean generateConstrains) {
         this.document = document;
         this.resolver = resolver;
         this.dataSource = dataSource;
-        this.generateConstrains = dataSource.generateConstraints();
+        this.generateConstrains = generateConstrains;
     }
 
     @Override
@@ -450,7 +457,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             Element column = document.createElement("column"); //$NON-NLS-1$
             Attr columnName = document.createAttribute("name"); //$NON-NLS-1$
             String columnNameValue = resolver.get(field, compositeKeyPrefix);
-            columnName.setValue(columnNameValue); //$NON-NLS-1$
+            columnName.setValue(columnNameValue); 
             column.getAttributes().setNamedItem(columnName);
             if (generateConstrains) {
                 Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$

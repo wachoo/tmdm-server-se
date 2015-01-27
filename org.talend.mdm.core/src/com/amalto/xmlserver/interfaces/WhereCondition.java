@@ -99,9 +99,9 @@ public class WhereCondition implements IWhereItem, Serializable {
     public static WhereCondition deserialize(String xml) throws XmlServerException {
         try {
             Document d = com.amalto.core.util.Util.parse(xml);
-            return new WhereCondition(Util.getFirstTextNode(d.getDocumentElement(), "./leftpath"), Util.getFirstTextNode(
-                    d.getDocumentElement(), "./operator"), Util.getFirstTextNode(d.getDocumentElement(), "./rightvalueorpath"),
-                    Util.getFirstTextNode(d.getDocumentElement(), "./stringpredicate"), "yes".equals(Util.getFirstTextNode(
+            return new WhereCondition(com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./leftpath"), com.amalto.core.util.Util.getFirstTextNode(
+                    d.getDocumentElement(), "./operator"), com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./rightvalueorpath"),
+                    com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./stringpredicate"), "yes".equals(com.amalto.core.util.Util.getFirstTextNode(
                             d.getDocumentElement(), "./spellcheck")));
         } catch (Exception e) {
             throw new XmlServerException(e);

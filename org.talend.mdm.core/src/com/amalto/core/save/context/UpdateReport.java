@@ -14,6 +14,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
+import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -37,8 +38,13 @@ class UpdateReport implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
         UpdateReportDocument updateReportDocument;
         Document updateReportAsDOM = (Document) SaverContextFactory.EMPTY_UPDATE_REPORT.cloneNode(true);
+        if (context.isInvokeBeforeSaving()) {
+            if (context.getUpdateReportDocument() != null) {
+                updateReportAsDOM = context.getUpdateReportDocument().asDOM();
+            }
+        }       
         updateReportDocument = new UpdateReportDocument(updateReportAsDOM);
-
+        
         StringBuilder key = new StringBuilder();
         String[] id = context.getId();
         for (int i = 0; i < id.length; i++) {
@@ -65,6 +71,9 @@ class UpdateReport implements DocumentSaver {
             }
             action.perform(updateReportDocument);
             action.undo(updateReportDocument);
+        }
+        if (context.getUpdateReportDocument() == null) {
+            updateReportDocument.setOperationType(UpdateReportPOJO.OPERATION_TYPE_UPDATE);
         }
         updateReportDocument.disableRecordFieldChange();
 

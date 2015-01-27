@@ -408,13 +408,6 @@ public class RegexpTransformerPluginBean extends Plugin {
     		String contentType = Util.getFirstTextNode(params, "contentType");
     		if (contentType == null) contentType = "text/plain; charset=utf-8";
     		compiled.setResultingContentType(contentType);
-    		/*
-    		//group - defaults to 0
-    		String gs = Util.getFirstTextNode(params, "group");
-    		int group = 0;
-    		if (gs!=null) group=Integer.parseInt(gs);
-    		compiled.setGroup(group);
-    		*/
     		//resultPattern
     		String resultPattern = Util.getFirstTextNode(params, "resultPattern");
     		if (resultPattern == null) resultPattern="{0}";

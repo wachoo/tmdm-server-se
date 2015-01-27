@@ -16,6 +16,7 @@ import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.history.action.LogicalDeleteAction;
 import com.amalto.core.history.action.PhysicalDeleteAction;
 import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.ReportDocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.util.SynchronizedNow;
@@ -154,7 +155,7 @@ class GenerateActions implements DocumentSaver {
         }
         // Ignore rest of save chain if there's no change to perform.
         boolean hasModificationActions = hasModificationActions(actions);
-        if (hasModificationActions) {
+        if (hasModificationActions || isInvokeBeforeSaving(context)) { // Ignore rest of save chain if there's no change to perform.
             next.save(session, context);
         }
     }
@@ -163,6 +164,19 @@ class GenerateActions implements DocumentSaver {
         for (Action action : actions) {
             if(!action.isTransient()) {
                 return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean isInvokeBeforeSaving(DocumentSaverContext context) {
+        if (context instanceof ReportDocumentSaverContext) {
+            if(((ReportDocumentSaverContext)context).getDelegate() instanceof StorageSaver){
+                StorageSaver saver = (StorageSaver) ((ReportDocumentSaverContext)context).getDelegate();
+                return saver.isInvokeBeforeSaving();
+            } else if (((ReportDocumentSaverContext)context).getDelegate() instanceof UserContext){
+                UserContext saver = (UserContext) ((ReportDocumentSaverContext)context).getDelegate();
+                return saver.isInvokeBeforeSaving();
             }
         }
         return false;

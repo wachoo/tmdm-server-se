@@ -151,6 +151,11 @@ class SystemContext implements DocumentSaverContext {
     }
 
     @Override
+    public boolean isInvokeBeforeSaving() {
+        return false; // No support for system context
+    }
+
+    @Override
     public String[] getId() {
         return id;
     }

@@ -208,4 +208,9 @@ public class StorageSaver implements DocumentSaverContext {
     public boolean generateTouchActions() {
         return false;
     }
+
+    @Override
+    public boolean isInvokeBeforeSaving() {
+        return this.invokeBeforeSaving;
+    }
 }

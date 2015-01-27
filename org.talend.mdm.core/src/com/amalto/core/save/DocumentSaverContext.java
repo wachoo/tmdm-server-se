@@ -117,4 +117,6 @@ public interface DocumentSaverContext {
     int getPartialUpdateIndex();
 
     boolean generateTouchActions();
+
+    boolean isInvokeBeforeSaving();
 }

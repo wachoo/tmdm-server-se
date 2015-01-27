@@ -76,6 +76,11 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
     }
 
     @Override
+    public boolean isInvokeBeforeSaving() {
+        return delegate.generateTouchActions();
+    }
+
+    @Override
     public String getChangeSource() {
         return changeSource;
     }
@@ -148,5 +153,9 @@ public class ReportDocumentSaverContext implements DocumentSaverContext {
     @Override
     public void setId(String[] id) {
         delegate.setId(id);
+    }
+
+    public DocumentSaverContext getDelegate() {
+        return this.delegate;
     }
 }

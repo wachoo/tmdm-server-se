@@ -154,6 +154,11 @@ public class AdvancedSearchPanel extends FormPanel {
             expressionTextField.setValue(criteriaStr);
             cb.setValue(null);
         }
+        if (criteriaStr.contains("FULLTEXTSEARCH")) { //$NON-NLS-1$
+            cb.setEnabled(false);
+        } else {
+            cb.setEnabled(true);
+        }
     }
 
     private void populateMatchGroupCriteria(String condition) {

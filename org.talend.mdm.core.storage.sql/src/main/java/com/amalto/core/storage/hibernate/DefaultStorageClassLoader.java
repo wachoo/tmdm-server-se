@@ -48,6 +48,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         super(parent, storageName, type);
     }
 
+    @Override
     public InputStream generateEhCacheConfig() {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -69,6 +70,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         }
     }
 
+    @Override
     public InputStream generateHibernateMapping() {
         if (resolver == null) {
             throw new IllegalStateException("Expected table resolver to be set before this method is called.");
@@ -105,13 +107,15 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         switch (type) {
             case MASTER:
             case SYSTEM:
-            case STAGING:
                 return new MappingGenerator(document, resolver, dataSource);
+            case STAGING:
+                return new MappingGenerator(document, resolver, dataSource, false);
             default:
                 throw new NotImplementedException("No support for storage type '" + type + "'.");
         }
     }
 
+    @Override
     public InputStream generateHibernateConfig() {
         try {
             Document document = generateHibernateConfiguration(dataSource);

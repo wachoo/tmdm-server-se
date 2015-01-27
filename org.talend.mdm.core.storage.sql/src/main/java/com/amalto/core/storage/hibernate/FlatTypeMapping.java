@@ -41,6 +41,7 @@ class FlatTypeMapping extends TypeMapping {
         super(complexType, database, mappings);
     }
 
+    @Override
     protected void map(FieldMetadata user, FieldMetadata database) {
         if (isFrozen) { // Not really expected, but as long as calling code knows what it's doing...
             if (LOGGER.isDebugEnabled()) {
@@ -55,6 +56,7 @@ class FlatTypeMapping extends TypeMapping {
         return field.getDeclaringType().getName() + '_' + field.getName();
     }
 
+    @Override
     public FieldMetadata getDatabase(FieldMetadata from) {
         FieldMetadata field = userToDatabase.get(getKey(from));
         // TMDM-6802: Look for field by name (declaring type might be wrong).
@@ -68,10 +70,12 @@ class FlatTypeMapping extends TypeMapping {
         return field;
     }
 
+    @Override
     public FieldMetadata getUser(FieldMetadata to) {
         return databaseToUser.get(getKey(to));
     }
 
+    @Override
     public void freeze() {
         if (!isFrozen) {
             // Ensure mapped type are frozen.
@@ -248,14 +252,7 @@ class FlatTypeMapping extends TypeMapping {
                                 DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
                                 for (FieldMetadata fkField : mapping.getDatabase().getFields()) {
                                     if (mapping.getUser(fkField) != null) {
-                                        Object o = wrapper.get(fkField.getName());
-                                        if (fkField instanceof ReferenceFieldMetadata) {
-                                            TypeMapping referenceMapping = mappings.getMappingFromDatabase(((ReferenceFieldMetadata) fkField).getReferencedType());
-                                            DataRecord innerReferencedRecord = new DataRecord(referenceMapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                                            referenceMapping.setValues((Wrapper) o, innerReferencedRecord);
-                                        } else {
-                                            referencedRecord.set(mapping.getUser(fkField), o);
-                                        }
+                                        referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
                                     }
                                 }
                                 to.set(userField, referencedRecord);

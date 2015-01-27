@@ -10,32 +10,55 @@
 
 package com.amalto.core.storage.hibernate;
 
+import static org.hibernate.criterion.Restrictions.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.Distinct;
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.CloseableIterator;
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.impl.CriteriaImpl;
+import org.hibernate.sql.JoinFragment;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
+import org.hibernate.type.IntegerType;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+
+import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.exception.UnsupportedQueryException;
 import com.amalto.core.storage.record.DataRecord;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.hibernate.*;
-import org.hibernate.criterion.*;
-import org.hibernate.impl.CriteriaImpl;
-import org.hibernate.sql.JoinFragment;
-import org.hibernate.transform.DistinctRootEntityResultTransformer;
-import org.hibernate.type.IntegerType;
-import org.talend.mdm.commmon.metadata.*;
-
-import java.io.IOException;
-import java.util.*;
-
-import static org.hibernate.criterion.Restrictions.*;
 
 class StandardQueryHandler extends AbstractQueryHandler {
 
@@ -47,7 +70,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
 
-    private final Map<FieldMetadata, Set<String>> joinFieldsToAlias = new HashMap<FieldMetadata, Set<String>>();
+    private final Map<String, String> pathToAlias = new HashMap<String, String>();
 
     protected final MappingRepository mappings;
 
@@ -171,32 +194,30 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private void generateJoinPath(Set<String> rightTableAliases, int joinType, List<FieldMetadata> path) {
         Iterator<FieldMetadata> pathIterator = path.iterator();
         String previousAlias = mainType.getName();
+        StringBuilder builder = new StringBuilder();
         while (pathIterator.hasNext()) {
             FieldMetadata nextField = pathIterator.next();
             String newAlias = createNewAlias();
+            builder.append(nextField.getPath());
             // TODO One interesting improvement here: can add conditions on rightTable when defining join.
             if (pathIterator.hasNext()) {
-                if (!joinFieldsToAlias.containsKey(nextField)) {
+                if (!pathToAlias.containsKey(builder.toString())) {
                     criteria.createAlias(previousAlias + '.' + nextField.getName(), newAlias, joinType);
-                    joinFieldsToAlias.put(nextField, new HashSet<String>(Arrays.asList(newAlias)));
+                    pathToAlias.put(builder.toString(), newAlias);
                     previousAlias = newAlias;
                 } else {
-                    previousAlias = joinFieldsToAlias.get(nextField).iterator().next();
+                    previousAlias = pathToAlias.get(builder.toString());
                 }
+                builder.append('/');
             } else {
-                if (!joinFieldsToAlias.containsKey(nextField)) {
+                if (!pathToAlias.containsKey(builder.toString())) {
                     for (String rightTableAlias : rightTableAliases) {
                         criteria.createAlias(previousAlias + '.' + nextField.getName(), rightTableAlias, joinType);
-                        Set<String> aliases = joinFieldsToAlias.get(nextField);
-                        if (aliases == null) {
-                            aliases = new HashSet<String>();
-                            joinFieldsToAlias.put(nextField, aliases);
-                        }
-                        aliases.add(rightTableAlias);
+                        pathToAlias.put(builder.toString(), rightTableAlias);
                     }
                     previousAlias = rightTableAliases.iterator().next();
                 } else {
-                    previousAlias = joinFieldsToAlias.get(nextField).iterator().next();
+                    previousAlias = pathToAlias.get(builder.toString());
                 }
             }
         }
@@ -219,7 +240,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         // Standard visit for the expression where distinct should be added
         distinct.getExpression().accept(this);
         // Wraps the last projection into a 'distinct' statement
-        // Note: Hibernate does not provide projection editing functions... have to work around that with a new projection list.
+        // Note: Hibernate does not provide projection editing functions... have to work around that with a new
+        // projection list.
         ProjectionList newProjectionList = projectionList.create();
         int i = 0;
         for (; i < projectionList.getLength() - 1; i++) {
@@ -401,34 +423,34 @@ class StandardQueryHandler extends AbstractQueryHandler {
      * @return A set of aliases that represents the <code>field</code>.
      */
     private Set<String> getAliases(ComplexTypeMetadata type, Field field) {
-        if (joinFieldsToAlias.containsKey(field.getFieldMetadata())) {
-            return joinFieldsToAlias.get(field.getFieldMetadata());
-        }
         FieldMetadata fieldMetadata = field.getFieldMetadata();
-        String previousAlias = type.getName();
-        String alias = null;
+        String previousAlias;
+        if (fieldMetadata.getContainingType().getEntity().isInstantiable()) {
+            previousAlias = field.getFieldMetadata().getEntityTypeName();
+        } else {
+            previousAlias = type.getName();
+        }
         Set<List<FieldMetadata>> paths;
-        if (fieldMetadata instanceof ReferenceFieldMetadata
-                || (!fieldMetadata.getContainingType().isInstantiable() && pathContainsInheritance(field.getPath()))) {
+        if (pathContainsInheritance(field.getPath())) {
             paths = StorageMetadataUtils.paths(type, fieldMetadata);
         } else {
             paths = Collections.singleton(field.getPath());
         }
         Set<String> aliases = new HashSet<String>(paths.size());
         for (List<FieldMetadata> path : paths) {
-            boolean newPath = false;
             int joinType = CriteriaSpecification.INNER_JOIN;
-            for (FieldMetadata next : path) {
+            StringBuilder builder = new StringBuilder();
+            Iterator<FieldMetadata> iterator = path.iterator();
+            while (iterator.hasNext()) {
+                FieldMetadata next = iterator.next();
+                builder.append(next.getPath());
                 if (next instanceof ReferenceFieldMetadata) {
-                    aliases = joinFieldsToAlias.get(next);
-                    if (aliases == null || newPath) {
+                    String alias = pathToAlias.get(builder.toString());
+                    if (alias == null) {
                         alias = createNewAlias();
-                        if (aliases == null) {
-                            aliases = new HashSet<String>(Arrays.asList(alias));
-                            joinFieldsToAlias.put(next, aliases);
-                        } else {
-                            aliases.add(alias);
-                        }
+                        // Remembers aliases created for the next field in path (to prevent same alias name creation for
+                        // field - in case of join, for example -)
+                        pathToAlias.put(builder.toString(), alias);
                         // TMDM-4866: Do a left join in case FK is not mandatory (only if there's one path).
                         // TMDM-7636: As soon as a left join is selected all remaining join should remain left outer.
                         if (next.isMandatory() && paths.size() == 1 && joinType != CriteriaSpecification.LEFT_JOIN) {
@@ -436,20 +458,16 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         } else {
                             joinType = CriteriaSpecification.LEFT_JOIN;
                         }
-
                         criteria.createAlias(previousAlias + '.' + next.getName(), alias, joinType);
-                        newPath = true;
                     }
-                    if (alias != null) {
-                        previousAlias = alias;
-                    } else {
-                        previousAlias = aliases.iterator().next();
-                    }
+                    previousAlias = alias;
                 }
             }
             aliases.add(previousAlias);
             previousAlias = type.getName();
-            alias = null;
+            if (iterator.hasNext()) {
+                builder.append('/');
+            }
         }
         return aliases;
     }
@@ -535,6 +553,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         // Order by
         for (OrderBy current : select.getOrderBy()) {
+            if (current.getExpression() instanceof Count) {
+                int limit = select.getPaging().getLimit();
+                if (limit > 0) {
+                    RDBMSDataSource dataSource = (RDBMSDataSource) storage.getDataSource();
+                    if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.DB2
+                            || dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.SQL_SERVER) {
+                        LOGGER.error("The query is not supported by DB2 and SQLSERVER Database.");
+                        throw new UnsupportedQueryException("The query is not supported by DB2 and SQLSERVER Database.");
+                    }
+                }
+            }
             current.accept(this);
         }
         return criteria;
@@ -577,7 +606,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 condition.criterionFieldNames.add(alias + '.' + userFieldMetadata.getName());
             }
         }
-        if(orderByExpression instanceof Count) {
+        if (orderByExpression instanceof Count) {
             Count count = (Count) orderByExpression;
             String propertyName = count.getExpression().accept(fieldCondition).criterionFieldNames.get(0);
             ProjectionList list = projectionList;
@@ -585,16 +614,15 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 list = ((ReadOnlyProjectionList) projectionList).inner();
             }
             list.add(Projections.groupProperty(propertyName));
-            countAggregateIndex = 0;
-            String alias = "x_talend_countField" + countAggregateIndex++;
+            String alias = "x_talend_countField" + countAggregateIndex++; //$NON-NLS-1
             list.add(Projections.count(propertyName).as(alias));
             switch (orderBy.getDirection()) {
-                case ASC:
-                    criteria.addOrder(Order.asc(alias));
-                    break;
-                case DESC:
-                    criteria.addOrder(Order.desc(alias));
-                    break;
+            case ASC:
+                criteria.addOrder(Order.asc(alias));
+                break;
+            case DESC:
+                criteria.addOrder(Order.desc(alias));
+                break;
             }
         }
         if (condition != null) {
@@ -1444,10 +1472,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 List<FieldMetadata> path = field.getPath();
                 if (path.size() > 1) {
                     // For path with more than 1 element, the alias for the criterion is the *containing* one(s).
-                    Set<String> containerAliases = joinFieldsToAlias.get(path.get(path.size() - 2));
-                    for (String containerAlias : containerAliases) {
-                        condition.criterionFieldNames.add(containerAlias + '.' + field.getFieldMetadata().getName());
-                    }
+                    String containerAlias = pathToAlias.get(path.get(path.size() - 2).getPath());
+                    condition.criterionFieldNames.add(containerAlias + '.' + field.getFieldMetadata().getName());
                 } else {
                     // For path with size 1, code did not generate an alias for field and returned containing alias.
                     condition.criterionFieldNames.add(alias + '.' + field.getFieldMetadata().getName());
