@@ -232,10 +232,14 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         List<String> foreignKeyInfo = fkTypeModel.getForeignKeyInfo();
         for (final String info : foreignKeyInfo) {
             final String fkInfo = info.startsWith(".") ? XpathUtil.convertAbsolutePath(fkTypeModel.getForeignkey(), info) : info; //$NON-NLS-1$
-            if (fkInfo.equals(fkTypeModel.getForeignkey()))
+            if (fkInfo.equals(fkTypeModel.getForeignkey())) {
                 continue;
-            final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
-                    entityModel.getTypeModel(fkInfo).getLabel(Locale.getLanguage()), COLUMN_WIDTH); // using the label to display table header
+            }
+            final ColumnConfig column = new ColumnConfig(fkInfo, entityModel.getTypeModel(fkInfo).getLabel(Locale.getLanguage()),
+                    COLUMN_WIDTH); // using the label
+                                   // to display table
+                                   // header
+            column.setDataIndex("objectValue"); //$NON-NLS-1$
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
                 public Object render(ItemNodeModel model, String property, ColumnData config, int rowIndex, int colIndex,
