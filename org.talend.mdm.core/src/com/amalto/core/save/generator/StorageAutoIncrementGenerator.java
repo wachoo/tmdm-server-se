@@ -133,7 +133,7 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
             if (value == null) { // No entry for current asked type, creates one
                 DataRecord entry = new DataRecord(entryType, UnsupportedDataRecordMetadata.INSTANCE);
                 entry.set(keyField, key);
-                entry.set(valueField, 1);
+                entry.set(valueField, 0);
                 autoIncrementRecord.set(entryField, entry); // This add at end of collection is already present
             }
             // Update the DB record before leaving
