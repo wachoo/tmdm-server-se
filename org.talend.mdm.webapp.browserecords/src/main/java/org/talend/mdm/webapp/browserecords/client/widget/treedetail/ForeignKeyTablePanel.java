@@ -242,10 +242,10 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             if (fkInfo.equals(fkTypeModel.getForeignkey())) {
                 continue;
             }
-            final ColumnConfig column = new ColumnConfig("objectValueFKinfo", //$NON-NLS-1$
-                    entityModel.getTypeModel(fkInfo).getLabel(Locale.getLanguage()), COLUMN_WIDTH); // using the label
-                                                                                                    // to display table
-                                                                                                    // header
+            final ColumnConfig column = new ColumnConfig(info, entityModel.getTypeModel(fkInfo).getLabel(Locale.getLanguage()),
+                    COLUMN_WIDTH); // using the label
+                                   // to display table
+                                   // header
             column.setDataIndex("objectValue"); //$NON-NLS-1$
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
@@ -322,7 +322,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         if (!isReadonly(entityModel)) {
             grid.addPlugin(re);
         }
-        
+
         // TMDM-3202 open FK in new tab
         grid.addListener(Events.OnDoubleClick, new Listener<GridEvent<ItemNodeModel>>() {
 
@@ -335,14 +335,14 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 }
             }
         });
-        
+
         grid.addListener(Events.CellClick, new Listener<GridEvent<ItemNodeModel>>() {
 
             @Override
             public void handleEvent(GridEvent<ItemNodeModel> be) {
-                
+
                 int rowIndex = be.getRowIndex();
-                if(be.getColIndex() == 1){
+                if (be.getColIndex() == 1) {
                     ItemNodeModel m = be.getModel();
                     if (m == null || m.getObjectValue() == null) {
                         return;
@@ -350,7 +350,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                     if (rowIndex != -1) {
                         re.startEditing(rowIndex, true);
                     }
-                } 
+                }
             }
         });
 
