@@ -56,19 +56,22 @@ public class ImageUploadServlet extends HttpServlet {
 
     private String outputFormat = "xml"; //$NON-NLS-1$
 
-    private String sourceFileName = ""; //$NON-NLS-1$
+    private static class ImageUploadInfo {
 
-    private String sourceFileType = ""; //$NON-NLS-1$
+        private String sourceFileName = ""; //$NON-NLS-1$
 
-    private String targetUri = "upload"; //$NON-NLS-1$
+        private String sourceFileType = ""; //$NON-NLS-1$
 
-    private String targetCatalogName = ""; //$NON-NLS-1$
+        private String targetUri = "upload"; //$NON-NLS-1$
 
-    private String targetFileName = ""; //$NON-NLS-1$
+        private String targetCatalogName = ""; //$NON-NLS-1$
 
-    private String targetFileShortName = ""; //$NON-NLS-1$
+        private String targetFileName = ""; //$NON-NLS-1$
 
-    private boolean changeFileName = true;
+        private String targetFileShortName = ""; //$NON-NLS-1$
+
+        private boolean changeFileName = true;
+    }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -90,15 +93,15 @@ public class ImageUploadServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        targetUri = "upload"; //$NON-NLS-1$
+        ImageUploadInfo imageUploadInfo = new ImageUploadInfo();
+        imageUploadInfo.targetUri = "upload"; //$NON-NLS-1$
         String change = request.getParameter("changeFileName"); //$NON-NLS-1$
         if (change != null) {
-            changeFileName = Boolean.valueOf(change);
+            imageUploadInfo.changeFileName = Boolean.valueOf(change);
         }
-        logger.debug("changeFileName: " + changeFileName); //$NON-NLS-1$
+        logger.debug("changeFileName: " + imageUploadInfo.changeFileName); //$NON-NLS-1$
 
-        String result = onUpload(request);
+        String result = onUpload(request, imageUploadInfo);
 
         response.setContentType("text/html"); //$NON-NLS-1$
         response.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
@@ -107,7 +110,7 @@ public class ImageUploadServlet extends HttpServlet {
         writer.close();
     }
 
-    private String onUpload(HttpServletRequest request) {
+    private String onUpload(HttpServletRequest request, ImageUploadInfo imageUploadInfo) {
         try {
             boolean isMultipart = ServletFileUpload.isMultipartContent(request);
             if (isMultipart) {
@@ -146,26 +149,26 @@ public class ImageUploadServlet extends HttpServlet {
 
                         Object catalogNameObj = getFileItem(fileItems, defaultCatalogfieldName);
                         if (catalogNameObj != null) {
-                            targetCatalogName = (String) catalogNameObj;
+                            imageUploadInfo.targetCatalogName = (String) catalogNameObj;
                         }
 
                         Object fileNameObj = getFileItem(fileItems, defaultFileNamefieldName);
                         if (fileNameObj != null) {
-                            targetFileShortName = (String) fileNameObj;
+                            imageUploadInfo.targetFileShortName = (String) fileNameObj;
                         } else {
                             String name = uploadFileItem.getName();
                             int pos = name.lastIndexOf('.');
                             if (pos != -1) {
                                 name = name.substring(0, pos);
                             }
-                            targetFileShortName = name;
+                            imageUploadInfo.targetFileShortName = name;
                         }
 
-                        int rtnStatus = processUploadedFile(uploadFileItem, true);
+                        int rtnStatus = processUploadedFile(uploadFileItem, true, imageUploadInfo);
 
                         if (rtnStatus == 1) {
-                            logger.info(sourceFileName + " has been uploaded successfully!"); //$NON-NLS-1$
-                            return buildUploadResult(true, targetUri);
+                            logger.info(imageUploadInfo.sourceFileName + " has been uploaded successfully!"); //$NON-NLS-1$
+                            return buildUploadResult(true, imageUploadInfo.targetUri);
                         } else if (rtnStatus == -1) {
                             String msg = "Unavailable file type! "; //$NON-NLS-1$
                             logger.error(msg);
@@ -199,45 +202,45 @@ public class ImageUploadServlet extends HttpServlet {
      * @return 1:success, 0:unknown failure, -1:unsupported type
      * @throws Exception
      */
-    private int processUploadedFile(FileItem item, boolean writeToFile) throws Exception {
+    private int processUploadedFile(FileItem item, boolean writeToFile, ImageUploadInfo imageUploadInfo) throws Exception {
 
         if (!item.isFormField()) {
             String fileName = item.getName();
             String uid = Uuid.get32Code().toString();
 
             String[] fileParsedResult = parseFileFullName(fileName);
-            sourceFileName = fileParsedResult[0];
-            sourceFileType = fileParsedResult[1];
-            if (targetFileShortName != null && targetFileShortName.trim().length() > 0) {
+            imageUploadInfo.sourceFileName = fileParsedResult[0];
+            imageUploadInfo.sourceFileType = fileParsedResult[1];
+            if (imageUploadInfo.targetFileShortName != null && imageUploadInfo.targetFileShortName.trim().length() > 0) {
                 // do nothing
-            } else if (!changeFileName) {
-                targetFileShortName = sourceFileName;
+            } else if (!imageUploadInfo.changeFileName) {
+                imageUploadInfo.targetFileShortName = imageUploadInfo.sourceFileName;
             } else {
-                targetFileShortName = uid;
+                imageUploadInfo.targetFileShortName = uid;
             }
-            if (!okFileTypes.contains(this.sourceFileType.toLowerCase())) {
+            if (!okFileTypes.contains(imageUploadInfo.sourceFileType.toLowerCase())) {
                 return -1;
             }
 
             if (writeToFile) {
                 StringBuffer upath = new StringBuffer();
-                if (StringUtils.isEmpty(targetCatalogName)) {
-                    targetCatalogName = generateCatalogName();
+                if (StringUtils.isEmpty(imageUploadInfo.targetCatalogName)) {
+                    imageUploadInfo.targetCatalogName = generateCatalogName();
                 }
 
                 upath.append(ImageServerInfo.getInstance().getUploadPath());
-                if (!targetCatalogName.equals("/")) { //$NON-NLS-1$
-                    upath.append(File.separator).append(targetCatalogName);
+                if (!imageUploadInfo.targetCatalogName.equals("/")) { //$NON-NLS-1$
+                    upath.append(File.separator).append(imageUploadInfo.targetCatalogName);
                 }
                 locateCatalog(upath);
-                targetFileName = (targetFileShortName + "." + sourceFileType); //$NON-NLS-1$
-                upath.append(File.separator).append(targetFileName);
-                               
-                if (!targetCatalogName.equals("/")) { //$NON-NLS-1$
-                    targetUri += ('/' + URLEncoder.encode(targetCatalogName, "UTF-8") ); //$NON-NLS-1$
+                imageUploadInfo.targetFileName = (imageUploadInfo.targetFileShortName + "." + imageUploadInfo.sourceFileType); //$NON-NLS-1$
+                upath.append(File.separator).append(imageUploadInfo.targetFileName);
+
+                if (!imageUploadInfo.targetCatalogName.equals("/")) { //$NON-NLS-1$
+                    imageUploadInfo.targetUri += ('/' + URLEncoder.encode(imageUploadInfo.targetCatalogName, "UTF-8")); //$NON-NLS-1$
                 }
-                
-                targetUri += ('/' + URLEncoder.encode(targetFileShortName, "UTF-8") + '.' + sourceFileType); //$NON-NLS-1$
+
+                imageUploadInfo.targetUri += ('/' + URLEncoder.encode(imageUploadInfo.targetFileShortName, "UTF-8") + '.' + imageUploadInfo.sourceFileType); //$NON-NLS-1$
                 File uploadedFile = new File(upath.toString());
                 item.write(uploadedFile);
 

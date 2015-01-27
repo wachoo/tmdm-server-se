@@ -245,7 +245,7 @@ public class Util {
      * Get the method of a component by its name
      */
     public static Method getMethod(Object component, String methodName) {
-        if(component == null) {
+        if (component == null) {
             return null;
         }
         Method[] methods = component.getClass().getMethods();
@@ -660,7 +660,7 @@ public class Util {
         }
         return defaultRoutingRule;
     }
-    
+
     public static StoredProcedure getStoredProcedureCtrlLocal() {
         if (defaultStoredProcedure == null) {
             defaultStoredProcedure = new DefaultStoredProcedure();
@@ -846,8 +846,7 @@ public class Util {
 
                     @Override
                     public void contentIsReady(TransformerContext context) throws XtentisException {
-                        LOGGER.debug(
-                                "XtentisWSBean.executeTransformerV2.contentIsReady() "); //$NON-NLS-1$
+                        LOGGER.debug("XtentisWSBean.executeTransformerV2.contentIsReady() "); //$NON-NLS-1$
                     }
 
                     @Override
@@ -894,7 +893,7 @@ public class Util {
     }
 
     public static boolean isEnterprise() {
-       return ServerAccess.INSTANCE.isEnterpriseVersion();
+        return ServerAccess.INSTANCE.isEnterpriseVersion();
     }
 
     public static class BeforeDeleteResult {
@@ -913,7 +912,8 @@ public class Util {
      * @throws Exception If something went wrong
      */
     @SuppressWarnings("unchecked")
-    public static BeforeDeleteResult beforeDeleting(String clusterName, String concept, String[] ids, String operationType) throws Exception {
+    public static BeforeDeleteResult beforeDeleting(String clusterName, String concept, String[] ids, String operationType)
+            throws Exception {
         // check before deleting transformer
         boolean isBeforeDeletingTransformerExist = false;
         Collection<TransformerV2POJOPK> transformers = getTransformerV2CtrlLocal().getTransformerPKs("*");
@@ -954,7 +954,8 @@ public class Util {
                 } else {
                     xml = pojo.getProjectionAsString();
                 }
-                String resultUpdateReport = Util.createUpdateReport(ids, concept, operationType, null, StringUtils.EMPTY, clusterName);
+                String resultUpdateReport = Util.createUpdateReport(ids, concept, operationType, null, StringUtils.EMPTY,
+                        clusterName);
                 String exchangeData = mergeExchangeData(xml, resultUpdateReport);
                 final String runningKey = "XtentisWSBean.executeTransformerV2.beforeDeleting.running";
                 TransformerContext context = new TransformerContext(new TransformerV2POJOPK("beforeDeleting_" + concept));
@@ -1051,9 +1052,9 @@ public class Util {
         }
         String xml2 = "" + "<Update>" + "<UserName>" + username + "</UserName>" + "<Source>genericUI</Source>" + "<TimeInMillis>"
                 + System.currentTimeMillis() + "</TimeInMillis>" + "<OperationType>" + StringEscapeUtils.escapeXml(operationType)
-                + "</OperationType>" + "<DataCluster>" + dataClusterPK
-                + "</DataCluster>" + "<DataModel>" + dataModelPK + "</DataModel>" + "<Concept>"
-                + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>" + StringEscapeUtils.escapeXml(key) + "</Key>";
+                + "</OperationType>" + "<DataCluster>" + dataClusterPK + "</DataCluster>" + "<DataModel>" + dataModelPK
+                + "</DataModel>" + "<Concept>" + StringEscapeUtils.escapeXml(concept) + "</Concept>" + "<Key>"
+                + StringEscapeUtils.escapeXml(key) + "</Key>";
         if (UpdateReportPOJO.OPERATION_TYPE_UPDATE.equals(operationType)) {
             Collection<UpdateReportItem> list = updatedPath.values();
             boolean isUpdate = false;
@@ -1093,7 +1094,8 @@ public class Util {
     }
 
     public static String getBarHomeDir() {
-        return Util.getJbossHomeDir() + File.separator + "barfiles"; //$NON-NLS-1$
+        String mdmRootDir = System.getProperty("mdm.root"); //$NON-NLS-1$
+        return mdmRootDir + File.separator + "barfiles"; //$NON-NLS-1$
     }
 
     public static List<File> listFiles(FileFilter filter, File folder) {
