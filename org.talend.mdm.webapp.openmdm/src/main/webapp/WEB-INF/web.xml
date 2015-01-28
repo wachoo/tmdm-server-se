@@ -341,7 +341,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>RestletServlet</servlet-name>
-        <url-pattern>/pubcomponent/*</url-pattern>
+        <url-pattern>/services/pubcomponent/*</url-pattern>
     </servlet-mapping>
        
     <session-config>

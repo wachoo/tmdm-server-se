@@ -20,6 +20,7 @@ import org.restlet.Filter;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.talend.mdm.ext.publish.ResourceType;
+import org.talend.mdm.ext.publish.ServerServletApplication;
 
 public class AccessControlFilter extends Filter {
 
@@ -29,7 +30,7 @@ public class AccessControlFilter extends Filter {
 
         try {
             String inputPath = request.getResourceRef().getPath();
-            Pattern pattern = Pattern.compile("/pubcomponent/(.*)");//$NON-NLS-1$
+            Pattern pattern = Pattern.compile(ServerServletApplication.ROUTE_CONTEXT_PATH + "/(.*)");//$NON-NLS-1$
             Matcher matcher = pattern.matcher(inputPath);
             while (matcher.find())
 

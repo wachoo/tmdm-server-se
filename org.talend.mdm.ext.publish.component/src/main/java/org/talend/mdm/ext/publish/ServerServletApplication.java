@@ -24,6 +24,7 @@ import org.talend.mdm.ext.publish.resource.PicturesResource;
 
 public class ServerServletApplication extends Application {
 
+    public static final String ROUTE_CONTEXT_PATH = "/services/pubcomponent"; ////$NON-NLS-1$
     public ServerServletApplication() {
         super();
     }
@@ -40,7 +41,7 @@ public class ServerServletApplication extends Application {
         Router router = new Router(getContext());
 
         // Defines a route for the resource "list of dataModels"
-        router.attach("/pubcomponent/" + ResourceType.DATAMODELS.getName(), DataModelsResource.class); //$NON-NLS-1$ 
+        router.attach(ROUTE_CONTEXT_PATH + '/' + ResourceType.DATAMODELS.getName(), DataModelsResource.class);
         // Defines a route for the resource "dataModel"
         router.attach("/" + ResourceType.DATAMODELS.getName() + "/{dataModelName}", DataModelResource.class); //$NON-NLS-1$ //$NON-NLS-2$
 
