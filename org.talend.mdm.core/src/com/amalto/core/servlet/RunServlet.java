@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.servlet;
 
 import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
@@ -19,6 +31,8 @@ import java.io.PrintWriter;
 
 public class RunServlet extends HttpServlet {
 
+    private static final long serialVersionUID = 1L;
+
     public RunServlet() {
         super();
     }
@@ -31,17 +45,15 @@ public class RunServlet extends HttpServlet {
         doGet(request, response);
     }
 
+    @SuppressWarnings("nls")
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
-        resp.setContentType("text/html; charset=\"UTF-8\"");
-        resp.setCharacterEncoding("UTF-8");
         PrintWriter writer = resp.getWriter();
         writer.write("<html><body>");
         try {
             if ("clean".equals(action)) {
                 writer.write("<p><b>Cleanup the background jobs stored in MDM</b><br/>"
-                        + "Check jboss/server/default/log/server.log or the jboss console output to determine when clean is completed</b></p>");
+                        + "Check server log output to determine when clean is completed</b></p>");
 
                 final AssembleConcreteBuilder concreteBuilder = new AssembleConcreteBuilder();
                 final AssembleDirector director = new AssembleDirector(concreteBuilder);
@@ -52,7 +64,7 @@ public class RunServlet extends HttpServlet {
 
             } else if ("init".equals(action)) {
                 writer.write("<p><b>Initialize the clusters and build-in data</b><br/>"
-                        + "Check jboss/server/default/log/server.log or the jboss console output to determine when init is completed</b></p>");
+                        + "Check server output to determine when init is completed</b></p>");
 
                 final AssembleConcreteBuilder concreteBuilder = new AssembleConcreteBuilder();
                 final AssembleDirector director = new AssembleDirector(concreteBuilder);
@@ -64,7 +76,7 @@ public class RunServlet extends HttpServlet {
             } else if ("migrate".equals(action)) {
                 MDMConfiguration.getConfiguration(true);
                 writer.write("<p><b>Migrate data to the new revision</b><br/>"
-                        + "Check jboss/server/default/log/server.log or the jboss console output to determine when migrate is completed</b></p>");
+                        + "Check server output to determine when migrate is completed</b></p>");
 
                 final AssembleConcreteBuilder concreteBuilder = new AssembleConcreteBuilder();
                 final AssembleDirector director = new AssembleDirector(concreteBuilder);

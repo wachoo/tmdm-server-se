@@ -1,4 +1,34 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.load.action.DefaultLoadAction;
 import com.amalto.core.load.action.LoadAction;
@@ -9,37 +39,16 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XSDKey;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.core.EDBType;
-import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.api.DataCluster;
 import com.amalto.core.server.api.XmlServer;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-
-
-/**
- * @author starkey
- */
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XSDKey;
 
 public class LoadServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
 
     private static final String PARAMETER_CLUSTER = "cluster"; //$NON-NLS-1$
 
@@ -54,8 +63,6 @@ public class LoadServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(LoadServlet.class);
 
     public static final Map<String, XSDKey> typeNameToKeyDef = new HashMap<String, XSDKey>();
-
-    private static final String PARAMETER_ACTION = "action"; //$NON-NLS-1$
 
     public LoadServlet() {
         super();
@@ -74,26 +81,16 @@ public class LoadServlet extends HttpServlet {
         // configure writer depending on logger configuration.
         PrintWriter writer = configureWriter(response);
         writer.write("<html><body>"); //$NON-NLS-1$
-        writer.write(
-                "<p><b>Load data into MDM</b><br/>" +
-                        "Check jboss/server/default/log/server.log or the jboss console output to determine when load is completed</b></p>"
-        );
+        writer.write("<p><b>Load data into MDM</b><br/>Check server log output to determine when load is completed</b></p>"); //$NON-NLS-1$
         String dataClusterName = request.getParameter(PARAMETER_CLUSTER);
         String typeName = request.getParameter(PARAMETER_CONCEPT);
         String dataModelName = request.getParameter(PARAMETER_DATAMODEL);
         boolean needValidate = Boolean.valueOf(request.getParameter(PARAMETER_VALIDATE));
         boolean needAutoGenPK = Boolean.valueOf(request.getParameter(PARAMETER_SMARTPK));
-        String action = request.getParameter(PARAMETER_ACTION);
-        if (action == null || action.length() == 0) {
-            action = getServletConfig().getInitParameter(PARAMETER_ACTION);
-        }
-        // We support only load as action here
-        if (!"load".equalsIgnoreCase(action)) { //$NON-NLS-1$
-            throw new ServletException(new UnsupportedOperationException("Action '" + action + "' isn't supported"));
-        }
+
         LoadAction loadAction = getLoadAction(dataClusterName, typeName, dataModelName, needValidate, needAutoGenPK);
         if (needValidate && !loadAction.supportValidation()) {
-            throw new ServletException(new UnsupportedOperationException("XML Validation isn't supported"));
+            throw new ServletException(new UnsupportedOperationException("XML Validation isn't supported")); //$NON-NLS-1$
         }
         // Get xml server and key information
         XmlServer server;
@@ -106,7 +103,8 @@ public class LoadServlet extends HttpServlet {
         }
         SaverSession session = SaverSession.newSession();
         SaverContextFactory contextFactory = session.getContextFactory();
-        DocumentSaverContext context = contextFactory.createBulkLoad(dataClusterName, dataModelName, keyMetadata, request.getInputStream(), loadAction, server);
+        DocumentSaverContext context = contextFactory.createBulkLoad(dataClusterName, dataModelName, keyMetadata,
+                request.getInputStream(), loadAction, server);
         DocumentSaver saver = context.createSaver();
         try {
             session.begin(dataClusterName);
@@ -118,32 +116,29 @@ public class LoadServlet extends HttpServlet {
             try {
                 session.abort();
             } catch (Exception rollbackException) {
-                log.error("Ignoring rollback exception", rollbackException);
+                log.error("Ignoring rollback exception", rollbackException); //$NON-NLS-1$
             }
             throw new ServletException(e);
         }
         writer.write("</body></html>"); //$NON-NLS-1$
     }
 
-    protected LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate, boolean needAutoGenPK) {
+    protected LoadAction getLoadAction(String dataClusterName, String typeName, String dataModelName, boolean needValidate,
+            boolean needAutoGenPK) {
         // Test if the data cluster actually exists
         DataClusterPOJO dataCluster = getDataCluster(dataClusterName);
         if (dataCluster == null) {
             throw new IllegalArgumentException("Data cluster '" + dataClusterName + "' does not exist.");
         }
-        // Activate optimizations if Qizx is used.
-        Object dbType = MDMConfiguration.getConfiguration().get("xmldb.type"); //$NON-NLS-1$
-        boolean isUsingQizx = dbType != null && EDBType.QIZX.getName().equals(dbType.toString());
-        // Activate optimizations if SQL is used.
-        boolean isUsingSQL = MDMConfiguration.isSqlDataBase();
+
         LoadAction loadAction;
-        if (needValidate || (!isUsingQizx && !isUsingSQL) || XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName)) {
+        if (needValidate || XSystemObjects.DC_PROVISIONING.getName().equals(dataClusterName)) {
             loadAction = new DefaultLoadAction(dataClusterName, dataModelName, needValidate);
         } else {
             loadAction = new OptimizedLoadAction(dataClusterName, typeName, dataModelName, needAutoGenPK);
         }
         if (log.isDebugEnabled()) {
-            log.debug("Load action selected for load: " + loadAction.getClass().getName() + "(isUsingQizx: " + isUsingQizx //$NON-NLS-1$ //$NON-NLS-2$
+            log.debug("Load action selected for load: " + loadAction.getClass().getName() //$NON-NLS-1$
                     + " / needValidate:" + needValidate + ")"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return loadAction;
@@ -174,19 +169,20 @@ public class LoadServlet extends HttpServlet {
         for (FieldMetadata keyField : type.getKeyFields()) {
             fields[i] = keyField.getPath();
             String name = keyField.getType().getName();
-            if (EUUIDCustomType.AUTO_INCREMENT.getName().equals(name) || EUUIDCustomType.UUID.getName().equals(name)) { // See TMDM-6687
+            if (EUUIDCustomType.AUTO_INCREMENT.getName().equals(name) || EUUIDCustomType.UUID.getName().equals(name)) { // See
+                                                                                                                        // TMDM-6687
                 fieldTypes[i] = name;
             } else {
                 fieldTypes[i] = "xsd:" + name; //$NON-NLS-1$
             }
             i++;
         }
-        return new XSDKey(".", fields, fieldTypes);
+        return new XSDKey(".", fields, fieldTypes); //$NON-NLS-1$
     }
 
     /**
      * Returns a writer that does not print anything if logger hasn't DEBUG level.
-     *
+     * 
      * @param resp A servlet response output.
      * @return The same {@link HttpServletResponse} if debug <b>is</b> enabled, or a no-op one if debug is disabled.
      * @throws IOException Thrown by {@link javax.servlet.http.HttpServletResponse#getWriter()}.
@@ -202,7 +198,7 @@ public class LoadServlet extends HttpServlet {
 
     /**
      * A {@link PrintWriter} implementation that intercepts all write method calls.
-     *
+     * 
      * @see LoadServlet#configureWriter(javax.servlet.http.HttpServletResponse)
      */
     private static class NoOpPrintWriter extends PrintWriter {

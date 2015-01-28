@@ -1088,11 +1088,6 @@ public class Util {
         return appServerDeployDir;
     }
 
-    public static String getJbossHomeDir() {
-        String jbossHomePath = com.amalto.core.util.Util.getAppServerDeployDir();
-        return new File(jbossHomePath).getAbsolutePath();
-    }
-
     public static String getBarHomeDir() {
         String mdmRootDir = System.getProperty("mdm.root"); //$NON-NLS-1$
         return mdmRootDir + File.separator + "barfiles"; //$NON-NLS-1$
