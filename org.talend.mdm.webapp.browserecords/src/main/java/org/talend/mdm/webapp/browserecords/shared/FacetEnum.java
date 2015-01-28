@@ -84,15 +84,9 @@ public enum FacetEnum {
                 field.setData(MAX_EXCLUSIVE.getFacetName(), value);
             } else if (facet.equals(LENGTH.getFacetName())) {
                 TextField<String> field = (TextField<String>) w;
-                if (Integer.parseInt(value) > 0) {
-                    field.setAllowBlank(false);
-                }
                 field.setData(LENGTH.getFacetName(), value);
             } else if (facet.equals(MIN_LENGTH.getFacetName())) {
                 TextField<String> field = (TextField<String>) w;
-                if (Integer.parseInt(value) > 0) {
-                    field.setAllowBlank(false);
-                }
                 field.setData(MIN_LENGTH.getFacetName(), value);
             } else if (facet.equals(MAX_LENGTH.getFacetName())) {
                 TextField<String> field = (TextField<String>) w;
@@ -107,8 +101,9 @@ public enum FacetEnum {
                 TextField<String> field = (TextField<String>) w;
                 // MultiLanguageField did not need to check pattern(Field will setup value by [en:***][fr:***] format)
                 // the pattern will be used on server-side to check
-                if (!(field instanceof MultiLanguageField))
+                if (!(field instanceof MultiLanguageField)) {
                     field.setData(PATTERN.getFacetName(), value);
+                }
             } else if (facet.equals(WHTE_SPACE.getFacetName())) {
                 TextField<String> field = (TextField<String>) w;
                 field.setData(WHTE_SPACE.getFacetName(), value);
