@@ -51,7 +51,7 @@ class ServerImpl implements Server {
 
     @Override
     public DataSourceDefinition getDefinition(String dataSourceName, String container) {
-        return getDefinition(dataSourceName, container);
+        return dataSourceFactory.getDataSource(dataSourceName, container);
     }
 
     public StorageAdmin getStorageAdmin() {
