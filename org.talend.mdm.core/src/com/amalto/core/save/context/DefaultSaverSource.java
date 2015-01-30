@@ -31,7 +31,6 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -51,13 +50,9 @@ public class DefaultSaverSource implements SaverSource {
 
     private final DataModel dataModel;
 
-    private final Map<String, String> schemasAsString = new HashMap<String, String>();
+    private final Map<String, String> schemasAsString = new HashMap<>();
 
     private final String userName;
-
-    public DefaultSaverSource() {
-        this(null);
-    }
 
     public DefaultSaverSource(String userName) {
         database = Util.getXmlServerCtrlLocal();
@@ -66,24 +61,11 @@ public class DefaultSaverSource implements SaverSource {
     }
 
     public static SaverSource getDefault() {
-        if (isFullSQL()) {
-            return new StorageSaverSource();
-        } else {
-            return new DefaultSaverSource();
-        }
-    }
-
-    private static boolean isFullSQL() {
-        return MDMConfiguration.isSqlDataBase()
-                && "com.amalto.core.storage.SQLWrapper".equals(MDMConfiguration.getConfiguration().get("xmlserver.class"));  //$NON-NLS-1$ //$NON-NLS-2$
+        return new StorageSaverSource();
     }
 
     public static SaverSource getDefault(String userName) {
-         if (isFullSQL()) {
-            return new StorageSaverSource(userName);
-        } else {
-            return new DefaultSaverSource(userName);
-        }
+        return new StorageSaverSource(userName);
     }
 
     public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String[] key) {
