@@ -369,7 +369,7 @@ public class QueryParserTest extends TestCase {
         assertEquals(0, expectedMetadataFields.size());
     }
 
-    public void test21() throws Exception {
+    public void testQuery21() throws Exception {
         QueryParser parser = QueryParser.newParser(repository);
         Expression expression = parser.parse(QueryParserTest.class.getResourceAsStream("query21.json")); //$NON-NLS-1$
         assertTrue(expression instanceof Select);
@@ -377,7 +377,7 @@ public class QueryParserTest extends TestCase {
         assertTrue(select.cache());
     }
 
-    public void test22() throws Exception {
+    public void testQuery22() throws Exception {
         QueryParser parser = QueryParser.newParser(repository);
         Expression expression = parser.parse(QueryParserTest.class.getResourceAsStream("query22.json")); //$NON-NLS-1$
         assertTrue(expression instanceof Select);
@@ -396,10 +396,11 @@ public class QueryParserTest extends TestCase {
         Select select = (Select) expression;
         assertEquals(1, select.getSelectedFields().size());
         TypedExpression typedExpression = select.getSelectedFields().get(0);
-        assertEquals(Distinct.class, typedExpression.getClass());
-        TypedExpression distinctExpression = ((Distinct) typedExpression).getExpression();
-        assertEquals(Field.class, distinctExpression.getClass());
-        assertEquals("id", ((Field) distinctExpression).getFieldMetadata().getName());
+        assertEquals(Alias.class, typedExpression.getClass());
+        assertEquals("id", ((Alias) typedExpression).getAliasName());
+        TypedExpression aliasedExpression = ((Alias) typedExpression).getTypedExpression();
+        assertEquals(Distinct.class, aliasedExpression.getClass());
+        assertEquals(Field.class, ((Distinct) aliasedExpression).getExpression().getClass());
     }
 
     public void testQuery24() {

@@ -860,6 +860,9 @@ public class UserQueryBuilder {
     }
 
     public static TypedExpression distinct(TypedExpression expression) {
+        if (expression instanceof Field) {
+            return new Alias(new Distinct(expression), ((Field) expression).getFieldMetadata().getPath());
+        }
         return new Distinct(expression);
     }
 
