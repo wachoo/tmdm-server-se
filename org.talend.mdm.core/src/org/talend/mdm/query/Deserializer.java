@@ -9,6 +9,7 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import java.lang.reflect.Type;
+import java.util.Date;
 
 class Deserializer implements JsonDeserializer<Expression> {
 
@@ -162,7 +163,24 @@ class Deserializer implements JsonDeserializer<Expression> {
                     if (date == null) {
                         throw new IllegalArgumentException("Expected 'date' element in '" + element + "'.");
                     }
-                    queryBuilder.at(date.getAsString());
+                    String dateAsString = date.getAsString();
+                    if ("yesterday".equalsIgnoreCase(dateAsString)) { //$NON-NLS-1$
+                        Date yesterday = new Date(System.currentTimeMillis() - (24 * 60 * 60 * 1000));
+                        synchronized (DateTimeConstant.DATE_FORMAT) {
+                            dateAsString = DateTimeConstant.DATE_FORMAT.format(yesterday);
+                        }
+                    } else if ("now".equalsIgnoreCase(dateAsString)) { //$NON-NLS-1$
+                        Date yesterday = new Date(System.currentTimeMillis());
+                        synchronized (DateTimeConstant.DATE_FORMAT) {
+                            dateAsString = DateTimeConstant.DATE_FORMAT.format(yesterday);
+                        }
+                    } else if ("creation".equalsIgnoreCase(dateAsString)) { //$NON-NLS-1$
+                        Date yesterday = new Date(0);
+                        synchronized (DateTimeConstant.DATE_FORMAT) {
+                            dateAsString = DateTimeConstant.DATE_FORMAT.format(yesterday);
+                        }
+                    }
+                    queryBuilder.at(dateAsString);
                     // Swing is optional
                     if (object.has("swing")) { //$NON-NLS-1$
                         queryBuilder.swing(object.get("swing").getAsString()); //$NON-NLS-1$

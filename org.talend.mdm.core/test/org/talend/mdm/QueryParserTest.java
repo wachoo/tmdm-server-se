@@ -451,4 +451,39 @@ public class QueryParserTest extends TestCase {
         assertEquals(LongConstant.class, ((Compare) condition).getRight().getClass());
     }
 
+    public void testQuery28() {
+        QueryParser parser = QueryParser.newParser(repository);
+        Expression expression = parser.parse(QueryParserTest.class.getResourceAsStream("query28.json")); //$NON-NLS-1$
+        assertTrue(expression instanceof Select);
+        Select select = (Select) expression;
+        At condition = select.getHistory();
+        assertNotNull(condition);
+        assertEquals(At.Swing.BEFORE, condition.getSwing());
+        long expected = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+        assertTrue(expected - condition.getDateTime() < 1000); // Assumes it took less than a second to parse query.
+    }
+
+    public void testQuery29() {
+        QueryParser parser = QueryParser.newParser(repository);
+        Expression expression = parser.parse(QueryParserTest.class.getResourceAsStream("query29.json")); //$NON-NLS-1$
+        assertTrue(expression instanceof Select);
+        Select select = (Select) expression;
+        At condition = select.getHistory();
+        assertNotNull(condition);
+        assertEquals(At.Swing.BEFORE, condition.getSwing());
+        long expected = System.currentTimeMillis();
+        assertTrue(expected - condition.getDateTime() < 1000); // Assumes it took less than a second to parse query.
+    }
+
+    public void testQuery30() {
+        QueryParser parser = QueryParser.newParser(repository);
+        Expression expression = parser.parse(QueryParserTest.class.getResourceAsStream("query30.json")); //$NON-NLS-1$
+        assertTrue(expression instanceof Select);
+        Select select = (Select) expression;
+        At condition = select.getHistory();
+        assertNotNull(condition);
+        assertEquals(At.Swing.BEFORE, condition.getSwing());
+        assertEquals(0, condition.getDateTime());
+    }
+
 }
