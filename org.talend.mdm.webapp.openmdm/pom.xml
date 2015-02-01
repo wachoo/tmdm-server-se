@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.talend.mdm</groupId>
@@ -14,11 +14,18 @@
     <packaging>war</packaging>
 
     <dependencies>
-        <!-- Community and enterprise shared dependencies (web apps) -->
+        <!-- SE war dependencies -->
+        <!-- pom dependency to the war must be declared to get transitive dependencies on the classpath (see http://jira.codehaus.org/browse/MWAR-253) -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.core</artifactId>
             <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.core</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -27,8 +34,20 @@
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.general</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.welcomeportal</artifactId>
             <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.welcomeportal</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -37,8 +56,20 @@
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.browserecords</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.recyclebin</artifactId>
             <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.recyclebin</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -47,8 +78,20 @@
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.journal</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.webapp.stagingarea</artifactId>
             <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.webapp.stagingarea</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
         </dependency>
         <!-- SE lib dependencies -->
         <dependency>
@@ -90,4 +133,33 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.talend.mdm</groupId>
+                <artifactId>license-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-licenses</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <failOnMissingLicense>false</failOnMissingLicense>
+                            <excludedArtifacts>
+                                <excludedArtifact>org.talend</excludedArtifact>
+                            </excludedArtifacts>
+                            <additionalArtifacts>
+                                <additionalArtifact>org.apache.tomcat:tomcat:zip::7.0.57</additionalArtifact>
+                                <additionalArtifact>yui:yui:javascript::2.4.0</additionalArtifact>
+                                <additionalArtifact>simile:timeline:javascript::2.3.0</additionalArtifact>
+                            </additionalArtifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
 </project>
