@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.core.util;
 
 import java.rmi.RemoteException;
@@ -5,14 +17,21 @@ import java.rmi.RemoteException;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.ObjectNotFoundException;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.jobox.util.JobNotFoundException;
 import com.amalto.core.storage.exception.ConstraintViolationException;
 import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.util.BeforeDeletingErrorException;
+import com.amalto.core.util.BeforeSavingErrorException;
+import com.amalto.core.util.BeforeSavingFormatException;
+import com.amalto.core.util.CVCException;
 import com.amalto.core.util.EntityNotFoundException;
-import com.amalto.core.util.*;
-import com.amalto.core.util.RoutingException;import com.amalto.core.webservice.*;
+import com.amalto.core.util.OutputReportMissingException;
+import com.amalto.core.util.RoutingException;
+import com.amalto.core.util.SchematronValidateException;
+import com.amalto.core.util.ValidateException;
+import com.amalto.core.webservice.*;
 
 public class XtentisWebPort implements XtentisPort {
 
@@ -51,20 +70,12 @@ public class XtentisWebPort implements XtentisPort {
     // default remote error
     public static final String DEFAULT_REMOTE_ERROR_MESSAGE = "default_remote_error_message"; //$NON-NLS-1$
 
-    private final XtentisPort delegate;
-
-    protected XtentisWebPort(XtentisPort delegate) {
-        this.delegate = delegate;
-    }
-
-    public static XtentisPort wrap(XtentisPort port) {
-        return new XtentisWebPort(port);
-    }
+    protected final XtentisPort delegate = BeanDelegatorContainer.getInstance().getXtentisWSDelegator();
 
     /**
-     * Handle the <code>throwable</code> parameter and returns a web ui exception (with potentially less technical information
-     * but better suited for end-user display).
-     *
+     * Handle the <code>throwable</code> parameter and returns a web ui exception (with potentially less technical
+     * information but better suited for end-user display).
+     * 
      * @param throwable The throwable to process.
      * @param errorMessage A default error message if exception does not have a message.
      * @return A {@link java.rmi.RemoteException exception} suited for Web UI display.
@@ -792,14 +803,17 @@ public class XtentisWebPort implements XtentisPort {
         return delegate.getRolePKs(ks);
     }
 
+    @Override
     public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
         return delegate.existsRole(wsExistsRole);
     }
 
+    @Override
     public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
         return delegate.putRole(wsRole);
     }
 
+    @Override
     public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
         return delegate.deleteRole(wsRoleDelete);
     }

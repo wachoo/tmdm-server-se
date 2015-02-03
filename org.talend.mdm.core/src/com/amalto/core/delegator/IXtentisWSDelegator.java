@@ -50,6 +50,8 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.*;
 import com.amalto.core.webservice.*;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -74,7 +76,7 @@ import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.*;
 
-public abstract class IXtentisWSDelegator implements IBeanDelegator {
+public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort {
 
     public static final String MDM_TIS_JOB = "MDMTISJOB";//$NON-NLS-1$
 
@@ -90,6 +92,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
 
+    @Override
     public WSVersion getComponentVersion(WSGetComponentVersion wsGetComponentVersion) throws RemoteException {
         try {
             if (WSComponent.DataManager.equals(wsGetComponentVersion.getComponent())) {
@@ -106,6 +109,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString ping(WSPing wsPing) throws RemoteException {
         if ("Studio".equals(wsPing.getEcho())) {// check view user can't use studio //$NON-NLS-1$
             try {
@@ -119,6 +123,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return new WSString(wsPing.getEcho());
     }
 
+    @Override
     public WSString logout(WSLogout logout) throws RemoteException {
         String msg = "OK";
         try {
@@ -130,12 +135,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return new WSString(msg);
     }
 
+    @Override
     public WSInt initMDM(WSInitData initData) throws RemoteException {
         // run migration tasks
         MigrationRepository.getInstance().execute(true);
         return new WSInt(0);
     }
 
+    @Override
     public WSMDMConfig getMDMConfiguration() throws RemoteException {
         WSMDMConfig mdmConfig = new WSMDMConfig();
         Properties property = MDMConfiguration.getConfiguration();
@@ -154,6 +161,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return mdmConfig;
     }
 
+    @Override
     public WSDataModel getDataModel(WSGetDataModel wsGetDataModel) throws RemoteException {
         try {
             return XConverter.VO2WS(Util.getDataModelCtrlLocal().getDataModel(
@@ -163,6 +171,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsDataModel(WSExistsDataModel wsExistsDataModel) throws RemoteException {
         try {
             return new WSBoolean((Util.getDataModelCtrlLocal().existsDataModel(
@@ -172,6 +181,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDataModelPKArray getDataModelPKs(WSRegexDataModelPKs regexp) throws RemoteException {
         try {
             WSDataModelPKArray array = new WSDataModelPKArray();
@@ -192,6 +202,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDataModelPK deleteDataModel(WSDeleteDataModel wsDeleteDataModel) throws RemoteException {
         try {
             return new WSDataModelPK(Util.getDataModelCtrlLocal()
@@ -201,6 +212,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDataModelPK putDataModel(WSPutDataModel wsDataModel) throws RemoteException {
         try {
             WSDataModelPK wsDataModelPK = new WSDataModelPK(Util.getDataModelCtrlLocal()
@@ -214,6 +226,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString checkSchema(WSCheckSchema wsSchema) throws RemoteException {
         try {
             return new WSString(Util.getDataModelCtrlLocal().checkSchema(wsSchema.getSchema()));
@@ -223,6 +236,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     }
 
     @SuppressWarnings("nls")
+    @Override
     public WSString putBusinessConcept(WSPutBusinessConcept wsPutBusinessConcept) throws RemoteException {
         WSBusinessConcept bc = wsPutBusinessConcept.getBusinessConcept();
         try {
@@ -250,6 +264,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString putBusinessConceptSchema(WSPutBusinessConceptSchema wsPutBusinessConceptSchema) throws RemoteException {
         try {
             return new WSString(Util.getDataModelCtrlLocal().putBusinessConceptSchema(
@@ -260,6 +275,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString deleteBusinessConcept(WSDeleteBusinessConcept wsDeleteBusinessConcept) throws RemoteException {
         try {
             return new WSString(Util.getDataModelCtrlLocal().deleteBusinessConcept(
@@ -270,6 +286,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray getBusinessConcepts(WSGetBusinessConcepts wsGetBusinessConcepts) throws RemoteException {
         try {
             return new WSStringArray(Util.getDataModelCtrlLocal().getAllBusinessConceptsNames(
@@ -278,7 +295,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-
+    
+    @Override
     public WSConceptKey getBusinessConceptKey(WSGetBusinessConceptKey wsGetBusinessConceptKey) throws RemoteException {
         try {
             MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
@@ -296,6 +314,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDataCluster getDataCluster(WSGetDataCluster wsDataClusterGet) throws RemoteException {
         try {
             return XConverter.VO2WS(Util.getDataClusterCtrlLocal().getDataCluster(
@@ -305,6 +324,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsDataCluster(WSExistsDataCluster wsExistsDataCluster) throws RemoteException {
         try {
             return new WSBoolean(Util.getDataClusterCtrlLocal().existsDataCluster(
@@ -314,6 +334,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsDBDataCluster(WSExistsDBDataCluster wsExistsDataCluster) throws RemoteException {
         try {
             String clusterName = wsExistsDataCluster.getName();
@@ -324,6 +345,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDataClusterPKArray getDataClusterPKs(WSRegexDataClusterPKs regexp) throws RemoteException {
         try {
             String[] storageNames = ServerContext.INSTANCE.get().getStorageAdmin().getAll();
@@ -341,6 +363,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDataClusterPK deleteDataCluster(WSDeleteDataCluster wsDeleteDataCluster) throws RemoteException {
         try {
             return new WSDataClusterPK(Util.getDataClusterCtrlLocal()
@@ -350,6 +373,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDataClusterPK putDataCluster(WSPutDataCluster wsDataCluster) throws RemoteException {
         try {
             return new WSDataClusterPK(Util.getDataClusterCtrlLocal()
@@ -359,6 +383,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster) throws RemoteException {
         try {
             Util.getXmlServerCtrlLocal().createCluster(wsDataCluster.getName());
@@ -370,10 +395,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray getConceptsInDataCluster(WSGetConceptsInDataCluster wsGetConceptsInDataCluster) throws RemoteException {
         try {
-            Collection<String> concepts = Util.getItemCtrl2Local()
-                    .getConceptsInDataCluster(new DataClusterPOJOPK(wsGetConceptsInDataCluster.getWsDataClusterPK().getPk()));
+            Collection<String> concepts = Util.getItemCtrl2Local().getConceptsInDataCluster(
+                    new DataClusterPOJOPK(wsGetConceptsInDataCluster.getWsDataClusterPK().getPk()));
             return new WSStringArray(concepts.toArray(new String[concepts.size()]));
         } catch (XtentisException e) {
             throw (new RemoteException(e.getLocalizedMessage()));
@@ -382,6 +408,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSView getView(WSGetView wsViewGet) throws RemoteException {
         try {
             return XConverter.VO2WS(Util.getViewCtrlLocal().getView(new ViewPOJOPK(wsViewGet.getWsViewPK().getPk())));
@@ -394,6 +421,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsView(WSExistsView wsExistsView) throws RemoteException {
         try {
             return new WSBoolean(Util.getViewCtrlLocal().existsView(new ViewPOJOPK(wsExistsView.getWsViewPK().getPk())) != null);
@@ -406,6 +434,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSViewPKArray getViewPKs(WSGetViewPKs regexp) throws RemoteException {
         try {
             WSViewPKArray array = new WSViewPKArray();
@@ -423,6 +452,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSViewPK deleteView(WSDeleteView wsDeleteView) throws RemoteException {
         try {
             return new WSViewPK(
@@ -432,6 +462,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSViewPK putView(WSPutView wsView) throws RemoteException {
         try {
             return new WSViewPK(Util.getViewCtrlLocal().putView(XConverter.WS2VO(wsView.getWsView())).getIds()[0]);
@@ -440,6 +471,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray viewSearch(WSViewSearch wsViewSearch) throws RemoteException {
         WSWhereItem whereItem = wsViewSearch.getWhereItem();
         if (whereItem != null && whereItem.getWhereAnd() == null && whereItem.getWhereOr() == null
@@ -458,6 +490,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray xPathsSearch(WSXPathsSearch wsXPathsSearch) throws RemoteException {
         try {
             if (wsXPathsSearch.getReturnCount() == null) {
@@ -475,6 +508,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString count(WSCount wsCount) throws RemoteException {
         try {
             String countPath = wsCount.getCountPath();
@@ -490,6 +524,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray getItems(WSGetItems wsGetItems) throws RemoteException {
         try {
             Map wcfContext = new HashMap();
@@ -505,6 +540,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray getItemsSort(WSGetItemsSort wsGetItemsSort) throws RemoteException {
         try {
             Map wcfContext = new HashMap();
@@ -521,10 +557,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSItemPKsByCriteriaResponse getItemPKsByCriteria(WSGetItemPKsByCriteria wsGetItemPKsByCriteria) throws RemoteException {
         return doGetItemPKsByCriteria(wsGetItemPKsByCriteria, false);
     }
 
+    @Override
     public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria)
             throws RemoteException {
         return doGetItemPKsByCriteria(wsGetItemPKsByFullCriteria.getWsGetItemPKsByCriteria(),
@@ -600,6 +638,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSItem getItem(WSGetItem wsGetItem) throws RemoteException {
         try {
             if (wsGetItem.getWsItemPK().getIds() == null) {
@@ -608,9 +647,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
             ItemPOJOPK pk = new ItemPOJOPK(new DataClusterPOJOPK(wsGetItem.getWsItemPK().getWsDataClusterPK().getPk()), wsGetItem
                     .getWsItemPK().getConceptName(), wsGetItem.getWsItemPK().getIds());
             ItemPOJO pojo = Util.getItemCtrl2Local().getItem(pk);
-            return new WSItem(wsGetItem.getWsItemPK().getWsDataClusterPK(), pojo.getDataModelName(),
-                    wsGetItem.getWsItemPK().getConceptName(), wsGetItem.getWsItemPK().getIds(), pojo.getInsertionTime(),
-                    pojo.getTaskId(), pojo.getProjectionAsString());
+            return new WSItem(wsGetItem.getWsItemPK().getWsDataClusterPK(), pojo.getDataModelName(), wsGetItem.getWsItemPK()
+                    .getConceptName(), wsGetItem.getWsItemPK().getIds(), pojo.getInsertionTime(), pojo.getTaskId(),
+                    pojo.getProjectionAsString());
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();
@@ -620,6 +659,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsItem(WSExistsItem wsExistsItem) throws RemoteException {
         try {
             return new WSBoolean((Util.getItemCtrl2Local().existsItem(
@@ -633,6 +673,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     /**
      * 
      */
+    @Override
     public WSStringArray quickSearch(WSQuickSearch wsQuickSearch) throws RemoteException {
         try {
             Collection c = Util.getItemCtrl2Local().quickSearch(
@@ -654,6 +695,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 itemPK.getIds());
     }
 
+    @Override
     public WSString getBusinessConceptValue(WSGetBusinessConceptValue wsGetBusinessConceptValue) throws RemoteException {
         try {
             ItemPOJO iv = Util.getItemCtrl2Local().getItem(
@@ -666,6 +708,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray getFullPathValues(WSGetFullPathValues wsGetFullPathValues) throws RemoteException {
         try {
             Collection res = Util.getItemCtrl2Local().getFullPathValues(
@@ -699,6 +742,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return item.toString();
     }
 
+    @Override
     public WSItemPK partialPutItem(WSPartialPutItem partialPutItem) throws RemoteException {
         try {
             SaverSession session = SaverSession.newSession();
@@ -719,6 +763,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @return The PK of the record created/updated.
      * @throws java.rmi.RemoteException In case of server exception.
      */
+    @Override
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
         try {
             WSDataClusterPK dataClusterPK = wsPutItem.getWsDataClusterPK();
@@ -760,6 +805,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @return An array of ids saved to database.
      * @throws java.rmi.RemoteException In case of server error
      */
+    @Override
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
         WSPutItem[] items = wsPutItemArray.getWsPutItem();
         try {
@@ -796,6 +842,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @return An array of PKs for the records created/updated.
      * @throws java.rmi.RemoteException In case of server error.
      */
+    @Override
     public WSItemPKArray putItemWithReportArray(com.amalto.core.webservice.WSPutItemWithReportArray wsPutItemWithReportArray)
             throws RemoteException {
         try {
@@ -839,6 +886,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @return The PK of the newly inserted document.
      * @throws java.rmi.RemoteException In case of server exception.
      */
+    @Override
     public WSItemPK putItemWithReport(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
         try {
             WSPutItem wsPutItem = wsPutItemWithReport.getWsPutItem();
@@ -884,6 +932,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
      * @return The PK of the newly created record.
      * @throws java.rmi.RemoteException In case of server exception.
      */
+    @Override
     public WSItemPK putItemWithCustomReport(com.amalto.core.webservice.WSPutItemWithCustomReport wsPutItemWithCustomReport)
             throws RemoteException {
         try {
@@ -922,10 +971,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSPipeline extractUsingTransformer(WSExtractUsingTransformer wsExtractUsingTransformer) throws RemoteException {
         throw new RemoteException("Not supported.");
     }
 
+    @Override
     public WSPipeline extractUsingTransformerThruView(WSExtractUsingTransformerThruView wsExtractUsingTransformerThruView)
             throws RemoteException {
         try {
@@ -946,6 +997,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSItemPK deleteItem(WSDeleteItem wsDeleteItem) throws RemoteException {
         try {
             WSItemPK itemPK = wsDeleteItem.getWsItemPK();
@@ -981,6 +1033,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString deleteItemWithReport(WSDeleteItemWithReport wsDeleteItem) throws RemoteException {
         try {
             String dataClusterPK = wsDeleteItem.getWsItemPK().getWsDataClusterPK().getPk();
@@ -998,7 +1051,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                     pushToUpdateReport(dataClusterPK, dataModelPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving(),
                             wsDeleteItem.getSource(), wsDeleteItem.getOperateType(), wsDeleteItem.getUser());
                 }
-                // Message status is stored into 'source' property of the function parameter WSDeleteItemWithReport 
+                // Message status is stored into 'source' property of the function parameter WSDeleteItemWithReport
                 // (not an ideal situation but necessary to get around WS API refactor) and returned back to the webui.
                 wsDeleteItem.setSource(SUCCESS_KEYWORD);
                 return new WSString("logical delete item successful!"); //$NON-NLS-1$
@@ -1015,9 +1068,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                                 return new WSString(
                                         "Could not retrieve the validation process result. An error might have occurred. The record was not deleted."); //$NON-NLS-1$
                             } else {
-                                return new WSString(result.message); 
-                            }                            
-                        } else if (INFO_KEYWORD.equalsIgnoreCase(result.type)){
+                                return new WSString(result.message);
+                            }
+                        } else if (INFO_KEYWORD.equalsIgnoreCase(result.type)) {
                             status = INFO_KEYWORD;
                             message = result.message;
                         } else {
@@ -1038,6 +1091,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSInt deleteItems(WSDeleteItems wsDeleteItems) throws RemoteException {
         try {
             // TODO Query ids if request for update report
@@ -1051,6 +1105,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDroppedItemPK dropItem(WSDropItem wsDropItem) throws RemoteException {
         try {
             WSItemPK wsItemPK = wsDropItem.getWsItemPK();
@@ -1064,12 +1119,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray runQuery(WSRunQuery wsRunQuery) throws RemoteException {
         try {
             DataClusterPOJOPK dcpk = (wsRunQuery.getWsDataClusterPK() == null) ? null : new DataClusterPOJOPK(wsRunQuery
                     .getWsDataClusterPK().getPk());
-            Collection<String> result = Util.getItemCtrl2Local().runQuery(dcpk,
-                    wsRunQuery.getQuery(), wsRunQuery.getParameters());
+            Collection<String> result = Util.getItemCtrl2Local()
+                    .runQuery(dcpk, wsRunQuery.getQuery(), wsRunQuery.getParameters());
             // stored procedure may modify the db, so we need to clear the cache
             Util.getXmlServerCtrlLocal().clearCache();
             return new WSStringArray(result.toArray(new String[result.size()]));
@@ -1078,14 +1134,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public WSString ping() throws RemoteException {
-        try {
-            return new WSString("OK");
-        } catch (Exception e) {
-            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-        }
-    }
-
+    @Override
     public WSStoredProcedurePK deleteStoredProcedure(WSDeleteStoredProcedure wsStoredProcedureDelete) throws RemoteException {
         try {
             StoredProcedure ctrl = Util.getStoredProcedureCtrlLocal();
@@ -1097,6 +1146,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray executeStoredProcedure(WSExecuteStoredProcedure wsExecuteStoredProcedure) throws RemoteException {
         try {
             StoredProcedure ctrl = Util.getStoredProcedureCtrlLocal();
@@ -1120,6 +1170,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStoredProcedure getStoredProcedure(WSGetStoredProcedure wsGetStoredProcedure) throws RemoteException {
         try {
             StoredProcedure ctrl = Util.getStoredProcedureCtrlLocal();
@@ -1131,6 +1182,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsStoredProcedure(WSExistsStoredProcedure wsExistsStoredProcedure) throws RemoteException {
         try {
             StoredProcedure ctrl = Util.getStoredProcedureCtrlLocal();
@@ -1142,6 +1194,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStoredProcedurePKArray getStoredProcedurePKs(WSRegexStoredProcedure regex) throws RemoteException {
         try {
             StoredProcedure ctrl = Util.getStoredProcedureCtrlLocal();
@@ -1160,6 +1213,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStoredProcedurePK putStoredProcedure(WSPutStoredProcedure wsStoredProcedure) throws RemoteException {
         try {
             StoredProcedure ctrl = Util.getStoredProcedureCtrlLocal();
@@ -1170,6 +1224,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSMenuPK deleteMenu(WSDeleteMenu wsMenuDelete) throws RemoteException {
         try {
             Menu ctrl = Util.getMenuCtrlLocal();
@@ -1179,6 +1234,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSMenu getMenu(WSGetMenu wsGetMenu) throws RemoteException {
         try {
             Menu ctrl = Util.getMenuCtrlLocal();
@@ -1193,6 +1249,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsMenu(WSExistsMenu wsExistsMenu) throws RemoteException {
         try {
             Menu ctrl = Util.getMenuCtrlLocal();
@@ -1207,6 +1264,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSMenuPKArray getMenuPKs(WSGetMenuPKs regex) throws RemoteException {
         try {
             Menu ctrl = Util.getMenuCtrlLocal();
@@ -1225,6 +1283,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSMenuPK putMenu(WSPutMenu wsMenu) throws RemoteException {
         try {
             Menu ctrl = Util.getMenuCtrlLocal();
@@ -1239,6 +1298,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBackgroundJob getBackgroundJob(WSGetBackgroundJob wsBackgroundJobGet) throws RemoteException {
         try {
             return XConverter.POJO2WS(Util.getBackgroundJobCtrlLocal().getBackgroundJob(
@@ -1248,6 +1308,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBackgroundJobPKArray findBackgroundJobPKs(WSFindBackgroundJobPKs wsFindBackgroundJobPKs) throws RemoteException {
         try {
             throw new RemoteException("WSBackgroundJobPKArray is not implemented in this version of the core");
@@ -1256,6 +1317,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsPutJob) throws RemoteException {
         try {
             return new WSBackgroundJobPK(Util.getBackgroundJobCtrlLocal()
@@ -1265,6 +1327,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDroppedItemPKArray findAllDroppedItemsPKs(WSFindAllDroppedItemsPKs regex) throws RemoteException {
         try {
             List droppedItemPOJOPKs = Util.getDroppedItemCtrlLocal().findAllDroppedItemsPKs(regex.getRegex());
@@ -1281,6 +1344,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDroppedItem loadDroppedItem(WSLoadDroppedItem wsLoadDroppedItem) throws RemoteException {
         try {
             DroppedItemPOJO droppedItemPOJO = Util.getDroppedItemCtrlLocal().loadDroppedItem(
@@ -1293,6 +1357,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSItemPK recoverDroppedItem(WSRecoverDroppedItem wsRecoverDroppedItem) throws RemoteException {
         try {
             // Restore record
@@ -1314,6 +1379,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDroppedItemPK removeDroppedItem(WSRemoveDroppedItem wsRemoveDroppedItem) throws RemoteException {
         try {
             WSItemPK itemPK = wsRemoveDroppedItem.getWsDroppedItemPK().getWsItemPK();
@@ -1343,6 +1409,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRoutingRule getRoutingRule(WSGetRoutingRule wsRoutingRuleGet) throws RemoteException {
         try {
             RoutingRule routingRuleCtrlLocal = Util.getRoutingRuleCtrlLocal();
@@ -1358,6 +1425,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsRoutingRule(WSExistsRoutingRule wsExistsRoutingRule) throws RemoteException {
         try {
             RoutingRule routingRuleCtrlLocal = Util.getRoutingRuleCtrlLocal();
@@ -1370,6 +1438,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRoutingRulePK deleteRoutingRule(WSDeleteRoutingRule wsDeleteRoutingRule) throws RemoteException {
         try {
             RoutingRule routingRuleCtrlLocal = Util.getRoutingRuleCtrlLocal();
@@ -1382,6 +1451,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRoutingRulePK putRoutingRule(WSPutRoutingRule wsRoutingRule) throws RemoteException {
         try {
             RoutingRule routingRuleCtrlLocal = Util.getRoutingRuleCtrlLocal();
@@ -1394,6 +1464,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRoutingRulePKArray getRoutingRulePKs(WSGetRoutingRulePKs regex) throws RemoteException {
         try {
             RoutingRule ctrl = Util.getRoutingRuleCtrlLocal();
@@ -1412,6 +1483,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSTransformerV2PK deleteTransformerV2(WSDeleteTransformerV2 wsTransformerV2Delete) throws RemoteException {
         try {
             Transformer ctrl = Util.getTransformerV2CtrlLocal();
@@ -1422,6 +1494,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSTransformerV2 getTransformerV2(WSGetTransformerV2 wsGetTransformerV2) throws RemoteException {
         try {
             Transformer ctrl = Util.getTransformerV2CtrlLocal();
@@ -1433,6 +1506,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsTransformerV2(WSExistsTransformerV2 wsExistsTransformerV2) throws RemoteException {
         try {
             Transformer ctrl = Util.getTransformerV2CtrlLocal();
@@ -1444,6 +1518,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSTransformerV2PKArray getTransformerV2PKs(WSGetTransformerV2PKs regex) throws RemoteException {
         try {
             Transformer ctrl = Util.getTransformerV2CtrlLocal();
@@ -1462,6 +1537,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSTransformerV2PK putTransformerV2(WSPutTransformerV2 wsTransformerV2) throws RemoteException {
         try {
             Transformer ctrl = Util.getTransformerV2CtrlLocal();
@@ -1472,6 +1548,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSTransformerContext executeTransformerV2(WSExecuteTransformerV2 wsExecuteTransformerV2) throws RemoteException {
         try {
             final String RUNNING = "XtentisWSBean.executeTransformerV2.running";
@@ -1504,12 +1581,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBackgroundJobPK executeTransformerV2AsJob(WSExecuteTransformerV2AsJob wsExecuteTransformerV2AsJob)
             throws RemoteException {
         try {
             Transformer ctrl = Util.getTransformerV2CtrlLocal();
-            BackgroundJobPOJOPK bgPK = ctrl.executeAsJob(XConverter.WS2POJO(wsExecuteTransformerV2AsJob.getWsTransformerContext()),
-                    new TransformerCallBack() {
+            BackgroundJobPOJOPK bgPK = ctrl.executeAsJob(
+                    XConverter.WS2POJO(wsExecuteTransformerV2AsJob.getWsTransformerContext()), new TransformerCallBack() {
 
                         @Override
                         public void contentIsReady(TransformerContext context) throws XtentisException {
@@ -1531,6 +1609,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSTransformerContext extractThroughTransformerV2(WSExtractThroughTransformerV2 wsExtractThroughTransformerV2)
             throws RemoteException {
         try {
@@ -1542,6 +1621,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsTransformerPluginV2(WSExistsTransformerPluginV2 wsExistsTransformerPlugin) throws RemoteException {
         try {
             return new WSBoolean(Util.existsComponent(wsExistsTransformerPlugin.getJndiName()));
@@ -1550,6 +1630,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration)
             throws RemoteException {
         try {
@@ -1560,6 +1641,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration)
             throws RemoteException {
         try {
@@ -1571,6 +1653,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSTransformerPluginV2Details getTransformerPluginV2Details(
             WSGetTransformerPluginV2Details wsGetTransformerPluginDetails) throws RemoteException {
         try {
@@ -1608,6 +1691,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginsList)
             throws RemoteException {
         try {
@@ -1694,6 +1778,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(
             WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
         try {
@@ -1716,6 +1801,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria)
             throws RemoteException {
         try {
@@ -1739,6 +1825,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(
             WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws RemoteException {
         try {
@@ -1798,6 +1885,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
         try {
             RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
@@ -1843,6 +1931,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
 
     }
 
+    @Override
     public WSAutoIncrement getAutoIncrement(WSAutoIncrement request) throws RemoteException {
         try {
             XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
@@ -1864,6 +1953,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return null;
     }
 
+    @Override
     public WSCategoryData getMDMCategory(WSCategoryData request) throws RemoteException {
         try {
             XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
@@ -1892,6 +1982,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean putMDMJob(WSPUTMDMJob job) throws RemoteException {
         DocumentBuilder documentBuilder;
         try {
@@ -1929,6 +2020,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return new WSBoolean(false);
     }
 
+    @Override
     public WSBoolean deleteMDMJob(WSDELMDMJob job) throws RemoteException {
         Document doc;
         try {
@@ -1961,6 +2053,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
     /**
      * get job info from jboss deploy dir
      */
+    @Override
     public WSMDMJobArray getMDMJob(WSMDMNULL job) {
         WSMDMJobArray jobSet = new WSMDMJobArray();
         WSMDMJob[] jobs = Util.getMDMJobs();
@@ -1968,8 +2061,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return jobSet;
     }
 
-    public WSBoolean isItemModifiedByOther(WSItem item) throws RemoteException {
+    @Override
+    public WSBoolean isItemModifiedByOther(WSIsItemModifiedByOther wsIsItemModifiedByOther) throws RemoteException {
         try {
+            WSItem item = wsIsItemModifiedByOther.getWsItem();
             boolean ret = Util.getItemCtrl2Local()
                     .isItemModifiedByOther(
                             new ItemPOJOPK(new DataClusterPOJOPK(item.getWsDataClusterPK().getPk()), item.getConceptName(),
@@ -1980,6 +2075,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSString countItemsByCustomFKFilters(WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters)
             throws RemoteException {
         try {
@@ -1992,6 +2088,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSStringArray getItemsByCustomFKFilters(WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters)
             throws RemoteException {
         try {
@@ -2010,6 +2107,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSDigest getDigest(WSDigestKey wsDigestKey) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         // Retrieves SYSTEM storage
@@ -2045,6 +2143,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSLong updateDigest(WSDigest wsDigest) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         // Retrieves SYSTEM storage
@@ -2066,7 +2165,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
                 if (iterator.hasNext()) {
                     DataRecord result = iterator.next();
                     FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
-                    // Using convert ensure type is  correct
+                    // Using convert ensure type is correct
                     result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField));
                     systemStorage.update(result); // No need to set timestamp (update will update it).
                     systemStorage.commit();
@@ -2083,14 +2182,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public WSMatchRulePK putMatchRule(WSPutMatchRule wsPutMatchRule) throws RemoteException {
-        return null; // Supported only in EE.
-    }
-
-    public WSMatchRulePK deleteMatchRule(WSDeleteMatchRule wsDeleteMatchRule) throws RemoteException {
-        return null; // Supported only in EE.
-    }
-
+    @Override
     public WSBoolean isPagingAccurate(WSInt currentTotalSize) {
         List<String> noSupportAccurateDbs = Arrays.asList("qizx");//$NON-NLS-1$
         Properties props = MDMConfiguration.getConfiguration();
@@ -2108,6 +2200,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         return result;
     }
 
+    @Override
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) {
         try {
             WSItemPK wsItemPK = deleteItem.getWsItemPK();
@@ -2120,14 +2213,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
-    public List<String> globalSearch(String dataCluster, String keyword, int start, int end) {
-        try {
-            return Util.getXmlServerCtrlLocal().globalSearch(dataCluster, keyword, start, end);
-        } catch (XtentisException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    @Override
     public WSBoolean supportStaging(WSDataClusterPK dataClusterPK) {
         try {
             boolean supportStaging = Util.getXmlServerCtrlLocal().supportStaging(dataClusterPK.getPk());
@@ -2137,6 +2223,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
         try {
             Role ctrl = Util.getRoleCtrlLocal();
@@ -2149,6 +2236,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
         try {
             Role ctrl = Util.getRoleCtrlLocal();
@@ -2161,6 +2249,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
         try {
             Role ctrl = Util.getRoleCtrlLocal();
@@ -2179,6 +2268,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
         try {
             Role ctrl = Util.getRoleCtrlLocal();
@@ -2192,6 +2282,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
     public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
         try {
             Role ctrl = Util.getRoleCtrlLocal();
@@ -2201,4 +2292,91 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator {
         }
     }
 
+    @Override
+    public WSString serviceAction(WSServiceAction wsServiceAction) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSString getServiceConfiguration(WSServiceGetConfiguration wsGetConfiguration) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSString putServiceConfiguration(WSServicePutConfiguration wsPutConfiguration) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSServicesList getServicesList(WSGetServicesList wsGetServicesList) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSServiceGetDocument getServiceDocument(WSString serviceName) throws RemoteException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public WSTransformer getTransformer(WSGetTransformer wsGetTransformer) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSBoolean existsTransformer(WSExistsTransformer wsExistsTransformer) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSTransformerPKArray getTransformerPKs(WSGetTransformerPKs regex) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSTransformerPK putTransformer(WSPutTransformer wsTransformer) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSPipeline processBytesUsingTransformer(WSProcessBytesUsingTransformer wsProcessBytesUsingTransformer)
+            throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSPipeline processFileUsingTransformer(WSProcessFileUsingTransformer wsProcessFileUsingTransformer)
+            throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSBackgroundJobPK processBytesUsingTransformerAsBackgroundJob(
+            WSProcessBytesUsingTransformerAsBackgroundJob wsProcessBytesUsingTransformerAsBackgroundJob) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public WSBackgroundJobPK processFileUsingTransformerAsBackgroundJob(
+            WSProcessFileUsingTransformerAsBackgroundJob wsProcessFileUsingTransformerAsBackgroundJob) throws RemoteException {
+        // TODO
+        throw new NotImplementedException();
+    }
 }

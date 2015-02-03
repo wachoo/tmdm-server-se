@@ -12,24 +12,23 @@
 // ============================================================================
 package com.amalto.webapp.core.util;
 
-import com.amalto.commons.core.utils.XMLUtils;
-import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.objects.transformers.TransformerV2POJOPK;
-import com.amalto.core.objects.view.ViewPOJO;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.XtentisException;
-import com.amalto.core.webservice.*;
-import com.amalto.webapp.core.bean.Configuration;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSElementDecl;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
-import com.amalto.core.server.api.XmlServer;
-import org.w3c.dom.*;
-import org.xml.sax.InputSource;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,24 +36,45 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class Util {
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
-    private static String port = null;
+import com.amalto.commons.core.utils.XMLUtils;
+import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.objects.transformers.TransformerV2POJOPK;
+import com.amalto.core.objects.view.ViewPOJO;
+import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.XtentisException;
+import com.amalto.core.webservice.WSConceptKey;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetBusinessConceptKey;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSStringPredicate;
+import com.amalto.core.webservice.WSWhereAnd;
+import com.amalto.core.webservice.WSWhereCondition;
+import com.amalto.core.webservice.WSWhereItem;
+import com.amalto.core.webservice.WSWhereOperator;
+import com.amalto.core.webservice.WSWhereOr;
+import com.amalto.core.webservice.XtentisPort;
+import com.amalto.webapp.core.bean.Configuration;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSElementDecl;
 
-    static {
-        port = MDMConfiguration.getHttpPort();
-    }
-
-    private static String endpoint_address = "http://localhost:" + port + "/talend/TalendPort"; //$NON-NLS-1$ //$NON-NLS-2$
-
-    private static Pattern TOTAL_COUNT_PATTERN = Pattern.compile("<totalCount>(.*)</totalCount>"); //$NON-NLS-1$
+public abstract class Util {
 
     public static int _AUTO_ = 0;
 
@@ -77,37 +97,7 @@ public class Util {
      *********************************************************************/
 
     public static XtentisPort getPort() throws XtentisWebappException {
-        return Util.getPort("localhost", null, null);
-    }
-
-    public static XtentisPort getPort(String username, String password) throws XtentisWebappException {
-        return getPort(endpoint_address, username, password, _AUTO_);
-    }
-
-    public static XtentisPort getPort(String endpointAddress, String username, String password) throws XtentisWebappException {
-        return getPort(endpointAddress, username, password, _AUTO_);
-    }
-
-    public static XtentisPort getPort(String endpointAddress, String username, String password, int force)
-            throws XtentisWebappException {
-        if (force == _FORCE_RMI_) {
-            return getRMIEndPoint();
-        }
-        if (force == _FORCE_WEB_SERVICE_) {
-            throw new org.apache.commons.lang.NotImplementedException();
-        }
-        if (endpointAddress.contains("localhost")) { //$NON-NLS-1$
-            return getRMIEndPoint();
-        }
-        throw new org.apache.commons.lang.NotImplementedException();
-    }
-
-    private static XtentisPort getRMIEndPoint() throws XtentisWebappException {
-        try {
-            return (XtentisPort) Class.forName("com.amalto.core.webservice.XtentisWSBean").newInstance(); //$NON-NLS-1$
-        } catch (Exception e) {
-            throw new XtentisWebappException(e);
-        }
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator();
     }
 
     public static String getXML(Class<?> c, String filename) throws Exception {
@@ -146,12 +136,12 @@ public class Util {
         if (path == null || path.trim().length() == 0) {
             return null;
         }
-        if (path.startsWith("/")) {
+        if (path.startsWith("/")) { //$NON-NLS-1$
             path = path.substring(1);
         }
 
         Pattern p = Pattern.compile("(.*?)[\\[|/].*"); //$NON-NLS-1$
-        if (!path.endsWith("/")) {
+        if (!path.endsWith("/")) { //$NON-NLS-1$
             path += "/"; //$NON-NLS-1$
         }
         Matcher m = p.matcher(path);
@@ -198,7 +188,7 @@ public class Util {
         if (fkFilter == null || fkFilter.length() == 0) {
             return null;
         }
-        if (fkFilter.equals("null")) {
+        if (fkFilter.equals("null")) { //$NON-NLS-1$
             return null;
         }
         int additionalInfo = fkFilter.indexOf("-", fkFilter.lastIndexOf("#") > -1 ? fkFilter.lastIndexOf("#") + 1 : 0); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -304,6 +294,7 @@ public class Util {
         return whereStack.pop();
     }
 
+    @SuppressWarnings("nls")
     public static WSWhereCondition convertLine(String[] values) {
         if (values.length < 3) {
             return null;
@@ -398,6 +389,7 @@ public class Util {
         return false;
     }
 
+    @SuppressWarnings("nls")
     public static com.amalto.core.webservice.WSWhereOperator changeToWSOperator(String operator) {
         if ("=".equals(operator)) {
             return com.amalto.core.webservice.WSWhereOperator.EQUALS;
@@ -502,12 +494,12 @@ public class Util {
 
     public static String[] getTextNodes(Node contextNode, String xPath) throws XtentisWebappException {
         // test for hard-coded values
-        if (xPath.startsWith("\"") && xPath.endsWith("\"")) {
+        if (xPath.startsWith("\"") && xPath.endsWith("\"")) { //$NON-NLS-1$ //$NON-NLS-2$
             return new String[] { xPath.substring(1, xPath.length() - 1) };
         }
         // test for incomplete path (elements missing /text())
-        if (!xPath.matches(".*@[^/\\]]+")) {
-            if (!xPath.endsWith(")")) {
+        if (!xPath.matches(".*@[^/\\]]+")) { //$NON-NLS-1$
+            if (!xPath.endsWith(")")) { //$NON-NLS-1$
                 xPath += "/text()"; //$NON-NLS-1$
             }
         }
@@ -593,29 +585,29 @@ public class Util {
      */
     public static WSWhereOperator getOperator(String option) {
         WSWhereOperator res = null;
-        if (option.equalsIgnoreCase("CONTAINS")) {
+        if (option.equalsIgnoreCase(WSWhereOperator._CONTAINS)) {
             res = WSWhereOperator.CONTAINS;
-        } else if (option.equalsIgnoreCase("EQUALS")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._EQUALS)) {
             res = WSWhereOperator.EQUALS;
-        } else if (option.equalsIgnoreCase("GREATER_THAN")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._GREATER_THAN)) {
             res = WSWhereOperator.GREATER_THAN;
-        } else if (option.equalsIgnoreCase("GREATER_THAN_OR_EQUAL")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._GREATER_THAN_OR_EQUAL)) {
             res = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-        } else if (option.equalsIgnoreCase("JOIN")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._JOIN)) {
             res = WSWhereOperator.JOIN;
-        } else if (option.equalsIgnoreCase("LOWER_THAN")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._LOWER_THAN)) {
             res = WSWhereOperator.LOWER_THAN;
-        } else if (option.equalsIgnoreCase("LOWER_THAN_OR_EQUAL")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._LOWER_THAN_OR_EQUAL)) {
             res = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-        } else if (option.equalsIgnoreCase("NOT_EQUALS")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._NOT_EQUALS)) {
             res = WSWhereOperator.NOT_EQUALS;
-        } else if (option.equalsIgnoreCase("STARTSWITH")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._STARTSWITH)) {
             res = WSWhereOperator.STARTSWITH;
-        } else if (option.equalsIgnoreCase("STRICTCONTAINS")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._STRICTCONTAINS)) {
             res = WSWhereOperator.STRICTCONTAINS;
-        } else if (option.equalsIgnoreCase("FULLTEXTSEARCH")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._FULLTEXTSEARCH)) {
             res = WSWhereOperator.FULLTEXTSEARCH;
-        } else if (option.equalsIgnoreCase("EMPTY_NULL")) {
+        } else if (option.equalsIgnoreCase(WSWhereOperator._EMPTY_NULL)) {
             res = WSWhereOperator.EMPTY_NULL;
         }
         return res;
@@ -641,7 +633,7 @@ public class Util {
                 if (subCria.startsWith("(")) { //$NON-NLS-1$
                     subCria = subCria.substring(1);
                 }
-                if (subCria.endsWith(")")) {
+                if (subCria.endsWith(")")) { //$NON-NLS-1$
                     subCria = subCria.substring(0, subCria.length() - 1);
                 }
                 WSWhereItem whereItem = buildWhereItem(subCria);
@@ -679,7 +671,7 @@ public class Util {
             }
             filterValues = sb.toString();
         }
-        if (filterXpaths == null || filterXpaths.trim().equals("")) {
+        if (filterXpaths == null || filterXpaths.trim().isEmpty()) {
             return null;
         }
         WSWhereCondition wc = new WSWhereCondition(filterXpaths, Util.getOperator(filterOperators), filterValues,
@@ -701,7 +693,7 @@ public class Util {
     public static String getFormatedFKInfo(String info, String conceptName) {
         info = info.substring(info.startsWith("/") ? 1 : 0); //$NON-NLS-1$
         String formatedInfo = info;
-        if (info.startsWith("./")) {
+        if (info.startsWith("./")) { //$NON-NLS-1$
             formatedInfo = info.replaceFirst("./", conceptName + "/"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return formatedInfo;
@@ -713,7 +705,7 @@ public class Util {
 
     public static boolean isCustomFilter(String fkFilter) {
         boolean isCustom = false;
-        if (fkFilter != null && fkFilter.startsWith("$CFFP:")) {
+        if (fkFilter != null && fkFilter.startsWith("$CFFP:")) { //$NON-NLS-1$
             isCustom = true;
         }
         return isCustom;
@@ -722,7 +714,6 @@ public class Util {
     public static boolean isTransformerExist(String transformerPK) {
         try {
             boolean isBeforeSavingTransformerExist = false;
-            @SuppressWarnings("unchecked")
             Collection<TransformerV2POJOPK> wst = com.amalto.core.util.Util.getTransformerV2CtrlLocal().getTransformerPKs("*"); //$NON-NLS-1$
             for (TransformerV2POJOPK id : wst) {
                 if (id.getIds()[0].equals(transformerPK)) {
@@ -804,7 +795,7 @@ public class Util {
 
         String[] keys = copyKey.getFields();
         for (int i = 0; i < keys.length; i++) {
-            if (".".equals(key.getSelector())) {
+            if (".".equals(key.getSelector())) { //$NON-NLS-1$
                 keys[i] = concept + "/" + keys[i]; //$NON-NLS-1$ 
             } else {
                 keys[i] = key.getSelector() + keys[i];
@@ -837,7 +828,7 @@ public class Util {
 
     @Deprecated
     public static String getExceptionMessage(String message, String language) {
-        if (message == null || message.contains("<msg/>")) {
+        if (message == null || message.contains("<msg/>")) { //$NON-NLS-1$
             return ""; //$NON-NLS-1$
         }
         // Message tip : "<msg>[EN:validate error][FR:validate error]</msg>"

@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -12,678 +12,669 @@
 // ============================================================================
 package com.amalto.core.webservice;
 
-import com.amalto.core.delegator.BeanDelegatorContainer;
-import com.amalto.core.integrity.FKIntegrityCheckResult;
-import org.apache.commons.lang.NotImplementedException;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
-
-import javax.jws.WebService;
 import java.rmi.RemoteException;
 
-@SuppressWarnings({ "deprecation", "unchecked" })
+import javax.jws.WebService;
+
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+
+import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.integrity.FKIntegrityCheckResult;
+
 @WebService(name = "TMDMService", serviceName = "TMDMService", portName = "TMDMPort", targetNamespace = ICoreConstants.TALEND_NAMESPACE)
 public class XtentisWSBean implements XtentisPort {
+
+    protected XtentisPort delegator = BeanDelegatorContainer.getInstance().getXtentisWSDelegator();
 
     public XtentisWSBean() {
     }
 
     @Override
     public WSVersion getComponentVersion(WSGetComponentVersion wsGetComponentVersion) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getComponentVersion(wsGetComponentVersion);
+        return delegator.getComponentVersion(wsGetComponentVersion);
     }
 
     @Override
     public WSString ping(WSPing wsPing) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().ping(wsPing);
+        return delegator.ping(wsPing);
     }
 
     @Override
     public WSString logout(WSLogout logout) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().logout(logout);
+        return delegator.logout(logout);
     }
 
     @Override
     public WSInt initMDM(WSInitData initData) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().initMDM(initData);
+        return delegator.initMDM(initData);
     }
 
     @Override
     public WSMDMConfig getMDMConfiguration() throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getMDMConfiguration();
+        return delegator.getMDMConfiguration();
     }
 
     @Override
     public WSDataModel getDataModel(WSGetDataModel wsDataModelget) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getDataModel(wsDataModelget);
+        return delegator.getDataModel(wsDataModelget);
     }
 
     @Override
     public WSBoolean existsDataModel(WSExistsDataModel wsExistsDataModel) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsDataModel(wsExistsDataModel);
+        return delegator.existsDataModel(wsExistsDataModel);
     }
 
     @Override
     public WSDataModelPKArray getDataModelPKs(WSRegexDataModelPKs regexp) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getDataModelPKs(regexp);
+        return delegator.getDataModelPKs(regexp);
     }
 
     @Override
     public WSDataModelPK deleteDataModel(WSDeleteDataModel wsDeleteDataModel) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteDataModel(wsDeleteDataModel);
+        return delegator.deleteDataModel(wsDeleteDataModel);
     }
 
     @Override
     public WSDataModelPK putDataModel(WSPutDataModel wsDataModel) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putDataModel(wsDataModel);
+        return delegator.putDataModel(wsDataModel);
     }
 
     @Override
     public WSString checkSchema(WSCheckSchema wsSchema) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().checkSchema(wsSchema);
+        return delegator.checkSchema(wsSchema);
     }
 
     @Override
     public WSString putBusinessConcept(WSPutBusinessConcept wsPutBusinessConcept) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putBusinessConcept(wsPutBusinessConcept);
+        return delegator.putBusinessConcept(wsPutBusinessConcept);
     }
 
     @Override
     public WSString putBusinessConceptSchema(WSPutBusinessConceptSchema wsPutBusinessConceptSchema) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putBusinessConceptSchema(wsPutBusinessConceptSchema);
+        return delegator.putBusinessConceptSchema(wsPutBusinessConceptSchema);
     }
 
     @Override
     public WSString deleteBusinessConcept(WSDeleteBusinessConcept wsDeleteBusinessConcept) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteBusinessConcept(wsDeleteBusinessConcept);
+        return delegator.deleteBusinessConcept(wsDeleteBusinessConcept);
     }
 
     @Override
     public WSStringArray getBusinessConcepts(WSGetBusinessConcepts wsGetBusinessConcepts) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getBusinessConcepts(wsGetBusinessConcepts);
+        return delegator.getBusinessConcepts(wsGetBusinessConcepts);
     }
 
     @Override
     public WSConceptKey getBusinessConceptKey(WSGetBusinessConceptKey wsGetBusinessConceptKey) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getBusinessConceptKey(wsGetBusinessConceptKey);
+        return delegator.getBusinessConceptKey(wsGetBusinessConceptKey);
     }
 
     @Override
     public WSDataCluster getDataCluster(WSGetDataCluster wsDataClusterGet) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getDataCluster(wsDataClusterGet);
+        return delegator.getDataCluster(wsDataClusterGet);
     }
 
     @Override
     public WSBoolean existsDataCluster(WSExistsDataCluster wsExistsDataCluster) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsDataCluster(wsExistsDataCluster);
+        return delegator.existsDataCluster(wsExistsDataCluster);
     }
 
     @Override
     public WSBoolean existsDBDataCluster(WSExistsDBDataCluster wsExistsDataCluster) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsDBDataCluster(wsExistsDataCluster);
+        return delegator.existsDBDataCluster(wsExistsDataCluster);
     }
 
     @Override
     public WSDataClusterPKArray getDataClusterPKs(WSRegexDataClusterPKs regexp) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getDataClusterPKs(regexp);
+        return delegator.getDataClusterPKs(regexp);
     }
 
     @Override
     public WSDataClusterPK deleteDataCluster(WSDeleteDataCluster wsDeleteDataCluster) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteDataCluster(wsDeleteDataCluster);
+        return delegator.deleteDataCluster(wsDeleteDataCluster);
     }
 
     @Override
     public WSDataClusterPK putDataCluster(WSPutDataCluster wsDataCluster) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putDataCluster(wsDataCluster);
+        return delegator.putDataCluster(wsDataCluster);
     }
 
     @Override
     public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putDBDataCluster(wsDataCluster);
+        return delegator.putDBDataCluster(wsDataCluster);
     }
 
     @Override
     public WSStringArray getConceptsInDataCluster(WSGetConceptsInDataCluster wsGetConceptsInDataCluster) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getConceptsInDataCluster(wsGetConceptsInDataCluster);
+        return delegator.getConceptsInDataCluster(wsGetConceptsInDataCluster);
     }
 
     @Override
     public WSView getView(WSGetView wsViewGet) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getView(wsViewGet);
+        return delegator.getView(wsViewGet);
     }
 
     @Override
     public WSBoolean existsView(WSExistsView wsExistsView) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsView(wsExistsView);
+        return delegator.existsView(wsExistsView);
     }
 
     @Override
     public WSViewPKArray getViewPKs(WSGetViewPKs regexp) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getViewPKs(regexp);
+        return delegator.getViewPKs(regexp);
     }
 
     @Override
     public WSViewPK deleteView(WSDeleteView wsDeleteView) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteView(wsDeleteView);
+        return delegator.deleteView(wsDeleteView);
     }
 
     @Override
     public WSViewPK putView(WSPutView wsView) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putView(wsView);
+        return delegator.putView(wsView);
     }
 
     @Override
     public WSStringArray viewSearch(WSViewSearch wsViewSearch) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().viewSearch(wsViewSearch);
+        return delegator.viewSearch(wsViewSearch);
     }
 
     @Override
     public WSStringArray xPathsSearch(WSXPathsSearch wsXPathsSearch) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().xPathsSearch(wsXPathsSearch);
+        return delegator.xPathsSearch(wsXPathsSearch);
     }
 
     @Override
     public WSString count(WSCount wsCount) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().count(wsCount);
+        return delegator.count(wsCount);
     }
 
     @Override
     public WSStringArray getItems(WSGetItems wsGetItems) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getItems(wsGetItems);
+        return delegator.getItems(wsGetItems);
     }
 
     @Override
     public WSStringArray getItemsSort(WSGetItemsSort wsGetItemsSort) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getItemsSort(wsGetItemsSort);
+        return delegator.getItemsSort(wsGetItemsSort);
     }
 
     @Override
     public WSItemPKsByCriteriaResponse getItemPKsByCriteria(WSGetItemPKsByCriteria wsGetItemPKsByCriteria) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getItemPKsByCriteria(wsGetItemPKsByCriteria);
+        return delegator.getItemPKsByCriteria(wsGetItemPKsByCriteria);
     }
 
     @Override
     public WSItemPKsByCriteriaResponse getItemPKsByFullCriteria(WSGetItemPKsByFullCriteria wsGetItemPKsByFullCriteria)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getItemPKsByFullCriteria(wsGetItemPKsByFullCriteria);
+        return delegator.getItemPKsByFullCriteria(wsGetItemPKsByFullCriteria);
     }
 
     @Override
     public WSItem getItem(WSGetItem wsGetItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getItem(wsGetItem);
+        return delegator.getItem(wsGetItem);
     }
 
     @Override
     public WSBoolean existsItem(WSExistsItem wsExistsItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsItem(wsExistsItem);
+        return delegator.existsItem(wsExistsItem);
     }
 
     @Override
     public WSStringArray quickSearch(WSQuickSearch wsQuickSearch) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().quickSearch(wsQuickSearch);
+        return delegator.quickSearch(wsQuickSearch);
     }
 
     @Override
     public WSString getBusinessConceptValue(WSGetBusinessConceptValue wsGetBusinessConceptValue) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getBusinessConceptValue(wsGetBusinessConceptValue);
+        return delegator.getBusinessConceptValue(wsGetBusinessConceptValue);
     }
 
     @Override
     public WSStringArray getFullPathValues(WSGetFullPathValues wsGetFullPathValues) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getFullPathValues(wsGetFullPathValues);
+        return delegator.getFullPathValues(wsGetFullPathValues);
     }
 
     @Override
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putItem(wsPutItem);
+        return delegator.putItem(wsPutItem);
     }
 
     @Override
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putItemArray(wsPutItemArray);
+        return delegator.putItemArray(wsPutItemArray);
     }
 
     @Override
     public WSItemPKArray putItemWithReportArray(com.amalto.core.webservice.WSPutItemWithReportArray wsPutItemWithReportArray)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putItemWithReportArray(wsPutItemWithReportArray);
+        return delegator.putItemWithReportArray(wsPutItemWithReportArray);
     }
 
     @Override
     public WSItemPK putItemWithReport(com.amalto.core.webservice.WSPutItemWithReport wsPutItemWithReport) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putItemWithReport(wsPutItemWithReport);
+        return delegator.putItemWithReport(wsPutItemWithReport);
     }
 
     @Override
     public WSItemPK putItemWithCustomReport(com.amalto.core.webservice.WSPutItemWithCustomReport wsPutItemWithCustomReport)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putItemWithCustomReport(wsPutItemWithCustomReport);
+        return delegator.putItemWithCustomReport(wsPutItemWithCustomReport);
     }
 
     @Override
     public WSPipeline extractUsingTransformer(WSExtractUsingTransformer wsExtractUsingTransformer) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().extractUsingTransformer(wsExtractUsingTransformer);
+        return delegator.extractUsingTransformer(wsExtractUsingTransformer);
     }
 
     @Override
     public WSPipeline extractUsingTransformerThruView(WSExtractUsingTransformerThruView wsExtractUsingTransformerThruView)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .extractUsingTransformerThruView(wsExtractUsingTransformerThruView);
+        return delegator.extractUsingTransformerThruView(wsExtractUsingTransformerThruView);
     }
 
     @Override
     public WSItemPK deleteItem(WSDeleteItem wsDeleteItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteItem(wsDeleteItem);
+        return delegator.deleteItem(wsDeleteItem);
     }
 
     @Override
     public WSString deleteItemWithReport(WSDeleteItemWithReport wsDeleteItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteItemWithReport(wsDeleteItem);
+        return delegator.deleteItemWithReport(wsDeleteItem);
     }
 
     @Override
     public WSInt deleteItems(WSDeleteItems wsDeleteItems) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteItems(wsDeleteItems);
+        return delegator.deleteItems(wsDeleteItems);
     }
 
     @Override
     public WSDroppedItemPK dropItem(WSDropItem wsDropItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().dropItem(wsDropItem);
+        return delegator.dropItem(wsDropItem);
     }
 
     @Override
     public WSStringArray runQuery(WSRunQuery wsRunQuery) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().runQuery(wsRunQuery);
+        return delegator.runQuery(wsRunQuery);
     }
 
     @Override
     public WSServiceGetDocument getServiceDocument(WSString serviceName) throws RemoteException {
-        throw new NotImplementedException();
+        return delegator.getServiceDocument(serviceName);
     }
 
     @Override
     public WSString getServiceConfiguration(WSServiceGetConfiguration wsGetConfiguration) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.getServiceConfiguration(wsGetConfiguration);
     }
 
     @Override
     public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.checkServiceConfiguration(serviceName);
     }
 
     @Override
     public WSString putServiceConfiguration(WSServicePutConfiguration wsPutConfiguration) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.putServiceConfiguration(wsPutConfiguration);
     }
 
     @Override
     public WSString serviceAction(WSServiceAction wsServiceAction) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.serviceAction(wsServiceAction);
     }
 
     @Override
     public WSServicesList getServicesList(WSGetServicesList wsGetServicesList) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.getServicesList(wsGetServicesList);
     }
 
     @Override
     public WSStoredProcedurePK deleteStoredProcedure(WSDeleteStoredProcedure wsStoredProcedureDelete) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteStoredProcedure(wsStoredProcedureDelete);
+        return delegator.deleteStoredProcedure(wsStoredProcedureDelete);
     }
 
     @Override
     public WSStringArray executeStoredProcedure(WSExecuteStoredProcedure wsExecuteStoredProcedure) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().executeStoredProcedure(wsExecuteStoredProcedure);
+        return delegator.executeStoredProcedure(wsExecuteStoredProcedure);
     }
 
     @Override
     public WSStoredProcedure getStoredProcedure(WSGetStoredProcedure wsGetStoredProcedure) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getStoredProcedure(wsGetStoredProcedure);
+        return delegator.getStoredProcedure(wsGetStoredProcedure);
     }
 
     @Override
     public WSBoolean existsStoredProcedure(WSExistsStoredProcedure wsExistsStoredProcedure) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsStoredProcedure(wsExistsStoredProcedure);
+        return delegator.existsStoredProcedure(wsExistsStoredProcedure);
     }
 
     @Override
     public WSStoredProcedurePKArray getStoredProcedurePKs(WSRegexStoredProcedure regex) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getStoredProcedurePKs(regex);
+        return delegator.getStoredProcedurePKs(regex);
     }
 
     @Override
     public WSStoredProcedurePK putStoredProcedure(WSPutStoredProcedure wsStoredProcedure) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putStoredProcedure(wsStoredProcedure);
+        return delegator.putStoredProcedure(wsStoredProcedure);
     }
 
     @Override
     public WSMenuPK deleteMenu(WSDeleteMenu wsMenuDelete) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteMenu(wsMenuDelete);
+        return delegator.deleteMenu(wsMenuDelete);
     }
 
     @Override
     public WSMenu getMenu(WSGetMenu wsGetMenu) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getMenu(wsGetMenu);
+        return delegator.getMenu(wsGetMenu);
     }
 
     @Override
     public WSBoolean existsMenu(WSExistsMenu wsExistsMenu) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsMenu(wsExistsMenu);
+        return delegator.existsMenu(wsExistsMenu);
     }
 
     @Override
     public WSMenuPKArray getMenuPKs(WSGetMenuPKs regex) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getMenuPKs(regex);
+        return delegator.getMenuPKs(regex);
     }
 
     @Override
     public WSMenuPK putMenu(WSPutMenu wsMenu) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putMenu(wsMenu);
+        return delegator.putMenu(wsMenu);
     }
 
     @Override
     public WSBackgroundJob getBackgroundJob(WSGetBackgroundJob wsBackgroundJobGet) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getBackgroundJob(wsBackgroundJobGet);
+        return delegator.getBackgroundJob(wsBackgroundJobGet);
     }
 
     @Override
     public WSBackgroundJobPKArray findBackgroundJobPKs(WSFindBackgroundJobPKs wsFindBackgroundJobPKs) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().findBackgroundJobPKs(wsFindBackgroundJobPKs);
+        return delegator.findBackgroundJobPKs(wsFindBackgroundJobPKs);
     }
 
     @Override
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsputjob) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putBackgroundJob(wsputjob);
+        return delegator.putBackgroundJob(wsputjob);
     }
 
     @Override
     public WSTransformer getTransformer(WSGetTransformer wsGetTransformer) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.getTransformer(wsGetTransformer);
     }
 
     @Override
     public WSBoolean existsTransformer(WSExistsTransformer wsExistsTransformer) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.existsTransformer(wsExistsTransformer);
     }
 
     @Override
     public WSTransformerPKArray getTransformerPKs(WSGetTransformerPKs regex) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.getTransformerPKs(regex);
     }
 
     @Override
     public WSTransformerPK putTransformer(WSPutTransformer wsTransformer) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.putTransformer(wsTransformer);
     }
 
     @Override
-    public WSPipeline processBytesUsingTransformer(WSProcessBytesUsingTransformer wsProjectBytes) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+    public WSPipeline processBytesUsingTransformer(WSProcessBytesUsingTransformer wsProcessBytesUsingTransformer)
+            throws RemoteException {
+        return delegator.processBytesUsingTransformer(wsProcessBytesUsingTransformer);
     }
 
     @Override
-    public WSPipeline processFileUsingTransformer(WSProcessFileUsingTransformer wsProcessFile) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+    public WSPipeline processFileUsingTransformer(WSProcessFileUsingTransformer wsProcessFileUsingTransformer)
+            throws RemoteException {
+        return delegator.processFileUsingTransformer(wsProcessFileUsingTransformer);
     }
 
     @Override
     public WSBackgroundJobPK processBytesUsingTransformerAsBackgroundJob(
             WSProcessBytesUsingTransformerAsBackgroundJob wsProcessBytesUsingTransformerAsBackgroundJob) throws RemoteException {
-        throw new NotImplementedException();
+        return delegator.processBytesUsingTransformerAsBackgroundJob(wsProcessBytesUsingTransformerAsBackgroundJob);
     }
 
     @Override
     public WSBackgroundJobPK processFileUsingTransformerAsBackgroundJob(
             WSProcessFileUsingTransformerAsBackgroundJob wsProcessFileUsingTransformerAsBackgroundJob) throws RemoteException {
-        throw new NotImplementedException(); // TODO
+        return delegator.processFileUsingTransformerAsBackgroundJob(wsProcessFileUsingTransformerAsBackgroundJob);
     }
 
     @Override
     public WSDroppedItemPKArray findAllDroppedItemsPKs(WSFindAllDroppedItemsPKs regex) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().findAllDroppedItemsPKs(regex);
+        return delegator.findAllDroppedItemsPKs(regex);
     }
 
     @Override
     public WSDroppedItem loadDroppedItem(WSLoadDroppedItem wsLoadDroppedItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().loadDroppedItem(wsLoadDroppedItem);
+        return delegator.loadDroppedItem(wsLoadDroppedItem);
     }
 
     @Override
     public WSItemPK recoverDroppedItem(WSRecoverDroppedItem wsRecoverDroppedItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().recoverDroppedItem(wsRecoverDroppedItem);
+        return delegator.recoverDroppedItem(wsRecoverDroppedItem);
     }
 
     @Override
     public WSDroppedItemPK removeDroppedItem(WSRemoveDroppedItem wsRemoveDroppedItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().removeDroppedItem(wsRemoveDroppedItem);
+        return delegator.removeDroppedItem(wsRemoveDroppedItem);
     }
 
     @Override
     public WSRoutingRule getRoutingRule(WSGetRoutingRule wsRoutingRuleGet) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getRoutingRule(wsRoutingRuleGet);
+        return delegator.getRoutingRule(wsRoutingRuleGet);
     }
 
     @Override
     public WSBoolean existsRoutingRule(WSExistsRoutingRule wsExistsRoutingRule) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsRoutingRule(wsExistsRoutingRule);
+        return delegator.existsRoutingRule(wsExistsRoutingRule);
     }
 
     @Override
     public WSRoutingRulePK deleteRoutingRule(WSDeleteRoutingRule wsDeleteRoutingRule) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteRoutingRule(wsDeleteRoutingRule);
+        return delegator.deleteRoutingRule(wsDeleteRoutingRule);
     }
 
     @Override
     public WSRoutingRulePK putRoutingRule(WSPutRoutingRule wsRoutingRule) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putRoutingRule(wsRoutingRule);
+        return delegator.putRoutingRule(wsRoutingRule);
     }
 
     @Override
     public WSRoutingRulePKArray getRoutingRulePKs(WSGetRoutingRulePKs regex) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getRoutingRulePKs(regex);
+        return delegator.getRoutingRulePKs(regex);
     }
 
     @Override
     public WSTransformerV2PK deleteTransformerV2(WSDeleteTransformerV2 wsTransformerV2Delete) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteTransformerV2(wsTransformerV2Delete);
+        return delegator.deleteTransformerV2(wsTransformerV2Delete);
     }
 
     @Override
     public WSTransformerV2 getTransformerV2(WSGetTransformerV2 wsGetTransformerV2) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getTransformerV2(wsGetTransformerV2);
+        return delegator.getTransformerV2(wsGetTransformerV2);
     }
 
     @Override
     public WSBoolean existsTransformerV2(WSExistsTransformerV2 wsExistsTransformerV2) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsTransformerV2(wsExistsTransformerV2);
+        return delegator.existsTransformerV2(wsExistsTransformerV2);
     }
 
     @Override
     public WSTransformerV2PKArray getTransformerV2PKs(WSGetTransformerV2PKs regex) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getTransformerV2PKs(regex);
+        return delegator.getTransformerV2PKs(regex);
     }
 
     @Override
     public WSTransformerV2PK putTransformerV2(WSPutTransformerV2 wsTransformerV2) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putTransformerV2(wsTransformerV2);
+        return delegator.putTransformerV2(wsTransformerV2);
     }
 
     @Override
     public WSTransformerContext executeTransformerV2(WSExecuteTransformerV2 wsExecuteTransformerV2) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().executeTransformerV2(wsExecuteTransformerV2);
+        return delegator.executeTransformerV2(wsExecuteTransformerV2);
     }
 
     @Override
     public WSBackgroundJobPK executeTransformerV2AsJob(WSExecuteTransformerV2AsJob wsExecuteTransformerV2AsJob)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .executeTransformerV2AsJob(wsExecuteTransformerV2AsJob);
+        return delegator.executeTransformerV2AsJob(wsExecuteTransformerV2AsJob);
     }
 
     @Override
     public WSTransformerContext extractThroughTransformerV2(WSExtractThroughTransformerV2 wsExtractThroughTransformerV2)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .extractThroughTransformerV2(wsExtractThroughTransformerV2);
+        return delegator.extractThroughTransformerV2(wsExtractThroughTransformerV2);
     }
 
     @Override
     public WSBoolean existsTransformerPluginV2(WSExistsTransformerPluginV2 wsExistsTransformerPlugin) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsTransformerPluginV2(wsExistsTransformerPlugin);
+        return delegator.existsTransformerPluginV2(wsExistsTransformerPlugin);
     }
 
     @Override
     public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .getTransformerPluginV2Configuration(wsGetConfiguration);
+        return delegator.getTransformerPluginV2Configuration(wsGetConfiguration);
     }
 
     @Override
     public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .putTransformerPluginV2Configuration(wsPutConfiguration);
+        return delegator.putTransformerPluginV2Configuration(wsPutConfiguration);
     }
 
     @Override
     public WSTransformerPluginV2Details getTransformerPluginV2Details(
             WSGetTransformerPluginV2Details wsGetTransformerPluginDetails) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .getTransformerPluginV2Details(wsGetTransformerPluginDetails);
+        return delegator.getTransformerPluginV2Details(wsGetTransformerPluginDetails);
     }
 
     @Override
     public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginsList)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .getTransformerPluginV2SList(wsGetTransformerPluginsList);
+        return delegator.getTransformerPluginV2SList(wsGetTransformerPluginsList);
     }
 
     @Override
     public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(
             WSGetRoutingOrderV2PKsByCriteria wsGetRoutingOrderV2PKsByCriteria) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .getRoutingOrderV2PKsByCriteria(wsGetRoutingOrderV2PKsByCriteria);
+        return delegator.getRoutingOrderV2PKsByCriteria(wsGetRoutingOrderV2PKsByCriteria);
     }
 
     @Override
     public WSRoutingOrderV2Array getRoutingOrderV2SByCriteria(WSGetRoutingOrderV2SByCriteria wsGetRoutingOrderV2SByCriteria)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .getRoutingOrderV2SByCriteria(wsGetRoutingOrderV2SByCriteria);
+        return delegator.getRoutingOrderV2SByCriteria(wsGetRoutingOrderV2SByCriteria);
     }
 
     @Override
     public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().routingEngineV2Action(wsRoutingEngineAction);
+        return delegator.routingEngineV2Action(wsRoutingEngineAction);
     }
 
     @Override
     public WSCategoryData getMDMCategory(WSCategoryData request) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getMDMCategory(request);
+        return delegator.getMDMCategory(request);
     }
 
     @Override
     public WSBoolean putMDMJob(WSPUTMDMJob job) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putMDMJob(job);
+        return delegator.putMDMJob(job);
     }
 
     @Override
     public WSBoolean deleteMDMJob(WSDELMDMJob job) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteMDMJob(job);
+        return delegator.deleteMDMJob(job);
     }
 
     @Override
-    public WSMDMJobArray getMDMJob(WSMDMNULL job) {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getMDMJob(job);
+    public WSMDMJobArray getMDMJob(WSMDMNULL job) throws RemoteException {
+        return delegator.getMDMJob(job);
     }
 
     @Override
     public WSAutoIncrement getAutoIncrement(WSAutoIncrement wsAutoIncrementRequest) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getAutoIncrement(wsAutoIncrementRequest);
+        return delegator.getAutoIncrement(wsAutoIncrementRequest);
     }
 
     @Override
     public WSBoolean isItemModifiedByOther(WSIsItemModifiedByOther wsItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().isItemModifiedByOther(wsItem.getWsItem());
+        return delegator.isItemModifiedByOther(wsItem);
     }
 
     @Override
     public WSString countItemsByCustomFKFilters(WSCountItemsByCustomFKFilters wsCountItemsByCustomFKFilters)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .countItemsByCustomFKFilters(wsCountItemsByCustomFKFilters);
+        return delegator.countItemsByCustomFKFilters(wsCountItemsByCustomFKFilters);
     }
 
     @Override
     public WSStringArray getItemsByCustomFKFilters(WSGetItemsByCustomFKFilters wsGetItemsByCustomFKFilters)
             throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .getItemsByCustomFKFilters(wsGetItemsByCustomFKFilters);
+        return delegator.getItemsByCustomFKFilters(wsGetItemsByCustomFKFilters);
     }
 
     @Override
     public WSItemPK partialPutItem(WSPartialPutItem wsPartialPutItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().partialPutItem(wsPartialPutItem);
+        return delegator.partialPutItem(wsPartialPutItem);
     }
 
     @Override
     public WSRoutingOrderV2Array getRoutingOrderV2ByCriteriaWithPaging(
             WSGetRoutingOrderV2ByCriteriaWithPaging wsGetRoutingOrderV2ByCriteriaWithPaging) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
-                .getRoutingOrderV2ByCriteriaWithPaging(wsGetRoutingOrderV2ByCriteriaWithPaging);
+        return delegator.getRoutingOrderV2ByCriteriaWithPaging(wsGetRoutingOrderV2ByCriteriaWithPaging);
     }
 
     @Override
     public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getDigest(wsDigestKey);
+        return delegator.getDigest(wsDigestKey);
     }
 
     @Override
     public WSLong updateDigest(WSDigest wsDigest) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().updateDigest(wsDigest);
+        return delegator.updateDigest(wsDigest);
     }
 
     @Override
     public WSBoolean isPagingAccurate(WSInt wsInt) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().isPagingAccurate(wsInt);
+        return delegator.isPagingAccurate(wsInt);
     }
 
     @Override
     public WSBoolean supportStaging(WSDataClusterPK dataClusterPK) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().supportStaging(dataClusterPK);
+        return delegator.supportStaging(dataClusterPK);
     }
 
     @Override
     public WSRolePKArray getRolePKs(WSGetRolePKs regex) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getRolePKs(regex);
+        return delegator.getRolePKs(regex);
     }
 
     @Override
     public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().putRole(wsRole);
+        return delegator.putRole(wsRole);
     }
 
     @Override
     public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteRole(wsRoleDelete);
+        return delegator.deleteRole(wsRoleDelete);
     }
 
     @Override
     public FKIntegrityCheckResult checkFKIntegrity(WSDeleteItem deleteItem) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().checkFKIntegrity(deleteItem);
+        return delegator.checkFKIntegrity(deleteItem);
     }
 
     @Override
     public WSRole getRole(WSGetRole wsGetRole) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().getRole(wsGetRole);
+        return delegator.getRole(wsGetRole);
     }
 
     @Override
     public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException {
-        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().existsRole(wsExistsRole);
+        return delegator.existsRole(wsExistsRole);
     }
-
 }
