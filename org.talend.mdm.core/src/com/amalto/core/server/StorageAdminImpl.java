@@ -156,7 +156,6 @@ public class StorageAdminImpl implements StorageAdmin {
         String[] models = new String[]{
                 "/com/amalto/core/initdb/data/datamodel/PROVISIONING", //$NON-NLS-1$
                 "/com/amalto/core/initdb/data/datamodel/CONF", //$NON-NLS-1$
-                "/com/amalto/core/initdb/data/datamodel/Reporting", //$NON-NLS-1$
                 "/com/amalto/core/initdb/data/datamodel/SearchTemplate" //$NON-NLS-1$
         };
         for (String model : models) {

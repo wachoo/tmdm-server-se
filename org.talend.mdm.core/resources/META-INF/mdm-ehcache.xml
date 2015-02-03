@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+        updateCheck="false" name="mdmCacheManager">
+    <defaultCache eternal="true" maxElementsInMemory="100" overflowToDisk="false" />
+    <cache name="localUsers" maxBytesLocalHeap="100M" eternal="false" timeToIdleSeconds="300" overflowToDisk="false"
+        memoryStoreEvictionPolicy="LRU" />
+    <cache name="datasources" maxBytesLocalHeap="100M" eternal="false" timeToIdleSeconds="300" overflowToDisk="false"
+           memoryStoreEvictionPolicy="LRU" />
+</ehcache>

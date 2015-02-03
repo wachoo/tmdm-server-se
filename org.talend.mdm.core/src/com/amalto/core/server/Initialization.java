@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
@@ -39,7 +41,7 @@ import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.Version;
 
-public class Initialization implements InitializingBean, DisposableBean {
+public class Initialization implements ApplicationListener<ContextRefreshedEvent>, InitializingBean, DisposableBean {
 
     @Autowired(required = true)
     private ServerLifecycle serverLifecycle;
@@ -48,11 +50,22 @@ public class Initialization implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        LOGGER.info("Shutdown in progress...");
+        ServerContext.INSTANCE.get().close();
+        LOGGER.info("Shutdown done.");
+    }
+
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         String version = Version.getSimpleVersionAsString(Initialization.class);
         LOGGER.info("======================================================="); //$NON-NLS-1$
         LOGGER.info("Talend MDM " + version); //$NON-NLS-1$
         LOGGER.info("======================================================="); //$NON-NLS-1$
-        
+
         // Initializes server now
         if (serverLifecycle == null) {
             throw new IllegalStateException("Server lifecycle is not set (is server running on a supported platform?)"); //$NON-NLS-1$
@@ -78,13 +91,13 @@ public class Initialization implements InitializingBean, DisposableBean {
         director.constructAll();
         final AssembleProc assembleProc = concreteBuilder.getAssembleProc();
         SecurityConfig.invokeSynchronousPrivateInternal(new Runnable() {
-			
-			@Override
-			public void run() {
-				assembleProc.run();
-			}
-		});
-        
+
+            @Override
+            public void run() {
+                assembleProc.run();
+            }
+        });
+
         LOGGER.info("Initialization and migration done."); //$NON-NLS-1$
         // Find configured containers
         MetadataRepository repository = systemStorage.getMetadataRepository();
@@ -135,12 +148,6 @@ public class Initialization implements InitializingBean, DisposableBean {
             i++;
         }
         LOGGER.info("Talend MDM " + version + " started."); //$NON-NLS-1$ //$NON-NLS-2$
-    }
 
-    @Override
-    public void destroy() throws Exception {
-        LOGGER.info("Shutdown in progress..");
-        ServerContext.INSTANCE.get().close();
-        LOGGER.info("Shutdown done.");
     }
 }

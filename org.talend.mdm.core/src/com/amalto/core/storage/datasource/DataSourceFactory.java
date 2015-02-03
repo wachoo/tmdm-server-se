@@ -14,6 +14,12 @@ import com.amalto.core.server.api.DataSourceExtension;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 import org.springframework.util.SystemPropertyUtils;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
@@ -30,24 +36,21 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
 
-public class DataSourceFactory {
+@Component
+public class DataSourceFactory implements ApplicationContextAware {
 
     public static final String             DB_DATASOURCES = "db.datasources"; //$NON-NLS-1$
-
-    private static final DataSourceFactory INSTANCE       = new DataSourceFactory();
 
     private static final Logger            LOGGER         = Logger.getLogger(DataSourceFactory.class);
 
     private static final XPath             xPath          = XPathFactory.newInstance().newXPath();
 
-    private static DocumentBuilderFactory  factory;
+    private static DocumentBuilderFactory  factory = DocumentBuilderFactory.newInstance();
 
-    private DataSourceFactory() {
-        factory = DocumentBuilderFactory.newInstance();
-    }
+    private static ApplicationContext applicationContext;
 
     public static DataSourceFactory getInstance() {
-        return INSTANCE;
+        return applicationContext.getBean(DataSourceFactory.class);
     }
 
     private static synchronized InputStream readDataSourcesConfiguration() {
@@ -156,10 +159,12 @@ public class DataSourceFactory {
         throw new NotImplementedException("No support for type '" + type + "'.");
     }
 
+    @Cacheable(value = "datasources", key = "#dataSourceName", cacheManager = "mdmCacheManager")
     public boolean hasDataSource(String dataSourceName) {
         return hasDataSource(readDataSourcesConfiguration(), dataSourceName);
     }
 
+    @Cacheable(value = "datasources", key = "#dataSourceName", cacheManager = "mdmCacheManager")
     public boolean hasDataSource(InputStream configurationStream, String dataSourceName) {
         if (dataSourceName == null) {
             throw new IllegalArgumentException("Data source name can not be null.");
@@ -168,6 +173,7 @@ public class DataSourceFactory {
         return dataSourceMap.get(dataSourceName) != null;
     }
 
+    @Cacheable(value = "datasources", key = "#container", cacheManager = "mdmCacheManager")
     public DataSourceDefinition getDataSource(String dataSourceName, String container) {
         return getDataSource(readDataSourcesConfiguration(), dataSourceName, container);
     }
@@ -187,4 +193,8 @@ public class DataSourceFactory {
         return dataSource.transform(container);
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }
