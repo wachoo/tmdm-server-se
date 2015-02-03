@@ -15,10 +15,10 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/resources</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
             </resource>
             <resource>
-                <directory>${basedir}/src/main/java</directory>
+                <directory>${project.basedir}/src/main/java</directory>
                 <includes>
                     <include>org/talend/mdm/webapp/base/client/**</include>
                     <include>org/talend/mdm/webapp/base/shared/**</include>
