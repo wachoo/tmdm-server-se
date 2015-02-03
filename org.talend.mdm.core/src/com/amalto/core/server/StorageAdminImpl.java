@@ -80,7 +80,9 @@ public class StorageAdminImpl implements StorageAdmin {
     public void delete(String storageName, StorageType type, boolean dropExistingData) {
         Storage storage = getRegisteredStorage(storageName, type);
         if (storage == null) {
-            LOGGER.warn("Storage '" + storageName + "' does not exist.");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Storage '" + storageName + "' is already deleted.");
+            }
             return;
         }
         ServerContext.INSTANCE.getLifecycle().destroyStorage(storage, dropExistingData);

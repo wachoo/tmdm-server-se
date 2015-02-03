@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -38,7 +39,7 @@ import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.Version;
 
-public class Initialization implements InitializingBean {
+public class Initialization implements InitializingBean, DisposableBean {
 
     @Autowired(required = true)
     private ServerLifecycle serverLifecycle;
@@ -134,5 +135,12 @@ public class Initialization implements InitializingBean {
             i++;
         }
         LOGGER.info("Talend MDM " + version + " started."); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        LOGGER.info("Shutdown in progress..");
+        ServerContext.INSTANCE.get().close();
+        LOGGER.info("Shutdown done.");
     }
 }

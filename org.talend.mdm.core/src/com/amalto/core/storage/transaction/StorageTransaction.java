@@ -63,7 +63,9 @@ public abstract class StorageTransaction {
     public void rollback() {
         if (isAutonomous) {
             TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            transactionManager.currentTransaction().exclude(getStorage());
+            if (transactionManager.hasTransaction()) {
+                transactionManager.currentTransaction().exclude(getStorage());
+            }
         }
     }
 

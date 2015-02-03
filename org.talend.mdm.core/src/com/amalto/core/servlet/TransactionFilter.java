@@ -56,8 +56,7 @@ public class TransactionFilter implements Filter {
 
     @Override
     public void destroy() {
-        Server server = ServerContext.INSTANCE.get();
-        server.getTransactionManager().close();
+        // Destroy of the transaction manager is moved to Server#close();
     }
 
     static interface TransactionState {

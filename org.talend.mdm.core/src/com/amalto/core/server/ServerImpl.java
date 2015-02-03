@@ -74,6 +74,7 @@ class ServerImpl implements Server {
         ServerLifecycle lifecycle = ServerContext.INSTANCE.getLifecycle();
         lifecycle.destroyStorageAdmin(storageAdmin);
         lifecycle.destroyMetadataRepositoryAdmin(metadataRepositoryAdmin);
+        transactionManager.close();
     }
 
     public void init() {
