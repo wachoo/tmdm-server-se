@@ -13,7 +13,6 @@
 package com.amalto.core.query.optimization;
 
 import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.metadata.*;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -38,10 +37,10 @@ public class ImplicitOrderBy implements Optimizer {
     public void optimize(Select select) {
         switch (dataSource.getDialectName()) {
         case H2:
-        case ORACLE_10G:
         case MYSQL:
             // Nothing to do for those databases
             return;
+        case ORACLE_10G:
         case SQL_SERVER:
         case POSTGRES:
             // If query has paging, check if an implicit order by is needed and possible
@@ -111,21 +110,6 @@ public class ImplicitOrderBy implements Optimizer {
         }
 
         @Override
-        public Boolean visit(Distinct distinct) {
-            return Boolean.FALSE;
-        }
-
-        @Override
-        public Boolean visit(Max max) {
-            return Boolean.FALSE;
-        }
-
-        @Override
-        public Boolean visit(Min min) {
-            return Boolean.FALSE;
-        }
-
-        @Override
         public Boolean visit(Timestamp timestamp) {
             return Boolean.TRUE;
         }
@@ -148,11 +132,6 @@ public class ImplicitOrderBy implements Optimizer {
         @Override
         public Boolean visit(StagingSource stagingSource) {
             return Boolean.TRUE;
-        }
-
-        @Override
-        public Boolean visit(GroupSize groupSize) {
-            return Boolean.FALSE;
         }
 
         @Override
@@ -240,9 +219,5 @@ public class ImplicitOrderBy implements Optimizer {
             return Boolean.FALSE;
         }
 
-        @Override
-        public Boolean visit(StagingBlockKey stagingBlockKey) {
-            return Boolean.TRUE;
-        }
     }
 }
