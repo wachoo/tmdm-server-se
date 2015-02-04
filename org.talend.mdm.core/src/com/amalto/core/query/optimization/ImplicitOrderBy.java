@@ -37,11 +37,11 @@ public class ImplicitOrderBy implements Optimizer {
     @Override
     public void optimize(Select select) {
         switch (dataSource.getDialectName()) {
-        case H2:
-        case ORACLE_10G:
+        case H2:        
         case MYSQL:
             // Nothing to do for those databases
             return;
+        case ORACLE_10G:
         case SQL_SERVER:
         case POSTGRES:
             // If query has paging, check if an implicit order by is needed and possible
