@@ -19,6 +19,8 @@ import com.amalto.core.server.ServerAccess;
 public interface Webapp extends ServerAccess {
 
     public Map<Boolean, Integer> getWelcomePortletConfig();
+    
+    public String getProductInfo();
 
     public static final Webapp INSTANCE = WebappFactory.createWebapp();
 

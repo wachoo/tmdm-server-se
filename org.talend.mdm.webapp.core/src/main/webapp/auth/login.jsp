@@ -3,6 +3,7 @@
 <%@page import="java.util.Locale"%>
 <%@page import="com.amalto.core.util.Util"%>
 <%@page import="com.amalto.core.util.Version"%>
+<%@page import="com.amalto.webapp.core.util.Webapp"%>
 <%
     String contextPath = request.getContextPath();
     Locale locale = request.getLocale();
@@ -35,7 +36,7 @@
          _ERROR_ = "Login failed. Please check your login and password";
     }
     
-    String editionTitle="TODO";
+    String editionTitle=Webapp.INSTANCE.getProductInfo();
     String version=Version.getSimpleVersionAsString(this.getClass());
 %>
 <html>

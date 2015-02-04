@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -11,8 +11,6 @@
 //
 // ============================================================================
 package com.amalto.core.server;
-
-import java.util.Map;
 
 public class ServerAccessImpl implements ServerAccess {
 
@@ -28,17 +26,27 @@ public class ServerAccessImpl implements ServerAccess {
             public String getLicense() {
                 return null;
             }
+            
+            @Override
+            public String getProductName() {
+                return "Talend MDM"; //$NON-NLS-1$
+            }
+
+            @Override
+            public String getProductEdition() {
+                return "Community Edition"; //$NON-NLS-1$
+            }
+
+            @Override
+            public String getProductKey() {
+                return null;
+            }
         };
     }
 
     @Override
     public ServerAccessInfo getInfo() {
         return serverAccessInfo;
-    }
-
-    @Override
-    public Map<String, String> getProductInfo() {
-        return null;
     }
 
     @Override

@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -12,8 +12,6 @@
 // ============================================================================
 package com.amalto.core.server;
 
-import java.util.Map;
-
 public interface ServerAccess {
 
     public interface ServerAccessInfo {
@@ -21,11 +19,15 @@ public interface ServerAccess {
         public boolean isLicenseValid();
 
         public String getLicense();
+        
+        public String getProductName();
+        
+        public String getProductEdition();
+        
+        public String getProductKey();
     }
 
     public ServerAccessInfo getInfo();
-
-    public Map<String, String> getProductInfo();
 
     public boolean isExpired() throws Exception;
     

@@ -59,11 +59,6 @@ public class WebappImpl implements Webapp {
     }
 
     @Override
-    public Map<String, String> getProductInfo() {
-        return serverAccess.getProductInfo();
-    }
-
-    @Override
     public int getWorkflowTasksCount() {
         return serverAccess.getWorkflowTasksCount();
     }
@@ -103,5 +98,12 @@ public class WebappImpl implements Webapp {
         Map<Boolean, Integer> refreshConfig = new HashMap<Boolean, Integer>(1);
         refreshConfig.put(onStart, interval);
         return refreshConfig;
+    }
+    
+    @Override
+    public String getProductInfo() {
+        ServerAccessInfo info = getInfo();
+        return info.getProductName() + " " + info.getProductEdition(); //$NON-NLS-1$
+
     }
 }

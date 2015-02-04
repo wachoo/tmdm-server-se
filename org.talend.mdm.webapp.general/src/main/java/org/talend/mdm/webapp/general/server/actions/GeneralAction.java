@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.server.ServerAccess.ServerAccessInfo;
 import com.amalto.core.util.LicenseUserNumberValidationException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
@@ -78,11 +79,11 @@ public class GeneralAction implements GeneralService {
     public ProductInfo getProductInfo() throws ServiceException {
         if (com.amalto.core.util.Util.isEnterprise()) {
             ProductInfo info = new ProductInfo();
-            Map<String, String> map = com.amalto.webapp.core.util.Webapp.INSTANCE.getProductInfo();
-            if (map != null) {
-                info.setProductKey(map.get("productKey")); //$NON-NLS-1$
-                info.setProductName(map.get("productName")); //$NON-NLS-1$
-                info.setProductEdition(map.get("productEdition")); //$NON-NLS-1$
+            ServerAccessInfo serverInfo = com.amalto.webapp.core.util.Webapp.INSTANCE.getInfo();
+            if (serverInfo != null) {
+                info.setProductKey(serverInfo.getProductKey());
+                info.setProductName(serverInfo.getProductName());
+                info.setProductEdition(serverInfo.getProductEdition());
                 return info;
             }
         }
