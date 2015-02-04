@@ -41,7 +41,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.LineageListPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyTablePanel;
-import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
@@ -49,7 +48,6 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 /**
@@ -222,18 +220,11 @@ public class BrowseRecordsController extends Controller {
                                 && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
                                         .equals(itemBean.getConcept());
 
-                        if (detailToolBar.isOutMost()) {
-                            refreshDetailPanel(detailToolBar, itemBean);
-                        } else {
-                            // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
-                            if (!detailToolBar.isHierarchyCall()) {
-                                if (detailToolBar.getFromApp() != null
-                                        && (("".equals(detailToolBar.getFromApp())) || detailToolBar.getFromApp().startsWith("Journal"))) {//$NON-NLS-1$ //$NON-NLS-2$
-                                    refreshDetailPanel(detailToolBar, itemBean);
-                                } else if (isSameConcept && detailToolBar.getType() == ItemDetailToolBar.TYPE_DEFAULT) {
-                                    itemBean.setIds(result.getReturnValue());
-                                    ItemsListPanel.getInstance().refreshGrid(itemBean);
-                                }
+                        // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
+                        if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
+                            if (isSameConcept && detailToolBar.getType() == ItemDetailToolBar.TYPE_DEFAULT) {
+                                itemBean.setIds(result.getReturnValue());
+                                ItemsListPanel.getInstance().refreshGrid(itemBean);
                             }
                         }
 
@@ -270,10 +261,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-		$wnd.setTimeout(function() {
-			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-		}, millisecond);
-    }-*/;
+                                                                      $wnd.setTimeout(function() {
+                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+                                                                      }, millisecond);
+                                                                      }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
@@ -315,7 +306,6 @@ public class BrowseRecordsController extends Controller {
     private void onViewItem(final AppEvent event) {
         ItemBean item = (ItemBean) event.getData();
         Boolean isStaging = event.getData("isStaging"); //$NON-NLS-1$
-        final String fromApp = (String) event.getData("fromApp"); //$NON-NLS-1$
         if (item != null) {
             UserSession userSession = BrowseRecords.getSession();
             EntityModel entityModel = (EntityModel) userSession.get(UserSession.CURRENT_ENTITY_MODEL);
@@ -326,18 +316,11 @@ public class BrowseRecordsController extends Controller {
                         @Override
                         public void onSuccess(ItemBean result) {
                             event.setData(result);
-                            if (fromApp != null && (("".equals(fromApp)) || fromApp.startsWith("Journal"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                                TreeDetailUtil.replaceItemsDetailPanelById(fromApp, result.getIds(), result.getConcept(), false,
-                                        false, ItemDetailToolBar.VIEW_OPERATION);
-
-                                return;
-                            } else {
-                                String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
-                                if (itemsFormTarget != null) {
-                                    event.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
-                                }
-                                forwardToView(view, event);
+                            String itemsFormTarget = event.getData(BrowseRecordsView.ITEMS_FORM_TARGET);
+                            if (itemsFormTarget != null) {
+                                event.setData(BrowseRecordsView.ITEMS_FORM_TARGET, itemsFormTarget);
                             }
+                            forwardToView(view, event);
                         }
                     });
         }
@@ -438,12 +421,5 @@ public class BrowseRecordsController extends Controller {
                         }
                     });
         }
-    }
-
-    private void refreshDetailPanel(ItemDetailToolBar detailToolBar, ItemBean itemBean) {
-        AppEvent event = new AppEvent(BrowseRecordsEvents.ViewItem, itemBean);
-        event.setData("isStaging", false); //$NON-NLS-1$
-        event.setData("fromApp", detailToolBar.getFromApp()); //$NON-NLS-1$
-        Dispatcher.forwardEvent(event);
     }
 }
