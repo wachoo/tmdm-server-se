@@ -85,8 +85,8 @@ public class TreeDetailUtil {
         }
     }
 
-    public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept, boolean isFkToolBar,
-            boolean isHierarchyCall) {
+    public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
+            final Boolean isFkToolBar, final Boolean isHierarchyCall) {
         setAppHeader();
         initItemsDetailPanelById(fromWhichApp, ids, concept, isFkToolBar, isHierarchyCall, ItemDetailToolBar.VIEW_OPERATION);
     }
@@ -121,29 +121,6 @@ public class TreeDetailUtil {
         });
     }
 
-    public static void replaceItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
-            final Boolean isFkToolBar, final Boolean isHierarchyCall, final String operation) {
-        String[] idArr = parseKey(ids);
-        final ItemsDetailPanel panel = ItemsDetailPanel.newInstance();
-        final BrowseRecordsServiceAsync brService = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
-        brService.getItemBeanById(concept, idArr, Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() {
-
-            @Override
-            public void onSuccess(final ItemBean item) {
-                brService.getView("Browse_items_" + concept, Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$
-
-                            @Override
-                            public void onSuccess(ViewBean viewBean) {
-                                ItemPanel itemPanel = new ItemPanel(viewBean, item, operation, panel);
-                                updateDetailPanel(viewBean, panel, itemPanel, item, fromWhichApp, isFkToolBar, isHierarchyCall,
-                                        false);
-                            }
-
-                        });
-            }
-        });
-    }
-
     public static void initItemsDetailPanelById(final String fromWhichApp, String ids, final String concept,
             final Boolean isFkToolBar, final Boolean isHierarchyCall, final String operation, final boolean isStaging) {
         String[] idArr = parseKey(ids);
@@ -168,45 +145,12 @@ public class TreeDetailUtil {
         });
     }
 
-    private static void updateDetailPanel(ViewBean viewBean, ItemsDetailPanel panel, ItemPanel itemPanel, ItemBean item,
-            String fromWhichApp, Boolean isFkToolBar, Boolean isHierarchyCall, boolean isStaging) {
-        // TMDM-7760: if the itemPanel opened from Hierarchy or other app(like journal in TMDM-7998), then set its
-        // toolBar's outMost to false
-        itemPanel.getToolBar().setOutMost(fromWhichApp == null ? true : false);
-        itemPanel.getToolBar().setFkToolBar(isFkToolBar);
-        itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
-        itemPanel.getToolBar().setFromApp(fromWhichApp);
-
-        List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
-        if (item != null) {
-            breads.add(new BreadCrumbModel("", BreadCrumb.DEFAULTNAME, null, null, false)); //$NON-NLS-1$
-            breads.add(new BreadCrumbModel(item.getConcept(), item.getLabel(), item.getIds(), item.getDisplayPKInfo().equals(
-                    item.getLabel()) ? null : item.getDisplayPKInfo(), true));
-        }
-
-        panel.setOutMost(true);
-        panel.setId(item.getIds());
-        panel.initBanner(item.getPkInfoList(), item.getDescription());
-        panel.addTabItem(item.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, item.getIds());
-        panel.initBreadCrumb(new BreadCrumb(breads, panel));
-
-        TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes().get(item.getConcept());
-
-        String tabItemId = fromWhichApp + typeModel.getLabel(Locale.getLanguage()) + " " + panel.getItemId(); //$NON-NLS-1$
-        panel.setHeading(tabItemId);
-        panel.setItemId(tabItemId + (isStaging ? Constants.BROWSE_STAGING_SUFFIX_MARK : Constants.BROWSE_MASTER_SUFFIX_MARK));
-        updateTreeDetailPanel(tabItemId, panel);
-        CommonUtil.setCurrentCachedEntity(item.getConcept() + item.getIds() + panel.isOutMost(), itemPanel);
-    }
-
     private static void initDetailPanel(ViewBean viewBean, ItemsDetailPanel panel, ItemPanel itemPanel, ItemBean item,
             String fromWhichApp, Boolean isFkToolBar, Boolean isHierarchyCall, boolean isStaging) {
-        // TMDM-7760: if the itemPanel opened from Hierarchy or other app(like journal in TMDM-7998), then set its
-        // toolBar's outMost to false
+        // TMDM-7760: if the itemPanel opened from Hierarchy, then set its toolBar's outMost to false
         itemPanel.getToolBar().setOutMost(true);
         itemPanel.getToolBar().setFkToolBar(isFkToolBar);
         itemPanel.getToolBar().setHierarchyCall(isHierarchyCall);
-        itemPanel.getToolBar().setFromApp(fromWhichApp);
 
         List<BreadCrumbModel> breads = new ArrayList<BreadCrumbModel>();
         if (item != null) {
@@ -228,8 +172,6 @@ public class TreeDetailUtil {
         panel.setItemId(tabItemId + (isStaging ? Constants.BROWSE_STAGING_SUFFIX_MARK : Constants.BROWSE_MASTER_SUFFIX_MARK));
         renderTreeDetailPanel(tabItemId, panel);
         CommonUtil.setCurrentCachedEntity(item.getConcept() + item.getIds() + panel.isOutMost(), itemPanel);
-        BrowseRecords.getSession().put(UserSession.CURRENT_ENTITY_MODEL, viewBean.getBindingEntityModel());
-        BrowseRecords.getSession().put(UserSession.CURRENT_VIEW, viewBean);
     }
 
     private static String[] parseKey(String keyStr) {
@@ -378,10 +320,10 @@ public class TreeDetailUtil {
     }
 
     public native static void closeOutTabItem(String itemId, JavaScriptObject removeTabEvent)/*-{
-                                                                                             var tabPanel = $wnd.amalto.core.getTabPanel();
-                                                                                             tabPanel.un("beforeremove", removeTabEvent);
-                                                                                             tabPanel.remove(itemId);
-                                                                                             }-*/;
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		tabPanel.un("beforeremove", removeTabEvent);
+		tabPanel.remove(itemId);
+    }-*/;
 
     public static void renderTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel) {
         if (GWT.isScript()) {
@@ -391,101 +333,64 @@ public class TreeDetailUtil {
         }
     }
 
-    public static void updateTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel) {
-        if (GWT.isScript()) {
-            replaceGwtTreeDetailPanel(itemId, detailPanel);
-        } else {
-            updateDebugTreeDetailPanel(itemId, detailPanel);
-        }
-    }
-
-    private static Window window = null;
-
-    private static ItemsDetailPanel panelSource = null;
-
     private static void renderDebugTreeDetailPanel(String itemId, ItemsDetailPanel source) {
-        window = new Window();
+        Window window = new Window();
         window.setLayout(new FitLayout());
-        panelSource = source;
-        window.add(panelSource);
+        window.add(source);
         window.setSize(1100, 700);
         window.setMaximizable(true);
         window.setModal(false);
         window.show();
     }
 
-    private static void updateDebugTreeDetailPanel(String itemId, ItemsDetailPanel source) {
-        window.remove(panelSource);
-        panelSource = source;
-        window.add(panelSource);
-        window.layout(true);
-    }
-
     public native static void renderGwtTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel)/*-{
-                                                                                                   var tabPanel = $wnd.amalto.core.getTabPanel();
-                                                                                                   var panel = @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::transferTreeDetailPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;)(detailPanel);
-                                                                                                   var removeTabEvent = function(tabPanel, tabItem) {
-                                                                                                   if (itemId == tabItem.getId()) {
-                                                                                                   @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::checkRecord(Lcom/extjs/gxt/ui/client/widget/TabItem;Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;Lorg/talend/mdm/webapp/browserecords/client/widget/TabItemListener;Lcom/google/gwt/core/client/JavaScriptObject;)(null,detailPanel,null,removeTabEvent);
-                                                                                                   return false;
-                                                                                                   } else {
-                                                                                                   return true;
-                                                                                                   }
-                                                                                                   };
-                                                                                                   tabPanel.on("beforeremove", removeTabEvent);
-                                                                                                   tabPanel.add(panel);
-                                                                                                   tabPanel.setSelection(itemId);
-                                                                                                   }-*/;
-
-    public native static void replaceGwtTreeDetailPanel(String itemId, ItemsDetailPanel detailPanel)/*-{
-                                                                                                    var tabPanel = $wnd.amalto.core.getTabPanel();
-                                                                                                    var panel = @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::transferTreeDetailPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;)(detailPanel);
-                                                                                                    var removeTabEvent = function(tabPanel, tabItem) {
-                                                                                                    if (itemId == tabItem.getId()) {
-                                                                                                    @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::checkRecord(Lcom/extjs/gxt/ui/client/widget/TabItem;Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;Lorg/talend/mdm/webapp/browserecords/client/widget/TabItemListener;Lcom/google/gwt/core/client/JavaScriptObject;)(null,detailPanel,null,removeTabEvent);
-                                                                                                    return false;
-                                                                                                    } else {
-                                                                                                    return true;
-                                                                                                    }
-                                                                                                    };
-                                                                                                    tabPanel.on("beforeremove", removeTabEvent);
-                                                                                                    tabPanel.add(panel);
-                                                                                                    tabPanel.setSelection(itemId);
-                                                                                                    }-*/;
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = @org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::transferTreeDetailPanel(Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;)(detailPanel);
+		var removeTabEvent = function(tabPanel, tabItem) {
+			if (itemId == tabItem.getId()) {
+				@org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUtil::checkRecord(Lcom/extjs/gxt/ui/client/widget/TabItem;Lorg/talend/mdm/webapp/browserecords/client/widget/ItemsDetailPanel;Lorg/talend/mdm/webapp/browserecords/client/widget/TabItemListener;Lcom/google/gwt/core/client/JavaScriptObject;)(null,detailPanel,null,removeTabEvent);
+				return false;
+			} else {
+				return true;
+			}
+		};
+		tabPanel.on("beforeremove", removeTabEvent);
+		tabPanel.add(panel);
+		tabPanel.setSelection(itemId);
+    }-*/;
 
     private native static JavaScriptObject transferTreeDetailPanel(ItemsDetailPanel itemDetailPanel)/*-{
-                                                                                                    var panel = {
-                                                                                                    // imitate extjs's render method, really call gxt code.
-                                                                                                    render : function(el) {
-                                                                                                    var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
-                                                                                                    rootPanel.@com.google.gwt.user.client.ui.RootPanel::clear();
-                                                                                                    rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(itemDetailPanel);
-                                                                                                    },
-                                                                                                    // imitate extjs's setSize method, really call gxt code.
-                                                                                                    setSize : function(width, height) {
-                                                                                                    itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::setSize(II)(width, height);
-                                                                                                    },
-                                                                                                    // imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
-                                                                                                    getItemId : function() {
-                                                                                                    return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getItemId()();
-                                                                                                    },
-                                                                                                    // imitate El object of extjs
-                                                                                                    getEl : function() {
-                                                                                                    var el = itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getElement()();
-                                                                                                    return {
-                                                                                                    dom : el
-                                                                                                    };
-                                                                                                    },
-                                                                                                    // imitate extjs's doLayout method, really call gxt code.
-                                                                                                    doLayout : function() {
-                                                                                                    return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::doLayout()();
-                                                                                                    },
-                                                                                                    title : function() {
-                                                                                                    return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getHeading()();
-                                                                                                    }
-                                                                                                    };
-                                                                                                    return panel;
-                                                                                                    }-*/;
+		var panel = {
+			// imitate extjs's render method, really call gxt code.
+			render : function(el) {
+				var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+				rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(itemDetailPanel);
+			},
+			// imitate extjs's setSize method, really call gxt code.
+			setSize : function(width, height) {
+				itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::setSize(II)(width, height);
+			},
+			// imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+			getItemId : function() {
+				return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getItemId()();
+			},
+			// imitate El object of extjs
+			getEl : function() {
+				var el = itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getElement()();
+				return {
+					dom : el
+				};
+			},
+			// imitate extjs's doLayout method, really call gxt code.
+			doLayout : function() {
+				return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::doLayout()();
+			},
+			title : function() {
+				return itemDetailPanel.@org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel::getHeading()();
+			}
+		};
+		return panel;
+    }-*/;
 
     public static boolean isChangeValue(ItemNodeModel model) {
         if (model.isChangeValue()) {
