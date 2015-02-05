@@ -37,8 +37,6 @@ public interface WebService {
     
     public XSElementDecl getXSElementDecl(String dataModel, String concept) throws Exception;
     
-    public boolean isAuth(Set<String> roleSet) throws Exception;
-    
     public boolean isEnterpriseVersion();
     
     public boolean userCanRead(Class<?> dataModel,String dataModelName) throws XtentisException;

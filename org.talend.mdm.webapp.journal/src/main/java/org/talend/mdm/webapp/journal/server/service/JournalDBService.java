@@ -12,11 +12,18 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.server.service;
 
-import com.amalto.core.objects.datamodel.DataModelPOJO;
-import com.amalto.core.util.Util;
-import com.amalto.core.webservice.*;
-import com.extjs.gxt.ui.client.Style.SortDir;
-import com.sun.xml.xsom.XSElementDecl;
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.dom4j.Attribute;
 import org.dom4j.DocumentException;
@@ -29,19 +36,27 @@ import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.util.Util;
+import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSGetItem;
+import com.amalto.core.webservice.WSItem;
+import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSStringArray;
+import com.amalto.core.webservice.WSWhereItem;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.sun.xml.xsom.XSElementDecl;
 
 /**
  * The server side implementation of the RPC service.
  */
 public class JournalDBService {
 
-    private static final Logger           LOG = Logger.getLogger(JournalDBService.class);
+    private static final Logger LOG = Logger.getLogger(JournalDBService.class);
+
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
-    private WebService                    webService;
+
+    private WebService webService;
 
     public JournalDBService(WebService webService) {
         this.webService = webService;
@@ -125,9 +140,9 @@ public class JournalDBService {
         root.add(new JournalTreeModel("Key:" + checkNull(Util.getFirstTextNode(doc, "/Update/Key")))); //$NON-NLS-1$ //$NON-NLS-2$                       
 
         XSElementDecl decl = webService.getXSElementDecl(dataModel, concept);
-        // TODO
-        Set<String> roleSet = null;
-        boolean isAuth = webService.isAuth(roleSet);
+
+        // TODO Way better another solution
+        boolean isAuth = !com.amalto.webapp.core.util.Util.isElementHiddenForCurrentUser(decl);
         root.setAuth(isAuth);
 
         if (isAuth) {

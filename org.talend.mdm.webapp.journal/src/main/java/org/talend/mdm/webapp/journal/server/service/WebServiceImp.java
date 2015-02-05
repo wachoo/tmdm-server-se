@@ -50,10 +50,6 @@ public class WebServiceImp implements WebService {
       return map.get(concept);
     }
     
-    public boolean isAuth(Set<String> roleSet) throws Exception {
-        return Util.isAuth(roleSet);
-    }
-
     @Override
     public boolean isEnterpriseVersion() {
         return Webapp.INSTANCE.isEnterpriseVersion();

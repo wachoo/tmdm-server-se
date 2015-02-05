@@ -843,11 +843,12 @@ public abstract class Util {
         return message;
     }
 
-    public static Set<String> getNoAccessRoleSet(XSElementDecl decl) {
+    // Arrrrg bummer
+    public static boolean isElementHiddenForCurrentUser(XSElementDecl decl) throws Exception {
         Set<String> roleSet = new HashSet<String>();
         XSAnnotation xsa = decl.getAnnotation();
         if (xsa == null) {
-            return roleSet;
+            return false;
         }
         Element el = (Element) xsa.getAnnotation();
         NodeList annotList = el.getChildNodes();
@@ -864,17 +865,13 @@ public abstract class Util {
                 }
             }
         }
-        return roleSet;
-    }
-
-    public static boolean isAuth(Set<String> roleSet) throws Exception {
         Collection<String> roleArr = LocalUser.getLocalUser().getRoles();
         for (String role : roleArr) {
             if (roleSet.contains(role)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public static void filterAuthViews(Map<String, String> viewMap) throws Exception {
