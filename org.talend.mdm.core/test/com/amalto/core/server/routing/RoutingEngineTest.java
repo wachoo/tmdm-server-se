@@ -1,5 +1,18 @@
 package com.amalto.core.server.routing;
 
+import static junit.framework.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
@@ -10,49 +23,25 @@ import com.amalto.core.objects.routing.RoutingRulePOJOPK;
 import com.amalto.core.server.api.Item;
 import com.amalto.core.server.api.RoutingEngine;
 import com.amalto.core.server.api.RoutingRule;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.mock.env.MockEnvironment;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import static junit.framework.Assert.assertEquals;
-
+@SuppressWarnings("nls")
 public class RoutingEngineTest {
 
     private static AbstractApplicationContext context;
 
-    private static RoutingRule                routingRule;
+    private static RoutingRule routingRule;
 
-    private static Item                       item;
+    private static Item item;
 
-    private final DataClusterPOJOPK           container = new DataClusterPOJOPK("Test");
+    private final DataClusterPOJOPK container = new DataClusterPOJOPK("Test");
 
-    private final DataModelPOJO               dataModel = new DataModelPOJO("Test");
+    private final DataModelPOJO dataModel = new DataModelPOJO("Test");
 
     @BeforeClass
     public static void setup() {
         GenericXmlApplicationContext context = new GenericXmlApplicationContext();
         context.setResourceLoader(new PathMatchingResourcePatternResolver());
-        MockEnvironment env = new MockEnvironment();
-        env.setProperty("mdm.root", "");
-        env.setProperty("mdm.root.url", "");
-        context.setEnvironment(env);
         context.load("classpath:**/" + RoutingEngineTest.class.getName() + ".xml");
-        // FIXME Setting default-lazy-init on the top level beans element seems not applied to beans inside an imported
-        // resource
-        // Workaround: set all beans to be lazy-init in a programmatic manner
-        // See also https://gist.github.com/eeichinger/1979033 as an alternative
-        for (String beanName : context.getBeanDefinitionNames()) {
-            context.getBeanDefinition(beanName).setLazyInit(true);
-        }
         context.refresh();
         RoutingEngineTest.context = context;
         RoutingEngineTest.routingRule = context.getBean(RoutingRule.class);
@@ -82,7 +71,7 @@ public class RoutingEngineTest {
     @Test
     public void testMatchRuleType() throws Exception {
         RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
-        item.putItem(new ItemPOJO(container, "Person", new String[]{"1", "2"}, 0, "<Person><id>1</id><id2>2</id2></Person>"),
+        item.putItem(new ItemPOJO(container, "Person", new String[] { "1", "2" }, 0, "<Person><id>1</id><id2>2</id2></Person>"),
                 dataModel);
         // Match all rule
         clearRules();
@@ -140,9 +129,8 @@ public class RoutingEngineTest {
         routingRule.putRoutingRule(rule1);
         RoutingRulePOJO rule2 = new RoutingRulePOJO("testTypeMatchRule2");
         rule2.setConcept("*");
-        expressions = Arrays.asList(new RoutingRuleExpressionPOJO("Person", "id",
-                RoutingRuleExpressionPOJO.EQUALS, "1"), new RoutingRuleExpressionPOJO("Person", "id2",
-                RoutingRuleExpressionPOJO.EQUALS, "2"));
+        expressions = Arrays.asList(new RoutingRuleExpressionPOJO("Person", "id", RoutingRuleExpressionPOJO.EQUALS, "1"),
+                new RoutingRuleExpressionPOJO("Person", "id2", RoutingRuleExpressionPOJO.EQUALS, "2"));
         rule2.setRoutingExpressions(expressions);
         rule2.setExecuteOrder(1);
         routingRule.putRoutingRule(rule2);
@@ -153,6 +141,5 @@ public class RoutingEngineTest {
         assertEquals("testTypeMatchRule2", routes[0].getUniqueId());
         assertEquals("testTypeMatchRule1", routes[1].getUniqueId());
     }
-
 
 }
