@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.server;
@@ -54,9 +53,9 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
 
     @Override
     public void destroy() throws Exception {
-        LOGGER.info("Shutdown in progress...");
+        LOGGER.info("Shutdown in progress..."); //$NON-NLS-1$
         ServerContext.INSTANCE.get().close();
-        LOGGER.info("Shutdown done.");
+        LOGGER.info("Shutdown done."); //$NON-NLS-1$
     }
 
     @Override
@@ -70,11 +69,11 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
         if (serverLifecycle == null) {
             throw new IllegalStateException("Server lifecycle is not set (is server running on a supported platform?)"); //$NON-NLS-1$
         }
-        Server server = ServerContext.INSTANCE.get(serverLifecycle);
+        final Server server = ServerContext.INSTANCE.get(serverLifecycle);
         server.init();
         // Initialize system storage
         LOGGER.info("Starting system storage..."); //$NON-NLS-1$
-        StorageAdmin storageAdmin = server.getStorageAdmin();
+        final StorageAdmin storageAdmin = server.getStorageAdmin();
         String systemDataSourceName = storageAdmin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
         storageAdmin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, systemDataSourceName);
         Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
@@ -104,7 +103,7 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
         String className = StringUtils.substringAfterLast(DataClusterPOJO.class.getName(), "."); //$NON-NLS-1$
         ComplexTypeMetadata containerType = repository.getComplexType(ClassRepository.format(className));
         UserQueryBuilder qb = from(containerType);
-        Set<String> containerNames = new HashSet<String>();
+        final Set<String> containerNames = new HashSet<String>();
         systemStorage.begin();
         try {
             StorageResults containers = systemStorage.fetch(qb.getSelect());
@@ -127,7 +126,20 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
         }
         containerNamesLog.append(']');
         LOGGER.info("Container to initialize (" + containerNames.size() + " found) : " + containerNamesLog); //$NON-NLS-1$ //$NON-NLS-2$
+
         // Initialize configured containers
+        SecurityConfig.invokeSynchronousPrivateInternal(new Runnable() {
+
+            @Override
+            public void run() {
+                initContainers(server, storageAdmin, containerNames);
+            }
+        });
+
+        LOGGER.info("Talend MDM " + version + " started."); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    private void initContainers(Server server, StorageAdmin storageAdmin, Set<String> containerNames) {
         int i = 1;
         for (String containerName : containerNames) {
             LOGGER.info("Starting storage " + containerName + "(" + i + " of " + containerNames.size() + ") ..."); //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$ //$NON-NLS-4$
@@ -135,7 +147,7 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
                 String datasource = storageAdmin.getDatasource(containerName);
                 DataSourceDefinition dataSourceDefinition = server.getDefinition(datasource, containerName);
                 storageAdmin.create(containerName, containerName, StorageType.MASTER, datasource);
-                if(dataSourceDefinition.hasStaging()) {
+                if (dataSourceDefinition.hasStaging()) {
                     storageAdmin.create(containerName, containerName, StorageType.STAGING, datasource);
                 }
                 LOGGER.info("Storage " + containerName + " started."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -147,7 +159,5 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
             }
             i++;
         }
-        LOGGER.info("Talend MDM " + version + " started."); //$NON-NLS-1$ //$NON-NLS-2$
-
     }
 }
