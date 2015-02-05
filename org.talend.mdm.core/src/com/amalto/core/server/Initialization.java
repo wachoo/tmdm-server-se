@@ -54,8 +54,12 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
     @Override
     public void destroy() throws Exception {
         LOGGER.info("Shutdown in progress..."); //$NON-NLS-1$
-        ServerContext.INSTANCE.get().close();
-        LOGGER.info("Shutdown done."); //$NON-NLS-1$
+        try {
+            ServerContext.INSTANCE.get().close();
+            LOGGER.info("Shutdown done."); //$NON-NLS-1$
+        } catch (Exception e) {
+            LOGGER.info("Shutdown done (with error).", e);
+        }
     }
 
     @Override

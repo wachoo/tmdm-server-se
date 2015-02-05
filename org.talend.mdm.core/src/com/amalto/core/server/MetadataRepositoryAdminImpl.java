@@ -68,7 +68,8 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
     public void close() {
         synchronized (metadataRepository) {
-            for (String repositoryId : metadataRepository.keySet()) {
+            Set<String> strings = new HashSet<>(metadataRepository.keySet());
+            for (String repositoryId : strings) {
                 remove(repositoryId);
             }
         }
