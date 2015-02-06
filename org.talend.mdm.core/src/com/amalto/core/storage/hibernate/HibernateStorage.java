@@ -38,6 +38,7 @@ import java.util.WeakHashMap;
 
 import net.sf.ehcache.CacheManager;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
@@ -45,6 +46,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.Lock;
+import org.hibernate.DuplicateMappingException;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
@@ -54,13 +56,16 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.cfg.Mappings;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.mapping.Any;
 import org.hibernate.mapping.Array;
 import org.hibernate.mapping.Bag;
 import org.hibernate.mapping.Component;
+import org.hibernate.mapping.DenormalizedTable;
 import org.hibernate.mapping.DependantValue;
 import org.hibernate.mapping.IdentifierBag;
+import org.hibernate.mapping.Index;
 import org.hibernate.mapping.JoinedSubclass;
 import org.hibernate.mapping.ManyToOne;
 import org.hibernate.mapping.OneToMany;
@@ -276,7 +281,66 @@ public class HibernateStorage implements Storage {
         if (!dataSource.supportFullText()) {
             LOGGER.warn("Storage '" + storageName + "' (" + storageType + ") is not configured to support full text queries.");
         }
-        configuration = new Configuration();
+        configuration = new Configuration() {
+
+            @Override
+            public Mappings createMappings() {
+                return new MDMMappingsImpl();
+            }
+
+            class MDMMappingsImpl extends MappingsImpl {
+
+                @Override
+                public Table addDenormalizedTable(String schema, String catalog, String name, boolean isAbstract,
+                        String subselect, final Table includedTable) throws DuplicateMappingException {
+                    name = getObjectNameNormalizer().normalizeIdentifierQuoting(name);
+                    schema = getObjectNameNormalizer().normalizeIdentifierQuoting(schema);
+                    catalog = getObjectNameNormalizer().normalizeIdentifierQuoting(catalog);
+
+                    String key = subselect == null ? Table.qualify(catalog, schema, name) : subselect;
+                    if (tables.containsKey(key)) {
+                        throw new DuplicateMappingException("table", name);
+                    }
+
+                    Table table = new DenormalizedTable(includedTable) {
+
+                        @Override
+                        public Iterator getIndexIterator() {
+                            List indexes = new ArrayList();
+                            Iterator IndexIterator = super.getIndexIterator();
+                            while (IndexIterator.hasNext()) {
+                                Index parentIndex = (Index) IndexIterator.next();
+                                Index index = new Index();
+                                index.setName(_shortString(parentIndex.getName().toCharArray(), parentIndex.getName().length()
+                                        - getName().length()));
+                                index.setTable(this);
+                                index.addColumns(parentIndex.getColumnIterator());
+                                indexes.add(index);
+                            }
+                            return indexes.iterator();
+                        }
+
+                        private String _shortString(char[] chars, int threshold) {
+                            if (chars.length < threshold) {
+                                return new String(chars).replace('-', '_');
+                            } else {
+                                String s = new String(ArrayUtils.subarray(chars, 0, threshold / 2))
+                                        + new String(ArrayUtils.subarray(chars, threshold / 2, chars.length)).hashCode();
+                                return _shortString(s.toCharArray(), threshold);
+                            }
+                        }
+                    };
+                    table.setAbstract(isAbstract);
+                    table.setName(name);
+                    table.setSchema(schema);
+                    table.setCatalog(catalog);
+                    table.setSubselect(subselect);
+                    tables.put(key, table);
+                    return table;
+                }
+
+            }
+        };
         // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially
         // one provided by the application server).
         configuration.setEntityResolver(ENTITY_RESOLVER);
@@ -408,7 +472,7 @@ public class HibernateStorage implements Storage {
                                 }
                             }
                         }
-                        //TODO: may need to add db2 after confirmation
+                        // TODO: may need to add db2 after confirmation
                         if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
                             ComplexTypeMetadata indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
                             if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
@@ -437,7 +501,7 @@ public class HibernateStorage implements Storage {
                         databaseIndexedFields.add(database.getField(METADATA_TASK_ID));
                     }
                 }
-                //TODO: may need to add db2 after confirmation
+                // TODO: may need to add db2 after confirmation
                 if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
                     ComplexTypeMetadata indexEntityType;
                     for (FieldMetadata indexedField : databaseIndexedFields) {
@@ -1187,7 +1251,7 @@ public class HibernateStorage implements Storage {
                                     // be expressed in db schema
                                     String formattedTableName = tableResolver.getCollectionTable(reference);
                                     session.createSQLQuery("delete from " + formattedTableName).executeUpdate(); //$NON-NLS-1$
-                                } else if(!reference.isMandatory()) {
+                                } else if (!reference.isMandatory()) {
                                     String referenceTableName = tableResolver.get(reference.getContainingType());
                                     List<String> fkColumnNames;
                                     if (reference.getReferencedField() instanceof CompoundFieldMetadata) {
