@@ -22,6 +22,7 @@ import javax.security.auth.spi.LoginModule;
 
 import org.apache.log4j.Logger;
 
+// TODO AM I still needed ????
 public class LoginModuleDelegator implements LoginModule {
 
     public static final String PROPERTY_DELEGATE_MODULE = "delegateModule"; //$NON-NLS-1$

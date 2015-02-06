@@ -20,11 +20,12 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 
+@SuppressWarnings("nls")
 public class MockServerLifecycle implements ServerLifecycle {
 
     @Override
     public Server createServer() {
-        MDMConfiguration.createConfiguration(MockServerLifecycle.class.getResource("mdm.conf").getFile());
+        MDMConfiguration.createConfiguration(MockServerLifecycle.class.getResource("mdm.conf").getFile(), false);
         MDMConfiguration.getConfiguration().setProperty(DataSourceFactory.DB_DATASOURCES, MockServer.getDatasourcesFilePath());
         return new MockServer();
     }

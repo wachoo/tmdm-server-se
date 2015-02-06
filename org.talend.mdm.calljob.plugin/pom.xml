@@ -37,6 +37,13 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.core</artifactId>
+            <version>${project.version}</version>
+            <classifier>open</classifier>
+            <scope>test</scope>
+        </dependency>
         <!-- 3rd party dependencies -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
