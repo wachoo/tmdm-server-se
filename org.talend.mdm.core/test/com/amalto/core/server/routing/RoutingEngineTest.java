@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.mock.env.MockEnvironment;
 
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
@@ -39,9 +40,21 @@ public class RoutingEngineTest {
 
     @BeforeClass
     public static void setup() {
+        System.setProperty("mdm.root.ignoreIfNotFound", "true");
         GenericXmlApplicationContext context = new GenericXmlApplicationContext();
         context.setResourceLoader(new PathMatchingResourcePatternResolver());
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("mdm.routing.engine.broker.url", "vm://localhost?broker.persistent=false");
+        env.setProperty("mdm.routing.engine.consumers","4-4");
+        context.setEnvironment(env);
         context.load("classpath:**/" + RoutingEngineTest.class.getName() + ".xml");
+        // FIXME Setting default-lazy-init on the top level beans element seems not applied to beans inside an imported
+        // resource
+        // Workaround: set all beans to be lazy-init programmatically
+        // See also https://gist.github.com/eeichinger/1979033 as an alternative
+        for (String beanName : context.getBeanDefinitionNames()) {
+            context.getBeanDefinition(beanName).setLazyInit(true);
+        }
         context.refresh();
         RoutingEngineTest.context = context;
         RoutingEngineTest.routingRule = context.getBean(RoutingRule.class);
@@ -51,6 +64,7 @@ public class RoutingEngineTest {
     @AfterClass
     public static void tearDown() {
         context.destroy();
+        System.setProperty("mdm.root.ignoreIfNotFound", "false");
     }
 
     private static void clearRules() throws com.amalto.core.util.XtentisException {

@@ -48,7 +48,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
         <property name="connectionFactory">
             <bean class="org.apache.activemq.ActiveMQConnectionFactory">
                 <property name="brokerURL">
-                    <value>vm://localhost</value>
+                    <value>${mdm.routing.engine.broker.url}</value>
                 </property>
             </bean>
         </property>
@@ -59,7 +59,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
             <ref bean="jmsFactory" />
         </property>
     </bean>
-    <jms:listener-container concurrency="5-10" connection-factory="jmsFactory" destination-type="queue">
+    <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsFactory" destination-type="queue">
         <jms:listener destination="org.talend.mdm.server.routing.events" ref="defaultRoutingEngine" method="consume" />
     </jms:listener-container>
 
