@@ -144,6 +144,11 @@ class StorageTableResolver implements TableResolver {
         }
     }
 
+    @Override
+    public String get(String name) {
+        return formatSQLName(name);
+    }
+
     /**
      * <p>
      * Short a string so it doesn't exceed <code>maxLength</code> length. Consecutive calls to this method with same input

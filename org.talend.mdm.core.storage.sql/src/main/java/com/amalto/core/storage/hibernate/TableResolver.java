@@ -72,4 +72,11 @@ interface TableResolver {
      * @return A unique identifier for the referenced field. Returns empty string if no unique name is required.
      */
     String getFkConstraintName(ReferenceFieldMetadata referenceField);
+
+    /**
+     * Modify is needed the name passed as parameter to match max length limitations.
+     * @param name A database object name.
+     * @return The same name if shorter than max length or same name if already shorter than max length.
+     */
+    String get(String name);
 }

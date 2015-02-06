@@ -176,8 +176,6 @@ public class ItemDetailToolBar extends ToolBar {
 
     protected boolean isHierarchyCall;
 
-    protected String fromApp;
-
     protected boolean openTab;
 
     private boolean isStaging;
@@ -1383,14 +1381,6 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void setHierarchyCall(boolean isHierarchyCall) {
         this.isHierarchyCall = isHierarchyCall;
-    }
-
-    public String getFromApp() {
-        return this.fromApp;
-    }
-
-    public void setFromApp(String fromApp) {
-        this.fromApp = fromApp;
     }
 
     public boolean isOpenTab() {

@@ -38,8 +38,6 @@ import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecordReader.Input> {
 
-    private static final Logger LOGGER = Logger.getLogger(XmlSAXDataRecordReader.class);
-
     public static class Input {
 
         private final XMLReader reader;
@@ -60,8 +58,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             DataRecordContentHandler handler = new DataRecordContentHandler(type, repository);
             xmlReader.setContentHandler(handler);
             xmlReader.parse(inputSource);
-            DataRecord dataRecord = handler.getDataRecord();
-            return dataRecord;
+            return handler.getDataRecord();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

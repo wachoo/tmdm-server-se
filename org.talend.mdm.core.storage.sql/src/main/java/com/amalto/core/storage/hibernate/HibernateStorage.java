@@ -65,6 +65,7 @@ import org.apache.lucene.store.Lock;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.cfg.Mappings;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.mapping.*;
 import org.hibernate.search.FullTextSession;
@@ -219,7 +220,52 @@ public class HibernateStorage implements Storage {
         if (!dataSource.supportFullText()) {
             LOGGER.warn("Storage '" + storageName + "' (" + storageType + ") is not configured to support full text queries.");
         }
-        configuration = new Configuration();
+        configuration = new Configuration() {
+
+            @Override
+            public Mappings createMappings() {
+                return new MDMMappingsImpl();
+            }
+
+            class MDMMappingsImpl extends MappingsImpl {
+
+                @Override
+                public Table addDenormalizedTable(String schema, String catalog, String name, boolean isAbstract,
+                        String subSelect, final Table includedTable) throws DuplicateMappingException {
+                    name = getObjectNameNormalizer().normalizeIdentifierQuoting(name);
+                    schema = getObjectNameNormalizer().normalizeIdentifierQuoting(schema);
+                    catalog = getObjectNameNormalizer().normalizeIdentifierQuoting(catalog);
+                    String key = subSelect == null ? Table.qualify(catalog, schema, name) : subSelect;
+                    if (tables.containsKey(key)) {
+                        throw new DuplicateMappingException("table", name); //$NON-NLS-1$
+                    }
+                    Table table = new DenormalizedTable(includedTable) {
+
+                        @Override
+                        public Iterator getIndexIterator() {
+                            List<Index> indexes = new ArrayList<Index>();
+                            Iterator IndexIterator = super.getIndexIterator();
+                            while (IndexIterator.hasNext()) {
+                                Index parentIndex = (Index) IndexIterator.next();
+                                Index index = new Index();
+                                index.setName(tableResolver.get(getName()));
+                                index.setTable(this);
+                                index.addColumns(parentIndex.getColumnIterator());
+                                indexes.add(index);
+                            }
+                            return indexes.iterator();
+                        }
+                    };
+                    table.setAbstract(isAbstract);
+                    table.setName(name);
+                    table.setSchema(schema);
+                    table.setCatalog(catalog);
+                    table.setSubselect(subSelect);
+                    tables.put(key, table);
+                    return table;
+                }
+            }
+        };
         // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially
         // one provided by the application server).
         configuration.setEntityResolver(ENTITY_RESOLVER);
@@ -351,7 +397,7 @@ public class HibernateStorage implements Storage {
                                 }
                             }
                         }
-                        //TODO: may need to add db2 after confirmation
+                        // TODO: may need to add db2 after confirmation
                         if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
                             ComplexTypeMetadata indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
                             if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
@@ -380,7 +426,7 @@ public class HibernateStorage implements Storage {
                         databaseIndexedFields.add(database.getField(METADATA_TASK_ID));
                     }
                 }
-                //TODO: may need to add db2 after confirmation
+                // TODO: may need to add db2 after confirmation
                 if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
                     ComplexTypeMetadata indexEntityType;
                     for (FieldMetadata indexedField : databaseIndexedFields) {
@@ -1129,7 +1175,7 @@ public class HibernateStorage implements Storage {
                                     // be expressed in db schema
                                     String formattedTableName = tableResolver.getCollectionTable(reference);
                                     session.createSQLQuery("delete from " + formattedTableName).executeUpdate(); //$NON-NLS-1$
-                                } else if(!reference.isMandatory()) {
+                                } else if (!reference.isMandatory()) {
                                     String referenceTableName = tableResolver.get(reference.getContainingType());
                                     List<String> fkColumnNames;
                                     if (reference.getReferencedField() instanceof CompoundFieldMetadata) {
@@ -1142,10 +1188,6 @@ public class HibernateStorage implements Storage {
                                     } else {
                                         fkColumnNames = Collections.singletonList(tableResolver.get(
                                                 reference.getReferencedField(), reference.getName()));
-                                    }
-                                    for (String fkColumnName : fkColumnNames) {
-                                        session.createSQLQuery(
-                                                "update " + referenceTableName + " set " + fkColumnName + " = NULL").executeUpdate(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                                     }
                                     for (String fkColumnName : fkColumnNames) {
                                         session.createSQLQuery(
