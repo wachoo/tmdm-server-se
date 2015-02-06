@@ -303,6 +303,7 @@ public class StorageAdminImpl implements StorageAdmin {
 
     public void close() {
         deleteAll(false);
+        delete(SYSTEM_STORAGE, StorageType.SYSTEM, false);
     }
 
     @Override

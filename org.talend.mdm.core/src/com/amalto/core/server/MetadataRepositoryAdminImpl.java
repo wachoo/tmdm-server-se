@@ -175,7 +175,8 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
     public void remove(String metadataRepositoryId) {
         assertMetadataRepositoryId(metadataRepositoryId);
         synchronized (metadataRepository) {
-            MetadataRepository repository = get(metadataRepositoryId);
+            // get(String) implicitly loads the data model, not very interesting in remove(String) case.
+            MetadataRepository repository = metadataRepository.get(metadataRepositoryId);
             if (repository != null) {
                 repository.close();
                 metadataRepository.remove(metadataRepositoryId);

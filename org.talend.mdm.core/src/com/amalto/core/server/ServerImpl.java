@@ -18,8 +18,11 @@ import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.DataSourceFactory;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
 
 class ServerImpl implements Server {
+
+    private static final Logger LOGGER = Logger.getLogger(ServerImpl.class);
 
     private final DataSourceFactory dataSourceFactory = DataSourceFactory.getInstance();
 
@@ -72,8 +75,13 @@ class ServerImpl implements Server {
 
     public void close() {
         ServerLifecycle lifecycle = ServerContext.INSTANCE.getLifecycle();
-        lifecycle.destroyStorageAdmin(storageAdmin);
+        LOGGER.info("Closing metadata management...");
         lifecycle.destroyMetadataRepositoryAdmin(metadataRepositoryAdmin);
+        LOGGER.info("Closing user storages...");
+        storageAdmin.deleteAll(false);
+        LOGGER.info("Closing remaining storages...");
+        lifecycle.destroyStorageAdmin(storageAdmin);
+        LOGGER.info("Closing transaction manager...");
         transactionManager.close();
     }
 
