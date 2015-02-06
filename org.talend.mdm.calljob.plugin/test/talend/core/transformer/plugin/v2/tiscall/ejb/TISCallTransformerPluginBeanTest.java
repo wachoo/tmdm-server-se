@@ -23,7 +23,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.mock.env.MockEnvironment;
 
 import com.amalto.core.objects.Plugin;
 import com.amalto.core.util.PluginRegistry;
@@ -35,12 +34,9 @@ public class TISCallTransformerPluginBeanTest {
 
     @BeforeClass
     public static void setup() {
+        System.setProperty("mdm.root.ignoreIfNotFound", "true");
         GenericXmlApplicationContext context = new GenericXmlApplicationContext();
         context.setResourceLoader(new PathMatchingResourcePatternResolver());
-        MockEnvironment env = new MockEnvironment();
-        env.setProperty("mdm.root", "");
-        env.setProperty("mdm.root.url", "");
-        context.setEnvironment(env);
         context.load("classpath:mdm-test-context.xml");
         // FIXME Setting default-lazy-init on the top level beans element seems not applied to beans inside an imported
         // resource
@@ -56,6 +52,7 @@ public class TISCallTransformerPluginBeanTest {
     @AfterClass
     public static void tearDown() {
         context.destroy();
+        System.setProperty("mdm.root.ignoreIfNotFound", "false");
     }
 
     @Test
