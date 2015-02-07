@@ -236,4 +236,8 @@ public class StorageSaver extends AbstractDocumentSaverContext {
     public boolean generateTouchActions() {
         return false;
     }
+
+    public boolean isInvokeBeforeSaving() {
+        return this.invokeBeforeSaving;
+    }
 }

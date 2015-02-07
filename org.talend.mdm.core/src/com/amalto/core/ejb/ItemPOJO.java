@@ -849,13 +849,6 @@ public class ItemPOJO implements Serializable {
                         WhereCondition.PRE_NONE);
                 conditions.add(idCondition);
             }
-            if (planPK != null && planPK.getIds() != null) {
-                IWhereItem planCondition = new WhereCondition(conceptName + "/../../sp", //$NON-NLS-1$
-                        WhereCondition.EQUALS,
-                        planPK.getUniqueId(),
-                        WhereCondition.PRE_NOT);
-                conditions.add(planCondition);
-            }
             IWhereItem whereItem = new WhereAnd(conditions);
             ArrayList<String> elements = new ArrayList<String>();
             elements.add(conceptName + "/../../i"); //$NON-NLS-1$

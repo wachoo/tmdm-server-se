@@ -1314,15 +1314,23 @@ public class DocumentSaveTest extends TestCase {
         session.end(committer);
         assertTrue(committer.hasSaved());
 
-        // Test updateReport
-        isOK = true;
-        newOutput = true;
-        source = new AlterRecordTestSaverSource(repository, true, "test1_original.xml", isOK, newOutput);
+    }
 
-        session = SaverSession.newSession(source);
-        recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
-        context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true, true, false);
-        saver = context.createSaver();
+    public void testUpdateReportAfterBeforeSavingProcess() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        // Test updateReport
+        boolean isOK = true;
+        boolean newOutput = true;
+        SaverSource source = new AlterRecordTestSaverSource(repository, true, "test1_original.xml", isOK, newOutput);
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test1.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
         saver.save(session, context);
         assertEquals("change the value successfully!", saver.getBeforeSavingMessage());
 
@@ -1342,12 +1350,42 @@ public class DocumentSaveTest extends TestCase {
         MutableDocument updateReportDocument = context.getUpdateReportDocument();
         assertNotNull(updateReportDocument);
         Document doc = updateReportDocument.asDOM();
-        String oldValue = (String) evaluate(doc.getDocumentElement(), "Item/oldValue");
-        String newValue = (String) evaluate(doc.getDocumentElement(), "Item/newValue");
+        String path = (String) evaluate(doc.getDocumentElement(), "Item[1]/path");
+        String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/oldValue");
+        String newValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/newValue");
+        assertEquals("Name", path);
+        assertEquals("Portland", oldValue);
+        assertEquals("Chicago", newValue);
+
+        path = (String) evaluate(doc.getDocumentElement(), "Item[2]/path");
+        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/oldValue");
+        newValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/newValue");
+        assertEquals("City", path);
+        assertEquals("Portland", oldValue);
+        assertEquals("Chicago", newValue);
+
+        path = (String) evaluate(doc.getDocumentElement(), "Item[3]/path");
+        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[3]/oldValue");
+        newValue = (String) evaluate(doc.getDocumentElement(), "Item[3]/newValue");
+        assertEquals("Information/MoreInfo[2]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.newSite2.org", newValue);
+
+        path = (String) evaluate(doc.getDocumentElement(), "Item[4]/path");
+        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[4]/oldValue");
+        newValue = (String) evaluate(doc.getDocumentElement(), "Item[4]/newValue");
+        assertEquals("Information/MoreInfo[1]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.newSite.org", newValue);
+
+        path = (String) evaluate(doc.getDocumentElement(), "Item[5]/path");
+        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[5]/oldValue");
+        newValue = (String) evaluate(doc.getDocumentElement(), "Item[5]/newValue");
+        assertEquals("Name", path);
         assertEquals("Chicago", oldValue);
         assertEquals("beforeSaving_Agency", newValue);
 
-        committer = new MockCommitter();
+        MockCommitter committer = new MockCommitter();
         session.end(committer);
         assertTrue(committer.hasSaved());
     }
@@ -1419,8 +1457,8 @@ public class DocumentSaveTest extends TestCase {
         Document doc = updateReportDocument.asDOM();
         String oldValue = (String) evaluate(doc.getDocumentElement(), "Item/oldValue");
         String newValue = (String) evaluate(doc.getDocumentElement(), "Item/newValue");
-        assertEquals("Chicago", oldValue);
-        assertEquals("beforeSaving_Agency", newValue);
+        assertEquals("Portland", oldValue); // the first entry should be the modification before beforesaving process
+        assertEquals("Chicago", newValue);
 
         MutableDocument databaseDocument = context.getDatabaseDocument();
         assertNotNull(databaseDocument);

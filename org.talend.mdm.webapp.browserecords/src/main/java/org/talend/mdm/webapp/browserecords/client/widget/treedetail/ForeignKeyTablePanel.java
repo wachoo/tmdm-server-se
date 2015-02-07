@@ -236,10 +236,11 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             if (fkInfo.equals(fkTypeModel.getForeignkey())) {
                 continue;
             }
-            final ColumnConfig column = new ColumnConfig("objectValue", //$NON-NLS-1$
-                    entityModel.getTypeModel(fkInfo).getLabel(Locale.getLanguage()), COLUMN_WIDTH); // using the label
-                                                                                                    // to display table
-                                                                                                    // header
+            final ColumnConfig column = new ColumnConfig(info, entityModel.getTypeModel(fkInfo).getLabel(Locale.getLanguage()),
+                    COLUMN_WIDTH); // using the label
+                                   // to display table
+                                   // header
+            column.setDataIndex("objectValue"); //$NON-NLS-1$
             column.setRenderer(new GridCellRenderer<ItemNodeModel>() {
 
                 @Override

@@ -140,7 +140,7 @@ class GenerateActions implements DocumentSaver {
         context.setActions(actions);
 
         boolean hasModificationActions = hasModificationActions(actions);
-        if (hasModificationActions) { // Ignore rest of save chain if there's no change to perform.
+        if (hasModificationActions || isInvokeBeforeSaving(context)) { // Ignore rest of save chain if there's no change to perform.
             next.save(session, context);
         }
     }
@@ -152,6 +152,19 @@ class GenerateActions implements DocumentSaver {
         for (Action action : actions) {
             if (!(action instanceof TouchAction)) {
                 return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean isInvokeBeforeSaving(DocumentSaverContext context) {
+        if (context instanceof ReportDocumentSaverContext) {
+            if(((ReportDocumentSaverContext)context).getDelegate() instanceof StorageSaver){
+                StorageSaver saver = (StorageSaver) ((ReportDocumentSaverContext)context).getDelegate();
+                return saver.isInvokeBeforeSaving();
+            } else if (((ReportDocumentSaverContext)context).getDelegate() instanceof UserContext){
+                UserContext saver = (UserContext) ((ReportDocumentSaverContext)context).getDelegate();
+                return saver.isInvokeBeforeSaving();
             }
         }
         return false;
