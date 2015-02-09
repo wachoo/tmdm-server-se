@@ -168,7 +168,7 @@ function loadResource(pathFromRootContext,verifiedObjectName) {
 	    loader.addModule({
 	        name: pathFromRootContext, //module name; must be unique
 	        type: type,
-	        fullpath: "../../../../"+pathFromRootContext, //can use a fullpath instead
+	        fullpath: pathFromRootContext, //can use a fullpath instead
 	        varName: verifiedObjectName //replaces the verifier function in 2.4.0 - ignored if css
 	    });
 		//include the new script
@@ -207,7 +207,7 @@ function loadResource(pathFromRootContext,verifiedObjectName,loaderCallback) {
 	    loader.addModule({
 	        name: pathFromRootContext, //module name; must be unique
 	        type: type,
-	        fullpath: "../../../../"+pathFromRootContext, //can use a fullpath instead
+	        fullpath: pathFromRootContext, //can use a fullpath instead
 	        varName: verifiedObjectName //replaces the verifier function in 2.4.0 - ignored if css
 	    });
 		//include the new script

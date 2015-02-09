@@ -14,27 +14,26 @@ package com.amalto.core.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.log4j.Logger;
-
-// TODO AM I still needed ????
+// TODO Move to EE
 public class LoginModuleDelegator implements LoginModule {
 
     public static final String PROPERTY_DELEGATE_MODULE = "delegateModule"; //$NON-NLS-1$
 
-    private static final Logger LOG = Logger.getLogger(LoginModuleDelegator.class);
+    private static final Logger LOGGER = Logger.getLogger(LoginModuleDelegator.class.getName());
 
     private static ClassLoader delegateClassLoader;
 
     private LoginModule delegateLoginModule = null;
 
     public static void setDelegateClassLoader(ClassLoader classLoader) {
-        LOG.info("Initializing delegate LoginModule classloader.."); //$NON-NLS-1$
+        LOGGER.info("Initializing delegate LoginModule classloader.."); //$NON-NLS-1$
         delegateClassLoader = classLoader;
     }
 

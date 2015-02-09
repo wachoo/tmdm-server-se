@@ -69,6 +69,7 @@
                                 <exclude>com/amalto/core/delegator/impl/DefaultXtentisWSDelegator.class</exclude>
                                 <exclude>com/amalto/core/delegator/impl/DefaultLocalUserDelegator.class</exclude>
                                 <exclude>com/amalto/core/server/ServerAccessImpl*.class</exclude>
+                                <exclude>com/amalto/core/util/LoginModuleDelegator.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -87,6 +88,18 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>jar-jaas</id>                        
+                        <configuration>
+                            <classifier>jaas</classifier>
+                            <includes>
+                                <include>com/amalto/core/util/LoginModuleDelegator.class</include>
+                            </includes>
+                        </configuration>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>                        
                     </execution>
                 </executions>
             </plugin>
