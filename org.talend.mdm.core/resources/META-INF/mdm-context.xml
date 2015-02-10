@@ -107,6 +107,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
                 <ref bean="jaasAuthenticationProvider" />
             </list>
         </property>
+        <property name="eraseCredentialsAfterAuthentication" value="false" />
     </bean>
 
     <security:http auto-config="false" pattern="/services/**" create-session="never" entry-point-ref="basicAuthenticationEntryPoint"

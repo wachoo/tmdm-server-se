@@ -83,7 +83,6 @@ public abstract class ILocalUser implements IBeanDelegator {
     }
 
     public String getPassword() {
-        //TODO this method returns null (see AuthenticationManagerBuilder#eraseCredentials)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object credentials = authentication.getCredentials();
         return (String)credentials;
