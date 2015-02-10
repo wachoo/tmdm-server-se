@@ -88,7 +88,6 @@ public class Util {
     private static ScriptEngineManager SCRIPTFACTORY;
 
     static {
-        LoginModuleDelegator.setDelegateClassLoader(Util.class.getClassLoader());
         SCRIPTFACTORY = new ScriptEngineManager();
     }
 
