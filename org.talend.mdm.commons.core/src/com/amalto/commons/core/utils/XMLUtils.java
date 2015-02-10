@@ -58,8 +58,6 @@ public final class XMLUtils {
 		SAXErrorHandler seh = new SAXErrorHandler();
 
         //initialize the sax parser which uses Xerces
-    	System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
-    			"org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
     	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     	//Schema validation based on schemaURL
     	factory.setNamespaceAware(true);

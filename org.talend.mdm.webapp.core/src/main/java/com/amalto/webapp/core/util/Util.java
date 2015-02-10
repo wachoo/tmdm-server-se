@@ -462,7 +462,6 @@ public abstract class Util {
         SAXErrorHandler seh = new SAXErrorHandler();
         try {
             // initialize the sax parser which uses Xerces
-            System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"); //$NON-NLS-1$ //$NON-NLS-2$
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             // Schema validation based on schemaURL
             factory.setNamespaceAware(true);
