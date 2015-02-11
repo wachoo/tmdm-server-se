@@ -68,8 +68,6 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     private static final String FAILED_ROUTING_ORDER = "failed-routing-order-v2-pOJO"; //$NON-NLS-1$
 
-    private static final String ACTIVE_ROUTING_ORDER = "active-routing-order-v2-pOJO"; //$NON-NLS-1$
-
     private static final String SYNCHRONIZATION_OBJECT_TYPE = "synchronization-object-pOJO"; //$NON-NLS-1$
 
     private static final String PROVISIONING_PREFIX_INFO = "PROVISIONING.User."; //$NON-NLS-1$
@@ -385,14 +383,13 @@ public class SystemStorageWrapper extends StorageWrapper {
                 documentUniqueId = uniqueID;
             }
             qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueId));
-        } else if (COMPLETED_ROUTING_ORDER.equals(type.getName()) || FAILED_ROUTING_ORDER.equals(type.getName())
-                || ACTIVE_ROUTING_ORDER.equals(type.getName())) {
+        } else if (COMPLETED_ROUTING_ORDER.equals(type.getName()) || FAILED_ROUTING_ORDER.equals(type.getName())) {
             isUserFormat = false;
             qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
         } else {
             // TMDM-5513 custom form layout pk contains double dot .. to split, but it's a system definition object
             // like this Product..Product..product_layout
-            isUserFormat = !uniqueID.contains("") && uniqueID.indexOf('.') > 0;
+            isUserFormat = !uniqueID.contains("..") && uniqueID.indexOf('.') > 0; //$NON-NLS-1$
             String documentUniqueId = uniqueID;
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 documentUniqueId = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
@@ -467,7 +464,7 @@ public class SystemStorageWrapper extends StorageWrapper {
             uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
         } else if (!COMPLETED_ROUTING_ORDER.equals(type.getName()) && !FAILED_ROUTING_ORDER.equals(type.getName())
-                && !ACTIVE_ROUTING_ORDER.equals(type.getName()) && !CUSTOM_FORM_TYPE.equals(type.getName())
+                && !CUSTOM_FORM_TYPE.equals(type.getName())
                 && !SYNCHRONIZATION_OBJECT_TYPE.equals(type.getName())) {
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 uniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
