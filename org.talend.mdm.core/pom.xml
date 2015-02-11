@@ -69,6 +69,8 @@
                                 <exclude>com/amalto/core/delegator/impl/DefaultXtentisWSDelegator.class</exclude>
                                 <exclude>com/amalto/core/delegator/impl/DefaultLocalUserDelegator.class</exclude>
                                 <exclude>com/amalto/core/server/ServerAccessImpl*.class</exclude>
+                                <exclude>com/amalto/core/server/security/MDMPrincipal.class</exclude>
+                                <exclude>com/amalto/core/server/security/jaas/LoginModuleDelegator.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -82,6 +84,19 @@
                                 <include>com/amalto/core/delegator/impl/DefaultXtentisWSDelegator.class</include>
                                 <include>com/amalto/core/delegator/impl/DefaultLocalUserDelegator.class</include>
                                 <include>com/amalto/core/server/ServerAccessImpl*.class</include>
+                            </includes>
+                        </configuration>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jar-jaas</id>
+                        <configuration>
+                            <classifier>jaas</classifier>
+                            <includes>
+                                <include>com/amalto/core/server/security/MDMPrincipal.class</include>
+                                <include>com/amalto/core/server/security/jaas/LoginModuleDelegator.class</include>
                             </includes>
                         </configuration>
                         <goals>
