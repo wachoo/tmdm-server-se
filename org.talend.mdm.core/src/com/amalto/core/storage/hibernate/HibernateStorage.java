@@ -288,6 +288,33 @@ public class HibernateStorage implements Storage {
                                 }
                                 continue; // Don't take into indexed fields long text fields
                             }
+                            // Database specific behaviors
+                            switch (dataSource.getDialectName()) {
+                                case ORACLE_10G:
+                                    // TMDM-7701: Skip index on Oracle when field part of inheritance tree
+                                    ComplexTypeMetadata indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
+                                    if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
+                                        LOGGER.warn("Skip index field '" + indexedField.getPath() + "' of type '" + indexedField.getEntityTypeName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                        continue;
+                                    }
+                                    break;
+                                case SQL_SERVER:
+                                    // TMDM-8144: Don't index field name on SQL Server when size > 900
+                                    Integer maxLength = indexedField.getData(MetadataRepository.DATA_MAX_LENGTH);
+                                    if (maxLength != null) {
+                                        if (maxLength > 900) {
+                                            LOGGER.warn("Skip index on field '" + indexedField.getPath() + "' (too long value).");
+                                            continue;
+                                        }
+                                    }
+                                    break;
+                                case H2:
+                                case MYSQL:
+                                case POSTGRES:                                
+                                default:
+                                    // Nothing to do for these databases
+                                    break;
+                            }
                             databaseIndexedFields.add(databaseField);
                             if (!databaseField.getContainingType().isInstantiable()) {
                                 Collection<ComplexTypeMetadata> roots = RecommendedIndexes.getRoots(optimizedExpression);
@@ -319,7 +346,7 @@ public class HibernateStorage implements Storage {
                             databaseIndexedFields.add(database.getField(METADATA_STAGING_BLOCK_KEY));
                         }
                     }
-                    break;
+                    break;       
                 case SYSTEM: // Nothing to index on SYSTEM
                     break;
             }
