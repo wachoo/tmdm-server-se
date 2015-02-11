@@ -26,10 +26,11 @@ import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public class TransactionTest extends TestCase {
-
+    
     private TransactionManager manager;
 
     @Override
@@ -96,6 +97,37 @@ public class TransactionTest extends TestCase {
         manager.dissociate(transaction);
         assertFalse(manager.hasTransaction());
     }
+    
+    public void testMultiThreadAssociate() throws Exception {
+        manager = new MDMTransactionManager();
+        final Transaction transaction = manager.create(Transaction.Lifetime.LONG);
+        Set<Thread> threads = new HashSet<Thread>(5);
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 10; i++) {
+                    manager.associate(transaction);
+                    assertEquals(1, MDMTransactionManager.getCurrenttransactions().size());
+                }
+            }
+        };
+        
+        for (int i = 0; i < 4; i++) {
+            threads.add(new Thread(r));
+        }
+
+        for (Thread thread : threads) {
+            thread.start();
+        }
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     public void testGet() throws Exception {
         Transaction transaction = manager.create(Transaction.Lifetime.AD_HOC);
@@ -128,7 +160,7 @@ public class TransactionTest extends TestCase {
         Storage storage = new MockStorage(true);
         transaction.include(storage);
         storage.commit();
-        assertNull(manager.get(transaction.getId()));
+        assertNotNull(manager.get(transaction.getId()));
 
         transaction.commit(); // Useless but should not fail anyway.
     }
