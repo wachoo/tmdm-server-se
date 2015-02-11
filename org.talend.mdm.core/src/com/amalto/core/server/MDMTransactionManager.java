@@ -159,17 +159,7 @@ public class MDMTransactionManager implements TransactionManager {
             throw new IllegalArgumentException("Transaction cannot be null.");
         }
         synchronized (currentTransactions) {
-            Boolean isNewTransaction = true;            
-            for (Iterator<Thread> it = currentTransactions.keySet().iterator(); it.hasNext();) {
-                Thread thread = it.next();
-                if (transaction.getId().equals(currentTransactions.get(thread).getId())) {
-                    isNewTransaction = false;
-                    break;
-                }
-            }
-            if(isNewTransaction){
-                currentTransactions.put(Thread.currentThread(), transaction);
-            }
+            currentTransactions.put(Thread.currentThread(), transaction);
         }
         return transaction;
     }
@@ -189,9 +179,5 @@ public class MDMTransactionManager implements TransactionManager {
     @Override
     public boolean hasTransaction() {
         return currentTransactions.get(Thread.currentThread()) != null;
-    }
-    
-    public static Map<Thread, Transaction> getCurrenttransactions() {
-        return currentTransactions;
     }
 }
