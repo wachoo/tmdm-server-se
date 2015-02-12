@@ -110,14 +110,18 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
         <property name="eraseCredentialsAfterAuthentication" value="false" />
     </bean>
 
+    <security:http auto-config="false" pattern="/services/soap*" create-session="never" entry-point-ref="basicAuthenticationEntryPoint"
+        authentication-manager-ref="authenticationManager" use-expressions="true" request-matcher="regex">
+        <security:intercept-url pattern="/services/soap*" requires-channel="any" access="hasRole('authenticated')" />
+        <security:intercept-url pattern="/services/soap\\?wsdl" requires-channel="any" access="permitAll" />
+    </security:http>
+ 
     <security:http auto-config="false" pattern="/services/**" create-session="never" entry-point-ref="basicAuthenticationEntryPoint"
         authentication-manager-ref="authenticationManager" use-expressions="true">
         <security:intercept-url pattern="/services/rest/**" requires-channel="any" access="hasRole('authenticated')" />
-        <security:intercept-url pattern="/services/soap/**" requires-channel="any" access="hasRole('authenticated')" />
         <security:intercept-url pattern="/services/bulkload/**" requires-channel="any" access="hasRole('authenticated')" />
         <security:intercept-url pattern="/services/dsctaskloader/**" requires-channel="any"
             access="hasRole('authenticated')" />
-
         <security:intercept-url pattern="/services/run/**" requires-channel="any" access="hasRole('administration')" />
         <security:intercept-url pattern="/services/logviewer/**" requires-channel="any"
             access="hasRole('administration')" />
