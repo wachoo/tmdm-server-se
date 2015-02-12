@@ -1,23 +1,14 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +17,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
 class StorageTableResolver implements TableResolver {
 
@@ -46,10 +45,6 @@ class StorageTableResolver implements TableResolver {
     private final AtomicInteger fkIncrement = new AtomicInteger();
 
     private final Set<String> referenceFieldNames = new HashSet<String>();
-
-    public StorageTableResolver(Set<FieldMetadata> indexedFields) {
-        this(indexedFields, Integer.MAX_VALUE);
-    }
 
     public StorageTableResolver(Set<FieldMetadata> indexedFields, int maxLength) {
         this.indexedFields = indexedFields;
@@ -85,6 +80,7 @@ class StorageTableResolver implements TableResolver {
         }
     }
 
+    @Override
     public String get(ComplexTypeMetadata type) {
         String tableName = formatSQLName(type.getName().replace('-', '_'));
         if (!type.isInstantiable() && !tableName.startsWith(STANDARD_PREFIX)) {
@@ -93,6 +89,7 @@ class StorageTableResolver implements TableResolver {
         return formatSQLName(tableName.replace('-', '_'));
     }
 
+    @Override
     public String get(FieldMetadata field) {
         return get(field, StringUtils.EMPTY);
     }
@@ -112,6 +109,7 @@ class StorageTableResolver implements TableResolver {
         return formattedName.toLowerCase();
     }
 
+    @Override
     public boolean isIndexed(FieldMetadata field) {
         return indexedFields.contains(field);
     }
@@ -125,8 +123,7 @@ class StorageTableResolver implements TableResolver {
     public String getCollectionTable(FieldMetadata field) {
         if (field instanceof ReferenceFieldMetadata) {
             ReferenceFieldMetadata referenceField = (ReferenceFieldMetadata) field;
-            return formatSQLName(referenceField.getContainingType().getName() + '_'
-                    + referenceField.getName() + '_'
+            return formatSQLName(referenceField.getContainingType().getName() + '_' + referenceField.getName() + '_'
                     + referenceField.getReferencedType().getName());
         }
         return formatSQLName(get(field.getContainingType()) + '_' + field.getName());
@@ -146,8 +143,8 @@ class StorageTableResolver implements TableResolver {
 
     /**
      * <p>
-     * Short a string so it doesn't exceed <code>maxLength</code> length. Consecutive calls to this method with same input
-     * always return the same value.
+     * Short a string so it doesn't exceed <code>maxLength</code> length. Consecutive calls to this method with same
+     * input always return the same value.
      * </p>
      * <p>
      * This method also makes sure the SQL name is not a reserved SQL key word.
@@ -155,9 +152,10 @@ class StorageTableResolver implements TableResolver {
      * <p>
      * Additionally, this method will replace all '-' characters by '_' in the returned string.
      * </p>
-     *
+     * 
      * @param s A non null string.
-     * @return <code>null</code> if <code>s</code> is null, a shorten string so it doesn't exceed <code>maxLength</code>.
+     * @return <code>null</code> if <code>s</code> is null, a shorten string so it doesn't exceed <code>maxLength</code>
+     * .
      */
     protected String formatSQLName(String s) {
         if (maxLength < 1) {
@@ -184,7 +182,7 @@ class StorageTableResolver implements TableResolver {
         while (shortString.length() > maxLength) {
             shortString = __shortString(shortString.toCharArray(), maxLength);
         }
-        
+
         return shortString;
     }
 
@@ -193,8 +191,14 @@ class StorageTableResolver implements TableResolver {
         if (chars.length < threshold) {
             return new String(chars).replace('-', '_');
         } else {
-            String s = new String(ArrayUtils.subarray(chars, 0, threshold / 2)) + new String(ArrayUtils.subarray(chars, threshold / 2, chars.length)).hashCode();
+            String s = new String(ArrayUtils.subarray(chars, 0, threshold / 2))
+                    + new String(ArrayUtils.subarray(chars, threshold / 2, chars.length)).hashCode();
             return __shortString(s.toCharArray(), threshold);
         }
+    }
+
+    @Override
+    public String get(String name) {
+        return formatSQLName(name);
     }
 }

@@ -1,22 +1,29 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.datasource;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 public class RDBMSDataSource implements DataSource {
 
+    private static final Logger LOGGER = Logger.getLogger(RDBMSDataSource.class);
+
+    private int nameMaxLength;
+
     public static enum ContainsOptimization {
-        FULL_TEXT, LIKE, DISABLED
+        FULL_TEXT,
+        LIKE,
+        DISABLED
     }
 
     public static enum DataSourceDialect {
@@ -44,7 +51,9 @@ public class RDBMSDataSource implements DataSource {
     }
 
     public static enum SchemaGeneration {
-        CREATE, VALIDATE, UPDATE
+        CREATE,
+        VALIDATE,
+        UPDATE
     }
 
     private final boolean generateTechnicalFK;
@@ -87,6 +96,8 @@ public class RDBMSDataSource implements DataSource {
 
     private boolean isShared;
 
+    private final int DEFAULT_LIMITED_MAX_LENGTH = 255;
+
     public RDBMSDataSource(RDBMSDataSource dataSource) {
         caseSensitiveSearch = dataSource.caseSensitiveSearch;
         name = dataSource.name;
@@ -107,27 +118,14 @@ public class RDBMSDataSource implements DataSource {
         connectionPoolMaxSize = dataSource.connectionPoolMaxSize;
         containsOptimization = dataSource.containsOptimization;
         generateTechnicalFK = dataSource.generateTechnicalFK;
+        defineMaxNamedLength();
     }
 
-    public RDBMSDataSource(String name,
-                           String dialectName,
-                           String driverClassName,
-                           String userName,
-                           String password,
-                           int connectionPoolMinSize,
-                           int connectionPoolMaxSize,
-                           String indexDirectory,
-                           String cacheDirectory,
-                           Boolean caseSensitiveSearch,
-                           String schemaGeneration,
-                           Boolean generateTechnicalFK,
-                           Map<String, String> advancedProperties,
-                           String connectionURL,
-                           String databaseName,
-                           ContainsOptimization containsOptimization,
-                           String initPassword,
-                           String initUserName,
-                           String initConnectionURL) {
+    public RDBMSDataSource(String name, String dialectName, String driverClassName, String userName, String password,
+            int connectionPoolMinSize, int connectionPoolMaxSize, String indexDirectory, String cacheDirectory,
+            Boolean caseSensitiveSearch, String schemaGeneration, Boolean generateTechnicalFK,
+            Map<String, String> advancedProperties, String connectionURL, String databaseName,
+            ContainsOptimization containsOptimization, String initPassword, String initUserName, String initConnectionURL) {
         if ("MySQL".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.MYSQL;
         } else if ("H2".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
@@ -171,6 +169,7 @@ public class RDBMSDataSource implements DataSource {
         this.advancedProperties = advancedProperties;
         this.containsOptimization = containsOptimization;
         this.generateTechnicalFK = generateTechnicalFK;
+        defineMaxNamedLength();
     }
 
     public boolean generateTechnicalFK() {
@@ -282,40 +281,139 @@ public class RDBMSDataSource implements DataSource {
         return advancedProperties;
     }
 
+    /**
+     * Getter for nameMaxLength.
+     * 
+     * @return the nameMaxLength
+     */
+    public int getNameMaxLength() {
+        return this.nameMaxLength;
+    }
+
+    /**
+     * Sets the nameMaxLength.
+     * 
+     * @param nameMaxLength the nameMaxLength to set
+     */
+    public void setNameMaxLength(int nameMaxLength) {
+        this.nameMaxLength = nameMaxLength;
+    }
+
+    private void defineMaxNamedLength() {
+        switch (getDialectName()) {
+        case ORACLE_10G:
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
+            }
+            nameMaxLength = 30;
+            break;
+        case MYSQL:
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("MySQL database is being used. Limit table name length to 64.");
+            }
+            nameMaxLength = 64;
+            break;
+        case SQL_SERVER:
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("SQL Server database is being used. Limit table name length to 128.");
+            }
+            nameMaxLength = 128;
+            break;
+        case POSTGRES:
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Postgres database is being used. Limit table name length to 63.");
+            }
+            nameMaxLength = 63;
+            break;
+        case DB2:
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("DB2 database is being used. Limit table name length to 30.");
+            }
+            nameMaxLength = 30;
+            break;
+        case H2:
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("No limitation for table name length.");
+            }
+            nameMaxLength = Integer.MAX_VALUE;
+            break;
+        default:
+            throw new IllegalArgumentException("Not supported: " + getDialectName());
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RDBMSDataSource)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RDBMSDataSource)) {
+            return false;
+        }
 
         RDBMSDataSource that = (RDBMSDataSource) o;
 
-        if (connectionPoolMaxSize != that.connectionPoolMaxSize) return false;
-        if (connectionPoolMinSize != that.connectionPoolMinSize) return false;
-        if (generateTechnicalFK != that.generateTechnicalFK) return false;
-        if (isShared != that.isShared) return false;
-        if (advancedProperties != null ? !advancedProperties.equals(that.advancedProperties) : that.advancedProperties != null)
+        if (connectionPoolMaxSize != that.connectionPoolMaxSize) {
             return false;
-        if (cacheDirectory != null ? !cacheDirectory.equals(that.cacheDirectory) : that.cacheDirectory != null)
+        }
+        if (connectionPoolMinSize != that.connectionPoolMinSize) {
             return false;
-        if (caseSensitiveSearch != null ? !caseSensitiveSearch.equals(that.caseSensitiveSearch) : that.caseSensitiveSearch != null)
+        }
+        if (generateTechnicalFK != that.generateTechnicalFK) {
             return false;
-        if (connectionURL != null ? !connectionURL.equals(that.connectionURL) : that.connectionURL != null)
+        }
+        if (isShared != that.isShared) {
             return false;
-        if (containsOptimization != that.containsOptimization) return false;
-        if (databaseName != null ? !databaseName.equals(that.databaseName) : that.databaseName != null) return false;
-        if (dialect != that.dialect) return false;
-        if (driverClassName != null ? !driverClassName.equals(that.driverClassName) : that.driverClassName != null)
+        }
+        if (advancedProperties != null ? !advancedProperties.equals(that.advancedProperties) : that.advancedProperties != null) {
             return false;
-        if (indexDirectory != null ? !indexDirectory.equals(that.indexDirectory) : that.indexDirectory != null)
+        }
+        if (cacheDirectory != null ? !cacheDirectory.equals(that.cacheDirectory) : that.cacheDirectory != null) {
             return false;
-        if (initConnectionURL != null ? !initConnectionURL.equals(that.initConnectionURL) : that.initConnectionURL != null)
+        }
+        if (caseSensitiveSearch != null ? !caseSensitiveSearch.equals(that.caseSensitiveSearch)
+                : that.caseSensitiveSearch != null) {
             return false;
-        if (initPassword != null ? !initPassword.equals(that.initPassword) : that.initPassword != null) return false;
-        if (initUserName != null ? !initUserName.equals(that.initUserName) : that.initUserName != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (schemaGeneration != that.schemaGeneration) return false;
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) return false;
+        }
+        if (connectionURL != null ? !connectionURL.equals(that.connectionURL) : that.connectionURL != null) {
+            return false;
+        }
+        if (containsOptimization != that.containsOptimization) {
+            return false;
+        }
+        if (databaseName != null ? !databaseName.equals(that.databaseName) : that.databaseName != null) {
+            return false;
+        }
+        if (dialect != that.dialect) {
+            return false;
+        }
+        if (driverClassName != null ? !driverClassName.equals(that.driverClassName) : that.driverClassName != null) {
+            return false;
+        }
+        if (indexDirectory != null ? !indexDirectory.equals(that.indexDirectory) : that.indexDirectory != null) {
+            return false;
+        }
+        if (initConnectionURL != null ? !initConnectionURL.equals(that.initConnectionURL) : that.initConnectionURL != null) {
+            return false;
+        }
+        if (initPassword != null ? !initPassword.equals(that.initPassword) : that.initPassword != null) {
+            return false;
+        }
+        if (initUserName != null ? !initUserName.equals(that.initUserName) : that.initUserName != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (password != null ? !password.equals(that.password) : that.password != null) {
+            return false;
+        }
+        if (schemaGeneration != that.schemaGeneration) {
+            return false;
+        }
+        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+            return false;
+        }
 
         return true;
     }

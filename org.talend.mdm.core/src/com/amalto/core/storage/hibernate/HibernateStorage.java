@@ -38,7 +38,6 @@ import java.util.WeakHashMap;
 
 import net.sf.ehcache.CacheManager;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
@@ -296,38 +295,26 @@ public class HibernateStorage implements Storage {
                     name = getObjectNameNormalizer().normalizeIdentifierQuoting(name);
                     schema = getObjectNameNormalizer().normalizeIdentifierQuoting(schema);
                     catalog = getObjectNameNormalizer().normalizeIdentifierQuoting(catalog);
-
                     String key = subselect == null ? Table.qualify(catalog, schema, name) : subselect;
                     if (tables.containsKey(key)) {
-                        throw new DuplicateMappingException("table", name);
+                        throw new DuplicateMappingException("table", name); //$NON-NLS-1$
                     }
 
                     Table table = new DenormalizedTable(includedTable) {
 
                         @Override
                         public Iterator getIndexIterator() {
-                            List indexes = new ArrayList();
-                            Iterator IndexIterator = super.getIndexIterator();
+                            List<Index> indexes = new ArrayList<Index>();
+                            Iterator<Index> IndexIterator = super.getIndexIterator();
                             while (IndexIterator.hasNext()) {
-                                Index parentIndex = (Index) IndexIterator.next();
+                                Index parentIndex = IndexIterator.next();
                                 Index index = new Index();
-                                index.setName(_shortString(parentIndex.getName().toCharArray(), parentIndex.getName().length()
-                                        - getName().length()));
+                                index.setName(tableResolver.get(parentIndex.getName()));
                                 index.setTable(this);
                                 index.addColumns(parentIndex.getColumnIterator());
                                 indexes.add(index);
                             }
                             return indexes.iterator();
-                        }
-
-                        private String _shortString(char[] chars, int threshold) {
-                            if (chars.length < threshold) {
-                                return new String(chars).replace('-', '_');
-                            } else {
-                                String s = new String(ArrayUtils.subarray(chars, 0, threshold / 2))
-                                        + new String(ArrayUtils.subarray(chars, threshold / 2, chars.length)).hashCode();
-                                return _shortString(s.toCharArray(), threshold);
-                            }
                         }
                     };
                     table.setAbstract(isAbstract);
@@ -338,7 +325,6 @@ public class HibernateStorage implements Storage {
                     tables.put(key, table);
                     return table;
                 }
-
             }
         };
         // Setting our own entity resolver allows to ensure the DTD found/used are what we expect (and not potentially
@@ -527,47 +513,7 @@ public class HibernateStorage implements Storage {
                     }
                 }
             }
-            // Set table/column name length limitation
-            switch (dataSource.getDialectName()) {
-            case ORACLE_10G:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
-                }
-                tableResolver = new OracleStorageTableResolver(databaseIndexedFields, 30);
-                break;
-            case MYSQL:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("MySQL database is being used. Limit table name length to 64.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 64);
-                break;
-            case SQL_SERVER:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("SQL Server database is being used. Limit table name length to 128.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 128);
-                break;
-            case POSTGRES:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Postgres database is being used. Limit table name length to 63.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 63);
-                break;
-            case DB2:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("DB2 database is being used. Limit table name length to 30.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
-                break;
-            case H2:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("No limitation for table name length.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields);
-                break;
-            default:
-                throw new IllegalArgumentException("Not supported: " + dataSource.getDialectName());
-            }
+            tableResolver = new StorageTableResolver(databaseIndexedFields, dataSource.getNameMaxLength());
             storageClassLoader.setTableResolver(tableResolver);
             // Master, Staging and System share same class creator.
             switch (storageType) {
