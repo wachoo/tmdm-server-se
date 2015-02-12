@@ -123,6 +123,18 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-java2ws-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-wsdl</id>
+                        <configuration>
+                            <className>com.amalto.core.webservice.XtentisWSBean</className>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
