@@ -112,7 +112,7 @@ public abstract class Util {
 
     /**
      * Join an array of strings into a single string using a separator
-     *
+     * 
      * @return a single string or null
      */
     public static String joinStrings(String[] strings, String separator) {
@@ -129,7 +129,7 @@ public abstract class Util {
 
     /**
      * Returns the first part - eg. the concept - from the path
-     *
+     * 
      * @return the Concept Name
      */
     public static String getConceptFromPath(String path) {
@@ -244,15 +244,14 @@ public abstract class Util {
             WSWhereItem item = conditions.get(i);
             conds.add(item);
             if (i < conditions.size() - 1) {
-                String predicate = item.getWhereCondition().getStringPredicate().getValue();
-                if (WSStringPredicate.NOT.getValue().equals(predicate)) {
-                    predicate = WSStringPredicate.AND.getValue();
-                } else if (WSStringPredicate.EXACTLY.getValue().equals(predicate)) {
-                    predicate = WSStringPredicate.AND.getValue();
-                } else if (WSStringPredicate.STRICTAND.getValue().equals(predicate)) {
-                    predicate = WSStringPredicate.AND.getValue();
-                } else if (WSStringPredicate.NONE.getValue().equals(predicate)) {
-                    predicate = WSStringPredicate.AND.getValue();
+                WSStringPredicate predicate = item.getWhereCondition().getStringPredicate();
+                switch (predicate) {
+                case NOT:
+                case EXACTLY:
+                case STRICTAND:
+                case NONE:
+                    predicate = WSStringPredicate.AND;
+                    break;
                 }
                 conds.add(predicate);
             }
@@ -277,13 +276,13 @@ public abstract class Util {
         for (Object o : rpn) {
             if (o instanceof WSWhereItem) {
                 whereStack.push((WSWhereItem) o);
-            } else if (o instanceof String) {
-                if (WSStringPredicate.OR.getValue().equals(o)) {
+            } else if (o instanceof WSStringPredicate) {
+                if (WSStringPredicate.OR.equals(o)) {
                     WSWhereItem item1 = whereStack.pop();
                     WSWhereItem item2 = whereStack.pop();
                     WSWhereOr or = new WSWhereOr(new WSWhereItem[] { item2, item1 });
                     whereStack.push(new WSWhereItem(null, null, or));
-                } else if (WSStringPredicate.AND.getValue().equals(o)) {
+                } else if (WSStringPredicate.AND.equals(o)) {
                     WSWhereItem item1 = whereStack.pop();
                     WSWhereItem item2 = whereStack.pop();
                     WSWhereAnd and = new WSWhereAnd(new WSWhereItem[] { item2, item1 });
@@ -583,32 +582,7 @@ public abstract class Util {
      * @return gives the operator associated to the string 'option'
      */
     public static WSWhereOperator getOperator(String option) {
-        WSWhereOperator res = null;
-        if (option.equalsIgnoreCase(WSWhereOperator._CONTAINS)) {
-            res = WSWhereOperator.CONTAINS;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._EQUALS)) {
-            res = WSWhereOperator.EQUALS;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._GREATER_THAN)) {
-            res = WSWhereOperator.GREATER_THAN;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._GREATER_THAN_OR_EQUAL)) {
-            res = WSWhereOperator.GREATER_THAN_OR_EQUAL;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._JOIN)) {
-            res = WSWhereOperator.JOIN;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._LOWER_THAN)) {
-            res = WSWhereOperator.LOWER_THAN;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._LOWER_THAN_OR_EQUAL)) {
-            res = WSWhereOperator.LOWER_THAN_OR_EQUAL;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._NOT_EQUALS)) {
-            res = WSWhereOperator.NOT_EQUALS;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._STARTSWITH)) {
-            res = WSWhereOperator.STARTSWITH;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._STRICTCONTAINS)) {
-            res = WSWhereOperator.STRICTCONTAINS;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._FULLTEXTSEARCH)) {
-            res = WSWhereOperator.FULLTEXTSEARCH;
-        } else if (option.equalsIgnoreCase(WSWhereOperator._EMPTY_NULL)) {
-            res = WSWhereOperator.EMPTY_NULL;
-        }
+        WSWhereOperator res = WSWhereOperator.valueOf(option);
         return res;
     }
 

@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.server.i18n.BaseMessagesImpl;
 
+import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.core.webservice.WSWhereAnd;
 import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.WSWhereItem;
@@ -146,9 +147,9 @@ public class CommonUtilTest extends TestCase {
             assertNotNull(condition);
 
             assertEquals("MyEntity/id", condition.getLeftPath());
-            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
             assertEquals("(test())", condition.getRightValueOrPath());
-            assertEquals("NONE", condition.getStringPredicate().getValue());
+            assertEquals(WSStringPredicate.NONE, condition.getStringPredicate());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -169,9 +170,9 @@ public class CommonUtilTest extends TestCase {
             assertNotNull(condition);
 
             assertEquals("MyEntity/id", condition.getLeftPath());
-            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
             assertEquals("(test ()", condition.getRightValueOrPath());
-            assertEquals("NONE", condition.getStringPredicate().getValue());
+            assertEquals(WSStringPredicate.NONE, condition.getStringPredicate());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -191,9 +192,9 @@ public class CommonUtilTest extends TestCase {
         assertNotNull(condition);
 
         assertEquals("MyEntity/id", condition.getLeftPath());
-        assertEquals("CONTAINS", condition.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
         assertEquals("test)", condition.getRightValueOrPath());
-        assertEquals("NONE", condition.getStringPredicate().getValue());
+        assertEquals(WSStringPredicate.NONE, condition.getStringPredicate());
     }
 
     public void testBlocks() throws Exception {
@@ -213,9 +214,9 @@ public class CommonUtilTest extends TestCase {
             assertNotNull(condition);
 
             assertEquals("MyEntity/id", condition.getLeftPath());
-            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
             assertEquals("test", condition.getRightValueOrPath());
-            assertEquals("NONE", condition.getStringPredicate().getValue());
+            assertEquals(WSStringPredicate.NONE, condition.getStringPredicate());
         }
         {
             WSWhereItem whereItem = whereAnd.getWhereItems()[1];
@@ -226,9 +227,9 @@ public class CommonUtilTest extends TestCase {
             assertNotNull(condition);
 
             assertEquals("MyEntity/id2", condition.getLeftPath());
-            assertEquals("EQUALS", condition.getOperator().getValue());
+            assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
             assertEquals("1", condition.getRightValueOrPath());
-            assertEquals("NONE", condition.getStringPredicate().getValue());
+            assertEquals(WSStringPredicate.NONE, condition.getStringPredicate());
         }
     }
 
@@ -249,9 +250,9 @@ public class CommonUtilTest extends TestCase {
             assertNotNull(condition);
 
             assertEquals("MyEntity/id", condition.getLeftPath());
-            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
             assertEquals("test())", condition.getRightValueOrPath());
-            assertEquals("NONE", condition.getStringPredicate().getValue());
+            assertEquals(WSStringPredicate.NONE, condition.getStringPredicate());
         }
         {
             WSWhereItem whereItem = whereAnd.getWhereItems()[1];
@@ -262,9 +263,9 @@ public class CommonUtilTest extends TestCase {
             assertNotNull(condition);
 
             assertEquals("MyEntity/id2", condition.getLeftPath());
-            assertEquals("EQUALS", condition.getOperator().getValue());
+            assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
             assertEquals("1", condition.getRightValueOrPath());
-            assertEquals("NONE", condition.getStringPredicate().getValue());
+            assertEquals(WSStringPredicate.NONE, condition.getStringPredicate());
         }
     }
 
@@ -283,9 +284,9 @@ public class CommonUtilTest extends TestCase {
             assertNotNull(condition);
 
             assertEquals("MyEntity/id", condition.getLeftPath());
-            assertEquals("CONTAINS", condition.getOperator().getValue());
+            assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
             // assertEquals("H/F Sundbyvester", condition.getRightValueOrPath());
-            assertEquals("NONE", condition.getStringPredicate().getValue());
+            assertEquals(WSStringPredicate.NONE, condition.getStringPredicate());
         }
     }
 

@@ -101,7 +101,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                         version.getDescription(), version.getDate());
             }
             throw new RemoteException("Version information is not available yet for "
-                    + wsGetComponentVersion.getComponent().getValue() + " components");
+                    + wsGetComponentVersion.getComponent() + " components");
         } catch (RemoteException e) {
             throw (e);
         } catch (Exception e) {
@@ -244,11 +244,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     + "	<xsd:annotation>";
             WSI18NString[] labels = bc.getWsLabel();
             for (WSI18NString label : labels) {
-                s += "<xsd:appinfo source=\"" + label.getLanguage().getValue() + "\">" + label.getLabel() + "</xsd:appinfo>";
+                s += "<xsd:appinfo source=\"" + label.getLanguage() + "\">" + label.getLabel() + "</xsd:appinfo>";
             }
             WSI18NString[] docs = bc.getWsDescription();
             for (WSI18NString doc : docs) {
-                s += "<xsd:documentation xml:lang=\"" + doc.getLanguage().getValue() + "\">" + doc.getLabel()
+                s += "<xsd:documentation xml:lang=\"" + doc.getLanguage() + "\">" + doc.getLabel()
                         + "</xsd:documentation>";
             }
             s += "	</xsd:annotation>" + "	<xsd:unique name=\"" + bc.getName() + "\">" + "		<xsd:selector xpath=\""

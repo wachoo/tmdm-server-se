@@ -78,14 +78,14 @@ public class ForeignKeyHelperTest extends TestCase {
         WSWhereCondition condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd()
                 .getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Name", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition1.getOperator());
         assertEquals("Hats", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         WSWhereItem whereItem2 = whereItem1.getWhereOr().getWhereItems()[1];
         WSWhereCondition condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
                 .getWhereCondition();
         assertEquals("ProductFamily/Id", condition2.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition2.getOperator());
         assertEquals("Hats", condition2.getRightValueOrPath()); //$NON-NLS-1$
 
         // 2. foreignKeyInfo = ProductFamily/Name,ProductFaimly/Description
@@ -103,20 +103,20 @@ public class ForeignKeyHelperTest extends TestCase {
         condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
                 .getWhereCondition();
         assertEquals("ProductFamily/Name", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition1.getOperator());
         assertEquals("Hats", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         whereItem2 = whereItem1.getWhereOr().getWhereItems()[1];
         condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Description", condition2.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition2.getOperator());
         assertEquals("Hats", condition2.getRightValueOrPath()); //$NON-NLS-1$
 
         WSWhereItem whereItem3 = whereItem1.getWhereOr().getWhereItems()[2];
         WSWhereCondition condition3 = whereItem3.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
                 .getWhereCondition();
         assertEquals("ProductFamily/Id", condition3.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition3.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition3.getOperator());
         assertEquals("Hats", condition3.getRightValueOrPath()); //$NON-NLS-1$
 
         // 3. foreignKeyInfo is null
@@ -127,7 +127,7 @@ public class ForeignKeyHelperTest extends TestCase {
         condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
                 .getWhereCondition();
         assertEquals("ProductFamily/../*", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition1.getOperator());
         assertEquals("Hats", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         // 4. foreignKey = ProductFamily, foreignKeyInfo = ProductFamily/Name
@@ -144,13 +144,13 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem1 = whereItem.getWhereOr().getWhereItems()[0];
         condition1 = whereItem1.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Name", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition1.getOperator());
         assertEquals("Hats", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         whereItem2 = whereItem.getWhereOr().getWhereItems()[1];
         condition2 = whereItem2.getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Id", condition2.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition2.getOperator());
         assertEquals("Hats", condition2.getRightValueOrPath()); //$NON-NLS-1$
 
         // 5. ifFKFilter = true,fkFilter = Product/Family$$<$$.$$#,foreignKeyInfo is null,value is null,
@@ -163,7 +163,7 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem = result.whereItem;
         condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Id", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._LOWER_THAN, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.LOWER_THAN, condition1.getOperator());
         assertEquals("3", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         model.setFkFilter("ProductFamily/Id$$<$$.$$And#ProductFamily/Name$$Contains$$../Name$$#");
@@ -172,12 +172,12 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(2, whereItem.getWhereAnd().getWhereItems().length);
         condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Id", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._LOWER_THAN, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.LOWER_THAN, condition1.getOperator());
         assertEquals("3", condition1.getRightValueOrPath()); //$NON-NLS-1$
-        assertEquals(WSStringPredicate._AND, condition1.getStringPredicate().getValue());
+        assertEquals(WSStringPredicate.AND, condition1.getStringPredicate());
         condition2 = whereItem.getWhereAnd().getWhereItems()[1].getWhereCondition();
         assertEquals("ProductFamily/Name", condition2.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition2.getOperator());
         assertEquals("Shirts", condition2.getRightValueOrPath()); //$NON-NLS-1$
 
         // 6. ifFKFilter = true,fkFilter = 'ProductFamily/Name$$Contains$$Product/Name$$#',foreignKeyInfo is null
@@ -190,7 +190,7 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem = result.whereItem;
         condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Name", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition1.getOperator());
         assertEquals("Shirts", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         // 7. FK inheritance: ifFKFilter = true,fkFilter = 'ProductType/Type/@xsi:type$$=$$ProductTypeOne$$#'
@@ -214,7 +214,7 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem = result.whereItem;
         condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductType/Type/@xsi:type", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.EQUALS, condition1.getOperator());
         assertEquals("ProductTypeOne", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         xml = "<Product><id>1</id><Name>Shirts</Name><Family>[3]</Family><Type>type1</Type></Product>";
@@ -224,12 +224,12 @@ public class ForeignKeyHelperTest extends TestCase {
         assertEquals(2, whereItem.getWhereAnd().getWhereItems().length);
         condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductType/Type/@xsi:type", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.EQUALS, condition1.getOperator());
         assertEquals("ProductTypeTwo", condition1.getRightValueOrPath()); //$NON-NLS-1$
-        assertEquals(WSStringPredicate._AND, condition1.getStringPredicate().getValue());
+        assertEquals(WSStringPredicate.AND, condition1.getStringPredicate());
         condition2 = whereItem.getWhereAnd().getWhereItems()[1].getWhereCondition();
         assertEquals("ProductType/Name", condition2.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition2.getOperator());
         assertEquals("Shirts", condition2.getRightValueOrPath()); //$NON-NLS-1$
 
         // 8. ifFKFilter = true,fkFilter = 'CategoryOrga/TypeOrgaFK$$=$$OrganisationOperationnelle/OpOrgType$$#'
@@ -248,7 +248,7 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem = result.whereItem;
         condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("CategoryOrga/TypeOrgaFK", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.EQUALS, condition1.getOperator());
         assertEquals("1", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         // 9. ifFKFilter = true,fkFilter = Product/Family$$=$$"[3]"$$#,foreignKeyInfo is null,value is null,
@@ -261,7 +261,7 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem = result.whereItem;
         condition1 = whereItem.getWhereAnd().getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Id", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._EQUALS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.EQUALS, condition1.getOperator());
         assertEquals("3", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         // 10. ifFKFilter = true,fkFilter = $CFFP:Id="[3]" and Name=Product/Name,foreignKeyInfo is null,value is null,
@@ -290,7 +290,7 @@ public class ForeignKeyHelperTest extends TestCase {
                 .getWhereCondition();
         assertTrue(MDMConfiguration.isSqlDataBase());
         assertEquals("ProductFamily/../*", condition1.getLeftPath());
-        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition1.getOperator());
         assertEquals("1", condition1.getRightValueOrPath());
 
     }
@@ -354,13 +354,13 @@ public class ForeignKeyHelperTest extends TestCase {
         WSWhereCondition condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd()
                 .getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Name", condition1.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition1.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition1.getOperator());
         assertEquals("Id", condition1.getRightValueOrPath()); //$NON-NLS-1$
 
         WSWhereCondition condition2 = whereItem1.getWhereOr().getWhereItems()[1].getWhereAnd().getWhereItems()[0].getWhereAnd()
                 .getWhereItems()[0].getWhereCondition();
         assertEquals("ProductFamily/Id", condition2.getLeftPath()); //$NON-NLS-1$
-        assertEquals(WSWhereOperator._CONTAINS, condition2.getOperator().getValue());
+        assertEquals(WSWhereOperator.CONTAINS, condition2.getOperator());
         assertEquals("Id", condition2.getRightValueOrPath()); //$NON-NLS-1$
     }
 
