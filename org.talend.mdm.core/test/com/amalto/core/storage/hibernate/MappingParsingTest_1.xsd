@@ -1,0 +1,1581 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">  
+  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>  
+  <xsd:simpleType name="AUTO_INCREMENT"> 
+    <xsd:restriction base="xsd:string"/> 
+  </xsd:simpleType>  
+  <xsd:element name="OccupationGroup"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdOccupationGroup" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="OGName" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="OccupationGroup"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdOccupationGroup"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="Party" type="PartyType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Party"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdParty"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType abstract="true" name="PartyType"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="IdParty" type="AUTO_INCREMENT"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="1" name="PartyType" type="EnumPartyType"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="1" name="SixtID" type="xsd:integer"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:sequence> 
+  </xsd:complexType>  
+  <xsd:element name="Organisation" type="OrganisationType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Organisation"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdParty"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType abstract="false" name="OrganisationType"> 
+    <xsd:complexContent> 
+      <xsd:extension base="PartyType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="Firma" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="LegalForm" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="HregNo" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="FoundedPlace" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <!--xsd:element maxOccurs="1" minOccurs="0" name="FoundedDate" type="xsd:date"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element-->  
+          <xsd:element maxOccurs="1" minOccurs="0" name="HregCode" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="HregPlace" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="CostCenter" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Industry" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Fir" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="ParentOrganisationFk" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_ForeignKey">Organisation</xsd:appinfo>  
+              <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Insolvent" type="xsd:integer"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="GenericLabel" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Remark" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="FoundedDate" type="xsd:date"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:element name="Country"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdCountry" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="CountryName" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="CountryCode" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="CountryDialPrefix" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Country"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdCountry"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="Bank" type="BankType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Bank"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdParty"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="OrgaMeshChars"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdOrgaMeshChars" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="Attribute" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="ValueString" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="ValueNum" type="xsd:double"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="OrgaMeshChars"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdOrgaMeshChars"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="OrgaMesh"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdOrgaMesh" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="FromOrgaFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Organisation</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="ToOrgaFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Organisation</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="OrgaMesh"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdOrgaMesh"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="Person" type="PersonType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Person"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdParty"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="PersonType"> 
+    <xsd:complexContent> 
+      <xsd:extension base="PartyType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="NameFk" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_ForeignKey">Name</xsd:appinfo>  
+              <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Birthday" type="xsd:date"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="BirthPlace" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="BirthCountry" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Gender" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="BirthName" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Nationality" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="MaritalStatus" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Children" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Skills" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:element name="Name"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdName" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="AcademicTitle" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="FirstName" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="MiddleName" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="LastName" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="NobilityTitle" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="FurtherTitle" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="Salutation" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="PersonFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Person</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Name"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdName"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="InterPersonRelationship"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdInterPersonRelationship" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="fromPersonFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Person</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="toPersonFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Person</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="InterPersonRelType" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="InterPersRelAttr" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="InterPersonRelationship"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdInterPersonRelationship"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="OccupationGrouping"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdOccupationGrouping" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="DescribePersonFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Person</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="WorksInOccupationGroupFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">OccupationGroup</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="OccupationGrouping"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdOccupationGrouping"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="Employment"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdEmployment" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="EmploysPersonFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Person</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="EmployedByOrganisationFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Organisation</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="Description" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="EnterpriseFunction" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="InternalName" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="PersonnelNumber" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Employment"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdEmployment"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="RelMgmt"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdRelMgmt" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="RelManagedByPersonFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Person</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="IsLookedAfterOrganisationFk" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">Organisation</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="RelMgmtType" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="RelMgmt"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdRelMgmt"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="BankType"> 
+    <xsd:complexContent> 
+      <xsd:extension base="OrganisationType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="CountryID" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_ForeignKey">Country</xsd:appinfo>  
+              <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="BLZ" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="BIC" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:element name="XRef"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:sequence> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdCxRef" type="AUTO_INCREMENT"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="Entity" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="MDMKey" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="ExternalReferences"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo>  
+            <xsd:appinfo source="X_AutoExpand">true</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:complexType> 
+            <xsd:sequence> 
+              <xsd:element maxOccurs="unbounded" minOccurs="0" name="ExternalReference" type="XRef_ExternalRefType"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_AutoExpand">true</xsd:appinfo>  
+                  <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element> 
+            </xsd:sequence> 
+          </xsd:complexType> 
+        </xsd:element> 
+      </xsd:sequence> 
+    </xsd:complexType>  
+    <xsd:unique name="CFL_XRef"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdCxRef"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="XRef_ExternalRefType"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="SystemName" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="1" name="SystemKey" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>
+      <xsd:element maxOccurs="1" minOccurs="0" name="SystemMain" type="xsd:boolean">
+        <xsd:annotation>
+        <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="FirstLoadTime" type="xsd:dateTime"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="LastLoadTime" type="xsd:dateTime"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="DeletedTime" type="xsd:dateTime"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+            
+        </xsd:sequence> 
+  </xsd:complexType>  
+  <xsd:complexType abstract="true" name="PartyIdentificationType"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="IdPartyIdentification" type="AUTO_INCREMENT"/>  
+      <xsd:element maxOccurs="1" minOccurs="1" name="PartyIdentificationType" type="EnumPartyIdentificationType"/> 
+    </xsd:sequence> 
+  </xsd:complexType>  
+  <xsd:complexType name="IdentityCardType"> 
+    <xsd:complexContent> 
+      <xsd:extension base="PartyIdentificationType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="IDCardType" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="IDCardNumber" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="IssuedPlace" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="IssuedDate" type="xsd:date"/>
+          <xsd:element maxOccurs="1" minOccurs="0" name="ExpiryDate" type="xsd:date"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="LastName" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="FirstName" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="IDCardIssuedCountryFk" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_ForeignKey">Country</xsd:appinfo>  
+              <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:element name="IdentityCard" type="IdentityCardType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="IdentityCard"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyIdentification"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="LoyaltyCardType"> 
+    <xsd:complexContent> 
+      <xsd:extension base="PartyIdentificationType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="LoyaltyCardNumber" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="FirstName" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="LastName" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="IssuedDate" type="xsd:date"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="ExpiryDate" type="xsd:date"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="LoyaltyCardType" type="xsd:string"/>   
+                    <xsd:element maxOccurs="1" minOccurs="0" name="LoyaltyCardStatus" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="LoyaltyAccountFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">LoyaltyAccount</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:element name="LoyaltyCard" type="LoyaltyCardType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="LoyaltyCard"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyIdentification"/> 
+    </xsd:unique> 
+  </xsd:element> 
+  <xsd:complexType name="LoginType"> 
+    <xsd:complexContent> 
+      <xsd:extension base="PartyIdentificationType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="Username" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="Password" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="PasswordQuestion" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="PasswordQuestionResponce" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="MD5" type="xsd:string"/> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:element name="Login" type="LoginType">
+  <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Login"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyIdentification"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="DrivingLicence"> 
+    <xsd:complexContent> 
+      <xsd:extension base="PartyIdentificationType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="DLNumber" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="IssuePlace" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="IssueDate" type="xsd:date"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="LastName" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="FirstName" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="ExpiryDate" type="xsd:date"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="DLClass" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="DriverRoleFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Driver</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="1" name="IssuedCoutryFk" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_ForeignKey">Country</xsd:appinfo>  
+              <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:complexType name="CreditCardType"> 
+    <xsd:complexContent> 
+      <xsd:extension base="PartyIdentificationType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="CCType" type="xsd:string"/>
+          <xsd:element maxOccurs="1" minOccurs="1" name="CCNumber" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="HolderSalutation" type="xsd:string"/>
+          <xsd:element maxOccurs="1" minOccurs="0" name="HolderAcademicTitle" type="xsd:string"/>   
+          <xsd:element maxOccurs="1" minOccurs="0" name="HolderFirstName" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="HolderLastName" type="xsd:string"/>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="IssuedDate" type="xsd:date"/>
+          <xsd:element maxOccurs="1" minOccurs="0" name="ExpiryDate" type="xsd:date"/>    
+          <xsd:element maxOccurs="1" minOccurs="1" name="CreditCardAccountFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">CreditCardAccount</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>  
+          
+          
+                    <xsd:element maxOccurs="1" minOccurs="1" name="CCStatus" type="xsd:string"/>
+                </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType> 
+    <xsd:element name="CreditCard" type="CreditCardType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="CreditCard"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyIdentification"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:complexType abstract="true" name="PartyRoleType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdPartyRole" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="PartyRoleType" type="EnumPartyRoleType"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="belongsToParty" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Party</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Comments" type="xsd:string"/>
+        </xsd:sequence>
+</xsd:complexType>
+    <xsd:complexType name="InvoiceRecipientType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence/>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+
+    <xsd:complexType name="AccountManagerType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence/>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType abstract="false" name="ServiceRecipientType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence/>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="BookerType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence/>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="DriverType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence/>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="FrameContractPartnerType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence/>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="ServiceProviderType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="0" name="Abbreviation" type="xsd:string"/>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="DebitorType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="0" name="CreditLimit" type="xsd:double"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="CreditAmount" type="xsd:double"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="OLDIT_Bonitatsprioritat" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="DebitorNumber" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="CreditCurrencyFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Currency</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                </xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="ContactType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="0" name="ContactLeadSource" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="ContactType" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="ContactTopic" type="xsd:string"/>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="RentalCustomerType">
+<xsd:complexContent>
+<xsd:extension base="PartyRoleType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="RentalCustomerType" type="EnumRentalCustomerType"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="HasInsurance" type="xsd:integer"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Guarantee" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Deposit" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Channel" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="GuaranteeValid" type="xsd:string"/>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:element name="FrameContractPartner" type="FrameContractPartnerType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="FrameContractPartner"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="RentalCustomer" type="RentalCustomerType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="RentalCustomer"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="Contact" type="ContactType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Contact"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="Driver" type="DriverType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Driver"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="Debitor" type="DebitorType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Debitor"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="Booker" type="BookerType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Booker"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="ServiceRecipient" type="ServiceRecipientType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="ServiceRecipient"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="ServiceProvider" type="ServiceProviderType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="ServiceProvider"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="AccountManager" type="AccountManagerType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="AccountManager"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:element name="InvoicerRecipient" type="InvoiceRecipientType">
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="InvoicerRecipient"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdPartyRole"/> 
+    </xsd:unique> 
+  </xsd:element>
+    <xsd:complexType abstract="true" name="AdressType">
+        <xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdAddress" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="AddressType" type="EnumAddressType"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="AddressQuality" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="NameFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Name</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="PartyCommChannelFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">PartyCommChannel</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+        </xsd:sequence>
+</xsd:complexType>
+    <xsd:complexType name="WebsiteAddressType">
+<xsd:complexContent>
+<xsd:extension base="AdressType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="0" name="URL" type="xsd:string"/>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="EMailAddressType">
+<xsd:complexContent>
+<xsd:extension base="AdressType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="EMailAddress" type="xsd:string"/>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="PhoneAddressType">
+<xsd:complexContent>
+<xsd:extension base="AdressType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="AreaPrefix" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="LocalPrefix" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="LocalNumber" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Extension" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Part1" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Part2" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="PostFix1" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="PostFix2" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="CountryFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Country</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                </xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="PostalAddressType">
+<xsd:complexContent>
+<xsd:extension base="AdressType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="State" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Province" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="City" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="ZIP" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Street" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Number" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="PostBox" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Adr_1" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Adr_2" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Adr_3" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Adr_4" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="CountryFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Country</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                </xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:element name="WebsiteAddress" type="WebsiteAddressType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="WebsiteAddress"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdAddress"/> 
+    </xsd:unique> 
+    </xsd:element>
+    <xsd:element name="PostalAddress" type="PostalAddressType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="PostalAddress"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdAddress"/> 
+    </xsd:unique> 
+    </xsd:element>
+    <xsd:element name="PhoneAddress" type="PhoneAddressType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="PhoneAddress"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdAddress"/> 
+    </xsd:unique> 
+    </xsd:element>
+    <xsd:element name="EMailAddress" type="EMailAddressType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="EMailAddress"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdAddress"/> 
+    </xsd:unique> 
+    </xsd:element>
+    <xsd:element name="Address" type="AdressType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">MARS_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="Address"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdAddress"/> 
+    </xsd:unique> 
+    </xsd:element>
+    <xsd:element name="PartyCommChannel">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdPartyCommChannel" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="PartyFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Party</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="1" name="CommChannelTypeFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">CommChannelType</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="CommChannelBlocked" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="AddressFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Address</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="PartyCommChannel">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyCommChannel"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="CommChannelUsage">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdCommChannelUsage" type="AUTO_INCREMENT"/>
+                <xsd:element maxOccurs="1" minOccurs="1" name="UsedByPartyRoleFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">PartyRole</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="PartyCommChannelFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">PartyCommChannel</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+            </xsd:all>
+</xsd:complexType>
+<xsd:unique name="CommChannelUsage">
+<xsd:selector xpath="."/>
+            <xsd:field xpath="IdCommChannelUsage"/>
+        </xsd:unique>
+</xsd:element>
+    <xsd:element name="PartyRole" type="PartyRoleType">
+<xsd:unique name="PartyRole">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyRole"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:complexType abstract="true" name="PartyAccountType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdPartyAccount" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="PartyFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Party</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="1" name="PartyRoleFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">PartyRole</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="CurrencyFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Currency</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="1" name="PartyAccountType" type="EnumPartyAccountType"/>
+</xsd:sequence>
+</xsd:complexType>
+    <xsd:element name="Currency">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdCurrency" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="CurrencyName" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="CurrencySymbol" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="CurrencyShort" type="xsd:string"/>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="Currency">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdCurrency"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="PartyAccount" type="PartyAccountType">
+<xsd:unique name="PartyAccount">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyAccount"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="PartyAccountStats">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdPartyAccountStats" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Type" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Value" type="xsd:double"/>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="PartyAccountStats">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyAccountStats"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:complexType name="UserAccountType">
+<xsd:complexContent>
+<xsd:extension base="PartyAccountType">
+<xsd:sequence/>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="SalesAccountType">
+<xsd:complexContent>
+<xsd:extension base="PartyAccountType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="0" name="RevenueCumulated" type="xsd:double"/>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="LoyaltyAccountType">
+<xsd:complexContent>
+<xsd:extension base="PartyAccountType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="0" name="LoyaltyType" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="LoyaltyAccountNo" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Balance" type="xsd:double"/>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="BankAccountType">
+<xsd:complexContent>
+<xsd:extension base="PartyAccountType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="AccountNo" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="IBAN" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="BIC" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="AccountHolder" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="Balance" type="xsd:double"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="ManagedByBankFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Bank</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                </xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="DebitorAccountType">
+<xsd:complexContent>
+<xsd:extension base="PartyAccountType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="Balance" type="xsd:double"/>
+</xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:complexType name="CreditCardAccountType">
+<xsd:complexContent>
+<xsd:extension base="PartyAccountType">
+<xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="0" name="AbleToDCC" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Balance" type="xsd:double"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="ManagedByBankFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Bank</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+                </xsd:sequence>
+</xsd:extension>
+</xsd:complexContent>
+</xsd:complexType>
+    <xsd:element name="UserAccount" type="UserAccountType">
+<xsd:unique name="UserAccount">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyAccount"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="SalesAccount" type="UserAccountType">
+<xsd:unique name="SalesAccount">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyAccount"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="LoyaltyAccount" type="UserAccountType">
+<xsd:unique name="LoyaltyAccount">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyAccount"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="BankAccount" type="UserAccountType">
+<xsd:unique name="BankAccount">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyAccount"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="DebitorAccount" type="UserAccountType">
+<xsd:unique name="DebitorAccount">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyAccount"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="CreditCardAccount" type="UserAccountType">
+<xsd:unique name="CreditCardAccount">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdPartyAccount"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="RiskProfil">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdRiskProfil" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="PartyRoleFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">PartyRole</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="RiskProfileType" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="LastUpdated" type="xsd:date"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="RiskValue" type="xsd:integer"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Min" type="xsd:integer"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Max" type="xsd:integer"/>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="RiskProfil">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdRiskProfil"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="Risk">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdRisk" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="RiskProfileFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">RiskProfil</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="1" name="RiskType" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="RiskName" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Description" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="RiskValue" type="xsd:double"/>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="Risk">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdRisk"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="Segment">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdSegment" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Name" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="0" name="Description" type="xsd:string"/>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="Segment">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdSegment"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="RoleInSegment">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdRoleInSegment" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="PartyRoleFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">PartyRole</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="1" name="SegmentFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Segment</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="RoleInSegment">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdRoleInSegment"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:simpleType name="EnumAddressType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="EmailAddress"/>
+<xsd:enumeration value="PhoneAddress"/>
+<xsd:enumeration value="PostalAddress"/>
+<xsd:enumeration value="WebSiteAddress"/>
+</xsd:restriction>
+</xsd:simpleType>
+    <xsd:simpleType name="EnumPartyRoleType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="InvoiceRecipient"/>
+<xsd:enumeration value="AccountManager"/>
+<xsd:enumeration value="ServiceProvider"/>
+<xsd:enumeration value="ServiceRecipient"/>
+<xsd:enumeration value="Booker"/>
+<xsd:enumeration value="Debitor"/>
+<xsd:enumeration value="Driver"/>
+<xsd:enumeration value="Contact"/>
+<xsd:enumeration value="RentalCustomer"/>
+<xsd:enumeration value="FrameContractPartner"/>
+</xsd:restriction>
+</xsd:simpleType>
+    <xsd:simpleType name="EnumPartyAccountType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="UserAccount"/>
+<xsd:enumeration value="CreditCardAccount"/>
+<xsd:enumeration value="BankAccount"/>
+<xsd:enumeration value="LoyaltyAccount"/>
+<xsd:enumeration value="DebitorAccount"/>
+<xsd:enumeration value="SalesAccount"/>
+</xsd:restriction>
+</xsd:simpleType>
+    <xsd:simpleType name="EnumPartyIdentificationType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="CreditCard"/>
+<xsd:enumeration value="Login"/>
+<xsd:enumeration value="LoyaltyCard"/>
+<xsd:enumeration value="DrivingLicence"/>
+<xsd:enumeration value="IdentityCard"/>
+<xsd:enumeration value="CorporateCard"/>
+</xsd:restriction>
+</xsd:simpleType>
+    <xsd:simpleType name="EnumPartyType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Organisation"/>
+<xsd:enumeration value="Person"/>
+<xsd:enumeration value="Bank"/>
+</xsd:restriction>
+</xsd:simpleType>
+    <xsd:element name="SelfInfo">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdSelfInfo" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="DebitorFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Debitor</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="SelfInfo">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdSelfInfo"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:simpleType name="EnumRentalCustomerType">
+<xsd:restriction base="xsd:string">
+<xsd:enumeration value="Private"/>
+<xsd:enumeration value="Business"/>
+</xsd:restriction>
+</xsd:simpleType>
+    <xsd:element name="CountryCurrencyChars">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdCountryCurrencyChars" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="CountryFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Country</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="1" name="CurrencyFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Currency</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="CountryCurrencyChars">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdCountryCurrencyChars"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="CommChannelType">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdCommChannelType" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="Name" type="xsd:string"/>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="CommChannelType">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdCommChannelType"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="AllowedCommChannelTypes">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdAllowedCommChannelTypes" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="CommChannelTypesFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">CommChannelType</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="1" name="PartyFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">Party</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="AllowedCommChannelTypes">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdAllowedCommChannelTypes"/>
+</xsd:unique>
+</xsd:element>
+    <xsd:element name="CommChannelUsageChars">
+<xsd:complexType>
+<xsd:all>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdCommChannelUsageChars" type="AUTO_INCREMENT"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="CommChannelUsageFk" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_ForeignKey">CommChannelUsage</xsd:appinfo>
+<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="1" name="CommChannelUsageType" type="xsd:string"/>
+<xsd:element maxOccurs="1" minOccurs="1" name="CommChannelPreferred" type="xsd:string"/>
+</xsd:all>
+</xsd:complexType>
+<xsd:unique name="CommChannelUsageChars">
+<xsd:selector xpath="."/>
+<xsd:field xpath="IdCommChannelUsageChars"/>
+</xsd:unique>
+</xsd:element>
+</xsd:schema>
