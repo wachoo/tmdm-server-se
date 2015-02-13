@@ -12,7 +12,7 @@ The new following sections present a setup example.
 Set up nodes:
 
 * Install MDM server node1 (port 8180)
-* Install MDM server node1 (port 8280)
+* Install MDM server node2 (port 8280)
 * Each MDM Server has its *own* full text directory (no share at this point).
 * Start both nodes and checks initialization is ok.
 * Stop MDM instances
