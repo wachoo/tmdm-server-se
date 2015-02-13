@@ -496,12 +496,6 @@ public class DataModelHelper {
         return lang;
     }
 
-    /**
-     * DOC HSHU Comment method "getBusinessConceptKey".
-     * 
-     * @throws XtentisWebappException
-     * @throws RemoteException
-     */
     private static String[] getBusinessConceptKeys(String model, String concept) {
 
         String[] keys = null;
