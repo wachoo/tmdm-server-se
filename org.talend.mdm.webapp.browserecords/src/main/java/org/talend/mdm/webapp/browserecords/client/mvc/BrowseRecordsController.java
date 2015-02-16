@@ -25,6 +25,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
+import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -134,6 +135,7 @@ public class BrowseRecordsController extends Controller {
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final Boolean isStaging = event.getData("isStaging"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
+        final ItemsDetailPanel itemsDetailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL); //$NON-NLS-1$
         final MessageBox progressBar = MessageBox.wait(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory
                 .getMessages().save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
         final BrowseRecordsServiceAsync browseRecordsService;
@@ -256,6 +258,13 @@ public class BrowseRecordsController extends Controller {
                             CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,
                                     viewBean.getBindingEntityModel().getConceptName(), result.getReturnValue(), isClose);
                         }
+                        
+                        browseRecordsService.getItemBeanById(itemBean.getConcept(), itemBean.getIds().split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
+                            @Override
+                            public void onSuccess(final ItemBean item) {
+                                itemsDetailPanel.initBanner(item.getPkInfoList(), item.getDescription());
+                            }
+                        });
                     }
                 });
     }
