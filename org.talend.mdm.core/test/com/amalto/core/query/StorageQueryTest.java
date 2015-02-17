@@ -13,20 +13,28 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
-import com.amalto.core.query.optimization.RangeOptimizer;
-import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.metadata.Timestamp;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.*;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.*;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.xmlserver.interfaces.*;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,11 +42,53 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.FieldFullText;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.IsNull;
+import com.amalto.core.query.user.LongConstant;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Range;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.Split;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UnaryLogicOperator;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.StorageWrapper;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.ViewSearchResultsWriter;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereOr;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -62,6 +112,18 @@ public class StorageQueryTest extends StorageTestCase {
     private final String E2_Record6 = "<E2><subelement>999</subelement><subelement1>888</subelement1><name>iuiiu</name><fk>[ccc][ddd]</fk></E2>";
 
     private final String E2_Record7 = "<E2><subelement>119</subelement><subelement1>120</subelement1><name>zhang</name></E2>";
+
+    private final String RR_Record1 = "<RR><Id>R1</Id><Name>R1</Name></RR>";
+
+    private final String RR_Record2 = "<RR><Id>R2</Id><Name>R2</Name></RR>";
+
+    private final String RR_Record3 = "<RR><Id>R3</Id><Name>R3</Name></RR>";
+
+    private final String TT_Record1 = " <TT><Id>T1</Id><MUl><E1>1</E1><E2>1</E2><E3>[R1]</E3></MUl></TT>";
+
+    private final String TT_Record2 = " <TT><Id>T2</Id><MUl><E1>2</E1><E2>2</E2><E3>[R2]</E3></MUl></TT>";
+
+    private final String TT_Record3 = " <TT><Id>T3</Id><MUl><E1>3</E1><E2>3</E2><E3>[R3]</E3></MUl></TT>";
 
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -258,18 +320,23 @@ public class StorageQueryTest extends StorageTestCase {
                 .add(factory
                         .read("1", repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record5</id></ContainedEntityB>"));
+        allRecords.add(factory.read("1", repository, city,
+                "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
+        allRecords.add(factory.read("1", repository, city,
+                "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
         allRecords
-        .add(factory
-                .read("1", repository, city,
-                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
-        allRecords
-        .add(factory
-                .read("1", repository, city,
-                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
-        allRecords
-        .add(factory
-                .read("1", repository, organization,
-                        "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+                .add(factory
+                        .read("1",
+                                repository,
+                                organization,
+                                "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+        allRecords.add(factory.read("1", repository, rr, RR_Record1));
+        allRecords.add(factory.read("1", repository, rr, RR_Record2));
+        allRecords.add(factory.read("1", repository, rr, RR_Record3));
+        allRecords.add(factory.read("1", repository, tt, TT_Record1));
+        allRecords.add(factory.read("1", repository, tt, TT_Record2));
+        allRecords.add(factory.read("1", repository, tt, TT_Record3));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -785,16 +852,13 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         // Test normalize
-        qb = from(person).select(personLastName)
-                .orderBy(person.getField("id"), OrderBy.Direction.ASC)
+        qb = from(person).select(personLastName).orderBy(person.getField("id"), OrderBy.Direction.ASC)
                 .orderBy(person.getField("id"), OrderBy.Direction.ASC);
         assertEquals(1, ((Select) qb.getSelect().normalize()).getOrderBy().size());
-        qb = from(person).select(personLastName)
-                .orderBy(person.getField("id"), OrderBy.Direction.ASC)
+        qb = from(person).select(personLastName).orderBy(person.getField("id"), OrderBy.Direction.ASC)
                 .orderBy(person.getField("id"), OrderBy.Direction.DESC);
         assertEquals(2, ((Select) qb.getSelect().normalize()).getOrderBy().size());
-        qb = from(person).select(personLastName)
-                .orderBy(person.getField("id"), OrderBy.Direction.ASC)
+        qb = from(person).select(personLastName).orderBy(person.getField("id"), OrderBy.Direction.ASC)
                 .orderBy(person.getField("lastname"), OrderBy.Direction.ASC)
                 .orderBy(person.getField("lastname"), OrderBy.Direction.ASC);
         assertEquals(2, ((Select) qb.getSelect().normalize()).getOrderBy().size());
@@ -1691,7 +1755,6 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
-
     public void testNonMandatoryFKSelection() throws Exception {
         UserQueryBuilder qb = from(product).selectId(product).select(product.getField("Name")).select(product.getField("Family"));
 
@@ -2502,8 +2565,8 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         qb = UserQueryBuilder.from(person);
-        item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS,
-                null, WhereCondition.NO_OPERATOR)));
+        item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS, null,
+                WhereCondition.NO_OPERATOR)));
         qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
         storageResults = storage.fetch(qb.getSelect());
         try {
@@ -3037,7 +3100,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
         assertTrue(expectedResults.isEmpty());
     }
-    
+
     public void testFKInReusableTypeWithViewSearch() throws Exception {
         UserQueryBuilder qb = from(organization).selectId(organization)
                 .select(alias(organization.getField("org_address/city"), "city1"))
@@ -3053,10 +3116,9 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals("changan rd", String.valueOf(result.get("street2")));
         }
     }
-    
+
     public void testFKInreusableTypeWithViewSearch2() throws Exception {
-        UserQueryBuilder qb = from(organization).selectId(organization)
-                .select(organization.getField("org_address/city"))
+        UserQueryBuilder qb = from(organization).selectId(organization).select(organization.getField("org_address/city"))
                 .select(organization.getField("org_address/street"))
                 .select(alias(organization.getField("post_address/city"), "city"))
                 .select(alias(organization.getField("post_address/street"), "street"));
@@ -3071,14 +3133,15 @@ public class StorageQueryTest extends StorageTestCase {
             } catch (IOException e) {
                 throw new XmlServerException(e);
             }
-            resultAsString = new String(output.toByteArray(), Charset.forName("UTF-8"));            
+            resultAsString = new String(output.toByteArray(), Charset.forName("UTF-8"));
             output.reset();
-        }        
+        }
         String startRoot = "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
         String endRoot = "</result>";
-        
-        String expectedResult = startRoot +
-                 "<org_id>1</org_id><city>[SH]</city><street>waitan rd</street><city>[BJ]</city><street>changan rd</street>"  + endRoot;        
+
+        String expectedResult = startRoot
+                + "<org_id>1</org_id><city>[SH]</city><street>waitan rd</street><city>[BJ]</city><street>changan rd</street>"
+                + endRoot;
         assertTrue(expectedResult.equals(resultAsString.replaceAll("\\r|\\n|\\t", "")));
     }
 
@@ -4136,7 +4199,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         storage.commit();
-        
+
         qb = from(address).where(emptyOrNull(field));
         storage.begin();
         results = storage.fetch(qb.getSelect());
@@ -4183,9 +4246,8 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testOrderByExpression() throws Exception {
         // Most common to least common order (DESC).
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .orderBy(count(person.getField("firstname")), OrderBy.Direction.DESC);
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).orderBy(count(person.getField("firstname")),
+                OrderBy.Direction.DESC);
         storage.begin();
         StorageResults records = storage.fetch(qb.getSelect());
         try {
@@ -4203,8 +4265,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
         // Least common to most common order (ASC).
         storage.begin();
-        qb = from(person)
-                .select(person.getField("firstname"))
+        qb = from(person).select(person.getField("firstname"))
                 .orderBy(count(person.getField("firstname")), OrderBy.Direction.ASC);
         records = storage.fetch(qb.getSelect());
         try {
@@ -4215,6 +4276,43 @@ public class StorageQueryTest extends StorageTestCase {
                     lastValue = String.valueOf(record.get("firstname"));
                 }
                 assertEquals("Julien", lastValue);
+            } finally {
+                records.close();
+            }
+        } finally {
+            storage.commit();
+        }
+    }
+
+    public void testOrderByFk() throws Exception {
+        // Most common to least common order (DESC).
+        UserQueryBuilder qb = from(tt).select(tt.getField("Id")).select(tt.getField("MUl/E3"))
+                .orderBy(tt.getField("MUl/E3"), OrderBy.Direction.DESC);
+        storage.begin();
+        StorageResults records = storage.fetch(qb.getSelect());
+        try {
+            try {
+                for (DataRecord record : records) {
+                    assertEquals("T3", record.get("Id"));
+                    break;
+                }
+            } finally {
+                records.close();
+            }
+        } finally {
+            storage.commit();
+        }
+
+        qb = from(tt).select(tt.getField("Id")).select(tt.getField("MUl/E3"))
+                .orderBy(tt.getField("MUl/E3"), OrderBy.Direction.ASC);
+        storage.begin();
+        records = storage.fetch(qb.getSelect());
+        try {
+            try {
+                for (DataRecord record : records) {
+                    assertEquals("T1", record.get("Id"));
+                    break;
+                }
             } finally {
                 records.close();
             }
