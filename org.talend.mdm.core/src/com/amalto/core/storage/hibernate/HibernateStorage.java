@@ -347,14 +347,30 @@ public class HibernateStorage implements Storage {
                     }
                     break;
                 case STAGING:
-                     // Adds "staging status" as indexed field
                     if (!optimizedExpressions.isEmpty()) {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Ignoring " + optimizedExpressions.size() + " to optimize (disabled on staging area).");
                         }
                     }
+                    // Adds "staging status" / "staging block key" / "staging task id" as indexed fields
                     for (TypeMapping typeMapping : mappingRepository.getAllTypeMappings()) {
                         ComplexTypeMetadata database = typeMapping.getDatabase();
+                        switch (dataSource.getDialectName()) {
+                            case ORACLE_10G:
+                                ComplexTypeMetadata indexEntityType = typeMapping.getUser();
+                                if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
+                                    LOGGER.warn("Skip index on type '" + indexEntityType.getName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$
+                                    continue;
+                                }
+                                break;
+                            case SQL_SERVER:
+                            case H2:
+                            case MYSQL:
+                            case POSTGRES:
+                            default:
+                                // Nothing to do for these databases
+                                break;
+                        }
                         if (database.hasField(METADATA_STAGING_STATUS)) {
                             databaseIndexedFields.add(database.getField(METADATA_STAGING_STATUS));
                         }
@@ -362,7 +378,7 @@ public class HibernateStorage implements Storage {
                             databaseIndexedFields.add(database.getField(METADATA_STAGING_BLOCK_KEY));
                         }
                     }
-                    break;       
+                    break;
                 case SYSTEM: // Nothing to index on SYSTEM
                     break;
             }
