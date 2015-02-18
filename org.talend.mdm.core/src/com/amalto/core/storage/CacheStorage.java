@@ -13,6 +13,7 @@ package com.amalto.core.storage;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.collections.iterators.IteratorChain;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -43,17 +44,19 @@ public class CacheStorage implements Storage {
 
     private static final int DEFAULT_MAX_CACHE_LIFETIME = 60 * 1000;
 
-    private int maxCacheEntryLifetime = DEFAULT_MAX_CACHE_LIFETIME;
-
     private static final int DEFAULT_MAX_CAPACITY = 30;
-
-    private final Map<Expression, CacheValue> cache = Collections.synchronizedMap(new LRUMap(DEFAULT_MAX_CAPACITY));
 
     private static final Logger LOGGER = Logger.getLogger(CacheStorage.class);
 
     private static final int MAX_TOKEN = 10;
 
+    private final Map<Expression, CacheValue> cache = Collections.synchronizedMap(new LRUMap(DEFAULT_MAX_CAPACITY));
+
     private final Storage delegate;
+
+    private int maxCacheEntryLifetime = DEFAULT_MAX_CACHE_LIFETIME;
+
+    private int cachedResultMaxSize = 50;
 
     public CacheStorage(Storage delegate) {
         this.delegate = delegate;
@@ -89,6 +92,16 @@ public class CacheStorage implements Storage {
 
     public int getMaxCacheCapacity() {
         return cache.size();
+    }
+
+    /**
+     * Indicates the maximum allowed size for a cached result. A size of 0 (or lower) disables the cache as storage is
+     * not allowed to store a result where size > <code>cachedResultMaxSize</code>.
+     * 
+     * @param cachedResultMaxSize The new maximum size for a cached result. Any number <= 0 disables cache.
+     */
+    public void setCachedResultMaxSize(int cachedResultMaxSize) {
+        this.cachedResultMaxSize = cachedResultMaxSize;
     }
 
     @Override
@@ -132,6 +145,10 @@ public class CacheStorage implements Storage {
         if (userQuery == null) {
             throw new IllegalArgumentException("Query cannot be null.");
         }
+        if (cachedResultMaxSize <= 0) {
+            // cachedResultMaxSize == 0 means no cache (not allowed to have a result list >= 0).
+            return delegate.fetch(userQuery);
+        }
         if (userQuery.cache()) {
             CacheValue cacheValue = cache.get(userQuery);
             if (cacheValue != null) {
@@ -160,10 +177,16 @@ public class CacheStorage implements Storage {
                     LOGGER.debug("Cache miss! for query '" + userQuery + "'.");
                 }
             }
-            // New value in cache
+            // Test for result size before adding to cache
             StorageResults results = delegate.fetch(userQuery);
+            int count = results.getCount();
+            if (count > cachedResultMaxSize) {
+                LOGGER.warn("Query is yielding more results than cache is allowed to keep, bypassing cache for query.");
+                return results;
+            }
+            // New value in cache
             cacheValue = new CacheValue();
-            final List<DataRecord> records = new ArrayList<DataRecord>(results.getCount());
+            List<DataRecord> records = new ArrayList<>(count);
             for (DataRecord result : results) {
                 records.add(result);
             }
@@ -274,12 +297,11 @@ public class CacheStorage implements Storage {
 
     static class CacheValue {
 
-        long lastAccessTime = System.currentTimeMillis();
-
         final AtomicInteger tokenCount = new AtomicInteger(MAX_TOKEN);
+
+        long lastAccessTime = System.currentTimeMillis();
 
         List<DataRecord> results = Collections.emptyList();
 
     }
-
 }
