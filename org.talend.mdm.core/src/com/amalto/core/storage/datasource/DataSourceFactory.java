@@ -48,9 +48,17 @@ public class DataSourceFactory implements ApplicationContextAware {
     private static DocumentBuilderFactory  factory = DocumentBuilderFactory.newInstance();
 
     private static ApplicationContext applicationContext;
+    private static DataSourceFactory dataSourceFactory;
 
     public static DataSourceFactory getInstance() {
-        return applicationContext.getBean(DataSourceFactory.class);
+        if (applicationContext != null) {
+            return applicationContext.getBean(DataSourceFactory.class);
+        } else {
+            if (dataSourceFactory == null) {
+                dataSourceFactory = new DataSourceFactory();
+            }
+            return dataSourceFactory;
+        }
     }
 
     private static synchronized InputStream readDataSourcesConfiguration() {

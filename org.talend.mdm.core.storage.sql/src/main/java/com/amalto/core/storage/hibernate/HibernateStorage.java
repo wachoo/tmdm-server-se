@@ -55,6 +55,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
@@ -244,11 +245,11 @@ public class HibernateStorage implements Storage {
                         @Override
                         public Iterator getIndexIterator() {
                             List<Index> indexes = new ArrayList<Index>();
-                            Iterator IndexIterator = super.getIndexIterator();
+                            Iterator<Index> IndexIterator = super.getIndexIterator();
                             while (IndexIterator.hasNext()) {
-                                Index parentIndex = (Index) IndexIterator.next();
+                                Index parentIndex = IndexIterator.next();
                                 Index index = new Index();
-                                index.setName(tableResolver.get(getName()));
+                                index.setName(tableResolver.get(parentIndex.getName()));
                                 index.setTable(this);
                                 index.addColumns(parentIndex.getColumnIterator());
                                 indexes.add(index);
@@ -461,47 +462,7 @@ public class HibernateStorage implements Storage {
                     }
                 }
             }
-            // Set table/column name length limitation
-            switch (dataSource.getDialectName()) {
-            case ORACLE_10G:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
-                }
-                tableResolver = new OracleStorageTableResolver(databaseIndexedFields, 30);
-                break;
-            case MYSQL:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("MySQL database is being used. Limit table name length to 64.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 64);
-                break;
-            case SQL_SERVER:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("SQL Server database is being used. Limit table name length to 128.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 128);
-                break;
-            case POSTGRES:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Postgres database is being used. Limit table name length to 63.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 63);
-                break;
-            case DB2:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("DB2 database is being used. Limit table name length to 30.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields, 30);
-                break;
-            case H2:
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("No limitation for table name length.");
-                }
-                tableResolver = new StorageTableResolver(databaseIndexedFields);
-                break;
-            default:
-                throw new IllegalArgumentException("Not supported: " + dataSource.getDialectName());
-            }
+            tableResolver = new StorageTableResolver(databaseIndexedFields, dataSource.getNameMaxLength());
             storageClassLoader.setTableResolver(tableResolver);
             // Master, Staging and System share same class creator.
             switch (storageType) {
