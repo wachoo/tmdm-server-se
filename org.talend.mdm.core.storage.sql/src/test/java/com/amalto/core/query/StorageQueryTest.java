@@ -1796,11 +1796,21 @@ public class StorageQueryTest extends StorageTestCase {
 
     }
 
-    public void testInterFieldCondition() throws Exception {
+    public void testInterFieldCondition1() throws Exception {
         UserQueryBuilder qb = from(person).selectId(person).where(lte(person.getField("id"), person.getField("score")));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(4, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testInterFieldCondition2() throws Exception {
+        UserQueryBuilder qb = from(person).where(eq(person.getField("id"), person.getField("score")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
         } finally {
             results.close();
         }

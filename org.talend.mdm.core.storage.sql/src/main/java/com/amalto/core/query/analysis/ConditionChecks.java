@@ -144,8 +144,12 @@ public class ConditionChecks extends VisitorAdapter<Result> {
     public Result visit(Compare condition) {
         Result conditionResult = new Result();
         Result result = condition.getLeft().accept(this);
-        conditionResult.id = result.id && condition.getPredicate() == Predicate.EQUALS;
-        conditionResult.limitJoins = result.limitJoins;
+        if (!(condition.getRight() instanceof ConstantExpression)) {
+            result.id = false;
+        } else {
+            conditionResult.id = result.id && condition.getPredicate() == Predicate.EQUALS;
+            conditionResult.limitJoins = result.limitJoins;
+        }
         return conditionResult;
     }
 
