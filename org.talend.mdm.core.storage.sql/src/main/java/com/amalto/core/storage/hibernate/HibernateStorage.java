@@ -387,14 +387,6 @@ public class HibernateStorage implements Storage {
                         }
                         // Database specific behaviors
                         switch (dataSource.getDialectName()) {
-                            case ORACLE_10G:
-                                // TMDM-7701: Skip index on Oracle when field part of inheritance tree
-                                ComplexTypeMetadata indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
-                                if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
-                                    LOGGER.warn("Skip index field '" + indexedField.getPath() + "' of type '" + indexedField.getEntityTypeName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                                    continue;
-                                }
-                                break;
                             case SQL_SERVER:
                                 // TMDM-8144: Don't index field name on SQL Server when size > 900
                                 Integer maxLength = indexedField.getData(MetadataRepository.DATA_MAX_LENGTH);
@@ -409,6 +401,7 @@ public class HibernateStorage implements Storage {
                             case MYSQL:
                             case POSTGRES:
                             case DB2:
+                            case ORACLE_10G:
                             default:
                                 // Nothing to do for these databases
                                 break;
