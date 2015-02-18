@@ -13,7 +13,6 @@ package com.amalto.core.storage;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.collections.iterators.IteratorChain;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
