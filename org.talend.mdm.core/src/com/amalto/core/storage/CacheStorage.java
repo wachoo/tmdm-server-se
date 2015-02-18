@@ -181,7 +181,9 @@ public class CacheStorage implements Storage {
             StorageResults results = delegate.fetch(userQuery);
             int count = results.getCount();
             if (count > cachedResultMaxSize) {
-                LOGGER.warn("Query is yielding more results than cache is allowed to keep, bypassing cache for query.");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Query is yielding more results than cache is allowed to keep, bypassing cache for query.");
+                }
                 return results;
             }
             // New value in cache
