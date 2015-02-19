@@ -312,6 +312,9 @@ public class StorageQueryTest extends StorageTestCase {
 
                 qb = from(manager1);
                 storage.delete(qb.getSelect());
+
+                qb = from(product);
+                storage.delete(qb.getSelect());
             }
             storage.commit();
         } finally {
@@ -3171,6 +3174,16 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(0, results.getCount());
     }
 
+    public void testManyFieldIndexConditionOnFK() throws Exception {
+        UserQueryBuilder qb = from(product).where(eq(index(product.getField("Stores/Store"), 1), "2"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(0, results.getCount());
+
+        qb = from(product).where(eq(index(product.getField("Stores/Store"), 0), "1"));
+        results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+    }
+
     public void testManyFieldUsingAndCondition() throws Exception {
         UserQueryBuilder qb = from(product).where(eq(product.getField("Features/Sizes/Size"), "ValueDoesNotExist"));
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3194,7 +3207,7 @@ public class StorageQueryTest extends StorageTestCase {
 
         qb = from(product).where(contains(product.getField("Features/Sizes/Size"), "large"));
         results = storage.fetch(qb.getSelect());
-        assertEquals(3, results.getCount());
+        assertEquals(2, results.getCount());
     }
 
     public void testContainsCaseSensitivity() throws Exception {

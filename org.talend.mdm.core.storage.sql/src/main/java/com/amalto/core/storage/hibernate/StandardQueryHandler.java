@@ -1026,7 +1026,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 FieldMetadata fieldMetadata = leftField.getFieldMetadata();
                 Set<String> aliases = Collections.singleton(fieldMetadata.getContainingType().getName());
                 // TODO Ugly code path to fix once test coverage is ok.
-                if (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata) {
+                if (leftFieldCondition.position < 0 && (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata)) {
                     leftField.accept(StandardQueryHandler.this);
                     aliases = getAliases(mainType, leftField);
                     if (!fieldMetadata.isMany()) {

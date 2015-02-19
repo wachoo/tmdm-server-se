@@ -50,7 +50,7 @@ class ManyFieldCriterion extends SQLCriterion {
 
     @Override
     public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery) throws HibernateException {
-        if (field instanceof ReferenceFieldMetadata) {
+        if (field instanceof ReferenceFieldMetadata && position < 0) {
             return field.accept(new ForeignKeySQLGenerator(criteriaQuery, value));
         } else {
             if (value instanceof Object[]) {
@@ -65,6 +65,14 @@ class ManyFieldCriterion extends SQLCriterion {
             String containingTypeKey = resolver.get(type.getKeyFields().iterator().next());
             StringBuilder builder = new StringBuilder();
             String joinedTableName = resolver.getCollectionTable(field);
+            String columnName;
+            if (field instanceof ReferenceFieldMetadata) {
+                // Naming convention in MDM for repeatable FKs: "x_stores_store" (database field name) + "_" + "x_id"
+                // (referenced field name).
+                columnName = field.getName() + '_' + ((ReferenceFieldMetadata) field).getReferencedField().getName();
+            } else {
+                columnName = "value";
+            }
             builder.append("(SELECT COUNT(1) FROM ") //$NON-NLS-1$
                     .append(containingType)
                     .append(" INNER JOIN ") //$NON-NLS-1$
@@ -79,7 +87,7 @@ class ManyFieldCriterion extends SQLCriterion {
                     .append(containingTypeKey)
                     .append(" WHERE ") //$NON-NLS-1$
                     .append(joinedTableName)
-                    .append(".value = '") //$NON-NLS-1$
+                    .append("." + columnName + " = '") //$NON-NLS-1$
                     .append(value)
                     .append("'");
             if (position >= 0) {
