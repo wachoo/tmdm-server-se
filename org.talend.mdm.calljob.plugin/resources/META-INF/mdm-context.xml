@@ -6,6 +6,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
     <!-- Plugins -->
-    <context:component-scan base-package="talend.core.transformer.plugin.v2.tiscall.ejb" />
+    <context:component-scan base-package="talend.core.transformer.plugin.v2.tiscall" />
 
 </beans>
