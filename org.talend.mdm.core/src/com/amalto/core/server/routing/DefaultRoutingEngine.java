@@ -10,8 +10,27 @@
 
 package com.amalto.core.server.routing;
 
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+import javax.xml.transform.TransformerException;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+import org.springframework.jms.listener.AbstractJmsListeningContainer;
+import org.springframework.stereotype.Component;
+
 import bsh.EvalError;
 import bsh.Interpreter;
+
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.Service;
@@ -23,42 +42,30 @@ import com.amalto.core.server.api.RoutingRule;
 import com.amalto.core.server.security.SecurityConfig;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-import org.springframework.jms.listener.AbstractJmsListeningContainer;
-import org.springframework.stereotype.Component;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-import javax.xml.transform.TransformerException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 public class DefaultRoutingEngine implements RoutingEngine {
 
-    public static final String    EVENTS_DESTINATION = "org.talend.mdm.server.routing.events";      //$NON-NLS-1
+    public static final String EVENTS_DESTINATION = "org.talend.mdm.server.routing.events"; //$NON-NLS-1
 
-    private static final Logger   LOGGER             = Logger.getLogger(DefaultRoutingEngine.class);
+    private static final Logger LOGGER = Logger.getLogger(DefaultRoutingEngine.class);
 
-    private final Interpreter     ntp                = new Interpreter();
-
-    @Autowired
-    Item                          item;
+    private final Interpreter ntp = new Interpreter();
 
     @Autowired
-    RoutingRule                   routingRules;
+    Item item;
 
     @Autowired
-    JmsTemplate                   jmsTemplate;
+    RoutingRule routingRules;
+
+    @Autowired
+    JmsTemplate jmsTemplate;
 
     @Autowired
     AbstractJmsListeningContainer jmsListeningContainer;
+
+    @Value("${routing.engine.max.execution.time.millis}")
+    private long timeToLive = 0;
 
     private static String strip(String condition) {
         String compiled = condition;
@@ -74,6 +81,10 @@ public class DefaultRoutingEngine implements RoutingEngine {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    void setTimeToLive(long timeToLive) {
+        this.timeToLive = timeToLive;
     }
 
     /**
@@ -180,8 +191,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
             return new RoutingRulePOJOPK[0];
         }
         // Rules that matched
-        ArrayList<RoutingRulePOJO> routingRulesThatMatched = new ArrayList<RoutingRulePOJO>();
-        ArrayList<RoutingRulePOJOPK> matchedRoutingRulesPks = new ArrayList<RoutingRulePOJOPK>();
+        ArrayList<RoutingRulePOJO> routingRulesThatMatched = new ArrayList<>();
         // loop over the known rules
         Collection<RoutingRulePOJOPK> routingRulePOJOPKs = routingRules.getRoutingRulePKs(".*"); //$NON-NLS-1$
         for (RoutingRulePOJOPK routingRulePOJOPK : routingRulePOJOPKs) {
@@ -253,7 +263,6 @@ public class DefaultRoutingEngine implements RoutingEngine {
             }
             // increment matching routing rules counter
             routingRulesThatMatched.add(routingRule);
-            matchedRoutingRulesPks.add(routingRulePOJOPK);
         }
         // Sort execution order and send JMS message
         Collections.sort(routingRulesThatMatched);
@@ -275,6 +284,11 @@ public class DefaultRoutingEngine implements RoutingEngine {
                 message.setStringProperty("type", itemPOJOPK.getConceptName()); //$NON-NLS-1$
                 message.setStringProperty("pk", Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$
                 message.setObjectProperty("parameters", Arrays.asList(ruleParameters)); //$NON-NLS-1$
+                if (timeToLive > 0) {
+                    message.setJMSExpiration(System.currentTimeMillis() + timeToLive);
+                } else {
+                    message.setJMSExpiration(0);
+                }
                 return message;
             }
         });
@@ -295,6 +309,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
     }
 
     // Called by Spring, do not remove
+    @Override
     public void consume(final Message message) {
         try {
             final List<String> rules = (List<String>) message.getObjectProperty("rules");
@@ -305,16 +320,18 @@ public class DefaultRoutingEngine implements RoutingEngine {
             for (int ruleIndex = 0; ruleIndex < rules.size(); ruleIndex++) {
                 String rule = rules.get(ruleIndex);
                 final RoutingRulePOJO routingRule = routingRules.getRoutingRule(new RoutingRulePOJOPK(rule));
-                // Apparently rule is not (yet) deployed onto this system's DB instance, but... that 's rather unexpected
-                // since all nodes in cluster are supposed to share same system DB.
+                // Apparently rule is not (yet) deployed onto this system's DB instance, but... that 's
+                // rather unexpected since all nodes in cluster are supposed to share same system DB.
                 if (routingRule == null) {
-                    throw new RuntimeException("Cannot execute rule(s) " + rules + ": routing rule '" + rule + "' can not be found.");
+                    throw new RuntimeException("Cannot execute rule(s) " + rules + ": routing rule '" + rule
+                            + "' can not be found.");
                 }
                 // Proceed with rule execution
                 final ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, pk.split("\\.")); //$NON-NLS-1$
                 final Service service = Util.retrieveComponent(routingRule.getServiceJNDI());
                 final int parameterIndex = ruleIndex;
                 SecurityConfig.invokeSynchronousPrivateInternal(new Runnable() {
+
                     @Override
                     public void run() {
                         try {
@@ -329,7 +346,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
                         } catch (Exception e) {
                             try {
                                 String err = "Unable to execute the Routing Order '" + message.getJMSMessageID() + "'."
-                                        + " The service: '" + routingRule.getServiceJNDI() + "' failed to execute. " + e.getMessage();
+                                        + " The service: '" + routingRule.getServiceJNDI() + "' failed to execute. "
+                                        + e.getMessage();
                                 // Record routing order has failed.
                                 FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
                                 failedRoutingOrder.setMessage(err);

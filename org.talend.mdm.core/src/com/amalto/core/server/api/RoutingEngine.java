@@ -13,6 +13,8 @@ package com.amalto.core.server.api;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.routing.RoutingRulePOJOPK;
 
+import javax.jms.Message;
+
 /**
  *
  */
@@ -31,6 +33,9 @@ public interface RoutingEngine {
      * @throws com.amalto.core.util.XtentisException
      */
     RoutingRulePOJOPK[] route(ItemPOJOPK itemPOJOPK) throws com.amalto.core.util.XtentisException;
+
+    // Called by Spring, do not remove
+    void consume(Message message);
 
     /**
      * Starts/restarts the router
