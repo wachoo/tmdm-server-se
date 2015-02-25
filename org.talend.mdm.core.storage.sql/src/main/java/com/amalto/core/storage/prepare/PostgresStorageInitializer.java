@@ -35,7 +35,12 @@ class PostgresStorageInitializer implements StorageInitializer {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
             Driver driver = (Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
-            Connection connection = driver.connect(dataSource.getConnectionURL() + "?user=" + dataSource.getUserName() + "&password=" + dataSource.getPassword(), new Properties());//$NON-NLS-1$ //$NON-NLS-2$
+            String connectionURL = dataSource.getConnectionURL();
+            // Needs an extra '/' at the end of URL if not present (cause connection issues).
+            if (!connectionURL.endsWith("/")) { //$NON-NLS-1$
+                connectionURL += '/';
+            }
+            Connection connection = driver.connect(connectionURL + "?user=" + dataSource.getUserName() + "&password=" + dataSource.getPassword(), new Properties());//$NON-NLS-1$ //$NON-NLS-2$
             connection.close();
             return true;
         } catch (SQLException e) {
