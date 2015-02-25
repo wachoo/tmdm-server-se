@@ -480,7 +480,6 @@ public class ItemsToolBar extends ToolBar {
                 window.setHeading(MessagesFactory.getMessages().upload_title());
                 window.setLayout(new FitLayout());
                 window.setClosable(true);
-
                 ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
                 UploadFileFormPanel formPanel = WidgetFactory.getInstance().createUploadFileFormPanel(viewBean, window);
                 window.add(formPanel);
@@ -506,15 +505,9 @@ public class ItemsToolBar extends ToolBar {
                     window.setHeading(MessagesFactory.getMessages().export_title());
                     window.setLayout(new FitLayout());
                     window.setClosable(true);
-                    service.getView(
-                            "Browse_items_" + ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString()), Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$ //$NON-NLS-2$
-
-                                @Override
-                                public void onSuccess(ViewBean viewBean) {
-                                    window.add(WidgetFactory.getInstance().createDownloadFilePanel(viewBean, queryModel, window));
-                                    window.show();
-                                }
-                            });
+                    ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
+                    window.add(WidgetFactory.getInstance().createDownloadFilePanel(viewBean, queryModel, window));
+                    window.show();
                 }
             }
         });

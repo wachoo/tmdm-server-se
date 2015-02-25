@@ -512,6 +512,23 @@ public class HibernateStorage implements Storage {
                 // Adds "staging status" / "staging block key" / "staging task id" as indexed fields
                 for (TypeMapping typeMapping : mappingRepository.getAllTypeMappings()) {
                     ComplexTypeMetadata database = typeMapping.getDatabase();
+                    switch (dataSource.getDialectName()) {
+                        case ORACLE_10G:
+                            ComplexTypeMetadata indexEntityType = typeMapping.getUser();
+                            if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
+                                LOGGER.warn("Skip index on type '" + indexEntityType.getName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$
+                                continue;
+                            }
+                            break;
+                        case SQL_SERVER:
+                        case H2:
+                        case MYSQL:
+                        case POSTGRES:
+                        case DB2:
+                        default:
+                            // Nothing to do for these databases
+                            break;
+                    }
                     if (database.hasField(METADATA_STAGING_STATUS)) {
                         databaseIndexedFields.add(database.getField(METADATA_STAGING_STATUS));
                     }
