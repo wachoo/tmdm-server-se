@@ -25,7 +25,6 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
-import org.talend.mdm.webapp.browserecords.client.creator.ItemCreator;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandlingStatus;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -135,7 +134,7 @@ public class BrowseRecordsController extends Controller {
         final Boolean isClose = event.getData("isClose"); //$NON-NLS-1$
         final Boolean isStaging = event.getData("isStaging"); //$NON-NLS-1$
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar"); //$NON-NLS-1$
-        final ItemsDetailPanel itemsDetailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL); //$NON-NLS-1$
+        final ItemsDetailPanel itemsDetailPanel = event.getData(BrowseRecordsView.ITEMS_DETAIL_PANEL);
         final MessageBox progressBar = MessageBox.wait(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory
                 .getMessages().save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
         final BrowseRecordsServiceAsync browseRecordsService;
@@ -163,6 +162,7 @@ public class BrowseRecordsController extends Controller {
 
                     @Override
                     public void onSuccess(ItemResult result) {
+                        itemBean.setIds(result.getReturnValue());
                         itemBean.setLastUpdateTime(result);
                         progressBar.close();
                         MessageBox msgBox = null;
@@ -225,7 +225,6 @@ public class BrowseRecordsController extends Controller {
                         // ItemsListPanel need to refresh when only isOutMost = false and isHierarchyCall = false
                         if (!detailToolBar.isOutMost() && !detailToolBar.isHierarchyCall()) {
                             if (isSameConcept && detailToolBar.getType() == ItemDetailToolBar.TYPE_DEFAULT) {
-                                itemBean.setIds(result.getReturnValue());
                                 ItemsListPanel.getInstance().refreshGrid(itemBean);
                             }
                         }
@@ -258,22 +257,24 @@ public class BrowseRecordsController extends Controller {
                             CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,
                                     viewBean.getBindingEntityModel().getConceptName(), result.getReturnValue(), isClose);
                         }
-                        
-                        browseRecordsService.getItemBeanById(itemBean.getConcept(), itemBean.getIds().split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
-                            @Override
-                            public void onSuccess(final ItemBean item) {
-                                itemsDetailPanel.initBanner(item.getPkInfoList(), item.getDescription());
-                            }
-                        });
+
+                        browseRecordsService.getItemBeanById(itemBean.getConcept(),
+                                itemBean.getIds().split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
+
+                                    @Override
+                                    public void onSuccess(final ItemBean item) {
+                                        itemsDetailPanel.initBanner(item.getPkInfoList(), item.getDescription());
+                                    }
+                                });
                     }
                 });
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-                                                                      $wnd.setTimeout(function() {
-                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-                                                                      }, millisecond);
-                                                                      }-*/;
+		$wnd.setTimeout(function() {
+			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+		}, millisecond);
+    }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
