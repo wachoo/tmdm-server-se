@@ -1,21 +1,39 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import org.talend.mdm.commmon.metadata.*;
-import org.apache.commons.lang.StringUtils;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+import java.util.UUID;
 
 import javax.xml.XMLConstants;
-import java.util.*;
+
+import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadataImpl;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeMetadata;
+import org.talend.mdm.commmon.metadata.SoftIdFieldRef;
+import org.talend.mdm.commmon.metadata.SoftTypeRef;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
 class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
@@ -41,11 +59,8 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private final Set<ComplexTypeMetadata> processedTypes = new HashSet<ComplexTypeMetadata>();
 
-    public ScatteredMappingCreator(MetadataRepository repository,
-            MappingRepository mappings,
-            MappingCreatorContext context,
-            boolean shouldCompressLongStrings,
-            boolean enforceTechnicalFK) {
+    public ScatteredMappingCreator(MetadataRepository repository, MappingRepository mappings, MappingCreatorContext context,
+            boolean shouldCompressLongStrings, boolean enforceTechnicalFK) {
         this.internalRepository = repository;
         this.mappings = mappings;
         this.context = context;
@@ -55,21 +70,12 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private TypeMapping handleField(FieldMetadata field) {
         SimpleTypeFieldMetadata newFlattenField;
-        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(),
-                field.isKey(),
-                field.isMany(),
-                field.isMandatory(),
-                context.getFieldColumn(field),
-                field.getType(),
-                field.getWriteUsers(),
-                field.getHideUsers(),
+        newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(), field.isKey(), field.isMany(), field.isMandatory(),
+                context.getFieldColumn(field), field.getType(), field.getWriteUsers(), field.getHideUsers(),
                 field.getWorkflowAccessRights());
         TypeMetadata declaringType = field.getDeclaringType();
         if (declaringType != field.getContainingType() && declaringType.isInstantiable()) {
-            SoftTypeRef type = new SoftTypeRef(internalRepository,
-                        declaringType.getNamespace(),
-                        declaringType.getName(),
-                        true);
+            SoftTypeRef type = new SoftTypeRef(internalRepository, declaringType.getNamespace(), declaringType.getName(), true);
             newFlattenField.setDeclaringType(type);
         }
         String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
@@ -103,15 +109,10 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         ComplexTypeMetadata referencedType;
         if (fieldReferencedType.isInstantiable()) {
             String typeName = fieldReferencedType.getName().replace('-', '_');
-            referencedType = new SoftTypeRef(internalRepository,
-                    fieldReferencedType.getNamespace(),
-                    typeName,
-                    true);
+            referencedType = new SoftTypeRef(internalRepository, fieldReferencedType.getNamespace(), typeName, true);
         } else {
-            referencedType = new SoftTypeRef(internalRepository,
-                    fieldReferencedType.getNamespace(),
-                    newNonInstantiableTypeName(fieldReferencedType),
-                    true);
+            referencedType = new SoftTypeRef(internalRepository, fieldReferencedType.getNamespace(),
+                    newNonInstantiableTypeName(fieldReferencedType), true);
         }
 
         String referencedTypeName = referencedType.getName().replace('-', '_');
@@ -119,20 +120,19 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
         ComplexTypeMetadata database = currentType.peek();
 
-        boolean fkIntegrity = referenceField.isFKIntegrity() && (fieldReferencedType != entityMapping.getUser()); // Don't enforce FK integrity for references to itself.
-        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(),
-                referenceField.isKey(),
-                referenceField.isMany(),
-                referenceField.isMandatory(),
-                context.getFieldColumn(referenceField),
-                referencedType,
-                referencedFieldCopy,
-                Collections.<FieldMetadata>emptyList(),
-                fkIntegrity,
-                referenceField.allowFKIntegrityOverride(),
-                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
-                referenceField.getWriteUsers(),
-                referenceField.getHideUsers(),
+        boolean fkIntegrity = referenceField.isFKIntegrity() && (fieldReferencedType != entityMapping.getUser()); // Don't
+                                                                                                                  // enforce
+                                                                                                                  // FK
+                                                                                                                  // integrity
+                                                                                                                  // for
+                                                                                                                  // references
+                                                                                                                  // to
+                                                                                                                  // itself.
+        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(), referenceField.isKey(),
+                referenceField.isMany(), referenceField.isMandatory(), context.getFieldColumn(referenceField), referencedType,
+                referencedFieldCopy, Collections.<FieldMetadata> emptyList(), fkIntegrity,
+                referenceField.allowFKIntegrityOverride(), new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI,
+                        Types.STRING), referenceField.getWriteUsers(), referenceField.getHideUsers(),
                 referenceField.getWorkflowAccessRights());
         newFlattenField.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH); // TODO Not very true...
         database.addField(newFlattenField);
@@ -155,38 +155,25 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     private String createContainedType(String typeName, String superTypeName, ComplexTypeMetadata originalContainedType) {
         ComplexTypeMetadata internalContainedType = (ComplexTypeMetadata) internalRepository.getType(typeName);
         if (internalContainedType == null) {
-            internalContainedType = new ComplexTypeMetadataImpl(originalContainedType.getNamespace(),
-                    typeName,
-                    originalContainedType.getWriteUsers(),
-                    originalContainedType.getDenyCreate(),
+            internalContainedType = new ComplexTypeMetadataImpl(originalContainedType.getNamespace(), typeName,
+                    originalContainedType.getWriteUsers(), originalContainedType.getDenyCreate(),
                     originalContainedType.getHideUsers(),
                     originalContainedType.getDenyDelete(ComplexTypeMetadata.DeleteType.PHYSICAL),
                     originalContainedType.getDenyDelete(ComplexTypeMetadata.DeleteType.LOGICAL),
-                    originalContainedType.getSchematron(),
-                    originalContainedType.getPrimaryKeyInfo(),
-                    originalContainedType.getLookupFields(),
-                    false,
-                    originalContainedType.getWorkflowAccessRights());
+                    originalContainedType.getSchematron(), originalContainedType.getPrimaryKeyInfo(),
+                    originalContainedType.getLookupFields(), false, originalContainedType.getWorkflowAccessRights());
             internalContainedType.setData(TypeMapping.USAGE_NUMBER, originalContainedType.getUsages().size());
             internalRepository.addTypeMetadata(internalContainedType);
             if (superTypeName == null) {
                 // Generate a technical ID only if contained type does not have super type (subclasses will inherit it).
-                SimpleTypeFieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(internalContainedType,
-                        true,
-                        false,
-                        true,
-                        GENERATED_ID,
-                        new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), Types.UUID, false),
-                        originalContainedType.getWriteUsers(),
-                        originalContainedType.getHideUsers(),
+                SimpleTypeFieldMetadata fieldMetadata = new SimpleTypeFieldMetadata(internalContainedType, true, false, true,
+                        GENERATED_ID, new SoftTypeRef(internalRepository, internalRepository.getUserNamespace(), Types.UUID,
+                                false), originalContainedType.getWriteUsers(), originalContainedType.getHideUsers(),
                         originalContainedType.getWorkflowAccessRights());
                 internalContainedType.addField(fieldMetadata);
                 fieldMetadata.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH);
             } else {
-                SoftTypeRef type = new SoftTypeRef(internalRepository,
-                        internalContainedType.getNamespace(),
-                        superTypeName,
-                        false);
+                SoftTypeRef type = new SoftTypeRef(internalRepository, internalContainedType.getNamespace(), superTypeName, false);
                 internalContainedType.addSuperType(type);
             }
             internalRepository.addTypeMetadata(internalContainedType);
@@ -210,24 +197,13 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     @Override
     public TypeMapping visit(ContainedTypeFieldMetadata containedField) {
         String containedTypeName = newNonInstantiableTypeName(containedField.getContainedType());
-        SoftTypeRef typeRef = new SoftTypeRef(internalRepository,
-                containedField.getDeclaringType().getNamespace(),
-                containedTypeName,
-                false);
-        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(),
-                false,
-                containedField.isMany(),
-                containedField.isMandatory(),
-                context.getFieldColumn(containedField),
-                typeRef,
-                new SoftIdFieldRef(internalRepository, containedTypeName),
-                Collections.<FieldMetadata>emptyList(),
-                enforceTechnicalFK,
-                false,
-                new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),
-                containedField.getWriteUsers(),
-                containedField.getHideUsers(),
-                containedField.getWorkflowAccessRights());
+        SoftTypeRef typeRef = new SoftTypeRef(internalRepository, containedField.getDeclaringType().getNamespace(),
+                containedTypeName, false);
+        ReferenceFieldMetadata newFlattenField = new ReferenceFieldMetadata(currentType.peek(), false, containedField.isMany(),
+                containedField.isMandatory(), context.getFieldColumn(containedField), typeRef, new SoftIdFieldRef(
+                        internalRepository, containedTypeName), Collections.<FieldMetadata> emptyList(), enforceTechnicalFK,
+                false, new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING), containedField.getWriteUsers(),
+                containedField.getHideUsers(), containedField.getWorkflowAccessRights());
         newFlattenField.setData(MetadataRepository.DATA_MAX_LENGTH, UUID_LENGTH);
         newFlattenField.setData(MappingGenerator.SQL_DELETE_CASCADE, Boolean.TRUE.toString());
         currentType.peek().addField(newFlattenField);
@@ -254,11 +230,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     public TypeMapping visit(ComplexTypeMetadata complexType) {
         TypeMapping typeMapping;
         if (complexType.isInstantiable()) {
-<<<<<<< HEAD
-        entityMapping = new ScatteredTypeMapping(complexType, mappings);
-=======
             entityMapping = new ScatteredTypeMapping(complexType, mappings);
->>>>>>> 6662108... TMDM-7148: "use RTE-RAP demo ,click relations button with exception"
             typeMapping = entityMapping;
         } else {
             typeMapping = new ScatteredTypeMapping(complexType, mappings);
