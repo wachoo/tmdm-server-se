@@ -325,6 +325,7 @@
     <servlet-mapping>
         <servlet-name>ImageUploadServlet</servlet-name>
         <url-pattern>/imageserver/ImageUploadServlet</url-pattern>
+        <url-pattern>/services/imageserver/ImageUploadServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageDeleteServlet</servlet-name>
