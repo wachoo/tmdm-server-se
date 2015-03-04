@@ -36,6 +36,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import javax.xml.XMLConstants;
+
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -471,8 +473,19 @@ public class HibernateStorage implements Storage {
                                 break;
                             case SQL_SERVER:
                                 // TMDM-8144: Don't index field name on SQL Server when size > 900
-                                Integer maxLength = indexedField.getData(MetadataRepository.DATA_MAX_LENGTH);
-                                if (maxLength != null) {
+                                String maxLengthStr = indexedField.getType().getData(MetadataRepository.DATA_MAX_LENGTH);                                 
+                                if(maxLengthStr == null) {  // go up the type inheritance tree to find max length annotation
+                                    TypeMetadata type = indexedField.getType();
+                                    while (!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace()) && !type.getSuperTypes().isEmpty()) {
+                                        type = type.getSuperTypes().iterator().next();
+                                        maxLengthStr = type.getData(MetadataRepository.DATA_MAX_LENGTH);
+                                        if(maxLengthStr != null){
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (maxLengthStr != null) {
+                                    Integer maxLength = Integer.parseInt(maxLengthStr);
                                     if (maxLength > 900) {
                                         LOGGER.warn("Skip index on field '" + indexedField.getPath() + "' (too long value).");
                                         continue;
