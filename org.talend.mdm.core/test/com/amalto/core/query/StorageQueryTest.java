@@ -125,6 +125,8 @@ public class StorageQueryTest extends StorageTestCase {
 
     private final String TT_Record3 = " <TT><Id>T3</Id><MUl><E1>3</E1><E2>3</E2><E3>[R3]</E3></MUl></TT>";
 
+    private final String RepeatableElementsEntity_Record = "<RepeatableElementsEntity><id>1</id><info><name>n1</name><age>1</age></info><info><name>n2</name><age>2</age></info><info><name>n3</name><age>3</age></info></RepeatableElementsEntity>";
+
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
@@ -336,6 +338,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, tt, TT_Record1));
         allRecords.add(factory.read("1", repository, tt, TT_Record2));
         allRecords.add(factory.read("1", repository, tt, TT_Record3));
+        allRecords.add(factory.read("1", repository, repeatableElementsEntity, RepeatableElementsEntity_Record));
 
         try {
             storage.begin();
@@ -4318,6 +4321,17 @@ public class StorageQueryTest extends StorageTestCase {
             }
         } finally {
             storage.commit();
+        }
+    }
+
+    public void testRepeatableElementsCount() throws Exception {
+        UserQueryBuilder qb = from(repeatableElementsEntity).select(repeatableElementsEntity.getField("id"))
+                .select(repeatableElementsEntity.getField("info/name")).limit(20).start(0);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
         }
     }
 
