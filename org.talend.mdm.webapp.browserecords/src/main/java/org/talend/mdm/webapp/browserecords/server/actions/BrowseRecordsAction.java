@@ -202,7 +202,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             try {
                 String dataClusterPK = getCurrentDataCluster();
                 String concept = item.getConcept();
-                String[] ids = getItemId(repository, item, concept);
+                String[] ids = getItemId(repository, item.getIds(), concept);
 
                 WSDeleteItemWithReport wsDeleteItem = new WSDeleteItemWithReport(new WSItemPK(new WSDataClusterPK(dataClusterPK),
                         concept, ids), "genericUI", //$NON-NLS-1$
@@ -265,14 +265,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return status;
     }
 
-    private String[] getItemId(MetadataRepository repository, ItemBean item, String concept) throws WebBaseException {
+    private String[] getItemId(MetadataRepository repository, String ids, String concept) throws WebBaseException {
         ComplexTypeMetadata itemType = repository.getComplexType(concept);
         String[] keyPaths = new String[itemType.getKeyFields().size()];
         int i = 0;
         for (FieldMetadata keyField : itemType.getKeyFields()) {
             keyPaths[i++] = keyField.getPath();
         }
-        return CommonUtil.extractIdWithDots(keyPaths, item.getIds());
+        return CommonUtil.extractIdWithDots(keyPaths, ids);
     }
 
     @Override
@@ -2108,6 +2108,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
                 wsItem.setContent(Util.nodeToString(wsItemDoc));
             }
+        }
+    }
+
+    @Override
+    public ItemBean getItemBeanById(String concept, String ids, String language) throws ServiceException {
+        MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(getCurrentDataModel());
+        try {
+            String[] idsArray = getItemId(repository, ids, concept);
+            return getItemBeanById(concept, idsArray, language);
+        } catch (WebBaseException e) {
+            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         }
     }
 

@@ -618,6 +618,12 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
                 List<String> foreignKeyInfo, String foreignKeyFilter, boolean staging, String language,
                 AsyncCallback<ForeignKeyBean> callback) {
         }
+
+        @Override
+        public void getItemBeanById(String concept, String ids, String language, AsyncCallback<ItemBean> callback) {
+            // TODO Auto-generated method stub
+
+        }
     }
 
     @Override
