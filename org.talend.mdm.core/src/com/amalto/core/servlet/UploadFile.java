@@ -51,19 +51,12 @@ public class UploadFile extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-
         String path = getServletConfig().getServletContext().getRealPath("/"); //$NON-NLS-1$
-        int pos = path.lastIndexOf('/');
-        path = path.substring(0, pos - 1);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("webapp path-->" + path); //$NON-NLS-1$
-        }
-        pos = path.lastIndexOf('/');
-        path = path.substring(0, pos - 1);
+        File webAppPath = new File(path);
+        containerWebAppsPath = webAppPath.getParent();
         if (LOG.isDebugEnabled()) {
             LOG.debug("container webapps path-->" + path); //$NON-NLS-1$
         }
-        containerWebAppsPath = path;
     }
 
     @Override
