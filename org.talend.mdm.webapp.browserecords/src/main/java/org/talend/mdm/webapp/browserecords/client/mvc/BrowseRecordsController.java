@@ -258,8 +258,8 @@ public class BrowseRecordsController extends Controller {
                                     viewBean.getBindingEntityModel().getConceptName(), result.getReturnValue(), isClose);
                         }
 
-                        browseRecordsService.getItemBeanById(itemBean.getConcept(),
-                                itemBean.getIds().split("\\."), Locale.getLanguage(), new SessionAwareAsyncCallback<ItemBean>() { //$NON-NLS-1$
+                        browseRecordsService.getItemBeanById(itemBean.getConcept(), itemBean.getIds(), Locale.getLanguage(),
+                                new SessionAwareAsyncCallback<ItemBean>() {
 
                                     @Override
                                     public void onSuccess(final ItemBean item) {
@@ -271,10 +271,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-		$wnd.setTimeout(function() {
-			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-		}, millisecond);
-    }-*/;
+                                                                      $wnd.setTimeout(function() {
+                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+                                                                      }, millisecond);
+                                                                      }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
