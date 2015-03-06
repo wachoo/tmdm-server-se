@@ -29,12 +29,14 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -164,10 +166,9 @@ public class BrandingBar extends ContentPanel {
                     public void onSuccess(Void result) {
                         Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
                         Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
-                        setHref(".."); //$NON-NLS-1$
+                        Window.Location.replace(GWT.getHostPageBaseURL());
                     }
                 });
-
             }
         });
     }
