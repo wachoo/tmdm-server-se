@@ -166,7 +166,7 @@ public class GeneralAction implements GeneralService {
     }
 
     @Override
-    public UserBean getUsernameAndUniverse() throws ServiceException {
+    public UserBean getUser() throws ServiceException {
         try {
             UserBean userBean = new UserBean();
             userBean.setEnterprise(com.amalto.core.util.Util.isEnterprise());
@@ -174,7 +174,6 @@ public class GeneralAction implements GeneralService {
                 // TMDM-7629 init locaUser cache
                 String userName = LocalUser.getLocalUser().getUsername();
                 userBean.setName(userName);
-                userBean.setUniverse("UNKNOWN"); //$NON-NLS-1$
                 WSItem item = Util.getPort().getItem(
                         new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"), "User", new String[] { userName }))); //$NON-NLS-1$ //$NON-NLS-2$
                 ILocalUser iUser = LocalUser.getLocalUser();

@@ -191,13 +191,7 @@ public class BrandingBar extends ContentPanel {
     private void buildBar() {
         UserBean userBean = Registry.get(General.USER_BEAN);
         bar.add(new Image("secure/img/header-back-title.png")); //$NON-NLS-1$
-        String html = userBean.getName() + "<br>"; //$NON-NLS-1$
-        if (userBean.getUniverse() != null && userBean.getUniverse().trim().length() != 0
-                && !"UNKNOWN".equals(userBean.getUniverse())) { //$NON-NLS-1$
-            html += MessageFactory.getMessages().connected_to() + ": [" + userBean.getUniverse() + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-        } else {
-            html += MessageFactory.getMessages().connected_to() + ": [HEAD]"; //$NON-NLS-1$
-        }
+        String html = userBean.getName();
         HTML userLabel = new HTML(html);
         userLabel.setStyleName("username"); //$NON-NLS-1$
         userLabel.getElement().setId("username-div"); //$NON-NLS-1$

@@ -33,7 +33,7 @@ public interface GeneralServiceAsync {
 
     void setClusterAndModel(String cluster, String model, AsyncCallback<Void> callback);
 
-    void getUsernameAndUniverse(AsyncCallback<UserBean> callback);
+    void getUser(AsyncCallback<UserBean> callback);
 
     void getLanguages(String language, AsyncCallback<List<LanguageBean>> callback);
 

@@ -38,7 +38,7 @@ public interface GeneralService extends RemoteService {
 
     void setClusterAndModel(String cluster, String model) throws ServiceException;
 
-    public UserBean getUsernameAndUniverse() throws ServiceException;
+    public UserBean getUser() throws ServiceException;
 
     public List<LanguageBean> getLanguages(String language) throws ServiceException;
 
