@@ -110,6 +110,8 @@ public class StorageQueryTest extends StorageTestCase {
 
     private final String E2_Record7 = "<E2><subelement>119</subelement><subelement1>120</subelement1><name>zhang</name></E2>";
 
+    private final String RepeatableElementsEntity_Record = "<RepeatableElementsEntity><id>1</id><info><name>n1</name><age>1</age></info><info><name>n2</name><age>2</age></info><info><name>n3</name><age>3</age></info></RepeatableElementsEntity>";
+
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
@@ -300,17 +302,19 @@ public class StorageQueryTest extends StorageTestCase {
                         .read("1", repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record5</id></ContainedEntityB>"));
         allRecords
-        .add(factory
-                .read("1", repository, city,
-                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
-        allRecords
-        .add(factory
-                .read("1", repository, city,
-                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
-        allRecords
-        .add(factory
-                .read("1", repository, organization,
-                        "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+                .add(factory
+                        .read("1",
+                                repository,
+                                organization,
+                                "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+        allRecords.add(factory.read("1", repository, rr, RR_Record1));
+        allRecords.add(factory.read("1", repository, rr, RR_Record2));
+        allRecords.add(factory.read("1", repository, rr, RR_Record3));
+        allRecords.add(factory.read("1", repository, tt, TT_Record1));
+        allRecords.add(factory.read("1", repository, tt, TT_Record2));
+        allRecords.add(factory.read("1", repository, tt, TT_Record3));
+        allRecords.add(factory.read("1", repository, repeatableElementsEntity, RepeatableElementsEntity_Record));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -3883,6 +3887,17 @@ public class StorageQueryTest extends StorageTestCase {
         storage.begin();
         storage.delete(qb.getSelect());
         storage.commit();
+    }
+
+    public void testRepeatableElementsCount() throws Exception {
+        UserQueryBuilder qb = from(repeatableElementsEntity).select(repeatableElementsEntity.getField("id"))
+                .select(repeatableElementsEntity.getField("info/name")).limit(20).start(0);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
