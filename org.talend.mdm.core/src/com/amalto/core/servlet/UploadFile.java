@@ -62,7 +62,6 @@ public class UploadFile extends HttpServlet {
     @Override
     // Should be HTTP PUT
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response);
         Writer writer = response.getWriter();
         // delete file ?
         String deleteFilename = request.getParameter(PARAMETER_DELETE_FILE);
