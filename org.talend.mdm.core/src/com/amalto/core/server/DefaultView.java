@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.server;
 
 import com.amalto.core.objects.ObjectPOJO;
@@ -10,7 +22,7 @@ import com.amalto.core.server.api.View;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.List;
 
 public class DefaultView implements View {
 
@@ -19,16 +31,17 @@ public class DefaultView implements View {
     /**
      * Creates or updates a View
      */
+    @Override
     public ViewPOJOPK putView(ViewPOJO view) throws XtentisException {
         try {
             ObjectPOJOPK pk = view.store();
-            if (pk == null) throw new XtentisException("Check the XML Server logs");
+            if (pk == null)
+                throw new XtentisException("Unable to create the View"); //$NON-NLS-1$
             return new ViewPOJOPK(pk);
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to create/update the View " + view.getName()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to create/update the View '" + view.getName() + '\''; //$NON-NLS-1$
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
@@ -37,11 +50,12 @@ public class DefaultView implements View {
     /**
      * Get item
      */
+    @Override
     public ViewPOJO getView(ViewPOJOPK pk) throws XtentisException {
         try {
             ViewPOJO sp = ObjectPOJO.load(ViewPOJO.class, pk);
             if (sp == null) {
-                String err = "The View " + pk.getUniqueId() + " does not exist.";
+                String err = "The View '" + pk.getUniqueId() + "' does not exist."; //$NON-NLS-1$ //$NON-NLS-2$
                 LOGGER.error(err);
                 throw new XtentisException(err);
             }
@@ -49,8 +63,7 @@ public class DefaultView implements View {
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to get the View " + pk.toString()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to get the View '" + pk.toString() + '\''; //$NON-NLS-1$
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
@@ -59,14 +72,14 @@ public class DefaultView implements View {
     /**
      * Get a View - no exception is thrown: returns null if not found
      */
+    @Override
     public ViewPOJO existsView(ViewPOJOPK pk) throws XtentisException {
         try {
             return ObjectPOJO.load(ViewPOJO.class, pk);
         } catch (XtentisException e) {
             return null;
         } catch (Exception e) {
-            String info = "Could not check whether this View exists:  " + pk.getUniqueId()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String info = "Could not check whether this View exists: '" + pk.getUniqueId() + '\''; //$NON-NLS-1$
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(info, e);
             }
@@ -74,21 +87,20 @@ public class DefaultView implements View {
         }
     }
 
-
     /**
      * Remove an item
      */
-    public ViewPOJOPK removeView(ViewPOJOPK pk)  throws XtentisException {
+    @Override
+    public ViewPOJOPK removeView(ViewPOJOPK pk) throws XtentisException {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Removing " + pk.getUniqueId());
+            LOGGER.debug("Removing View '" + pk.getUniqueId() + '\''); //$NON-NLS-1$
         }
         try {
             return new ViewPOJOPK(ObjectPOJO.remove(ViewPOJO.class, pk));
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to remove the View " + pk.toString()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to remove the View '" + pk.toString() + '\'';  //$NON-NLS-1$
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
@@ -97,6 +109,7 @@ public class DefaultView implements View {
     /**
      * Retrieve all View PKS
      */
+    @Override
     public Collection<ViewPOJOPK> getViewPKs(String regex) throws XtentisException {
         ArrayList<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(ViewPOJO.class, regex);
         ArrayList<ViewPOJOPK> l = new ArrayList<ViewPOJOPK>();
@@ -109,7 +122,8 @@ public class DefaultView implements View {
     /**
      * Retrieve all Views
      */
-    public ArrayList<ViewPOJO> getAllViews(String regex) throws XtentisException {
+    @Override
+    public List<ViewPOJO> getAllViews(String regex) throws XtentisException {
         ArrayList<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(ViewPOJO.class, regex);
         ArrayList<ViewPOJO> l = new ArrayList<ViewPOJO>();
         for (ObjectPOJOPK objectPOJOPK : c) {

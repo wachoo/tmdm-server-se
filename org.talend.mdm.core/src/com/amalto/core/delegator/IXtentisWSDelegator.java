@@ -195,8 +195,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return array;
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -414,8 +413,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return XConverter.VO2WS(Util.getViewCtrlLocal().getView(new ViewPOJOPK(wsViewGet.getWsViewPK().getPk())));
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -427,8 +425,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return new WSBoolean(Util.getViewCtrlLocal().existsView(new ViewPOJOPK(wsExistsView.getWsViewPK().getPk())) != null);
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
