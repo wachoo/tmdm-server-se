@@ -1056,8 +1056,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 wsDeleteItem.setSource(SUCCESS_KEYWORD);
                 return new WSString("logical delete item successful!"); //$NON-NLS-1$
             } else { // Physical delete
-                String status = SUCCESS_KEYWORD;
-                String message = "physical delete item successful!"; //$NON-NLS-1$
+                String status;
+                String message;
                 if (wsDeleteItem.getInvokeBeforeSaving()) {
                     Util.BeforeDeleteResult result = Util.beforeDeleting(dataClusterPK, concept, ids,
                             wsDeleteItem.getOperateType());
@@ -1077,11 +1077,21 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                             status = SUCCESS_KEYWORD;
                             message = result.message;
                         }
-                    } else {
-                        message = "Could not retrieve the validation process result. An error might have occurred. The record was not deleted.";
                     }
+                }
+                
+                // Now before delete process (if any configured) was called, perform delete.
+                ItemPOJOPK deleteItem = Util.getItemCtrl2Local().deleteItem(pk, wsDeleteItem.getOverride());
+                if (deleteItem != null) {
+                    if (!UpdateReportPOJO.DATA_CLUSTER.equals(dataClusterPK) && wsDeleteItem.getPushToUpdateReport()) {
+                        pushToUpdateReport(dataClusterPK, dataModelPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving(),
+                                wsDeleteItem.getSource(), wsDeleteItem.getOperateType(), wsDeleteItem.getUser());
+                    }
+                    status = SUCCESS_KEYWORD;
+                    message = "physical delete item successful!"; //$NON-NLS-1$
                 } else {
-                    message = "ERROR - Unable to delete item"; //$NON-NLS-1$
+                    status = FAIL_KEYWORD;
+                    message = "Unable to delete item"; //$NON-NLS-1$
                 }
                 wsDeleteItem.setSource(status);
                 return new WSString(message);
