@@ -94,10 +94,7 @@ public class InheritanceTest extends StorageTestCase {
         String[] expectedOrder = { "Product", "Store", "A", "Update", "B", "D", "C", "Employee1", "Country", "Manager1",
                 "Concurrent", "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "Group", "Persons", "Employee", "SS",
                 "Supplier", "ProductFamily", "E2", "ff", "E1", "Manager", "Address", "a1", "a2", "TypeA", "Person" };
-<<<<<<< HEAD
 
-=======
->>>>>>> 6662108... TMDM-7148: "use RTE-RAP demo ,click relations button with exception"
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
             assertEquals(expectedOrder[i++], sortedType.getName());

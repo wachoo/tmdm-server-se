@@ -56,7 +56,7 @@ class SystemScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> 
     private TypeMapping handleField(FieldMetadata field) {
         SimpleTypeFieldMetadata newFlattenField;
         newFlattenField = new SimpleTypeFieldMetadata(currentType.peek(),
-                field.isKey(),
+                false,
                 field.isMany(),
                 field.isMandatory(),
                 context.getFieldColumn(field),
@@ -190,7 +190,9 @@ class SystemScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> 
         }
         // Visit contained type fields
         TypeMapping mapping = mappings.getMappingFromUser(originalContainedType);
-        if (mapping == null) {
+        if (mapping != null) {
+            currentMapping.push(mapping);
+        } else {
             mapping = new FlatTypeMapping(originalContainedType, internalContainedType, mappings);
             mappings.addMapping(mapping);
         }
@@ -296,10 +298,10 @@ class SystemScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> 
             }
         }
         currentType.pop();
-        TypeMapping typeMapping = currentMapping.pop();
-        if (complexType.isInstantiable() && !currentType.isEmpty()) { // This is unexpected
+        currentMapping.pop();
+        if (!currentType.isEmpty()) { // This is unexpected
             throw new IllegalStateException("Type remained in process stack.");
         }
-        return typeMapping;
+        return entityMapping;
     }
 }
