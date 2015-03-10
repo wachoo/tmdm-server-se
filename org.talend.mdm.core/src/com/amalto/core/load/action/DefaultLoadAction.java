@@ -47,6 +47,11 @@ public class DefaultLoadAction implements LoadAction {
     public boolean supportValidation() {
         return true;
     }
+    
+    @Override
+    public boolean supportAutoGenPK() {
+        return true;
+    }
 
     @Override
     public void load(InputStream stream, XSDKey keyMetadata, XmlServer server, SaverSession session) {
