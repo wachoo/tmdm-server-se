@@ -41,7 +41,6 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         }
     }
 
-    @Override
     public DataRecord read(String revisionId, MetadataRepository repository, ComplexTypeMetadata type, Input input) {
         try {
             InputSource inputSource = input.input;
@@ -64,13 +63,13 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
 
         private final Stack<DataRecord> dataRecordStack = new Stack<DataRecord>();
 
-        private final Stack<FieldMetadata> currentField = new Stack<FieldMetadata>();
-
         private final ResettableStringWriter charactersBuffer = new ResettableStringWriter();
 
         private final ComplexTypeMetadata mainType;
 
         private final MetadataRepository repository;
+
+        private FieldMetadata field;
 
         private boolean hasMetUserElement = false;
 
@@ -89,32 +88,27 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
         public DataRecordContentHandler(ComplexTypeMetadata type, MetadataRepository repository) {
             mainType = type;
             this.repository = repository;
+            field = null;
             dataRecord = new DataRecord(type, new DataRecordMetadataImpl(0, null));
             dataRecordStack.push(dataRecord);
             hasMetUserElement = false;
         }
 
-        @Override
         public void setDocumentLocator(Locator locator) {
         }
 
-        @Override
         public void startDocument() throws SAXException {
         }
 
-        @Override
         public void endDocument() throws SAXException {
         }
 
-        @Override
         public void startPrefixMapping(String prefix, String uri) throws SAXException {
         }
 
-        @Override
         public void endPrefixMapping(String prefix) throws SAXException {
         }
 
-        @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             if (!hasMetUserElement) {
                 if (mainType.getName().equals(localName)) {
@@ -130,7 +124,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             } else {
                 if (accumulateXml > 0) {
                     charactersBuffer.append('<').append(localName).append('>');
-                    if (localName.equals(currentField.peek().getName())) {
+                    if (localName.equals(field.getName())) {
                         accumulateXml++;
                     }
                     return;
@@ -139,7 +133,7 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                     metadataField = localName;
                     isMetadata = true;
                 } else {
-                    FieldMetadata field = ((ComplexTypeMetadata) currentType.peek()).getField(localName);
+                    field = ((ComplexTypeMetadata) currentType.peek()).getField(localName);
                     if (field instanceof ReferenceFieldMetadata) {
                         ComplexTypeMetadata actualType = ((ReferenceFieldMetadata) field).getReferencedType();
                         String mdmType = attributes.getValue(SkipAttributeDocumentBuilder.TALEND_NAMESPACE, "type"); //$NON-NLS-1$
@@ -151,13 +145,15 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                         }
                         currentType.push(actualType);
                     } else if (field instanceof ContainedTypeFieldMetadata) {
-                        ComplexTypeMetadata actualType = (ComplexTypeMetadata) field.getType();
+                        ComplexTypeMetadata actualType = ((ContainedTypeFieldMetadata) field).getContainedType();
                         String xsiType = attributes.getValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "type"); //$NON-NLS-1$
                         if (xsiType != null) {
-                            for (ComplexTypeMetadata subType : actualType.getSubTypes()) {
-                                if (subType.getName().equals(xsiType)) {
-                                    actualType = subType;
-                                    break;
+                            ComplexTypeMetadata type = (ComplexTypeMetadata) repository.getNonInstantiableType(repository.getUserNamespace(), xsiType);
+                            if (type != null) {
+                                actualType = type;
+                            } else {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Ignoring xsi:type '" + xsiType + "' because it is not a data model type.");
                                 }
                             }
                         }
@@ -172,16 +168,14 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
                         }
                         currentType.push(type);
                     }
-                    currentField.push(field);
                 }
             }
         }
 
-        @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
             if (accumulateXml > 0) {
                 charactersBuffer.append("</").append(localName).append('>');
-                if (localName.equals(currentField.peek().getName())) {
+                if (localName.equals(field.getName())) {
                     accumulateXml--;
                 }
             }
@@ -192,14 +186,15 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             if (isMetadata) {
                 DataRecordMetadataHelper.setMetadataValue(dataRecord.getRecordMetadata(), metadataField, value);
                 isMetadata = false;
-            } else if (hasMetUserElement && !currentField.isEmpty()) {
-                FieldMetadata field = currentField.pop();
-                TypeMetadata type = currentType.pop();
+            } else if (hasMetUserElement && field != null) {
                 if (!value.isEmpty()) {
-                    dataRecordStack.peek().set(field, value.isEmpty() ? null : MetadataUtils.convert(value, field, type));
+                    dataRecordStack.peek().set(field, value.isEmpty() ? null : MetadataUtils.convert(value, field, currentType.peek()));
                 }
-                if (field instanceof ContainedTypeFieldMetadata) {
-                    dataRecordStack.pop();
+                if (!currentType.isEmpty()) {
+                    TypeMetadata typeMetadata = currentType.pop();
+                    if (!(field instanceof ReferenceFieldMetadata) && typeMetadata instanceof ComplexTypeMetadata) {
+                        dataRecordStack.pop();
+                    }
                 }
             } else {
                 if (isReadingTimestamp) {
@@ -212,20 +207,16 @@ public class XmlSAXDataRecordReader implements DataRecordReader<XmlSAXDataRecord
             }
         }
 
-        @Override
         public void characters(char[] ch, int start, int length) throws SAXException {
             charactersBuffer.append(new String(ch, start, length).trim());
         }
 
-        @Override
         public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
         }
 
-        @Override
         public void processingInstruction(String target, String data) throws SAXException {
         }
 
-        @Override
         public void skippedEntity(String name) throws SAXException {
         }
 
