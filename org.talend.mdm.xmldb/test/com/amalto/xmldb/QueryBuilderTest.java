@@ -20,10 +20,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amalto.xmlserver.interfaces.*;
 import junit.framework.TestCase;
 
 import com.amalto.xmldb.util.PartialXQLPackage;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class QueryBuilderTest extends TestCase {
@@ -70,6 +74,19 @@ public class QueryBuilderTest extends TestCase {
         Map<String, ArrayList<String>> metaDataTypes = null;
 
         String expected = "$pivot0/ViewPK eq \"Browse_items_Product\"";
+        String actual = queryBuilder.buildWhereCondition(whereCond, pivots, metaDataTypes);
+        assertEquals(expected, actual);
+    }
+
+    public void testBuildMultiLanguageWhereCondition() throws Exception {
+        LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
+        pivots.put("$pivot0", "TestItem");
+        WhereCondition whereCond = new WhereCondition("TestItem/MultiLanguageElement", WhereCondition.CONTAINS, "*[EN:*\"/\"*]*",
+                null, false);
+        Map<String, ArrayList<String>> metaDataTypes = null;
+        assertEquals("*[EN:*/*]*", whereCond.getRightValueOrPath());
+        assertFalse(whereCond.isRightValueXPath());
+        String expected = " matches($pivot0/MultiLanguageElement, \".*\\[EN:.*/.*\\].*.*\" ,\"i\") ";
         String actual = queryBuilder.buildWhereCondition(whereCond, pivots, metaDataTypes);
         assertEquals(expected, actual);
     }
@@ -371,19 +388,18 @@ public class QueryBuilderTest extends TestCase {
         actual = queryBuilder.buildPKsByCriteriaQuery(criteria);
         assertEquals(expected, actual);
     }
-    
+
     public void testQueryBuildWhereCondition() throws Exception {
         LinkedHashMap<String, String> pivots = new LinkedHashMap<String, String>();
         pivots.put("$pivot0", "Update");
-        WhereCondition whereCond = new WhereCondition("Update/Key", WhereCondition.CONTAINS, "5000000001", null,
-                false);
+        WhereCondition whereCond = new WhereCondition("Update/Key", WhereCondition.CONTAINS, "5000000001", null, false);
         Map<String, ArrayList<String>> metaDataTypes = null;
 
         String expected = " matches($pivot0/Key, \"5000000001.*\" ,\"i\") ";
         String actual = queryBuilder.buildWhereCondition(whereCond, pivots, metaDataTypes);
         assertEquals(expected, actual);
     }
-    
+
     public void testQueryCompletedRoutingOrder() throws Exception {
         boolean isItemQuery = true;
         LinkedHashMap<String, String> objectRootElementNamesToRevisionID = new LinkedHashMap<String, String>();
@@ -393,8 +409,8 @@ public class QueryBuilderTest extends TestCase {
         ArrayList<String> viewableFullPaths = new ArrayList<String>();
         viewableFullPaths.add("completed-routing-order-v2-pOJO/name");
         viewableFullPaths.add("completed-routing-order-v2-pOJO/@status");
-        IWhereItem whereItem = new WhereCondition("completed-routing-order-v2-pOJO/@time-last-run-started", WhereCondition.GREATER_THAN_OR_EQUAL, "-1",
-                WhereCondition.PRE_NONE, false);
+        IWhereItem whereItem = new WhereCondition("completed-routing-order-v2-pOJO/@time-last-run-started",
+                WhereCondition.GREATER_THAN_OR_EQUAL, "-1", WhereCondition.PRE_NONE, false);
         String orderBy = null;
         String direction = null;
         int start = 0;
@@ -419,7 +435,10 @@ public class QueryBuilderTest extends TestCase {
         private boolean useNumberFunction = false;
 
         @Override
-        public String getUriQuery(boolean isItemQuery, Map<String, String> objectRootElementNamesToRevisionID, Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot, ArrayList<String> viewableFullPaths, IWhereItem whereItem, boolean withTotalCountOnFirstRow, Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
+        public String getUriQuery(boolean isItemQuery, Map<String, String> objectRootElementNamesToRevisionID,
+                Map<String, String> objectRootElementNamesToClusterName, String forceMainPivot,
+                ArrayList<String> viewableFullPaths, IWhereItem whereItem, boolean withTotalCountOnFirstRow,
+                Map<String, ArrayList<String>> metaDataTypes) throws XmlServerException {
             return "";
         }
 

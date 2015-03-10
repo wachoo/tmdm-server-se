@@ -17,6 +17,8 @@
 package com.amalto.xmlserver.interfaces;
 
 import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 
@@ -137,18 +139,34 @@ public class WhereCondition implements IWhereItem, Serializable {
         // Quoted values (either simple or double) are considered as literal values
         // TODO To be refactored to support true literal/Xpath differentiation
         if (rightValueOrPath != null) {
-            if (rightValueOrPath.length() > 1 && ((rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
-                    || (rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")))) { //$NON-NLS-1$ //$NON-NLS-2$
+            Pattern multiLanguageValuePattern = Pattern.compile("(?<=\\*\\[[a-zA-Z]{2}:)(.+?)(?=\\*\\]\\*)"); //$NON-NLS-1$
+            Matcher multiLanguageValueMatcher = multiLanguageValuePattern.matcher(rightValueOrPath);
+            boolean isMultiLanguageValue = multiLanguageValueMatcher.find();
+            String tempValue = isMultiLanguageValue ? multiLanguageValueMatcher.group().startsWith("*") ? multiLanguageValueMatcher //$NON-NLS-1$
+                    .group().substring(1)
+                    : multiLanguageValueMatcher.group()
+                    : rightValueOrPath;
+            if (tempValue.length() > 1 && ((tempValue.startsWith("\"") && tempValue.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
+                    || (tempValue.startsWith("'") && tempValue.endsWith("'")))) { //$NON-NLS-1$ //$NON-NLS-2$
                 isRightValueXPath = false;
-                rightValueOrPath = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
-                // Escape any potential '\' character
-                rightValueOrPath = rightValueOrPath.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
-            } else if(rightValueOrPath.contains("/")) { //$NON-NLS-1$
+                if (isMultiLanguageValue) {
+                    String orignalTempValue = tempValue;
+                    tempValue = tempValue.substring(1, tempValue.length() - 1);
+                    // Escape any potential '\' character
+                    tempValue = tempValue.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+                    rightValueOrPath = rightValueOrPath.replace(orignalTempValue, tempValue);
+                } else {
+                    tempValue = tempValue.substring(1, tempValue.length() - 1);
+                    // Escape any potential '\' character
+                    rightValueOrPath = tempValue.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            } else if (tempValue.contains("/")) { //$NON-NLS-1$
                 isRightValueXPath = true;
-            }    
+            }
         }
-        
-        if (rightValueOrPath != null && !rightValueOrPath.startsWith("^") && (null != this.operator && this.operator.equals(WhereCondition.STARTSWITH))) { //$NON-NLS-1$
+
+        if (rightValueOrPath != null
+                && !rightValueOrPath.startsWith("^") && (null != this.operator && this.operator.equals(WhereCondition.STARTSWITH))) { //$NON-NLS-1$
             this.rightValueOrPath = "^" + rightValueOrPath; //$NON-NLS-1$
         } else {
             this.rightValueOrPath = rightValueOrPath;
@@ -192,10 +210,10 @@ public class WhereCondition implements IWhereItem, Serializable {
 
     public static WhereCondition deserialize(String xml) throws XmlServerException {
         Document d = Util.parse(xml);
-        return new WhereCondition(Util.getFirstTextNode(d.getDocumentElement(), "./leftpath"), Util.getFirstTextNode(d
-                .getDocumentElement(), "./operator"), Util.getFirstTextNode(d.getDocumentElement(), "./rightvalueorpath"), Util
-                .getFirstTextNode(d.getDocumentElement(), "./stringpredicate"), "yes".equals(Util.getFirstTextNode(d
-                .getDocumentElement(), "./spellcheck")));
+        return new WhereCondition(Util.getFirstTextNode(d.getDocumentElement(), "./leftpath"), Util.getFirstTextNode(
+                d.getDocumentElement(), "./operator"), Util.getFirstTextNode(d.getDocumentElement(), "./rightvalueorpath"),
+                Util.getFirstTextNode(d.getDocumentElement(), "./stringpredicate"), "yes".equals(Util.getFirstTextNode(
+                        d.getDocumentElement(), "./spellcheck")));
     }
 
     /*
@@ -203,6 +221,7 @@ public class WhereCondition implements IWhereItem, Serializable {
      * 
      * @see java.lang.Object#toString()
      */
+    @Override
     public String toString() {
         return "(" + getLeftPath() + " " + getOperator() + " " + getRightValueOrPath() + " " + getStringPredicate() + " "
                 + isSpellCheck() + ")";
