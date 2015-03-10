@@ -86,6 +86,11 @@
         <servlet-name>baseRemoteServlet</servlet-name>
         <url-pattern>/browserecords/BaseRemoteService</url-pattern>
     </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>baseRemoteServlet</servlet-name>
+        <url-pattern>/browserecordsinstaging/BaseRemoteService</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>readExcelFile</servlet-name>
