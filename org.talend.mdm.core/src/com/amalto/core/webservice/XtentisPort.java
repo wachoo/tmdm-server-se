@@ -99,6 +99,8 @@ public interface XtentisPort extends java.rmi.Remote {
     public WSStringArray quickSearch(WSQuickSearch wsQuickSearch) throws RemoteException;
 
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException;
+    
+    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException;
 
     public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException;
 

@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -964,6 +964,31 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return new WSItemPK(dataClusterPK, conceptName, savedId);
         } catch (Exception e) {
             LOGGER.error("Error during save.", e);
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
+    }
+    
+    @Override
+    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
+        try {
+            WSItemPK itemPK = wsUpdateMetadataItem.getWsItemPK();
+            ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(itemPK.getWsDataClusterPK().getPk()),
+                    itemPK.getConceptName(), itemPK.getIds());
+            Item itemCtrl2Local = Util.getItemCtrl2Local();
+            ItemPOJO item = itemCtrl2Local.getItem(itemPk);
+            item.setTaskId(wsUpdateMetadataItem.getTaskId());
+            ItemPOJOPK itemPOJOPK = itemCtrl2Local.updateItemMetadata(item);
+            return new WSItemPK(new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
+                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
+        } catch (XtentisException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
+            throw new RemoteException(e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }

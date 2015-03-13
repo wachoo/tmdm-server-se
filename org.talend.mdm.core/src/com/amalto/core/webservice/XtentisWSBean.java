@@ -252,6 +252,11 @@ public class XtentisWSBean implements XtentisPort {
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
         return delegator.putItem(wsPutItem);
     }
+    
+    @Override
+    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
+        return delegator.updateItemMetadata(wsUpdateMetadataItem);
+    }
 
     @Override
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
