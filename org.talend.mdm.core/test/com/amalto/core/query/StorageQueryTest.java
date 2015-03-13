@@ -303,16 +303,22 @@ public class StorageQueryTest extends StorageTestCase {
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record5</id></ContainedEntityB>"));
         allRecords
                 .add(factory
+                        .read("1", repository, city,
+                                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
+        allRecords
+        .add(factory
+                .read("1", repository, city,
+                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
+        allRecords
+        .add(factory
+                .read("1", repository, organization,
+                        "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+        allRecords
+                .add(factory
                         .read("1",
                                 repository,
                                 organization,
                                 "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
-        allRecords.add(factory.read("1", repository, rr, RR_Record1));
-        allRecords.add(factory.read("1", repository, rr, RR_Record2));
-        allRecords.add(factory.read("1", repository, rr, RR_Record3));
-        allRecords.add(factory.read("1", repository, tt, TT_Record1));
-        allRecords.add(factory.read("1", repository, tt, TT_Record2));
-        allRecords.add(factory.read("1", repository, tt, TT_Record3));
         allRecords.add(factory.read("1", repository, repeatableElementsEntity, RepeatableElementsEntity_Record));
 
         try {
