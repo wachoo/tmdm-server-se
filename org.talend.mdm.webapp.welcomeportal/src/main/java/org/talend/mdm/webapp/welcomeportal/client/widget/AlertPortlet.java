@@ -29,147 +29,79 @@ public class AlertPortlet extends BasePortlet {
 
     private static String alertIcon = "<IMG SRC=\"/talendmdm/secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
 
-    private String linkData;
+    private String message = ""; //$NON-NLS-1$
 
     public AlertPortlet(MainFramePanel portal) {
         super(WelcomePortal.ALERT, portal);
-
         initConfigSettings();
-
         label.setText(MessagesFactory.getMessages().loading_alert_msg());
-
-        initLinks();
+        updateLinks();
+        autoRefresh(configModel.isAutoRefresh());
     }
 
     @Override
     public void refresh() {
         updateLinks();
-
     }
 
     private void updateLinks() {
-
         final StringBuilder sb = new StringBuilder(mesgPrefix);
-
-        service.getAlertMsg(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
+        service.getAlert(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Integer>() {
 
             @Override
-            public void onSuccess(String msg) {
-                if (msg == null) {
+            public void onSuccess(Integer type) {
+                if (type == 0) {
                     service.getLicenseWarning(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
                         @Override
-                        public void onSuccess(String message) {
-                            if (!message.isEmpty()) {
+                        public void onSuccess(String warning) {
+                            if (!warning.isEmpty()) {
                                 sb.append(alertIcon);
-                                sb.append(message);
+                                sb.append(warning);
                                 label.setText(MessagesFactory.getMessages().alerts_desc());
                             } else {
                                 label.setText(MessagesFactory.getMessages().no_alerts());
-                                set.setVisible(false);
+                                fieldSet.setVisible(false);
                             }
                             sb.append("</span>"); //$NON-NLS-1$
 
-                            refreshWithNewData(sb.toString());
+                            updateMessage(sb.toString());
                         }
 
                     });
                 } else {
-                    if (msg.equals(WelcomePortal.NOLICENSE)) {
+                    if (type == WelcomePortal.NOLICENSE) {
                         sb.append(alertIcon);
                         sb.append(MessagesFactory.getMessages().no_license_msg());
-                    } else if (msg.equals(WelcomePortal.EXPIREDLICENSE)) {
+                    } else if (type == WelcomePortal.EXPIREDLICENSE) {
                         sb.append(alertIcon);
                         sb.append(MessagesFactory.getMessages().license_expired_msg());
                     } else {
                         // error msg
-                        sb.append(msg);
+                        sb.append(type);
                     }
                     label.setText(MessagesFactory.getMessages().alerts_desc());
                     sb.append("</span>"); //$NON-NLS-1$
-
-                    refreshWithNewData(sb.toString());
+                    updateMessage(sb.toString());
                 }
             }
         });
     }
 
-    private void initLinks() {
-
-        final HTML alertHtml = new HTML();
-        final StringBuilder sb = new StringBuilder(mesgPrefix);
-
-        service.getAlertMsg(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
-
-            @Override
-            public void onSuccess(String msg) {
-                if (msg == null) {
-                    service.getLicenseWarning(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
-
-                        @Override
-                        public void onSuccess(String message) {
-                            if (!message.isEmpty()) {
-                                sb.append(alertIcon);
-                                sb.append(message);
-                                label.setText(MessagesFactory.getMessages().alerts_desc());
-                            } else {
-                                label.setText(MessagesFactory.getMessages().no_alerts());
-                                set.setVisible(false);
-                            }
-                            sb.append("</span>"); //$NON-NLS-1$
-                            linkData = sb.toString();
-                            alertHtml.setHTML(linkData);
-                        }
-                    });
-                } else {
-                    if (msg.equals(WelcomePortal.NOLICENSE)) {
-                        sb.append(alertIcon);
-                        sb.append(MessagesFactory.getMessages().no_license_msg());
-                    } else if (msg.equals(WelcomePortal.EXPIREDLICENSE)) {
-                        sb.append(alertIcon);
-                        sb.append(MessagesFactory.getMessages().license_expired_msg());
-                    } else {
-                        // error msg
-                        sb.append(msg);
-                    }
-                    label.setText(MessagesFactory.getMessages().alerts_desc());
-                    sb.append("</span>"); //$NON-NLS-1$
-                    linkData = sb.toString();
-                    alertHtml.setHTML(linkData);
-                }
-
-                alertHtml.addClickHandler(new ClickHandler() {
-
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        portal.initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
-                    }
-
-                });
-                set.add(alertHtml);
-                set.layout(true);
-                autoRefresh(configModel.isAutoRefresh());
-            }
-        });
-
-    }
-
-    private void refreshWithNewData(String newData) {
-        if (!linkData.equals(newData)) {
-            linkData = newData;
-            set.removeAll();
-
-            HTML alertHtml = new HTML(linkData);
+    private void updateMessage(String newMessage) {
+        if (!message.equals(newMessage)) {
+            message = newMessage;
+            fieldSet.removeAll();
+            HTML alertHtml = new HTML(message);
             alertHtml.addClickHandler(new ClickHandler() {
 
                 @Override
                 public void onClick(ClickEvent event) {
                     portal.initUI(WelcomePortal.LICENSECONTEXT, WelcomePortal.LICENSEAPP);
                 }
-
             });
-            set.add(alertHtml);
-            set.layout(true);
+            fieldSet.add(alertHtml);
+            fieldSet.layout(true);
         }
     }
 }

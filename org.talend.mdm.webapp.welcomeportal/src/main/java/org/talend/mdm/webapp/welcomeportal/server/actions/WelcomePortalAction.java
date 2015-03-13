@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.server.actions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +142,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     @Override
-    public String getAlertMsg(String language) throws ServiceException {
+    public int getAlert(String language) throws ServiceException {
         try {
             WebappInfo webappInfo = new WebappInfo();
             Webapp.INSTANCE.getInfo(webappInfo, language);
@@ -152,10 +151,10 @@ public class WelcomePortalAction implements WelcomePortalService {
             } else if (!webappInfo.isLicenseValid()) {
                 return WelcomePortal.EXPIREDLICENSE;
             }
-            return null;
+            return 0;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return e.getMessage();
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
@@ -185,27 +184,17 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     @Override
-    public List<String> getStandaloneProcess(String language) throws ServiceException {
+    public Map<String, String> getStandaloneProcess(String language) throws ServiceException {
         try {
-            List<String> process = new ArrayList<String>();
-
+            Map<String, String> processMap = new HashMap<String, String>();
             WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
-
             for (WSTransformerPK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
                     WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(wstransformerpk));
-                    // add transformer pk, and then add its desc
-                    process.add(wstransformerpk.getPk());
-                    String desc = getDescriptionByLau(language, wsTransformer.getDescription());
-                    if (desc == null || desc.equals("")) { //$NON-NLS-1$
-                        process.add(wstransformerpk.getPk());
-                    } else {
-                        process.add(desc);
-                    }
+                    processMap.put(wstransformerpk.getPk(), getDescriptionByLau(language, wsTransformer.getDescription()));
                 }
             }
-            return process;
-
+            return processMap;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

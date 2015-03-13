@@ -33,13 +33,13 @@ public interface WelcomePortalService extends RemoteService {
 
     public boolean isHiddenDSCTask() throws ServiceException;
 
-    public String getAlertMsg(String language) throws ServiceException;
+    public int getAlert(String language) throws ServiceException;
 
     public int getWorkflowTaskMsg() throws ServiceException;
 
     public Map<String, Integer> getDSCTaskMsg() throws ServiceException;
 
-    public List<String> getStandaloneProcess(String language) throws ServiceException;
+    public Map<String, String> getStandaloneProcess(String language) throws ServiceException;
 
     public String runProcess(String transformerPK) throws ServiceException;
 

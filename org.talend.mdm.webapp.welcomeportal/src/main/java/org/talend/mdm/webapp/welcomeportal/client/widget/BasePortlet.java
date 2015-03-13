@@ -73,7 +73,7 @@ public abstract class BasePortlet extends Portlet {
 
     protected Label label;
 
-    protected FieldSet set;
+    protected FieldSet fieldSet;
 
     protected Timer autoRefresher;
 
@@ -169,14 +169,14 @@ public abstract class BasePortlet extends Portlet {
         label.setAutoHeight(true);
         this.add(label);
 
-        set = new FieldSet();
-        set.setItemId(name + "Set"); //$NON-NLS-1$
-        set.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
-        set.setStyleAttribute("margin-left", "10px");//$NON-NLS-1$ //$NON-NLS-2$
-        set.setStyleAttribute("margin-right", "10px");//$NON-NLS-1$ //$NON-NLS-2$
-        set.setBorders(false);
+        fieldSet = new FieldSet();
+        fieldSet.setItemId(name + "Set"); //$NON-NLS-1$
+        fieldSet.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
+        fieldSet.setStyleAttribute("margin-left", "10px");//$NON-NLS-1$ //$NON-NLS-2$
+        fieldSet.setStyleAttribute("margin-right", "10px");//$NON-NLS-1$ //$NON-NLS-2$
+        fieldSet.setBorders(false);
 
-        this.add(set);
+        this.add(fieldSet);
 
         this.setHeading();
         this.setIcon();
