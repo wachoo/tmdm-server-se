@@ -12,7 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client.widget;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -30,55 +31,35 @@ import com.google.gwt.user.client.ui.HTML;
 
 public class ProcessPortlet extends BasePortlet {
 
-    private List<String> data;
+    private Map<String, String> processMap = new HashMap<String, String>();
 
     public ProcessPortlet(MainFramePanel portal) {
         super(WelcomePortal.PROCESS, portal);
-
         initConfigSettings();
-
         label.setText(MessagesFactory.getMessages().process_desc());
-
-        initLinks();
+        updateProcesses();
+        autoRefresh(configModel.isAutoRefresh());
     }
 
     @Override
     public void refresh() {
-        updateLinks();
+        updateProcesses();
     }
 
-    private void initLinks() {
-
-        service.getStandaloneProcess(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<String>>() {
-
-            @Override
-            public void onSuccess(List<String> list) {
-                data = list;
-
-                buildLinks(list);
-
-                autoRefresh(configModel.isAutoRefresh());
-            }
-
-        });
-
-    }
-
-    private void buildLinks(List<String> list) {
-        if (list.isEmpty()) {
+    private void buildProcesses() {
+        if (processMap.isEmpty()) {
             label.setText(MessagesFactory.getMessages().no_standalone_process());
-            set.setVisible(false);
+            fieldSet.setVisible(false);
         } else {
-            for (int j = 0; j < list.size(); j = j + 2) {
-                final String str = list.get(j);
-                String strDesc = list.get(j + 1);
+            for (final String key : processMap.keySet()) {
+                String description = processMap.get(key);
                 HTML processHtml = new HTML();
                 StringBuilder sb = new StringBuilder();
                 sb.append("<span id=\"processes"); //$NON-NLS-1$
-                sb.append(str);
+                sb.append(key);
                 sb.append("\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\">"); //$NON-NLS-1$
                 sb.append("<IMG SRC=\"/talendmdm/secure/img/genericUI/runnable_bullet.png\"/>&nbsp;"); //$NON-NLS-1$
-                sb.append(strDesc.replace("Runnable#", "")); //$NON-NLS-1$ //$NON-NLS-2$
+                sb.append(description != null ? description.replace("Runnable#", "") : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 sb.append("</span>"); //$NON-NLS-1$
                 processHtml.setHTML(sb.toString());
                 processHtml.addClickHandler(new ClickHandler() {
@@ -99,7 +80,7 @@ public class ProcessPortlet extends BasePortlet {
                                     }
                                 };
                                 t.schedule(600000);
-                                service.runProcess(str, new SessionAwareAsyncCallback<String>() {
+                                service.runProcess(key, new SessionAwareAsyncCallback<String>() {
 
                                     @Override
                                     protected void doOnFailure(Throwable caught) {
@@ -123,47 +104,45 @@ public class ProcessPortlet extends BasePortlet {
                                             }
                                         });
                                     }
-
                                 });
                             }
                         });
                     }
-
                 });
-                set.add(processHtml);
-                set.layout(true);
+                fieldSet.add(processHtml);
+                fieldSet.layout(true);
+
             }
         }
     }
 
-    private void updateLinks() {
-
-        service.getStandaloneProcess(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<List<String>>() {
+    private void updateProcesses() {
+        service.getStandaloneProcess(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Map<String, String>>() {
 
             @Override
-            public void onSuccess(List<String> list) {
-                if (isDataDifferentFrom(list)) {
-                    data = list;
-                    set.removeAll();
-                    buildLinks(list);
+            public void onSuccess(Map<String, String> newProcessMap) {
+                if (compareProcesses(newProcessMap)) {
+                    processMap = newProcessMap;
+                    fieldSet.removeAll();
+                    buildProcesses();
                 }
             }
-
         });
 
     }
 
-    protected boolean isDataDifferentFrom(List<String> list) {
-        if (data.size() != list.size()) {
-            return true;
-        } else {
-            int i = 0;
-            for (String action : data) {
-                if (!action.equals(list.get(i++))) {
-                    return true;
+    protected boolean compareProcesses(Map<String, String> newProcessMap) {
+        boolean flag = true;
+        if (processMap.size() == newProcessMap.size()) {
+            for (String key : newProcessMap.keySet()) {
+                if (!processMap.containsKey(key)) {
+                    flag = false;
+                    break;
                 }
             }
+        } else {
+            flag = false;
         }
-        return false;
+        return flag;
     }
 }

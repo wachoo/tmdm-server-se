@@ -17,15 +17,16 @@ import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class SearchPortlet extends BasePortlet {
@@ -43,9 +44,11 @@ public class SearchPortlet extends BasePortlet {
     }
 
     private void init() {
-        set.setBorders(false);
+        fieldSet.setBorders(false);
+        HorizontalPanel panel = new HorizontalPanel();
+        panel.setSpacing(3);
+        panel.setVerticalAlign(VerticalAlignment.MIDDLE);
 
-        Grid grid = new Grid(1, 2);
         final TextBox textBox = new TextBox();
         textBox.addKeyUpHandler(new KeyUpHandler() {
 
@@ -56,7 +59,7 @@ public class SearchPortlet extends BasePortlet {
                 }
             }
         });
-        grid.setWidget(0, 0, textBox);
+        panel.add(textBox);
 
         Button button = new Button(MessagesFactory.getMessages().search_button_text());
         button.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -66,12 +69,9 @@ public class SearchPortlet extends BasePortlet {
                 doSearch(textBox);
             }
         });
-
-        grid.setWidget(0, 1, button);
-
-        set.add(grid);
-        set.layout(true);
-
+        panel.add(button);
+        fieldSet.add(panel);
+        fieldSet.layout(true);
     }
 
     @Override

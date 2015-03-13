@@ -171,21 +171,21 @@ public abstract class ChartPortlet extends BasePortlet {
         plot.setWidth(plotWidth);
         plot.setHeight(plotHeight);
         plot.redraw();
-        set.layout(true);
+        fieldSet.layout(true);
     }
 
     protected void refreshPlot() {
         updatePlot();
         plot.redraw();
-        set.layout(true);
+        fieldSet.layout(true);
     }
 
     protected void initAndShow() {
         initPlot();
         addPlotHovering();
-        set.removeAll();
-        set.add(plot);
-        set.layout(true);
+        fieldSet.removeAll();
+        fieldSet.add(plot);
+        fieldSet.layout(true);
         this.autoRefresh(configModel.isAutoRefresh());
 
         this.addListener(Events.Resize, new Listener<BaseEvent>() {
