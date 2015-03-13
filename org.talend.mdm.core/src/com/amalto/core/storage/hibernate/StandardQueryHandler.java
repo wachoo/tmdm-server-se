@@ -497,12 +497,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     }
                     previousAlias = alias;
                 }
+                if (iterator.hasNext()) {
+                    builder.append('/');
+                }
             }
             aliases.add(previousAlias);
             previousAlias = type.getName();
-            if (iterator.hasNext()) {
-                builder.append('/');
-            }
         }
         return aliases;
     }
