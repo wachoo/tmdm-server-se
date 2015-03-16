@@ -238,6 +238,9 @@ public class MultiLanguageField extends TextField<String> {
 
     public String getValueWithLanguage(String operator) {
         String v = FormatUtil.languageValueEncode(value);
+        if("*".equals(v)){ //$NON-NLS-1$
+            return v;
+        }        
         if (OperatorValueConstants.CONTAINS.equals(operator)) {
             return "*[" + this.currentLanguage + ":*" + v + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
         } else if (OperatorValueConstants.STARTSWITH.equals(operator)) {
