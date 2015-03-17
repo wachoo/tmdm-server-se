@@ -6,31 +6,24 @@
         "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-
     <session-factory>
-
         <property name="statement_cache.size">0</property>
-
         <!-- Database connection settings -->
-        <property name="hibernate.connection.url" />
-        <property name="hibernate.connection.username" />
-        <property name="hibernate.connection.driver_class" />
-        <property name="hibernate.dialect" />
-        <property name="hibernate.connection.password" />
-
+        <property name="hibernate.connection.url"/>
+        <property name="hibernate.connection.username"/>
+        <property name="hibernate.connection.driver_class"/>
+        <property name="hibernate.dialect"/>
+        <property name="hibernate.connection.password"/>
         <property name="hibernate.jdbc.batch_size">100</property>
-
         <!-- Needs a special org.hibernate.context.ThreadLocalSessionContext implementation that allow CLOB creations -->
-        <property name="hibernate.current_session_context_class">com.amalto.core.storage.hibernate.MDMTransactionSessionContext</property>
-
-        <property name="hibernate.c3p0.min_size">5</property>
-        <property name="hibernate.c3p0.max_size">50</property>
-        <property name="hibernate.c3p0.timeout">600</property>
-        <property name="hibernate.c3p0.idle_test_period">100</property>
-        <property name="hibernate.c3p0.max_statements">100</property>
-
+        <property name="hibernate.current_session_context_class">
+            com.amalto.core.storage.hibernate.MDMTransactionSessionContext
+        </property>
+        <property name="hibernate.dbcp.initialSize">8</property>
+        <property name="hibernate.dbcp.maxActive">20</property>
+        <property name="hibernate.dbcp.maxIdle">20</property>
+        <property name="hibernate.dbcp.minIdle">0</property>
         <property name="hibernate.show_sql">false</property>
-
+        <property name="hibernate.search.lucene_version">LUCENE_CURRENT</property>
     </session-factory>
-
 </hibernate-configuration>

@@ -15,7 +15,6 @@ package com.amalto.webapp.core.util;
 import java.rmi.RemoteException;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.ObjectNotFoundException;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
@@ -273,9 +272,6 @@ public class XtentisWebPort implements XtentisPort {
             String entityNotFoundErrorMessage = "entity_not_found"; //$NON-NLS-1$
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.util.EntityNotFoundException.class)) {
                 EntityNotFoundException cause = Util.cause(e, EntityNotFoundException.class);
-                throw new RemoteException(StringUtils.EMPTY, new WebCoreException(entityNotFoundErrorMessage, cause));
-            } else if (com.amalto.webapp.core.util.Util.causeIs(e, org.hibernate.ObjectNotFoundException.class)) {
-                ObjectNotFoundException cause = Util.cause(e, ObjectNotFoundException.class);
                 throw new RemoteException(StringUtils.EMPTY, new WebCoreException(entityNotFoundErrorMessage, cause));
             }
             throw (new RemoteException(e.getLocalizedMessage(), e));

@@ -29,9 +29,9 @@ import org.apache.commons.codec.binary.Base64OutputStream;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.hibernate.collection.PersistentList;
-import org.hibernate.engine.CollectionEntry;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.collection.internal.PersistentList;
+import org.hibernate.engine.spi.CollectionEntry;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -135,7 +135,7 @@ public abstract class TypeMapping {
             String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
             if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
                 if (value != null) {
-                    return Hibernate.createClob(String.valueOf(value), session);
+                    return Hibernate.getLobCreator(session).createBlob(String.valueOf(value).getBytes());
                 } else {
                     return null;
                 }

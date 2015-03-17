@@ -1,29 +1,27 @@
 package com.amalto.core.storage.hibernate;
 
 import org.hibernate.*;
-import org.hibernate.classic.Session;
+import org.hibernate.jdbc.ReturningWork;
 import org.hibernate.jdbc.Work;
+import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.stat.SessionStatistics;
-import org.hibernate.type.Type;
 
 import java.io.Serializable;
 import java.sql.Connection;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A implementation of {@link org.hibernate.Session} that ensures all read operations are performed using pessimistic
  * locks.
+ * 
  * @see com.amalto.core.storage.transaction.Transaction.LockStrategy
  * @see com.amalto.core.storage.transaction.StorageTransaction#getLockStrategy()
  * @see HibernateStorageTransaction#getLockStrategy()
  */
 class LockUpdateSession implements Session {
 
-    private static final LockOptions lockOptions = LockOptions.UPGRADE.setLockMode(LockMode.PESSIMISTIC_WRITE);
+    private static final LockOptions options = LockOptions.UPGRADE.setLockMode(LockMode.PESSIMISTIC_WRITE);
 
-    private static final LockMode lockMode = LockMode.PESSIMISTIC_WRITE;
+    private static final LockMode mode = LockMode.PESSIMISTIC_WRITE;
 
     private final Session delegate;
 
@@ -32,123 +30,8 @@ class LockUpdateSession implements Session {
     }
 
     @Override
-    public Object saveOrUpdateCopy(Object object) throws HibernateException {
-        return delegate.saveOrUpdateCopy(object);
-    }
-
-    @Override
-    public Object saveOrUpdateCopy(Object object, Serializable id) throws HibernateException {
-        return delegate.saveOrUpdateCopy(object, id);
-    }
-
-    @Override
-    public Object saveOrUpdateCopy(String entityName, Object object) throws HibernateException {
-        return delegate.saveOrUpdateCopy(entityName, object);
-    }
-
-    @Override
-    public Object saveOrUpdateCopy(String entityName, Object object, Serializable id) throws HibernateException {
-        return delegate.saveOrUpdateCopy(entityName, object, id);
-    }
-
-    @Override
-    public List find(String query) throws HibernateException {
-        return delegate.find(query);
-    }
-
-    @Override
-    public List find(String query, Object value, Type type) throws HibernateException {
-        return delegate.find(query, value, type);
-    }
-
-    @Override
-    public List find(String query, Object[] values, Type[] types) throws HibernateException {
-        return delegate.find(query, values, types);
-    }
-
-    @Override
-    public Iterator iterate(String query) throws HibernateException {
-        return delegate.iterate(query);
-    }
-
-    @Override
-    public Iterator iterate(String query, Object value, Type type) throws HibernateException {
-        return delegate.iterate(query, value, type);
-    }
-
-    @Override
-    public Iterator iterate(String query, Object[] values, Type[] types) throws HibernateException {
-        return delegate.iterate(query, values, types);
-    }
-
-    @Override
-    public Collection filter(Object collection, String filter) throws HibernateException {
-        return delegate.filter(collection, filter);
-    }
-
-    @Override
-    public Collection filter(Object collection, String filter, Object value, Type type) throws HibernateException {
-        return delegate.filter(collection, filter, value, type);
-    }
-
-    @Override
-    public Collection filter(Object collection, String filter, Object[] values, Type[] types) throws HibernateException {
-        return delegate.filter(collection, filter, values, types);
-    }
-
-    @Override
-    public int delete(String query) throws HibernateException {
-        return delegate.delete(query);
-    }
-
-    @Override
-    public int delete(String query, Object value, Type type) throws HibernateException {
-        return delegate.delete(query, value, type);
-    }
-
-    @Override
-    public int delete(String query, Object[] values, Type[] types) throws HibernateException {
-        return delegate.delete(query, values, types);
-    }
-
-    @Override
-    public Query createSQLQuery(String sql, String returnAlias, Class returnClass) {
-        return delegate.createSQLQuery(sql, returnAlias, returnClass);
-    }
-
-    @Override
-    public Query createSQLQuery(String sql, String[] returnAliases, Class[] returnClasses) {
-        return delegate.createSQLQuery(sql, returnAliases, returnClasses);
-    }
-
-    @Override
-    public void save(Object object, Serializable id) throws HibernateException {
-        delegate.save(object, id);
-    }
-
-    @Override
-    public void save(String entityName, Object object, Serializable id) throws HibernateException {
-        delegate.save(entityName, object, id);
-    }
-
-    @Override
-    public void update(Object object, Serializable id) throws HibernateException {
-        delegate.update(object, id);
-    }
-
-    @Override
-    public void update(String entityName, Object object, Serializable id) throws HibernateException {
-        delegate.update(entityName, object, id);
-    }
-
-    @Override
-    public EntityMode getEntityMode() {
-        return delegate.getEntityMode();
-    }
-
-    @Override
-    public org.hibernate.Session getSession(EntityMode entityMode) {
-        return delegate.getSession(entityMode);
+    public SharedSessionBuilder sessionWithOptions() {
+        return delegate.sessionWithOptions();
     }
 
     @Override
@@ -179,11 +62,6 @@ class LockUpdateSession implements Session {
     @Override
     public SessionFactory getSessionFactory() {
         return delegate.getSessionFactory();
-    }
-
-    @Override
-    public Connection connection() throws HibernateException {
-        return delegate.connection();
     }
 
     @Override
@@ -222,7 +100,7 @@ class LockUpdateSession implements Session {
     }
 
     @Override
-    public Serializable getIdentifier(Object object) throws HibernateException {
+    public Serializable getIdentifier(Object object) {
         return delegate.getIdentifier(object);
     }
 
@@ -232,123 +110,127 @@ class LockUpdateSession implements Session {
     }
 
     @Override
-    public void evict(Object object) throws HibernateException {
+    public void evict(Object object) {
         delegate.evict(object);
     }
 
     @Override
-    public Object load(Class theClass, Serializable id, LockMode lockMode) throws HibernateException {
-        return delegate.load(theClass, id, LockUpdateSession.lockMode);
+    @Deprecated
+    public Object load(Class theClass, Serializable id, LockMode lockMode) {
+        return delegate.load(theClass, id, mode);
     }
 
     @Override
-    public Object load(Class theClass, Serializable id, LockOptions lockOptions) throws HibernateException {
-        return delegate.load(theClass, id, LockUpdateSession.lockOptions);
+    public Object load(Class theClass, Serializable id, LockOptions lockOptions) {
+        return delegate.load(theClass, id, options);
     }
 
     @Override
-    public Object load(String entityName, Serializable id, LockMode lockMode) throws HibernateException {
-        return delegate.load(entityName, id, LockUpdateSession.lockMode);
+    @Deprecated
+    public Object load(String entityName, Serializable id, LockMode lockMode) {
+        return delegate.load(entityName, id, mode);
     }
 
     @Override
-    public Object load(String entityName, Serializable id, LockOptions lockOptions) throws HibernateException {
-        return delegate.load(entityName, id, LockUpdateSession.lockOptions);
+    public Object load(String entityName, Serializable id, LockOptions lockOptions) {
+        return delegate.load(entityName, id, options);
     }
 
     @Override
-    public Object load(Class theClass, Serializable id) throws HibernateException {
-        return delegate.load(theClass, id, lockOptions);
+    public Object load(Class theClass, Serializable id) {
+        return delegate.load(theClass, id, options);
     }
 
     @Override
-    public Object load(String entityName, Serializable id) throws HibernateException {
-        return delegate.load(entityName, id, lockOptions);
+    public Object load(String entityName, Serializable id) {
+        return delegate.load(entityName, id, options);
     }
 
     @Override
-    public void load(Object object, Serializable id) throws HibernateException {
-        delegate.load(object.getClass(), id, lockOptions);
+    public void load(Object object, Serializable id) {
+        delegate.load(object.getClass(), id, options);
     }
 
     @Override
-    public void replicate(Object object, ReplicationMode replicationMode) throws HibernateException {
+    public void replicate(Object object, ReplicationMode replicationMode) {
         delegate.replicate(object, replicationMode);
     }
 
     @Override
-    public void replicate(String entityName, Object object, ReplicationMode replicationMode) throws HibernateException {
+    public void replicate(String entityName, Object object, ReplicationMode replicationMode) {
         delegate.replicate(entityName, object, replicationMode);
     }
 
     @Override
-    public Serializable save(Object object) throws HibernateException {
+    public Serializable save(Object object) {
         return delegate.save(object);
     }
 
     @Override
-    public Serializable save(String entityName, Object object) throws HibernateException {
+    public Serializable save(String entityName, Object object) {
         return delegate.save(entityName, object);
     }
 
     @Override
-    public void saveOrUpdate(Object object) throws HibernateException {
+    public void saveOrUpdate(Object object) {
         delegate.saveOrUpdate(object);
     }
 
     @Override
-    public void saveOrUpdate(String entityName, Object object) throws HibernateException {
+    public void saveOrUpdate(String entityName, Object object) {
         delegate.saveOrUpdate(entityName, object);
     }
 
     @Override
-    public void update(Object object) throws HibernateException {
+    public void update(Object object) {
         delegate.update(object);
     }
 
     @Override
-    public void update(String entityName, Object object) throws HibernateException {
+    public void update(String entityName, Object object) {
         delegate.update(entityName, object);
     }
 
     @Override
-    public Object merge(Object object) throws HibernateException {
+    public Object merge(Object object) {
         return delegate.merge(object);
     }
 
     @Override
-    public Object merge(String entityName, Object object) throws HibernateException {
+    public Object merge(String entityName, Object object) {
         return delegate.merge(entityName, object);
     }
 
     @Override
-    public void persist(Object object) throws HibernateException {
+    public void persist(Object object) {
         delegate.persist(object);
     }
 
     @Override
-    public void persist(String entityName, Object object) throws HibernateException {
+    public void persist(String entityName, Object object) {
         delegate.persist(entityName, object);
     }
 
     @Override
-    public void delete(Object object) throws HibernateException {
+    public void delete(Object object) {
         delegate.delete(object);
     }
 
     @Override
-    public void delete(String entityName, Object object) throws HibernateException {
+    public void delete(String entityName, Object object) {
         delegate.delete(entityName, object);
     }
 
     @Override
-    public void lock(Object object, LockMode lockMode) throws HibernateException {
-        delegate.lock(object, lockMode);
+    @Deprecated
+    public void lock(Object object, LockMode lockMode) {
+        delegate.lock(object, mode);
     }
 
     @Override
-    public void lock(String entityName, Object object, LockMode lockMode) throws HibernateException {
-        delegate.lock(entityName, object, lockMode);
+    @Deprecated
+    public void lock(String entityName, Object object, LockMode lockMode) {
+        delegate.lock(entityName, object, mode);
     }
 
     @Override
@@ -357,81 +239,39 @@ class LockUpdateSession implements Session {
     }
 
     @Override
-    public void refresh(Object object) throws HibernateException {
+    public void refresh(Object object) {
         delegate.refresh(object);
     }
 
     @Override
-    public void refresh(Object object, LockMode lockMode) throws HibernateException {
-        delegate.refresh(object, LockUpdateSession.lockMode);
+    public void refresh(String entityName, Object object) {
+        delegate.refresh(entityName, object);
     }
 
     @Override
-    public void refresh(Object object, LockOptions lockOptions) throws HibernateException {
-        delegate.refresh(object, LockUpdateSession.lockOptions);
+    @Deprecated
+    public void refresh(Object object, LockMode lockMode) {
+        delegate.refresh(object, mode);
     }
 
     @Override
-    public LockMode getCurrentLockMode(Object object) throws HibernateException {
+    public void refresh(Object object, LockOptions lockOptions) {
+        delegate.refresh(object, options);
+    }
+
+    @Override
+    public void refresh(String entityName, Object object, LockOptions lockOptions) {
+        delegate.refresh(entityName, object, options);
+    }
+
+    @Override
+    public LockMode getCurrentLockMode(Object object) {
         return delegate.getCurrentLockMode(object);
     }
 
     @Override
-    public Transaction beginTransaction() throws HibernateException {
-        return delegate.beginTransaction();
-    }
-
-    @Override
-    public Transaction getTransaction() {
-        return delegate.getTransaction();
-    }
-
-    @Override
-    public Criteria createCriteria(Class persistentClass) {
-        Criteria criteria = delegate.createCriteria(persistentClass);
-        criteria.setLockMode(LockMode.PESSIMISTIC_READ);
-        return criteria;
-    }
-
-    @Override
-    public Criteria createCriteria(Class persistentClass, String alias) {
-        Criteria criteria = delegate.createCriteria(persistentClass, alias);
-        criteria.setLockMode(LockMode.PESSIMISTIC_READ);
-        return criteria;
-    }
-
-    @Override
-    public Criteria createCriteria(String entityName) {
-        Criteria criteria = delegate.createCriteria(entityName);
-        criteria.setLockMode(LockMode.PESSIMISTIC_READ);
-        return criteria;
-    }
-
-    @Override
-    public Criteria createCriteria(String entityName, String alias) {
-        Criteria criteria = delegate.createCriteria(entityName, alias);
-        criteria.setLockMode(LockMode.PESSIMISTIC_READ);
-        return criteria;
-    }
-
-    @Override
-    public Query createQuery(String queryString) throws HibernateException {
-        return delegate.createQuery(queryString);
-    }
-
-    @Override
-    public SQLQuery createSQLQuery(String queryString) throws HibernateException {
-        return delegate.createSQLQuery(queryString);
-    }
-
-    @Override
-    public Query createFilter(Object collection, String queryString) throws HibernateException {
+    public Query createFilter(Object collection, String queryString) {
         return delegate.createFilter(collection, queryString);
-    }
-
-    @Override
-    public Query getNamedQuery(String queryName) throws HibernateException {
-        return delegate.getNamedQuery(queryName);
     }
 
     @Override
@@ -440,38 +280,70 @@ class LockUpdateSession implements Session {
     }
 
     @Override
-    public Object get(Class clazz, Serializable id) throws HibernateException {
-        return delegate.get(clazz, id, lockOptions);
+    public Object get(Class clazz, Serializable id) {
+        return delegate.get(clazz, id);
     }
 
     @Override
-    public Object get(Class clazz, Serializable id, LockMode lockMode) throws HibernateException {
-        return delegate.get(clazz, id, lockOptions);
+    @Deprecated
+    public Object get(Class clazz, Serializable id, LockMode lockMode) {
+        return delegate.get(clazz, id, mode);
     }
 
     @Override
-    public Object get(Class clazz, Serializable id, LockOptions lockOptions) throws HibernateException {
-        return delegate.get(clazz, id, LockUpdateSession.lockOptions);
+    public Object get(Class clazz, Serializable id, LockOptions lockOptions) {
+        return delegate.get(clazz, id, options);
     }
 
     @Override
-    public Object get(String entityName, Serializable id) throws HibernateException {
-        return delegate.get(entityName, id, lockOptions);
+    public Object get(String entityName, Serializable id) {
+        return delegate.get(entityName, id, options);
     }
 
     @Override
-    public Object get(String entityName, Serializable id, LockMode lockMode) throws HibernateException {
-        return delegate.get(entityName, id, lockOptions);
+    @Deprecated
+    public Object get(String entityName, Serializable id, LockMode lockMode) {
+        return delegate.get(entityName, id, mode);
     }
 
     @Override
-    public Object get(String entityName, Serializable id, LockOptions lockOptions) throws HibernateException {
-        return delegate.get(entityName, id, LockUpdateSession.lockOptions);
+    public Object get(String entityName, Serializable id, LockOptions lockOptions) {
+        return delegate.get(entityName, id, options);
     }
 
     @Override
-    public String getEntityName(Object object) throws HibernateException {
+    public String getEntityName(Object object) {
         return delegate.getEntityName(object);
+    }
+
+    @Override
+    public IdentifierLoadAccess byId(String entityName) {
+        return delegate.byId(entityName);
+    }
+
+    @Override
+    public IdentifierLoadAccess byId(Class entityClass) {
+        return delegate.byId(entityClass);
+    }
+
+    @Override
+    public NaturalIdLoadAccess byNaturalId(String entityName) {
+        return delegate.byNaturalId(entityName);
+    }
+
+    @Override
+    public NaturalIdLoadAccess byNaturalId(Class entityClass) {
+        return delegate.byNaturalId(entityClass);
+    }
+
+    @Override
+    public SimpleNaturalIdLoadAccess bySimpleNaturalId(String entityName) {
+        return delegate.bySimpleNaturalId(entityName);
+    }
+
+    @Override
+    public SimpleNaturalIdLoadAccess bySimpleNaturalId(Class entityClass) {
+        return delegate.bySimpleNaturalId(entityClass);
     }
 
     @Override
@@ -510,17 +382,17 @@ class LockUpdateSession implements Session {
     }
 
     @Override
-    public Connection disconnect() throws HibernateException {
+    public <T> T doReturningWork(ReturningWork<T> work) throws HibernateException {
+        return delegate.doReturningWork(work);
+    }
+
+    @Override
+    public Connection disconnect() {
         return delegate.disconnect();
     }
 
     @Override
-    public void reconnect() throws HibernateException {
-        delegate.reconnect();
-    }
-
-    @Override
-    public void reconnect(Connection connection) throws HibernateException {
+    public void reconnect(Connection connection) {
         delegate.reconnect(connection);
     }
 
@@ -537,5 +409,98 @@ class LockUpdateSession implements Session {
     @Override
     public void disableFetchProfile(String name) throws UnknownProfileException {
         delegate.disableFetchProfile(name);
+    }
+
+    @Override
+    public TypeHelper getTypeHelper() {
+        return delegate.getTypeHelper();
+    }
+
+    @Override
+    public LobHelper getLobHelper() {
+        return delegate.getLobHelper();
+    }
+
+    @Override
+    public void addEventListeners(SessionEventListener... listeners) {
+        delegate.addEventListeners(listeners);
+    }
+
+    @Override
+    public String getTenantIdentifier() {
+        return delegate.getTenantIdentifier();
+    }
+
+    @Override
+    public Transaction beginTransaction() {
+        return delegate.beginTransaction();
+    }
+
+    @Override
+    public Transaction getTransaction() {
+        return delegate.getTransaction();
+    }
+
+    @Override
+    public Query getNamedQuery(String queryName) {
+        return delegate.getNamedQuery(queryName);
+    }
+
+    @Override
+    public Query createQuery(String queryString) {
+        return delegate.createQuery(queryString);
+    }
+
+    @Override
+    public SQLQuery createSQLQuery(String queryString) {
+        return delegate.createSQLQuery(queryString);
+    }
+
+    @Override
+    public ProcedureCall getNamedProcedureCall(String name) {
+        return delegate.getNamedProcedureCall(name);
+    }
+
+    @Override
+    public ProcedureCall createStoredProcedureCall(String procedureName) {
+        return delegate.createStoredProcedureCall(procedureName);
+    }
+
+    @Override
+    public ProcedureCall createStoredProcedureCall(String procedureName, Class... resultClasses) {
+        return delegate.createStoredProcedureCall(procedureName, resultClasses);
+    }
+
+    @Override
+    public ProcedureCall createStoredProcedureCall(String procedureName, String... resultSetMappings) {
+        return delegate.createStoredProcedureCall(procedureName, resultSetMappings);
+    }
+
+    @Override
+    public Criteria createCriteria(Class persistentClass) {
+        Criteria criteria = delegate.createCriteria(persistentClass);
+        criteria.setLockMode(mode);
+        return criteria;
+    }
+
+    @Override
+    public Criteria createCriteria(Class persistentClass, String alias) {
+        Criteria criteria = delegate.createCriteria(persistentClass, alias);
+        criteria.setLockMode(mode);
+        return criteria;
+    }
+
+    @Override
+    public Criteria createCriteria(String entityName) {
+        Criteria criteria = delegate.createCriteria(entityName);
+        criteria.setLockMode(mode);
+        return criteria;
+    }
+
+    @Override
+    public Criteria createCriteria(String entityName, String alias) {
+        Criteria criteria = delegate.createCriteria(entityName, alias);
+        criteria.setLockMode(mode);
+        return criteria;
     }
 }

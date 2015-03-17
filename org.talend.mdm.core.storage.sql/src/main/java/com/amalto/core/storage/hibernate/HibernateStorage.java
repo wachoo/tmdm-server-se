@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -52,7 +51,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import javax.xml.XMLConstants;
 
@@ -66,16 +64,17 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.Lock;
 import org.hibernate.*;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.Mappings;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.mapping.*;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
-import org.hibernate.search.event.ContextHolder;
-import org.hibernate.search.impl.SearchFactoryImpl;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
@@ -195,7 +194,7 @@ public class HibernateStorage implements Storage {
     @Override
     public synchronized StorageTransaction newStorageTransaction() {
         assertPrepared();
-        org.hibernate.classic.Session session = factory.openSession();
+        Session session = factory.openSession();
         session.setFlushMode(FlushMode.MANUAL);
         return new HibernateStorageTransaction(this, session);
     }
@@ -240,7 +239,7 @@ public class HibernateStorage implements Storage {
                     catalog = getObjectNameNormalizer().normalizeIdentifierQuoting(catalog);
                     String key = subSelect == null ? Table.qualify(catalog, schema, name) : subSelect;
                     if (tables.containsKey(key)) {
-                        throw new DuplicateMappingException("table", name); //$NON-NLS-1$
+                        throw new DuplicateMappingException("Table " + key + " is duplicated.", DuplicateMappingException.Type.TABLE, name); //$NON-NLS-1$
                     }
                     Table table = new DenormalizedTable(includedTable) {
 
@@ -557,10 +556,11 @@ public class HibernateStorage implements Storage {
                     }
                     throw new IllegalStateException(sb.toString());
                 }
-                // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be
-                // started
-                // (wait for Hibernate Search 4.1 to be ready before considering changing this).
-                factory = configuration.buildSessionFactory();
+                // Initialize Hibernate
+                Environment.verifyProperties(properties);
+                ConfigurationHelper.resolvePlaceHolders(properties);
+                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(properties).build();
+                factory = configuration.buildSessionFactory(serviceRegistry);
                 MDMTransactionSessionContext.declareStorage(this, factory);
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during Hibernate initialization.", e);
@@ -796,7 +796,6 @@ public class HibernateStorage implements Storage {
         indexer.optimizeOnFinish(true);
         indexer.optimizeAfterPurge(true);
         try {
-            indexer.threadsForSubsequentFetching(2);
             indexer.threadsToLoadObjects(2);
             indexer.batchSizeToLoadObjects(batchSize);
             indexer.startAndWait();
@@ -1190,7 +1189,13 @@ public class HibernateStorage implements Storage {
                             // Clean up full text indexes
                             if (dataSource.supportFullText()) {
                                 FullTextSession fullTextSession = Search.getFullTextSession(session);
-                                fullTextSession.purgeAll(storageClassLoader.getClassFromType(mapping.getDatabase()));
+                                Set<Class<?>> indexedTypes = fullTextSession.getSearchFactory().getIndexedTypes();
+                                Class<? extends Wrapper> entityType = storageClassLoader.getClassFromType(mapping.getDatabase());
+                                if(indexedTypes.contains(entityType)) {
+                                    fullTextSession.purgeAll(entityType);
+                                } else {
+                                    LOGGER.warn("Unable to delete full text indexes for '" + entityType + "' (not indexed).");
+                                }
                             }
                         }
                     } finally {
@@ -1287,19 +1292,6 @@ public class HibernateStorage implements Storage {
         try {
             if (storageClassLoader != null) {
                 storageClassLoader.bind(Thread.currentThread());
-            }
-            // Hack to prevent Hibernate Search to cause ConcurrentModificationException
-            try {
-                Field contexts = ContextHolder.class.getDeclaredField("contexts"); //$NON-NLS-1$
-                contexts.setAccessible(true); // 'contexts' field is private.
-                ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>> contextsPerThread = (ThreadLocal<WeakHashMap<Configuration, SearchFactoryImpl>>) contexts
-                        .get(null);
-                WeakHashMap<Configuration, SearchFactoryImpl> contextMap = contextsPerThread.get();
-                if (contextMap != null) {
-                    contextMap.remove(configuration);
-                }
-            } catch (Exception e) {
-                LOGGER.error("Exception occurred during Hibernate Search clean up.", e);
             }
             // TMDM-8117: Excludes storage from transaction and rollback any pending transaction for proper close()
             TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();

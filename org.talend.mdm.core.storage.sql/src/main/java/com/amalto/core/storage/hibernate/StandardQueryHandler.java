@@ -37,7 +37,7 @@ import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.impl.CriteriaImpl;
+import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.sql.JoinFragment;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.hibernate.type.IntegerType;
@@ -1399,7 +1399,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private Object applyDatabaseType(FieldCondition field, Object value) {
         if (field.fieldMetadata != null && "clob".equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) { //$NON-NLS-1$
-            return Hibernate.createClob(String.valueOf(value), session);
+            return Hibernate.getLobCreator(session).createClob(String.valueOf(value));
         }
         return value;
     }

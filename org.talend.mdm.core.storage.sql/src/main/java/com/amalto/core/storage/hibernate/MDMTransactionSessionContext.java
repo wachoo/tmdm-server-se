@@ -16,10 +16,10 @@ import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
-import org.hibernate.context.CurrentSessionContext;
-import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.context.spi.CurrentSessionContext;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 
 import java.util.HashMap;
 import java.util.Map;

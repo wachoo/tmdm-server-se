@@ -16,12 +16,13 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import com.amalto.core.storage.StorageMetadataUtils;
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.lucene.analysis.KeywordAnalyzer;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.search.*;
+import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
@@ -157,11 +158,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         Long currentRangeStart = ((Long) currentValue) == Long.MIN_VALUE ? null : (Long) currentValue;
         range.getEnd().accept(this);
         Long currentRangeEnd = ((Long) currentValue) == Long.MAX_VALUE ? null : (Long) currentValue;
-        return new TermRangeQuery(currentFieldName, String.valueOf(currentRangeStart), String.valueOf(currentRangeEnd), true, true);
-        // Need Hibernate Search > 3.2 (+ @NumericField annotation in class ClassCreator)
-        /*
         return NumericRangeQuery.newLongRange(currentFieldName, currentRangeStart, currentRangeEnd, true, true);
-        */
     }
 
     @Override
@@ -285,7 +282,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
     }
 
     @Override
-    public Query visit(FullText fullText) {
+    public Query visit(final FullText fullText) {
         // TODO Test me on conditions where many types share same field names.
         final Set<String> fields = new HashSet<String>();
         for (final ComplexTypeMetadata type : types) {
@@ -313,14 +310,18 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
                 public Void visit(SimpleTypeFieldMetadata simpleField) {
                     if (!Storage.METADATA_TIMESTAMP.equals(simpleField.getName())
                             && !Storage.METADATA_TASK_ID.equals(simpleField.getName())) {
-                        fields.add(simpleField.getName());
+                        if (StorageMetadataUtils.isValueAssignable(fullText.getValue(), simpleField)) {
+                            fields.add(simpleField.getName());
+                        }
                     }
                     return null;
                 }
 
                 @Override
                 public Void visit(EnumerationFieldMetadata enumField) {
-                    fields.add(enumField.getName());
+                    if (StorageMetadataUtils.isValueAssignable(fullText.getValue(), enumField)) {
+                        fields.add(enumField.getName());
+                    }
                     return null;
                 }
             });
@@ -350,12 +351,12 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
     }
 
     private Query parseQuery(String[] fieldsAsArray, String fullTextQuery) {
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(Version.LUCENE_29, fieldsAsArray, new KeywordAnalyzer());
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(fieldsAsArray, new KeywordAnalyzer());
         // Very important! Lucene does an implicit lower case for "expanded terms" (which is something used).
         parser.setLowercaseExpandedTerms(true);
         try {
             return parser.parse(fullTextQuery);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Invalid generated Lucene query", e); //$NON-NLS-1$
         }
     }

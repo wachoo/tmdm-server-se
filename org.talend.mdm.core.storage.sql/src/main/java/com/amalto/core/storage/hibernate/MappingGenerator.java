@@ -480,10 +480,10 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             if (!compositeId) {
                 idElement = document.createElement("id"); //$NON-NLS-1$
                 if (Types.UUID.equals(field.getType().getName()) && ScatteredMappingCreator.GENERATED_ID.equals(field.getName())) {
-                    // <generator class="uuid.hex"/>
+                    // <generator class="org.hibernate.id.UUIDGenerator"/>
                     Element generator = document.createElement("generator"); //$NON-NLS-1$
                     Attr generatorClass = document.createAttribute("class"); //$NON-NLS-1$
-                    generatorClass.setValue("uuid.hex"); //$NON-NLS-1$
+                    generatorClass.setValue("org.hibernate.id.UUIDGenerator"); //$NON-NLS-1$
                     generator.getAttributes().setNamedItem(generatorClass);
                     idElement.appendChild(generator);
                 }

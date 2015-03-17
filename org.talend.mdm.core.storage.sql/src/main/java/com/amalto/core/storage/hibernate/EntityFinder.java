@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.Sort;
@@ -42,8 +43,12 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.search.FullTextFilter;
 import org.hibernate.search.FullTextQuery;
+import org.hibernate.search.filter.FullTextFilter;
+import org.hibernate.search.query.DatabaseRetrievalMethod;
+import org.hibernate.search.query.ObjectLookupMethod;
+import org.hibernate.search.query.engine.spi.FacetManager;
+import org.hibernate.search.spatial.Coordinates;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.type.Type;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -362,6 +367,11 @@ public class EntityFinder {
         }
 
         @Override
+        public Integer getMaxResults() {
+            return query.getMaxResults();
+        }
+
+        @Override
         public Type[] getReturnTypes() throws HibernateException {
             return query.getReturnTypes();
         }
@@ -423,6 +433,11 @@ public class EntityFinder {
         }
 
         @Override
+        public Integer getFirstResult() {
+            return query.getFirstResult();
+        }
+
+        @Override
         public FullTextQuery setFirstResult(int firstResult) {
             return query.setFirstResult(firstResult);
         }
@@ -438,8 +453,18 @@ public class EntityFinder {
         }
 
         @Override
+        public LockOptions getLockOptions() {
+            return query.getLockOptions();
+        }
+
+        @Override
         public Query setCacheable(boolean cacheable) {
             return query.setCacheable(cacheable);
+        }
+
+        @Override
+        public String getCacheRegion() {
+            return query.getCacheRegion();
         }
 
         @Override
@@ -448,8 +473,18 @@ public class EntityFinder {
         }
 
         @Override
+        public Integer getTimeout() {
+            return query.getTimeout();
+        }
+
+        @Override
         public Query setTimeout(int timeout) {
             return query.setTimeout(timeout);
+        }
+
+        @Override
+        public Integer getFetchSize() {
+            return query.getFetchSize();
         }
 
         @Override
@@ -468,8 +503,23 @@ public class EntityFinder {
         }
 
         @Override
+        public String getComment() {
+            return query.getComment();
+        }
+
+        @Override
         public Query setComment(String comment) {
             return query.setComment(comment);
+        }
+
+        @Override
+        public Query addQueryHint(String hint) {
+            return query.addQueryHint(hint);
+        }
+
+        @Override
+        public FlushMode getFlushMode() {
+            return query.getFlushMode();
         }
 
         @Override
@@ -478,8 +528,18 @@ public class EntityFinder {
         }
 
         @Override
+        public CacheMode getCacheMode() {
+            return query.getCacheMode();
+        }
+
+        @Override
         public Query setCacheMode(CacheMode cacheMode) {
             return query.setCacheMode(cacheMode);
+        }
+
+        @Override
+        public boolean isCacheable() {
+            return query.isCacheable();
         }
 
         @Override
@@ -758,6 +818,26 @@ public class EntityFinder {
         }
 
         @Override
+        public FullTextQuery setTimeout(long timeout, TimeUnit timeUnit) {
+            return query.setTimeout(timeout, timeUnit);
+        }
+
+        @Override
+        public FullTextQuery limitExecutionTimeTo(long timeout, TimeUnit timeUnit) {
+            return query.limitExecutionTimeTo(timeout, timeUnit);
+        }
+
+        @Override
+        public boolean hasPartialResults() {
+            return query.hasPartialResults();
+        }
+
+        @Override
+        public FullTextQuery initializeObjectsWith(ObjectLookupMethod lookupMethod, DatabaseRetrievalMethod retrievalMethod) {
+            return query.initializeObjectsWith(lookupMethod, retrievalMethod);
+        }
+
+        @Override
         public FullTextQuery setSort(Sort sort) {
             return query.setSort(sort);
         }
@@ -783,6 +863,16 @@ public class EntityFinder {
         }
 
         @Override
+        public FullTextQuery setSpatialParameters(double latitude, double longitude, String fieldName) {
+            return query.setSpatialParameters(latitude, longitude, fieldName);
+        }
+
+        @Override
+        public FullTextQuery setSpatialParameters(Coordinates center, String fieldName) {
+            return query.setSpatialParameters(center, fieldName);
+        }
+
+        @Override
         public FullTextFilter enableFullTextFilter(String s) {
             return query.enableFullTextFilter(s);
         }
@@ -790,6 +880,11 @@ public class EntityFinder {
         @Override
         public void disableFullTextFilter(String s) {
             query.disableFullTextFilter(s);
+        }
+
+        @Override
+        public FacetManager getFacetManager() {
+            return query.getFacetManager();
         }
 
         @Override

@@ -153,23 +153,15 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         setPropertyValue(document, "hibernate.dialect", dialect); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.connection.password", password); //$NON-NLS-1$
         
-        if (connectionPoolMinSize > 0 && connectionPoolMaxSize > 0 && connectionPoolMaxSize >= connectionPoolMinSize) {
-            setPropertyValue(document, "hibernate.c3p0.min_size", String.valueOf(connectionPoolMinSize)); //$NON-NLS-1$
-            setPropertyValue(document, "hibernate.c3p0.max_size", String.valueOf(connectionPoolMaxSize)); //$NON-NLS-1$
-        }
-        if (connectionPoolMaxSize < connectionPoolMinSize) {
-            LOGGER.warn("Connection max size pool for datasource '" + rdbmsDataSource.getName() + "' is incorrect (lower than min size). " + //$NON-NLS-1$//$NON-NLS-2$
-                    "Connection pool is created by using the system default value (minSize=5, maxSize=50)."); //$NON-NLS-1$
-        }
-
         Node sessionFactoryElement = document.getElementsByTagName("session-factory").item(0); //$NON-NLS-1$
         if (rdbmsDataSource.supportFullText()) {
-            addProperty(document, sessionFactoryElement, "hibernate.search.default.directory_provider", "org.hibernate.search.store.FSDirectoryProvider"); //$NON-NLS-1$ //$NON-NLS-2$
+            /*
+            <property name="hibernate.search.default.directory_provider" value="filesystem"/>
+            <property name="hibernate.search.default.indexBase" value="/var/lucene/indexes"/>
+             */
+            addProperty(document, sessionFactoryElement, "hibernate.search.default.directory_provider", "filesystem"); //$NON-NLS-1$ //$NON-NLS-2$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.indexBase", indexBase + '/' + storageName); //$NON-NLS-1$
-            addProperty(document, sessionFactoryElement, "hibernate.search.default.sourceBase", indexBase + '/' + storageName); //$NON-NLS-1$
-            addProperty(document, sessionFactoryElement, "hibernate.search.default.source", ""); //$NON-NLS-1$ //$NON-NLS-2$
             addProperty(document, sessionFactoryElement, "hibernate.search.default.exclusive_index_use", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-            addProperty(document, sessionFactoryElement, "hibernate.search.analyzer", "com.amalto.core.storage.hibernate.MDMStandardAnalyzer"); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         if (dataSource.getCacheDirectory() != null && !dataSource.getCacheDirectory().isEmpty()) {

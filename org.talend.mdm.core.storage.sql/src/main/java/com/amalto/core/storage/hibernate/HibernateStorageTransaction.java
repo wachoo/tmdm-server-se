@@ -23,12 +23,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.*;
-import org.hibernate.classic.Session;
-import org.hibernate.engine.EntityKey;
-import org.hibernate.impl.SessionImpl;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.EntityKey;
+import org.hibernate.internal.SessionImpl;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 class HibernateStorageTransaction extends StorageTransaction {
 
@@ -147,7 +148,7 @@ class HibernateStorageTransaction extends StorageTransaction {
     private static void dumpTransactionContent(Session session, HibernateStorage storage) {
         Level currentLevel = Level.INFO;
         if (LOGGER.isEnabledFor(currentLevel)) {
-            Set<EntityKey> failedKeys = new HashSet<EntityKey>(session.getStatistics().getEntityKeys()); // Copy content to avoid concurrent modification issues.
+            Set<EntityKey> failedKeys = new HashSet<>(session.getStatistics().getEntityKeys()); // Copy content to avoid concurrent modification issues.
             int i = 1;
             ObjectDataRecordReader reader = new ObjectDataRecordReader();
             MappingRepository mappingRepository = storage.getTypeEnhancer().getMappings();
