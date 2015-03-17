@@ -216,7 +216,8 @@ public class ItemsToolBar extends ToolBar {
             criteriaStore.add(simpCriterion);
             BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, criteriaStore);
             qm.setCriteria(simplePanel.getCriteria().toString());
-            if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(), simpCriterion.getValue())) {
+            if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(),
+                    simpCriterion.getInputValue() != null ? simpCriterion.getInputValue() : simpCriterion.getValue())) {
                 qm.setErrorValue(simpCriterion.getValue());
             }
         } else {
@@ -234,7 +235,8 @@ public class ItemsToolBar extends ToolBar {
                     UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE));
             List<SimpleCriterion> simpleCriterions = CriteriaUtil.getSimpleCriterions(multipleCriteria);
             for (SimpleCriterion criteria : simpleCriterions) {
-                if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(), criteria.getValue())) {
+                if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(),
+                        criteria.getInputValue() != null ? criteria.getInputValue() : criteria.getValue())) {
                     qm.setErrorValue(criteria.getValue());
                     break;
                 }
@@ -480,7 +482,6 @@ public class ItemsToolBar extends ToolBar {
                 window.setHeading(MessagesFactory.getMessages().upload_title());
                 window.setLayout(new FitLayout());
                 window.setClosable(true);
-
                 ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
                 UploadFileFormPanel formPanel = WidgetFactory.getInstance().createUploadFileFormPanel(viewBean, window);
                 window.add(formPanel);
@@ -506,15 +507,9 @@ public class ItemsToolBar extends ToolBar {
                     window.setHeading(MessagesFactory.getMessages().export_title());
                     window.setLayout(new FitLayout());
                     window.setClosable(true);
-                    service.getView(
-                            "Browse_items_" + ViewUtil.getConceptFromBrowseItemView(entityCombo.getValue().get("value").toString()), Locale.getLanguage(), new SessionAwareAsyncCallback<ViewBean>() { //$NON-NLS-1$ //$NON-NLS-2$
-
-                                @Override
-                                public void onSuccess(ViewBean viewBean) {
-                                    window.add(WidgetFactory.getInstance().createDownloadFilePanel(viewBean, queryModel, window));
-                                    window.show();
-                                }
-                            });
+                    ViewBean viewBean = BrowseRecords.getSession().getCurrentView();
+                    window.add(WidgetFactory.getInstance().createDownloadFilePanel(viewBean, queryModel, window));
+                    window.show();
                 }
             }
         });

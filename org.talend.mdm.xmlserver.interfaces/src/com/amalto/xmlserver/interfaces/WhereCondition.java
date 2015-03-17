@@ -34,6 +34,16 @@ public class WhereCondition implements IWhereItem, Serializable {
 
     public static final String CONTAINS = "CONTAINS";
 
+    public static String STRICTCONTAINS = "STRICTCONTAINS";
+
+    public static String STARTSWITH = "STARTSWITH";
+
+    public static String JOINS = "JOINS";
+
+    public static String CONTAINS_TEXT_OF = "CONTAINS_TEXT_OF";
+
+    public static String EMPTY_NULL = "Is Empty Or Null";
+
     public static final String EQUALS = "=";
 
     public static final String NOT_EQUALS = "!=";
@@ -60,16 +70,6 @@ public class WhereCondition implements IWhereItem, Serializable {
 
     public static final String PRE_NOT = "!";
 
-    public static String STRICTCONTAINS = "STRICTCONTAINS";
-
-    public static String STARTSWITH = "STARTSWITH";
-
-    public static String JOINS = "JOINS";
-
-    public static String CONTAINS_TEXT_OF = "CONTAINS_TEXT_OF";
-
-    public static String EMPTY_NULL = "Is Empty Or Null";
-
     String leftPath;
 
     String operator;
@@ -82,13 +82,29 @@ public class WhereCondition implements IWhereItem, Serializable {
 
     private boolean isRightValueXPath;
 
+    /**
+     * Constructor used by Castor to unmarshall the WhereCondition
+     */
     public WhereCondition() {
     }
 
+    /**
+     * @param leftPath
+     * @param operator
+     * @param rightValueOrPath
+     * @param stringPredicate
+     */
     public WhereCondition(String leftPath, String operator, String rightValueOrPath, String stringPredicate) {
         this(leftPath, operator, rightValueOrPath, stringPredicate, true);
     }
 
+    /**
+     * @param leftPath
+     * @param operator
+     * @param rightValueOrPath
+     * @param stringPredicate
+     * @param spellCheck
+     */
     public WhereCondition(String leftPath, String operator, String rightValueOrPath, String stringPredicate, boolean spellCheck) {
         super();
         this.leftPath = leftPath;
@@ -96,19 +112,6 @@ public class WhereCondition implements IWhereItem, Serializable {
         setRightValueOrPath(rightValueOrPath);
         this.stringPredicate = stringPredicate;
         this.spellCheck = spellCheck;
-    }
-
-    public static WhereCondition deserialize(String xml) throws XmlServerException {
-        try {
-            Document d = com.amalto.core.util.Util.parse(xml);
-            return new WhereCondition(com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./leftpath"),
-                    com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./operator"),
-                    com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./rightvalueorpath"),
-                    com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./stringpredicate"),
-                    "yes".equals(com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./spellcheck")));
-        } catch (Exception e) {
-            throw new XmlServerException(e);
-        }
     }
 
     public String getLeftPath() {
@@ -205,6 +208,19 @@ public class WhereCondition implements IWhereItem, Serializable {
                 + "	<spellcheck>" + (spellCheck ? "yes" : "no") + "</spellcheck>" + "</wherecondition>";
     }
 
+    public static WhereCondition deserialize(String xml) throws XmlServerException {
+        Document d = Util.parse(xml);
+        return new WhereCondition(Util.getFirstTextNode(d.getDocumentElement(), "./leftpath"), Util.getFirstTextNode(
+                d.getDocumentElement(), "./operator"), Util.getFirstTextNode(d.getDocumentElement(), "./rightvalueorpath"),
+                Util.getFirstTextNode(d.getDocumentElement(), "./stringpredicate"), "yes".equals(Util.getFirstTextNode(
+                        d.getDocumentElement(), "./spellcheck")));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return "(" + getLeftPath() + " " + getOperator() + " " + getRightValueOrPath() + " " + getStringPredicate() + " "

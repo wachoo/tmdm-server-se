@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.server.actions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +36,13 @@ import com.amalto.core.webservice.WSByteArray;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSExecuteTransformerV2;
-import com.amalto.core.webservice.WSGetTransformerV2;
-import com.amalto.core.webservice.WSGetTransformerV2PKs;
+import com.amalto.core.webservice.WSGetTransformer;
+import com.amalto.core.webservice.WSGetTransformerPKs;
 import com.amalto.core.webservice.WSPutItem;
+import com.amalto.core.webservice.WSTransformer;
 import com.amalto.core.webservice.WSTransformerContext;
 import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
-import com.amalto.core.webservice.WSTransformerV2;
+import com.amalto.core.webservice.WSTransformerPK;
 import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.core.webservice.WSTypedContent;
 import com.amalto.webapp.core.bean.Configuration;
@@ -66,7 +66,7 @@ public class WelcomePortalAction implements WelcomePortalService {
 
     /**
      * check if is show license link.
-     *
+     * 
      * @return
      */
     @Override
@@ -76,7 +76,7 @@ public class WelcomePortalAction implements WelcomePortalService {
 
     /**
      * check if is show workflow task link.
-     *
+     * 
      * @return
      */
     @Override
@@ -86,7 +86,7 @@ public class WelcomePortalAction implements WelcomePortalService {
 
     /**
      * check if is show dsc task link.
-     *
+     * 
      * @return
      */
     @Override
@@ -120,7 +120,7 @@ public class WelcomePortalAction implements WelcomePortalService {
 
     /**
      * check if is show specify menu.
-     *
+     * 
      * @param menu
      * @return
      */
@@ -142,7 +142,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     @Override
-    public String getAlertMsg(String language) throws ServiceException {
+    public int getAlert(String language) throws ServiceException {
         try {
             ServerAccess.ServerAccessInfo info = Webapp.INSTANCE.getInfo();
             if (info.getLicense() == null) {
@@ -150,10 +150,10 @@ public class WelcomePortalAction implements WelcomePortalService {
             } else if (!info.isLicenseValid()) {
                 return WelcomePortal.EXPIREDLICENSE;
             }
-            return null;
+            return 0;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return e.getMessage();
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
@@ -178,7 +178,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     @Override
-    public Map<String, Integer> getDSCTaskMsg() {       
+    public Map<String, Integer> getDSCTaskMsg() {
         Map<String, Integer> taskStatus = new HashMap<String, Integer>();
         int[] taskCounts = Webapp.INSTANCE.getDSCTasksCount();
         taskStatus.put("new", taskCounts[0]); //$NON-NLS-1$
@@ -187,27 +187,17 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     @Override
-    public List<String> getStandaloneProcess(String language) throws ServiceException {
+    public Map<String, String> getStandaloneProcess(String language) throws ServiceException {
         try {
-            List<String> process = new ArrayList<String>();
-
-            WSTransformerV2PK[] wst = Util.getPort().getTransformerV2PKs(new WSGetTransformerV2PKs("*")).getWsTransformerV2PK(); //$NON-NLS-1$
-
-            for (WSTransformerV2PK wstransformerpk : wst) {
+            Map<String, String> processMap = new HashMap<String, String>();
+            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
+            for (WSTransformerPK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
-                	WSTransformerV2 wsTransformer = Util.getPort().getTransformerV2(new WSGetTransformerV2(wstransformerpk));
-                    // add transformer pk, and then add its desc
-                    process.add(wstransformerpk.getPk());
-                    String desc = getDescriptionByLau(language, wsTransformer.getDescription());
-                    if (desc == null || desc.equals("")) { //$NON-NLS-1$
-                        process.add(wstransformerpk.getPk());
-                    } else {
-                        process.add(desc);
-                    }
+                    WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(wstransformerpk));
+                    processMap.put(wstransformerpk.getPk(), getDescriptionByLau(language, wsTransformer.getDescription()));
                 }
             }
-            return process;
-
+            return processMap;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -284,7 +274,7 @@ public class WelcomePortalAction implements WelcomePortalService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
-    
+
     @Override
     public Map<Boolean, Integer> getWelcomePortletConfig() throws Exception {
         return Webapp.INSTANCE.getWelcomePortletConfig();

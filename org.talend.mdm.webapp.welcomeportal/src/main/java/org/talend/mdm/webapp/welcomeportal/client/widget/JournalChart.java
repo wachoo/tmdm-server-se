@@ -124,8 +124,8 @@ public class JournalChart extends ChartPortlet {
                     noDCAlertMsg.append(MessagesFactory.getMessages().no_container());
                     noDCAlertMsg.append("</span>"); //$NON-NLS-1$
                     alertHtml.setHTML(noDCAlertMsg.toString());
-                    set.add(alertHtml);
-                    set.layout(true);
+                    fieldSet.add(alertHtml);
+                    fieldSet.layout(true);
                 }
             }
         });

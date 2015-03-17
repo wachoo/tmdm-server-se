@@ -184,6 +184,16 @@ public class XMLStreamTokenizerTest extends TestCase {
             docCount++;
         }
         assertEquals(2, docCount);
+
+        tokenizer = new XMLStreamTokenizer(new ByteArrayInputStream(
+                "<Test><Type>WITH_VALIDATION</Type><Value>éç</Value></Test>".getBytes()), "UTF-8");
+        docCount = 0;
+        while (tokenizer.hasMoreElements()) {
+            String nextElement = tokenizer.nextElement();
+            assertTrue(nextElement.contains("éç")); // Right encoding so should succeed
+            docCount++;
+        }
+        assertEquals(1, docCount);
     }
 
     public void testInvalidXML() {

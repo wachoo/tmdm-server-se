@@ -120,6 +120,8 @@ public interface BrowseRecordsServiceAsync {
 
     void getSmartViewList(String regex, AsyncCallback<List<ItemBaseModel>> callback);
 
+    void getItemBeanById(String concept, String ids, String language, AsyncCallback<ItemBean> callback);
+
     void getItemBeanById(String concept, String[] ids, String language, AsyncCallback<ItemBean> callback);
 
     void executeVisibleRule(ViewBean viewBean, String xml, AsyncCallback<List<VisibleRuleResult>> asyncCallback);

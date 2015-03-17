@@ -100,7 +100,6 @@ import com.amalto.core.query.user.metadata.StagingSource;
 import com.amalto.core.query.user.metadata.StagingStatus;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
-import com.amalto.core.storage.CloseableIterator;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
@@ -517,7 +516,6 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
             aliases.add(previousAlias);
             previousAlias = type.getName();
-
         }
         return aliases;
     }
@@ -1091,8 +1089,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 FieldMetadata fieldMetadata = leftField.getFieldMetadata();
                 Set<String> aliases = Collections.singleton(fieldMetadata.getContainingType().getName());
                 // TODO Ugly code path to fix once test coverage is ok.
-                if (leftFieldCondition.position < 0
-                        && (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata)) {
+                if (!mainType.equals(fieldMetadata.getContainingType()) || fieldMetadata instanceof ReferenceFieldMetadata) {
                     leftField.accept(StandardQueryHandler.this);
                     aliases = getAliases(mainType, leftField);
                     if (!fieldMetadata.isMany()) {

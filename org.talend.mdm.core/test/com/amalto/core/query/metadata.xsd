@@ -1564,44 +1564,6 @@
         </xsd:annotation> 
       </xsd:element> 
     </xsd:all> 
-  </xsd:complexType>  
-  
-  <xsd:element name="RepeatableElementsEntity"> 
-    <xsd:annotation> 
-      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
-    </xsd:annotation>  
-    <xsd:complexType> 
-      <xsd:sequence> 
-        <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"> 
-          <xsd:annotation> 
-            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
-          </xsd:annotation> 
-        </xsd:element>  
-        <xsd:element maxOccurs="3" minOccurs="1" name="info" type="info"> 
-          <xsd:annotation> 
-            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
-          </xsd:annotation> 
-        </xsd:element> 
-      </xsd:sequence> 
-    </xsd:complexType>  
-    <xsd:unique name="TestMultipleOccur"> 
-      <xsd:selector xpath="."/>  
-      <xsd:field xpath="id"/> 
-    </xsd:unique> 
-  </xsd:element>  
-  <xsd:complexType name="info"> 
-    <xsd:all> 
-      <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string"> 
-        <xsd:annotation> 
-          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
-        </xsd:annotation> 
-      </xsd:element>  
-      <xsd:element maxOccurs="1" minOccurs="0" name="age" type="xsd:int"> 
-        <xsd:annotation> 
-          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
-        </xsd:annotation> 
-      </xsd:element> 
-    </xsd:all> 
   </xsd:complexType>
   
   <xsd:element name="TT"> 
@@ -1672,5 +1634,44 @@
       <xsd:selector xpath="."/>  
       <xsd:field xpath="Id"/> 
     </xsd:unique> 
-  </xsd:element>   
+  </xsd:element> 
+  
+  <xsd:element name="RepeatableElementsEntity"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:sequence> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="3" minOccurs="1" name="info" type="info"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:sequence> 
+    </xsd:complexType>  
+    <xsd:unique name="TestMultipleOccur"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="info"> 
+    <xsd:all> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="name" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="age" type="xsd:int"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:all> 
+  </xsd:complexType>  
+  
 </xsd:schema>

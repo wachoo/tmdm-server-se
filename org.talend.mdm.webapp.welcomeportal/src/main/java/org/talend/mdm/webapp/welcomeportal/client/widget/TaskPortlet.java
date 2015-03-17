@@ -147,7 +147,7 @@ public class TaskPortlet extends BasePortlet {
                 public void onSuccess(Integer num) {
                     if (numOfWorkflowTask != num) {
                         numOfWorkflowTask = num;
-                        set.removeAll();
+                        fieldSet.removeAll();
 
                         buildAndShowWorkflowTasksOnly();
                     }
@@ -167,7 +167,7 @@ public class TaskPortlet extends BasePortlet {
                     }
 
                     numOfDSCTasks = dscTasks;
-                    set.removeAll();
+                    fieldSet.removeAll();
 
                     buildAndShowDSCTasksOnly();
                 }
@@ -191,7 +191,7 @@ public class TaskPortlet extends BasePortlet {
                             }
                             numOfWorkflowTask = workflowNum;
                             numOfDSCTasks = dscTasks;
-                            set.removeAll();
+                            fieldSet.removeAll();
                             buildAndShowWorkflowTasksAndDSCTasks();
                         }
                     });
@@ -205,12 +205,12 @@ public class TaskPortlet extends BasePortlet {
 
         if (numOfWorkflowTask == 0) {
             label.setText(MessagesFactory.getMessages().no_tasks());
-            set.setVisible(false);
+            fieldSet.setVisible(false);
         } else {
             String sbNum = buildMessageForWorkflowTasks(numOfWorkflowTask);
             sbForWorkflowtasks.append(sbNum);
             label.setText(MessagesFactory.getMessages().tasks_desc());
-            set.setVisible(true);
+            fieldSet.setVisible(true);
         }
         sbForWorkflowtasks.append("</span>"); //$NON-NLS-1$
 
@@ -218,8 +218,8 @@ public class TaskPortlet extends BasePortlet {
         taskHtml_workflow.setHTML(sbForWorkflowtasks.toString());
 
         taskHtml_workflow.addClickHandler(workflowClikcHanlder);
-        set.add(taskHtml_workflow);
-        set.layout(true);
+        fieldSet.add(taskHtml_workflow);
+        fieldSet.layout(true);
     }
 
     private void buildAndShowDSCTasksOnly() {
@@ -228,12 +228,12 @@ public class TaskPortlet extends BasePortlet {
         int total = numOfDSCTasks.get(DSCTASKTYPE_NEW) + numOfDSCTasks.get(DSCTASKTYPE_PENDING);
         if (total <= 0) {
             label.setText(MessagesFactory.getMessages().no_tasks());
-            set.setVisible(false);
+            fieldSet.setVisible(false);
         } else {
             String sbNum = buildMessageForDSCTasks(numOfDSCTasks);
             sbForDsctasks.append(sbNum);
             label.setText(MessagesFactory.getMessages().tasks_desc());
-            set.setVisible(true);
+            fieldSet.setVisible(true);
         }
         sbForDsctasks.append("</span>"); //$NON-NLS-1$
 
@@ -242,8 +242,8 @@ public class TaskPortlet extends BasePortlet {
 
         taskHtml_dsc.addClickHandler(dscClikcHanlder);
 
-        set.add(taskHtml_dsc);
-        set.layout(true);
+        fieldSet.add(taskHtml_dsc);
+        fieldSet.layout(true);
     }
 
     private void buildAndShowWorkflowTasksAndDSCTasks() {
@@ -256,10 +256,10 @@ public class TaskPortlet extends BasePortlet {
         int dscNum = numOfDSCTasks.get(DSCTASKTYPE_NEW) + numOfDSCTasks.get(DSCTASKTYPE_PENDING);
         if (numOfWorkflowTask + dscNum <= 0) {
             label.setText(MessagesFactory.getMessages().no_tasks());
-            set.setVisible(false);
+            fieldSet.setVisible(false);
         } else {
             label.setText(MessagesFactory.getMessages().tasks_desc());
-            set.setVisible(true);
+            fieldSet.setVisible(true);
             if (numOfWorkflowTask > 0 && dscNum == 0) {
                 String sbNum = buildMessageForWorkflowTasks(numOfWorkflowTask);
                 sbForWorkflowtasks.append(sbNum);
@@ -269,7 +269,7 @@ public class TaskPortlet extends BasePortlet {
 
                 taskHtml_workflow.addClickHandler(workflowClikcHanlder);
 
-                set.add(taskHtml_workflow);
+                fieldSet.add(taskHtml_workflow);
             } else if (numOfWorkflowTask == 0 && dscNum > 0) {
                 String sbNum = buildMessageForDSCTasks(numOfDSCTasks);
                 sbForDsctasks.append(sbNum);
@@ -279,7 +279,7 @@ public class TaskPortlet extends BasePortlet {
 
                 taskHtml_dsc.addClickHandler(dscClikcHanlder);
 
-                set.add(taskHtml_dsc);
+                fieldSet.add(taskHtml_dsc);
             } else {
                 String sbNumWFT = buildMessageForWorkflowTasks(numOfWorkflowTask);
                 sbForWorkflowtasks.append(sbNumWFT);
@@ -296,11 +296,11 @@ public class TaskPortlet extends BasePortlet {
 
                 taskHtml_dsc.addClickHandler(dscClikcHanlder);
 
-                set.add(taskHtml_workflow);
-                set.add(taskHtml_dsc);
+                fieldSet.add(taskHtml_workflow);
+                fieldSet.add(taskHtml_dsc);
             }
         }
-        set.layout(true);
+        fieldSet.layout(true);
     }
 
     private String buildMessageForWorkflowTasks(int num) {
