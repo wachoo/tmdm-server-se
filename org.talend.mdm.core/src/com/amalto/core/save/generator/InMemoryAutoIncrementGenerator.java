@@ -60,13 +60,7 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
             pojo.setDataModelName(XSystemObjects.DM_CONF.getName());
             server.start(XSystemObjects.DC_CONF.getName());
             pojo.store(null);
-            server.commit(XSystemObjects.DC_CONF.getName());
         } catch (Exception e) {
-            try {
-                server.rollback(XSystemObjects.DC_CONF.getName());
-            } catch (XtentisException e1) {
-                logger.error("Unable to rollback upon error.", e); //$NON-NLS-1$
-            }
             logger.error(e.getLocalizedMessage(), e);
         }
     }
