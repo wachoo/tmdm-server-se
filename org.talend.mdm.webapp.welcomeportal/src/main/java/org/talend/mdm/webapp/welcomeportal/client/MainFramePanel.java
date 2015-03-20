@@ -209,7 +209,7 @@ public class MainFramePanel extends Portal {
     }
 
     private String getConfigsForUser() {
-        return allPortlets.toString() + "; " + portletToLocations.keySet().toString() + "; " //$NON-NLS-1$ //$NON-NLS-2$
+        return allPortlets != null ? allPortlets.toString() : null + "; " + portletToLocations.keySet().toString() + "; " //$NON-NLS-1$ //$NON-NLS-2$
                 + ((Integer) MainFramePanel.this.numColumns).toString();
     }
 
@@ -823,18 +823,18 @@ public class MainFramePanel extends Portal {
     }
 
     public native void openWindow(String url)/*-{
-		window.open(url);
-    }-*/;
+                                             window.open(url);
+                                             }-*/;
 
     public native void initUI(String context, String application)/*-{
-		$wnd.setTimeout(function() {
-			$wnd.amalto[context][application].init();
-		}, 50);
-    }-*/;
+                                                                 $wnd.setTimeout(function() {
+                                                                 $wnd.amalto[context][application].init();
+                                                                 }, 50);
+                                                                 }-*/;
 
     // record available portlets in Actions panel
     private native void markPortalConfigsOnUI(String configs)/*-{
-		$wnd.amalto.core.markPortlets(configs);
-    }-*/;
+                                                             $wnd.amalto.core.markPortlets(configs);
+                                                             }-*/;
 
 }
