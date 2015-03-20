@@ -119,7 +119,7 @@ public abstract class BasePortlet extends Portlet {
                                     @Override
                                     public void onSuccess(Void result1) {
                                         portal.render();
-                                        unmarkPortlet(portletName);
+                                        unmarkPortlet(portletName, false);
                                         boolean auto = BasePortlet.this.isAutoOn();
                                         if (auto) {
                                             BasePortlet.this.autoRefresh(false);
@@ -289,7 +289,7 @@ public abstract class BasePortlet extends Portlet {
         return this.portletName;
     }
 
-    private native void unmarkPortlet(String name)/*-{
-		$wnd.amalto.core.unmarkPortlet(name);
+    private native void unmarkPortlet(String name, boolean value)/*-{
+		$wnd.amalto.core.unmarkPortlet(name, value);
     }-*/;
 }
