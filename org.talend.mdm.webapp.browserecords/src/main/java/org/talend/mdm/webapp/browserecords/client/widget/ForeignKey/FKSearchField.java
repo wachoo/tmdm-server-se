@@ -163,10 +163,10 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
         relWindow.setResizable(false);
         relWindow.setModal(true);
         relWindow.setBlinkModal(true);
-        relWindow.setFkKey(foreignKeyField);
         relWindow.setReturnCriteriaFK(returnCriteriaFK);
         relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
         relWindow.setStaging(staging);
+        relWindow.setForeignKeyInfos(this.foreignKey, this.foreignKeyInfo);
         relWindow.show();
     }
 
