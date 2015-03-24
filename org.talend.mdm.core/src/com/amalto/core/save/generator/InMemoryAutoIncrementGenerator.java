@@ -5,11 +5,8 @@ import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
-
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-
 import java.util.Properties;
 
 class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
@@ -58,7 +55,6 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
                     xmlString // actual data
             );
             pojo.setDataModelName(XSystemObjects.DM_CONF.getName());
-            server.start(XSystemObjects.DC_CONF.getName());
             pojo.store();
         } catch (Exception e) {
             logger.error(e.getLocalizedMessage(), e);
