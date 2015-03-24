@@ -20,8 +20,11 @@ import com.amalto.core.load.io.XMLRootInputStream;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.server.XmlServer;
 import com.amalto.core.util.XSDKey;
+import com.amalto.core.util.XtentisException;
+
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.io.InputStream;
 
@@ -84,8 +87,19 @@ public class OptimizedLoadAction implements LoadAction {
 
     public void endLoad(XmlServer server) {
         if (context != null) {
-            // This call should clean up everything (incl. save counter state in case of autogen pk).
-            context.close(server);
+            try {
+                // This call should clean up everything (incl. save counter state in case of autogen pk).
+                server.start(XSystemObjects.DC_CONF.getName());
+                context.close(server);
+                server.commit(XSystemObjects.DC_CONF.getName());
+            } catch (Exception e) {
+                try {
+                    server.rollback(XSystemObjects.DC_CONF.getName());
+                } catch (XtentisException e1) {
+                    log.error("Unable to rollback upon error.", e); //$NON-NLS-1$
+                }
+                log.error(e.getLocalizedMessage(), e);
+            }            
         }
     }
 }
