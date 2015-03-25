@@ -12,11 +12,27 @@
 // ============================================================================
 package com.amalto.core.util;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -45,20 +61,56 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.util.core.ITransformerConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.jobox.JobContainer;
-import com.amalto.core.objects.*;
+import com.amalto.core.objects.DroppedItemPOJO;
+import com.amalto.core.objects.DroppedItemPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.Service;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.transformers.TransformerV2POJOPK;
 import com.amalto.core.objects.transformers.util.TransformerCallBack;
 import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TypedContent;
-import com.amalto.core.server.*;
-import com.amalto.core.server.api.*;
+import com.amalto.core.server.DefaultBackgroundJob;
+import com.amalto.core.server.DefaultConfigurationInfo;
+import com.amalto.core.server.DefaultCustomForm;
+import com.amalto.core.server.DefaultDataCluster;
+import com.amalto.core.server.DefaultDataModel;
+import com.amalto.core.server.DefaultDroppedItem;
+import com.amalto.core.server.DefaultItem;
+import com.amalto.core.server.DefaultMenu;
+import com.amalto.core.server.DefaultRole;
+import com.amalto.core.server.DefaultRoutingOrder;
+import com.amalto.core.server.DefaultRoutingRule;
+import com.amalto.core.server.DefaultStoredProcedure;
+import com.amalto.core.server.DefaultTransformer;
+import com.amalto.core.server.DefaultView;
+import com.amalto.core.server.DefaultXmlServer;
+import com.amalto.core.server.ServerAccess;
+import com.amalto.core.server.api.BackgroundJob;
+import com.amalto.core.server.api.ConfigurationInfo;
+import com.amalto.core.server.api.CustomForm;
+import com.amalto.core.server.api.DataCluster;
+import com.amalto.core.server.api.DataModel;
+import com.amalto.core.server.api.DroppedItem;
+import com.amalto.core.server.api.Item;
+import com.amalto.core.server.api.Menu;
+import com.amalto.core.server.api.RoutingEngine;
+import com.amalto.core.server.api.RoutingOrder;
+import com.amalto.core.server.api.RoutingRule;
+import com.amalto.core.server.api.StoredProcedure;
+import com.amalto.core.server.api.View;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.server.routing.RoutingEngineFactory;
 import com.amalto.core.webservice.WSMDMJob;
 import com.amalto.xmlserver.interfaces.IWhereItem;
@@ -1003,31 +1055,11 @@ public class Util {
     }
 
     public static WSMDMJob[] getMDMJobs() {
+        // Retrieve jobs from jobox only (zip deployment)
+        // TODO: Still support war deployements??
         List<WSMDMJob> jobs = new ArrayList<>();
         try {
-            String jbossHomePath = Util.getAppServerDeployDir();
-            String deployDir = "";
-            try {
-                deployDir = new File(jbossHomePath).getAbsolutePath();
-            } catch (Exception e1) {
-                LOGGER.error(e1);
-            }
-            deployDir = deployDir + File.separator + "server" + File.separator + "default" + File.separator + "deploy"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            LOGGER.info("deploy url:" + deployDir); //$NON-NLS-1$
-            if (!new File(deployDir).exists()) {
-                throw new FileNotFoundException();
-            }
-            // TODO is it recursive
             FileFilter filter = new FileFilter() {
-
-                @Override
-                public boolean accept(File pathName) {
-                    return pathName.isDirectory() || (pathName.isFile() && pathName.getName().toLowerCase().endsWith(".war")); //$NON-NLS-1$
-                }
-            };
-            List<File> warFiles = listFiles(filter, new File(deployDir));
-            // zip
-            filter = new FileFilter() {
 
                 @Override
                 public boolean accept(File pathName) {
@@ -1035,12 +1067,7 @@ public class Util {
                 }
             };
             List<File> zipFiles = listFiles(filter, new File(JobContainer.getUniqueInstance().getDeployDir()));
-            for (File war : warFiles) {
-                WSMDMJob job = getJobInfo(war.getAbsolutePath());
-                if (job != null) {
-                    jobs.add(job);
-                }
-            }
+
             for (File zip : zipFiles) {
                 WSMDMJob job = getJobInfo(zip.getAbsolutePath());
                 if (job != null) {
@@ -1048,7 +1075,7 @@ public class Util {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error(e);
+            LOGGER.error(e.getMessage(), e);
         }
         return jobs.toArray(new WSMDMJob[jobs.size()]);
     }
@@ -1116,12 +1143,12 @@ public class Util {
                 }
             } catch (FileNotFoundException e) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("getJobInfo error.", e);
+                    LOGGER.debug("getJobInfo error.", e); //$NON-NLS-1$
                 }
             }
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("getJobInfo error.", e);
+                LOGGER.debug("getJobInfo error.", e); //$NON-NLS-1$
             }
         }
         return jobInfo;
