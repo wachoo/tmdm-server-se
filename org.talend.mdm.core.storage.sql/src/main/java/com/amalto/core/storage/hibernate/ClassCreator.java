@@ -400,10 +400,6 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     }
 
     private Void handleFieldMetadata(FieldMetadata metadata) {
-        if (!metadata.getContainingType().getSuperTypes().isEmpty() && !metadata.getDeclaringType().equals(metadata.getContainingType())) {
-            // Super should have handled field.
-            return null;
-        }
         try {
             CtClass currentClass = classCreationStack.peek();
             ClassFile currentClassFile = currentClass.getClassFile();
