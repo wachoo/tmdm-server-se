@@ -12,34 +12,58 @@ package com.amalto.core.server;
 
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.util.Util;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.util.XtentisException;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import com.amalto.core.server.api.DataModel;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 public class DefaultDataModel implements DataModel {
 
     private static final Logger LOGGER = Logger.getLogger(DefaultDataModel.class);
+
+    private static final XPath X_PATH = XPathFactory.newInstance().newXPath();
+
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+
+    private static final String EMPTY_SCHEMA = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + //$NON-NLS-1$
+            "<xsd:schema " + //$NON-NLS-1$
+            "	elementFormDefault=\"qualified\"" + //$NON-NLS-1$
+            "	xml:lang=\"EN\"" + //$NON-NLS-1$
+            "	xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" + //$NON-NLS-1$
+            "</xsd:schema>";
+
+    static {
+        DOCUMENT_BUILDER_FACTORY.setNamespaceAware(true);
+        X_PATH.setNamespaceContext(XSDNamespaceContext.INSTANCE);
+    }
 
     @Override
     public DataModelPOJOPK putDataModel(DataModelPOJO dataModel) throws XtentisException {
         try {
             if ((dataModel.getSchema() == null) || "".equals(dataModel.getSchema())) { //$NON-NLS-1$
                 // put an empty schema
-                dataModel.setSchema("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + //$NON-NLS-1$
-                        "<xsd:schema " + //$NON-NLS-1$
-                        "	elementFormDefault=\"qualified\"" + //$NON-NLS-1$
-                        "	xml:lang=\"EN\"" + //$NON-NLS-1$
-                        "	xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" + //$NON-NLS-1$
-                        "</xsd:schema>" //$NON-NLS-1$
-                );
+                dataModel.setSchema(EMPTY_SCHEMA);
             }
             ObjectPOJOPK pk = dataModel.store();
             if (pk == null) {
@@ -112,7 +136,7 @@ public class DefaultDataModel implements DataModel {
     @Override
     public Collection<DataModelPOJOPK> getDataModelPKs(String regex) throws XtentisException {
         Collection<ObjectPOJOPK> dataModelPKs = ObjectPOJO.findAllPKs(DataModelPOJO.class, regex);
-        ArrayList<DataModelPOJOPK> l = new ArrayList<DataModelPOJOPK>();
+        ArrayList<DataModelPOJOPK> l = new ArrayList<>();
         for (ObjectPOJOPK dataModelPK : dataModelPKs) {
             l.add(new DataModelPOJOPK(dataModelPK));
         }
@@ -126,12 +150,65 @@ public class DefaultDataModel implements DataModel {
 
     @Override
     public String putBusinessConceptSchema(DataModelPOJOPK pk, String conceptSchemaString) throws XtentisException {
-        throw new NotImplementedException();
+        try {
+            DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
+            DataModelPOJO dataModel = getDataModel(pk);
+            String schema = dataModel.getSchema();
+            if (schema == null || schema.isEmpty()) {
+                schema = EMPTY_SCHEMA;
+            }
+            Document schemaAsDOM = builder.parse(new InputSource(new StringReader(schema)));
+            Document newConceptAsDOM = builder.parse(new InputSource(new StringReader(conceptSchemaString)));
+            String conceptName;
+            Node existingNode;
+            synchronized (X_PATH) {
+                conceptName = (String) X_PATH.evaluate("/xsd:element/@name", newConceptAsDOM, XPathConstants.STRING); //$NON-NLS-1$
+                existingNode = (Node) X_PATH.evaluate(
+                        "/xsd:schema/xsd:element[@name='" + conceptName + "']", schemaAsDOM, XPathConstants.NODE); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            if (existingNode != null) {
+                existingNode.getParentNode().removeChild(existingNode);
+            }
+            schemaAsDOM.getDocumentElement().appendChild(schemaAsDOM.importNode(newConceptAsDOM.getDocumentElement(), true));
+            dataModel.setSchema(Util.nodeToString(schemaAsDOM, true, false));
+            dataModel.store();
+            invalidateConceptSession(dataModel.getName());
+            return conceptName;
+        } catch (Exception e) {
+            throw new XtentisException(e);
+        }
+    }
+
+    private static void invalidateConceptSession(String businessConceptName) {
+        SaverSession session = SaverSession.newSession();
+        session.getSaverSource().invalidateTypeCache(businessConceptName);
     }
 
     @Override
     public String deleteBusinessConcept(DataModelPOJOPK pk, String businessConceptName) throws XtentisException {
-        throw new NotImplementedException();
+        try {
+            DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
+            DataModelPOJO dataModel = getDataModel(pk);
+            String schema = dataModel.getSchema();
+            if (schema == null || schema.isEmpty()) {
+                return businessConceptName;
+            }
+            Document schemaAsDOM = builder.parse(new InputSource(new StringReader(schema)));
+            Node existingNode;
+            synchronized (X_PATH) {
+                existingNode = (Node) X_PATH.evaluate(
+                        "/xsd:schema/xsd:element[@name='" + businessConceptName + "']", schemaAsDOM, XPathConstants.NODE); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            if (existingNode != null) {
+                existingNode.getParentNode().removeChild(existingNode);
+            }
+            dataModel.setSchema(Util.nodeToString(schemaAsDOM, true, false));
+            dataModel.store();
+            invalidateConceptSession(dataModel.getName());
+            return businessConceptName;
+        } catch (Exception e) {
+            throw new XtentisException(e);
+        }
     }
 
     @Override
@@ -145,5 +222,34 @@ public class DefaultDataModel implements DataModel {
             businessConceptNames[i++] = currentType.getName();
         }
         return businessConceptNames;
+    }
+
+    private static class XSDNamespaceContext implements NamespaceContext {
+
+        private static NamespaceContext INSTANCE = new XSDNamespaceContext();
+
+        @Override
+        public String getNamespaceURI(String prefix) {
+            if ("xsd".equals(prefix)) { //$NON-NLS-1$
+                return XMLConstants.W3C_XML_SCHEMA_NS_URI;
+            }
+            return null;
+        }
+
+        @Override
+        public String getPrefix(String namespaceURI) {
+            if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(namespaceURI)) {
+                return "xsd"; //$NON-NLS-1$
+            }
+            return null;
+        }
+
+        @Override
+        public Iterator getPrefixes(String namespaceURI) {
+            if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(namespaceURI)) {
+                return Collections.singleton("xsd").iterator(); //$NON-NLS-1$
+            }
+            return Collections.emptyList().iterator();
+        }
     }
 }
