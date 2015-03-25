@@ -745,6 +745,11 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
+    public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
+        return delegate.routeItemV2(wsRouteItem);
+    }
+    
+    @Override
     public WSMDMJobArray getMDMJob(WSMDMNULL mdmJobRequest) throws RemoteException {
         return delegate.getMDMJob(mdmJobRequest);
     }

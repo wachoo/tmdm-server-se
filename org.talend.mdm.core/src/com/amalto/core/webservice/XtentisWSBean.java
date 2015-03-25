@@ -606,6 +606,11 @@ public class XtentisWSBean implements XtentisPort {
     public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
         return delegator.routingEngineV2Action(wsRoutingEngineAction);
     }
+    
+    @Override
+    public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().routeItemV2(wsRouteItem);
+    }
 
     @Override
     public WSCategoryData getMDMCategory(WSCategoryData request) throws RemoteException {
