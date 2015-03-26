@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.Sort;
 import org.hibernate.CacheMode;
@@ -407,7 +408,7 @@ public class EntityFinder {
         @Override
         public List list() throws HibernateException {
             List<Wrapper> list = query.list();
-            Set<Wrapper> newSet = new HashSet<Wrapper>();
+            Set<Wrapper> newSet = new ListOrderedSet();
             for (Object item : list) {
                 Wrapper element = EntityFinder.findEntity((Wrapper) item, storage, session);
                 if (element != null) {
