@@ -256,7 +256,8 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             try {
                 if (complexType.getName().startsWith("X_")) { //$NON-NLS-1$
                     Integer usageNumber = complexType.<Integer>getData(TypeMapping.USAGE_NUMBER);
-                    generateConstrains = usageNumber == null || usageNumber <= 1;
+                    // TMDM-8283: Don't turn on constraint generation even if reusable type is used only once.
+                    generateConstrains = generateConstrains && (usageNumber == null || usageNumber <= 1);
                 }
                 for (FieldMetadata currentField : allFields) {
                     Element child = currentField.accept(this);
