@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.Sort;
 import org.hibernate.CacheMode;
@@ -395,15 +396,15 @@ public class EntityFinder {
 
         @Override
         public List list() throws HibernateException {
-            ArrayList<Wrapper> newList = new ArrayList<Wrapper>();
+            Set<Wrapper> newSet = new ListOrderedSet();
             List<Wrapper> list = query.list();
             for (Object item : list) {
                 Wrapper element = EntityFinder.findEntity((Wrapper) item, storage, session);
-                if (!newList.contains(element)) {
-                    newList.add(element);
+                if (element != null) {
+                    newSet.add(element);
                 }
             }
-            return newList;
+            return new ArrayList<Wrapper>(newSet);
         }
 
         @Override
