@@ -14,7 +14,7 @@
 package com.amalto.core.query;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserStagingQueryBuilder.error;
+import static com.amalto.core.query.user.UserStagingQueryBuilder.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
@@ -23,13 +23,16 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amalto.core.query.user.*;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.FieldFullText;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.FullTextResultsWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -40,6 +43,9 @@ import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 
 @SuppressWarnings("nls")
 public class StorageFullTextTest extends StorageTestCase {
@@ -50,9 +56,13 @@ public class StorageFullTextTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
-                + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
+                + "    <Name>ProductFamily1</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
-                + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
+                + "    <Name>ProductFamily2</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>3</Id>\n"
+                + "    <Name>ProductFamily3</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read("1", repository, productFamily, "<ProductFamily>\n" + "    <Id>4</Id>\n"
+                + "    <Name>ProductFamily4</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>1</Id>\n" + "    <Name>talend</Name>\n"
                 + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
@@ -195,6 +205,41 @@ public class StorageFullTextTest extends StorageTestCase {
                 currentId = id;
             }
         } finally {
+            records.close();
+        }
+    }
+    
+    public void testSimpleSearchOrderByWithContainsCondition() throws Exception {
+        // Order by "Id" field
+        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "Product"))
+                .orderBy(productFamily.getField("Id"), OrderBy.Direction.DESC);
+
+        StorageResults records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(4, records.getCount());
+            int currentId = Integer.MAX_VALUE;
+            for (DataRecord record : records) {
+                Integer id = Integer.parseInt((String) record.get("Id"));
+                assertTrue(id < currentId);
+                currentId = id;
+            }            
+        }  finally {
+            records.close();
+        }
+        // Order by "Name" field
+        qb = from(productFamily).where(contains(productFamily.getField("Name"), "Product")).orderBy(
+                productFamily.getField("Name"), OrderBy.Direction.DESC);
+
+        records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(4, records.getCount());
+            int currentId = Integer.MAX_VALUE;
+            for (DataRecord record : records) {
+                Integer id = Integer.parseInt((String) record.get("Id"));
+                assertTrue(id < currentId);
+                currentId = id;
+            }
+        }  finally {
             records.close();
         }
     }

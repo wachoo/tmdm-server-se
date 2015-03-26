@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -396,15 +395,15 @@ public class EntityFinder {
 
         @Override
         public List list() throws HibernateException {
+            ArrayList<Wrapper> newList = new ArrayList<Wrapper>();
             List<Wrapper> list = query.list();
-            Set<Wrapper> newSet = new HashSet<Wrapper>();
             for (Object item : list) {
                 Wrapper element = EntityFinder.findEntity((Wrapper) item, storage, session);
-                if (element != null) {
-                    newSet.add(element);
+                if (!newList.contains(element)) {
+                    newList.add(element);
                 }
             }
-            return new ArrayList<Wrapper>(newSet);
+            return newList;
         }
 
         @Override
