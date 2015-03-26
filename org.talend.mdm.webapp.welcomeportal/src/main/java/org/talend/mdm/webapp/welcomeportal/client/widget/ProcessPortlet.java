@@ -121,7 +121,7 @@ public class ProcessPortlet extends BasePortlet {
 
             @Override
             public void onSuccess(Map<String, String> newProcessMap) {
-                if (compareProcesses(newProcessMap)) {
+                if (!compareProcesses(newProcessMap)) {
                     processMap = newProcessMap;
                     fieldSet.removeAll();
                     buildProcesses();

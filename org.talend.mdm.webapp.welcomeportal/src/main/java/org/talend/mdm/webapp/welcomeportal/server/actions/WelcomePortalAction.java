@@ -37,11 +37,14 @@ import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSExecuteTransformerV2;
 import com.amalto.core.webservice.WSGetTransformer;
 import com.amalto.core.webservice.WSGetTransformerPKs;
+import com.amalto.core.webservice.WSGetTransformerV2;
+import com.amalto.core.webservice.WSGetTransformerV2PKs;
 import com.amalto.core.webservice.WSPutItem;
 import com.amalto.core.webservice.WSTransformer;
 import com.amalto.core.webservice.WSTransformerContext;
 import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
 import com.amalto.core.webservice.WSTransformerPK;
+import com.amalto.core.webservice.WSTransformerV2;
 import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.core.webservice.WSTypedContent;
 import com.amalto.webapp.core.bean.Configuration;
@@ -187,10 +190,10 @@ public class WelcomePortalAction implements WelcomePortalService {
     public Map<String, String> getStandaloneProcess(String language) throws ServiceException {
         try {
             Map<String, String> processMap = new HashMap<String, String>();
-            WSTransformerPK[] wst = Util.getPort().getTransformerPKs(new WSGetTransformerPKs("*")).getWsTransformerPK(); //$NON-NLS-1$
-            for (WSTransformerPK wstransformerpk : wst) {
+            WSTransformerV2PK[] wst = Util.getPort().getTransformerV2PKs(new WSGetTransformerV2PKs("*")).getWsTransformerV2PK(); //$NON-NLS-1$
+            for (WSTransformerV2PK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
-                    WSTransformer wsTransformer = Util.getPort().getTransformer(new WSGetTransformer(wstransformerpk));
+                    WSTransformerV2 wsTransformer = Util.getPort().getTransformerV2(new WSGetTransformerV2(wstransformerpk));
                     processMap.put(wstransformerpk.getPk(), getDescriptionByLau(language, wsTransformer.getDescription()));
                 }
             }
