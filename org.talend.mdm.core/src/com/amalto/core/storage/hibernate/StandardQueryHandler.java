@@ -555,9 +555,24 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (select.isProjection()) {
             projectionList = Projections.projectionList();
             {
-                List<TypedExpression> selectedFields = select.getSelectedFields();
-                for (Expression selectedField : selectedFields) {
+                List<TypedExpression> queryFields = select.getSelectedFields();
+                boolean isCountQuery = false;
+                for (Expression selectedField : queryFields) {
                     selectedField.accept(this);
+                    if (selectedField instanceof Alias) {
+                        Alias alias = (Alias) selectedField;
+                        if (alias.getTypedExpression() instanceof Count) {
+                            isCountQuery = true;
+                        }
+                    }
+                }
+                if (isCountQuery && queryFields.size() > 1) {
+                    Projection projection = projectionList.getProjection(projectionList.getLength() - 1);
+                    projectionList = Projections.projectionList();
+                    projectionList.add(projection);
+                    TypedExpression countTypedExpression = selectedFields.get(queryFields.size() - 1);
+                    selectedFields.clear();
+                    selectedFields.add(countTypedExpression);
                 }
             }
             criteria.setProjection(projectionList);
