@@ -44,6 +44,7 @@ import org.xml.sax.InputSource;
 
 import com.amalto.core.ejb.UpdateReportPOJO;
 import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
@@ -93,7 +94,6 @@ public class RecycleBinAction implements RecycleBinService {
 
             WSDroppedItemPKArray pks = Util.getPort().findAllDroppedItemsPKs(new WSFindAllDroppedItemsPKs(regex));
             WSDroppedItemPK[] items = pks.getWsDroppedItemPK();
-            Map<String, MetadataRepository> repositoryMap = new HashMap<String, MetadataRepository>();
 
             for (WSDroppedItemPK pk : items) {
                 WSDroppedItem wsitem = Util.getPort().loadDroppedItem(new WSLoadDroppedItem(pk));
@@ -110,20 +110,11 @@ public class RecycleBinAction implements RecycleBinService {
                         continue;
                     }
 
-                    String modelXSD = DataModelAccessor.getInstance().getDataModelXSD(modelName);
-                    if (modelXSD != null && modelXSD.trim().length() > 0) {
-                        if (!repositoryMap.containsKey(modelName)) {
-                            MetadataRepository repository = new MetadataRepository();
-                            InputStream is = new ByteArrayInputStream(modelXSD.getBytes("UTF-8")); //$NON-NLS-1$
-                            repository.load(is);
-                            repositoryMap.put(modelName, repository);
-                        }
-                    }
-
                     if (!Webapp.INSTANCE.isEnterpriseVersion()
                             || (DataModelAccessor.getInstance().checkReadAccess(modelName, conceptName))) {
                         ItemsTrashItem item = new ItemsTrashItem();
-                        item = WS2POJO(wsitem, repositoryMap.get(modelName), (String) load.get("language")); //$NON-NLS-1$
+                        MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(modelName);
+                        item = WS2POJO(wsitem, repository, (String) load.get("language")); //$NON-NLS-1$
                         li.add(item);
 
                     }
