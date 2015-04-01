@@ -12,18 +12,23 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client.widget;
 
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 public class StartPortlet extends BasePortlet {
 
     public StartPortlet(MainFramePanel portal) {
-        super(WelcomePortal.START, portal);
+        super(PortletConstants.START_NAME, portal);
+        setIcon(AbstractImagePrototype.create(Icons.INSTANCE.start()));
+        setHeading(MessagesFactory.getMessages().start_title());
         label.setText(MessagesFactory.getMessages().useful_links_desc());
         this.getHeader().removeTool(refreshBtn);
         initPortlet();

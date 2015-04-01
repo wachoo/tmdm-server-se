@@ -14,12 +14,15 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 public class AlertPortlet extends BasePortlet {
@@ -32,9 +35,12 @@ public class AlertPortlet extends BasePortlet {
     private String message = ""; //$NON-NLS-1$
 
     public AlertPortlet(MainFramePanel portal) {
-        super(WelcomePortal.ALERT, portal);
-        initConfigSettings();
+        super(PortletConstants.ALERT_NAME, portal);
+        setIcon(AbstractImagePrototype.create(Icons.INSTANCE.alert()));
+        setHeading(MessagesFactory.getMessages().alerts_title());
         label.setText(MessagesFactory.getMessages().loading_alert_msg());
+        initConfigSettings();
+
         updateLinks();
         autoRefresh(configModel.isAutoRefresh());
     }

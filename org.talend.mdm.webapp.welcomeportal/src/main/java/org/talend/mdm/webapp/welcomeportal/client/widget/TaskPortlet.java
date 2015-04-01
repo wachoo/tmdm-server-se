@@ -15,12 +15,15 @@ package org.talend.mdm.webapp.welcomeportal.client.widget;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 public class TaskPortlet extends BasePortlet {
@@ -53,8 +56,9 @@ public class TaskPortlet extends BasePortlet {
     private ClickHandler dscClikcHanlder;
 
     public TaskPortlet(final MainFramePanel portal) {
-        super(WelcomePortal.TASKS, portal);
-
+        super(PortletConstants.TASKS_NAME, portal);
+        setIcon(AbstractImagePrototype.create(Icons.INSTANCE.task()));
+        setHeading(MessagesFactory.getMessages().tasks_title());
         isHiddenWorkFlowTask = portal.isHiddenWorkFlowTask();
         isHiddenDSCTask = portal.isHiddenDSCTask();
         initConfigSettings();

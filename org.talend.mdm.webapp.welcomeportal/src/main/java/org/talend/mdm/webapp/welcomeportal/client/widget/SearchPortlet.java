@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client.widget;
 
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
-import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
@@ -32,8 +32,9 @@ import com.google.gwt.user.client.ui.TextBox;
 public class SearchPortlet extends BasePortlet {
 
     public SearchPortlet(MainFramePanel portal) {
-        super(WelcomePortal.SEARCH, portal);
-
+        super(PortletConstants.SEARCH_NAME, portal);
+        setIcon(AbstractImagePrototype.create(Icons.INSTANCE.find()));
+        setHeading(MessagesFactory.getMessages().search_title());
         init();
     }
 
@@ -72,16 +73,6 @@ public class SearchPortlet extends BasePortlet {
         panel.add(button);
         fieldSet.add(panel);
         fieldSet.layout(true);
-    }
-
-    @Override
-    public void setHeading() {
-        this.setHeading(MessagesFactory.getMessages().search_title());
-    }
-
-    @Override
-    public void setIcon() {
-        this.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.find()));
     }
 
     private void doSearch(TextBox textBox) {

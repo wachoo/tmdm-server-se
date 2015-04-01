@@ -61,7 +61,7 @@ public abstract class ChartPortlet extends BasePortlet {
 
     public ChartPortlet(String name, MainFramePanel portal) {
         super(name, portal);
-
+        setIcon();
     }
 
     @Override
@@ -216,7 +216,6 @@ public abstract class ChartPortlet extends BasePortlet {
         return appnamesSorted;
     }
 
-    @Override
     protected void setIcon() {
         this.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.chart()));
     }

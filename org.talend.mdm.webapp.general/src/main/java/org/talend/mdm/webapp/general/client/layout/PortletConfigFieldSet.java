@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.general.client.General;
 import org.talend.mdm.webapp.general.client.GeneralServiceAsync;
 import org.talend.mdm.webapp.general.client.i18n.MessageFactory;
@@ -41,10 +42,6 @@ public class PortletConfigFieldSet extends FieldSet {
     private static PortletConfigFieldSet instance;
 
     private GeneralServiceAsync service = (GeneralServiceAsync) Registry.get(General.OVERALL_SERVICE);
-
-    private static final String NAME_START = "start", NAME_PROCESS = "process", NAME_ALERT = "alert", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            NAME_SEARCH = "search", NAME_TASKS = "tasks", NAME_CHART_DATA = "chart_data", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            NAME_CHART_ROUTING_EVENT = "chart_routing_event", NAME_CHART_JOURNAL = "chart_journal", NAME_CHART_MATCHING = "chart_matching"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     private CheckBox startWidgetCheckBox;
 
@@ -281,6 +278,8 @@ public class PortletConfigFieldSet extends FieldSet {
         for (String checkBox : selectedCheckBox) {
             updateWidgetCheckBox(checkBox, true);
         }
+        chartParentCheckBox.setValue(dataChartCheckBox.getValue() || routtingEventChartCheckBox.getValue()
+                || journalChartCheckBox.getValue() || matchingChartCheckBox.getValue());
         int columnNumber = Integer.parseInt(temp[2]);
         col3Radio.setValue(((columnNumber == 3) ? true : false));
         col2Radio.setValue(((columnNumber == 2) ? true : false));
@@ -290,32 +289,32 @@ public class PortletConfigFieldSet extends FieldSet {
     private List<String> getPortalConfigUpdate() {
         List<String> updates = new ArrayList<String>();
         if (startWidgetCheckBox.getValue()) {
-            updates.add(NAME_START);
+            updates.add(PortletConstants.START_NAME);
         }
         if (processWidgetCheckBox.getValue()) {
-            updates.add(NAME_PROCESS);
+            updates.add(PortletConstants.PROCESS_NAME);
         }
         if (alertWidgetCheckBox.getValue()) {
-            updates.add(NAME_ALERT);
+            updates.add(PortletConstants.ALERT_NAME);
         }
         if (searchWidgetCheckBox.getValue()) {
-            updates.add(NAME_SEARCH);
+            updates.add(PortletConstants.SEARCH_NAME);
         }
         if (tasksWidgetCheckBox.getValue()) {
-            updates.add(NAME_TASKS);
+            updates.add(PortletConstants.TASKS_NAME);
         }
         if (isEnterprise) {
             if (dataChartCheckBox.getValue()) {
-                updates.add(NAME_CHART_DATA);
+                updates.add(PortletConstants.DATA_CHART_NAME);
             }
             if (routtingEventChartCheckBox.getValue()) {
-                updates.add(NAME_CHART_ROUTING_EVENT);
+                updates.add(PortletConstants.ROUTING_EVENT_CHART_NAME);
             }
             if (journalChartCheckBox.getValue()) {
-                updates.add(NAME_CHART_JOURNAL);
+                updates.add(PortletConstants.JOURNAL_CHART_NAME);
             }
             if (matchingChartCheckBox.getValue()) {
-                updates.add(NAME_CHART_MATCHING);
+                updates.add(PortletConstants.MATCHING_CHART_NAME);
             }
         }
         updates.add((col3Radio.getValue() ? "3" : "2")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -323,32 +322,32 @@ public class PortletConfigFieldSet extends FieldSet {
     }
 
     public void updateWidgetCheckBox(String name, Boolean value) {
-        if (NAME_START.equals(name)) {
+        if (PortletConstants.START_NAME.equals(name)) {
             startWidgetCheckBox.setValue(value);
-        } else if (NAME_PROCESS.equals(name)) {
+        } else if (PortletConstants.PROCESS_NAME.equals(name)) {
             processWidgetCheckBox.setValue(value);
-        } else if (NAME_ALERT.equals(name)) {
+        } else if (PortletConstants.ALERT_NAME.equals(name)) {
             alertWidgetCheckBox.setValue(value);
-        } else if (NAME_SEARCH.equals(name)) {
+        } else if (PortletConstants.SEARCH_NAME.equals(name)) {
             searchWidgetCheckBox.setValue(value);
-        } else if (NAME_TASKS.equals(name)) {
+        } else if (PortletConstants.TASKS_NAME.equals(name)) {
             tasksWidgetCheckBox.setValue(value);
-        } else if (NAME_CHART_DATA.equals(name)) {
+        } else if (PortletConstants.DATA_CHART_NAME.equals(name)) {
             dataChartCheckBox.setValue(value);
             if (!dataChartCheckBox.isVisible()) {
                 showChartCheckBox();
             }
-        } else if (NAME_CHART_ROUTING_EVENT.equals(name)) {
+        } else if (PortletConstants.ROUTING_EVENT_CHART_NAME.equals(name)) {
             routtingEventChartCheckBox.setValue(value);
             if (!routtingEventChartCheckBox.isVisible()) {
                 showChartCheckBox();
             }
-        } else if (NAME_CHART_JOURNAL.equals(name)) {
+        } else if (PortletConstants.JOURNAL_CHART_NAME.equals(name)) {
             journalChartCheckBox.setValue(value);
             if (!journalChartCheckBox.isVisible()) {
                 showChartCheckBox();
             }
-        } else if (NAME_CHART_MATCHING.equals(name)) {
+        } else if (PortletConstants.MATCHING_CHART_NAME.equals(name)) {
             matchingChartCheckBox.setValue(value);
             if (!matchingChartCheckBox.isVisible()) {
                 showChartCheckBox();
@@ -367,9 +366,9 @@ public class PortletConfigFieldSet extends FieldSet {
         startWidgetCheckBox.setValue(false);
         processWidgetCheckBox.setValue(false);
         alertWidgetCheckBox.setValue(false);
-        searchWidgetCheckBox.setValue(true);
+        searchWidgetCheckBox.setValue(false);
         tasksWidgetCheckBox.setValue(false);
-        dataChartCheckBox.setValue(true);
+        dataChartCheckBox.setValue(false);
         routtingEventChartCheckBox.setValue(false);
         journalChartCheckBox.setValue(false);
         matchingChartCheckBox.setValue(false);
@@ -382,16 +381,16 @@ public class PortletConfigFieldSet extends FieldSet {
 
     // call refresh in WelcomePortal
     private native void refreshPortal(String portalConfig)/*-{
-		$wnd.amalto.core.refreshPortal(portalConfig);
-    }-*/;
+                                                          $wnd.amalto.core.refreshPortal(portalConfig);
+                                                          }-*/;
 
     private native void display(String context, String application)/*-{
-		if ($wnd.amalto[context]) {
-			if ($wnd.amalto[context][application]) {
-				$wnd.amalto[context][application].init();
-			}
-		}
-    }-*/;
+                                                                   if ($wnd.amalto[context]) {
+                                                                   if ($wnd.amalto[context][application]) {
+                                                                   $wnd.amalto[context][application].init();
+                                                                   }
+                                                                   }
+                                                                   }-*/;
 
     public void activateSaveButton() {
         if (!saveButton.isEnabled()) {
