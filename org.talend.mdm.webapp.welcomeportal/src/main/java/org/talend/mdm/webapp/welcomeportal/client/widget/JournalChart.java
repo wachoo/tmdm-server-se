@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
-import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
@@ -50,9 +50,8 @@ public class JournalChart extends ChartPortlet {
     private static String JOURNAL_ACTION_UPDATE = "update"; //$NON-NLS-1$
 
     public JournalChart(MainFramePanel portal) {
-
-        super(WelcomePortal.CHART_JOURNAL, portal);
-
+        super(PortletConstants.JOURNAL_CHART_NAME, portal);
+        setHeading(MessagesFactory.getMessages().chart_journal_title());
         String setting = portalConfigs.getChartSetting(portletName);
         if (setting != null) {
             configModel = new TimeframeConfigModel(startedAsOn, setting);

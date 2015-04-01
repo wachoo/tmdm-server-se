@@ -17,9 +17,10 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
-import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -27,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 public class ProcessPortlet extends BasePortlet {
@@ -34,7 +36,9 @@ public class ProcessPortlet extends BasePortlet {
     private Map<String, String> processMap = new HashMap<String, String>();
 
     public ProcessPortlet(MainFramePanel portal) {
-        super(WelcomePortal.PROCESS, portal);
+        super(PortletConstants.PROCESS_NAME, portal);
+        setIcon(AbstractImagePrototype.create(Icons.INSTANCE.transformer()));
+        setHeading(MessagesFactory.getMessages().process_title());
         initConfigSettings();
         label.setText(MessagesFactory.getMessages().process_desc());
         updateProcesses();

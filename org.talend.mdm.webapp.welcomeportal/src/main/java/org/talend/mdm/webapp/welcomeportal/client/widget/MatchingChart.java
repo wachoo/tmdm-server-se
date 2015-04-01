@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
-import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
@@ -45,8 +45,8 @@ import com.googlecode.gflot.client.options.PlotOptions;
 public class MatchingChart extends ChartPortlet {
 
     public MatchingChart(MainFramePanel portal) {
-        super(WelcomePortal.CHART_MATCHING, portal);
-
+        super(PortletConstants.MATCHING_CHART_NAME, portal);
+        setHeading(MessagesFactory.getMessages().chart_matching_title());
         String setting = portalConfigs.getChartSetting(portletName);
         if (setting != null) {
             configModel = new EntityConfigModel(startedAsOn, setting);
