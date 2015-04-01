@@ -66,6 +66,7 @@
 }
 </style>
 
+<link rel="shortcut icon" href="<%=contextPath%>/auth/favicon.ico" />
 <link rel="stylesheet" type="text/css" href="<%= contextPath %>/auth/loginPage.css"/>
 
 </head>
