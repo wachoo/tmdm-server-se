@@ -31,7 +31,7 @@ import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.service.UnknownUnwrapTypeException;
 import org.hibernate.service.spi.Configurable;
 
-public class DBCPConnectionProvider implements ConnectionProvider, Configurable {
+public class DBCPConnectionProvider implements ConnectionProvider, Configurable, org.hibernate.service.spi.Stoppable {
 
     private static final Logger log = Logger.getLogger(DBCPConnectionProvider.class);
 
@@ -58,6 +58,14 @@ public class DBCPConnectionProvider implements ConnectionProvider, Configurable 
     }
 
     public void close() throws HibernateException {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Closing DBCP connection provider.");
+            }
+            ds.close();
+        } catch (SQLException e) {
+            log.error("Unable to close connection pool.", e);
+        }
     }
 
     protected void logStatistics() {
@@ -159,5 +167,10 @@ public class DBCPConnectionProvider implements ConnectionProvider, Configurable 
         if (log.isDebugEnabled()) {
             log.debug("Configure DBCPConnectionProvider complete");
         }
+    }
+
+    @Override
+    public void stop() {
+        close();
     }
 }

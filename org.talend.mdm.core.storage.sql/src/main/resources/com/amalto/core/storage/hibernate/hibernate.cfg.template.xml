@@ -15,7 +15,7 @@
         <property name="hibernate.dialect"/>
         <property name="hibernate.connection.password"/>
         <property name="hibernate.jdbc.batch_size">100</property>
-        <property name="hibernate.connection.provider_class">com.amalto.core.storage.DBCPConnectionProvider</property>
+        <property name="hibernate.connection.provider_class">dbcp</property>
         <!-- Needs a special org.hibernate.context.ThreadLocalSessionContext implementation that allow CLOB creations -->
         <property name="hibernate.current_session_context_class">
             com.amalto.core.storage.hibernate.MDMTransactionSessionContext
