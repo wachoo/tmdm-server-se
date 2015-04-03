@@ -103,6 +103,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 storage.commit();
             }
         } catch (Exception e) {
+            storage.rollback();
             throw new RuntimeException(e);
         }
         return new MultiThreadedTask(type.getName(),
@@ -184,7 +185,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                     false,
                     false);
             context.setTaskId(stagingRecord.getRecordMetadata().getTaskId());
-            context.setUserAction(UserAction.AUTO);
+            context.setUserAction(UserAction.AUTO_STRICT);
             DocumentSaver saver = context.createSaver();
             Map<String, String> recordProperties = stagingRecord.getRecordMetadata().getRecordProperties();
             try {
