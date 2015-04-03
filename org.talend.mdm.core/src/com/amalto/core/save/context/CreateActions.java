@@ -44,23 +44,23 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
 
     private final Stack<PathElement> path = new Stack<PathElement>();
 
-    private final List<Action> actions = new LinkedList<Action>();
+    protected final List<Action> actions = new LinkedList<Action>();
 
-    private final Date date;
+    protected final Date date;
 
-    private final String source;
+    protected final String source;
 
-    private final String userName;
+    protected final String userName;
+
+    protected final MutableDocument document;
 
     private final String universe;
 
     private final SaverSource saverSource;
 
     private final String dataCluster;
-    
-    private final String dataModel;
 
-    private final MutableDocument document;
+    private final String dataModel;
 
     private String rootTypeName = null;
 
@@ -236,7 +236,7 @@ class CreateActions extends DefaultMetadataVisitor<List<Action>> {
         return doCreate;
     }
 
-    private void handleField(FieldMetadata field, boolean doCreate, String currentPath) {
+    protected void handleField(FieldMetadata field, boolean doCreate, String currentPath) {
         // Handle UUID and AutoIncrement elements (this code also ensures any previous value is overwritten, see
         // TMDM-3900).
         // Note #2: This code generate values even for non-mandatory fields (but this is expected behavior).

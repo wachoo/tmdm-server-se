@@ -82,7 +82,7 @@ class ID implements DocumentSaver {
         String[] xmlDocumentId = ids.toArray(new String[ids.size()]);
         String revisionID = context.getRevisionID();
         if (xmlDocumentId.length > 0 && database.exist(dataCluster, dataModelName, typeName, revisionID, xmlDocumentId)) {
-            if (context.getUserAction() == UserAction.AUTO) {
+            if (context.getUserAction() == UserAction.AUTO || context.getUserAction() == UserAction.AUTO_STRICT) {
                 context.setUserAction(UserAction.UPDATE);
             }
             context.setId(xmlDocumentId);
@@ -91,7 +91,9 @@ class ID implements DocumentSaver {
             // Throw an exception if trying to update a document that does not exist.
             switch (context.getUserAction()) {
                 case AUTO:
+                case AUTO_STRICT:
                 case CREATE:
+                case CREATE_STRICT:
                 case REPLACE:
                     break;
                 case UPDATE:
@@ -103,7 +105,14 @@ class ID implements DocumentSaver {
                     throw new IllegalStateException("Can not update document '" + type.getName() + "' with id '" + builder.toString() + "' because it does not exist.");
             }
             // Creation... so mark context
-            context.setUserAction(UserAction.CREATE);
+            switch (context.getUserAction()) {
+                case AUTO_STRICT:
+                    // In case of AUTO_STRICT, stick to CREATE_STRICT
+                    context.setUserAction(UserAction.CREATE_STRICT);
+                    break;
+                default:
+                    context.setUserAction(UserAction.CREATE);
+            }
             context.setDatabaseDocument(new DOMDocument(SaverContextFactory.DOCUMENT_BUILDER.newDocument(), type, context.getRevisionID(), dataCluster, context.getDataModelName()));
         }
         // Continue save

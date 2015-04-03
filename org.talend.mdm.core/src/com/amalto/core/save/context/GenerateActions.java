@@ -10,6 +10,14 @@
 
 package com.amalto.core.save.context;
 
+import java.util.*;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
+
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.action.FieldUpdateAction;
@@ -19,13 +27,6 @@ import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.util.SynchronizedNow;
-import org.apache.commons.lang.NotImplementedException;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-
-import java.util.*;
 
 class GenerateActions implements DocumentSaver {
 
@@ -60,9 +61,19 @@ class GenerateActions implements DocumentSaver {
                 context.generateTouchActions(), metadataRepository);
         UserAction userAction = context.getUserAction();
         switch (userAction) {
+        case CREATE_STRICT:
         case CREATE:
-            CreateActions createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(),
-                    context.getDataModelName(), universe, saverSource);
+            CreateActions createActions;
+            if (userAction == UserAction.CREATE) {
+                // Create action will override provided ids values with generated values (if any)...
+                createActions = new CreateActions(userDocument, date, source, userName, context.getDataCluster(),
+                        context.getDataModelName(), universe, saverSource);
+            } else {
+                // CASE_STRICT:
+                // ... and this will *not* override provided ids values with generated values (if any).
+                createActions = new CreateWithProvidedIdActions(userDocument, date, source, userName, context.getDataCluster(),
+                        context.getDataModelName(), universe, saverSource);
+            }
             Action createAction = new OverrideCreateAction(date, source, userName, userDocument, type);
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();
