@@ -524,6 +524,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
+                if (path.indexOf('$') > 0) {
+                    continue; // Skip paths like $stating_status$
+                }
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
                     // It should getValue by XPath but not element name(ItemBean's map object is only used by
@@ -1881,20 +1884,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 LOG.debug("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
             }
             WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
-            
+
             Configuration config = Configuration.getConfiguration();
             String dataModelPK = config.getModel() == null ? StringUtils.EMPTY : config.getModel();
             String dataClusterPK = config.getCluster() == null ? StringUtils.EMPTY : config.getCluster();
-            UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(concept,
+            UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(
+                    concept,
                     Util.joinStrings(ids, "."), UpdateReportPOJO.OPERATION_TYPE_ACTION, //$NON-NLS-1$
-                    "genericUI", System.currentTimeMillis(),dataClusterPK, dataModelPK, LocalUser.getLocalUser().getUsername(), null); //$NON-NLS-1$
-            
+                    "genericUI", System.currentTimeMillis(), dataClusterPK, dataModelPK, LocalUser.getLocalUser().getUsername(), null); //$NON-NLS-1$
+
             String updateReport = updateReportPOJO.serialize();
             WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
                     "text/xml; charset=utf-8");//$NON-NLS-1$
             WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
-            
-            //execute
+
+            // execute
             XtentisPort port = Util.getPort();
             WSTransformerContextPipelinePipelineItem[] entries = port.executeTransformerV2(wsExecuteTransformerV2).getPipeline()
                     .getPipelineItem();
@@ -1923,7 +1927,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSDataClusterPK updateReportCluster = new WSDataClusterPK(UpdateReportPOJO.DATA_CLUSTER);
             WSDataModelPK updateReportDataModel = new WSDataModelPK(UpdateReportPOJO.DATA_MODEL);
             Util.getPort().putItem(new WSPutItem(updateReportCluster, updateReport, updateReportDataModel, false));
-            
+
             if (outputReport) {
                 return downloadUrl;
             } else {
