@@ -208,7 +208,8 @@ public class ItemsToolBar extends ToolBar {
             criteriaStore.add(simpCriterion);
             BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, criteriaStore);
             qm.setCriteria(simplePanel.getCriteria().toString());
-            if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(), simpCriterion.getValue())) {
+            if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(),
+                    simpCriterion.getInputValue() != null ? simpCriterion.getInputValue() : simpCriterion.getValue())) {
                 qm.setErrorValue(simpCriterion.getValue());
             }
         } else {
@@ -226,7 +227,8 @@ public class ItemsToolBar extends ToolBar {
                     UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE));
             List<SimpleCriterion> simpleCriterions = CriteriaUtil.getSimpleCriterions(multipleCriteria);
             for (SimpleCriterion criteria : simpleCriterions) {
-                if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(), criteria.getValue())) {
+                if (!CommonUtil.validateSearchValue(entityModel.getMetaDataTypes(),
+                        criteria.getInputValue() != null ? criteria.getInputValue() : criteria.getValue())) {
                     qm.setErrorValue(criteria.getValue());
                     break;
                 }

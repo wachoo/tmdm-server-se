@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.client.widget.treedetail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
@@ -36,6 +37,7 @@ import org.talend.mdm.webapp.browserecords.client.model.Restriction;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
@@ -407,9 +409,12 @@ public class ForeignKeyListWindow extends Window {
             if (foreignKeyInfo.contains(typeModel.getForeignkey())) {
                 isDisplayKeyInfo = true;
             }
+            Map<String, TypeModel> dataTypes = getEntityModel().getMetaDataTypes();
             for (String info : foreignKeyInfo) {
-                ColumnConfig columnConfig = new ColumnConfig(CommonUtil.getElementFromXpath(info),
-                        CommonUtil.getElementFromXpath(info), COLUMN_WIDTH);
+                TypeModel metaDataType = dataTypes.get(info);
+                String id = CommonUtil.getElementFromXpath(info);
+                ColumnConfig columnConfig = new ColumnConfig(id, metaDataType == null ? id : ViewUtil.getViewableLabel(Locale.getLanguage(), 
+                        metaDataType), COLUMN_WIDTH);
                 columns.add(columnConfig);
                 if (entityModel.getTypeModel(info).getType().equals(DataTypeConstants.MLS)) {
 
@@ -427,7 +432,7 @@ public class ForeignKeyListWindow extends Window {
                 }
             }
             if (columns.size() > 0) {
-                config.setSortField(columns.get(0).getHeader());
+                config.setSortField(columns.get(0).getId());
                 config.setSortDir(SortDir.ASC);
             }
         }
