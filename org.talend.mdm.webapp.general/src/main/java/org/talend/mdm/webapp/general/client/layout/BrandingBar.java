@@ -184,7 +184,7 @@ public class BrandingBar extends ContentPanel {
             logoMdm.setUrl("secure/img/logo-mdm.png"); //$NON-NLS-1$
             UserBean userBean = Registry.get(General.USER_BEAN);
             versionLabel.setHTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory
-                    .getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
+                    .getMessages().community());
         }
     }
 
