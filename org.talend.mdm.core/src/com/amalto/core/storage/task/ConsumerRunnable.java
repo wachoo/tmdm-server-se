@@ -13,6 +13,8 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,19 +29,27 @@ class ConsumerRunnable implements Runnable {
 
     private final ClosureExecutionStats stats;
 
+    private final SecurityContext context;
+
     private final AtomicBoolean hasEnded = new AtomicBoolean(false);
 
     private int committedRecordCount = 0;
+    private SecurityContext previousContext;
 
-    ConsumerRunnable(BlockingQueue<DataRecord> queue, Closure closure, ClosureExecutionStats stats) {
+    ConsumerRunnable(BlockingQueue<DataRecord> queue, Closure closure, ClosureExecutionStats stats, SecurityContext context) {
         this.closure = closure;
         this.queue = queue;
         this.stats = stats;
+        this.context = context;
         hasEnded.set(false);
     }
 
     public void run() {
         closure.begin();
+        // Overrides current context with supplied one, remembers previous one for end()
+        previousContext = SecurityContextHolder.getContext();
+        SecurityContextHolder.setContext(context);
+        // Process records till queue is empty
         while (!hasEnded.get()) {
             try {
                 DataRecord record = queue.take();
@@ -70,6 +80,7 @@ class ConsumerRunnable implements Runnable {
     }
 
     private void end() {
+        SecurityContextHolder.setContext(previousContext);
         synchronized (hasEnded) {
             hasEnded.set(true);
             hasEnded.notifyAll();

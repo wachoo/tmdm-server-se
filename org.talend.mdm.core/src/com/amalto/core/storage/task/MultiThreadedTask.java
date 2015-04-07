@@ -17,6 +17,8 @@ import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -52,17 +54,20 @@ public class MultiThreadedTask implements Task {
 
     private boolean hasFailed;
 
+    private SecurityContext context;
+
     public MultiThreadedTask(String name,
                              Storage storage,
                              Expression expression,
                              int threadNumber,
                              Closure closure,
-                             ClosureExecutionStats stats) {
+                             ClosureExecutionStats stats,
+                             SecurityContext context) {
         this.name = name;
         this.storage = storage;
         this.expression = expression;
         this.stats = stats;
-        this.closure = new ThreadDispatcher(threadNumber, closure, stats);
+        this.closure = new ThreadDispatcher(threadNumber, closure, stats, context);
     }
 
     @Override
@@ -164,6 +169,11 @@ public class MultiThreadedTask implements Task {
     @Override
     public boolean hasFailed() {
         return hasFailed;
+    }
+
+    @Override
+    public void setSecurityContext(SecurityContext context) {
+        this.context = context;
     }
 
     @Override

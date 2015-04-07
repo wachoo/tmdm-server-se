@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage.task;
 
+import org.springframework.security.core.context.SecurityContext;
+
 import java.util.Date;
 
 /**
@@ -80,4 +82,6 @@ public interface Task extends Runnable, Filterable {
      * @return <code>true</code> if the task failed (did not finish without an error), <code>false</code> otherwise.
      */
     boolean hasFailed();
+
+    void setSecurityContext(SecurityContext context);
 }

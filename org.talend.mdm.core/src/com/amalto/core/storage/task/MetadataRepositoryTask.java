@@ -1,5 +1,6 @@
 package com.amalto.core.storage.task;
 
+import org.springframework.security.core.context.SecurityContext;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.storage.Storage;
 import org.apache.log4j.Logger;
