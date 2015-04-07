@@ -17,9 +17,23 @@ public enum UserAction {
      */
     AUTO,
     /**
-     * User is creating a new record (record is not expected to be already stored in database).
+     * MDM will decide whether user is doing a {@link #CREATE_STRICT} or {@link #UPDATE}.
+     */
+    AUTO_STRICT,
+    /**
+     * <p>
+     * User is creating a new record (record is not expected to be already stored in database). CREATE overrides
+     * user-provided values for MDM generated values (AutoIncrement, UUID).
+     * </p>
+     * <p>If you want you to ensure MDM takes the values supplied by user (incl. for AutoIncrement and UUID), see
+     * {@link #CREATE_STRICT}.</p>
      */
     CREATE,
+    /**
+     * Similar to {@link #CREATE}, but won't override id values provided by the user (even if id is AutoIncrement or
+     * UUID).
+     */
+    CREATE_STRICT,
     /**
      * User is replacing database content with a new version of the record (record is expected to already exist in
      * database).
