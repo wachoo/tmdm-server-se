@@ -13,6 +13,7 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.storage.record.DataRecord;
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContext;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.util.HashSet;
@@ -41,9 +42,9 @@ class ThreadDispatcher implements Closure {
         QUEUE_SIZE_THRESHOLD = value == null ? 1000 : Integer.valueOf(value);
     }
 
-    ThreadDispatcher(int threadNumber, Closure closure, ClosureExecutionStats stats) {
+    ThreadDispatcher(int threadNumber, Closure closure, ClosureExecutionStats stats, SecurityContext context) {
         for (int i = 0; i < threadNumber; i++) {
-            childClosures.add(new ConsumerRunnable(queue, closure.copy(), stats));
+            childClosures.add(new ConsumerRunnable(queue, closure.copy(), stats, context));
         }
     }
 

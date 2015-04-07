@@ -26,6 +26,7 @@ import com.amalto.core.util.User;
 import com.amalto.core.util.UserHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContext;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -61,6 +62,8 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     private final Storage destinationStorage;
 
     private int recordsCount;
+
+    private SecurityContext context;
 
     static {
         // staging.validation.updatereport tells whether validation should generate update reports
@@ -116,7 +119,8 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 select,
                 CONSUMER_POOL_SIZE,
                 closure,
-                stats));
+                stats,
+                context));
         for (FieldMetadata keyField : type.getKeyFields()) {
             // Only adds a AutoIncrement update if the type contains at least one AutoIncrement field
             if (EUUIDCustomType.AUTO_INCREMENT.getName().equals(keyField.getType().getName())) {
@@ -155,6 +159,11 @@ public class MDMValidationTask extends MetadataRepositoryTask {
     @Override
     public boolean hasFailed() {
         return false;
+    }
+
+    @Override
+    public void setSecurityContext(SecurityContext context) {
+        this.context = context;
     }
 
     private class MDMValidationClosure implements Closure {
