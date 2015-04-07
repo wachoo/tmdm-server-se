@@ -187,8 +187,6 @@ public class AutoIncrementUpdateTask implements Task {
     }
 
     private void buildAutoIncrementValues(Storage storage) {
-        // Query and update auto increment record
-
         // Get the auto increment record
         UserQueryBuilder qb = from(autoIncrementType).where(eq(autoIncrementType.getField("id"), "AutoIncrement")) //$NON-NLS-1 //$NON-NLS-2
                 .limit(1).forUpdate();
@@ -202,17 +200,26 @@ public class AutoIncrementUpdateTask implements Task {
             }
         }
         // Build max auto increment values
+        String storageName = storage.getName();
+        if (storage.getType() == StorageType.STAGING) {
+            storageName += StorageAdmin.STAGING_SUFFIX;
+        }
+        String destinationName = destination.getName();
+        if (destination.getType() == StorageType.STAGING) {
+            destinationName += StorageAdmin.STAGING_SUFFIX;
+        }
         for (FieldMetadata typeKeyField : type.getKeyFields()) {
-            String key = storage.getName() + '.' + type.getName() + '.' + typeKeyField.getName();
+            String destinationStorageKey = destinationName + '.' + type.getName() + '.' + typeKeyField.getName();
+            String key = storageName + '.' + type.getName() + '.' + typeKeyField.getName();
             List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
             if (entries != null) {
                 for (DataRecord entry : entries) { // Find entry for type in database object
-                    if (key.equals(String.valueOf(entry.get(typeKeyField)))) {
+                    if (key.equals(String.valueOf(entry.get(keyField)))) {
                         Integer integer = (Integer) entry.get(valueField);
-                        if (values.containsKey(key)) {
-                            values.put(key, Math.max(values.get(key), integer));
+                        if (values.containsKey(destinationStorageKey)) {
+                            values.put(destinationStorageKey, Math.max(values.get(destinationStorageKey), integer));
                         } else {
-                            values.put(key, integer);
+                            values.put(destinationStorageKey, integer);
                         }
                     }
                 }
