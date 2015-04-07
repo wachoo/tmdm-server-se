@@ -27,12 +27,15 @@ import com.amalto.core.util.UserHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.core.EUUIDCustomType;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -106,12 +109,22 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             storage.rollback();
             throw new RuntimeException(e);
         }
-        return new MultiThreadedTask(type.getName(),
+        // Build task needed for type (might include AutoIncrement update)
+        List<Task> tasks = new LinkedList<>();
+        tasks.add(new MultiThreadedTask(type.getName(),
                 storage,
                 select,
                 CONSUMER_POOL_SIZE,
                 closure,
-                stats);
+                stats));
+        for (FieldMetadata keyField : type.getKeyFields()) {
+            // Only adds a AutoIncrement update if the type contains at least one AutoIncrement field
+            if (EUUIDCustomType.AUTO_INCREMENT.getName().equals(keyField.getType().getName())) {
+                tasks.add(new AutoIncrementUpdateTask(storage, destinationStorage, type));
+                break;
+            }
+        }
+        return new SequentialTasks(tasks.toArray(new Task[tasks.size()]));
     }
 
     @Override
