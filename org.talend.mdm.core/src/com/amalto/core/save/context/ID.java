@@ -81,7 +81,7 @@ class ID implements DocumentSaver {
         // now has an id, so load database document
         String[] xmlDocumentId = ids.toArray(new String[ids.size()]);
         if (xmlDocumentId.length > 0 && database.exist(dataCluster, dataModelName, typeName, xmlDocumentId)) {
-            if (context.getUserAction() == UserAction.AUTO) {
+            if (context.getUserAction() == UserAction.AUTO || context.getUserAction() == UserAction.AUTO_STRICT) {
                 context.setUserAction(UserAction.UPDATE);
             }
             context.setId(xmlDocumentId);
