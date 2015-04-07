@@ -62,6 +62,7 @@ public class AutoIncrementUpdateTask implements Task {
     private ComplexTypeMetadata autoIncrementType;
 
     private FieldMetadata keyField;
+    private DataRecord autoIncrementRecord;
 
     public AutoIncrementUpdateTask(Storage origin, Storage destination, ComplexTypeMetadata type) {
         this.origin = origin;
@@ -150,13 +151,9 @@ public class AutoIncrementUpdateTask implements Task {
             // Set lock strategy
             transaction.setLockStrategy(Transaction.LockStrategy.LOCK_FOR_UPDATE);
             system.begin(); // Implicitly adds system in current transaction
-            // Build auto increment values
-            buildAutoIncrementValues(origin);
-            buildAutoIncrementValues(destination);
-            // Update auto increment values with maximum auto increment values
+            // Get AutoIncrement record
             UserQueryBuilder qb = from(autoIncrementType).where(eq(autoIncrementType.getField("id"), "AutoIncrement")) //$NON-NLS-1 //$NON-NLS-2
                     .limit(1).forUpdate();
-            DataRecord autoIncrementRecord = null;
             StorageResults autoIncrementRecordResults = system.fetch(qb.getSelect());
             Iterator<DataRecord> iterator = autoIncrementRecordResults.iterator();
             while (iterator.hasNext()) {
@@ -165,7 +162,10 @@ public class AutoIncrementUpdateTask implements Task {
                     throw new IllegalArgumentException("Expected only 1 auto increment to be returned.");
                 }
             }
-
+            // Build auto increment values
+            buildAutoIncrementValues(origin);
+            buildAutoIncrementValues(destination);
+            // Update auto increment with computed values
             for (Map.Entry<String, Integer> autoIncrementValues : values.entrySet()) {
                 List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
                 if (entries != null) {
@@ -177,10 +177,10 @@ public class AutoIncrementUpdateTask implements Task {
                 }
             }
             system.update(autoIncrementRecord);
+            // Re-init for in-memory auto increment generator (storage based auto increment should be no op).
+            AutoIncrementGenerator.get().init();
             // Done, commit changes
             transaction.commit();
-            // Re-init for in-memory auto increment generator
-            AutoIncrementGenerator.get().init();
             hasFailed = false;
         } catch (Exception e) {
             hasFailed = true;
@@ -195,18 +195,6 @@ public class AutoIncrementUpdateTask implements Task {
     }
 
     private void buildAutoIncrementValues(Storage storage) {
-        // Get the auto increment record
-        UserQueryBuilder qb = from(autoIncrementType).where(eq(autoIncrementType.getField("id"), "AutoIncrement")) //$NON-NLS-1 //$NON-NLS-2
-                .limit(1).forUpdate();
-        DataRecord autoIncrementRecord = null;
-        StorageResults autoIncrementRecordResults = system.fetch(qb.getSelect());
-        Iterator<DataRecord> iterator = autoIncrementRecordResults.iterator();
-        while (iterator.hasNext()) {
-            autoIncrementRecord = iterator.next();
-            if (iterator.hasNext()) {
-                throw new IllegalArgumentException("Expected only 1 auto increment to be returned.");
-            }
-        }
         // Build max auto increment values
         String storageName = storage.getName();
         if (storage.getType() == StorageType.STAGING) {
