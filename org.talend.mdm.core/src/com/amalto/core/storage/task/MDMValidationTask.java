@@ -110,7 +110,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             throw new RuntimeException(e);
         }
         // Build task needed for type (might include AutoIncrement update)
-        List<Task> tasks = new LinkedList<>();
+        List<Task> tasks = new LinkedList<Task>();
         tasks.add(new MultiThreadedTask(type.getName(),
                 storage,
                 select,

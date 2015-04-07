@@ -19,7 +19,6 @@ import static com.amalto.core.query.user.UserQueryBuilder.from;
 import java.util.*;
 
 import com.amalto.core.save.generator.AutoIncrementGenerator;
-import org.springframework.security.core.context.SecurityContext;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -116,10 +115,6 @@ public class AutoIncrementUpdateTask implements Task {
     @Override
     public boolean hasFailed() {
         return hasFailed;
-    }
-
-    @Override
-    public void setSecurityContext(SecurityContext context) {
     }
 
     @Override

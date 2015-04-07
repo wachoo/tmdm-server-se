@@ -15,7 +15,6 @@ package com.amalto.core.storage.task;
 
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.UserQueryHelper;
-import org.springframework.security.core.context.SecurityContext;
 
 public class SequentialTasks implements Task {
 
@@ -111,13 +110,6 @@ public class SequentialTasks implements Task {
             }
         }
         return false;
-    }
-
-    @Override
-    public void setSecurityContext(SecurityContext context) {
-        for (Task task : tasks) {
-            task.setSecurityContext(context);
-        }
     }
 
     @Override
