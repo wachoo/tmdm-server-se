@@ -69,8 +69,6 @@ public class MainFramePanel extends Portal {
     private static final Set<String> nonAutoedPortlets = new HashSet<String>(Arrays.asList(PortletConstants.START_NAME,
             PortletConstants.SEARCH_NAME));
 
-    private Set<String> allPortlets;
-
     private boolean startedAsOn;
 
     private boolean isEnterprise;
@@ -210,7 +208,7 @@ public class MainFramePanel extends Portal {
     }
 
     private String getConfigsForUser() {
-        return allPortlets != null ? allPortlets.toString() : null + "; " + portletToLocations.keySet().toString() + "; " //$NON-NLS-1$ //$NON-NLS-2$
+        return portletToLocations.keySet().toString() + "; " //$NON-NLS-1$ 
                 + ((Integer) MainFramePanel.this.numColumns).toString();
     }
 
@@ -239,7 +237,6 @@ public class MainFramePanel extends Portal {
             MainFramePanel.this.add(portlet);
         } else if (userConfigs == null) {// login: init with configs in db
             portletToLocations = props.getPortletToLocations();
-            allPortlets = props.getAllPortlets();
             initializePortlets(portletToLocations);
             markPortalConfigsOnUI(getConfigsForUser());
         } else {
@@ -799,14 +796,8 @@ public class MainFramePanel extends Portal {
             }
         }
 
-        allPortlets = new HashSet<String>(portlets.size());
-        for (BasePortlet portlet : portlets) {
-            allPortlets.add(portlet.getPortletName());
-        }
-
         props.add(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString());
         props.add(PortalProperties.KEY_COLUMN_NUM, ((Integer) MainFramePanel.this.numColumns).toString());
-        props.add(PortalProperties.KEY_ALL_PORTLETS, allPortlets.toString());
         props.add(PortalProperties.KEY_AUTO_ONOFFS, portletToAutoOnOffs.toString());
 
         service.savePortalConfig(props, new SessionAwareAsyncCallback<Void>() {
