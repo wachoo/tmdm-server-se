@@ -35,6 +35,9 @@ public class Alias implements TypedExpression {
     }
 
     public Expression normalize() {
+        if (typedExpression instanceof Alias) {
+            return new Alias(((Alias) typedExpression).getTypedExpression(), alias);
+        }
         return this;
     }
 
