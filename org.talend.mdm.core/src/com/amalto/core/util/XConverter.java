@@ -16,6 +16,7 @@ import com.amalto.core.objects.DroppedItemPOJO;
 import com.amalto.core.objects.DroppedItemPOJOPK;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
@@ -1027,5 +1028,9 @@ public class XConverter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static WSBackgroundJobPK POJO2WS(BackgroundJobPOJOPK pk) {
+        return new WSBackgroundJobPK(pk.getUniqueId());
     }
 }

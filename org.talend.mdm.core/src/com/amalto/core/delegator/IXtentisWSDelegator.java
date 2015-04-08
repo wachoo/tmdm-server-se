@@ -16,6 +16,7 @@ import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.migration.MigrationRepository;
 import com.amalto.core.objects.*;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.BackgroundJobPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
@@ -63,6 +64,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import sun.awt.X11.XContentWindow;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
@@ -1343,7 +1345,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     @Override
     public WSBackgroundJobPKArray findBackgroundJobPKs(WSFindBackgroundJobPKs wsFindBackgroundJobPKs) throws RemoteException {
         try {
-            throw new RemoteException("WSBackgroundJobPKArray is not implemented in this version of the core");
+            BackgroundJob backgroundJob = Util.getBackgroundJobCtrlLocal();
+            Collection<BackgroundJobPOJOPK> jobs = backgroundJob.getBackgroundJobPKs(".*"); //$NON-NLS-1$
+            List<WSBackgroundJobPK> match = new LinkedList<>();
+            for (BackgroundJobPOJOPK job : jobs) {
+                if (backgroundJob.getBackgroundJob(job).getStatus() == wsFindBackgroundJobPKs.getStatus().ordinal()) {
+                    match.add(XConverter.POJO2WS(job));
+                }
+            }
+            return new WSBackgroundJobPKArray(match.toArray(new WSBackgroundJobPK[match.size()]));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1352,8 +1362,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     @Override
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsPutJob) throws RemoteException {
         try {
-            return new WSBackgroundJobPK(Util.getBackgroundJobCtrlLocal()
-                    .putBackgroundJob(XConverter.WS2POJO(wsPutJob.getWsBackgroundJob())).getUniqueId());
+            BackgroundJob backgroundJob = Util.getBackgroundJobCtrlLocal();
+            BackgroundJobPOJO job = XConverter.WS2POJO(wsPutJob.getWsBackgroundJob());
+            return new WSBackgroundJobPK(backgroundJob.putBackgroundJob(job).getUniqueId());
         } catch (Exception e) {
             throw new RuntimeException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
