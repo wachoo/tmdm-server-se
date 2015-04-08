@@ -274,13 +274,13 @@ public class PortletConfigFieldSet extends FieldSet {
     private void updatePortletConfig(String dataString) {
         unCheckWidgetCheckBox();
         String[] temp = dataString.split("; "); //$NON-NLS-1$
-        String[] selectedCheckBox = temp[1].substring(1, temp[1].length() - 1).split(", "); //$NON-NLS-1$
+        String[] selectedCheckBox = temp[0].substring(1, temp[0].length() - 1).split(", "); //$NON-NLS-1$
         for (String checkBox : selectedCheckBox) {
             updateWidgetCheckBox(checkBox, true);
         }
         chartParentCheckBox.setValue(dataChartCheckBox.getValue() || routtingEventChartCheckBox.getValue()
                 || journalChartCheckBox.getValue() || matchingChartCheckBox.getValue());
-        int columnNumber = Integer.parseInt(temp[2]);
+        int columnNumber = Integer.parseInt(temp[1]);
         col3Radio.setValue(((columnNumber == 3) ? true : false));
         col2Radio.setValue(((columnNumber == 2) ? true : false));
         layout(true);
