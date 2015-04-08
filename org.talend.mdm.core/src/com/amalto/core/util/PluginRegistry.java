@@ -12,14 +12,19 @@
 // ============================================================================
 package com.amalto.core.util;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
 import com.amalto.core.objects.Plugin;
 import com.amalto.core.objects.Service;
 
 public class PluginRegistry {
 
+    public static final Logger LOGGER = Logger.getLogger(PluginRegistry.class);
+
     private static PluginRegistry instance;
 
-    private PluginFactory         pluginFactory;
+    private PluginFactory pluginFactory;
 
     private PluginRegistry() {
     }
@@ -40,11 +45,25 @@ public class PluginRegistry {
     }
 
     public Plugin getPlugin(String pluginName) {
-        return pluginFactory.getPlugin(pluginName);
+        try {
+            return pluginFactory.getPlugin(pluginName);
+        } catch (NoSuchBeanDefinitionException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("No such plugin '" + pluginName + "'.", e);
+            }
+            return null;
+        }
     }
 
     public Service getService(String serviceName) {
-        return pluginFactory.getService(serviceName);
+        try {
+            return pluginFactory.getService(serviceName);
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("No such service '" + serviceName + "'.", e);
+            }
+            return null;
+        }
     }
 
     public void setPluginFactory(PluginFactory pluginFactory) {

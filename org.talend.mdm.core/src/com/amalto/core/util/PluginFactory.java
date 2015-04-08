@@ -17,7 +17,7 @@ import com.amalto.core.objects.Service;
 
 public interface PluginFactory {
 
-    public Plugin getPlugin(String pluginName);
+    Plugin getPlugin(String pluginName);
 
-    public Service getService(String serviceName);
+    Service getService(String serviceName);
 }
