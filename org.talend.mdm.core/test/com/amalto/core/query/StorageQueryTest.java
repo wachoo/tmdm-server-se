@@ -110,6 +110,10 @@ public class StorageQueryTest extends StorageTestCase {
 
     private final String E2_Record7 = "<E2><subelement>119</subelement><subelement1>120</subelement1><name>zhang</name></E2>";
 
+    private final String COMPTE_Record1 = "<Compte><Level>Compte SF</Level><Code>1</Code><Label>1</Label></Compte>";
+
+    private final String COMPTE_Record2 = "<Compte><Level>Nature Comptable SF</Level><Code>11</Code><Label>11</Label><childOf>[Compte SF][1]</childOf></Compte>";
+
     private final String RepeatableElementsEntity_Record = "<RepeatableElementsEntity><id>1</id><info><name>n1</name><age>1</age></info><info><name>n2</name><age>2</age></info><info><name>n3</name><age>3</age></info></RepeatableElementsEntity>";
 
     private void populateData() {
@@ -320,6 +324,8 @@ public class StorageQueryTest extends StorageTestCase {
                                 organization,
                                 "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
         allRecords.add(factory.read("1", repository, repeatableElementsEntity, RepeatableElementsEntity_Record));
+        allRecords.add(factory.read("1", repository, compte, COMPTE_Record1));
+        allRecords.add(factory.read("1", repository, compte, COMPTE_Record2));
 
         try {
             storage.begin();
