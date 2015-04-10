@@ -278,8 +278,10 @@ public class PortletConfigFieldSet extends FieldSet {
         for (String checkBox : selectedCheckBox) {
             updateWidgetCheckBox(checkBox, true);
         }
-        chartParentCheckBox.setValue(dataChartCheckBox.getValue() || routtingEventChartCheckBox.getValue()
-                || journalChartCheckBox.getValue() || matchingChartCheckBox.getValue());
+        if (isEnterprise) {
+            chartParentCheckBox.setValue(dataChartCheckBox.getValue() || routtingEventChartCheckBox.getValue()
+                    || journalChartCheckBox.getValue() || matchingChartCheckBox.getValue());
+        }
         int columnNumber = Integer.parseInt(temp[1]);
         col3Radio.setValue(((columnNumber == 3) ? true : false));
         col2Radio.setValue(((columnNumber == 2) ? true : false));
@@ -368,10 +370,12 @@ public class PortletConfigFieldSet extends FieldSet {
         alertWidgetCheckBox.setValue(false);
         searchWidgetCheckBox.setValue(false);
         tasksWidgetCheckBox.setValue(false);
-        dataChartCheckBox.setValue(false);
-        routtingEventChartCheckBox.setValue(false);
-        journalChartCheckBox.setValue(false);
-        matchingChartCheckBox.setValue(false);
+        if (isEnterprise) {
+            dataChartCheckBox.setValue(false);
+            routtingEventChartCheckBox.setValue(false);
+            journalChartCheckBox.setValue(false);
+            matchingChartCheckBox.setValue(false);
+        }
     }
 
     protected void switchToWelcomeportal() {
@@ -381,16 +385,16 @@ public class PortletConfigFieldSet extends FieldSet {
 
     // call refresh in WelcomePortal
     private native void refreshPortal(String portalConfig)/*-{
-                                                          $wnd.amalto.core.refreshPortal(portalConfig);
-                                                          }-*/;
+		$wnd.amalto.core.refreshPortal(portalConfig);
+    }-*/;
 
     private native void display(String context, String application)/*-{
-                                                                   if ($wnd.amalto[context]) {
-                                                                   if ($wnd.amalto[context][application]) {
-                                                                   $wnd.amalto[context][application].init();
-                                                                   }
-                                                                   }
-                                                                   }-*/;
+		if ($wnd.amalto[context]) {
+			if ($wnd.amalto[context][application]) {
+				$wnd.amalto[context][application].init();
+			}
+		}
+    }-*/;
 
     public void activateSaveButton() {
         if (!saveButton.isEnabled()) {
