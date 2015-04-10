@@ -120,6 +120,11 @@ public class ControllerServlet extends HttpServlet {
         }
         html.append("</head>");
         html.append("<body style=\"-moz-user-select: -moz-none\">");
+        html.append("<div id='loading'>");
+        html.append("<div class='loading-indicator'>");
+        html.append("<img src='secure/gxt/resources/images/default/shared/large-loading.gif' width='32' height='32' style='margin-right:8px;float:left;vertical-align:top;'/>");
+        html.append("</div>");
+        html.append("</div>");
         html.append("<iframe src=\"javascript:''\" id='__gwt_historyFrame' tabIndex='-1' style='position:absolute;width:0;height:0;border:0'></iframe>");
         html.append("</body>");
         return html.toString();
