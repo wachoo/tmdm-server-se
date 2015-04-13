@@ -30,7 +30,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
@@ -38,7 +37,7 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.internal.CriteriaImpl;
-import org.hibernate.sql.JoinFragment;
+import org.hibernate.sql.JoinType;
 import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.hibernate.type.IntegerType;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -119,7 +118,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private final StandardQueryHandler.CriterionFieldCondition criterionFieldCondition;
 
-    private final Map<String, String> pathToAlias = new HashMap<String, String>();
+    private final Map<String, String> pathToAlias = new HashMap<>();
 
     protected final MappingRepository mappings;
 
@@ -203,16 +202,16 @@ class StandardQueryHandler extends AbstractQueryHandler {
             rightAlias = createNewAlias();
         }
         // Choose the right join type
-        int joinType;
+        JoinType joinType;
         switch (join.getJoinType()) {
         case INNER:
-            joinType = JoinFragment.INNER_JOIN;
+            joinType = JoinType.INNER_JOIN;
             break;
         case LEFT_OUTER:
-            joinType = JoinFragment.LEFT_OUTER_JOIN;
+            joinType = JoinType.LEFT_OUTER_JOIN;
             break;
         case FULL:
-            joinType = JoinFragment.FULL_JOIN;
+            joinType = JoinType.FULL_JOIN;
             break;
         default:
             throw new NotImplementedException("No support for join type " + join.getJoinType());
@@ -240,7 +239,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         return null;
     }
 
-    private void generateJoinPath(Set<String> rightTableAliases, int joinType, List<FieldMetadata> path) {
+    private void generateJoinPath(Set<String> rightTableAliases, JoinType joinType, List<FieldMetadata> path) {
         Iterator<FieldMetadata> pathIterator = path.iterator();
         String previousAlias = mainType.getName();
         StringBuilder builder = new StringBuilder();
@@ -291,7 +290,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         // Wraps the last projection into a 'distinct' statement
         // Note: Hibernate does not provide projection editing functions... have to work around that with a new
         // projection list.
-        ProjectionList newProjectionList = projectionList.create();
+        ProjectionList newProjectionList = Projections.projectionList();
         int i = 0;
         for (; i < projectionList.getLength() - 1; i++) {
             newProjectionList.add(projectionList.getProjection(i));
@@ -485,9 +484,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
         } else {
             paths = Collections.singleton(field.getPath());
         }
-        Set<String> aliases = new HashSet<String>(paths.size());
+        Set<String> aliases = new HashSet<>(paths.size());
         for (List<FieldMetadata> path : paths) {
-            int joinType = CriteriaSpecification.INNER_JOIN;
+            JoinType joinType = JoinType.INNER_JOIN;
             StringBuilder builder = new StringBuilder();
             Iterator<FieldMetadata> iterator = path.iterator();
             while (iterator.hasNext()) {
@@ -502,10 +501,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         pathToAlias.put(builder.toString(), alias);
                         // TMDM-4866: Do a left join in case FK is not mandatory (only if there's one path).
                         // TMDM-7636: As soon as a left join is selected all remaining join should remain left outer.
-                        if (next.isMandatory() && paths.size() == 1 && joinType != CriteriaSpecification.LEFT_JOIN) {
-                            joinType = CriteriaSpecification.INNER_JOIN;
+                        if (next.isMandatory() && paths.size() == 1 && joinType != JoinType.LEFT_OUTER_JOIN) {
+                            joinType = JoinType.INNER_JOIN;
                         } else {
-                            joinType = CriteriaSpecification.LEFT_JOIN;
+                            joinType = JoinType.LEFT_OUTER_JOIN;
                         }
                         criteria.createAlias(previousAlias + '.' + next.getName(), alias, joinType);
                     }
@@ -666,7 +665,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
             ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
             Set<String> aliases = getAliases(containingType, field);
-            condition.criterionFieldNames = new ArrayList<String>(aliases.size());
+            condition.criterionFieldNames = new ArrayList<>(aliases.size());
             for (String alias : aliases) {
                 condition.criterionFieldNames.add(alias + '.' + userFieldMetadata.getName());
             }
@@ -840,7 +839,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
                 // Generate the joins
                 Set<String> aliases = getAliases(mainType, fieldCondition.field);
-                generateJoinPath(aliases, JoinFragment.INNER_JOIN, path);
+                generateJoinPath(aliases, JoinType.INNER_JOIN, path);
                 // Find the criteria that does the join to the table to check (only way to get the SQL alias for table).
                 Criteria foundSubCriteria = findCriteria(criteria, aliases);
                 String name = storageClassLoader.getClassFromType(isa.getType()).getName();
