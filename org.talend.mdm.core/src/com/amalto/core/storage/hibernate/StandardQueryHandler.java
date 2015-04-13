@@ -14,7 +14,6 @@ import static org.hibernate.criterion.Restrictions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1446,16 +1445,20 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
             Set<String> aliases = getAliases(mainType, field);
-            for (String alias : aliases) {
-                List<FieldMetadata> path = field.getPath();
-                if (path.size() > 1) {
-                    // For path with more than 1 element, the alias for the criterion is the *containing* one(s).
-                    String containerAlias = pathToAlias.get(path.get(path.size() - 2).getPath());
-                    condition.criterionFieldNames.add(containerAlias + '.' + field.getFieldMetadata().getName());
-                } else {
-                    // For path with size 1, code did not generate an alias for field and returned containing alias.
-                    condition.criterionFieldNames.add(alias + '.' + field.getFieldMetadata().getName());
+            if (aliases.size() > 1) {
+                for (String alias : aliases) {
+                    List<FieldMetadata> path = field.getPath();
+                    if (path.size() > 1) {
+                        // For path with more than 1 element, the alias for the criterion is the *containing* one(s).
+                        String containerAlias = pathToAlias.get(path.get(path.size() - 2).getPath());
+                        condition.criterionFieldNames.add(containerAlias + '.' + field.getFieldMetadata().getName());
+                    } else {
+                        // For path with size 1, code did not generate an alias for field and returned containing alias.
+                        condition.criterionFieldNames.add(alias + '.' + field.getFieldMetadata().getName());
+                    }
                 }
+            } else {
+                condition.criterionFieldNames.add(getFieldName(field));
             }
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;
