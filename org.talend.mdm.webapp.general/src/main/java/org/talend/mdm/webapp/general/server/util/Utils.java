@@ -172,14 +172,9 @@ public class Utils {
                 }
                 String gxtEntryModule = GxtFactory.getInstance().getGxtEntryModule(context, application);
                 if (gxtEntryModule == null) {
-                    //DWR Application
+                    //Other Application, direct js
                     String tmp = "<script type=\"text/javascript\" src=\"secure/js/" //$NON-NLS-1$
                             + application + ".js\"></script>\n"; //$NON-NLS-1$
-                    if (!imports.contains(tmp)) {
-                        imports.add(tmp);
-                    }
-                    tmp = "<script type=\"text/javascript\" src=\"secure/dwr/interface/" //$NON-NLS-1$
-                            + application + "Interface.js\"></script>\n"; //$NON-NLS-1$
                     if (!imports.contains(tmp)) {
                         imports.add(tmp);
                     }
@@ -187,16 +182,17 @@ public class Utils {
                     String tmp = "<script type=\"text/javascript\" src=\"" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ 
                             + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
                     if ("browserecords".equals(context) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
-                        imports.add("<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$
-                        imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$
-                        imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$
+                        // DWR
+                        imports.add("<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n"); //$NON-NLS-1$
+                        imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>\n"); //$NON-NLS-1$
+                        imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>\n"); //$NON-NLS-1$
                     }
                     if (!imports.contains(tmp)) {
                         imports.add(tmp);
                     }
                 }
                 if (context.equals("stagingarea")) { //$NON-NLS-1$
-                    String tmp = "<script type=\"text/javascript\" src=\"stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
+                    String tmp = "<script type=\"text/javascript\" src=\"stagingareabrowse/stagingareabrowse.nocache.js\"></script>\n"; //$NON-NLS-1$
                     imports.add(tmp);
                 }
                 i++;
@@ -209,7 +205,7 @@ public class Utils {
     }
 
     private static void completeThirdPartJS(ArrayList<String> imports) {
-        imports.add("<script language=\"javascript\" src=\"secure/gxt/resources/flash/swfobject.js\"></script>"); //$NON-NLS-1$
+        imports.add("<script language=\"javascript\" src=\"secure/gxt/resources/flash/swfobject.js\"></script>\n"); //$NON-NLS-1$
     }
 
     public static String getCommonImport() {
@@ -231,7 +227,6 @@ public class Utils {
                 "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/firefox3-fix.css\" />\n" //$NON-NLS-1$
                 + // CORE
                 "<script type=\"text/javascript\" src=\"proxy_core.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n" //$NON-NLS-1$
                 + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/webapp-core.css\" />\n" //$NON-NLS-1$
                 + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/amalto-menus.css\" />\n" //$NON-NLS-1$
                 + // Proxy DWR <-> Ext
