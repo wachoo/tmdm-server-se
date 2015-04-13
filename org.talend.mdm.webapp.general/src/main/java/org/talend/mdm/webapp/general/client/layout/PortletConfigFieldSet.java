@@ -140,11 +140,13 @@ public class PortletConfigFieldSet extends FieldSet {
         processWidgetCheckBox.setVisible(true);
         widgetGroup.add(processWidgetCheckBox);
 
-        alertWidgetCheckBox = new CheckBox();
-        alertWidgetCheckBox.setBoxLabel(MessageFactory.getMessages().portlet_alert());
-        alertWidgetCheckBox.setValue(false);
-        alertWidgetCheckBox.setVisible(true);
-        widgetGroup.add(alertWidgetCheckBox);
+        if (isEnterprise) {
+            alertWidgetCheckBox = new CheckBox();
+            alertWidgetCheckBox.setBoxLabel(MessageFactory.getMessages().portlet_alert());
+            alertWidgetCheckBox.setValue(false);
+            alertWidgetCheckBox.setVisible(true);
+            widgetGroup.add(alertWidgetCheckBox);
+        }
 
         searchWidgetCheckBox = new CheckBox();
         searchWidgetCheckBox.setBoxLabel(MessageFactory.getMessages().portlet_search());
@@ -296,8 +298,10 @@ public class PortletConfigFieldSet extends FieldSet {
         if (processWidgetCheckBox.getValue()) {
             updates.add(PortletConstants.PROCESS_NAME);
         }
-        if (alertWidgetCheckBox.getValue()) {
-            updates.add(PortletConstants.ALERT_NAME);
+        if (isEnterprise) {
+            if (alertWidgetCheckBox.getValue()) {
+                updates.add(PortletConstants.ALERT_NAME);
+            }
         }
         if (searchWidgetCheckBox.getValue()) {
             updates.add(PortletConstants.SEARCH_NAME);
@@ -367,7 +371,9 @@ public class PortletConfigFieldSet extends FieldSet {
     private void unCheckWidgetCheckBox() {
         startWidgetCheckBox.setValue(false);
         processWidgetCheckBox.setValue(false);
-        alertWidgetCheckBox.setValue(false);
+        if (isEnterprise) {
+            alertWidgetCheckBox.setValue(false);
+        }
         searchWidgetCheckBox.setValue(false);
         tasksWidgetCheckBox.setValue(false);
         if (isEnterprise) {
