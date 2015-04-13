@@ -1,4 +1,11 @@
-# Full text JMS Module
+# Cluster support for Lucene
+
+You may configure cluster support for Lucene using classes in this module. There's 2 possible setup:
+
+1) A JMS Module to integrate in Hibernate Search configuration. This solution has the disavantage of a SPoF (only a single master node).
+2) A JMS-Topic based that removes the SPoF described in (1).  
+
+## Full text JMS Module
 
 This project allows setting up a shared full text index Lucene. It consists in:
 
@@ -7,7 +14,8 @@ This project allows setting up a shared full text index Lucene. It consists in:
 
 The new following sections present a setup example.
 
-## Install MDM cluster
+
+### Install MDM cluster
 
 Set up nodes:
 
@@ -17,7 +25,7 @@ Set up nodes:
 * Start both nodes and checks initialization is ok.
 * Stop MDM instances
 
-## Description and options
+### Description and options
 Each MDM node should work on its own index directory: in a slow paced environment, 2 MDM nodes can accommodate
 a shared directory. But when you start stressing the nodes, lock issues appears as Lucene tries to
 concurrently access and modify the indexes. Hibernate Search (the extension of Hibernate used in MDM to serve
@@ -42,11 +50,11 @@ This leave 2 options for distributed indexes:
 This setup only covers the "jms" option, as configuring "jgroups" requires heavy JBoss configuration that may have
 bigger impacts than "jms" option ("jgroups" implies to enable JBoss in cluster mode).
 
-## Set up JMS-based replication
+### Set up JMS-based replication
 
 This solution uses the JBoss JMS of the Master MDM server.
 
-### In MASTER node
+#### In MASTER node
 
 * Add a queue "jms/mdm/fulltext"
 Adds following content in jbossmq-destinations-service.xml (.../server/default/deploy/jms):
@@ -99,7 +107,7 @@ to another, advising a value is hard.
 
 * Restart master node. You need to have master node up before starting slave nodes
 
-### In SLAVE node
+#### In SLAVE node
 
 * Modify datasources.xml (jboss_dir/server/default/conf):
 
@@ -128,3 +136,18 @@ Please note the property "hibernate.search.worker.jndi.java.naming.provider.url"
 * Make sure master node is up, since slave node will try to connect to jnp://localhost:1199.
 
 * Restart slave node.
+
+## JMS-Topic
+
+MDM configuration properties (in mdm.conf).
+
+"hibernate.search.jms.context_factory" defaults to "org.apache.activemq.jndi.ActiveMQInitialContextFactory".
+"hibernate.search.jms.provider_url" defaults to "tcp://localhost:61616".
+"hibernate.search.jms.topic" defaults to "mdm/search/lucene".
+"hibernate.search.jms.connection_factory" defaults to "ConnectionFactory".
+
+Datasource properties:
+```
+<properties>
+</properties>
+```
