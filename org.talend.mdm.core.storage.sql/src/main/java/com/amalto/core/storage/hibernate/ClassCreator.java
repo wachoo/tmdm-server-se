@@ -460,7 +460,11 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         if (!metadata.isMany() && validType) {
             for (String numberTypeName : Types.NUMBERS) {
                 if (numberTypeName.equals(type.getName())) {
-                    return new NumericSearchIndexHandler();
+                    if (metadata.getName().startsWith("x_talend")) {
+                        return new SystemNumericSearchIndexHandler();
+                    } else {
+                        return new UserNumericSearchIndexHandler();
+                    }
                 }
             }
             return new BasicSearchIndexHandler();
@@ -493,6 +497,31 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             fieldAnnotation.addMemberValue("index", indexValue); //$NON-NLS-1$
             // Add annotation
             annotations.addAnnotation(fieldAnnotation);
+        }
+    }
+
+    private static class UserNumericSearchIndexHandler extends NumericSearchIndexHandler {
+
+        @Override
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            super.handle(annotations, pool);
+            Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
+            // Bridge allows to store numeric values as string (allow mix of string and int values in a Lucene query).
+            // (see TMDM-8216).
+            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
+            fieldBridge.addMemberValue("impl", new ClassMemberValue(ToStringBridge.class.getName(), pool)); //$NON-NLS-1$
+            annotations.addAnnotation(fieldAnnotation);
+            annotations.addAnnotation(fieldBridge);
+            // Add annotation
+            annotations.addAnnotation(fieldAnnotation);
+        }
+    }
+
+    private static class SystemNumericSearchIndexHandler extends UserNumericSearchIndexHandler {
+
+        @Override
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            super.handle(annotations, pool);
             Annotation numericAnnotation = new Annotation(org.hibernate.search.annotations.NumericField.class.getName(), pool);
             annotations.addAnnotation(numericAnnotation);
         }

@@ -131,6 +131,19 @@ public class StorageFullTextTest extends StorageTestCase {
         super.setUp();
     }
 
+    public void testNumericQueryMix() throws Exception {
+        UserQueryBuilder qb = from(product).where(fullText("2"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                LOG.info("result = " + result);
+            }
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testMatchesInSameInstance() throws Exception {
         UserQueryBuilder qb = from(country).where(fullText("2010"));
         StorageResults results = storage.fetch(qb.getSelect());
