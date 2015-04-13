@@ -21,7 +21,6 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.transaction.StorageTransaction;
-import com.amalto.core.storage.transaction.TransactionManager;
 
 public class SearchIndexListener implements MessageListener {
 
@@ -54,47 +53,64 @@ public class SearchIndexListener implements MessageListener {
                 // Perform full text index tasks on this session
                 synchronized (this) {
                     final Server context = ServerContext.INSTANCE.get();
-                    final TransactionManager transactionManager = context.getTransactionManager();
                     final StorageAdmin storageAdmin = context.getStorageAdmin();
                     StorageType storageType = StorageType.MASTER;
                     if (storageName.endsWith(StorageAdmin.STAGING_SUFFIX)) {
                         storageType = StorageType.STAGING;
                     }
                     final Storage storage = storageAdmin.get(storageName, storageType, null);
-                    final StorageTransaction storageTransaction = transactionManager.currentTransaction().include(storage);
+                    final StorageTransaction storageTransaction = storage.newStorageTransaction();
                     if (HibernateStorageTransaction.class.isAssignableFrom(storageTransaction.getClass())) {
-                        throw new IllegalArgumentException("Storage is not a RDBMS storage (got a "
+                        throw new IllegalArgumentException("Transaction is not a RDBMS transaction (got a "
                                 + storageTransaction.getClass() + " transaction).");
                     }
-                    final Session session = ((HibernateStorageTransaction) storageTransaction).getSession();
-                    final FullTextSession fullTextSession = Search.getFullTextSession(session);
-                    fullTextSession.setFlushMode(FlushMode.MANUAL);
-                    fullTextSession.setCacheMode(CacheMode.IGNORE);
-                    final Transaction tx = fullTextSession.beginTransaction();
-                    for (LuceneWork luceneWork : works) {
-                        if (luceneWork instanceof DeleteLuceneWork) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Remove index for class " + luceneWork.getEntityClass() + " with id = "
-                                        + luceneWork.getIdInString());
-                            }
-                            fullTextSession.purge(luceneWork.getEntityClass(), luceneWork.getId());
-                            fullTextSession.flushToIndexes();
-                        } else if (luceneWork instanceof AddLuceneWork) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Rebuild index for class " + luceneWork.getEntityClass() + " with id = "
-                                        + luceneWork.getIdInString());
-                            }
-                            Object indexedObject = fullTextSession.load(luceneWork.getEntityClass(), luceneWork.getId());
-                            if (indexedObject != null) {
-                                fullTextSession.index(indexedObject);
+                    if (!(storage.asInternal() instanceof HibernateStorage)) {
+                        throw new IllegalArgumentException("Storage is not a RDBMS storage (got a "
+                                + storage.asInternal().getClass() + ").");
+                    }
+                    // Start transaction
+                    storageTransaction.begin();
+                    // Set context class loader for indexing
+                    final StorageClassLoader classLoader = ((HibernateStorage) storage.asInternal()).getClassLoader();
+                    final ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+                    try {
+                        Thread.currentThread().setContextClassLoader(classLoader);
+                        final Session session = ((HibernateStorageTransaction) storageTransaction).getSession();
+                        final FullTextSession fullTextSession = Search.getFullTextSession(session);
+                        fullTextSession.setFlushMode(FlushMode.MANUAL);
+                        fullTextSession.setCacheMode(CacheMode.IGNORE);
+                        final Transaction tx = fullTextSession.beginTransaction();
+                        for (LuceneWork luceneWork : works) {
+                            if (luceneWork instanceof DeleteLuceneWork) {
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Remove index for class " + luceneWork.getEntityClass() + " with id = "
+                                            + luceneWork.getIdInString());
+                                }
+                                fullTextSession.purge(luceneWork.getEntityClass(), luceneWork.getId());
                                 fullTextSession.flushToIndexes();
+                            } else if (luceneWork instanceof AddLuceneWork) {
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Rebuild index for class " + luceneWork.getEntityClass() + " with id = "
+                                            + luceneWork.getIdInString());
+                                }
+                                Object indexedObject = fullTextSession.load(luceneWork.getEntityClass(), luceneWork.getId());
+                                if (indexedObject != null) {
+                                    fullTextSession.index(indexedObject);
+                                    fullTextSession.flushToIndexes();
+                                }
                             }
                         }
+                        fullTextSession.flushToIndexes();
+                        fullTextSession.clear();
+                        tx.commit();
+                        fullTextSession.close();
+                        storageTransaction.commit();
+                    } catch (Exception e) {
+                        storageTransaction.rollback();
+                        throw new RuntimeException("Unable to process index work.", e);
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(previousClassLoader);
                     }
-                    fullTextSession.flushToIndexes();
-                    fullTextSession.clear();
-                    tx.commit();
-                    fullTextSession.close();
                 }
             }
         } catch (JMSException e) {
