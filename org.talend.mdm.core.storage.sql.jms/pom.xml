@@ -58,6 +58,10 @@
             <artifactId>org.talend.mdm.core</artifactId>
             <classifier>ejbs</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.talend.mdm</groupId>
+            <artifactId>org.talend.mdm.commmon</artifactId>
+        </dependency>
     </dependencies>
     
 </project>

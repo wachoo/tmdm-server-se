@@ -200,9 +200,20 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         sessionFactoryElement.appendChild(mapping);
 
         if (rdbmsDataSource.supportFullText()) {
-            addEvent(document, sessionFactoryElement, "post-update", "org.hibernate.search.event.FullTextIndexEventListener"); //$NON-NLS-1$ //$NON-NLS-2$
-            addEvent(document, sessionFactoryElement, "post-insert", "org.hibernate.search.event.FullTextIndexEventListener"); //$NON-NLS-1$ //$NON-NLS-2$
-            addEvent(document, sessionFactoryElement, "post-delete", "org.hibernate.search.event.FullTextIndexEventListener"); //$NON-NLS-1$ //$NON-NLS-2$
+            // TMDM-7964: Look if cluster index replication is present in classpath.
+            String indexerClassName = "org.hibernate.search.event.FullTextIndexEventListener";
+            try {
+                Class.forName("com.amalto.core.storage.hibernate.FullTextIndexer");
+                indexerClassName = "com.amalto.core.storage.hibernate.FullTextIndexer";
+            } catch (ClassNotFoundException e) {
+                // Ignored
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Cluster indexer not found, using default one (" + indexerClassName + ").", e);
+                }
+            }
+            addEvent(document, sessionFactoryElement, "post-update", indexerClassName); //$NON-NLS-1$
+            addEvent(document, sessionFactoryElement, "post-insert", indexerClassName); //$NON-NLS-1$
+            addEvent(document, sessionFactoryElement, "post-delete", indexerClassName); //$NON-NLS-1$
         } else if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Hibernate configuration does not define full text extensions due to datasource configuration."); //$NON-NLS-1$
         }
