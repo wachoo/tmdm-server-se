@@ -35,7 +35,7 @@ public class JMSHolder {
 
     private static WorkQueue workQueue;
 
-    private static Topic luceneWorkTopic;
+    public static Topic luceneWorkTopic;
 
     static {
         String ipAddress = "UNKNOWN"; //$NON-NLS-1$
@@ -72,7 +72,7 @@ public class JMSHolder {
     }
 
     public static <T> void addWorkToQueue(final Class<T> entityClass, final Serializable id, String name, final WorkType workType) {
-        JMSHolder.workQueue.add(new MDMWork(entityClass, id, workType, name));
+        JMSHolder.workQueue.add(new StorageWork(entityClass, id, workType, name));
     }
 
     public static void sendWorkToTopic() {
@@ -81,7 +81,7 @@ public class JMSHolder {
             if (luceneWork != null && !luceneWork.isEmpty()) {
                 // Create & send message
                 final Message message = session.createMessage();
-                message.setStringProperty("storageName", ((MDMWork) luceneWork).getStorageName()); //$NON-NLS-1$
+                message.setStringProperty("storageName", ((StorageWork) luceneWork).getStorageName()); //$NON-NLS-1$
                 message.setObjectProperty("work", luceneWork); //$NON-NLS-1$
                 message.setJMSCorrelationID(messageCorrelationId);
                 publisher.send(luceneWorkTopic, message);
