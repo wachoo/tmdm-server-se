@@ -2,6 +2,7 @@ package com.amalto.core.storage.hibernate;
 
 import java.io.Serializable;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.event.AbstractEvent;
 import org.hibernate.search.annotations.Indexed;
@@ -14,7 +15,15 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 
+// Dynamically instantiated by Hibernate, do not remove.
 public class FullTextIndexer extends FullTextIndexEventListener {
+
+    private static final Logger LOGGER = Logger.getLogger(FullTextIndexer.class);
+
+    static {
+        Class clazz = SearchIndexListener.class;
+        LOGGER.info("Enabled JMS topic Lucene replication (subscriber: " + clazz + ")");
+    }
 
     @Override
     protected <T> void processWork(T entity, Serializable id, WorkType workType, AbstractEvent event) {
@@ -30,7 +39,7 @@ public class FullTextIndexer extends FullTextIndexEventListener {
                 if (internal instanceof HibernateStorage) {
                     final HibernateStorage hibernateStorage = (HibernateStorage) internal;
                     StorageClassLoader classLoader = hibernateStorage.getClassLoader();
-                    if (classLoader.knownTypes.containsKey(entityClass)) {
+                    if (classLoader.knownTypes.containsKey(entityClass.getSimpleName())) {
                         JMSHolder.addWorkToQueue(entityClass, id, storage.getName(), workType);
                         break;
                     }

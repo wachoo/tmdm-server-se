@@ -3,6 +3,7 @@ package com.amalto.core.storage.hibernate;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.Transaction;
 
+// Dynamically instantiated by Hibernate, do not remove.
 public class SearchInterceptor extends EmptyInterceptor {
 
     @Override

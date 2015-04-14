@@ -139,15 +139,62 @@ Please note the property "hibernate.search.worker.jndi.java.naming.provider.url"
 
 ## JMS-Topic
 
-MDM configuration properties (in mdm.conf).
+To configure 
+
+### ActiveMQ configuration
+
+Make sure your ActiveMQ (JMS provider) is up. You can start an ActiveMQ server using Docker:
+```
+$ docker run -p 61616:61616 -p 8161:8161 tv2norge/activemq
+```
+(61616 is the active mq port, and 8161 is the active mq web console)
+Log in the web console (http://0.0.0.0:8161) with "admin"/"admin" (default credentials).
+Create a new topic (e.g. "mdm.search.lucene").
+
+### Cluster node installation
+
+You must repeat the following steps for all members of your cluster:
+
+*Jar copy (!) Two JARs to copy (!)*
+Copy the JAR built by this project in tem.ear (/lib directory in tem.ear).
+Copy the ActiveMQ JAR in tem.ear (/lib directory in tem.ear).
+
+*MDM Configuration*
+Modify the MDM configuration properties (in mdm.conf).
 
 "hibernate.search.jms.context_factory" defaults to "org.apache.activemq.jndi.ActiveMQInitialContextFactory".
 "hibernate.search.jms.provider_url" defaults to "tcp://localhost:61616".
-"hibernate.search.jms.topic" defaults to "mdm/search/lucene".
+"hibernate.search.jms.topic" defaults to "mdm.search.lucene".
 "hibernate.search.jms.connection_factory" defaults to "ConnectionFactory".
 
-Datasource properties:
+*Datasources configuration*
+Modify datasource properties (in datasources.xml):
 ```
 <properties>
+    <property key="hibernate.ejb.interceptor">com.amalto.core.storage.hibernate.SearchInterceptor</property>
 </properties>
 ```
+Your datasources.xml may then look like (example below is for H2, but changes are database agnostic):
+```
+<master>
+    <type>RDBMS</type>
+    <rdbms-configuration>
+        <dialect>H2</dialect>
+        <connection-driver-class>org.h2.Driver</connection-driver-class>
+        <connection-url>jdbc:h2:///opt/Talend-MDMServer-20141126_1546-V5.6.1_node1/jboss-4.2.2.GA/server/default/data/H2-Default/${container}_MASTER</connection-url>
+        <connection-username>sa</connection-username>
+        <connection-password></connection-password>
+        <fulltext-index-directory>/opt/Talend-MDMServer-20141126_1546-V5.6.1_node1/jboss-4.2.2.GA/server/default/data/indexes/H2-Default</fulltext-index-directory>
+        <schema-generation>update</schema-generation>
+        <properties>
+            <property name="hibernate.show_sql">false</property>
+            <property name="hibernate.connection.DB_CLOSE_ON_EXIT">FALSE</property>
+            <property name="hibernate.connection.MVCC">TRUE</property>
+            <property name="hibernate.ejb.interceptor">com.amalto.core.storage.hibernate.SearchInterceptor</property>
+        </properties>
+    </rdbms-configuration>
+</master>
+```
+
+*Last step*
+Start your MDM server.

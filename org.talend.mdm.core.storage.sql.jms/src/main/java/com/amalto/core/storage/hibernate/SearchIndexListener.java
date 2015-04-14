@@ -22,17 +22,20 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.transaction.StorageTransaction;
 
-public class SearchIndexListener implements MessageListener {
+class SearchIndexListener implements MessageListener {
 
     private static final Logger LOG = Logger.getLogger(SearchIndexListener.class);
 
-    public SearchIndexListener() {
+    static {
         try {
             final TopicSubscriber subscriber = JMSHolder.session.createSubscriber(JMSHolder.luceneWorkTopic);
-            subscriber.setMessageListener(this);
+            subscriber.setMessageListener(new SearchIndexListener());
         } catch (JMSException e) {
             throw new RuntimeException("Unable to subscribe to JMS topic.", e);
         }
+    }
+
+    private SearchIndexListener() {
     }
 
     private static boolean isValidMessage(Message message) throws JMSException {

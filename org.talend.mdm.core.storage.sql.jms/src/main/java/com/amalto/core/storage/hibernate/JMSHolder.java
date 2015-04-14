@@ -15,7 +15,7 @@ import org.hibernate.search.backend.WorkQueue;
 import org.hibernate.search.backend.WorkType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-public class JMSHolder {
+class JMSHolder {
 
     public static String messageCorrelationId;
 
@@ -27,7 +27,7 @@ public class JMSHolder {
 
     private final static String DEFAULT_PROVIDER_URL = "tcp://localhost:61616"; //$NON-NLS-1$
 
-    private static final String DEFAULT_TOPIC = "mdm/search/lucene"; //$NON-NLS-1$
+    private static final String DEFAULT_TOPIC = "mdm.search.lucene"; //$NON-NLS-1$
 
     private static final Logger LOG = Logger.getLogger(JMSHolder.class);
 
@@ -44,7 +44,7 @@ public class JMSHolder {
         } catch (UnknownHostException e) {
             LOG.error("Cannot get host name. JMS replication will not work correctly.", e);
         }
-        final String workingDirectory = System.getProperty("user.dir");
+        final String workingDirectory = System.getProperty("user.dir"); //$NON-NLS-1$
         JMSHolder.messageCorrelationId = ipAddress + "$" + workingDirectory; // TODO: hashCode? Is this safe across multiple JVMs
         workQueue = new WorkQueue();
         LOG.info("JMS message identifier: " + messageCorrelationId); //$NON-NLS-1$
@@ -58,12 +58,13 @@ public class JMSHolder {
             final String connectionFactory = (String) properties.get("hibernate.search.jms.connection_factory"); //$NON-NLS-1$
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, contextFactory == null ? DEFAULT_CONTEXT_FACTORY : contextFactory);
             props.setProperty(Context.PROVIDER_URL, providerUrl == null ? DEFAULT_PROVIDER_URL : providerUrl);
+            props.setProperty("topic.mdm.search.lucene", topic == null ? DEFAULT_TOPIC : topic); //$NON-NLS-1$ //$NON-NLS-2$
             Context ctx = new InitialContext(props);
             // Look up for topic
             TopicConnectionFactory factory = (TopicConnectionFactory) ctx
                     .lookup(connectionFactory == null ? DEFAULT_CONNECTION_FACTORY : connectionFactory);
             TopicConnection conn = factory.createTopicConnection();
-            luceneWorkTopic = (Topic) ctx.lookup(topic == null ? DEFAULT_TOPIC : topic);
+            luceneWorkTopic = (Topic) ctx.lookup("mdm.search.lucene"); //$NON-NLS-1$
             session = conn.createTopicSession(false, TopicSession.AUTO_ACKNOWLEDGE);
             publisher = session.createPublisher(luceneWorkTopic);
         } catch (Exception e) {
@@ -72,7 +73,7 @@ public class JMSHolder {
     }
 
     public static <T> void addWorkToQueue(final Class<T> entityClass, final Serializable id, String name, final WorkType workType) {
-        JMSHolder.workQueue.add(new StorageWork(entityClass, id, workType, name));
+        JMSHolder.workQueue.add(new StorageWork<T>(entityClass, id, workType, name));
     }
 
     public static void sendWorkToTopic() {
@@ -87,7 +88,10 @@ public class JMSHolder {
                 publisher.send(luceneWorkTopic, message);
             }
         } catch (Exception exception) {
-            LOG.warn("Failed to send Lucene work to pre-defined topic");
+            LOG.warn("Failed to send Lucene work to pre-defined topic (enable DEBUG for details).");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Failed to send Lucene work to pre-defined topic due to exception.", exception);
+            }
         } finally {
             JMSHolder.workQueue.clear();
         }

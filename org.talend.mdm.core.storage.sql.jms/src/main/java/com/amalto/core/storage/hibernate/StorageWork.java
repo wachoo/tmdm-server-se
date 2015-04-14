@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.hibernate.search.backend.Work;
 import org.hibernate.search.backend.WorkType;
 
-public class StorageWork<T> extends Work<T> {
+class StorageWork<T> extends Work<T> {
 
     private final String storageName;
 
