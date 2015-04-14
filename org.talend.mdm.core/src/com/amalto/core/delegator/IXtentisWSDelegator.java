@@ -64,7 +64,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import sun.awt.X11.XContentWindow;
 
 import javax.naming.InitialContext;
 import javax.naming.NameClassPair;
