@@ -13,7 +13,9 @@
 package com.amalto.core.util;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.amalto.core.objects.Plugin;
 import com.amalto.core.objects.Service;
@@ -25,6 +27,9 @@ public class PluginRegistry {
     private static PluginRegistry instance;
 
     private PluginFactory pluginFactory;
+
+    @Autowired
+    private ListableBeanFactory listableBeanFactory;
 
     private PluginRegistry() {
     }
@@ -68,5 +73,9 @@ public class PluginRegistry {
 
     public void setPluginFactory(PluginFactory pluginFactory) {
         this.pluginFactory = pluginFactory;
+    }
+
+    public ListableBeanFactory getListableBeanFactory() {
+        return this.listableBeanFactory;
     }
 }
