@@ -33,7 +33,18 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
 import com.amalto.core.integrity.ForeignKeyIntegrity;
 import com.amalto.core.query.user.DateConstant;
@@ -262,6 +273,18 @@ public class MetadataUtils {
         if (target == null) {
             throw new IllegalArgumentException("Target field can not be null");
         }
+        if (target instanceof CompoundFieldMetadata) {
+            FieldMetadata[] fields = ((CompoundFieldMetadata) target).getFields();
+            for (FieldMetadata fieldMetadata : fields) {
+                __paths(type, fieldMetadata, currentPath, foundPaths, processedTypes);
+            }
+        } else {
+            __paths(type, target, currentPath, foundPaths, processedTypes);
+        }
+    }
+
+    private static void __paths(ComplexTypeMetadata type, FieldMetadata target, Stack<FieldMetadata> currentPath,
+            Set<List<FieldMetadata>> foundPaths, Set<TypeMetadata> processedTypes) {
         if (Storage.PROJECTION_TYPE.equals(type.getName()) && type.hasField(target.getName())) {
             currentPath.push(type.getField(target.getName()));
         }
@@ -301,7 +324,7 @@ public class MetadataUtils {
 
     /**
      * Checks whether <code>value</code> is valid for <code>typeName</code>.
-     *
+     * 
      * @param value The value to check.
      * @param typeName The type name of the value (should be one of {@link org.talend.mdm.commmon.metadata.Types}).
      * @return <code>true</code> if correct, <code>false</code> otherwise.
@@ -325,6 +348,7 @@ public class MetadataUtils {
     public static boolean isValueAssignable(final String value, FieldMetadata field) {
         try {
             List<TypeMetadata> fieldType = field.accept(new DefaultMetadataVisitor<List<TypeMetadata>>() {
+
                 List<TypeMetadata> fieldTypes = new LinkedList<TypeMetadata>();
 
                 @Override
@@ -346,6 +370,7 @@ public class MetadataUtils {
                 }
             });
             List<String> convertValue = field.accept(new DefaultMetadataVisitor<List<String>>() {
+
                 List<String> values = new LinkedList<String>();
 
                 @Override
@@ -387,7 +412,7 @@ public class MetadataUtils {
      * Creates a value from <code>dataAsString</code>. Type and/or format of the returned value depends on
      * <code>field</code>. For instance, calling this method with {@link String} with value "0" and a field typed as
      * integer returns {@link Integer} instance with value 0.
-     *
+     * 
      * @param dataAsString A {@link String} containing content to initialize a value.
      * @param field A {@link FieldMetadata} that describes type information about the field.
      * @return A {@link Object} value that has correct type according to <code>field</code>. Returns <code>null</code>
@@ -599,7 +624,7 @@ public class MetadataUtils {
 
     /**
      * Returns the corresponding Java type for the {@link TypeMetadata} type.
-     *
+     * 
      * @param metadata A {@link TypeMetadata} instance.
      * @return The name of Java class for the <code>metadata</code> argument. Returned string might directly be used for
      * a {@link Class#forName(String)} call.
