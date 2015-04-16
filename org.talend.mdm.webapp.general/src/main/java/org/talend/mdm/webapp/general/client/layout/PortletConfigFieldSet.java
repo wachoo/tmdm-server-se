@@ -93,7 +93,6 @@ public class PortletConfigFieldSet extends FieldSet {
             public void onSuccess(Boolean isEE) {
                 isEnterprise = isEE;
                 initWidgetCheckBox();
-                initLayoutRadio();
                 saveButton = new Button(MessageFactory.getMessages().save());
                 saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -146,21 +145,19 @@ public class PortletConfigFieldSet extends FieldSet {
             alertWidgetCheckBox.setValue(false);
             alertWidgetCheckBox.setVisible(true);
             widgetGroup.add(alertWidgetCheckBox);
-        }
 
-        searchWidgetCheckBox = new CheckBox();
-        searchWidgetCheckBox.setBoxLabel(MessageFactory.getMessages().portlet_search());
-        searchWidgetCheckBox.setValue(false);
-        searchWidgetCheckBox.setVisible(true);
-        widgetGroup.add(searchWidgetCheckBox);
+            searchWidgetCheckBox = new CheckBox();
+            searchWidgetCheckBox.setBoxLabel(MessageFactory.getMessages().portlet_search());
+            searchWidgetCheckBox.setValue(false);
+            searchWidgetCheckBox.setVisible(true);
+            widgetGroup.add(searchWidgetCheckBox);
 
-        tasksWidgetCheckBox = new CheckBox();
-        tasksWidgetCheckBox.setBoxLabel(MessageFactory.getMessages().portlet_tasks());
-        tasksWidgetCheckBox.setValue(false);
-        tasksWidgetCheckBox.setVisible(true);
-        widgetGroup.add(tasksWidgetCheckBox);
+            tasksWidgetCheckBox = new CheckBox();
+            tasksWidgetCheckBox.setBoxLabel(MessageFactory.getMessages().portlet_tasks());
+            tasksWidgetCheckBox.setValue(false);
+            tasksWidgetCheckBox.setVisible(true);
+            widgetGroup.add(tasksWidgetCheckBox);
 
-        if (isEnterprise) {
             chartParentCheckBox = new CheckBox() {
 
                 @Override
@@ -185,6 +182,7 @@ public class PortletConfigFieldSet extends FieldSet {
             widgetGroup.add(chartParentCheckBox);
             add(widgetGroup, widgetFormData);
             initChartCheckBox();
+            initLayoutRadio();
         } else {
             add(widgetGroup, widgetFormData);
         }
@@ -283,10 +281,10 @@ public class PortletConfigFieldSet extends FieldSet {
         if (isEnterprise) {
             chartParentCheckBox.setValue(dataChartCheckBox.getValue() || routtingEventChartCheckBox.getValue()
                     || journalChartCheckBox.getValue() || matchingChartCheckBox.getValue());
+            int columnNumber = Integer.parseInt(temp[1]);
+            col3Radio.setValue(((columnNumber == 3) ? true : false));
+            col2Radio.setValue(((columnNumber == 2) ? true : false));
         }
-        int columnNumber = Integer.parseInt(temp[1]);
-        col3Radio.setValue(((columnNumber == 3) ? true : false));
-        col2Radio.setValue(((columnNumber == 2) ? true : false));
         layout(true);
     }
 
@@ -302,14 +300,12 @@ public class PortletConfigFieldSet extends FieldSet {
             if (alertWidgetCheckBox.getValue()) {
                 updates.add(PortletConstants.ALERT_NAME);
             }
-        }
-        if (searchWidgetCheckBox.getValue()) {
-            updates.add(PortletConstants.SEARCH_NAME);
-        }
-        if (tasksWidgetCheckBox.getValue()) {
-            updates.add(PortletConstants.TASKS_NAME);
-        }
-        if (isEnterprise) {
+            if (searchWidgetCheckBox.getValue()) {
+                updates.add(PortletConstants.SEARCH_NAME);
+            }
+            if (tasksWidgetCheckBox.getValue()) {
+                updates.add(PortletConstants.TASKS_NAME);
+            }
             if (dataChartCheckBox.getValue()) {
                 updates.add(PortletConstants.DATA_CHART_NAME);
             }
@@ -322,8 +318,10 @@ public class PortletConfigFieldSet extends FieldSet {
             if (matchingChartCheckBox.getValue()) {
                 updates.add(PortletConstants.MATCHING_CHART_NAME);
             }
+            updates.add((col3Radio.getValue() ? "3" : "2")); //$NON-NLS-1$ //$NON-NLS-2$
+        } else {
+            updates.add("2"); //$NON-NLS-1$
         }
-        updates.add((col3Radio.getValue() ? "3" : "2")); //$NON-NLS-1$ //$NON-NLS-2$
         return updates;
     }
 
@@ -373,10 +371,8 @@ public class PortletConfigFieldSet extends FieldSet {
         processWidgetCheckBox.setValue(false);
         if (isEnterprise) {
             alertWidgetCheckBox.setValue(false);
-        }
-        searchWidgetCheckBox.setValue(false);
-        tasksWidgetCheckBox.setValue(false);
-        if (isEnterprise) {
+            searchWidgetCheckBox.setValue(false);
+            tasksWidgetCheckBox.setValue(false);
             dataChartCheckBox.setValue(false);
             routtingEventChartCheckBox.setValue(false);
             journalChartCheckBox.setValue(false);
