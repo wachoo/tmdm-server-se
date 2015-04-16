@@ -18,7 +18,9 @@ import java.io.Writer;
 
 import javax.xml.XMLConstants;
 
+import com.amalto.core.storage.SecuredStorage;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
 
 import com.amalto.core.query.user.DateConstant;
@@ -27,6 +29,8 @@ import com.amalto.core.query.user.TimeConstant;
 import com.amalto.core.storage.StorageMetadataUtils;
 
 public class ViewSearchResultsWriter implements DataRecordWriter {
+
+    private SecuredStorage.UserDelegator delegator = SecuredStorage.UNSECURED;
 
     @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
@@ -53,9 +57,21 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         writer.flush();
     }
 
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        if(delegator == null) {
+            throw new IllegalArgumentException("Delegator cannot be null.");
+        }
+        this.delegator = delegator;
+    }
+
     private void processValue(Writer out, FieldMetadata fieldMetadata, Object value) throws IOException {
         if (value == null) {
             throw new IllegalArgumentException("Not supposed to write null values to XML."); //$NON-NLS-1$
+        }
+        if (delegator.hide(fieldMetadata)) {
+            out.append(StringUtils.EMPTY);
+            return;
         }
         String stringValue;
         TypeMetadata type = fieldMetadata.getType();

@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.amalto.core.storage.SecuredStorage;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -84,6 +85,13 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
         }
         writer.write("</" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         writer.flush();
+    }
+
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        // System objects don't have hide information on fields, prefer a clear exception iso. promise that can't be
+        // hold.
+        throw new UnsupportedOperationException();
     }
 
     private static boolean isValidAttributeType(TypeMetadata type) {

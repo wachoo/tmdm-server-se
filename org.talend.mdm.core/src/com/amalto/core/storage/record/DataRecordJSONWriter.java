@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import com.amalto.core.storage.SecuredStorage;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.*;
@@ -28,13 +29,18 @@ import com.amalto.core.storage.StorageMetadataUtils;
  */
 public class DataRecordJSONWriter implements DataRecordWriter {
 
-    private static void writeRecord(final DataRecord record, final JSONWriter writer) throws JSONException {
+    private SecuredStorage.UserDelegator delegator = SecuredStorage.UNSECURED;
+
+    private void writeRecord(final DataRecord record, final JSONWriter writer) throws JSONException {
         writer.object();
         {
             for (FieldMetadata field : record.getType().getFields()) {
                 field.accept(new DefaultMetadataVisitor<Void>() {
 
                     private Void handleSimpleField(FieldMetadata field) {
+                        if (delegator.hide(field)) {
+                            return null;
+                        }
                         try {
                             if (!field.isMany()) {
                                 writer.key(field.getName().toLowerCase()).value(StorageMetadataUtils.toString(record.get(field)));
@@ -66,6 +72,9 @@ public class DataRecordJSONWriter implements DataRecordWriter {
 
                     @Override
                     public Void visit(ContainedTypeFieldMetadata containedField) {
+                        if (delegator.hide(containedField)) {
+                            return null;
+                        }
                         try {
                             writer.key(containedField.getName());
                             if (!containedField.isMany()) {
@@ -109,12 +118,22 @@ public class DataRecordJSONWriter implements DataRecordWriter {
         try {
             jsonWriter.object().key(record.getType().getName().toLowerCase());
             {
-                writeRecord(record, jsonWriter);
+                if (!delegator.hide(record.getType())) {
+                    writeRecord(record, jsonWriter);
+                }
             }
             jsonWriter.endObject();
             writer.flush();
         } catch (JSONException e) {
             throw new IOException("Could not serialize to JSON.", e);
         }
+    }
+
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        if(delegator == null) {
+            throw new IllegalArgumentException("Delegator cannot be null.");
+        }
+        this.delegator = delegator;
     }
 }

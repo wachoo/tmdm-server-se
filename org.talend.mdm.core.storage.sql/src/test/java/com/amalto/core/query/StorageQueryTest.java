@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.amalto.core.storage.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -67,11 +68,6 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -2772,6 +2768,11 @@ public class StorageQueryTest extends StorageTestCase {
                 }
                 writer.append("</result>"); //$NON-NLS-1$
                 writer.flush();
+            }
+
+            @Override
+            public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+                // Not needed for test.
             }
         };
         Set<String> expectedStrings = new HashSet<String>();
