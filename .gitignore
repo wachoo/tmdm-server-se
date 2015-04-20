@@ -4,3 +4,7 @@
 .settings
 */target/*
 .DS_Store
+indexes/
+bin/
+data/
+.gwt/
