@@ -31,6 +31,12 @@ public class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
 
     protected MockMetadataRepositoryAdmin() {
     }
+    
+    public void register(String metadataRepositoryId, MetadataRepository repository) {
+        synchronized (metadataRepository) {
+            metadataRepository.put(metadataRepositoryId, repository);
+        }
+    }
 
     public MetadataRepository get(String metadataRepositoryId) {
         synchronized (metadataRepository) {

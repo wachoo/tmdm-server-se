@@ -1,0 +1,87 @@
+<!--
+  ~ Copyright (C) 2006-2013 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+    <xsd:element name="Party" type="PartyType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Party">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="PartyPK"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="PartyType">
+        <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="PartyPK" type="AUTO_INCREMENT">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="Company" type="CompanyType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Company">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="PartyPK"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="CompanyType">
+        <xsd:complexContent>
+            <xsd:extension base="PartyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="Name" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:element name="Individual" type="IndividualType">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:unique name="Individual">
+            <xsd:selector xpath="."/>
+            <xsd:field xpath="PartyPK"/>
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="IndividualType">
+        <xsd:complexContent>
+            <xsd:extension base="PartyType">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="FirstName" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="LastName" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:simpleType name="UUID">
+        <xsd:restriction base="AUTO_INCREMENT"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="AUTO_INCREMENT">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+</xsd:schema>

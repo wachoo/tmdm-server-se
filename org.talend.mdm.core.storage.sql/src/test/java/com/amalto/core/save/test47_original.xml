@@ -1,0 +1,21 @@
+<ii>
+	<c>RTE-RAP</c>
+	<n>Eda</n>
+	<dmn>RTE-RAP</dmn>
+	<i>5</i>
+	<t>1348210934436</t>
+	<taskId/>
+	<p> 
+		<Eda>
+			<codeEda>1</codeEda>
+			<nomEda>1</nomEda>
+			<controleCodeEda>Non</controleCodeEda>
+			<piloteContractuel>[8]</piloteContractuel>
+			<statutEda>Brouillon</statutEda>
+			<delaiNeutralisationEda>60</delaiNeutralisationEda>
+			<pminEda>0</pminEda>
+			<presencePlancheVisuEda>Oui</presencePlancheVisuEda>
+			<idEda>5</idEda>
+		</Eda>
+	</p>
+</ii>

@@ -1,0 +1,29 @@
+<Contrat xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <numeroContrat>1</numeroContrat>
+  <numeroContratExterne>1</numeroContratExterne>
+  <detailContrat xsi:type="AP-AA">
+    <Perimetre>
+      <entitesPassees>
+        <EDAs>
+          <EDA>
+          </EDA>
+        </EDAs>
+      </entitesPassees>
+      <entitesPresentes>
+        <EDAs>
+          <EDA>
+            <eda>[40]</eda>
+          </EDA>
+        </EDAs>
+      </entitesPresentes>
+      <entitesFutures>
+        <EDAs>
+          <EDA>
+          </EDA>
+        </EDAs>
+      </entitesFutures>
+    </Perimetre>
+    <Caracteristiques>
+    </Caracteristiques>
+  </detailContrat>
+</Contrat>

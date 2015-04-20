@@ -25,14 +25,18 @@ public class MockServerLifecycle implements ServerLifecycle {
 
     @Override
     public Server createServer() {
-        MDMConfiguration.createConfiguration(MockServerLifecycle.class.getResource("mdm.conf").getFile(), false);
-        MDMConfiguration.getConfiguration().setProperty(DataSourceFactory.DB_DATASOURCES, MockServer.getDatasourcesFilePath());
+        MDMConfiguration mdmConfig = MDMConfiguration.getInstance();
+        if(mdmConfig == null) {
+            MDMConfiguration.createConfiguration(MockServerLifecycle.class.getResource("mdm.conf").getFile(), false);
+            MDMConfiguration.getConfiguration().setProperty(DataSourceFactory.DB_DATASOURCES, MockServer.getDatasourcesFilePath());
+        }
         return new MockServer();
     }
 
     @Override
     public void destroyServer(Server server) {
-        // nothing to do
+        if(server != null)
+            server.close();
     }
 
     @Override

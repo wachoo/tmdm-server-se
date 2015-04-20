@@ -1,0 +1,38 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<Societe xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<CodeOSMOSE>12345</CodeOSMOSE>
+	<Nom>Talend SA</Nom>
+	<NomUsuel>Talend</NomUsuel>
+	<FormeJuridique>Societe anonyme</FormeJuridique>
+	<AppartenanceGroupe>false</AppartenanceGroupe>
+	<Consolidee>1</Consolidee>
+	<Archivee>1</Archivee>
+	<Contacts>
+		<Contact>
+			<StatutContactFk>[2]</StatutContactFk>
+			<SpecialisationContactType xsi:type="SpecialisationContactNatureLocalisation">
+				<NatureLocalisationFk>[3]</NatureLocalisationFk>
+				<AdressePostale>
+					<Emplacement/>
+					<Adresse1>1 cours Ferdinand de Lesseps</Adresse1>
+					<Adresse2/>
+					<Adresse3/>
+					<CodePostal>92500</CodePostal>
+					<Ville>RUEIL-MALMAISON</Ville>
+					<Etat/>
+					<PaysFk>[FR]</PaysFk>
+				</AdressePostale>
+			</SpecialisationContactType>
+		</Contact>
+	</Contacts>
+</Societe>
