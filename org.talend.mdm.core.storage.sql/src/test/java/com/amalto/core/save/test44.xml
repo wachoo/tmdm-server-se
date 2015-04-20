@@ -1,0 +1,38 @@
+<!--
+  ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<Create_Supplier>
+    <Request_Status>[1]</Request_Status>
+    <Request_Id_PK>1</Request_Id_PK>
+    <Requester_Details>
+        <requester_name>1</requester_name>
+        <requester_site>1</requester_site>
+        <requester_email>1</requester_email>
+        <requester_phone>1</requester_phone>
+        <request_date>2012-09-06</request_date>
+    </Requester_Details>
+    <Supplier_Name>bob</Supplier_Name>
+    <Supplier_Country/>
+    <Company_RegNbr>123456789</Company_RegNbr>
+    <Bank>
+        <nonuk_bank>true</nonuk_bank>
+        <sort_code/>
+        <account_number>1</account_number>
+        <account_currency>1</account_currency>
+        <bank_name>1</bank_name>
+        <bank_country/>
+        <swift_code/>
+        <iban/>
+    </Bank>
+    <Workflow_Control>
+        <WF_In_Progress>false</WF_In_Progress>
+    </Workflow_Control>
+</Create_Supplier>
