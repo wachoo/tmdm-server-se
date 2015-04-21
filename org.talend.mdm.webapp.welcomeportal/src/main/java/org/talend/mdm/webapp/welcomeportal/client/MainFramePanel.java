@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -48,6 +47,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.PortalEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 
@@ -97,6 +97,8 @@ public class MainFramePanel extends Portal {
 
     private List<String> default_index_ordering;
 
+    private List<List<Integer>> defaultLocationList;
+
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
 
     public MainFramePanel(int colNum, PortalProperties portalConfig, boolean isEnterpriseVersion) {
@@ -121,6 +123,7 @@ public class MainFramePanel extends Portal {
             setColumnWidth(0, .50);
             setColumnWidth(1, .50);
         }
+        defaultLocationList = getDefaultLocations(colNum);
 
         this.addListener(Events.Add, new Listener<ContainerEvent>() {
 
@@ -150,9 +153,6 @@ public class MainFramePanel extends Portal {
             public void handleEvent(PortalEvent pe) {
 
                 updateLocations();
-                removeAllPortlets();
-                sortPortletsAndLocations();
-                refresh();
                 service.savePortalConfig(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString(),
                         new SessionAwareAsyncCallback<Void>() {
 
@@ -242,36 +242,12 @@ public class MainFramePanel extends Portal {
         } else {
             // switch column config
             final PortalProperties portalPropertiesCp = new PortalProperties(props);
-            portletToLocations = props.getPortletToLocations();
-            Set<String> portletsExist = portletToLocations.keySet();
-            portletsExist.retainAll(userConfigs);
-            Map<String, List<Integer>> portletLocsExist = new LinkedHashMap<String, List<Integer>>(userConfigs.size());
-            for (String nameExists : portletsExist) {
-                portletLocsExist.put(nameExists, portletToLocations.get(nameExists));
-            }
-
-            SortedMap<List<Integer>, String> locationToPortlets = new TreeMap<List<Integer>, String>(getLocationComparator());
-            for (String portletName : portletLocsExist.keySet()) {
-                locationToPortlets.put(portletLocsExist.get(portletName), portletName);
-            }
-
-            List<String> orderedPortletNames = new ArrayList<String>(portletToLocations.size());
-            // previous ordering based on locs
-            orderedPortletNames.addAll(locationToPortlets.values());
-
-            // add the new portlets
-            List<String> namesToCreate = new ArrayList<String>(userConfigs);
-            namesToCreate.removeAll(orderedPortletNames);
-            orderedPortletNames.addAll(namesToCreate);
-
-            List<List<Integer>> defaultLocations = getDefaultLocations(numColumns);
             int index = 0;
             List<Integer> loc;
-            for (String name : orderedPortletNames) {
-                loc = defaultLocations.get(index++);
+            for (String name : userConfigs) {
+                loc = defaultLocationList.get(index++);
                 initializePortlet(name, loc);
             }
-
             updateLocations();
 
             props.add(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString());
@@ -391,7 +367,7 @@ public class MainFramePanel extends Portal {
         }
     }
 
-    private void initializePortletOnly(String portletName) {
+    private BasePortlet initializePortletOnly(String portletName) {
         BasePortlet portlet = null;
         if (PortletConstants.START_NAME.equals(portletName)) {
             portlet = new StartPortlet(this);
@@ -414,8 +390,8 @@ public class MainFramePanel extends Portal {
         } else {
             assert false;
         }
-
         portlets.add(portlet);
+        return portlet;
     }
 
     private void initializePortlet(String portletName, List<Integer> loc) {
@@ -552,42 +528,38 @@ public class MainFramePanel extends Portal {
 
     // add all portlets into Portal
     private void addPortlets() {
-        List<List<Integer>> locs = getDefaultLocations(numColumns);
         int index = 0;
         for (Portlet portlet : portlets) {
-            add(portlet, locs.get(index++));
+            add(portlet, defaultLocationList.get(index++));
         }
-    }
-
-    private void sortPortletsAndLocations() {
-        assert (portletToLocations.keySet().equals(new HashSet<String>(getPortletNames())));
-
-        List<BasePortlet> sorted = new ArrayList<BasePortlet>(portlets.size());
-
-        SortedMap<List<Integer>, String> locationToPortlets = new TreeMap<List<Integer>, String>(getLocationComparator());
-        for (String portletName : portletToLocations.keySet()) {
-            locationToPortlets.put(portletToLocations.get(portletName), portletName);
-        }
-
-        portletToLocations.clear();
-        for (Entry<List<Integer>, String> entry : locationToPortlets.entrySet()) {
-            sorted.add((BasePortlet) getPortlet(entry.getValue()));
-            portletToLocations.put(entry.getValue(), entry.getKey());
-        }
-
-        portlets.clear();
-        portlets = sorted;
     }
 
     // For basic config change (checked/unchecked update, no column number change)
     // triggered from Action Panel
     public void refresh(final List<String> userConfigUpdates) {
+        List<String> namePortletsToDestroy = new ArrayList<String>(portletToLocations.keySet());
+        namePortletsToDestroy.removeAll(userConfigUpdates);
+        removeFromPortlets(namePortletsToDestroy);
+        if (namePortletsToDestroy.size() > 0) {
+            updateLocations();
+        }
 
-        removeAllPortlets();
-
-        final Set<BasePortlet> toDestroy = updatePortlets(new HashSet<String>(userConfigUpdates));
-
-        refresh();
+        List<String> portletAlreadyExist = new ArrayList<String>(portletToLocations.keySet());
+        List<String> portletsToCreate = new ArrayList<String>(userConfigUpdates);
+        portletsToCreate.removeAll(portletAlreadyExist);
+        for (String name : portletsToCreate) {
+            BasePortlet portlet = initializePortletOnly(name);
+            List<Integer> postion = defaultLocationList.get(default_index_ordering.indexOf(name));
+            LayoutContainer columnContainer = this.getItem(postion.get(0));
+            if (columnContainer.getItemCount() < postion.get(1)) {
+                columnContainer.add(portlet);
+            } else {
+                this.insert(portlet, postion.get(1), postion.get(0));
+            }
+        }
+        if (portletsToCreate.size() > 0) {
+            updateLocations();
+        }
 
         service.savePortalConfig(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString(),
                 new SessionAwareAsyncCallback<Void>() {
@@ -596,12 +568,6 @@ public class MainFramePanel extends Portal {
                     public void onSuccess(Void result) {
                         props.add(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocations.toString());
                         MainFramePanel.this.layout(true);
-
-                        for (BasePortlet portlet : toDestroy) {
-                            portlet.autoRefresh(false);
-                            portlet.removeAllListeners();
-                            portlet.removeAll();
-                        }
                     }
 
                     @Override
@@ -610,21 +576,8 @@ public class MainFramePanel extends Portal {
                         super.doOnFailure(caught);
                         removeAllPortlets();
                         portletToLocations = props.getPortletToLocations();
-
-                        // newly created if success, now need to revert them
-                        Set<String> namesToDestroy = new HashSet<String>(userConfigUpdates);
-                        namesToDestroy.removeAll(portletToLocations.keySet());
-                        removeFromPortlets(namesToDestroy);
-
-                        // destoryed if success, now need to add them back
-                        addToPortlets(toDestroy);
-
-                        sortPortletsAndLocations();
-
-                        refresh();
-
+                        initializePortlets(portletToLocations);
                         MainFramePanel.this.layout(true);
-
                         markPortalConfigsOnUI(getConfigsForUser());
                     }
                 });
@@ -643,7 +596,7 @@ public class MainFramePanel extends Portal {
         portlets.addAll(portletsToAdd);
     }
 
-    private void removeFromPortlets(Set<String> namesToDestroy) {
+    private void removeFromPortlets(List<String> namesToDestroy) {
         Iterator<BasePortlet> iterator = portlets.iterator();
         BasePortlet portlet;
         while (iterator.hasNext()) {
@@ -654,11 +607,13 @@ public class MainFramePanel extends Portal {
                 portlet.autoRefresh(false);
                 portlet.removeAllListeners();
                 portlet.removeAll();
+                MainFramePanel.this.remove(portlet, MainFramePanel.this.getPortletColumn(portlet));
             }
         }
     }
 
     private Set<BasePortlet> updatePortlets(Set<String> userConfigUpdates) {
+
         List<String> namePortletsToDestroy = new ArrayList<String>(portletToLocations.keySet());
         namePortletsToDestroy.removeAll(userConfigUpdates);
 
