@@ -48,14 +48,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.Lock;
-import org.hibernate.DuplicateMappingException;
-import org.hibernate.FlushMode;
-import org.hibernate.HibernateException;
-import org.hibernate.LockOptions;
-import org.hibernate.NonUniqueObjectException;
-import org.hibernate.PropertyValueException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.Mappings;
@@ -688,6 +681,15 @@ public class HibernateStorage implements Storage {
                         }
                     }
                     throw new IllegalStateException(sb.toString());
+                }
+                // Look for Lucene JMS extension (if any).
+                try {
+                    final Class<Interceptor> interceptor = (Class<Interceptor>) Class.forName("com.amalto.core.storage.hibernate.SearchInterceptor"); //$NON-NLS-1$
+                    configuration.setInterceptor(interceptor.newInstance());
+                } catch (ClassNotFoundException e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Unable to use Lucene JMS topic extension.", e);
+                    }
                 }
                 // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be
                 // started
