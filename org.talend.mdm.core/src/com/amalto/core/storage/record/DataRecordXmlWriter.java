@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 
 import com.amalto.core.query.user.metadata.*;
+import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.StagingStorage;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -49,6 +50,8 @@ public class DataRecordXmlWriter implements DataRecordWriter {
     private final boolean includeMetadata;
 
     private ComplexTypeMetadata type;
+
+    private SecuredStorage.UserDelegator delegator = SecuredStorage.UNSECURED;
 
     public DataRecordXmlWriter() {
         rootElementName = null;
@@ -95,11 +98,21 @@ public class DataRecordXmlWriter implements DataRecordWriter {
             writeMetadataField(writer, StagingBlockKey.INSTANCE, properties.get(StagingStorage.METADATA_STAGING_BLOCK_KEY));
         }
         // Print record fields
-        for (FieldMetadata field : fields) {
-            field.accept(fieldPrinter);
+        if (!delegator.hide(record.getType())) {
+            for (FieldMetadata field : fields) {
+                field.accept(fieldPrinter);
+            }
         }
         writer.write("</" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         writer.flush();
+    }
+
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        if(delegator == null) {
+            throw new IllegalArgumentException("Delegator cannot be null.");
+        }
+        this.delegator = delegator;
     }
 
     private static void writeMetadataField(Writer writer, MetadataField metadataField, Object value) throws IOException {
@@ -113,7 +126,7 @@ public class DataRecordXmlWriter implements DataRecordWriter {
         return rootElementName == null ? record.getType().getName() : rootElementName;
     }
 
-    private static class FieldPrinter extends DefaultMetadataVisitor<Void> {
+    private class FieldPrinter extends DefaultMetadataVisitor<Void> {
 
         private final DataRecord record;
 
@@ -126,6 +139,9 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
         @Override
         public Void visit(ReferenceFieldMetadata referenceField) {
+            if (delegator.hide(referenceField)) {
+                return null;
+            }
             try {
                 Object value = record.get(referenceField);
                 if (value != null) {
@@ -162,6 +178,9 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
         @Override
         public Void visit(ContainedTypeFieldMetadata containedField) {
+            if (delegator.hide(containedField)) {
+                return null;
+            }
             try {
                 if (!containedField.isMany()) {
                     DataRecord containedRecord = (DataRecord) record.get(containedField);
@@ -210,6 +229,9 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
         @Override
         public Void visit(SimpleTypeFieldMetadata simpleField) {
+            if (delegator.hide(simpleField)) {
+                return null;
+            }
             try {
                 Object value = record.get(simpleField);
                 if (value != null) {
@@ -237,6 +259,9 @@ public class DataRecordXmlWriter implements DataRecordWriter {
 
         @Override
         public Void visit(EnumerationFieldMetadata enumField) {
+            if (delegator.hide(enumField)) {
+                return null;
+            }
             try {
                 Object value = record.get(enumField);
                 if (value != null) {

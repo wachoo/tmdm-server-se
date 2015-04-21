@@ -161,18 +161,7 @@ public class SystemStorageTest extends TestCase {
         LOG.info("MDM server environment set.");
 
         LOG.info("Preparing storage for tests...");
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED);
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
         storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
@@ -304,18 +293,7 @@ public class SystemStorageTest extends TestCase {
             public void adapt(MetadataRepository newRepository, boolean force) {
             }
         };
-        Storage storage = new SecuredStorage(hibernateStorage, new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
+        Storage storage = new SecuredStorage(hibernateStorage, SecuredStorage.UNSECURED);
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("RDBMS-1-NO-FT"));
         storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
@@ -370,18 +348,7 @@ public class SystemStorageTest extends TestCase {
             public void adapt(MetadataRepository newRepository, boolean force) {
             }
         };
-        Storage storage = new SecuredStorage(hibernateStorage, new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
+        Storage storage = new SecuredStorage(hibernateStorage, SecuredStorage.UNSECURED);
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
         storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
@@ -425,18 +392,7 @@ public class SystemStorageTest extends TestCase {
         LOG.info("MDM server environment set.");
 
         LOG.info("Preparing storage for tests...");
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED);
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default"));
         storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
@@ -556,18 +512,7 @@ public class SystemStorageTest extends TestCase {
         ServerContext.INSTANCE.get(new MockServerLifecycle());
         LOG.info("MDM server environment set.");
         LOG.info("Preparing storage for tests...");
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), new SecuredStorage.UserDelegator() {
-
-            @Override
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            @Override
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        });
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED);
         ClassRepository repository = buildRepository();
         // Additional setup to get User type in repository
         String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$

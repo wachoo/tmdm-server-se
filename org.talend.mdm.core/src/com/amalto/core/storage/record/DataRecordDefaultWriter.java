@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import com.amalto.core.storage.SecuredStorage;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
@@ -26,6 +27,8 @@ import com.amalto.core.storage.StorageMetadataUtils;
 
 
 public class DataRecordDefaultWriter implements DataRecordWriter {
+
+    private SecuredStorage.UserDelegator delegator = SecuredStorage.UNSECURED;
 
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
@@ -36,6 +39,9 @@ public class DataRecordDefaultWriter implements DataRecordWriter {
         boolean isReferenceField;
         writer.write("<result>\n"); //$NON-NLS-1$
         for (FieldMetadata fieldMetadata : record.getSetFields()) {
+            if (delegator.hide(fieldMetadata)) {
+                continue;
+            }
             Object value = record.get(fieldMetadata);
             if (value != null) {
                 String name = fieldMetadata.getName();
@@ -62,6 +68,14 @@ public class DataRecordDefaultWriter implements DataRecordWriter {
         }
         writer.append("</result>"); //$NON-NLS-1$
         writer.flush();
+    }
+
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        if(delegator == null) {
+            throw new IllegalArgumentException("Delegator cannot be null.");
+        }
+        this.delegator = delegator;
     }
 
 }

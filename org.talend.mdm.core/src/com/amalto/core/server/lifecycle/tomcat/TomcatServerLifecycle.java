@@ -28,16 +28,7 @@ public class TomcatServerLifecycle implements ServerLifecycle {
     private static final Logger LOGGER = Logger.getLogger(TomcatServerLifecycle.class);
 
     private static Storage defaultWrap(Storage storage) {
-        storage = new CacheStorage(new SecuredStorage(storage, new SecuredStorage.UserDelegator() {
-
-            public boolean hide(FieldMetadata field) {
-                return false;
-            }
-
-            public boolean hide(ComplexTypeMetadata type) {
-                return false;
-            }
-        }));
+        storage = new CacheStorage(new SecuredStorage(storage, SecuredStorage.UNSECURED));
         storage = new StorageLogger(storage);
         return storage;
     }
