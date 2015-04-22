@@ -34,7 +34,7 @@ class AutoGenMetadata implements Metadata {
 
     private static String[] generateId(Metadata metadata, String[] idPaths, AutoIdGenerator generator) {
         for (String idPath : idPaths) {
-            metadata.setId(idPath, generator.generateId(metadata.getDataClusterName(), metadata.getName(), idPath));
+            metadata.setId(idPath, generator.generateId(null, metadata.getDataClusterName(), metadata.getName(), idPath));
         }
         return metadata.getId();
     }

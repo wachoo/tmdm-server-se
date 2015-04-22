@@ -911,7 +911,7 @@ public class LoadParserTest extends TestCase {
 
         private int currentId = 0;
 
-        public String generateId(String dataClusterName, String conceptName, String keyElementName) {
+        public String generateId(String universe, String dataClusterName, String conceptName, String keyElementName) {
             keyElementNames.add(keyElementName);
             savedState = false;
             return String.valueOf(currentId++);

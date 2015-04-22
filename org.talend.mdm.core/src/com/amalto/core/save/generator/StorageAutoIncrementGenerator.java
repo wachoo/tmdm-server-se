@@ -80,7 +80,10 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
     }
 
     @Override
-    public String generateId(String dataClusterName, String conceptName, String keyElementName) {
+    public String generateId(String universe, String dataClusterName, String conceptName, String keyElementName) {
+        if (universe == null) {
+            universe = "[HEAD]"; //$NON-NLS-1$
+        }
         Server server = ServerContext.INSTANCE.get();
         // Create or get current transaction
         TransactionManager manager = server.getTransactionManager();
@@ -117,7 +120,7 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
                 }
             }
             // Update it
-            String key = dataClusterName + '.' + conceptName + '.' + keyElementName;
+            String key = universe + '.' + dataClusterName + '.' + conceptName + '.' + keyElementName;
             List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
             Integer value = null;
             if (entries != null) {
@@ -141,7 +144,7 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
             transaction.commit();
             if (value == null) {
                 // Re-entry in order to re-acquire lock (for concurrent initialization of first id).
-                return generateId(dataClusterName, conceptName, keyElementName);
+                return generateId(universe, dataClusterName, conceptName, keyElementName);
             }
             return String.valueOf(value);
         } catch (Exception e) {

@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class UUIDIdGenerator implements AutoIdGenerator {
 
-    public String generateId(String dataClusterName, String conceptName, String keyElementName) {
+    public String generateId(String universe, String dataClusterName, String conceptName, String keyElementName) {
         return UUID.randomUUID().toString();
     }
 
