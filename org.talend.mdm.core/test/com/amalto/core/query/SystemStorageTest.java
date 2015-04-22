@@ -679,8 +679,8 @@ public class SystemStorageTest extends TestCase {
         String firstEntityId = "0";
         String secondEntityId = "0";
         for (int i = 0; i < 10; i++) {
-            firstEntityId = generator.generateId("Test", "First", "id");
-            secondEntityId = generator.generateId("Test", "Second", "id");
+            firstEntityId = generator.generateId(null, "Test", "First", "id");
+            secondEntityId = generator.generateId(null, "Test", "Second", "id");
         }
         assertEquals("10", firstEntityId);
         assertEquals("10", secondEntityId);
@@ -756,7 +756,7 @@ public class SystemStorageTest extends TestCase {
         }
         // If concurrent updates were ok, next id should be (50 * runnable_count) + 1
         StorageAutoIncrementGenerator generator = new StorageAutoIncrementGenerator(storage);
-        String entityId = generator.generateId("Test", "First", "id");
+        String entityId = generator.generateId(null, "Test", "First", "id");
         assertEquals(0, totalDuplicate);
         assertEquals(String.valueOf((workers.length * generationCount) + 1), entityId);
     }
@@ -785,7 +785,7 @@ public class SystemStorageTest extends TestCase {
             StorageAutoIncrementGenerator generator = new StorageAutoIncrementGenerator(storage);
             Random random = new Random();
             for (int i = 0; i < generationCount; i++) {
-                String id1 = generator.generateId("Test", "First", "id");
+                String id1 = generator.generateId(null, "Test", "First", "id");
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(name + " " + id1);
                 }

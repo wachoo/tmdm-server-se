@@ -281,7 +281,7 @@ public class DefaultSaverSource implements SaverSource {
                     concept = superType.getName();
                 }
                 String autoIncrementFieldName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
-                autoIncrementId = AutoIncrementGenerator.get().generateId(dataCluster, conceptName, autoIncrementFieldName);
+                autoIncrementId = AutoIncrementGenerator.get().generateId(universe, dataCluster, conceptName, autoIncrementFieldName);
             } 
         }
         return autoIncrementId;

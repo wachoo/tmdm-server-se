@@ -243,7 +243,7 @@ public class StorageSaverSource implements SaverSource {
                     concept = superType.getName();
                 }                
                 String autoIncrementFieldName = field != null ? field : concept;
-                autoIncrementId = AutoIncrementGenerator.get().generateId(dataCluster, concept, autoIncrementFieldName);
+                autoIncrementId = AutoIncrementGenerator.get().generateId(universe, dataCluster, concept, autoIncrementFieldName);
             } 
         }
         return autoIncrementId;
