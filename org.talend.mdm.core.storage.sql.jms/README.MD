@@ -3,17 +3,16 @@
 You may configure cluster support for Lucene using classes in this module. There's 2 possible setup:
 
 1) A JMS Module to integrate in Hibernate Search configuration. This solution has the disavantage of a SPoF (only a single master node).
-2) A JMS-Topic based that removes the SPoF described in (1).  
+2) A JMS-Topic based that removes the SPoF (Single Point of Failure) described in (1).  
 
-## Full text JMS Module
+## Full text JMS Module (Hibernate Search documented solution)
 
 This project allows setting up a shared full text index Lucene. It consists in:
 
 * A set of slave nodes that pushes changes to a JMS queue, and periodically fetch a copy the master index.
 * A master node that reads the messages pushed by slave nodes
 
-The new following sections present a setup example.
-
+The following sections present a setup example.
 
 ### Install MDM cluster
 
@@ -139,62 +138,46 @@ Please note the property "hibernate.search.worker.jndi.java.naming.provider.url"
 
 ## JMS-Topic
 
-To configure 
+This is an alternative solution to the previous one. This solution uses a JMS topic to keep in sync all nodes in the
+MDM Cluster. When a node in the cluster updates / creates or deletes a record, it sends a message on a predefined JMS
+topic with all details about the modified record. All the other nodes in the cluster are subscribers of this JMS topic,
+so all members of the cluster know the updates performed by the others.
+This solution differs from the previous one in the sense each node is responsible of its Lucene index and no one serves
+as master in the cluster. This is more interesting if you don't want to elect a master node in your cluster. The downside
+is the installation of a separate JMS provider (if you use a JMS from a node of your cluster, this node then becomes a
+SPoF).
+
+Instructions for configuration only includes usage of ActiveMQ as JMS provider.
 
 ### ActiveMQ configuration
 
-Make sure your ActiveMQ (JMS provider) is up. You can start an ActiveMQ server using Docker:
+{1} Make sure your ActiveMQ (JMS provider) is up. You may start an ActiveMQ server using Docker:
 ```
 $ docker run -p 61616:61616 -p 8161:8161 tv2norge/activemq
 ```
 (61616 is the active mq port, and 8161 is the active mq web console)
-Log in the web console (http://0.0.0.0:8161) with "admin"/"admin" (default credentials).
-Create a new topic (e.g. "mdm.search.lucene").
+
+{2} Log in the web console (http://0.0.0.0:8161) with "admin"/"admin" (default credentials).
+
+{3} Create a new topic (e.g. "mdm.search.lucene").
 
 ### Cluster node installation
 
-You must repeat the following steps for all members of your cluster:
+You must repeat the following steps for all nodes of your cluster:
 
 *Jar copy (!) Two JARs to copy (!)*
-Copy the JAR built by this project in tem.ear (/lib directory in tem.ear).
-Copy the ActiveMQ JAR in tem.ear (/lib directory in tem.ear).
+
+{1} Copy the JAR built by this project in tem.ear (/lib directory in tem.ear).
+
+{2} Copy the ActiveMQ JAR in tem.ear (/lib directory in tem.ear). Your tests, "activemq-core-5.7.0.jar" was used.
 
 *MDM Configuration*
-Modify the MDM configuration properties (in mdm.conf).
+{1} If you don't want default values, you may modify the MDM configuration properties (in mdm.conf).
 
 "hibernate.search.jms.context_factory" defaults to "org.apache.activemq.jndi.ActiveMQInitialContextFactory".
 "hibernate.search.jms.provider_url" defaults to "tcp://localhost:61616".
 "hibernate.search.jms.topic" defaults to "mdm.search.lucene".
 "hibernate.search.jms.connection_factory" defaults to "ConnectionFactory".
-
-*Datasources configuration*
-Modify datasource properties (in datasources.xml):
-```
-<properties>
-    <property key="hibernate.ejb.interceptor">com.amalto.core.storage.hibernate.SearchInterceptor</property>
-</properties>
-```
-Your datasources.xml may then look like (example below is for H2, but changes are database agnostic):
-```
-<master>
-    <type>RDBMS</type>
-    <rdbms-configuration>
-        <dialect>H2</dialect>
-        <connection-driver-class>org.h2.Driver</connection-driver-class>
-        <connection-url>jdbc:h2:///opt/Talend-MDMServer-20141126_1546-V5.6.1_node1/jboss-4.2.2.GA/server/default/data/H2-Default/${container}_MASTER</connection-url>
-        <connection-username>sa</connection-username>
-        <connection-password></connection-password>
-        <fulltext-index-directory>/opt/Talend-MDMServer-20141126_1546-V5.6.1_node1/jboss-4.2.2.GA/server/default/data/indexes/H2-Default</fulltext-index-directory>
-        <schema-generation>update</schema-generation>
-        <properties>
-            <property name="hibernate.show_sql">false</property>
-            <property name="hibernate.connection.DB_CLOSE_ON_EXIT">FALSE</property>
-            <property name="hibernate.connection.MVCC">TRUE</property>
-            <property name="hibernate.ejb.interceptor">com.amalto.core.storage.hibernate.SearchInterceptor</property>
-        </properties>
-    </rdbms-configuration>
-</master>
-```
 
 *Last step*
 Start your MDM server.
