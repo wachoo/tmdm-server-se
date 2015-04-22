@@ -19,6 +19,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.shared.Constants;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
@@ -35,15 +36,11 @@ import com.amalto.core.webservice.WSByteArray;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSExecuteTransformerV2;
-import com.amalto.core.webservice.WSGetTransformer;
-import com.amalto.core.webservice.WSGetTransformerPKs;
 import com.amalto.core.webservice.WSGetTransformerV2;
 import com.amalto.core.webservice.WSGetTransformerV2PKs;
 import com.amalto.core.webservice.WSPutItem;
-import com.amalto.core.webservice.WSTransformer;
 import com.amalto.core.webservice.WSTransformerContext;
 import com.amalto.core.webservice.WSTransformerContextPipelinePipelineItem;
-import com.amalto.core.webservice.WSTransformerPK;
 import com.amalto.core.webservice.WSTransformerV2;
 import com.amalto.core.webservice.WSTransformerV2PK;
 import com.amalto.core.webservice.WSTypedContent;
@@ -102,23 +99,6 @@ public class WelcomePortalAction implements WelcomePortalService {
      */
     public boolean isStandaloneProcess(String wstransformerpk) {
         return wstransformerpk.startsWith(STANDALONE_PROCESS_PREFIX);
-    }
-
-    private String getDescriptionByLau(String language, String description) {
-        Map<String, String> des = new HashMap<String, String>();
-
-        for (int i = 0; i < description.length(); i++) {
-            if ('[' == description.charAt(i)) {
-                for (int j = i; j < description.length(); j++) {
-                    if (']' == description.charAt(j)) {
-                        String[] de = description.substring(i + 1, j).split(":"); //$NON-NLS-1$
-                        des.put(de[0].toLowerCase(), de[1]);
-                        break;
-                    }
-                }
-            }
-        }
-        return des.get(language.toLowerCase());
     }
 
     /**
@@ -194,7 +174,8 @@ public class WelcomePortalAction implements WelcomePortalService {
             for (WSTransformerV2PK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
                     WSTransformerV2 wsTransformer = Util.getPort().getTransformerV2(new WSGetTransformerV2(wstransformerpk));
-                    processMap.put(wstransformerpk.getPk(), getDescriptionByLau(language, wsTransformer.getDescription()));
+                    processMap.put(wstransformerpk.getPk(),
+                            MultilanguageMessageParser.pickOutISOMessage(wsTransformer.getDescription(), language));
                 }
             }
             return processMap;
