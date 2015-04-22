@@ -29,11 +29,14 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
     // This method is not secure in clustered environments (when several MDM nodes share same database).
     // See com.amalto.core.save.generator.StorageAutoIncrementGenerator for better concurrency support.
     @Override
-    public synchronized String generateId(String dataClusterName, String conceptName, String keyElementName) {
+    public synchronized String generateId(String universe, String dataClusterName, String conceptName, String keyElementName) {
         if (!wasInitCalled) {
             init();
         }
-        String key = dataClusterName + "." + conceptName + "." + keyElementName;
+        if (universe == null) {
+            universe = "[HEAD]"; //$NON-NLS-1$
+        }
+        String key = universe + "." + dataClusterName + "." + conceptName + "." + keyElementName; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         long num;
         String n = CONFIGURATION.getProperty(key);
         if (n == null) {
