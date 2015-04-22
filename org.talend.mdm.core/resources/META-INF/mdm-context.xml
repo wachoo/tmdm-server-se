@@ -121,9 +121,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
             access="hasRole('administration')" />
         <security:intercept-url pattern="\A/services/uploadFile.*\Z" requires-channel="any"
             access="hasRole('administration')" />
-        <security:intercept-url pattern="\A/services/licensefileUpload.*\Z" requires-channel="any"
-            access="hasRole('administration')" />
-        <security:intercept-url pattern="\A/services/licenseContentUpload.*\Z" requires-channel="any"
+        <security:intercept-url pattern="\A/services/licenseUpload.*\Z" requires-channel="any"
             access="hasRole('administration')" />
         <security:intercept-url pattern="\A/services/pubcomponent.*\Z" requires-channel="any" access="permitAll"
             method="GET" />
