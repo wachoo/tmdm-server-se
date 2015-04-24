@@ -28,6 +28,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.hibernate.batchindex.MDMMassIndexerImpl;
 import com.amalto.core.storage.prepare.*;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordConverter;
@@ -39,8 +40,10 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
+import org.hibernate.search.engine.SearchFactoryImplementor;
 import org.hibernate.search.event.ContextHolder;
 import org.hibernate.search.impl.SearchFactoryImpl;
+import org.hibernate.search.util.ContextHelper;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
@@ -750,14 +753,17 @@ public class HibernateStorage implements Storage {
         }
         LOGGER.info("Reindexing full-text for " + storageName + "...");
         Session session = factory.getCurrentSession();
-        MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
+        SearchFactoryImplementor searchFactory = ContextHelper.getSearchFactory( session );
+        MDMMassIndexerImpl indexer = new MDMMassIndexerImpl( searchFactory, factory, Object.class);
         indexer.optimizeOnFinish(true);
         indexer.optimizeAfterPurge(true);
         try {
-            indexer.threadsForSubsequentFetching(2);
-            indexer.threadsToLoadObjects(2);
-            indexer.batchSizeToLoadObjects(batchSize);
-            indexer.startAndWait();
+            indexer
+                .idFetchSize(Integer.MIN_VALUE)
+                .threadsToLoadObjects(1)
+                .threadsForSubsequentFetching(1)
+                .batchSizeToLoadObjects(batchSize)
+                .startAndWait();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
