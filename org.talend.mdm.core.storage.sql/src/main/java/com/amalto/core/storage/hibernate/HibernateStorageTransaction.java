@@ -249,7 +249,9 @@ class HibernateStorageTransaction extends StorageTransaction {
                 } finally {
                     // It is *very* important to ensure super.rollback() gets called (even if session close did not succeed).
                     super.rollback();
-                    storage.getClassLoader().reset(Thread.currentThread());
+                    if (!storage.isClosed()) {
+                        storage.getClassLoader().reset(Thread.currentThread());
+                    }
                 }
             }
         }
