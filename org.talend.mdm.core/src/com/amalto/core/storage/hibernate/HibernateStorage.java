@@ -44,13 +44,24 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
+import org.hibernate.Session;
+import org.hibernate.cfg.Environment;
+import org.hibernate.search.FullTextSession;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.hibernate.batchindex.MDMMassIndexerImpl;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordConverter;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.Lock;
 import org.hibernate.*;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.Mappings;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.mapping.Any;
@@ -75,11 +86,11 @@ import org.hibernate.mapping.SingleTableSubclass;
 import org.hibernate.mapping.Subclass;
 import org.hibernate.mapping.Table;
 import org.hibernate.mapping.UnionSubclass;
-import org.hibernate.search.FullTextSession;
-import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
+import org.hibernate.search.engine.SearchFactoryImplementor;
 import org.hibernate.search.event.ContextHolder;
 import org.hibernate.search.impl.SearchFactoryImpl;
+import org.hibernate.search.util.ContextHelper;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.hibernate.tool.hbm2ddl.SchemaValidator;
@@ -927,14 +938,17 @@ public class HibernateStorage implements Storage {
         }
         LOGGER.info("Re-indexing full-text for " + storageName + "...");
         Session session = factory.getCurrentSession();
-        MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
+        SearchFactoryImplementor searchFactory = ContextHelper.getSearchFactory( session );
+        MDMMassIndexerImpl indexer = new MDMMassIndexerImpl( searchFactory, factory, Object.class);
         indexer.optimizeOnFinish(true);
         indexer.optimizeAfterPurge(true);
         try {
-            indexer.threadsForSubsequentFetching(2);
-            indexer.threadsToLoadObjects(2);
-            indexer.batchSizeToLoadObjects(batchSize);
-            indexer.startAndWait();
+            indexer
+                .idFetchSize(Integer.MIN_VALUE)
+                .threadsToLoadObjects(1)
+                .threadsForSubsequentFetching(1)
+                .batchSizeToLoadObjects(batchSize)
+                .startAndWait();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
