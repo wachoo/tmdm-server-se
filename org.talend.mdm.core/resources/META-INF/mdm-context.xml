@@ -177,6 +177,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
 
     <bean id="formLoginSuccessHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
         <property name="defaultTargetUrl" value="/ui" />
+        <property name="alwaysUseDefaultTargetUrl" value="true" />
     </bean>
 
     <bean id="formLoginFailureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
