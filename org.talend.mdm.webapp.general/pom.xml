@@ -104,8 +104,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -126,5 +124,39 @@
             </plugin>
         </plugins>
     </build>
+
+	<profiles>
+        <profile>
+            <id>dev-build</id>
+            <build>
+            	<plugins>
+            		<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                        	<execution>
+                                <id>deploy-tomcat</id>
+                                <configuration>
+                                	<target>
+                                		<copy tofile="${lib.dest}" file="${web.lib.src}"/>
+                                		<delete dir="${mdm.app.dir}/general"/>
+                                		<copy todir="${mdm.app.dir}/general">
+                                			<fileset dir="${mdm.build.web.dir}/general"/>
+                                		</copy>
+                                		<copy todir="${mdm.app.dir}/secure" overwrite="true">
+                                			<fileset dir="${mdm.build.web.dir}/secure"/>
+                                		</copy>
+                                		<copy tofile="${mdm.app.dir}/General-menus.css" file="${mdm.build.web.dir}/General-menus.css" overwrite="true"/>
+                                		<copy tofile="${mdm.app.dir}/General.css" file="${mdm.build.web.dir}/General.css" overwrite="true"/>
+                                		<copy tofile="${mdm.app.dir}/proxy_core.js" file="${mdm.build.web.dir}/proxy_core.js" overwrite="true"/>
+                                	</target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+     </profiles>
 
 </project>

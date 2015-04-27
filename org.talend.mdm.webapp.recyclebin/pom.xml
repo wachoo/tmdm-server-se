@@ -100,4 +100,35 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>dev-build</id>
+            <build>
+            	<plugins>
+            		<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                        	<execution>
+                                <id>deploy-tomcat</id>
+                                <configuration>
+                                	<target>
+                                		<copy tofile="${lib.dest}" file="${web.lib.src}"/>
+                                		<delete dir="${mdm.app.dir}/recyclebin"/>
+                                		<copy todir="${mdm.app.dir}/recyclebin">
+                                			<fileset dir="${mdm.build.web.dir}/recyclebin"/>
+                                		</copy>
+                                		<copy tofile="${mdm.app.dir}/RecycleBin.css" file="${mdm.build.web.dir}/RecycleBin.css" overwrite="true"/>
+                                		<copy tofile="${mdm.app.dir}/RecycleBin.js" file="${mdm.build.web.dir}/RecycleBin.js" overwrite="true"/>
+                                	</target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+     </profiles>
+    
 </project>
