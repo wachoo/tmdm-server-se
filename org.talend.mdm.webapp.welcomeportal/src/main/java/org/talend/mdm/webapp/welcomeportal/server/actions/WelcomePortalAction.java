@@ -292,6 +292,9 @@ public class WelcomePortalAction implements WelcomePortalService {
     public void savePortalConfig(PortalProperties config) throws ServiceException {
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            if(!Util.userCanWrite(user)) {
+                return;
+            }
             User parsedUser = User.parse(user.getUserXML());
             Map<String, String> properties = parsedUser.getProperties();
             String value;
@@ -320,6 +323,9 @@ public class WelcomePortalAction implements WelcomePortalService {
     public void savePortalConfig(String key, String value) throws ServiceException {
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            if(!Util.userCanWrite(user)) {
+                return;
+            }
             User parsedUser = User.parse(user.getUserXML());
             Map<String, String> properties = parsedUser.getProperties();
 
@@ -340,6 +346,9 @@ public class WelcomePortalAction implements WelcomePortalService {
     public void savePortalConfig(String key, String portletName, String value) throws ServiceException {
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            if(!Util.userCanWrite(user)) {
+                return;
+            }
             User parsedUser = User.parse(user.getUserXML());
             Map<String, String> properties = parsedUser.getProperties();
 
@@ -365,6 +374,9 @@ public class WelcomePortalAction implements WelcomePortalService {
         assert configs.size() == 2;
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            if(!Util.userCanWrite(user)) {
+                return;
+            }
             User parsedUser = User.parse(user.getUserXML());
             Map<String, String> properties = parsedUser.getProperties();
 

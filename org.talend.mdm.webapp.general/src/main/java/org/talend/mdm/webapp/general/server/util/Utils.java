@@ -23,7 +23,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.amalto.core.util.LocalUser;
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.general.model.GroupItem;
@@ -36,6 +35,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.amalto.commons.core.utils.XMLUtils;
+import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.webservice.WSDataClusterPK;
@@ -172,7 +173,7 @@ public class Utils {
                 }
                 String gxtEntryModule = GxtFactory.getInstance().getGxtEntryModule(context, application);
                 if (gxtEntryModule == null) {
-                    //Other Application, direct js
+                    // Other Application, direct js
                     String tmp = "<script type=\"text/javascript\" src=\"secure/js/" //$NON-NLS-1$
                             + application + ".js\"></script>\n"; //$NON-NLS-1$
                     if (!imports.contains(tmp)) {
@@ -326,19 +327,23 @@ public class Utils {
 
     public static Boolean setDefaultLanguage(String language) throws Exception {
         try {
-            String userName = LocalUser.getLocalUser().getUsername();
-            WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
-            if (userName != null && userName.length() > 0) {
-                String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
-                Util.getPort().putItem(
-                        new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), Utils.setLanguage(userXml, language),
-                                new WSDataModelPK(DATACLUSTER_PK), false));
-                return true;
+            ILocalUser user = LocalUser.getLocalUser();
+            if (Util.userCanWrite(user)) {
+                String userName = user.getUsername();
+                WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT,
+                        new String[] { userName });
+                if (userName != null && userName.length() > 0) {
+                    String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
+                    Util.getPort().putItem(
+                            new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), Utils.setLanguage(userXml, language),
+                                    new WSDataModelPK(DATACLUSTER_PK), false));
+                    return true;
+                }
             }
+            return false;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-        return false;
     }
 }
