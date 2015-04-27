@@ -26,7 +26,6 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.w3c.dom.Element;
 
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
-import com.amalto.core.server.ServerContext;
 
 public abstract class TransactionInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -50,7 +49,7 @@ public abstract class TransactionInterceptor extends AbstractPhaseInterceptor<Me
                 String messageOperationName = messageInfo.getName().getLocalPart();
                 if (PING_OPERATION_NAME.equals(messageOperationName) || LOGOUT_OPERATION_NAME.equals(messageOperationName)) {
                     // No need for transactions for ping and logout.
-                    return NoOpTransactionState.INSTANCE;
+                    return ImplicitTransactionState.INSTANCE;
                 }
                 final List<Header> headers = soapMessage.getHeaders();
                 if (headers != null) {
@@ -65,82 +64,7 @@ public abstract class TransactionInterceptor extends AbstractPhaseInterceptor<Me
                 }
             }
         }
-        return NoOpTransactionState.INSTANCE;
+        return ImplicitTransactionState.INSTANCE;
     }
 
-    protected interface TransactionState {
-
-        void preRequest();
-
-        void postRequest();
-
-        void cancelRequest();
-    }
-
-    private static class ExplicitTransaction implements TransactionState {
-
-        private final String transactionID;
-
-        public ExplicitTransaction(String transactionID) {
-            this.transactionID = transactionID;
-        }
-
-        @Override
-        public void preRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            Transaction transaction = transactionManager.get(transactionID);
-            if (transaction == null) {
-                transaction = transactionManager.create(Transaction.Lifetime.LONG, transactionID);
-                transaction.begin();
-            }
-            transactionManager.associate(transaction);
-        }
-
-        @Override
-        public void postRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            Transaction transaction = transactionManager.get(transactionID);
-            if (transaction == null) {
-                throw new IllegalStateException("Transaction '" + transactionID + "' no longer exists.");
-            }
-            transactionManager.dissociate(transaction);
-        }
-
-        @Override
-        public void cancelRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            Transaction transaction = transactionManager.get(transactionID);
-            if (transaction == null) {
-                throw new IllegalStateException("Transaction '" + transactionID + "' no longer exists.");
-            }
-            transactionManager.dissociate(transaction);
-        }
-    }
-
-    private static class NoOpTransactionState implements TransactionState {
-
-        private static final TransactionState INSTANCE = new NoOpTransactionState();
-
-        @Override
-        public void preRequest() {
-        }
-
-        @Override
-        public void postRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            if (transactionManager.hasTransaction()) {
-                throw new IllegalStateException("A non-transactional (auto-commit) operation has an active " +
-                        "transaction after operation completion.");
-            }
-        }
-
-        @Override
-        public void cancelRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            if (transactionManager.hasTransaction()) {
-                throw new IllegalStateException("A non-transactional (auto-commit) operation has an active " +
-                        "transaction after operation completion.");
-            }
-        }
-    }
 }
