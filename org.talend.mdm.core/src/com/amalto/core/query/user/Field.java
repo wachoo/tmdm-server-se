@@ -13,6 +13,7 @@ package com.amalto.core.query.user;
 
 
 import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
@@ -83,6 +84,15 @@ public class Field implements TypedExpression {
 
     @Override
     public int hashCode() {
-        return fieldMetadata.getName().hashCode();
+        if (fieldMetadata instanceof CompoundFieldMetadata) {
+             int hashCode = 0;
+             FieldMetadata[] fields = ((CompoundFieldMetadata) fieldMetadata).getFields();
+             for (FieldMetadata field : fields) {
+                 hashCode = hashCode + field.getName().hashCode();
+             }
+             return hashCode;
+        } else {
+                 return fieldMetadata.getName().hashCode();
+        }
     }
 }
