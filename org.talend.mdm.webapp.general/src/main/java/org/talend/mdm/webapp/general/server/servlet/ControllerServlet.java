@@ -97,7 +97,7 @@ public class ControllerServlet extends HttpServlet {
         html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>\n");
         html.append("<meta http-equiv='X-UA-Compatible' content='IE=8'>\n");
         html.append("<link rel='shortcut icon' href='auth/favicon.ico'/>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='secure/googleapi/fonts.css'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='auth/googleapi/fonts.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='secure/gxt/resources/css/gxt-all.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='General.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='General-menus.css'/>\n");

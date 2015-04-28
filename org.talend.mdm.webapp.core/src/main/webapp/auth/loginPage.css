@@ -1,3 +1,23 @@
+body { 
+    background-color:#FFFFFF;
+    margin: 0;
+    font-family: "Source Sans Pro";
+}
+
+td { 
+    color:#000000;
+    font-size: 12px;
+    line-height:130%;
+}
+
+table.form {
+    background-color:#FFFFFF;
+    border-style: dashed;
+    border-color: green;
+    border-width: 1px;
+    padding-right: 10px;
+}
+
 .header1 {
     background-color: black;
     background-image: url(./fond_gris.png);
@@ -13,7 +33,6 @@
 }
 
 .version, .suiteName, .appName {
-    font-family: Verdana,Sans-serif;
     font-size: 16px;
     color: white;
 }
