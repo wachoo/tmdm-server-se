@@ -335,8 +335,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
                     @Override
                     public void run() {
                         try {
-                            service.receiveFromInbound(itemPOJOPK, message.getJMSMessageID(), parameters.get(parameterIndex));
                             message.acknowledge();
+                            service.receiveFromInbound(itemPOJOPK, message.getJMSMessageID(), parameters.get(parameterIndex));
                             // Record routing order was successfully executed.
                             CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
                             completedRoutingOrder.setItemPOJOPK(itemPOJOPK);

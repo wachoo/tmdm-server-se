@@ -9,38 +9,38 @@ import java.util.*;
 
 public class MockRoutingRule implements RoutingRule {
 
-    private final Map<RoutingRulePOJOPK, RoutingRulePOJO> store = new HashMap<RoutingRulePOJOPK, RoutingRulePOJO>();
+    private final Map<String, RoutingRulePOJO> store = new HashMap<>();
 
     @Override
     public RoutingRulePOJOPK putRoutingRule(RoutingRulePOJO routingRule) throws XtentisException {
         RoutingRulePOJOPK key = new RoutingRulePOJOPK(routingRule.getPK().getUniqueId());
-        store.put(key, routingRule);
+        store.put(key.getUniqueId(), routingRule);
         return key;
     }
 
     @Override
     public RoutingRulePOJO getRoutingRule(RoutingRulePOJOPK pk) throws XtentisException {
-        return store.get(pk);
+        return store.get(pk.getUniqueId());
     }
 
     @Override
     public RoutingRulePOJO existsRoutingRule(RoutingRulePOJOPK pk) throws XtentisException {
-        return store.get(pk);
+        return store.get(pk.getUniqueId());
     }
 
     @Override
     public RoutingRulePOJOPK removeRoutingRule(RoutingRulePOJOPK pk) throws XtentisException {
-        store.remove(pk);
+        store.remove(pk.getUniqueId());
         return pk;
     }
 
     @Override
     public Collection<RoutingRulePOJOPK> getRoutingRulePKs(String regex) throws XtentisException {
-        Set<RoutingRulePOJOPK> match = new HashSet<RoutingRulePOJOPK>();
-        Set<RoutingRulePOJOPK> pkList = store.keySet();
-        for (RoutingRulePOJOPK routingRulePOJOPK : pkList) {
-            if (routingRulePOJOPK.getUniqueId().matches(regex)) {
-                match.add(routingRulePOJOPK);
+        Set<RoutingRulePOJOPK> match = new HashSet<>();
+        Set<String> pkList = store.keySet();
+        for (String routingRulePOJOPK : pkList) {
+            if (routingRulePOJOPK.matches(regex)) {
+                match.add(new RoutingRulePOJOPK(routingRulePOJOPK));
             }
         }
         return match;
