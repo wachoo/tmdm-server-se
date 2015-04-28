@@ -370,11 +370,17 @@
     
     <profiles>
     	<profile>
+    		<id>tem-build</id>
+    		<properties>
+    			<jar.include>${project.build.finalName}.jar</jar.include>
+    		</properties>
+        </profile>
+    	<profile>
     		<id>tom-build</id>
     		<properties>
-    			<jar.lib.src>${project.build.directory}/${project.build.finalName}-open.jar</jar.lib.src>
+    			<jar.include>${project.build.finalName}*.jar</jar.include>
     		</properties>
-        </profile>	
+        </profile>
     	<profile>
             <id>dev-build</id>
             <build>
@@ -387,7 +393,11 @@
                                 <id>deploy-tomcat</id>
                                 <configuration>
                                 	<target>
-                                		<copy tofile="${lib.dest}" file="${jar.lib.src}"/>
+                                		<copy todir="${mdm.lib.dir}" overwrite="true">
+                                			<fileset dir="${project.build.directory}">
+                                				<include name="${jar.include}"/>
+                                			</fileset>
+                                		</copy>
                                 	</target>
                                 </configuration>
                             </execution>
