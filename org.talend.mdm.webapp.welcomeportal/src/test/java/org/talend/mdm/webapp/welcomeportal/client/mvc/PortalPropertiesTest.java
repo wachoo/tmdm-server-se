@@ -31,8 +31,6 @@ public class PortalPropertiesTest extends TestCase {
 
     private String COLUMN_NUM_STRING = "3";
 
-    private String ALL_PORTLETS_STRING = "[chart1, chart2, chart3, chart4, chart5, chart6, chart7, chart8, chart9]";
-
     private String AUTO_ONOFFS_STRING = "{portlet1=true, portlet2=false, portlet3=true, portlet4=false, portlet5=true, portlet6=false, portlet7=true, portlet8=false, portlet9=true}";
 
     Map<String, String> propsWithValues;
@@ -48,14 +46,12 @@ public class PortalPropertiesTest extends TestCase {
         propsWithValues = new HashMap<String, String>();
         propsWithValues.put(PortalProperties.KEY_PORTLET_LOCATIONS, PORTLET_TO_LOC_STRING);
         propsWithValues.put(PortalProperties.KEY_COLUMN_NUM, COLUMN_NUM_STRING);
-        propsWithValues.put(PortalProperties.KEY_ALL_PORTLETS, ALL_PORTLETS_STRING);
         propsWithValues.put(PortalProperties.KEY_AUTO_ONOFFS, AUTO_ONOFFS_STRING);
         propsWithValues.put(PortalProperties.KEY_CHART_SETTINGS, CHART_SETTINGS_STRING);
 
         propsWithNulls = new HashMap<String, String>();
         propsWithNulls.put(PortalProperties.KEY_PORTLET_LOCATIONS, null);
         propsWithNulls.put(PortalProperties.KEY_COLUMN_NUM, null);
-        propsWithNulls.put(PortalProperties.KEY_ALL_PORTLETS, null);
         propsWithNulls.put(PortalProperties.KEY_AUTO_ONOFFS, null);
         propsWithNulls.put(PortalProperties.KEY_CHART_SETTINGS, null);
     }
@@ -68,17 +64,6 @@ public class PortalPropertiesTest extends TestCase {
 
         props = new PortalProperties(propsWithNulls);
         Map<String, List<Integer>> actual2 = props.getPortletToLocations();
-        assertNull(actual2);
-    }
-
-    public void testGetAllPortlets() {
-        props = new PortalProperties(propsWithValues);
-        Set<String> expected = getExpectedAllPortlets(ALL_PORTLETS_STRING);
-        Set<String> actual1 = props.getAllPortlets();
-        assertTrue(expected.equals(actual1));
-
-        props = new PortalProperties(propsWithNulls);
-        Set<String> actual2 = props.getAllPortlets();
         assertNull(actual2);
     }
 

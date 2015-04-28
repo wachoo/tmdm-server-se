@@ -1,29 +1,28 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.query.user;
-
-import org.talend.mdm.commmon.metadata.Types;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.talend.mdm.commmon.metadata.Types;
+
 /**
  *
  */
 public class TimeConstant implements ConstantExpression<Date> {
 
-    public static final DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm:ss"); //$NON-NLS-1$
+    public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss"); //$NON-NLS-1$
 
     private final Date value;
 
@@ -37,14 +36,17 @@ public class TimeConstant implements ConstantExpression<Date> {
         }
     }
 
+    @Override
     public Date getValue() {
         return value;
     }
 
+    @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visit(this);
     }
 
+    @Override
     public Expression normalize() {
         return this;
     }
@@ -54,6 +56,7 @@ public class TimeConstant implements ConstantExpression<Date> {
         return false;
     }
 
+    @Override
     public String getTypeName() {
         return Types.DATETIME;
     }

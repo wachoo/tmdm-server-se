@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -12,10 +12,9 @@
 // ============================================================================
 package com.amalto.core.webservice;
 
-/**
- * created by HHB on 2013-7-18 Detailled comment
- * 
- */
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType(name="WSDigestKey")
 public class WSDigestKey {
     
     protected String type;

@@ -102,10 +102,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-        </dependency>
         <!-- MDM dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
@@ -127,4 +123,39 @@
             <artifactId>org.talend.mdm.commons.core</artifactId>
         </dependency>
     </dependencies>
+    
+     <profiles>
+    	<profile>
+            <id>dev-build</id>
+            <build>
+            	<plugins>
+            		<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                        	<execution>
+                                <id>deploy-tomcat</id>
+                                <configuration>
+                                	<target>
+                                		<copy tofile="${lib.dest}" file="${web.lib.src}"/>
+                                		<copy todir="${mdm.app.dir}/auth" overwrite="true">
+                                			<fileset dir="${mdm.build.web.dir}/auth"/>
+                                		</copy>
+                                		<delete dir="${mdm.app.dir}/logviewer"/>
+                                		<copy todir="${mdm.app.dir}/logviewer">
+                                			<fileset dir="${mdm.build.web.dir}/logviewer"/>
+                                		</copy>
+                                		<copy todir="${mdm.app.dir}/secure" overwrite="true">
+                                			<fileset dir="${mdm.build.web.dir}/secure"/>
+                                		</copy>
+                                	</target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                     </plugin>
+                </plugins>
+            </build>                
+    	</profile>
+    </profiles>
+    
 </project>

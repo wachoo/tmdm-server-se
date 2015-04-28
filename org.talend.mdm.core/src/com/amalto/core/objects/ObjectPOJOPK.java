@@ -14,7 +14,7 @@ public class ObjectPOJOPK implements Serializable{
 	}
 
 	public ObjectPOJOPK (String uniqueid) {
-		this(uniqueid == null ? null : uniqueid.split("\\.\\."));
+        this(uniqueid == null ? null : uniqueid.split("\\.\\.")); //$NON-NLS-1$
 	}
 
 	/**
@@ -31,8 +31,9 @@ public class ObjectPOJOPK implements Serializable{
 		this.ids = ids;
 	}
 
-	public String toString() {
-		return Util.joinStrings(ids, "");
+	@Override
+    public String toString() {
+        return Util.joinStrings(ids, ".."); //$NON-NLS-1$
 	}
 
 	public String getUniqueId() {

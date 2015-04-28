@@ -16,7 +16,6 @@
         <item>stagingarea.Stagingarea</item>
         <item>datastewardship.Datastewardship</item>
         <item>workflowtasks.BonitaWorkflowTasks</item>
-        <item>workflowtasks.WorkflowTasks</item>
         <item>crossreference.CrossReference</item>
     </groupitem>
     <groupitem en="Administration" fr="Administration" ru="Администрирование">

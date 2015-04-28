@@ -12,44 +12,26 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client.widget;
 
-import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 public class StartPortlet extends BasePortlet {
 
     public StartPortlet(MainFramePanel portal) {
-        super(WelcomePortal.START, portal);
-
+        super(PortletConstants.START_NAME, portal);
+        setIcon(AbstractImagePrototype.create(Icons.INSTANCE.start()));
+        setHeading(MessagesFactory.getMessages().start_title());
         label.setText(MessagesFactory.getMessages().useful_links_desc());
-
         this.getHeader().removeTool(refreshBtn);
-        this.getHeader().addTool(new ToolButton("x-tool-refresh", new SelectionListener<IconButtonEvent>() { //$NON-NLS-1$
-
-                    @Override
-                    public void componentSelected(IconButtonEvent ce) {
-                        service.getMenuLabel(UrlUtil.getLanguage(), WelcomePortal.BROWSEAPP,
-                                new SessionAwareAsyncCallback<String>() {
-
-                                    @Override
-                                    public void onSuccess(String id) {
-                                        refresh();
-                                    }
-                                });
-                    }
-
-                }));
-
-        initLinks();
+        initPortlet();
     }
 
     @Override
@@ -58,46 +40,35 @@ public class StartPortlet extends BasePortlet {
         return;
     }
 
-    private void initLinks() {
-        service.getMenuLabel(UrlUtil.getLanguage(), WelcomePortal.BROWSEAPP, new SessionAwareAsyncCallback<String>() {
+    private void initPortlet() {
+        StringBuilder browseRecordsItem = new StringBuilder(
+                "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().browse_items() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+        browseRecordsItem.append("<IMG SRC=\"/talendmdm/secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
+        browseRecordsItem.append(MessagesFactory.getMessages().browse_items());
+        browseRecordsItem.append("</span>"); //$NON-NLS-1$
+        HTML browseHtml = new HTML(browseRecordsItem.toString());
+        browseHtml.addClickHandler(new ClickHandler() {
 
             @Override
-            public void onSuccess(String id) {
-
-                StringBuilder sb1 = new StringBuilder(
-                        "<span id=\"ItemsBrowser\" style=\"padding-right:8px;cursor: pointer; width:150;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().browse_items() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-                sb1.append("<IMG SRC=\"secure/img/menu/browse.png\"/>&nbsp;"); //$NON-NLS-1$
-                sb1.append(MessagesFactory.getMessages().browse_items());
-                sb1.append("</span>"); //$NON-NLS-1$
-                HTML browseHtml = new HTML(sb1.toString());
-                browseHtml.addClickHandler(new ClickHandler() {
-
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        portal.itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
-                    }
-
-                });
-                set.add(browseHtml);
-                StringBuilder sb2 = new StringBuilder(
-                        "<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().journal() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-                sb2.append("<IMG SRC=\"secure/img/menu/updatereport.png\"/>&nbsp;"); //$NON-NLS-1$
-                sb2.append(MessagesFactory.getMessages().journal());
-                sb2.append("</span>"); //$NON-NLS-1$
-                HTML journalHtml = new HTML(sb2.toString());
-                journalHtml.addClickHandler(new ClickHandler() {
-
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        portal.itemClick(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
-                    }
-
-                });
-
-                set.add(journalHtml);
-                set.layout(true);
+            public void onClick(ClickEvent event) {
+                portal.itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
             }
         });
-    }
+        fieldSet.add(browseHtml);
+        StringBuilder journalItem = new StringBuilder(
+                "<span id=\"Journal\" style=\"padding-right:8px;cursor: pointer; width:150;\" class=\"labelStyle\" title=\"" + MessagesFactory.getMessages().journal() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+        journalItem.append("<IMG SRC=\"/talendmdm/secure/img/menu/updatereport.png\"/>&nbsp;"); //$NON-NLS-1$
+        journalItem.append(MessagesFactory.getMessages().journal());
+        journalItem.append("</span>"); //$NON-NLS-1$
+        HTML journalHtml = new HTML(journalItem.toString());
+        journalHtml.addClickHandler(new ClickHandler() {
 
+            @Override
+            public void onClick(ClickEvent event) {
+                portal.itemClick(WelcomePortal.JOURNALCONTEXT, WelcomePortal.JOURNALAPP);
+            }
+        });
+        fieldSet.add(journalHtml);
+        fieldSet.layout(true);
+    }
 }

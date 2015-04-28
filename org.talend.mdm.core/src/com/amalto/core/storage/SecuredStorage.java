@@ -10,17 +10,18 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.query.user.Expression;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.transaction.StorageTransaction;
+import java.util.Set;
+
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
-import java.util.Set;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.transaction.StorageTransaction;
 
 public class SecuredStorage implements Storage {
 
@@ -30,8 +31,9 @@ public class SecuredStorage implements Storage {
 
     /**
      * Interface to handle user visibility rules.
+     * @see #UNSECURED
      */
-    public static interface UserDelegator {
+    public interface UserDelegator {
 
         /**
          * @param field A field in data model.
@@ -45,6 +47,21 @@ public class SecuredStorage implements Storage {
          */
         boolean hide(ComplexTypeMetadata type);
     }
+
+    /**
+     * A {@link com.amalto.core.storage.SecuredStorage.UserDelegator delegator} implementation that always allows
+     * display of fields and types.
+     */
+    public static final UserDelegator UNSECURED = new SecuredStorage.UserDelegator() {
+
+        public boolean hide(FieldMetadata field) {
+            return false;
+        }
+
+        public boolean hide(ComplexTypeMetadata type) {
+            return false;
+        }
+    };
 
     public SecuredStorage(Storage delegate, UserDelegator delegator) {
         this.delegate = delegate;

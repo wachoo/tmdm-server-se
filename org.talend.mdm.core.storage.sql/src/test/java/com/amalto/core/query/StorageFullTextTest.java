@@ -50,9 +50,13 @@ public class StorageFullTextTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>1</Id>\n"
-                + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
+                + "    <Name>ProductFamily1</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
-                + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
+                + "    <Name>ProductFamily2</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>3</Id>\n"
+                + "    <Name>ProductFamily3</Name>\n" + "</ProductFamily>"));
+        allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>4</Id>\n"
+                + "    <Name>ProductFamily4</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>1</Id>\n" + "    <Name>talend</Name>\n"
                 + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
@@ -127,6 +131,19 @@ public class StorageFullTextTest extends StorageTestCase {
         super.setUp();
     }
 
+    public void testNumericQueryMix() throws Exception {
+        UserQueryBuilder qb = from(product).where(fullText("2"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            for (DataRecord result : results) {
+                LOG.info("result = " + result);
+            }
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
     public void testMatchesInSameInstance() throws Exception {
         UserQueryBuilder qb = from(country).where(fullText("2010"));
         StorageResults results = storage.fetch(qb.getSelect());
@@ -199,6 +216,40 @@ public class StorageFullTextTest extends StorageTestCase {
         }
     }
 
+    public void testSimpleSearchOrderByWithContainsCondition() throws Exception {
+        // Order by "Id" field
+        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "Product"))
+                .orderBy(productFamily.getField("Id"), OrderBy.Direction.DESC);
+
+        StorageResults records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(4, records.getCount());
+            int currentId = Integer.MAX_VALUE;
+            for (DataRecord record : records) {
+                Integer id = Integer.parseInt((String) record.get("Id"));
+                assertTrue(id < currentId);
+                currentId = id;
+            }            
+        }  finally {
+            records.close();
+        }
+        // Order by "Name" field
+        qb = from(productFamily).where(contains(productFamily.getField("Name"), "Product")).orderBy(
+                productFamily.getField("Name"), OrderBy.Direction.DESC);
+
+        records = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(4, records.getCount());
+            int currentId = Integer.MAX_VALUE;
+            for (DataRecord record : records) {
+                Integer id = Integer.parseInt((String) record.get("Id"));
+                assertTrue(id < currentId);
+                currentId = id;
+            }
+        }  finally {
+            records.close();
+        }
+    }
     public void testMultipleTypesSearch() throws Exception {
         UserQueryBuilder qb = from(supplier).and(product).where(fullText("Renault"));
 

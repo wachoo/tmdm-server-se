@@ -94,9 +94,10 @@ public class ControllerServlet extends HttpServlet {
         html.append("<html>\n");
         html.append("<head>\n");
         html.append("<title>Talend MDM</title>\n");
-        html.append("<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,200italic,300italic,400italic,600italic,700italic,900italic' rel='stylesheet' type='text/css'>");
         html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>\n");
         html.append("<meta http-equiv='X-UA-Compatible' content='IE=8'>\n");
+        html.append("<link rel='shortcut icon' href='auth/favicon.ico'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='auth/googleapi/fonts.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='secure/gxt/resources/css/gxt-all.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='General.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='General-menus.css'/>\n");
@@ -110,13 +111,20 @@ public class ControllerServlet extends HttpServlet {
         for (String js : imports) {
             html.append(js);
         }
-        // Custom CSS entry point
-        String customCssUrl = MDMConfiguration.getConfiguration().getProperty("mdm.custom.css.url");
-        if (customCssUrl != null) {
-            html.append("<link rel='stylesheet' type='text/css' href='").append(customCssUrl).append("'/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+        
+        html.append("<link rel='stylesheet' type='text/css' href='secure/css/mdm.css'/>\n");
+        // Custom HTML
+        String customHtml = MDMConfiguration.getConfiguration().getProperty("mdm.custom.html");
+        if (customHtml != null) {
+            html.append(customHtml);
         }
         html.append("</head>");
         html.append("<body style=\"-moz-user-select: -moz-none\">");
+        html.append("<div id='loading'>");
+        html.append("<div class='loading-indicator'>");
+        html.append("<img src='secure/gxt/resources/images/default/shared/large-loading.gif' width='32' height='32' style='margin-right:8px;float:left;vertical-align:top;'/>");
+        html.append("</div>");
+        html.append("</div>");
         html.append("<iframe src=\"javascript:''\" id='__gwt_historyFrame' tabIndex='-1' style='position:absolute;width:0;height:0;border:0'></iframe>");
         html.append("</body>");
         return html.toString();

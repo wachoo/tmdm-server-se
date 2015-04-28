@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.amalto.core.storage.StagingStorage;
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContext;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
@@ -143,6 +144,13 @@ public class StagingTask implements Task {
             }
         }
         return false;
+    }
+
+    @Override
+    public void setSecurityContext(SecurityContext context) {
+        for (Task task : tasks) {
+            task.setSecurityContext(context);
+        }
     }
 
     @Override

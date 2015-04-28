@@ -12,19 +12,15 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.client.widget;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalServiceAsync;
-import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.BaseConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
-import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.welcomeportal.client.widget.PortletConfigDialog.PortletConfigListener;
 
 import com.extjs.gxt.ui.client.Registry;
@@ -36,34 +32,8 @@ import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 public abstract class BasePortlet extends Portlet {
-
-    private static Map<String, String> titles;
-
-    private static Map<String, AbstractImagePrototype> icons;
-
-    static {
-        titles = new HashMap<String, String>(8);
-        titles.put(WelcomePortal.START, MessagesFactory.getMessages().start_title());
-        titles.put(WelcomePortal.ALERT, MessagesFactory.getMessages().alerts_title());
-        titles.put(WelcomePortal.TASKS, MessagesFactory.getMessages().tasks_title());
-        titles.put(WelcomePortal.PROCESS, MessagesFactory.getMessages().process_title());
-        titles.put(WelcomePortal.SEARCH, MessagesFactory.getMessages().search_title());
-        titles.put(WelcomePortal.CHART_DATA, MessagesFactory.getMessages().chart_data_title());
-        titles.put(WelcomePortal.CHART_JOURNAL, MessagesFactory.getMessages().chart_journal_title());
-        titles.put(WelcomePortal.CHART_ROUTING_EVENT, MessagesFactory.getMessages().chart_routing_event_title());
-        titles.put(WelcomePortal.CHART_MATCHING, MessagesFactory.getMessages().chart_matching_title());
-
-        icons = new HashMap<String, AbstractImagePrototype>(5);
-        icons.put(WelcomePortal.START, AbstractImagePrototype.create(Icons.INSTANCE.start()));
-        icons.put(WelcomePortal.ALERT, AbstractImagePrototype.create(Icons.INSTANCE.alert()));
-        icons.put(WelcomePortal.TASKS, AbstractImagePrototype.create(Icons.INSTANCE.task()));
-        icons.put(WelcomePortal.PROCESS, AbstractImagePrototype.create(Icons.INSTANCE.transformer()));
-        icons.put(WelcomePortal.SEARCH, AbstractImagePrototype.create(Icons.INSTANCE.find()));
-
-    }
 
     protected WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
 
@@ -73,7 +43,7 @@ public abstract class BasePortlet extends Portlet {
 
     protected Label label;
 
-    protected FieldSet set;
+    protected FieldSet fieldSet;
 
     protected Timer autoRefresher;
 
@@ -107,10 +77,8 @@ public abstract class BasePortlet extends Portlet {
                     public void componentSelected(IconButtonEvent ce) {
                         final List<BasePortlet> portlets = portal.getPortlets();
                         final int index = portlets.indexOf(BasePortlet.this);
-
-                        portal.removeAllPortlets();
                         portlets.remove(index);
-                        portal.refresh();
+                        portal.remove(BasePortlet.this, portal.getPortletColumn(BasePortlet.this));
                         String portletToLocationsStr = portal.getUpdatedLocations().toString();
 
                         service.savePortalConfig(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocationsStr,
@@ -119,7 +87,7 @@ public abstract class BasePortlet extends Portlet {
                                     @Override
                                     public void onSuccess(Void result1) {
                                         portal.render();
-                                        unmarkPortlet(portletName);
+                                        unmarkPortlet(portletName, false);
                                         boolean auto = BasePortlet.this.isAutoOn();
                                         if (auto) {
                                             BasePortlet.this.autoRefresh(false);
@@ -169,17 +137,14 @@ public abstract class BasePortlet extends Portlet {
         label.setAutoHeight(true);
         this.add(label);
 
-        set = new FieldSet();
-        set.setItemId(name + "Set"); //$NON-NLS-1$
-        set.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
-        set.setStyleAttribute("margin-left", "10px");//$NON-NLS-1$ //$NON-NLS-2$
-        set.setStyleAttribute("margin-right", "10px");//$NON-NLS-1$ //$NON-NLS-2$
-        set.setBorders(false);
+        fieldSet = new FieldSet();
+        fieldSet.setItemId(name + "Set"); //$NON-NLS-1$
+        fieldSet.setStyleAttribute("padding", "5px"); //$NON-NLS-1$ //$NON-NLS-2$
+        fieldSet.setStyleAttribute("margin-left", "10px");//$NON-NLS-1$ //$NON-NLS-2$
+        fieldSet.setStyleAttribute("margin-right", "10px");//$NON-NLS-1$ //$NON-NLS-2$
+        fieldSet.setBorders(false);
 
-        this.add(set);
-
-        this.setHeading();
-        this.setIcon();
+        this.add(fieldSet);
 
         portalConfigs = portal.getProps();
         Boolean autoRefreshOn = portalConfigs.getAutoRefreshStatus(portletName);
@@ -261,14 +226,6 @@ public abstract class BasePortlet extends Portlet {
 
     }
 
-    protected void setHeading() {
-        this.setHeading(titles.get(portletName));
-    }
-
-    protected void setIcon() {
-        this.setIcon(icons.get(portletName));
-    }
-
     public boolean isAutoOn() {
         return this.autoOn;
     }
@@ -289,7 +246,7 @@ public abstract class BasePortlet extends Portlet {
         return this.portletName;
     }
 
-    private native void unmarkPortlet(String name)/*-{
-		$wnd.amalto.core.unmarkPortlet(name);
+    private native void unmarkPortlet(String name, boolean value)/*-{
+		$wnd.amalto.core.unmarkPortlet(name, value);
     }-*/;
 }

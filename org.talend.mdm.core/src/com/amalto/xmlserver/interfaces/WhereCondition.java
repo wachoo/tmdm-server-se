@@ -16,9 +16,11 @@
  */
 package com.amalto.xmlserver.interfaces;
 
-import org.w3c.dom.Document;
-
 import java.io.Serializable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.w3c.dom.Document;
 
 /**
  * @author Bruno Grieder
@@ -28,57 +30,57 @@ import java.io.Serializable;
  */
 public class WhereCondition implements IWhereItem, Serializable {
 
-    public static final String FULLTEXTSEARCH        = "FULLTEXTSEARCH";
+    public static final String FULLTEXTSEARCH = "FULLTEXTSEARCH";
 
-    public static final String CONTAINS              = "CONTAINS";
+    public static final String CONTAINS = "CONTAINS";
 
-    public static final String EQUALS                = "=";
+    public static final String EQUALS = "=";
 
-    public static final String NOT_EQUALS            = "!=";
+    public static final String NOT_EQUALS = "!=";
 
-    public static final String GREATER_THAN          = ">";
+    public static final String GREATER_THAN = ">";
 
     public static final String GREATER_THAN_OR_EQUAL = ">=";
 
-    public static final String LOWER_THAN            = "<";
+    public static final String LOWER_THAN = "<";
 
-    public static final String LOWER_THAN_OR_EQUAL   = "<=";
+    public static final String LOWER_THAN_OR_EQUAL = "<=";
 
-    public static final String NO_OPERATOR           = "NO OP";
+    public static final String NO_OPERATOR = "NO OP";
 
-    public static final String PRE_NONE              = "&";               // default
+    public static final String PRE_NONE = "&"; // default
 
-    public static final String PRE_OR                = "|";
+    public static final String PRE_OR = "|";
 
-    public static final String PRE_AND               = "&";
+    public static final String PRE_AND = "&";
 
-    public static final String PRE_STRICTAND         = "+";
+    public static final String PRE_STRICTAND = "+";
 
-    public static final String PRE_EXACTLY           = "=";
+    public static final String PRE_EXACTLY = "=";
 
-    public static final String PRE_NOT               = "!";
+    public static final String PRE_NOT = "!";
 
-    public static String       STRICTCONTAINS        = "STRICTCONTAINS";
+    public static String STRICTCONTAINS = "STRICTCONTAINS";
 
-    public static String       STARTSWITH            = "STARTSWITH";
+    public static String STARTSWITH = "STARTSWITH";
 
-    public static String       JOINS                 = "JOINS";
+    public static String JOINS = "JOINS";
 
-    public static String       CONTAINS_TEXT_OF      = "CONTAINS_TEXT_OF";
+    public static String CONTAINS_TEXT_OF = "CONTAINS_TEXT_OF";
 
-    public static String       EMPTY_NULL            = "Is Empty Or Null";
+    public static String EMPTY_NULL = "Is Empty Or Null";
 
-    String                     leftPath;
+    String leftPath;
 
-    String                     operator;
+    String operator;
 
-    String                     rightValueOrPath;
+    String rightValueOrPath;
 
-    String                     stringPredicate;
+    String stringPredicate;
 
-    boolean                    spellCheck;
+    boolean spellCheck;
 
-    private boolean            isRightValueXPath;
+    private boolean isRightValueXPath;
 
     public WhereCondition() {
     }
@@ -99,10 +101,11 @@ public class WhereCondition implements IWhereItem, Serializable {
     public static WhereCondition deserialize(String xml) throws XmlServerException {
         try {
             Document d = com.amalto.core.util.Util.parse(xml);
-            return new WhereCondition(com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./leftpath"), com.amalto.core.util.Util.getFirstTextNode(
-                    d.getDocumentElement(), "./operator"), com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./rightvalueorpath"),
-                    com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./stringpredicate"), "yes".equals(com.amalto.core.util.Util.getFirstTextNode(
-                            d.getDocumentElement(), "./spellcheck")));
+            return new WhereCondition(com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./leftpath"),
+                    com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./operator"),
+                    com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./rightvalueorpath"),
+                    com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./stringpredicate"),
+                    "yes".equals(com.amalto.core.util.Util.getFirstTextNode(d.getDocumentElement(), "./spellcheck")));
         } catch (Exception e) {
             throw new XmlServerException(e);
         }
@@ -133,13 +136,28 @@ public class WhereCondition implements IWhereItem, Serializable {
         // Quoted values (either simple or double) are considered as literal values
         // TODO To be refactored to support true literal/Xpath differentiation
         if (rightValueOrPath != null) {
-            if (rightValueOrPath.length() > 1 && ((rightValueOrPath.startsWith("\"") && rightValueOrPath.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
-                    || (rightValueOrPath.startsWith("'") && rightValueOrPath.endsWith("'")))) { //$NON-NLS-1$ //$NON-NLS-2$
+            Pattern multiLanguageValuePattern = Pattern.compile("(?<=\\*\\[[a-zA-Z]{2}:)(.+?)(?=\\*\\]\\*)"); //$NON-NLS-1$
+            Matcher multiLanguageValueMatcher = multiLanguageValuePattern.matcher(rightValueOrPath);
+            boolean isMultiLanguageValue = multiLanguageValueMatcher.find();
+            String tempValue = isMultiLanguageValue ? multiLanguageValueMatcher.group().startsWith("*") ? multiLanguageValueMatcher //$NON-NLS-1$
+                    .group().substring(1)
+                    : multiLanguageValueMatcher.group()
+                    : rightValueOrPath;
+            if (tempValue.length() > 1 && ((tempValue.startsWith("\"") && tempValue.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
+                    || (tempValue.startsWith("'") && tempValue.endsWith("'")))) { //$NON-NLS-1$ //$NON-NLS-2$
                 isRightValueXPath = false;
-                rightValueOrPath = rightValueOrPath.substring(1, rightValueOrPath.length() - 1);
-                // Escape any potential '\' character
-                rightValueOrPath = rightValueOrPath.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
-            } else if (rightValueOrPath.contains("/")) { //$NON-NLS-1$
+                if (isMultiLanguageValue) {
+                    String orignalTempValue = tempValue;
+                    tempValue = tempValue.substring(1, tempValue.length() - 1);
+                    // Escape any potential '\' character
+                    tempValue = tempValue.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+                    rightValueOrPath = rightValueOrPath.replace(orignalTempValue, tempValue);
+                } else {
+                    tempValue = tempValue.substring(1, tempValue.length() - 1);
+                    // Escape any potential '\' character
+                    rightValueOrPath = tempValue.replaceAll("\\\\", "\\\\\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+            } else if (tempValue.contains("/")) { //$NON-NLS-1$
                 isRightValueXPath = true;
             }
         }
@@ -187,6 +205,7 @@ public class WhereCondition implements IWhereItem, Serializable {
                 + "	<spellcheck>" + (spellCheck ? "yes" : "no") + "</spellcheck>" + "</wherecondition>";
     }
 
+    @Override
     public String toString() {
         return "(" + getLeftPath() + " " + getOperator() + " " + getRightValueOrPath() + " " + getStringPredicate() + " "
                 + isSpellCheck() + ")";

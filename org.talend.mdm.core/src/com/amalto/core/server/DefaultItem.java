@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.server;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
@@ -69,6 +81,17 @@ public class DefaultItem implements Item {
         String schema = dataModel == null ? null : dataModel.getSchema();
         String dataModelName = dataModel == null ? null : dataModel.getName();
         return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().putItem(item, schema, dataModelName);
+    }
+    
+    /**
+     * Updates a item taskId. Is equivalent to {@link #putItem(ItemPOJO, DataModelPOJO)}.
+     *
+     * @param item The item to update
+     * @throws XtentisException In case of error in MDM code.
+     * @return A PK to the updated item.
+     */
+    public ItemPOJOPK updateItemMetadata(ItemPOJO item) throws XtentisException {
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().putItem(item, null, null);
     }
 
     /**

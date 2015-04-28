@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.mdm.webapp.welcomeportal.server.actions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.shared.Constants;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.WelcomePortalService;
@@ -66,7 +66,7 @@ public class WelcomePortalAction implements WelcomePortalService {
 
     /**
      * check if is show license link.
-     *
+     * 
      * @return
      */
     @Override
@@ -76,7 +76,7 @@ public class WelcomePortalAction implements WelcomePortalService {
 
     /**
      * check if is show workflow task link.
-     *
+     * 
      * @return
      */
     @Override
@@ -86,7 +86,7 @@ public class WelcomePortalAction implements WelcomePortalService {
 
     /**
      * check if is show dsc task link.
-     *
+     * 
      * @return
      */
     @Override
@@ -101,26 +101,9 @@ public class WelcomePortalAction implements WelcomePortalService {
         return wstransformerpk.startsWith(STANDALONE_PROCESS_PREFIX);
     }
 
-    private String getDescriptionByLau(String language, String description) {
-        Map<String, String> des = new HashMap<String, String>();
-
-        for (int i = 0; i < description.length(); i++) {
-            if ('[' == description.charAt(i)) {
-                for (int j = i; j < description.length(); j++) {
-                    if (']' == description.charAt(j)) {
-                        String[] de = description.substring(i + 1, j).split(":"); //$NON-NLS-1$
-                        des.put(de[0].toLowerCase(), de[1]);
-                        break;
-                    }
-                }
-            }
-        }
-        return des.get(language.toLowerCase());
-    }
-
     /**
      * check if is show specify menu.
-     *
+     * 
      * @param menu
      * @return
      */
@@ -142,7 +125,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     @Override
-    public String getAlertMsg(String language) throws ServiceException {
+    public int getAlert(String language) throws ServiceException {
         try {
             ServerAccess.ServerAccessInfo info = Webapp.INSTANCE.getInfo();
             if (info.getLicense() == null) {
@@ -150,10 +133,10 @@ public class WelcomePortalAction implements WelcomePortalService {
             } else if (!info.isLicenseValid()) {
                 return WelcomePortal.EXPIREDLICENSE;
             }
-            return null;
+            return 0;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            return e.getMessage();
+            throw new ServiceException(e.getLocalizedMessage());
         }
     }
 
@@ -178,7 +161,7 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     @Override
-    public Map<String, Integer> getDSCTaskMsg() {       
+    public Map<String, Integer> getDSCTaskMsg() {
         Map<String, Integer> taskStatus = new HashMap<String, Integer>();
         int[] taskCounts = Webapp.INSTANCE.getDSCTasksCount();
         taskStatus.put("new", taskCounts[0]); //$NON-NLS-1$
@@ -187,27 +170,18 @@ public class WelcomePortalAction implements WelcomePortalService {
     }
 
     @Override
-    public List<String> getStandaloneProcess(String language) throws ServiceException {
+    public Map<String, String> getStandaloneProcess(String language) throws ServiceException {
         try {
-            List<String> process = new ArrayList<String>();
-
+            Map<String, String> processMap = new HashMap<String, String>();
             WSTransformerV2PK[] wst = Util.getPort().getTransformerV2PKs(new WSGetTransformerV2PKs("*")).getWsTransformerV2PK(); //$NON-NLS-1$
-
             for (WSTransformerV2PK wstransformerpk : wst) {
                 if (isStandaloneProcess(wstransformerpk.getPk())) {
-                	WSTransformerV2 wsTransformer = Util.getPort().getTransformerV2(new WSGetTransformerV2(wstransformerpk));
-                    // add transformer pk, and then add its desc
-                    process.add(wstransformerpk.getPk());
-                    String desc = getDescriptionByLau(language, wsTransformer.getDescription());
-                    if (desc == null || desc.equals("")) { //$NON-NLS-1$
-                        process.add(wstransformerpk.getPk());
-                    } else {
-                        process.add(desc);
-                    }
+                    WSTransformerV2 wsTransformer = Util.getPort().getTransformerV2(new WSGetTransformerV2(wstransformerpk));
+                    processMap.put(wstransformerpk.getPk(),
+                            MultilanguageMessageParser.pickOutISOMessage(wsTransformer.getDescription(), language));
                 }
             }
-            return process;
-
+            return processMap;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -284,7 +258,7 @@ public class WelcomePortalAction implements WelcomePortalService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
-    
+
     @Override
     public Map<Boolean, Integer> getWelcomePortletConfig() throws Exception {
         return Webapp.INSTANCE.getWelcomePortletConfig();
@@ -318,6 +292,9 @@ public class WelcomePortalAction implements WelcomePortalService {
     public void savePortalConfig(PortalProperties config) throws ServiceException {
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            if(!Util.userCanWrite(user)) {
+                return;
+            }
             User parsedUser = User.parse(user.getUserXML());
             Map<String, String> properties = parsedUser.getProperties();
             String value;
@@ -346,6 +323,9 @@ public class WelcomePortalAction implements WelcomePortalService {
     public void savePortalConfig(String key, String value) throws ServiceException {
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            if(!Util.userCanWrite(user)) {
+                return;
+            }
             User parsedUser = User.parse(user.getUserXML());
             Map<String, String> properties = parsedUser.getProperties();
 
@@ -366,6 +346,9 @@ public class WelcomePortalAction implements WelcomePortalService {
     public void savePortalConfig(String key, String portletName, String value) throws ServiceException {
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            if(!Util.userCanWrite(user)) {
+                return;
+            }
             User parsedUser = User.parse(user.getUserXML());
             Map<String, String> properties = parsedUser.getProperties();
 
@@ -391,6 +374,9 @@ public class WelcomePortalAction implements WelcomePortalService {
         assert configs.size() == 2;
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            if(!Util.userCanWrite(user)) {
+                return;
+            }
             User parsedUser = User.parse(user.getUserXML());
             Map<String, String> properties = parsedUser.getProperties();
 

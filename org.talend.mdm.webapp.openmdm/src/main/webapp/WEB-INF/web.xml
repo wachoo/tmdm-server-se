@@ -233,6 +233,7 @@
     <servlet-mapping>
         <servlet-name>baseRemoteServlet</servlet-name>
         <url-pattern>/browserecords/BaseRemoteService</url-pattern>
+        <url-pattern>/browserecordsinstaging/BaseRemoteService</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>readExcelFile</servlet-name>
@@ -325,6 +326,7 @@
     <servlet-mapping>
         <servlet-name>ImageUploadServlet</servlet-name>
         <url-pattern>/imageserver/ImageUploadServlet</url-pattern>
+        <url-pattern>/services/imageserver/ImageUploadServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageDeleteServlet</servlet-name>

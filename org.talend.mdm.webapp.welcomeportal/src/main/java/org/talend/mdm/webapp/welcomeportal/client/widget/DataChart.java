@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
-import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
@@ -66,8 +66,8 @@ public class DataChart extends ChartPortlet {
     Map<String, Double> percentageValueMap = new HashMap<String, Double>();
 
     public DataChart(MainFramePanel portal) {
-        super(WelcomePortal.CHART_DATA, portal);
-
+        super(PortletConstants.DATA_CHART_NAME, portal);
+        setHeading(MessagesFactory.getMessages().chart_data_title());
         String setting = portalConfigs.getChartSetting(portletName);
         if (setting != null) {
             configModel = new EntityConfigModel(startedAsOn, setting);
@@ -110,8 +110,8 @@ public class DataChart extends ChartPortlet {
                     noDCAlertMsg.append(MessagesFactory.getMessages().no_container());
                     noDCAlertMsg.append("</span>"); //$NON-NLS-1$
                     alertHtml.setHTML(noDCAlertMsg.toString());
-                    set.add(alertHtml);
-                    set.layout(true);
+                    fieldSet.add(alertHtml);
+                    fieldSet.layout(true);
                 }
             }
 

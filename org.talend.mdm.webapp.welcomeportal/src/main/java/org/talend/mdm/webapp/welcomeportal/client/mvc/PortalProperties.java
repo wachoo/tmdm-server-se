@@ -14,7 +14,6 @@ package org.talend.mdm.webapp.welcomeportal.client.mvc;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +27,6 @@ public class PortalProperties implements IsSerializable {
     public static final String KEY_PORTLET_LOCATIONS = "mdm_pref_portletLocations"; //$NON-NLS-1$
 
     public static final String KEY_COLUMN_NUM = "mdm_pref_columnNum"; //$NON-NLS-1$
-
-    public static final String KEY_ALL_PORTLETS = "mdm_pref_allPortlets"; //$NON-NLS-1$
 
     public static final String KEY_AUTO_ONOFFS = "mdm_pref_autoOnOffs"; //$NON-NLS-1$
 
@@ -109,16 +106,6 @@ public class PortalProperties implements IsSerializable {
             return null;
         } else {
             return Integer.parseInt(columnNumStr);
-        }
-    }
-
-    public Set<String> getAllPortlets() {
-        String allPortletsStr = configProperties.get(KEY_ALL_PORTLETS);
-        if (allPortletsStr != null) {
-            String chartNames = allPortletsStr.substring(1, allPortletsStr.length() - 1);
-            return new HashSet<String>(Arrays.asList(chartNames.split(", "))); //$NON-NLS-1$
-        } else {
-            return null;
         }
     }
 

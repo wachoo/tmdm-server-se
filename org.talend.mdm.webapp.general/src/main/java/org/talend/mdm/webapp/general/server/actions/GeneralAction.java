@@ -22,6 +22,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
@@ -166,7 +168,7 @@ public class GeneralAction implements GeneralService {
     }
 
     @Override
-    public UserBean getUsernameAndUniverse() throws ServiceException {
+    public UserBean getUser() throws ServiceException {
         try {
             UserBean userBean = new UserBean();
             userBean.setEnterprise(com.amalto.core.util.Util.isEnterprise());
@@ -174,7 +176,6 @@ public class GeneralAction implements GeneralService {
                 // TMDM-7629 init locaUser cache
                 String userName = LocalUser.getLocalUser().getUsername();
                 userBean.setName(userName);
-                userBean.setUniverse("UNKNOWN"); //$NON-NLS-1$
                 WSItem item = Util.getPort().getItem(
                         new WSGetItem(new WSItemPK(new WSDataClusterPK("PROVISIONING"), "User", new String[] { userName }))); //$NON-NLS-1$ //$NON-NLS-2$
                 ILocalUser iUser = LocalUser.getLocalUser();
@@ -266,6 +267,9 @@ public class GeneralAction implements GeneralService {
             if (session != null) {
                 session.invalidate();
             }
+            SecurityContext context = SecurityContextHolder.getContext();
+            context.setAuthentication(null);
+            SecurityContextHolder.clearContext();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

@@ -77,14 +77,14 @@ public class General implements EntryPoint {
     }-*/;
 
     public native void registerPortalConfigService()/*-{
-		var actionsPanel = @org.talend.mdm.webapp.general.client.layout.ActionsPanel::getInstance()();
+		var portletConfigFieldSet = @org.talend.mdm.webapp.general.client.layout.PortletConfigFieldSet::getInstance()();
 
 		$wnd.amalto.core.markPortlets = function(configs, allCharts) {
-			actionsPanel.@org.talend.mdm.webapp.general.client.layout.ActionsPanel::updatePortletConfig(Ljava/lang/String;)(configs);
+			portletConfigFieldSet.@org.talend.mdm.webapp.general.client.layout.PortletConfigFieldSet::updatePortletConfig(Ljava/lang/String;)(configs);
 		};
 
-		$wnd.amalto.core.unmarkPortlet = function(name) {
-			actionsPanel.@org.talend.mdm.webapp.general.client.layout.ActionsPanel::uncheckPortlet(Ljava/lang/String;)(name);
+		$wnd.amalto.core.unmarkPortlet = function(name, value) {
+			portletConfigFieldSet.@org.talend.mdm.webapp.general.client.layout.PortletConfigFieldSet::updateWidgetCheckBox(Ljava/lang/String;Ljava/lang/Boolean;)(name,value);
 		};
     }-*/;
 

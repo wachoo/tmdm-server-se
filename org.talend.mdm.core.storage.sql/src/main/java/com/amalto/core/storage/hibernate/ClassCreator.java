@@ -12,14 +12,14 @@ package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.HibernateMetadataUtils;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
 import javassist.*;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
-import javassist.bytecode.annotation.Annotation;
-import javassist.bytecode.annotation.AnnotationMemberValue;
-import javassist.bytecode.annotation.ClassMemberValue;
-import javassist.bytecode.annotation.EnumMemberValue;
+import javassist.bytecode.Descriptor;
+import javassist.bytecode.annotation.*;
+import org.hibernate.bytecode.instrumentation.internal.javassist.JavassistHelper;
 import org.hibernate.search.annotations.*;
 import org.talend.mdm.commmon.metadata.*;
 
@@ -114,10 +114,6 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(cp, AnnotationsAttribute.visibleTag);
             Annotation indexedAnnotation = new Annotation(Indexed.class.getName(), cp);
             annotationsAttribute.setAnnotation(indexedAnnotation);
-
-            Annotation analyzerAnnotation = new Annotation(Analyzer.class.getName(), cp);
-            analyzerAnnotation.addMemberValue("impl", new ClassMemberValue(MDMStandardAnalyzer.class.getName(), cp)); //$NON-NLS-1$
-            annotationsAttribute.addAnnotation(analyzerAnnotation);
             classFile.addAttribute(annotationsAttribute);
 
             Collection<FieldMetadata> keyFields = complexType.getKeyFields();
@@ -204,14 +200,20 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             newClass.addMethod(getFieldsMethod);
 
             // Optimized setter
+            Map<String, CtMethod> nameToMethod = new HashMap<>();
+            CtMethod[] methods = newClass.getMethods();
+            for (CtMethod method : methods) {
+                nameToMethod.put(method.getName(), method);
+            }
             StringBuilder setFieldsMethodBody = new StringBuilder();
             setFieldsMethodBody.append("public void set(String name, Object value) {"); //$NON-NLS-1$
             fields = typeFields.iterator();
             while (fields.hasNext()) {
-                String fieldName = fields.next().getName();
+                FieldMetadata next = fields.next();
+                String fieldName = next.getName();
                 setFieldsMethodBody.append("if(\"").append(fieldName).append("\".equals(name)) {\n"); //$NON-NLS-1$ //$NON-NLS-2$
                 String setterName = "set" + fieldName; //$NON-NLS-1$
-                CtMethod setterMethod = newClass.getDeclaredMethod(setterName);
+                CtMethod setterMethod = nameToMethod.get(setterName);
                 setFieldsMethodBody
                         .append("\t").append(setterName).append("((").append(setterMethod.getParameterTypes()[0].getName()).append(") value);\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                 setFieldsMethodBody.append("}\n"); //$NON-NLS-1$
@@ -388,7 +390,9 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         }
         newField.setModifiers(Modifier.PUBLIC);
         CtMethod newGetter = CtNewMethod.getter("get" + name, newField); //$NON-NLS-1$
+        newGetter.setModifiers(Modifier.PUBLIC);
         CtMethod newSetter = CtNewMethod.setter("set" + name, newField); //$NON-NLS-1$
+        newSetter.setModifiers(Modifier.PUBLIC);
         to.addMethod(newSetter);
         to.addMethod(newGetter);
         to.addField(newField);
@@ -432,8 +436,10 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                         }
                     }
                 }
-                SearchIndexHandler handler = getHandler(metadata);
-                handler.handle(annotations, cp);
+                if (!metadata.isKey()) {
+                    SearchIndexHandler handler = getHandler(metadata);
+                    handler.handle(annotations, cp);
+                }
             }
             return null;
         } catch (Exception e) {
@@ -454,7 +460,11 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         if (!metadata.isMany() && validType) {
             for (String numberTypeName : Types.NUMBERS) {
                 if (numberTypeName.equals(type.getName())) {
-                    return new NumericSearchIndexHandler();
+                    if (metadata.getName().startsWith("x_talend")) {
+                        return new SystemNumericSearchIndexHandler();
+                    } else {
+                        return new UserNumericSearchIndexHandler();
+                    }
                 }
             }
             return new BasicSearchIndexHandler();
@@ -480,18 +490,40 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             storeValue.setType(Store.class.getName());
             storeValue.setValue(Store.YES.name());
             fieldAnnotation.addMemberValue("store", storeValue); //$NON-NLS-1$
-            // index = UN_TOKENIZED
+            // index = YES
             EnumMemberValue indexValue = new EnumMemberValue(pool);
             indexValue.setType(Index.class.getName());
-            indexValue.setValue(Index.UN_TOKENIZED.name());
+            indexValue.setValue(Index.YES.name());
             fieldAnnotation.addMemberValue("index", indexValue); //$NON-NLS-1$
             // Add annotation
             annotations.addAnnotation(fieldAnnotation);
-            // Code below is for Hibernate Search > 3.2
-            /*
-            Annotation fieldAnnotation = new Annotation(org.hibernate.search.annotations.NumericField.class.getName(), pool);
+        }
+    }
+
+    private static class UserNumericSearchIndexHandler extends NumericSearchIndexHandler {
+
+        @Override
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            super.handle(annotations, pool);
+            Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
+            // Bridge allows to store numeric values as string (allow mix of string and int values in a Lucene query).
+            // (see TMDM-8216).
+            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
+            fieldBridge.addMemberValue("impl", new ClassMemberValue(ToStringBridge.class.getName(), pool)); //$NON-NLS-1$
             annotations.addAnnotation(fieldAnnotation);
-            */
+            annotations.addAnnotation(fieldBridge);
+            // Add annotation
+            annotations.addAnnotation(fieldAnnotation);
+        }
+    }
+
+    private static class SystemNumericSearchIndexHandler extends UserNumericSearchIndexHandler {
+
+        @Override
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            super.handle(annotations, pool);
+            Annotation numericAnnotation = new Annotation(org.hibernate.search.annotations.NumericField.class.getName(), pool);
+            annotations.addAnnotation(numericAnnotation);
         }
     }
 

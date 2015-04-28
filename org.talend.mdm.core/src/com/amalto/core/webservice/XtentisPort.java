@@ -99,6 +99,8 @@ public interface XtentisPort extends java.rmi.Remote {
     public WSStringArray quickSearch(WSQuickSearch wsQuickSearch) throws RemoteException;
 
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException;
+    
+    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException;
 
     public WSBoolean existsRole(WSExistsRole wsExistsRole) throws RemoteException;
 
@@ -252,12 +254,10 @@ public interface XtentisPort extends java.rmi.Remote {
 
     public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException;
 
+    public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException;
+    
     public WSMDMJobArray getMDMJob(WSMDMNULL mdmJobRequest) throws RemoteException;
-
-    public WSBoolean putMDMJob(WSPUTMDMJob putMDMJobRequest) throws RemoteException;
-
-    public WSBoolean deleteMDMJob(WSDELMDMJob deleteMDMJobRequest) throws RemoteException;
-
+    
     public WSCategoryData getMDMCategory(WSCategoryData wsCategoryDataRequest) throws RemoteException;
 
     public WSAutoIncrement getAutoIncrement(WSAutoIncrement wsAutoIncrementRequest) throws RemoteException;

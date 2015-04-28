@@ -14,6 +14,7 @@ package com.amalto.core.storage.task;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.SaverSource;
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.storage.Storage;
 
@@ -76,10 +77,12 @@ public class TaskFactory {
                 committer,
                 stats,
                 filter));
-        return new StagingTask(TaskSubmitterFactory.getSubmitter(),
+        StagingTask stagingTask = new StagingTask(TaskSubmitterFactory.getSubmitter(),
                 stagingStorage,
                 stagingRepository,
                 tasks,
                 stats);
+        stagingTask.setSecurityContext(SecurityContextHolder.getContext());
+        return stagingTask;
     }
 }

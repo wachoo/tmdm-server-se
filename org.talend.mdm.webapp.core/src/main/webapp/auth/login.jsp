@@ -44,28 +44,8 @@
 <title>Talend MDM</title>
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
 <meta name="description" content="Talend MDM login page"/>
-<style>
-    body { 
-        background-color:#FFFFFF;
-    }
-    td { 
-        color:#000000;
-        font-family:verdana,arial,sans-serif;
-        font-size: 12px;
-        line-height:130%;
-    }
-    table.form {
-        background-color:#FFFFFF;
-        border-style: dashed;
-        border-color: green;
-        border-width: 1px;
-        font-family: Trebuchet MS, sans-serif;
-        padding-right:10px
-    }body {
-    margin: 0;
-}
-</style>
-
+<link rel="shortcut icon" href="<%=contextPath%>/auth/favicon.ico" />
+<link rel='stylesheet' type='text/css' href='<%= contextPath %>/auth/googleapi/fonts.css'/>
 <link rel="stylesheet" type="text/css" href="<%= contextPath %>/auth/loginPage.css"/>
 
 </head>

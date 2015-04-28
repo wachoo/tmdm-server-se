@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -149,6 +149,8 @@ import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOperator;
 import com.amalto.core.webservice.WSWhereOr;
 import com.amalto.core.webservice.WSXPathsSearch;
+import com.amalto.core.webservice.XtentisPort;
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
@@ -196,7 +198,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             try {
                 String dataClusterPK = getCurrentDataCluster();
                 String concept = item.getConcept();
-                String[] ids = getItemId(repository, item, concept);
+                String[] ids = getItemId(repository, item.getIds(), concept);
 
                 WSDeleteItemWithReport wsDeleteItem = new WSDeleteItemWithReport(new WSItemPK(new WSDataClusterPK(dataClusterPK),
                         concept, ids), "genericUI", //$NON-NLS-1$
@@ -259,14 +261,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return status;
     }
 
-    private String[] getItemId(MetadataRepository repository, ItemBean item, String concept) throws WebBaseException {
+    private String[] getItemId(MetadataRepository repository, String ids, String concept) throws WebBaseException {
         ComplexTypeMetadata itemType = repository.getComplexType(concept);
         String[] keyPaths = new String[itemType.getKeyFields().size()];
         int i = 0;
         for (FieldMetadata keyField : itemType.getKeyFields()) {
             keyPaths[i++] = keyField.getPath();
         }
-        return CommonUtil.extractIdWithDots(keyPaths, item.getIds());
+        return CommonUtil.extractIdWithDots(keyPaths, ids);
     }
 
     @Override
@@ -358,8 +360,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (xpathForeignKey.startsWith("/")) { //$NON-NLS-1$
                     xpathForeignKey = xpathForeignKey.substring(1);
                 }
-                String fkEntity;                
-				if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
+                String fkEntity;
+                if (xpathForeignKey.contains("/")) {//$NON-NLS-1$
                     fkEntity = xpathForeignKey.substring(0, xpathForeignKey.indexOf("/"));//$NON-NLS-1$
                 } else {
                     fkEntity = xpathForeignKey;
@@ -522,6 +524,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, TypeModel> types = entityModel.getMetaDataTypes();
             Set<String> xpaths = types.keySet();
             for (String path : xpaths) {
+                if (path.indexOf('$') > 0) {
+                    continue; // Skip paths like $stating_status$
+                }
                 TypeModel typeModel = types.get(path);
                 if (typeModel.isSimpleType()) {
                     // It should getValue by XPath but not element name(ItemBean's map object is only used by
@@ -831,7 +836,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Document doc = parseResultDocument(results[i], "result"); //$NON-NLS-1$
             idsArray.clear();
             for (String key : entityModel.getKeys()) {
-                String id = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
+                String id = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(),
+                        "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
                 if (id != null) {
                     idsArray.add(id);
                 }
@@ -845,7 +851,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String xpath = tm.getXpath();
                 String dataText = null;
                 if (!key.equals(xpath)) {
-                    NodeList list = com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(), xpath.replaceFirst(concept + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
+                    NodeList list = com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(),
+                            xpath.replaceFirst(concept + "/", "./")); //$NON-NLS-1$//$NON-NLS-2$
                     if (list != null) {
                         for (int k = 0; k < list.getLength(); k++) {
                             Node node = list.item(k);
@@ -857,7 +864,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                         }
                     }
                 } else {
-                    dataText = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
+                    dataText = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(),
+                            key.replaceFirst(concept + "/", "./")); //$NON-NLS-1$ //$NON-NLS-2$
                 }
 
                 if (dataText != null) {
@@ -877,7 +885,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 calendar.setTime(date);
                                 String formatValue = com.amalto.webapp.core.util.Util.formatDate(value[0], calendar);
                                 formateValueMap.put(key, formatValue);
-                                com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                                com.amalto.core.util.Util
+                                        .getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
                             } catch (Exception e) {
                                 originalMap.remove(key);
                                 formateValueMap.remove(key);
@@ -889,7 +898,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 originalMap.put(key, num);
                                 String formatValue = String.format(value[0], num);
                                 formateValueMap.put(key, formatValue);
-                                com.amalto.core.util.Util.getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
+                                com.amalto.core.util.Util
+                                        .getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
                             } catch (Exception e) {
                                 originalMap.remove(key);
                                 formateValueMap.remove(key);
@@ -1866,7 +1876,67 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public String processItem(String concept, String[] ids, String transformerPK) throws ServiceException {
-        return null;
+        try {
+            boolean outputReport = false;
+            String downloadUrl = null;
+            if (LOG.isDebugEnabled()) {
+                String itemAlias = concept + '.' + Util.joinStrings(ids, "."); //$NON-NLS-1$
+                LOG.debug("Executing transformer for " + itemAlias + "'s action. "); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            WSTransformerContext wsTransformerContext = new WSTransformerContext(new WSTransformerV2PK(transformerPK), null, null);
+
+            Configuration config = Configuration.getConfiguration();
+            String dataModelPK = config.getModel() == null ? StringUtils.EMPTY : config.getModel();
+            String dataClusterPK = config.getCluster() == null ? StringUtils.EMPTY : config.getCluster();
+            UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(
+                    concept,
+                    Util.joinStrings(ids, "."), UpdateReportPOJO.OPERATION_TYPE_ACTION, //$NON-NLS-1$
+                    "genericUI", System.currentTimeMillis(), dataClusterPK, dataModelPK, LocalUser.getLocalUser().getUsername(), null); //$NON-NLS-1$
+
+            String updateReport = updateReportPOJO.serialize();
+            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
+                    "text/xml; charset=utf-8");//$NON-NLS-1$
+            WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
+
+            // execute
+            XtentisPort port = Util.getPort();
+            WSTransformerContextPipelinePipelineItem[] entries = port.executeTransformerV2(wsExecuteTransformerV2).getPipeline()
+                    .getPipelineItem();
+            if (entries.length > 0) {
+                WSTransformerContextPipelinePipelineItem item = entries[entries.length - 1];
+                if (item.getVariable().equals("output_url")) { //$NON-NLS-1$
+                    byte[] bytes = item.getWsTypedContent().getWsBytes().getBytes();
+                    String content = new String(bytes);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Received output_url " + content); //$NON-NLS-1$
+                    }
+                    try {
+                        Document resultDoc = Util.parse(content);
+                        NodeList attrList = com.amalto.core.util.Util.getNodeList(resultDoc, "//attr"); //$NON-NLS-1$
+                        if (attrList != null && attrList.getLength() > 0) {
+                            downloadUrl = attrList.item(0).getTextContent();
+                            outputReport = true;
+                        }
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
+                        throw new ServiceException(MESSAGES.getMessage("process_output_url_error")); //$NON-NLS-1$
+                    }
+                }
+            }
+            // Save update report
+            WSDataClusterPK updateReportCluster = new WSDataClusterPK(UpdateReportPOJO.DATA_CLUSTER);
+            WSDataModelPK updateReportDataModel = new WSDataModelPK(UpdateReportPOJO.DATA_MODEL);
+            Util.getPort().putItem(new WSPutItem(updateReportCluster, updateReport, updateReportDataModel, false));
+
+            if (outputReport) {
+                return downloadUrl;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException(e.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -2048,7 +2118,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 for (String xpath : lookupFieldsForWSItemDoc) {
-                    String firstValue = com.amalto.core.util.Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
+                    String firstValue = com.amalto.core.util.Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use
+                                                                                                                 // first
+                                                                                                                 // node
                     if (null != firstValue && firstValue.length() != 0) {
                         NodeList list = com.amalto.core.util.Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
                         if (list != null && list.getLength() > 0) {
@@ -2058,6 +2130,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
                 wsItem.setContent(Util.nodeToString(wsItemDoc));
             }
+        }
+    }
+
+    @Override
+    public ItemBean getItemBeanById(String concept, String ids, String language) throws ServiceException {
+        MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(getCurrentDataModel());
+        try {
+            String[] idsArray = getItemId(repository, ids, concept);
+            return getItemBeanById(concept, idsArray, language);
+        } catch (WebBaseException e) {
+            throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         }
     }
 
@@ -2165,7 +2248,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 Document doc = parseResultDocument(results[1], "result"); //$NON-NLS-1$
 
                 for (String key : keys) {
-                    String id = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(), "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
+                    String id = com.amalto.core.util.Util.getFirstTextNode(doc.getDocumentElement(),
+                            "." + key.substring(key.lastIndexOf('/'))); //$NON-NLS-1$
                     if (id != null) {
                         if (ids.length() != 0) {
                             ids.append("."); //$NON-NLS-1$

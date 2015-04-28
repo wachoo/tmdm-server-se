@@ -1,25 +1,31 @@
 /*
  * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.query.user.*;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.Paging;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.CloseableIterator;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
-
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 
 class HibernateStorageResults implements StorageResults {
 
@@ -38,6 +44,7 @@ class HibernateStorageResults implements StorageResults {
         this.iterator = iterator;
     }
 
+    @Override
     public int getSize() {
         // Size = Integer.MAX_VALUE means no paging, so results size is then the count.
         if (size == Integer.MAX_VALUE) {
@@ -46,13 +53,26 @@ class HibernateStorageResults implements StorageResults {
         return size;
     }
 
+    @Override
     public int getCount() {
         try {
             Select countSelect = select.copy();
             List<TypedExpression> selectedFields = countSelect.getSelectedFields();
-            Paging paging = countSelect.getPaging();
             selectedFields.clear();
-            selectedFields.add(new Alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+            for (TypedExpression typedExpression : select.getSelectedFields()) {
+                if (typedExpression instanceof Field) {
+                    Field field = (Field) typedExpression;
+                    if (field.getFieldMetadata() instanceof SimpleTypeFieldMetadata) {
+                        SimpleTypeFieldMetadata fileFieldMetadata = (SimpleTypeFieldMetadata) field.getFieldMetadata();
+                        FieldMetadata container = fileFieldMetadata.getContainingType().getContainer();
+                        if (container != null && container.isMany()) {
+                            selectedFields.add(typedExpression);
+                        }
+                    }
+                }
+            }
+            Paging paging = countSelect.getPaging();
+            selectedFields.add(UserQueryBuilder.count());
             paging.setLimit(1);
             paging.setStart(0);
             countSelect.getOrderBy().clear();
@@ -72,10 +92,12 @@ class HibernateStorageResults implements StorageResults {
         }
     }
 
+    @Override
     public Iterator<DataRecord> iterator() {
         return iterator;
     }
 
+    @Override
     public void close() {
         try {
             iterator.close();

@@ -13,8 +13,7 @@ package com.amalto.core.servlet;
 
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.transaction.Transaction;
-import com.amalto.core.storage.transaction.TransactionManager;
+import com.amalto.core.storage.transaction.*;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +47,7 @@ public class TransactionFilter implements Filter {
         HttpServletRequest httpServlet = (HttpServletRequest) request;
         String transactionId = httpServlet.getHeader(TRANSACTION_ID);
         if (transactionId == null) {
-            return new ImplicitTransaction();
+            return ImplicitTransactionState.INSTANCE;
         } else {
             return new ExplicitTransaction(transactionId);
         }
@@ -57,62 +56,5 @@ public class TransactionFilter implements Filter {
     @Override
     public void destroy() {
         // Destroy of the transaction manager is moved to Server#close();
-    }
-
-    static interface TransactionState {
-        void preRequest();
-
-        void postRequest();
-
-        void cancelRequest();
-    }
-
-    static class ImplicitTransaction implements TransactionState {
-
-        @Override
-        public void preRequest() {
-        }
-
-        @Override
-        public void postRequest() {
-        }
-
-        @Override
-        public void cancelRequest() {
-        }
-    }
-
-    static class ExplicitTransaction implements TransactionState {
-
-        private final String transactionID;
-
-        public ExplicitTransaction(String transactionID) {
-            this.transactionID = transactionID;
-        }
-
-        @Override
-        public void preRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            Transaction transaction = transactionManager.get(transactionID);
-            if (transaction == null) {
-                transaction = transactionManager.create(Transaction.Lifetime.LONG, transactionID);
-                transaction.begin();
-            }
-            transactionManager.associate(transaction);
-        }
-
-        @Override
-        public void postRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            Transaction transaction = transactionManager.get(transactionID);
-            transactionManager.dissociate(transaction);
-        }
-
-        @Override
-        public void cancelRequest() {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            Transaction transaction = transactionManager.get(transactionID);
-            transactionManager.dissociate(transaction);
-        }
     }
 }

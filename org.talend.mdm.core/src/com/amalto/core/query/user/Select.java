@@ -104,6 +104,12 @@ public class Select implements Expression {
         if (condition == UserQueryHelper.TRUE) {
             condition = null;
         }
+        List<TypedExpression> normalizedSelectedFields = new ArrayList<>(selectedFields.size());
+        for (TypedExpression selectedField : selectedFields) {
+            normalizedSelectedFields.add((TypedExpression) selectedField.normalize());
+        }
+        selectedFields.clear();
+        selectedFields.addAll(normalizedSelectedFields);
         Set<OrderBy> uniqueOrderBy = new HashSet<OrderBy>();
         for (OrderBy current : orderBy) {
             uniqueOrderBy.add(current);

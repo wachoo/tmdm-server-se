@@ -16,56 +16,95 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
+import com.amalto.core.storage.SecuredStorage;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
-import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.*;
 
 import com.amalto.core.storage.StorageMetadataUtils;
 
 /**
- * A {@link com.amalto.core.storage.record.DataRecordWriter} implementation to serialize a {@link DataRecord record} to JSON.
+ * A {@link com.amalto.core.storage.record.DataRecordWriter} implementation to serialize a {@link DataRecord record} to
+ * JSON.
  */
 public class DataRecordJSONWriter implements DataRecordWriter {
 
-    private static void writeRecord(DataRecord record, JSONWriter writer) throws JSONException {
-        writer.array();
+    private SecuredStorage.UserDelegator delegator = SecuredStorage.UNSECURED;
+
+    private void writeRecord(final DataRecord record, final JSONWriter writer) throws JSONException {
+        writer.object();
         {
             for (FieldMetadata field : record.getType().getFields()) {
-                writer.object().key(field.getName().toLowerCase());
-                {
-                    if (field instanceof ContainedTypeFieldMetadata) {
-                        if (field.isMany()) {
-                            List values = (List) record.get(field);
-                            writer.array();
-                            {
-                                for (Object value : values) {
-                                    writeRecord((DataRecord) value, writer);
+                field.accept(new DefaultMetadataVisitor<Void>() {
+
+                    private Void handleSimpleField(FieldMetadata field) {
+                        if (delegator.hide(field)) {
+                            return null;
+                        }
+                        try {
+                            if (!field.isMany()) {
+                                writer.key(field.getName().toLowerCase()).value(StorageMetadataUtils.toString(record.get(field)));
+                            } else {
+                                List<Object> values = (List<Object>) record.get(field);
+                                if (values != null) {
+                                    writer.key(field.getName().toLowerCase()).array();
+                                    for (Object value : values) {
+                                        writer.value(StorageMetadataUtils.toString(value));
+                                    }
+                                    writer.endArray();
                                 }
                             }
-                            writer.endArray();
-                        } else {
-                            writeRecord((DataRecord) record.get(field), writer);
+                        } catch (JSONException e) {
+                            throw new RuntimeException("Unable to serialize simple field '" + field.getName() + "'", e);
                         }
-                    } else {
-                        if (field.isMany()) {
-                            List values = (List) record.get(field);
-                            writer.array();
-                            {
-                                for (Object value : values) {
-                                    writer.value(StorageMetadataUtils.toString(value));
-                                }
-                            }
-                            writer.endArray();
-                        } else {
-                            writer.value(StorageMetadataUtils.toString(record.get(field)));
-                        }
+                        return null;
                     }
-                }
-                writer.endObject();
+
+                    @Override
+                    public Void visit(SimpleTypeFieldMetadata simpleField) {
+                        return handleSimpleField(simpleField);
+                    }
+
+                    @Override
+                    public Void visit(EnumerationFieldMetadata enumField) {
+                        return handleSimpleField(enumField);
+                    }
+
+                    @Override
+                    public Void visit(ContainedTypeFieldMetadata containedField) {
+                        if (delegator.hide(containedField)) {
+                            return null;
+                        }
+                        try {
+                            writer.key(containedField.getName());
+                            if (!containedField.isMany()) {
+                                writeRecord((DataRecord) record.get(containedField), writer);
+                            } else {
+                                List<DataRecord> values = (List<DataRecord>) record.get(containedField);
+                                {
+                                    if (values != null) {
+                                        writer.key(containedField.getName().toLowerCase()).array();
+                                        for (DataRecord value : values) {
+                                            writeRecord(value, writer);
+                                        }
+                                        writer.endArray();
+                                    }
+                                }
+                            }
+                        } catch (JSONException e) {
+                            throw new RuntimeException("Unable to serialize complex field '" + containedField.getName() + "'", e);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public Void visit(ReferenceFieldMetadata referenceField) {
+                        return handleSimpleField(referenceField);
+                    }
+                });
             }
         }
-        writer.endArray();
+        writer.endObject();
     }
 
     @Override
@@ -79,12 +118,22 @@ public class DataRecordJSONWriter implements DataRecordWriter {
         try {
             jsonWriter.object().key(record.getType().getName().toLowerCase());
             {
-                writeRecord(record, jsonWriter);
+                if (!delegator.hide(record.getType())) {
+                    writeRecord(record, jsonWriter);
+                }
             }
             jsonWriter.endObject();
             writer.flush();
         } catch (JSONException e) {
             throw new IOException("Could not serialize to JSON.", e);
         }
+    }
+
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        if(delegator == null) {
+            throw new IllegalArgumentException("Delegator cannot be null.");
+        }
+        this.delegator = delegator;
     }
 }

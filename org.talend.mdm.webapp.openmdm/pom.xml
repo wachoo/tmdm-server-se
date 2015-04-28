@@ -102,11 +102,6 @@
         </dependency>
         <dependency>
             <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.core</artifactId>
-            <classifier>jaas</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
             <artifactId>org.talend.mdm.core.storage.sql</artifactId>
         </dependency>
         <dependency>
@@ -160,6 +155,7 @@
                                 <additionalArtifact>org.apache.tomcat:tomcat:zip::7.0.57</additionalArtifact>
                                 <additionalArtifact>yui:yui:javascript::2.4.0</additionalArtifact>
                                 <additionalArtifact>simile:timeline:javascript::2.3.0</additionalArtifact>
+                                <additionalArtifact>googleapis:fonts:font::1.1</additionalArtifact>
                             </additionalArtifacts>
                         </configuration>
                     </execution>
@@ -168,4 +164,56 @@
         </plugins>
     </build>
     
+    <profiles>
+    	<profile>
+            <id>dev-build</id>
+            <build>
+            	<plugins>
+            		<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                        	<execution>
+                                <id>deploy-tomcat</id>
+                                <configuration>
+                                	<target>
+                                		<copy tofile="${lib.dest}" file="${web.lib.src}"/>
+                                	</target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Used to install entire talendmdm ce-->
+        <profile>
+            <id>dev-install-war</id>
+            <build>
+            	<plugins>
+            		<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                        	<execution>
+                        		<phase>install</phase>
+                                <configuration>
+                                	<target>
+                                		<delete dir="${mdm.app.dir}"/>
+                                		<copy todir="${mdm.app.dir}">
+                                			<fileset dir="${mdm.build.web.dir}"/>
+                                		</copy>
+                                	</target>
+                                </configuration>
+                                <goals>
+                                	<goal>run</goal>
+                                </goals>
+                            </execution>                           
+                        </executions>
+                     </plugin>
+                </plugins>
+            </build>
+		</profile>
+     </profiles>
+   
 </project>

@@ -15,7 +15,6 @@ package com.amalto.webapp.core.util;
 import java.rmi.RemoteException;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.ObjectNotFoundException;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
@@ -274,9 +273,6 @@ public class XtentisWebPort implements XtentisPort {
             if (com.amalto.webapp.core.util.Util.causeIs(e, com.amalto.core.util.EntityNotFoundException.class)) {
                 EntityNotFoundException cause = Util.cause(e, EntityNotFoundException.class);
                 throw new RemoteException(StringUtils.EMPTY, new WebCoreException(entityNotFoundErrorMessage, cause));
-            } else if (com.amalto.webapp.core.util.Util.causeIs(e, org.hibernate.ObjectNotFoundException.class)) {
-                ObjectNotFoundException cause = Util.cause(e, ObjectNotFoundException.class);
-                throw new RemoteException(StringUtils.EMPTY, new WebCoreException(entityNotFoundErrorMessage, cause));
             }
             throw (new RemoteException(e.getLocalizedMessage(), e));
         }
@@ -347,6 +343,11 @@ public class XtentisWebPort implements XtentisPort {
     @Override
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
         return delegate.putItem(wsPutItem);
+    }
+    
+    @Override
+    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
+        return delegate.updateItemMetadata(wsUpdateMetadataItem);
     }
 
     @Override
@@ -744,18 +745,13 @@ public class XtentisWebPort implements XtentisPort {
     }
 
     @Override
+    public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
+        return delegate.routeItemV2(wsRouteItem);
+    }
+    
+    @Override
     public WSMDMJobArray getMDMJob(WSMDMNULL mdmJobRequest) throws RemoteException {
         return delegate.getMDMJob(mdmJobRequest);
-    }
-
-    @Override
-    public WSBoolean putMDMJob(WSPUTMDMJob putMDMJobRequest) throws RemoteException {
-        return delegate.putMDMJob(putMDMJobRequest);
-    }
-
-    @Override
-    public WSBoolean deleteMDMJob(WSDELMDMJob deleteMDMJobRequest) throws RemoteException {
-        return delegate.deleteMDMJob(deleteMDMJobRequest);
     }
 
     @Override

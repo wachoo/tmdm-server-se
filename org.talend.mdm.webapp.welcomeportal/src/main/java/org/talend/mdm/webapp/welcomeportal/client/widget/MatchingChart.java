@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
-import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
@@ -45,8 +45,8 @@ import com.googlecode.gflot.client.options.PlotOptions;
 public class MatchingChart extends ChartPortlet {
 
     public MatchingChart(MainFramePanel portal) {
-        super(WelcomePortal.CHART_MATCHING, portal);
-
+        super(PortletConstants.MATCHING_CHART_NAME, portal);
+        setHeading(MessagesFactory.getMessages().chart_matching_title());
         String setting = portalConfigs.getChartSetting(portletName);
         if (setting != null) {
             configModel = new EntityConfigModel(startedAsOn, setting);
@@ -88,8 +88,8 @@ public class MatchingChart extends ChartPortlet {
                     noDCAlertMsg.append(MessagesFactory.getMessages().no_container());
                     noDCAlertMsg.append("</span>"); //$NON-NLS-1$
                     alertHtml.setHTML(noDCAlertMsg.toString());
-                    set.add(alertHtml);
-                    set.layout(true);
+                    fieldSet.add(alertHtml);
+                    fieldSet.layout(true);
                 }
             }
         });
@@ -102,23 +102,25 @@ public class MatchingChart extends ChartPortlet {
             @Override
             public void onSuccess(String dataContainer) {
 
-                dataContainerChanged = !dc.equals(dataContainer);
-                dc = dataContainer;
+                if (dataContainer != null) {
+                    dataContainerChanged = !dc.equals(dataContainer);
+                    dc = dataContainer;
 
-                StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer, configModel,
-                        new SessionAwareAsyncCallback<JSONArray>() {
+                    StatisticsRestServiceHandler.getInstance().getContainerMatchingStats(dataContainer, configModel,
+                            new SessionAwareAsyncCallback<JSONArray>() {
 
-                            @Override
-                            public void onSuccess(JSONArray jsonArray) {
-                                Map<String, Object> newData = parseJSONData(jsonArray);
-                                if (plot == null) {
-                                    chartData = newData;
-                                    initAndShow();
-                                } else {
-                                    doRefreshWith(newData);
+                                @Override
+                                public void onSuccess(JSONArray jsonArray) {
+                                    Map<String, Object> newData = parseJSONData(jsonArray);
+                                    if (plot == null) {
+                                        chartData = newData;
+                                        initAndShow();
+                                    } else {
+                                        doRefreshWith(newData);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                }
             }
         });
     }

@@ -29,12 +29,13 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -164,10 +165,9 @@ public class BrandingBar extends ContentPanel {
                     public void onSuccess(Void result) {
                         Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
                         Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
-                        setHref(".."); //$NON-NLS-1$
+                        Window.Location.replace(GWT.getHostPageBaseURL());
                     }
                 });
-
             }
         });
     }
@@ -177,56 +177,44 @@ public class BrandingBar extends ContentPanel {
     }-*/;
 
     public void setProductInfo(ProductInfo info) {
-        if (info != null) {
+        if (info != null && info.getProductKey() != null) {
             logoMdm.setUrl("secure/img/branding/" + info.getProductKey() + "_header.png"); //$NON-NLS-1$//$NON-NLS-2$
             versionLabel.setHTML(""); //$NON-NLS-1$
         } else {
             logoMdm.setUrl("secure/img/logo-mdm.png"); //$NON-NLS-1$
             UserBean userBean = Registry.get(General.USER_BEAN);
             versionLabel.setHTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory
-                    .getMessages().community() + "<br>" + MessageFactory.getMessages().edition()); //$NON-NLS-1$
+                    .getMessages().community());
         }
     }
 
     private void buildBar() {
         UserBean userBean = Registry.get(General.USER_BEAN);
         bar.add(new Image("secure/img/header-back-title.png")); //$NON-NLS-1$
-        String html = userBean.getName() + "<br>"; //$NON-NLS-1$
-        if (userBean.getUniverse() != null && userBean.getUniverse().trim().length() != 0
-                && !"UNKNOWN".equals(userBean.getUniverse())) { //$NON-NLS-1$
-            html += MessageFactory.getMessages().connected_to() + ": [" + userBean.getUniverse() + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-        } else {
-            html += MessageFactory.getMessages().connected_to() + ": [HEAD]"; //$NON-NLS-1$
-        }
+        bar.add(logoMdm);
+        versionLabel.setStyleName("version-label"); //$NON-NLS-1$
+        bar.add(versionLabel);
+
+        hp.getElement().getStyle().setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
+        hp.getElement().getStyle().setProperty("top", "6px"); //$NON-NLS-1$ //$NON-NLS-2$
+        hp.getElement().getStyle().setProperty("right", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
+        hp.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+        
+        String html = userBean.getName();
         HTML userLabel = new HTML(html);
         userLabel.setStyleName("username"); //$NON-NLS-1$
         userLabel.getElement().setId("username-div"); //$NON-NLS-1$
-        bar.add(userLabel);
-
-        hp.getElement().getStyle().setProperty("position", "absolute"); //$NON-NLS-1$ //$NON-NLS-2$
-        hp.getElement().getStyle().setProperty("top", "-2px"); //$NON-NLS-1$ //$NON-NLS-2$
-        hp.getElement().getStyle().setProperty("right", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
-
-        logoMdm.getElement().getStyle().setMarginTop(2D, Unit.PX);
-        hp.add(logoMdm);
-        hp.setCellVerticalAlignment(logoMdm, HasVerticalAlignment.ALIGN_BOTTOM);
-
-        versionLabel.setStyleName("version-label"); //$NON-NLS-1$
-        hp.add(versionLabel);
-        hp.setCellVerticalAlignment(versionLabel, HasVerticalAlignment.ALIGN_MIDDLE);
-
+        hp.add(userLabel);      
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
 
         languageBox.getElement().setId("languageSelect"); //$NON-NLS-1$
         languageBox.setStyleName("language-box"); //$NON-NLS-1$
         // Enforce height
         languageBox.setHeight("20px"); //$NON-NLS-1$
-
         hp.add(languageBox);
-        hp.setCellVerticalAlignment(languageBox, HasVerticalAlignment.ALIGN_MIDDLE);
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
+        
         hp.add(logout);
-        hp.setCellVerticalAlignment(logout, HasVerticalAlignment.ALIGN_MIDDLE);
         hp.add(new HTML("&nbsp;&nbsp;")); //$NON-NLS-1$
 
         bar.setSize("100%", "100%"); //$NON-NLS-1$ //$NON-NLS-2$

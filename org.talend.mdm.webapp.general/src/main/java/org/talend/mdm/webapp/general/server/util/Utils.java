@@ -23,7 +23,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.amalto.core.util.LocalUser;
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.general.model.GroupItem;
@@ -36,6 +35,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.amalto.commons.core.utils.XMLUtils;
+import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.webservice.WSDataClusterPK;
@@ -172,14 +173,9 @@ public class Utils {
                 }
                 String gxtEntryModule = GxtFactory.getInstance().getGxtEntryModule(context, application);
                 if (gxtEntryModule == null) {
-                    //DWR Application
+                    // Other Application, direct js
                     String tmp = "<script type=\"text/javascript\" src=\"secure/js/" //$NON-NLS-1$
                             + application + ".js\"></script>\n"; //$NON-NLS-1$
-                    if (!imports.contains(tmp)) {
-                        imports.add(tmp);
-                    }
-                    tmp = "<script type=\"text/javascript\" src=\"secure/dwr/interface/" //$NON-NLS-1$
-                            + application + "Interface.js\"></script>\n"; //$NON-NLS-1$
                     if (!imports.contains(tmp)) {
                         imports.add(tmp);
                     }
@@ -187,16 +183,17 @@ public class Utils {
                     String tmp = "<script type=\"text/javascript\" src=\"" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ 
                             + gxtEntryModule + ".nocache.js\"></script>\n"; //$NON-NLS-1$
                     if ("browserecords".equals(context) && "browserecords".equals(gxtEntryModule)) { //$NON-NLS-1$ //$NON-NLS-2$
-                        imports.add("<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>"); //$NON-NLS-1$
-                        imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>"); //$NON-NLS-1$
-                        imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>"); //$NON-NLS-1$
+                        // DWR
+                        imports.add("<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n"); //$NON-NLS-1$
+                        imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>\n"); //$NON-NLS-1$
+                        imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>\n"); //$NON-NLS-1$
                     }
                     if (!imports.contains(tmp)) {
                         imports.add(tmp);
                     }
                 }
                 if (context.equals("stagingarea")) { //$NON-NLS-1$
-                    String tmp = "<script type=\"text/javascript\" src=\"stagingareabrowse/stagingareabrowse.nocache.js\"></script>"; //$NON-NLS-1$
+                    String tmp = "<script type=\"text/javascript\" src=\"stagingareabrowse/stagingareabrowse.nocache.js\"></script>\n"; //$NON-NLS-1$
                     imports.add(tmp);
                 }
                 i++;
@@ -209,7 +206,7 @@ public class Utils {
     }
 
     private static void completeThirdPartJS(ArrayList<String> imports) {
-        imports.add("<script language=\"javascript\" src=\"secure/gxt/resources/flash/swfobject.js\"></script>"); //$NON-NLS-1$
+        imports.add("<script language=\"javascript\" src=\"secure/gxt/resources/flash/swfobject.js\"></script>\n"); //$NON-NLS-1$
     }
 
     public static String getCommonImport() {
@@ -231,7 +228,6 @@ public class Utils {
                 "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/firefox3-fix.css\" />\n" //$NON-NLS-1$
                 + // CORE
                 "<script type=\"text/javascript\" src=\"proxy_core.js\"></script>\n" //$NON-NLS-1$
-                + "<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n" //$NON-NLS-1$
                 + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/webapp-core.css\" />\n" //$NON-NLS-1$
                 + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/css/amalto-menus.css\" />\n" //$NON-NLS-1$
                 + // Proxy DWR <-> Ext
@@ -331,19 +327,23 @@ public class Utils {
 
     public static Boolean setDefaultLanguage(String language) throws Exception {
         try {
-            String userName = LocalUser.getLocalUser().getUsername();
-            WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT, new String[] { userName });
-            if (userName != null && userName.length() > 0) {
-                String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
-                Util.getPort().putItem(
-                        new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), Utils.setLanguage(userXml, language),
-                                new WSDataModelPK(DATACLUSTER_PK), false));
-                return true;
+            ILocalUser user = LocalUser.getLocalUser();
+            if (Util.userCanWrite(user)) {
+                String userName = user.getUsername();
+                WSItemPK itemPK = new WSItemPK(new WSDataClusterPK(DATACLUSTER_PK), PROVISIONING_CONCEPT,
+                        new String[] { userName });
+                if (userName != null && userName.length() > 0) {
+                    String userXml = Util.getPort().getItem(new WSGetItem(itemPK)).getContent();
+                    Util.getPort().putItem(
+                            new WSPutItem(new WSDataClusterPK(DATACLUSTER_PK), Utils.setLanguage(userXml, language),
+                                    new WSDataModelPK(DATACLUSTER_PK), false));
+                    return true;
+                }
             }
+            return false;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
-        return false;
     }
 }

@@ -40,14 +40,14 @@ public class QueryParser {
         if (query == null) {
             throw new IllegalArgumentException("Query cannot be null.");
         }
-        return parse(new InputStreamReader(query));
+        return parse(new InputStreamReader(query)).normalize();
     }
 
     public Expression parse(Reader query) {
         if (query == null) {
             throw new IllegalArgumentException("Query cannot be null.");
         }
-        return builder.create().fromJson(query, Expression.class);
+        return builder.create().fromJson(query, Expression.class).normalize();
     }
 
 }

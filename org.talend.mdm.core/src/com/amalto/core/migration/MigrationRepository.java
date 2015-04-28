@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.migration;
 
 import com.amalto.core.util.Util;
@@ -17,9 +29,9 @@ import java.util.List;
 
 public class MigrationRepository {
 
-    private static final Logger        LOGGER     = Logger.getLogger(MigrationRepository.class);
+    private static final Logger LOGGER = Logger.getLogger(MigrationRepository.class);
 
-    private static boolean             isExecuted = false;
+    private static boolean isExecuted = false;
 
     private static MigrationRepository repository = null;
 
@@ -35,6 +47,7 @@ public class MigrationRepository {
 
     public void execute(boolean force) {
         if (!isExecuted || force) {
+            
             List<String> list = new ArrayList<String>();
             // look over the handlers dir, call up each handler to execute if it can
             try {
@@ -53,13 +66,13 @@ public class MigrationRepository {
                         task.setForceExe(force);
                         task.start();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error(e.getMessage(), e);
                     }
                 }
                 // clear the cache objects, is this still need?
                 Util.getXmlServerCtrlLocal().clearCache();
             } catch (Exception e) {
-                LOGGER.error(e.getCause());
+                LOGGER.error(e.getMessage(), e);
                 return;
             }
         }

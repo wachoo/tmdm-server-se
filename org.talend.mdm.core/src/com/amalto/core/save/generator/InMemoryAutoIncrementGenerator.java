@@ -7,7 +7,6 @@ import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-
 import java.util.Properties;
 
 class InMemoryAutoIncrementGenerator implements AutoIdGenerator {

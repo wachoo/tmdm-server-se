@@ -411,37 +411,37 @@ public class RDBMSDataSource implements DataSource {
         switch (getDialectName()) {
         case ORACLE_10G:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Oracle database is being used. Limit table name length to 30.");
+                LOGGER.debug("Oracle database table name length limit: 30.");
             }
             nameMaxLength = 30;
             break;
         case MYSQL:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("MySQL database is being used. Limit table name length to 64.");
+                LOGGER.debug("MySQL database table name length limit: 64.");
             }
             nameMaxLength = 64;
             break;
         case SQL_SERVER:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("SQL Server database is being used. Limit table name length to 128.");
+                LOGGER.debug("SQL Server database table name length limit: 128.");
             }
             nameMaxLength = 128;
             break;
         case POSTGRES:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Postgres database is being used. Limit table name length to 63.");
+                LOGGER.debug("Postgres database table length limit: 63.");
             }
             nameMaxLength = 63;
             break;
         case DB2:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("DB2 database is being used. Limit table name length to 30.");
+                LOGGER.debug("DB2 database table name length limit: 30.");
             }
             nameMaxLength = 30;
             break;
         case H2:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("No limitation for table name length.");
+                LOGGER.debug("No limitation for H2 table name length.");
             }
             nameMaxLength = Integer.MAX_VALUE;
             break;

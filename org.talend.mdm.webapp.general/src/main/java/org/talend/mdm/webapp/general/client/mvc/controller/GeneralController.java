@@ -122,7 +122,7 @@ public class GeneralController extends Controller {
     }
 
     private void loadUser(AppEvent event) {
-        service.getUsernameAndUniverse(new SessionAwareAsyncCallback<UserBean>() {
+        service.getUser(new SessionAwareAsyncCallback<UserBean>() {
 
             public void onSuccess(UserBean userBean) {
                 Registry.register(General.USER_BEAN, userBean);

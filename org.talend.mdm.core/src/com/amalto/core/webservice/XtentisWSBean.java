@@ -16,12 +16,19 @@ import java.rmi.RemoteException;
 
 import javax.jws.WebService;
 
+import com.amalto.core.storage.transaction.InTransactionInterceptor;
+import com.amalto.core.storage.transaction.OutTransactionInterceptor;
+import org.apache.cxf.interceptor.InInterceptors;
+import org.apache.cxf.interceptor.OutInterceptors;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+import com.amalto.core.server.security.ws.WebServiceRoles;
 
 @WebService(name = "TMDMService", serviceName = "TMDMService", portName = "TMDMPort", targetNamespace = ICoreConstants.TALEND_NAMESPACE)
+@InInterceptors(classes = InTransactionInterceptor.class)
+@OutInterceptors(classes = OutTransactionInterceptor.class)
 public class XtentisWSBean implements XtentisPort {
 
     protected XtentisPort delegator = BeanDelegatorContainer.getInstance().getXtentisWSDelegator();
@@ -45,11 +52,13 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSInt initMDM(WSInitData initData) throws RemoteException {
         return delegator.initMDM(initData);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSMDMConfig getMDMConfiguration() throws RemoteException {
         return delegator.getMDMConfiguration();
     }
@@ -70,11 +79,13 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSDataModelPK deleteDataModel(WSDeleteDataModel wsDeleteDataModel) throws RemoteException {
         return delegator.deleteDataModel(wsDeleteDataModel);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSDataModelPK putDataModel(WSPutDataModel wsDataModel) throws RemoteException {
         return delegator.putDataModel(wsDataModel);
     }
@@ -85,16 +96,19 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSString putBusinessConcept(WSPutBusinessConcept wsPutBusinessConcept) throws RemoteException {
         return delegator.putBusinessConcept(wsPutBusinessConcept);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSString putBusinessConceptSchema(WSPutBusinessConceptSchema wsPutBusinessConceptSchema) throws RemoteException {
         return delegator.putBusinessConceptSchema(wsPutBusinessConceptSchema);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSString deleteBusinessConcept(WSDeleteBusinessConcept wsDeleteBusinessConcept) throws RemoteException {
         return delegator.deleteBusinessConcept(wsDeleteBusinessConcept);
     }
@@ -130,16 +144,19 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSDataClusterPK deleteDataCluster(WSDeleteDataCluster wsDeleteDataCluster) throws RemoteException {
         return delegator.deleteDataCluster(wsDeleteDataCluster);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSDataClusterPK putDataCluster(WSPutDataCluster wsDataCluster) throws RemoteException {
         return delegator.putDataCluster(wsDataCluster);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSBoolean putDBDataCluster(WSPutDBDataCluster wsDataCluster) throws RemoteException {
         return delegator.putDBDataCluster(wsDataCluster);
     }
@@ -165,11 +182,13 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSViewPK deleteView(WSDeleteView wsDeleteView) throws RemoteException {
         return delegator.deleteView(wsDeleteView);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSViewPK putView(WSPutView wsView) throws RemoteException {
         return delegator.putView(wsView);
     }
@@ -241,6 +260,11 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
+        return delegator.updateItemMetadata(wsUpdateMetadataItem);
+    }
+
+    @Override
     public WSItemPKArray putItemArray(WSPutItemArray wsPutItemArray) throws RemoteException {
         return delegator.putItemArray(wsPutItemArray);
     }
@@ -304,16 +328,19 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSString getServiceConfiguration(WSServiceGetConfiguration wsGetConfiguration) throws RemoteException {
         return delegator.getServiceConfiguration(wsGetConfiguration);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
         return delegator.checkServiceConfiguration(serviceName);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSString putServiceConfiguration(WSServicePutConfiguration wsPutConfiguration) throws RemoteException {
         return delegator.putServiceConfiguration(wsPutConfiguration);
     }
@@ -329,6 +356,7 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSStoredProcedurePK deleteStoredProcedure(WSDeleteStoredProcedure wsStoredProcedureDelete) throws RemoteException {
         return delegator.deleteStoredProcedure(wsStoredProcedureDelete);
     }
@@ -354,11 +382,13 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSStoredProcedurePK putStoredProcedure(WSPutStoredProcedure wsStoredProcedure) throws RemoteException {
         return delegator.putStoredProcedure(wsStoredProcedure);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSMenuPK deleteMenu(WSDeleteMenu wsMenuDelete) throws RemoteException {
         return delegator.deleteMenu(wsMenuDelete);
     }
@@ -379,6 +409,7 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSMenuPK putMenu(WSPutMenu wsMenu) throws RemoteException {
         return delegator.putMenu(wsMenu);
     }
@@ -394,6 +425,7 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsputjob) throws RemoteException {
         return delegator.putBackgroundJob(wsputjob);
     }
@@ -414,6 +446,7 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSTransformerPK putTransformer(WSPutTransformer wsTransformer) throws RemoteException {
         return delegator.putTransformer(wsTransformer);
     }
@@ -473,11 +506,13 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSRoutingRulePK deleteRoutingRule(WSDeleteRoutingRule wsDeleteRoutingRule) throws RemoteException {
         return delegator.deleteRoutingRule(wsDeleteRoutingRule);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSRoutingRulePK putRoutingRule(WSPutRoutingRule wsRoutingRule) throws RemoteException {
         return delegator.putRoutingRule(wsRoutingRule);
     }
@@ -488,6 +523,7 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSTransformerV2PK deleteTransformerV2(WSDeleteTransformerV2 wsTransformerV2Delete) throws RemoteException {
         return delegator.deleteTransformerV2(wsTransformerV2Delete);
     }
@@ -508,6 +544,7 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSTransformerV2PK putTransformerV2(WSPutTransformerV2 wsTransformerV2) throws RemoteException {
         return delegator.putTransformerV2(wsTransformerV2);
     }
@@ -541,6 +578,7 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration)
             throws RemoteException {
         return delegator.putTransformerPluginV2Configuration(wsPutConfiguration);
@@ -576,23 +614,18 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().routeItemV2(wsRouteItem);
+    }
+
+    @Override
     public WSCategoryData getMDMCategory(WSCategoryData request) throws RemoteException {
         return delegator.getMDMCategory(request);
     }
 
     @Override
-    public WSBoolean putMDMJob(WSPUTMDMJob job) throws RemoteException {
-        return delegator.putMDMJob(job);
-    }
-
-    @Override
-    public WSBoolean deleteMDMJob(WSDELMDMJob job) throws RemoteException {
-        return delegator.deleteMDMJob(job);
-    }
-
-    @Override
-    public WSMDMJobArray getMDMJob(WSMDMNULL job) throws RemoteException {
-        return delegator.getMDMJob(job);
+    public WSMDMJobArray getMDMJob(WSMDMNULL mdmJobRequest) throws RemoteException {
+        return delegator.getMDMJob(mdmJobRequest);
     }
 
     @Override
@@ -629,11 +662,13 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSDigest getDigest(WSDigestKey wsDigestKey) throws RemoteException {
         return delegator.getDigest(wsDigestKey);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSLong updateDigest(WSDigest wsDigest) throws RemoteException {
         return delegator.updateDigest(wsDigest);
     }
@@ -654,11 +689,13 @@ public class XtentisWSBean implements XtentisPort {
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
         return delegator.putRole(wsRole);
     }
 
     @Override
+    @WebServiceRoles(ICoreConstants.ADMIN_PERMISSION)
     public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
         return delegator.deleteRole(wsRoleDelete);
     }

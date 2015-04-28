@@ -204,6 +204,18 @@ public class StorageMetadataUtils {
         if (target == null) {
             throw new IllegalArgumentException("Target field can not be null");
         }
+        if (target instanceof CompoundFieldMetadata) {
+             FieldMetadata[] fields = ((CompoundFieldMetadata) target).getFields();
+             for (FieldMetadata fieldMetadata : fields) {
+             __paths(type, fieldMetadata, currentPath, foundPaths, processedTypes);
+             }
+        } else {
+             __paths(type, target, currentPath, foundPaths, processedTypes);
+        }
+     }
+            
+     private static void __paths(ComplexTypeMetadata type, FieldMetadata target, Stack<FieldMetadata> currentPath,
+             Set<List<FieldMetadata>> foundPaths, Set<TypeMetadata> processedTypes) {
         if (Storage.PROJECTION_TYPE.equals(type.getName()) && type.hasField(target.getName())) {
             currentPath.push(type.getField(target.getName()));
         }

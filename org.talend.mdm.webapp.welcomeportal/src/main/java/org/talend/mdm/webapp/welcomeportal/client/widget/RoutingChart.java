@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
-import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
@@ -49,8 +49,8 @@ public class RoutingChart extends ChartPortlet {
     private static String ROUTING_STATUS_COMPLETED = "completed"; //$NON-NLS-1$
 
     public RoutingChart(MainFramePanel portal) {
-        super(WelcomePortal.CHART_ROUTING_EVENT, portal);
-
+        super(PortletConstants.ROUTING_EVENT_CHART_NAME, portal);
+        setHeading(MessagesFactory.getMessages().chart_routing_event_title());
         String setting = portalConfigs.getChartSetting(portletName);
         if (setting != null) {
             configModel = new TimeframeConfigModel(startedAsOn, setting);

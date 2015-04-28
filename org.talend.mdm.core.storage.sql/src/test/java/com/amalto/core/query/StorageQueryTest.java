@@ -13,20 +13,29 @@
 
 package com.amalto.core.query;
 
-import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
-import com.amalto.core.query.optimization.RangeOptimizer;
-import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.query.user.*;
-import com.amalto.core.query.user.metadata.Timestamp;
-import com.amalto.core.server.ServerContext;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import com.amalto.core.storage.*;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.*;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,11 +43,48 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
+import com.amalto.core.query.optimization.RangeOptimizer;
+import com.amalto.core.query.optimization.UpdateReportOptimizer;
+import com.amalto.core.query.user.Alias;
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.Compare;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.FieldFullText;
+import com.amalto.core.query.user.IntegerConstant;
+import com.amalto.core.query.user.IsNull;
+import com.amalto.core.query.user.LongConstant;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Predicate;
+import com.amalto.core.query.user.Range;
+import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.Split;
+import com.amalto.core.query.user.StringConstant;
+import com.amalto.core.query.user.TypedExpression;
+import com.amalto.core.query.user.UnaryLogicOperator;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.metadata.Timestamp;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.ViewSearchResultsWriter;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereOr;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -63,98 +109,97 @@ public class StorageQueryTest extends StorageTestCase {
 
     private final String E2_Record7 = "<E2><subelement>119</subelement><subelement1>120</subelement1><name>zhang</name></E2>";
 
+    private final String RepeatableElementsEntity_Record = "<RepeatableElementsEntity><id>1</id><info><name>n1</name><age>1</age></info><info><name>n2</name><age>2</age></info><info><name>n3</name><age>3</age></info></RepeatableElementsEntity>";
+
+    private final String RR_Record1 = "<RR><Id>R1</Id><Name>R1</Name></RR>";
+
+    private final String RR_Record2 = "<RR><Id>R2</Id><Name>R2</Name></RR>";
+
+    private final String RR_Record3 = "<RR><Id>R3</Id><Name>R3</Name></RR>";
+
+    private final String TT_Record1 = " <TT><Id>T1</Id><MUl><E1>1</E1><E2>1</E2><E3>[R1]</E3></MUl></TT>";
+
+    private final String TT_Record2 = " <TT><Id>T2</Id><MUl><E1>2</E1><E2>2</E2><E3>[R2]</E3></MUl></TT>";
+
+    private final String TT_Record3 = " <TT><Id>T3</Id><MUl><E1>3</E1><E2>3</E2><E3>[R3]</E3></MUl></TT>";
+
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 country,
                                 "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name><notes><note>Country note</note><comment>repeatable comment 1</comment><comment>Repeatable comment 2</comment></notes></Country>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 address,
                                 "<Address><id>1</id><enterprise>false</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 address,
                                 "<Address><id>1</id><enterprise>true</enterprise><Street>Street1</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 address,
                                 "<Address><id>2&amp;2</id><enterprise>true</enterprise><Street>Street2</Street><ZipCode>10000</ZipCode><City>City</City><country>[2]</country></Address>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 address,
                                 "<Address><id>3</id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><country>[1]</country></Address>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 address,
                                 "<Address><id>4</id><enterprise>false</enterprise><Street>Street3</Street><ZipCode>10000</ZipCode><City>City</City><OptionalCity>City2</OptionalCity><country>[1]</country></Address>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 person,
                                 "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><addresses><address>[2&amp;2][true]</address><address>[1][false]</address></addresses><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 person,
                                 "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><addresses><address>[1][false]</address><address>[2&amp;2][true]</address></addresses><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 person,
                                 "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 person,
                                 "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Julien</firstname><age>30</age><Status>Friend</Status></Person>"));
         allRecords.add(factory.read(repository, b, "<B><id>1</id><textB>TextB</textB></B>"));
         allRecords.add(factory.read(repository, d, "<D><id>2</id><textB>TextBD</textB><textD>TextDD</textD></D>"));
-        allRecords.add(factory.read(repository, a,
-                "<A><id>1</id><textA>TextA</textA><nestedB><text>Text1</text></nestedB></A>"));
+        allRecords.add(factory.read(repository, a, "<A><id>1</id><textA>TextA</textA><nestedB><text>Text1</text></nestedB></A>"));
         allRecords.add(factory.read(repository, a,
                 "<A><id>2</id><textA>TextA</textA><nestedB><text>Text2</text></nestedB><refA>[1]</refA></A>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><refB tmdm:type=\"B\">[1]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>4</id><refB tmdm:type=\"D\">[2]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 a,
                                 "<A xmlns:tmdm=\"http://www.talend.com/mdm\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>5</id><refB tmdm:type=\"B\">[2]</refB><textA>TextA</textA><nestedB xsi:type=\"Nested\"><text>Text</text></nestedB></A>"));
 
@@ -194,16 +239,16 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <Name>test name5</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read(repository, store, "<Store>\n" + "    <Id>1</Id>\n" + "    <Name>Store #1</Name>\n"
                 + "</Store>"));
-        allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>1</Id>\n"
-                + "    <Name>Product name</Name>\n" + "    <ShortDescription>Short description word</ShortDescription>\n"
+        allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>1</Id>\n" + "    <Name>Product name</Name>\n"
+                + "    <ShortDescription>Short description word</ShortDescription>\n"
                 + "    <LongDescription>Long description</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Small</Size>\n" + "            <Size>Medium</Size>\n"
                 + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
                 + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
                 + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Family>[2]</Family>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
-        allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>2</Id>\n"
-                + "    <Name>Renault car</Name>\n" + "    <ShortDescription>A car</ShortDescription>\n"
+        allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
                 + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
                 + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
@@ -230,8 +275,7 @@ public class StorageQueryTest extends StorageTestCase {
                                 "<Manager1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><birthday>2014-05-01T12:00:00</birthday><id>1</id></Manager1>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 employee1,
                                 "<Employee1 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>1</Id><Holiday>2014-05-16T12:00:00</Holiday><birthday>2014-05-23T12:00:00</birthday><manager>[1][2014-05-01T12:00:00]</manager></Employee1>"));
         allRecords.add(factory.read(repository, entityA,
@@ -258,18 +302,23 @@ public class StorageQueryTest extends StorageTestCase {
                 .add(factory
                         .read(repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record5</id></ContainedEntityB>"));
+        allRecords.add(factory.read(repository, city,
+                "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
+        allRecords.add(factory.read(repository, city,
+                "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
         allRecords
-        .add(factory
-                .read(repository, city,
-                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
-        allRecords
-        .add(factory
-                .read(repository, city,
-                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
-        allRecords
-        .add(factory
-                .read(repository, organization,
-                        "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+                .add(factory
+                        .read(repository,
+                                organization,
+                                "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+        allRecords.add(factory.read(repository, repeatableElementsEntity, RepeatableElementsEntity_Record));
+        allRecords.add(factory.read(repository, rr, RR_Record1));
+        allRecords.add(factory.read(repository, rr, RR_Record2));
+        allRecords.add(factory.read(repository, rr, RR_Record3));
+        allRecords.add(factory.read(repository, tt, TT_Record1));
+        allRecords.add(factory.read(repository, tt, TT_Record2));
+        allRecords.add(factory.read(repository, tt, TT_Record3));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -755,6 +804,40 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(expected[i++], result.get("id"));
         }
     }
+    
+    public void testOrderByCompoundField() throws Exception {
+        FieldMetadata code = compte.getField("Code");
+        String[] ascExpectedValues = { "1", "11" };
+        UserQueryBuilder qb = from(compte).select(compte.getField("Code")).select(compte.getField("Label"))
+                .select(compte.getField("childOf")).orderBy(compte.getField("childOf"), OrderBy.Direction.ASC);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(ascExpectedValues[i++], result.get(code));
+            }
+        } finally {
+            results.close();
+        }
+
+        String[] descExpectedValues = { "11", "1" };
+        qb = from(compte).select(compte.getField("Code")).select(compte.getField("Label")).select(compte.getField("childOf"))
+                .orderBy(compte.getField("childOf"), OrderBy.Direction.DESC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(descExpectedValues[i++], result.get(code));
+            }
+        } finally {
+            results.close();
+        }
+
+    }
 
     public void testOrderByPK() throws Exception {
         // Test ASC direction
@@ -776,16 +859,13 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         // Test normalize
-        qb = from(person).select(personLastName)
-                .orderBy(person.getField("id"), OrderBy.Direction.ASC)
+        qb = from(person).select(personLastName).orderBy(person.getField("id"), OrderBy.Direction.ASC)
                 .orderBy(person.getField("id"), OrderBy.Direction.ASC);
         assertEquals(1, ((Select) qb.getSelect().normalize()).getOrderBy().size());
-        qb = from(person).select(personLastName)
-                .orderBy(person.getField("id"), OrderBy.Direction.ASC)
+        qb = from(person).select(personLastName).orderBy(person.getField("id"), OrderBy.Direction.ASC)
                 .orderBy(person.getField("id"), OrderBy.Direction.DESC);
         assertEquals(2, ((Select) qb.getSelect().normalize()).getOrderBy().size());
-        qb = from(person).select(personLastName)
-                .orderBy(person.getField("id"), OrderBy.Direction.ASC)
+        qb = from(person).select(personLastName).orderBy(person.getField("id"), OrderBy.Direction.ASC)
                 .orderBy(person.getField("lastname"), OrderBy.Direction.ASC)
                 .orderBy(person.getField("lastname"), OrderBy.Direction.ASC);
         assertEquals(2, ((Select) qb.getSelect().normalize()).getOrderBy().size());
@@ -1512,8 +1592,7 @@ public class StorageQueryTest extends StorageTestCase {
 
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         DataRecord record = factory
-                .read(
-                        repository,
+                .read(repository,
                         person,
                         "<Person><id>3</id><score>200000</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><addresses><address>[3][false]</address><address>[1][false]</address></addresses><age>30</age><Status>Friend</Status></Person>");
         try {
@@ -1681,7 +1760,6 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
-
 
     public void testNonMandatoryFKSelection() throws Exception {
         UserQueryBuilder qb = from(product).selectId(product).select(product.getField("Name")).select(product.getField("Family"));
@@ -2503,8 +2581,8 @@ public class StorageQueryTest extends StorageTestCase {
         }
 
         qb = UserQueryBuilder.from(person);
-        item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS,
-                null, WhereCondition.NO_OPERATOR)));
+        item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS, null,
+                WhereCondition.NO_OPERATOR)));
         qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
         storageResults = storage.fetch(qb.getSelect());
         try {
@@ -2724,6 +2802,11 @@ public class StorageQueryTest extends StorageTestCase {
                 }
                 writer.append("</result>"); //$NON-NLS-1$
                 writer.flush();
+            }
+
+            @Override
+            public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+                // Not needed for test.
             }
         };
         Set<String> expectedStrings = new HashSet<String>();
@@ -3056,8 +3139,7 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testFKInreusableTypeWithViewSearch2() throws Exception {
-        UserQueryBuilder qb = from(organization).selectId(organization)
-                .select(organization.getField("org_address/city"))
+        UserQueryBuilder qb = from(organization).selectId(organization).select(organization.getField("org_address/city"))
                 .select(organization.getField("org_address/street"))
                 .select(alias(organization.getField("post_address/city"), "city"))
                 .select(alias(organization.getField("post_address/street"), "street"));
@@ -3078,8 +3160,9 @@ public class StorageQueryTest extends StorageTestCase {
         String startRoot = "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
         String endRoot = "</result>";
 
-        String expectedResult = startRoot +
-                 "<org_id>1</org_id><city>[SH]</city><street>waitan rd</street><city>[BJ]</city><street>changan rd</street>"  + endRoot;
+        String expectedResult = startRoot
+                + "<org_id>1</org_id><city>[SH]</city><street>waitan rd</street><city>[BJ]</city><street>changan rd</street>"
+                + endRoot;
         assertTrue(expectedResult.equals(resultAsString.replaceAll("\\r|\\n|\\t", "")));
     }
 
@@ -3222,8 +3305,7 @@ public class StorageQueryTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
         try {
@@ -3298,8 +3380,7 @@ public class StorageQueryTest extends StorageTestCase {
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
         try {
@@ -4019,8 +4100,7 @@ public class StorageQueryTest extends StorageTestCase {
         // Update 'FKtoMultiB' list records (record1..record5)
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid>[B_record1]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record2]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record3]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record4]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record5]</Bid></FKtoMultiB></ContainedEntityA>"));
         storage.begin();
@@ -4030,8 +4110,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid>[B_record1]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record2]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record3]</Bid></FKtoMultiB><FKtoMultiB><Bid>[B_record4]</Bid></FKtoMultiB></ContainedEntityA>"));
         storage.begin();
@@ -4055,8 +4134,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid/></FKtoB><FKtoMultiB><Bid></Bid></FKtoMultiB></ContainedEntityA>"));
         storage.begin();
@@ -4084,8 +4162,7 @@ public class StorageQueryTest extends StorageTestCase {
         // Add 'record1'
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid>[B_record1]</Bid></FKtoB></ContainedEntityA>"));
         storage.begin();
@@ -4095,8 +4172,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid>[B_record2]</Bid></FKtoB></ContainedEntityA>"));
         storage.begin();
@@ -4111,8 +4187,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 ContainedEntityA,
                                 "<ContainedEntityA xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Aid>a_id</Aid><FKtoB><Bid></Bid></FKtoB><FKtoMultiB><Bid/></FKtoMultiB></ContainedEntityA>"));
         storage.begin();
@@ -4172,8 +4247,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords = new LinkedList<DataRecord>();
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 ContainedEntityC,
                                 "<ContainedEntityC xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Cid>c1</Cid><FK_to_B>[record6]</FK_to_B></ContainedEntityC>"));
         storage.begin();
@@ -4194,9 +4268,8 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testOrderByExpression() throws Exception {
         // Most common to least common order (DESC).
-        UserQueryBuilder qb = from(person)
-                .select(person.getField("firstname"))
-                .orderBy(count(person.getField("firstname")), OrderBy.Direction.DESC);
+        UserQueryBuilder qb = from(person).select(person.getField("firstname")).orderBy(count(person.getField("firstname")),
+                OrderBy.Direction.DESC);
         storage.begin();
         StorageResults records = storage.fetch(qb.getSelect());
         try {
@@ -4214,8 +4287,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
         // Least common to most common order (ASC).
         storage.begin();
-        qb = from(person)
-                .select(person.getField("firstname"))
+        qb = from(person).select(person.getField("firstname"))
                 .orderBy(count(person.getField("firstname")), OrderBy.Direction.ASC);
         records = storage.fetch(qb.getSelect());
         try {
@@ -4257,6 +4329,54 @@ public class StorageQueryTest extends StorageTestCase {
                 assertEquals("id1", result.get(PointToSelfEntity.getField("Id")));
             }
             assertEquals(1, records.getCount());
+        } finally {
+            storage.commit();
+        }
+    }
+
+    public void testRepeatableElementsCount() throws Exception {
+        UserQueryBuilder qb = from(repeatableElementsEntity).select(repeatableElementsEntity.getField("id"))
+                .select(repeatableElementsEntity.getField("info/name")).limit(20).start(0);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testOrderByFk() throws Exception {
+        // Most common to least common order (DESC).
+        UserQueryBuilder qb = from(tt).select(tt.getField("Id")).select(tt.getField("MUl/E3"))
+                .orderBy(tt.getField("MUl/E3"), OrderBy.Direction.DESC);
+        storage.begin();
+        StorageResults records = storage.fetch(qb.getSelect());
+        try {
+            try {
+                for (DataRecord record : records) {
+                    assertEquals("T3", record.get("Id"));
+                    break;
+                }
+            } finally {
+                records.close();
+            }
+        } finally {
+            storage.commit();
+        }
+
+        qb = from(tt).select(tt.getField("Id")).select(tt.getField("MUl/E3"))
+                .orderBy(tt.getField("MUl/E3"), OrderBy.Direction.ASC);
+        storage.begin();
+        records = storage.fetch(qb.getSelect());
+        try {
+            try {
+                for (DataRecord record : records) {
+                    assertEquals("T1", record.get("Id"));
+                    break;
+                }
+            } finally {
+                records.close();
+            }
         } finally {
             storage.commit();
         }

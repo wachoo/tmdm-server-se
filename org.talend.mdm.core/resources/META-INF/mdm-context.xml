@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:security="http://www.springframework.org/schema/security"
-       xmlns:jms="http://www.springframework.org/schema/jms"
-       xmlns:cache="http://www.springframework.org/schema/cache"
-       xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:amq="http://activemq.apache.org/schema/core"
-       xsi:schemaLocation="
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:jms="http://www.springframework.org/schema/jms" xmlns:cache="http://www.springframework.org/schema/cache" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:amq="http://activemq.apache.org/schema/core"
+    xsi:schemaLocation="
 http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
@@ -53,13 +49,14 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
             </bean>
         </property>
     </bean>
-    
+
     <bean id="routingEngineJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
         <property name="connectionFactory">
             <ref bean="jmsFactory" />
         </property>
     </bean>
-    <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsFactory" destination-type="queue">
+    <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsFactory"
+        destination-type="queue">
         <jms:listener destination="org.talend.mdm.server.routing.events" ref="defaultRoutingEngine" method="consume" />
     </jms:listener-container>
 
@@ -110,25 +107,27 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
         <property name="eraseCredentialsAfterAuthentication" value="false" />
     </bean>
 
-    <security:http auto-config="false" pattern="/services/soap*" create-session="never" entry-point-ref="basicAuthenticationEntryPoint"
-        authentication-manager-ref="authenticationManager" use-expressions="true" request-matcher="regex">
-        <security:intercept-url pattern="/services/soap*" requires-channel="any" access="hasRole('authenticated')" />
-        <security:intercept-url pattern="/services/soap\\?wsdl" requires-channel="any" access="permitAll" />
-    </security:http>
- 
-    <security:http auto-config="false" pattern="/services/**" create-session="never" entry-point-ref="basicAuthenticationEntryPoint"
-        authentication-manager-ref="authenticationManager" use-expressions="true">
-        <security:intercept-url pattern="/services/rest/**" requires-channel="any" access="hasRole('authenticated')" />
-        <security:intercept-url pattern="/services/bulkload/**" requires-channel="any" access="hasRole('authenticated')" />
-        <security:intercept-url pattern="/services/dsctaskloader/**" requires-channel="any"
-            access="hasRole('authenticated')" />
-        <security:intercept-url pattern="/services/run/**" requires-channel="any" access="hasRole('administration')" />
-        <security:intercept-url pattern="/services/logviewer/**" requires-channel="any"
+    <security:http auto-config="false" pattern="\A/services.*\Z" create-session="never" entry-point-ref="basicAuthenticationEntryPoint"
+        authentication-manager-ref="authenticationManager" use-expressions="true" path-type="regex">
+        <security:intercept-url pattern="\A/services/rest\?_wadl" requires-channel="any" access="permitAll"
+            method="GET" />
+        <security:intercept-url pattern="\A/services/soap\?wsdl" requires-channel="any" access="permitAll"
+            method="GET" />
+        <security:intercept-url pattern="\A/services/TDSCWS\?wsdl" requires-channel="any" access="permitAll"
+            method="GET" />
+        <security:intercept-url pattern="\A/services" requires-channel="any" access="permitAll" method="GET" />
+        <security:intercept-url pattern="\A/services/run.*\Z" requires-channel="any" access="hasRole('administration')" />
+        <security:intercept-url pattern="\A/services/logviewer.*\Z" requires-channel="any"
             access="hasRole('administration')" />
-        <security:intercept-url pattern="/services/uploadFile/**" requires-channel="any"
+        <security:intercept-url pattern="\A/services/uploadFile.*\Z" requires-channel="any"
             access="hasRole('administration')" />
-        <security:intercept-url pattern="/services/pubcomponent/**" requires-channel="any"
+        <security:intercept-url pattern="\A/services/licenseUpload.*\Z" requires-channel="any"
             access="hasRole('administration')" />
+        <security:intercept-url pattern="\A/services/pubcomponent.*\Z" requires-channel="any" access="permitAll"
+            method="GET" />
+        <security:intercept-url pattern="\A/services/pubcomponent.*\Z" requires-channel="any"
+            access="hasRole('administration')" />
+        <security:intercept-url pattern="\A/services.*\Z" requires-channel="any" access="hasRole('authenticated')" />
         <security:custom-filter position="BASIC_AUTH_FILTER" ref="basicAuthenticationFilter" />
     </security:http>
 
@@ -178,6 +177,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
 
     <bean id="formLoginSuccessHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
         <property name="defaultTargetUrl" value="/ui" />
+        <property name="alwaysUseDefaultTargetUrl" value="true" />
     </bean>
 
     <bean id="formLoginFailureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">

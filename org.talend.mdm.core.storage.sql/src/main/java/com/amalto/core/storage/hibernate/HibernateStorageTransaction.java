@@ -11,6 +11,18 @@
 
 package com.amalto.core.storage.hibernate;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.hibernate.*;
+import org.hibernate.engine.spi.EntityKey;
+import org.hibernate.internal.SessionImpl;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.exception.ConstraintViolationException;
@@ -18,17 +30,6 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ObjectDataRecordReader;
 import com.amalto.core.storage.transaction.StorageTransaction;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.hibernate.*;
-import org.hibernate.classic.Session;
-import org.hibernate.engine.EntityKey;
-import org.hibernate.impl.SessionImpl;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-
-import java.util.*;
 
 class HibernateStorageTransaction extends StorageTransaction {
 
@@ -130,7 +131,9 @@ class HibernateStorageTransaction extends StorageTransaction {
     }
 
     private static void processCommitException(Exception e) {
-        if (e instanceof org.hibernate.exception.ConstraintViolationException || e instanceof ObjectNotFoundException) {
+        if (e instanceof org.hibernate.exception.ConstraintViolationException //
+                || e instanceof ObjectNotFoundException //
+                || e instanceof StaleStateException) {
             throw new ConstraintViolationException(e);
         } else {
             throw new RuntimeException(e);
@@ -147,7 +150,7 @@ class HibernateStorageTransaction extends StorageTransaction {
     private static void dumpTransactionContent(Session session, HibernateStorage storage) {
         Level currentLevel = Level.INFO;
         if (LOGGER.isEnabledFor(currentLevel)) {
-            Set<EntityKey> failedKeys = new HashSet<EntityKey>(session.getStatistics().getEntityKeys()); // Copy content to avoid concurrent modification issues.
+            Set<EntityKey> failedKeys = new HashSet<>(session.getStatistics().getEntityKeys()); // Copy content to avoid concurrent modification issues.
             int i = 1;
             ObjectDataRecordReader reader = new ObjectDataRecordReader();
             MappingRepository mappingRepository = storage.getTypeEnhancer().getMappings();
@@ -248,7 +251,9 @@ class HibernateStorageTransaction extends StorageTransaction {
                 } finally {
                     // It is *very* important to ensure super.rollback() gets called (even if session close did not succeed).
                     super.rollback();
-                    storage.getClassLoader().reset(Thread.currentThread());
+                    if (!storage.isClosed()) {
+                        storage.getClassLoader().reset(Thread.currentThread());
+                    }
                 }
             }
         }

@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage.record;
 
+import com.amalto.core.storage.SecuredStorage;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -28,7 +30,7 @@ public interface DataRecordWriter {
      * @throws IOException In case of errors while writing to <code>output</code>.
      * @see DataRecordReader#read(org.talend.mdm.commmon.metadata.MetadataRepository, org.talend.mdm.commmon.metadata.ComplexTypeMetadata, Object)
      */
-    public void write(DataRecord record, OutputStream output) throws IOException;
+    void write(DataRecord record, OutputStream output) throws IOException;
 
     /**
      * Writes a {@link DataRecord} record to the <code>writer</code>.
@@ -38,6 +40,15 @@ public interface DataRecordWriter {
      * @throws IOException In case of errors while writing to <code>output</code>.
      * @see DataRecordReader#read(org.talend.mdm.commmon.metadata.MetadataRepository, org.talend.mdm.commmon.metadata.ComplexTypeMetadata, Object)
      */
-    public void write(DataRecord record, Writer writer) throws IOException;
+    void write(DataRecord record, Writer writer) throws IOException;
 
+    /**
+     * Sets a implementation of {@link com.amalto.core.storage.SecuredStorage.UserDelegator} to filter out elements the
+     * current user is not allowed to see.
+     *
+     * @param delegator An implementation of {@link com.amalto.core.storage.SecuredStorage.UserDelegator}, not <code>null</code>.
+     * @see SecuredStorage
+     * @see SecuredStorage#UNSECURED
+     */
+    void setSecurityDelegator(SecuredStorage.UserDelegator delegator);
 }

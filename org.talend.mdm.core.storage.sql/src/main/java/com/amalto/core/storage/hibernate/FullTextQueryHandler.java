@@ -406,7 +406,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         }
     }
 
-    private static int getSortType(FieldMetadata fieldMetadata) {
+    private static SortField.Type getSortType(FieldMetadata fieldMetadata) {
         TypeMetadata fieldType = fieldMetadata.getType();
         String type = MetadataUtils.getSuperConcreteType(fieldType).getName();
         if (Types.STRING.equals(type)
@@ -416,7 +416,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 || Types.QNAME.equals(type)
                 || Types.HEX_BINARY.equals(type)
                 || Types.DURATION.equals(type)) {
-            return SortField.STRING_VAL; // STRING does not work well for 'long' strings.
+            return SortField.Type.STRING_VAL; // STRING does not work well for 'long' strings.
         } else if (Types.INT.equals(type)
                 || Types.INTEGER.equals(type)
                 || Types.POSITIVE_INTEGER.equals(type)
@@ -424,21 +424,21 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 || Types.NON_NEGATIVE_INTEGER.equals(type)
                 || Types.NEGATIVE_INTEGER.equals(type)
                 || Types.UNSIGNED_INT.equals(type)) {
-            return SortField.INT;
+            return SortField.Type.INT;
         } else if (Types.DECIMAL.equals(type) || Types.DOUBLE.equals(type)) {
-            return SortField.DOUBLE;
+            return SortField.Type.DOUBLE;
         } else if (Types.DATE.equals(type)
                 || Types.DATETIME.equals(type)
                 || Types.TIME.equals(type)) {
-            return SortField.STRING;
+            return SortField.Type.STRING;
         } else if (Types.UNSIGNED_SHORT.equals(type) || Types.SHORT.equals(type)) {
-            return SortField.SHORT;
+            return SortField.Type.SHORT;
         } else if (Types.UNSIGNED_LONG.equals(type) || Types.LONG.equals(type)) {
-            return SortField.LONG;
+            return SortField.Type.LONG;
         } else if (Types.FLOAT.equals(type)) {
-            return SortField.FLOAT;
+            return SortField.Type.FLOAT;
         } else if (Types.BYTE.equals(type) || Types.UNSIGNED_BYTE.equals(type)) {
-            return SortField.BYTE;
+            return SortField.Type.BYTE;
         } else {
             throw new UnsupportedOperationException("No support for field typed as '" + type + "'");
         }

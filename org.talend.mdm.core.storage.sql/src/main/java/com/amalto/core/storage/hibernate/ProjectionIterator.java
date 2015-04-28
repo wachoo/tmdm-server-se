@@ -86,15 +86,32 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             List<TypedExpression> selectedFields, final Set<ResultsCallback> callbacks) {
         this(mappingMetadataRepository, new CloseableIterator<Object>() {
 
+            private boolean hasNext;
+
             private boolean isClosed = false;
+
+            private boolean consumedResult = true;
 
             @Override
             public boolean hasNext() {
-                return results.next();
+                if (!consumedResult) {
+                    return hasNext;
+                }
+                try {
+                    hasNext = results.next();
+                    consumedResult = false;
+                    return hasNext;
+                } catch (Exception e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Unable to check for next result.", e);
+                    }
+                    return false;
+                }
             }
 
             @Override
             public Object next() {
+                consumedResult = true;
                 return results.get();
             }
 

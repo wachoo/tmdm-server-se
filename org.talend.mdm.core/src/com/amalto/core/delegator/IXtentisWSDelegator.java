@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -12,10 +12,53 @@
 // ============================================================================
 package com.amalto.core.delegator;
 
+import java.io.StringReader;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.migration.MigrationRepository;
-import com.amalto.core.objects.*;
+import com.amalto.core.objects.DroppedItemPOJO;
+import com.amalto.core.objects.DroppedItemPOJOPK;
+import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.Service;
+import com.amalto.core.objects.UpdateReportItemPOJO;
+import com.amalto.core.objects.UpdateReportPOJO;
+import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
 import com.amalto.core.objects.backgroundjob.BackgroundJobPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
@@ -24,7 +67,13 @@ import com.amalto.core.objects.menu.MenuPOJO;
 import com.amalto.core.objects.menu.MenuPOJOPK;
 import com.amalto.core.objects.role.RolePOJO;
 import com.amalto.core.objects.role.RolePOJOPK;
-import com.amalto.core.objects.routing.*;
+import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.CompletedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.FailedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.RoutingEngineV2POJO;
+import com.amalto.core.objects.routing.RoutingRulePOJO;
+import com.amalto.core.objects.routing.RoutingRulePOJOPK;
 import com.amalto.core.objects.storedprocedure.StoredProcedurePOJO;
 import com.amalto.core.objects.storedprocedure.StoredProcedurePOJOPK;
 import com.amalto.core.objects.transformers.TransformerV2POJO;
@@ -39,42 +88,39 @@ import com.amalto.core.save.SaveException;
 import com.amalto.core.save.SaverHelper;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.context.DocumentSaver;
-import com.amalto.core.server.*;
-import com.amalto.core.server.api.*;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.server.api.BackgroundJob;
+import com.amalto.core.server.api.DroppedItem;
+import com.amalto.core.server.api.Item;
+import com.amalto.core.server.api.Menu;
 import com.amalto.core.server.api.Role;
+import com.amalto.core.server.api.RoutingEngine;
+import com.amalto.core.server.api.RoutingOrder;
+import com.amalto.core.server.api.RoutingRule;
+import com.amalto.core.server.api.StoredProcedure;
+import com.amalto.core.server.api.Transformer;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.util.*;
+import com.amalto.core.util.BeforeDeletingErrorException;
+import com.amalto.core.util.DigestHelper;
+import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.PluginRegistry;
+import com.amalto.core.util.RemoteExceptionFactory;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.ValidateException;
+import com.amalto.core.util.Version;
+import com.amalto.core.util.WhereConditionForcePivotFilter;
+import com.amalto.core.util.XConverter;
+import com.amalto.core.util.XtentisException;
 import com.amalto.core.webservice.*;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
-
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-import java.io.StringReader;
-import java.rmi.RemoteException;
-import java.util.*;
 
 public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort {
 
@@ -195,8 +241,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return array;
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -414,8 +459,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return XConverter.VO2WS(Util.getViewCtrlLocal().getView(new ViewPOJOPK(wsViewGet.getWsViewPK().getPk())));
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -427,8 +471,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return new WSBoolean(Util.getViewCtrlLocal().existsView(new ViewPOJOPK(wsExistsView.getWsViewPK().getPk())) != null);
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -970,6 +1013,31 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
+    
+    @Override
+    public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
+        try {
+            WSItemPK itemPK = wsUpdateMetadataItem.getWsItemPK();
+            ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK(itemPK.getWsDataClusterPK().getPk()),
+                    itemPK.getConceptName(), itemPK.getIds());
+            Item itemCtrl2Local = Util.getItemCtrl2Local();
+            ItemPOJO item = itemCtrl2Local.getItem(itemPk);
+            item.setTaskId(wsUpdateMetadataItem.getTaskId());
+            ItemPOJOPK itemPOJOPK = itemCtrl2Local.updateItemMetadata(item);
+            return new WSItemPK(new WSDataClusterPK(itemPOJOPK.getDataClusterPOJOPK().getUniqueId()),
+                    itemPOJOPK.getConceptName(), itemPOJOPK.getIds());
+        } catch (XtentisException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
+            throw new RemoteException(e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
+    }
 
     @Override
     public WSPipeline extractUsingTransformer(WSExtractUsingTransformer wsExtractUsingTransformer) throws RemoteException {
@@ -1056,8 +1124,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 wsDeleteItem.setSource(SUCCESS_KEYWORD);
                 return new WSString("logical delete item successful!"); //$NON-NLS-1$
             } else { // Physical delete
-                String status = SUCCESS_KEYWORD;
-                String message = "physical delete item successful!"; //$NON-NLS-1$
+                String status;
+                String message;
                 if (wsDeleteItem.getInvokeBeforeSaving()) {
                     Util.BeforeDeleteResult result = Util.beforeDeleting(dataClusterPK, concept, ids,
                             wsDeleteItem.getOperateType());
@@ -1077,11 +1145,21 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                             status = SUCCESS_KEYWORD;
                             message = result.message;
                         }
-                    } else {
-                        message = "Could not retrieve the validation process result. An error might have occurred. The record was not deleted.";
                     }
+                }
+                
+                // Now before delete process (if any configured) was called, perform delete.
+                ItemPOJOPK deleteItem = Util.getItemCtrl2Local().deleteItem(pk, wsDeleteItem.getOverride());
+                if (deleteItem != null) {
+                    if (!UpdateReportPOJO.DATA_CLUSTER.equals(dataClusterPK) && wsDeleteItem.getPushToUpdateReport()) {
+                        pushToUpdateReport(dataClusterPK, dataModelPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving(),
+                                wsDeleteItem.getSource(), wsDeleteItem.getOperateType(), wsDeleteItem.getUser());
+                    }
+                    status = SUCCESS_KEYWORD;
+                    message = "physical delete item successful!"; //$NON-NLS-1$
                 } else {
-                    message = "ERROR - Unable to delete item"; //$NON-NLS-1$
+                    status = FAIL_KEYWORD;
+                    message = "Unable to delete item"; //$NON-NLS-1$
                 }
                 wsDeleteItem.setSource(status);
                 return new WSString(message);
@@ -1311,7 +1389,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     @Override
     public WSBackgroundJobPKArray findBackgroundJobPKs(WSFindBackgroundJobPKs wsFindBackgroundJobPKs) throws RemoteException {
         try {
-            throw new RemoteException("WSBackgroundJobPKArray is not implemented in this version of the core");
+            BackgroundJob backgroundJob = Util.getBackgroundJobCtrlLocal();
+            Collection<BackgroundJobPOJOPK> jobs = backgroundJob.getBackgroundJobPKs(".*"); //$NON-NLS-1$
+            List<WSBackgroundJobPK> match = new LinkedList<>();
+            for (BackgroundJobPOJOPK job : jobs) {
+                if (backgroundJob.getBackgroundJob(job).getStatus() == wsFindBackgroundJobPKs.getStatus().ordinal()) {
+                    match.add(XConverter.POJO2WS(job));
+                }
+            }
+            return new WSBackgroundJobPKArray(match.toArray(new WSBackgroundJobPK[match.size()]));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1320,8 +1406,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     @Override
     public WSBackgroundJobPK putBackgroundJob(WSPutBackgroundJob wsPutJob) throws RemoteException {
         try {
-            return new WSBackgroundJobPK(Util.getBackgroundJobCtrlLocal()
-                    .putBackgroundJob(XConverter.WS2POJO(wsPutJob.getWsBackgroundJob())).getUniqueId());
+            BackgroundJob backgroundJob = Util.getBackgroundJobCtrlLocal();
+            BackgroundJobPOJO job = XConverter.WS2POJO(wsPutJob.getWsBackgroundJob());
+            return new WSBackgroundJobPK(backgroundJob.putBackgroundJob(job).getUniqueId());
         } catch (Exception e) {
             throw new RuntimeException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1867,6 +1954,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         }
     }
 
+    @Override
     public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
         try {
             RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
@@ -1964,7 +2052,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     String empty = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";//$NON-NLS-1$
                     empty += "<" + ICoreConstants.DEFAULT_CATEGORY_ROOT + "/>";//$NON-NLS-1$ //$NON-NLS-2$
                     xmlServerCtrlLocal.start("CONF");
-                    xmlServerCtrlLocal.putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    xmlServerCtrlLocal.putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF");//$NON-NLS-1$ //$NON-NLS-2$ 
                     xmlServerCtrlLocal.commit("CONF");
                     category = empty;
                 }
@@ -1981,77 +2069,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return null;
         }
     }
-
-    @Override
-    public WSBoolean putMDMJob(WSPUTMDMJob job) throws RemoteException {
-        DocumentBuilder documentBuilder;
-        try {
-            documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc;
-            Element jobElem, newOne;
-            String xmlData = null;
-            XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
-            try {
-                xmlData = xmlServerCtrlLocal.getDocumentAsString(MDM_TIS_JOB, JOB);
-            } catch (Exception e) {
-                LOGGER.error("IXtentisWSDelegator.putMDMJob error.", e);
-            }
-            if (xmlData == null || xmlData.equals("")) {//$NON-NLS-1$
-                doc = documentBuilder.newDocument();
-                jobElem = doc.createElement("jobs");//$NON-NLS-1$
-                doc.appendChild(jobElem);
-            } else {
-                doc = Util.parse(xmlData);
-                jobElem = doc.getDocumentElement();
-            }
-
-            newOne = doc.createElement("job");//$NON-NLS-1$
-            newOne.setAttribute("name", job.getJobName());//$NON-NLS-1$
-            newOne.setAttribute("version", job.getJobVersion());//$NON-NLS-1$
-            jobElem.appendChild(newOne);
-
-            xmlServerCtrlLocal.start(MDM_TIS_JOB);
-            xmlServerCtrlLocal.putDocumentFromString(Util.nodeToString(doc.getDocumentElement()), JOB, MDM_TIS_JOB);
-            xmlServerCtrlLocal.commit(MDM_TIS_JOB);
-            return new WSBoolean(true);
-        } catch (Exception e) {
-            LOGGER.error("IXtentisWSDelegator.putMDMJob error.", e);
-        }
-        return new WSBoolean(false);
-    }
-
-    @Override
-    public WSBoolean deleteMDMJob(WSDELMDMJob job) throws RemoteException {
-        Document doc;
-        try {
-            String xmlData = null;
-            XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
-            try {
-                xmlData = xmlServerCtrlLocal.getDocumentAsString(MDM_TIS_JOB, JOB);
-            } catch (Exception e) {
-                LOGGER.error("IXtentisWSDelegator.deleteMDMJob error.", e);
-            }
-            if (xmlData == null) {
-                return new WSBoolean(false);
-            }
-            doc = Util.parse(xmlData);
-            NodeList list = Util.getNodeList(doc, "/jobs/job[@name='" + job.getJobName() + "']");//$NON-NLS-1$ //$NON-NLS-2$
-            if (list.getLength() > 0) {
-                doc.getDocumentElement().removeChild(list.item(0));
-                xmlData = Util.nodeToString(doc);
-                xmlServerCtrlLocal.start(MDM_TIS_JOB);
-                xmlServerCtrlLocal.putDocumentFromString(xmlData, JOB, MDM_TIS_JOB);
-                xmlServerCtrlLocal.commit(MDM_TIS_JOB);
-                return new WSBoolean(true);
-            }
-        } catch (Exception e) {
-            LOGGER.error("IXtentisWSDelegator.deleteMDMJob error.", e);
-        }
-        return new WSBoolean(false);
-    }
-
+    
     /**
-     * get job info from jboss deploy dir
+     * get job infos deployed as war files
      */
     @Override
     public WSMDMJobArray getMDMJob(WSMDMNULL job) {
@@ -2291,7 +2311,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
         }
     }
-
+    
     @Override
     public WSString serviceAction(WSServiceAction wsServiceAction) throws RemoteException {
         // TODO
@@ -2318,8 +2338,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSServicesList getServicesList(WSGetServicesList wsGetServicesList) throws RemoteException {
-        // TODO
-        throw new NotImplementedException();
+        try {
+            ArrayList<WSServicesListItem> wsList = new ArrayList<WSServicesListItem>();
+            String serviceJndiPrefix = "amalto/local/service/"; //$NON-NLS-1$
+            ListableBeanFactory serviceList = PluginRegistry.getInstance().getListableBeanFactory();
+            Map servicesMap = serviceList.getBeansOfType(Service.class);
+            for (String key : (Set<String>) servicesMap.keySet()) {
+                WSServicesListItem item = new WSServicesListItem();
+                item.setJndiName(key.replaceAll(serviceJndiPrefix, ""));
+                wsList.add(item);
+            }
+            return new WSServicesList(wsList.toArray(new WSServicesListItem[wsList.size()]));
+        } catch (Exception e) {
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     @Override

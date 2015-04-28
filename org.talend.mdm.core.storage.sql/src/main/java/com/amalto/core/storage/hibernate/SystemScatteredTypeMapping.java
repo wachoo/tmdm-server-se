@@ -17,7 +17,7 @@ import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
-import org.hibernate.collection.PersistentList;
+import org.hibernate.collection.internal.PersistentList;
 import org.talend.mdm.commmon.metadata.*;
 
 import java.io.*;
