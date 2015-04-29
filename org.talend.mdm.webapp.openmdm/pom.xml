@@ -82,17 +82,6 @@
             <version>${project.version}</version>
             <type>pom</type>
         </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.webapp.stagingarea</artifactId>
-            <type>war</type>
-        </dependency>
-        <dependency>
-            <groupId>org.talend.mdm</groupId>
-            <artifactId>org.talend.mdm.webapp.stagingarea</artifactId>
-            <version>${project.version}</version>
-            <type>pom</type>
-        </dependency>
         <!-- SE lib dependencies -->
         <dependency>
             <groupId>org.talend.mdm</groupId>
