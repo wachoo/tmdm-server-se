@@ -15,9 +15,9 @@ import java.util.List;
 
 import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
+
+import com.amalto.core.metadata.MetadataUtils;
 
 public class Field implements TypedExpression {
 
