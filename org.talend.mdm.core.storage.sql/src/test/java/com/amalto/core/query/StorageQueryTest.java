@@ -322,8 +322,8 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read(repository, tt, TT_Record1));
         allRecords.add(factory.read(repository, tt, TT_Record2));
         allRecords.add(factory.read(repository, tt, TT_Record3));
-        allRecords.add(factory.read("1", repository, compte, COMPTE_Record1));
-        allRecords.add(factory.read("1", repository, compte, COMPTE_Record2));
+        allRecords.add(factory.read(repository, compte, COMPTE_Record1));
+        allRecords.add(factory.read(repository, compte, COMPTE_Record2));
 
         try {
             storage.begin();
