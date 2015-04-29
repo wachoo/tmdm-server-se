@@ -112,6 +112,8 @@ public class StorageTestCase extends TestCase {
     protected static final ComplexTypeMetadata tt;
 
     protected static final ComplexTypeMetadata rr;
+    
+    protected static final ComplexTypeMetadata compte;
 
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
@@ -163,6 +165,7 @@ public class StorageTestCase extends TestCase {
         repeatableElementsEntity = repository.getComplexType("RepeatableElementsEntity");
         tt = repository.getComplexType("TT");
         rr = repository.getComplexType("RR");
+        compte = repository.getComplexType("Compte");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions

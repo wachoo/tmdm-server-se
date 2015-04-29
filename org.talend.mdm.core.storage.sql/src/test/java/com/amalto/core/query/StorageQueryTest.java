@@ -122,6 +122,10 @@ public class StorageQueryTest extends StorageTestCase {
     private final String TT_Record2 = " <TT><Id>T2</Id><MUl><E1>2</E1><E2>2</E2><E3>[R2]</E3></MUl></TT>";
 
     private final String TT_Record3 = " <TT><Id>T3</Id><MUl><E1>3</E1><E2>3</E2><E3>[R3]</E3></MUl></TT>";
+    
+    private final String COMPTE_Record1 = "<Compte><Level>Compte SF</Level><Code>1</Code><Label>1</Label></Compte>";
+
+    private final String COMPTE_Record2 = "<Compte><Level>Nature Comptable SF</Level><Code>11</Code><Label>11</Label><childOf>[Compte SF][1]</childOf></Compte>";
 
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -318,6 +322,8 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read(repository, tt, TT_Record1));
         allRecords.add(factory.read(repository, tt, TT_Record2));
         allRecords.add(factory.read(repository, tt, TT_Record3));
+        allRecords.add(factory.read("1", repository, compte, COMPTE_Record1));
+        allRecords.add(factory.read("1", repository, compte, COMPTE_Record2));
 
         try {
             storage.begin();
