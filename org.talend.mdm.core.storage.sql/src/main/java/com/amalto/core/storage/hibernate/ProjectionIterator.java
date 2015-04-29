@@ -392,8 +392,11 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
             } else if (fieldMetadata.getType().getData(TypeMapping.SQL_TYPE) != null
                     && TypeMapping.SQL_TYPE_CLOB.equals(fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) {
                 try {
-                    Reader characterStream = ((Clob) values[currentIndex++]).getCharacterStream();
-                    currentElement.value = new String(IOUtils.toCharArray(characterStream));
+                    Object clobValue = values[currentIndex++];
+                    if(clobValue != null) {
+                        Reader characterStream = ((Clob)clobValue ).getCharacterStream();
+                        currentElement.value = new String(IOUtils.toCharArray(characterStream));
+                    }
                 } catch (Exception e) {
                     currentElement.value = ""; //$NON-NLS-1$
                     throw new RuntimeException("Unexpected read from clob exception", e);
