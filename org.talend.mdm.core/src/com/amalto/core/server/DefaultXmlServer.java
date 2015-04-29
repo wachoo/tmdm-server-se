@@ -29,16 +29,10 @@ import java.util.List;
 
 public class DefaultXmlServer implements XmlServer {
 
-    private static String             SERVER_CLASS = SQLWrapper.class.getName();
-
     private final IXmlServerSLWrapper server;
 
     public DefaultXmlServer() {
-        try {
-            server = (IXmlServerSLWrapper) Class.forName(SERVER_CLASS).newInstance();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Cannot find server class '" + SERVER_CLASS + "'.", e);
-        }
+        server = new SQLWrapper();
     }
 
     public String[] getAllClusters() throws XtentisException {

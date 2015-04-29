@@ -16,6 +16,10 @@ import java.rmi.RemoteException;
 
 import javax.jws.WebService;
 
+import com.amalto.core.storage.transaction.InTransactionInterceptor;
+import com.amalto.core.storage.transaction.OutTransactionInterceptor;
+import org.apache.cxf.interceptor.InInterceptors;
+import org.apache.cxf.interceptor.OutInterceptors;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
@@ -23,6 +27,8 @@ import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.server.security.ws.WebServiceRoles;
 
 @WebService(name = "TMDMService", serviceName = "TMDMService", portName = "TMDMPort", targetNamespace = ICoreConstants.TALEND_NAMESPACE)
+@InInterceptors(classes = InTransactionInterceptor.class)
+@OutInterceptors(classes = OutTransactionInterceptor.class)
 public class XtentisWSBean implements XtentisPort {
 
     protected XtentisPort delegator = BeanDelegatorContainer.getInstance().getXtentisWSDelegator();
@@ -252,7 +258,7 @@ public class XtentisWSBean implements XtentisPort {
     public WSItemPK putItem(WSPutItem wsPutItem) throws RemoteException {
         return delegator.putItem(wsPutItem);
     }
-    
+
     @Override
     public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
         return delegator.updateItemMetadata(wsUpdateMetadataItem);
@@ -606,7 +612,7 @@ public class XtentisWSBean implements XtentisPort {
     public WSRoutingEngineV2Status routingEngineV2Action(WSRoutingEngineV2Action wsRoutingEngineAction) throws RemoteException {
         return delegator.routingEngineV2Action(wsRoutingEngineAction);
     }
-    
+
     @Override
     public WSRoutingRulePKArray routeItemV2(WSRouteItemV2 wsRouteItem) throws RemoteException {
         return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().routeItemV2(wsRouteItem);

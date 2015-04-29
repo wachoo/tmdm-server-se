@@ -22,6 +22,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
@@ -265,6 +267,9 @@ public class GeneralAction implements GeneralService {
             if (session != null) {
                 session.invalidate();
             }
+            SecurityContext context = SecurityContextHolder.getContext();
+            context.setAuthentication(null);
+            SecurityContextHolder.clearContext();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

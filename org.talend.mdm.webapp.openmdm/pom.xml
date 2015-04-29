@@ -164,4 +164,56 @@
         </plugins>
     </build>
     
+    <profiles>
+    	<profile>
+            <id>dev-build</id>
+            <build>
+            	<plugins>
+            		<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                        	<execution>
+                                <id>deploy-tomcat</id>
+                                <configuration>
+                                	<target>
+                                		<copy tofile="${lib.dest}" file="${web.lib.src}"/>
+                                	</target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- Used to install entire talendmdm ce-->
+        <profile>
+            <id>dev-install-war</id>
+            <build>
+            	<plugins>
+            		<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                        	<execution>
+                        		<phase>install</phase>
+                                <configuration>
+                                	<target>
+                                		<delete dir="${mdm.app.dir}"/>
+                                		<copy todir="${mdm.app.dir}">
+                                			<fileset dir="${mdm.build.web.dir}"/>
+                                		</copy>
+                                	</target>
+                                </configuration>
+                                <goals>
+                                	<goal>run</goal>
+                                </goals>
+                            </execution>                           
+                        </executions>
+                     </plugin>
+                </plugins>
+            </build>
+		</profile>
+     </profiles>
+   
 </project>

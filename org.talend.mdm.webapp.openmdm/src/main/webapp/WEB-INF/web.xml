@@ -152,6 +152,17 @@
         <servlet-name>LogViewerServlet</servlet-name>
         <url-pattern>/services/logviewer/log</url-pattern>
     </servlet-mapping>
+    
+     <!-- h2 console -->
+    <servlet>
+        <servlet-name>H2Console</servlet-name>
+        <servlet-class>org.h2.server.web.WebServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>H2Console</servlet-name>
+        <url-pattern>/h2console/console/*</url-pattern>
+    </servlet-mapping>
+    
     <!-- org.talend.mdm.webapp.core -->
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>

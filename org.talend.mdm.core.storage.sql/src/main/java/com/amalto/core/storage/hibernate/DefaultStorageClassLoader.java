@@ -152,7 +152,11 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         setPropertyValue(document, "hibernate.connection.driver_class", driverClass); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.dialect", dialect); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.connection.password", password); //$NON-NLS-1$
-        
+        // Sets up DBCP pool features
+        setPropertyValue(document, "hibernate.dbcp.initialSize", String.valueOf(connectionPoolMinSize));
+        setPropertyValue(document, "hibernate.dbcp.maxActive", String.valueOf(connectionPoolMaxSize));
+        setPropertyValue(document, "hibernate.dbcp.maxIdle", String.valueOf(connectionPoolMaxSize));
+
         Node sessionFactoryElement = document.getElementsByTagName("session-factory").item(0); //$NON-NLS-1$
         if (rdbmsDataSource.supportFullText()) {
             /*

@@ -39,6 +39,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.w3c.dom.DOMImplementation;
@@ -876,5 +877,14 @@ public abstract class Util {
             }
         }
         return defaultLanguage;
+    }
+
+    public static boolean userCanWrite(ILocalUser user) {
+        if (Webapp.INSTANCE.isEnterpriseVersion()) {
+            Set<String> roles = user.getRoles();
+            return roles.contains(ICoreConstants.ADMIN_PERMISSION) || roles.contains(ICoreConstants.SYSTEM_ADMIN_ROLE)
+                    || roles.contains(ICoreConstants.SYSTEM_INTERACTIVE_ROLE) || roles.contains(ICoreConstants.SYSTEM_WEB_ROLE);
+        }
+        return true;
     }
 }

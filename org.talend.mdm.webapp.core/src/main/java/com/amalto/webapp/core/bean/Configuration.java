@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.webservice.WSBoolean;
 import com.amalto.core.webservice.WSDataClusterPK;
@@ -103,12 +104,17 @@ public class Configuration {
             throw new Exception("nomodel"); //$NON-NLS-1$
         }
 
+        ILocalUser user = LocalUser.getLocalUser();
+        if(!Util.userCanWrite(user)) {
+            return;
+        }
+        
         String xml = Util
                 .getPort()
                 .getItem(
                         new WSGetItem(
                                 new WSItemPK(
-                                        new WSDataClusterPK("PROVISIONING"), "User", new String[] { LocalUser.getLocalUser().getUsername() }))) //$NON-NLS-1$//$NON-NLS-2$
+                                        new WSDataClusterPK("PROVISIONING"), "User", new String[] { user.getUsername() }))) //$NON-NLS-1$//$NON-NLS-2$
                 .getContent();
         Document d = Util.parse(xml);
         NodeList nodeList = com.amalto.core.util.Util.getNodeList(d, "//property"); //$NON-NLS-1$

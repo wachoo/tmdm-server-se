@@ -135,7 +135,7 @@ public abstract class TypeMapping {
             String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
             if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
                 if (value != null) {
-                    return Hibernate.getLobCreator(session).createBlob(String.valueOf(value).getBytes());
+                    return Hibernate.getLobCreator(session).createClob(String.valueOf(value));
                 } else {
                     return null;
                 }

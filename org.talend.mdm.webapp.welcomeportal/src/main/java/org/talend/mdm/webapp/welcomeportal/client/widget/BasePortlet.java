@@ -77,10 +77,8 @@ public abstract class BasePortlet extends Portlet {
                     public void componentSelected(IconButtonEvent ce) {
                         final List<BasePortlet> portlets = portal.getPortlets();
                         final int index = portlets.indexOf(BasePortlet.this);
-
-                        portal.removeAllPortlets();
                         portlets.remove(index);
-                        portal.refresh();
+                        portal.remove(BasePortlet.this, portal.getPortletColumn(BasePortlet.this));
                         String portletToLocationsStr = portal.getUpdatedLocations().toString();
 
                         service.savePortalConfig(PortalProperties.KEY_PORTLET_LOCATIONS, portletToLocationsStr,

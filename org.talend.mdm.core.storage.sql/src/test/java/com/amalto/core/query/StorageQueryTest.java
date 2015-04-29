@@ -122,6 +122,10 @@ public class StorageQueryTest extends StorageTestCase {
     private final String TT_Record2 = " <TT><Id>T2</Id><MUl><E1>2</E1><E2>2</E2><E3>[R2]</E3></MUl></TT>";
 
     private final String TT_Record3 = " <TT><Id>T3</Id><MUl><E1>3</E1><E2>3</E2><E3>[R3]</E3></MUl></TT>";
+    
+    private final String COMPTE_Record1 = "<Compte><Level>Compte SF</Level><Code>1</Code><Label>1</Label></Compte>";
+
+    private final String COMPTE_Record2 = "<Compte><Level>Nature Comptable SF</Level><Code>11</Code><Label>11</Label><childOf>[Compte SF][1]</childOf></Compte>";
 
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -318,6 +322,8 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read(repository, tt, TT_Record1));
         allRecords.add(factory.read(repository, tt, TT_Record2));
         allRecords.add(factory.read(repository, tt, TT_Record3));
+        allRecords.add(factory.read(repository, compte, COMPTE_Record1));
+        allRecords.add(factory.read(repository, compte, COMPTE_Record2));
 
         try {
             storage.begin();
@@ -803,6 +809,40 @@ public class StorageQueryTest extends StorageTestCase {
         for (DataRecord result : storageResults) {
             assertEquals(expected[i++], result.get("id"));
         }
+    }
+    
+    public void testOrderByCompoundField() throws Exception {
+        FieldMetadata code = compte.getField("Code");
+        String[] ascExpectedValues = { "1", "11" };
+        UserQueryBuilder qb = from(compte).select(compte.getField("Code")).select(compte.getField("Label"))
+                .select(compte.getField("childOf")).orderBy(compte.getField("childOf"), OrderBy.Direction.ASC);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(ascExpectedValues[i++], result.get(code));
+            }
+        } finally {
+            results.close();
+        }
+
+        String[] descExpectedValues = { "11", "1" };
+        qb = from(compte).select(compte.getField("Code")).select(compte.getField("Label")).select(compte.getField("childOf"))
+                .orderBy(compte.getField("childOf"), OrderBy.Direction.DESC);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getSize());
+            assertEquals(2, results.getCount());
+            int i = 0;
+            for (DataRecord result : results) {
+                assertEquals(descExpectedValues[i++], result.get(code));
+            }
+        } finally {
+            results.close();
+        }
+
     }
 
     public void testOrderByPK() throws Exception {

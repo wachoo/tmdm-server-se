@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.util.PluginRegistry;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,11 +48,12 @@ public class RoutingEngineTest {
         MockEnvironment env = new MockEnvironment();
         env.setProperty("mdm.routing.engine.broker.url", "vm://localhost?broker.persistent=false");
         env.setProperty("mdm.routing.engine.consumers","4-4");
+        env.setProperty("routing.engine.max.execution.time.millis","200");
         context.setEnvironment(env);
         context.load("classpath:**/" + RoutingEngineTest.class.getName() + ".xml");
         // FIXME Setting default-lazy-init on the top level beans element seems not applied to beans inside an imported
         // resource
-        // Workaround: set all beans to be lazy-init programmatically
+        // Workaround: set all beans to be lazy-init programatically
         // See also https://gist.github.com/eeichinger/1979033 as an alternative
         for (String beanName : context.getBeanDefinitionNames()) {
             context.getBeanDefinition(beanName).setLazyInit(true);
@@ -59,6 +62,9 @@ public class RoutingEngineTest {
         RoutingEngineTest.context = context;
         RoutingEngineTest.routingRule = context.getBean(RoutingRule.class);
         RoutingEngineTest.item = context.getBean(Item.class);
+        // Plugin Registry initialization (used in routing rule execution)
+        PluginRegistry.createInstance();
+        BeanDelegatorContainer.createInstance();
     }
 
     @AfterClass
@@ -156,4 +162,30 @@ public class RoutingEngineTest {
         assertEquals("testTypeMatchRule1", routes[1].getUniqueId());
     }
 
+    @Test
+    public void testExpiration() throws Exception {
+        // Adds a record that matches the rule
+        item.putItem(new ItemPOJO(container, "Person", new String[] { "1", "2" }, 0, "<Person><id>1</id><id2>2</id2></Person>"),
+                dataModel);
+        // Adds a routing rule
+        TestRoutingEngine routingEngine = (TestRoutingEngine) context.getBean(RoutingEngine.class);
+        clearRules();
+        RoutingRulePOJO rule = new RoutingRulePOJO("testTypeMatchRule");
+        rule.setConcept("*");
+        routingRule.putRoutingRule(rule);
+        // Expired message
+        int previous = routingEngine.getConsumeCallCount();
+        routingEngine.suspend(true);
+        RoutingRulePOJOPK[] routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
+        assertEquals(1, routes.length);
+        Thread.sleep(400); // Sleep *more* than expiration time for message
+        routingEngine.suspend(false);
+        assertEquals(previous, routingEngine.getConsumeCallCount()); // Message expired, consume should not be called.
+        // Expired message
+        previous = routingEngine.getConsumeCallCount();
+        routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[]{"1", "2"}));
+        assertEquals(1, routes.length);
+        Thread.sleep(100); // Sleep less than expiration time for a message
+        assertEquals(previous + 1, routingEngine.getConsumeCallCount()); // Message *not* expired, consume should not be called.
+    }
 }

@@ -97,7 +97,7 @@ public class ControllerServlet extends HttpServlet {
         html.append("<meta id='gwt:property' name='gwt:property' content='locale=").append(language).append("'>\n");
         html.append("<meta http-equiv='X-UA-Compatible' content='IE=8'>\n");
         html.append("<link rel='shortcut icon' href='auth/favicon.ico'/>\n");
-        html.append("<link rel='stylesheet' type='text/css' href='secure/googleapi/fonts.css'/>\n");
+        html.append("<link rel='stylesheet' type='text/css' href='auth/googleapi/fonts.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='secure/gxt/resources/css/gxt-all.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='General.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='General-menus.css'/>\n");
@@ -137,14 +137,16 @@ public class ControllerServlet extends HttpServlet {
         html.append("<html>");
         html.append("<head>");
         html.append("<meta http-equiv='Content-Type' content='text/html;charset=UTF-8'/>");
+        html.append("<link rel='shortcut icon'  href='" + contextPath + "/auth/favicon.ico'/>\n");
+        html.append("<link rel='stylesheet' type='text/css'  href='" + contextPath + "/auth/googleapi/fonts.css'/>\n");
         html.append("<link rel='stylesheet' type='text/css' href='" + contextPath + "/auth/loginPage.css'/>");
+        html.append("</head>");
+        html.append("<body style='text-align: center;'>");
         html.append("<table width='100%' class='header1' border='0'>");
         html.append("<tr><td height='128' width='50%' class='logo'><img src='" + contextPath + "/auth/logo.png'></td></tr>");
         html.append("<tr><td class='suiteName' id='suiteName' colspan='2' height='56'>Talend MDM</td></tr>");
         html.append("</table>");
-        html.append("</head>");
-        html.append("<body style='text-align: center;'>");
-
+        
         String errorTitle = MESSAGES.getMessage(locale, "login.error"); //$NON-NLS-1$
         String backLogin = MESSAGES.getMessage(locale, "back.login"); //$NON-NLS-1$     
 

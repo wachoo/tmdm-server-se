@@ -616,6 +616,22 @@ public class MetadataValidationTest extends TestCase {
         assertFalse(handler.getLineNumbers().contains(null));
     }
     
+    public void testTypeUsageCount() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream1 = getClass().getResourceAsStream("ReusableType.xsd"); //$NON-NLS-1$
+        TestValidationHandler handler = new TestValidationHandler();
+        repository.load(stream1, handler);
+
+        InputStream stream2 = getClass().getResourceAsStream("ReusableType.xsd"); //$NON-NLS-1$
+        MetadataRepository repositoryBackup = repository.copy();
+        try {
+            repositoryBackup.load(stream2, handler);
+        } catch (Exception e) {
+            fail("Type usage count fail."); //$NON-NLS-1$
+        }
+        assertEquals(0, handler.getErrorCount());
+    }
+
     public void testForeignKeyFilter() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream resourceAsStream = this.getClass().getResourceAsStream("ForeignKeyFilter.xsd");
