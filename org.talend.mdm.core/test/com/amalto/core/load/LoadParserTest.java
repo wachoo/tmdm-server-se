@@ -47,6 +47,14 @@ public class LoadParserTest extends TestCase {
 
     private final TestAutoIdGenerator idGenerator = null; // Intentionally null to test cases when no id generator is needed.
 
+    static {
+        try {
+            MDMConfiguration.createConfiguration("", true);
+        } catch (IllegalStateException e) {
+            // already configured;
+        }
+    }
+    
     public void testArgs() {
         ParserTestCallback callback = new ParserTestCallback();
 
