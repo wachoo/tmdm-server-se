@@ -103,13 +103,12 @@ public class SystemStorageTest extends TestCase {
 
     public void testSystemRepository() throws Exception {
         ClassRepository repository = buildRepository();
-        // The additional loaded type is the sub type of ServiceBean
-        assertEquals(ObjectPOJO.OBJECT_TYPES.length + 1, repository.getUserComplexTypes().size());
+        assertEquals(ObjectPOJO.OBJECT_TYPES.length, repository.getUserComplexTypes().size());
     }
 
     public void testInternalClusterNames() throws Exception {
-        String[] expectedInternalClusters = new String[] { "", "JCAAdapters", "Inbox", "SearchTemplate", "MDMDomainObjects",
-                "MDMItemsTrash", "Reporting", "MDMItemImages", "PROVISIONING", "CONF", "amaltoOBJECTSTransformerV2", //$NON-NLS-1$
+        String[] expectedInternalClusters = new String[] { "", "SearchTemplate", "MDMDomainObjects",
+                "MDMItemsTrash", "MDMItemImages", "PROVISIONING", "CONF", "amaltoOBJECTSTransformerV2", //$NON-NLS-1$
                 "amaltoOBJECTSFailedRoutingOrderV2", //$NON-NLS-1$
                 "amaltoOBJECTSCompletedRoutingOrderV2", //$NON-NLS-1$
                 "amaltoOBJECTSCustomForm", //$NON-NLS-1$
@@ -220,7 +219,7 @@ public class SystemStorageTest extends TestCase {
             Document document;
             try {
                 document = documentBuilder.parse(fis1);
-                typeName = document.getDocumentElement().getNodeName();
+                typeName = document.getDocumentElement().getChildNodes().item(0).getNodeName();
             } finally {
                 fis1.close();
             }
