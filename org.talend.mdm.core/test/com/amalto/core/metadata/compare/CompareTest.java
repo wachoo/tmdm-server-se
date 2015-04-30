@@ -158,40 +158,6 @@ public class CompareTest extends TestCase {
         assertEquals(0, sort.size());
     }
 
-    public void test6_SystemDMs_Reporting() throws Exception {
-        ClassRepository repository = buildRepository();
-        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/Reporting" };
-        for (String model : models) {
-            InputStream builtInStream = this.getClass().getResourceAsStream(model);
-            if (builtInStream == null) {
-                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
-            }
-            try {
-                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
-                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8")));
-            } catch (Exception e) {
-                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
-            } finally {
-                try {
-                    builtInStream.close();
-                } catch (IOException e) {
-                    // Ignored
-                }
-            }
-        }
-        LOG.info("Storage prepared.");
-
-        MetadataRepository updated = new MetadataRepository();
-        updated.load(CompareTest.class.getResourceAsStream("schema7_2.xsd"));
-        Compare.DiffResults diffResults = Compare.compare(repository, updated);
-
-        assertEquals(54, diffResults.getActions().size());
-
-        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
-        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
-        assertEquals(0, sort.size());
-    }
-
     public void test6_SystemDMs_PROVISIONING() throws Exception {
         ClassRepository repository = buildRepository();
         String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" };
