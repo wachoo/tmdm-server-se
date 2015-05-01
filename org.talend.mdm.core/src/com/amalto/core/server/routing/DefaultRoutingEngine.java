@@ -40,6 +40,7 @@ import com.amalto.core.server.api.Item;
 import com.amalto.core.server.api.RoutingEngine;
 import com.amalto.core.server.api.RoutingRule;
 import com.amalto.core.server.security.SecurityConfig;
+import com.amalto.core.util.PluginRegistry;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
@@ -328,7 +329,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
                 }
                 // Proceed with rule execution
                 final ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, pk.split("\\.")); //$NON-NLS-1$
-                final Service service = Util.retrieveComponent(routingRule.getServiceJNDI());
+                final Service service = PluginRegistry.getInstance().getService(routingRule.getServiceJNDI());
                 final int parameterIndex = ruleIndex;
                 SecurityConfig.invokeSynchronousPrivateInternal(new Runnable() {
 
