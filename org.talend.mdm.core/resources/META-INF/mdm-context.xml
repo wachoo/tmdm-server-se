@@ -116,8 +116,6 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
         <security:intercept-url pattern="\A/services/TDSCWS\?wsdl" requires-channel="any" access="permitAll"
             method="GET" />
         <security:intercept-url pattern="\A/services" requires-channel="any" access="permitAll" method="GET" />
-        <security:intercept-url pattern="\A/services/auth.*\Z" requires-channel="any" access="permitAll"
-            method="GET" />
         <security:intercept-url pattern="\A/services/run.*\Z" requires-channel="any" access="hasRole('administration')" />
         <security:intercept-url pattern="\A/services/logviewer.*\Z" requires-channel="any"
             access="hasRole('administration')" />
