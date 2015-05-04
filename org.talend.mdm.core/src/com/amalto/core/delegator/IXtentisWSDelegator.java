@@ -13,6 +13,7 @@
 package com.amalto.core.delegator;
 
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,11 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
-import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -37,7 +34,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -55,6 +51,7 @@ import com.amalto.core.objects.DroppedItemPOJO;
 import com.amalto.core.objects.DroppedItemPOJOPK;
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
+import com.amalto.core.objects.Plugin;
 import com.amalto.core.objects.Service;
 import com.amalto.core.objects.UpdateReportItemPOJO;
 import com.amalto.core.objects.UpdateReportPOJO;
@@ -146,8 +143,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 return new WSVersion(version.getMajor(), version.getMinor(), version.getRevision(), version.getBuild(),
                         version.getDescription(), version.getDate());
             }
-            throw new RemoteException("Version information is not available yet for "
-                    + wsGetComponentVersion.getComponent() + " components");
+            throw new RemoteException("Version information is not available yet for " + wsGetComponentVersion.getComponent()
+                    + " components");
         } catch (RemoteException e) {
             throw (e);
         } catch (Exception e) {
@@ -293,8 +290,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             }
             WSI18NString[] docs = bc.getWsDescription();
             for (WSI18NString doc : docs) {
-                s += "<xsd:documentation xml:lang=\"" + doc.getLanguage() + "\">" + doc.getLabel()
-                        + "</xsd:documentation>";
+                s += "<xsd:documentation xml:lang=\"" + doc.getLanguage() + "\">" + doc.getLabel() + "</xsd:documentation>";
             }
             s += "	</xsd:annotation>" + "	<xsd:unique name=\"" + bc.getName() + "\">" + "		<xsd:selector xpath=\""
                     + bc.getWsUniqueKey().getSelectorpath() + "\"/>";
@@ -340,7 +336,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-    
+
     @Override
     public WSConceptKey getBusinessConceptKey(WSGetBusinessConceptKey wsGetBusinessConceptKey) throws RemoteException {
         try {
@@ -1013,7 +1009,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
-    
+
     @Override
     public WSItemPK updateItemMetadata(WSUpdateMetadataItem wsUpdateMetadataItem) throws RemoteException {
         try {
@@ -1147,7 +1143,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                         }
                     }
                 }
-                
+
                 // Now before delete process (if any configured) was called, perform delete.
                 ItemPOJOPK deleteItem = Util.getItemCtrl2Local().deleteItem(pk, wsDeleteItem.getOverride());
                 if (deleteItem != null) {
@@ -1220,7 +1216,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     .getWsStoredProcedurePK().getPk()));
             return new WSStoredProcedurePK(pk.getIds()[0]);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1232,15 +1228,15 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             if (wsExecuteStoredProcedure.getWsDataClusterPK() != null) {
                 dcpk = new DataClusterPOJOPK(wsExecuteStoredProcedure.getWsDataClusterPK().getPk());
             }
-            Collection collection = ctrl.execute(new StoredProcedurePOJOPK(wsExecuteStoredProcedure.getWsStoredProcedurePK()
+            Collection<String> collection = ctrl.execute(new StoredProcedurePOJOPK(wsExecuteStoredProcedure.getWsStoredProcedurePK()
                     .getPk()), dcpk, wsExecuteStoredProcedure.getParameters());
             if (collection == null) {
                 return null;
             }
             String[] documents = new String[collection.size()];
             int i = 0;
-            for (Object o : collection) {
-                documents[i++] = (String) o;
+            for (String s : collection) {
+                documents[i++] = s;
             }
             return new WSStringArray(documents);
         } catch (Exception e) {
@@ -1256,7 +1252,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     .getWsStoredProcedurePK().getPk()));
             return XConverter.POJO2WS(pojo);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1268,7 +1264,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     .getWsStoredProcedurePK().getPk()));
             return new WSBoolean(pojo != null);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1276,18 +1272,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     public WSStoredProcedurePKArray getStoredProcedurePKs(WSRegexStoredProcedure regex) throws RemoteException {
         try {
             StoredProcedure ctrl = Util.getStoredProcedureCtrlLocal();
-            Collection collection = ctrl.getStoredProcedurePKs(regex.getRegex());
+            Collection<StoredProcedurePOJOPK> collection = ctrl.getStoredProcedurePKs(regex.getRegex());
             if (collection == null) {
                 return null;
             }
             WSStoredProcedurePK[] pks = new WSStoredProcedurePK[collection.size()];
             int i = 0;
-            for (Object o : collection) {
-                pks[i++] = new WSStoredProcedurePK(((StoredProcedurePOJOPK) o).getIds()[0]);
+            for (StoredProcedurePOJOPK o : collection) {
+                pks[i++] = new WSStoredProcedurePK(o.getIds()[0]);
             }
             return new WSStoredProcedurePKArray(pks);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1298,7 +1294,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             StoredProcedurePOJOPK pk = ctrl.putStoredProcedure(XConverter.WS2POJO(wsStoredProcedure.getWsStoredProcedure()));
             return new WSStoredProcedurePK(pk.getIds()[0]);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1308,7 +1304,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             Menu ctrl = Util.getMenuCtrlLocal();
             return new WSMenuPK(ctrl.removeMenu(new MenuPOJOPK(wsMenuDelete.getWsMenuPK().getPk())).getUniqueId());
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1320,10 +1316,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return XConverter.POJO2WS(pojo);
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1335,10 +1330,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return new WSBoolean(pojo != null);
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1346,18 +1340,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     public WSMenuPKArray getMenuPKs(WSGetMenuPKs regex) throws RemoteException {
         try {
             Menu ctrl = Util.getMenuCtrlLocal();
-            Collection collection = ctrl.getMenuPKs(regex.getRegex());
+            Collection<MenuPOJOPK> collection = ctrl.getMenuPKs(regex.getRegex());
             if (collection == null) {
                 return null;
             }
             WSMenuPK[] pks = new WSMenuPK[collection.size()];
             int i = 0;
-            for (Object o : collection) {
-                pks[i++] = new WSMenuPK(((MenuPOJOPK) o).getUniqueId());
+            for (MenuPOJOPK o : collection) {
+                pks[i++] = new WSMenuPK(o.getUniqueId());
             }
             return new WSMenuPKArray(pks);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1369,10 +1363,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return new WSMenuPK(pk.getUniqueId());
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1454,7 +1447,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             WSItemPK itemPK = wsRecoverDroppedItem.getWsDroppedItemPK().getWsItemPK();
             String operationType = UpdateReportPOJO.OPERATION_TYPE_RESTORED;
             String clusterName = itemPK.getWsDataClusterPK().getPk();
-            String dataModelName = clusterName; // TODO Missing data model name
+            String dataModelName = clusterName;
             String conceptName = itemPK.getConceptName();
             String[] ids = itemPK.getIds();
             pushToUpdateReport(clusterName, dataModelName, conceptName, ids, true, "genericUI", operationType, null); //$NON-NLS-1$
@@ -1471,7 +1464,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         try {
             WSItemPK itemPK = wsRemoveDroppedItem.getWsDroppedItemPK().getWsItemPK();
             String clusterName = itemPK.getWsDataClusterPK().getPk();
-            String dataModelName = clusterName; // TODO Missing data model name
+            String dataModelName = clusterName;
             String conceptName = itemPK.getConceptName();
             String[] ids = itemPK.getIds();
             String operationType = UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE;
@@ -1555,18 +1548,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     public WSRoutingRulePKArray getRoutingRulePKs(WSGetRoutingRulePKs regex) throws RemoteException {
         try {
             RoutingRule ctrl = Util.getRoutingRuleCtrlLocal();
-            Collection collection = ctrl.getRoutingRulePKs(regex.getRegex());
+            Collection<RoutingRulePOJOPK> collection = ctrl.getRoutingRulePKs(regex.getRegex());
             if (collection == null) {
                 return null;
             }
             WSRoutingRulePK[] pks = new WSRoutingRulePK[collection.size()];
             int i = 0;
-            for (Object o : collection) {
-                pks[i++] = new WSRoutingRulePK(((RoutingRulePOJOPK) o).getUniqueId());
+            for (RoutingRulePOJOPK o : collection) {
+                pks[i++] = new WSRoutingRulePK(o.getUniqueId());
             }
             return new WSRoutingRulePKArray(pks);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1577,7 +1570,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return new WSTransformerV2PK(ctrl.removeTransformer(
                     new TransformerV2POJOPK(wsTransformerV2Delete.getWsTransformerV2PK().getPk())).getUniqueId());
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1589,7 +1582,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             TransformerV2POJO pojo = ctrl.getTransformer(new TransformerV2POJOPK(pk));
             return XConverter.POJO2WS(pojo);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1601,7 +1594,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             TransformerV2POJO pojo = ctrl.existsTransformer(new TransformerV2POJOPK(pk));
             return new WSBoolean(pojo != null);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1609,18 +1602,18 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     public WSTransformerV2PKArray getTransformerV2PKs(WSGetTransformerV2PKs regex) throws RemoteException {
         try {
             Transformer ctrl = Util.getTransformerV2CtrlLocal();
-            Collection collection = ctrl.getTransformerPKs(regex.getRegex());
+            Collection<TransformerV2POJOPK> collection = ctrl.getTransformerPKs(regex.getRegex());
             if (collection == null) {
                 return null;
             }
             WSTransformerV2PK[] pks = new WSTransformerV2PK[collection.size()];
             int i = 0;
-            for (Object o : collection) {
-                pks[i++] = new WSTransformerV2PK(((TransformerV2POJOPK) o).getUniqueId());
+            for (TransformerV2POJOPK o : collection) {
+                pks[i++] = new WSTransformerV2PK(o.getUniqueId());
             }
             return new WSTransformerV2PKArray(pks);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1631,7 +1624,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             TransformerV2POJOPK pk = ctrl.putTransformer(XConverter.WS2POJO(wsTransformerV2.getWsTransformerV2()));
             return new WSTransformerV2PK(pk.getUniqueId());
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1647,14 +1640,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 @Override
                 public void contentIsReady(TransformerContext context) throws XtentisException {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("XtentisWSBean.executeTransformerV2.contentIsReady() ");
+                        LOGGER.debug("XtentisWSBean.executeTransformerV2.contentIsReady() "); //$NON-NLS-1$
                     }
                 }
 
                 @Override
                 public void done(TransformerContext context) throws XtentisException {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("XtentisWSBean.executeTransformerV2.done() ");
+                        LOGGER.debug("XtentisWSBean.executeTransformerV2.done() "); //$NON-NLS-1$
                     }
                     context.put(RUNNING, Boolean.FALSE);
                 }
@@ -1664,7 +1657,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             }
             return XConverter.POJO2WS(context);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1679,20 +1672,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                         @Override
                         public void contentIsReady(TransformerContext context) throws XtentisException {
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("XtentisWSBean.executeTransformerV2AsJob.contentIsReady() ");
+                                LOGGER.debug("XtentisWSBean.executeTransformerV2AsJob.contentIsReady() "); //$NON-NLS-1$
                             }
                         }
 
                         @Override
                         public void done(TransformerContext context) throws XtentisException {
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("XtentisWSBean.executeTransformerV2AsJob.done() ");
+                                LOGGER.debug("XtentisWSBean.executeTransformerV2AsJob.done() "); //$NON-NLS-1$
                             }
                         }
                     });
             return new WSBackgroundJobPK(bgPK.getUniqueId());
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1704,14 +1697,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return XConverter.POJO2WS(ctrl.extractThroughTransformer(new TransformerV2POJOPK(wsExtractThroughTransformerV2
                     .getWsTransformerV2PK().getPk()), XConverter.WS2POJO(wsExtractThroughTransformerV2.getWsItemPK())));
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
     @Override
     public WSBoolean existsTransformerPluginV2(WSExistsTransformerPluginV2 wsExistsTransformerPlugin) throws RemoteException {
         try {
-            return new WSBoolean(Util.existsComponent(wsExistsTransformerPlugin.getJndiName()));
+            return new WSBoolean(PluginRegistry.getInstance().existsPlugin(wsExistsTransformerPlugin.getJndiName()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1721,8 +1714,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     public WSString getTransformerPluginV2Configuration(WSTransformerPluginV2GetConfiguration wsGetConfiguration)
             throws RemoteException {
         try {
-            Service service = Util.retrieveComponent(wsGetConfiguration.getJndiName());
-            return new WSString(service.getConfiguration(wsGetConfiguration.getOptionalParameter()));
+            Plugin plugin = PluginRegistry.getInstance().getPlugin(wsGetConfiguration.getJndiName());
+            return new WSString(plugin.getConfiguration(wsGetConfiguration.getOptionalParameter()));
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
@@ -1732,8 +1725,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     public WSString putTransformerPluginV2Configuration(WSTransformerPluginV2PutConfiguration wsPutConfiguration)
             throws RemoteException {
         try {
-            Service service = Util.retrieveComponent(wsPutConfiguration.getJndiName());
-            service.putConfiguration(wsPutConfiguration.getConfiguration());
+            Plugin plugin = PluginRegistry.getInstance().getPlugin(wsPutConfiguration.getJndiName());
+            plugin.putConfiguration(wsPutConfiguration.getConfiguration());
             return new WSString();
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -1744,24 +1737,22 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     public WSTransformerPluginV2Details getTransformerPluginV2Details(
             WSGetTransformerPluginV2Details wsGetTransformerPluginDetails) throws RemoteException {
         try {
-            Service service = Util.retrieveComponent(wsGetTransformerPluginDetails.getJndiName());
-            String description = service.getConfiguration(wsGetTransformerPluginDetails.getLanguage());
-            String documentation = service.getDocumentation(wsGetTransformerPluginDetails.getLanguage());
-            String parametersSchema = service.getDefaultConfiguration();
-            ArrayList<TransformerPluginVariableDescriptor> inputVariableDescriptors = (ArrayList<TransformerPluginVariableDescriptor>) Util
-                    .getMethod(service, "getInputVariableDescriptors").invoke(//$NON-NLS-1$
-                            service, wsGetTransformerPluginDetails.getLanguage() == null ? ""//$NON-NLS-1$
-                                    : wsGetTransformerPluginDetails.getLanguage());
+            Plugin plugin = PluginRegistry.getInstance().getPlugin(wsGetTransformerPluginDetails.getJndiName());
+            String description = plugin.getConfiguration(wsGetTransformerPluginDetails.getLanguage());
+            String documentation = plugin.getDocumentation(wsGetTransformerPluginDetails.getLanguage());
+            String parametersSchema = plugin.getParametersSchema();
+            ArrayList<TransformerPluginVariableDescriptor> inputVariableDescriptors = plugin
+                    .getInputVariableDescriptors(wsGetTransformerPluginDetails.getLanguage() == null ? "" //$NON-NLS-1$
+                            : wsGetTransformerPluginDetails.getLanguage());
             ArrayList<WSTransformerPluginV2VariableDescriptor> wsInputVariableDescriptors = new ArrayList<WSTransformerPluginV2VariableDescriptor>();
             if (inputVariableDescriptors != null) {
                 for (TransformerPluginVariableDescriptor descriptor : inputVariableDescriptors) {
                     wsInputVariableDescriptors.add(XConverter.POJO2WS(descriptor));
                 }
             }
-            ArrayList<TransformerPluginVariableDescriptor> outputVariableDescriptors = (ArrayList<TransformerPluginVariableDescriptor>) Util
-                    .getMethod(service, "getOutputVariableDescriptors").invoke(//$NON-NLS-1$
-                            service, wsGetTransformerPluginDetails.getLanguage() == null ? ""//$NON-NLS-1$
-                                    : wsGetTransformerPluginDetails.getLanguage());
+            ArrayList<TransformerPluginVariableDescriptor> outputVariableDescriptors = plugin
+                    .getOutputVariableDescriptors(wsGetTransformerPluginDetails.getLanguage() == null ? "" //$NON-NLS-1$
+                            : wsGetTransformerPluginDetails.getLanguage());
             ArrayList<WSTransformerPluginV2VariableDescriptor> wsOutputVariableDescriptors = new ArrayList<WSTransformerPluginV2VariableDescriptor>();
             if (outputVariableDescriptors != null) {
                 for (TransformerPluginVariableDescriptor descriptor : outputVariableDescriptors) {
@@ -1783,14 +1774,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             throws RemoteException {
         try {
             ArrayList<WSTransformerPluginV2SListItem> wsList = new ArrayList<WSTransformerPluginV2SListItem>();
-            InitialContext ctx = new InitialContext();
-            NamingEnumeration<NameClassPair> list = ctx.list("amalto/local/transformer/plugin");//$NON-NLS-1$
-            while (list.hasMore()) {
-                NameClassPair nc = list.next();
+            Map<String, Plugin> pluginsMap = PluginRegistry.getInstance().getPlugins();
+            for (String key : pluginsMap.keySet()) {
                 WSTransformerPluginV2SListItem item = new WSTransformerPluginV2SListItem();
-                item.setJndiName(nc.getName());
-                Service service = Util.retrieveComponent("amalto/local/transformer/plugin/" + nc.getName());//$NON-NLS-1$
-                String description = service.getDocumentation(wsGetTransformerPluginsList.getLanguage());
+                item.setJndiName(key.replaceAll(PluginRegistry.PLUGIN_PREFIX, "")); //$NON-NLS-1$
+                Plugin plugin = pluginsMap.get(key);
+                String description = plugin.getDocumentation(wsGetTransformerPluginsList.getLanguage());
                 item.setDescription(description);
                 wsList.add(item);
             }
@@ -1806,10 +1795,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return XConverter.POJO2WS(ctrl.existsRoutingOrder(XConverter.WS2POJO(wsExistsRoutingOrder.getWsRoutingOrderPK())));
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1831,10 +1819,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     criteria.getServiceParametersContain(), criteria.getMessageContain());
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1858,10 +1845,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     criteria.getMaxItems(), criteria.getTotalCountOnFirstResult());
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1881,10 +1867,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return wsPKArray;
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1905,10 +1890,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return wsPKArray;
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1931,13 +1915,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     WSRoutingOrderV2 wsRoutingOrderV2 = new WSRoutingOrderV2();
                     // record totalCount and wsRoutingOrderV2 need to initialize attribute value
                     wsRoutingOrderV2.setName(abstractRoutingOrderV2POJOPK.getName());
-                    wsRoutingOrderV2.setBindingUniverseName("");
-                    wsRoutingOrderV2.setBindingUserToken("");
-                    wsRoutingOrderV2.setMessage("");
-                    wsRoutingOrderV2.setServiceJNDI("");
-                    wsRoutingOrderV2.setServiceParameters("");
+                    wsRoutingOrderV2.setBindingUniverseName(""); //$NON-NLS-1$
+                    wsRoutingOrderV2.setBindingUserToken(""); //$NON-NLS-1$
+                    wsRoutingOrderV2.setMessage(""); //$NON-NLS-1$
+                    wsRoutingOrderV2.setServiceJNDI(""); //$NON-NLS-1$
+                    wsRoutingOrderV2.setServiceParameters(""); //$NON-NLS-1$
                     wsRoutingOrderV2.setStatus(WSRoutingOrderV2Status.COMPLETED);
-                    wsRoutingOrderV2.setWsItemPK(new WSItemPK(new WSDataClusterPK(""), "", new String[0]));
+                    wsRoutingOrderV2.setWsItemPK(new WSItemPK(new WSDataClusterPK(""), "", new String[0])); //$NON-NLS-1$ //$NON-NLS-2$
                     list.add(wsRoutingOrderV2);
                     continue;
                 }
@@ -1947,10 +1931,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return wsPKArray;
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1966,10 +1949,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return new WSRoutingRulePKArray(list.toArray(new WSRoutingRulePK[list.size()]));
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -1990,10 +1972,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             }
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
         // get status
         try {
@@ -2011,10 +1992,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             }
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
-                LOGGER.debug(err, e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
 
     }
@@ -2028,6 +2008,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 if (xml != null) {
                     return new WSAutoIncrement(xml);
                 }
+                return null;
             } else {
                 xmlServerCtrlLocal.start(XSystemObjects.DC_CONF.getName());
                 xmlServerCtrlLocal.putDocumentFromString(request.getAutoincrement(), "Auto_Increment",//$NON-NLS-1$
@@ -2036,9 +2017,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 return request;
             }
         } catch (XtentisException e) {
-            LOGGER.error("IXtentisWSDelegator.getAutoIncrement error.", e);
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -2051,9 +2034,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 if (category == null) {
                     String empty = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";//$NON-NLS-1$
                     empty += "<" + ICoreConstants.DEFAULT_CATEGORY_ROOT + "/>";//$NON-NLS-1$ //$NON-NLS-2$
-                    xmlServerCtrlLocal.start("CONF");
+                    xmlServerCtrlLocal.start("CONF"); //$NON-NLS-1$
                     xmlServerCtrlLocal.putDocumentFromString(empty, "CONF.TREEOBJECT.CATEGORY", "CONF");//$NON-NLS-1$ //$NON-NLS-2$ 
-                    xmlServerCtrlLocal.commit("CONF");
+                    xmlServerCtrlLocal.commit("CONF"); //$NON-NLS-1$
                     category = empty;
                 }
                 return new WSCategoryData(category);
@@ -2065,11 +2048,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 return request;
             }
         } catch (XtentisException e) {
-            LOGGER.error("IXtentisWSDelegator.getMDMCategory error.", e);
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
             return null;
         }
     }
-    
+
     /**
      * get job infos deployed as war files
      */
@@ -2250,9 +2235,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             RolePOJO role = ctrl.getRole(new RolePOJOPK(wsGetRole.getWsRolePK().getPk()));
             return XConverter.POJO2WS(role);
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            LOGGER.debug(err, e);
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -2263,9 +2249,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             RolePOJO pojo = ctrl.existsRole(new RolePOJOPK(wsExistsRole.getWsRolePK().getPk()));
             return new WSBoolean(pojo != null);
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            LOGGER.debug(err, e);
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -2284,7 +2271,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             }
             return new WSRolePKArray(pks);
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -2296,9 +2283,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             LocalUser.resetLocalUsers();
             return new WSRolePK(pk.getUniqueId());
         } catch (Exception e) {
-            String err = "ERROR SYSTRACE: " + e.getMessage();
-            LOGGER.debug(err, e);
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -2308,44 +2295,76 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             Role ctrl = Util.getRoleCtrlLocal();
             return new WSRolePK(ctrl.removeRole(new RolePOJOPK(wsRoleDelete.getWsRolePK().getPk())).getUniqueId());
         } catch (Exception e) {
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
-    
+
     @Override
     public WSString serviceAction(WSServiceAction wsServiceAction) throws RemoteException {
-        // TODO
-        throw new NotImplementedException();
+        try {
+            Service service = PluginRegistry.getInstance().getService(wsServiceAction.getJndiName());
+            String result;
+            if (WSServiceActionCode.EXECUTE.equals(wsServiceAction.getWsAction())) {
+                Method method = Util.getMethod(service, wsServiceAction.getMethodName());
+                result = (String) method.invoke(service, wsServiceAction.getMethodParameters());
+            } else {
+                if (WSServiceActionCode.START.equals(wsServiceAction.getWsAction())) {
+                    service.start();
+                } else if (WSServiceActionCode.STOP.equals(wsServiceAction.getWsAction())) {
+                    service.stop();
+                }
+                result = service.getStatus();
+            }
+            return new WSString(result);
+        } catch (Exception e) {
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage(), e);
+            }
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     @Override
     public WSString getServiceConfiguration(WSServiceGetConfiguration wsGetConfiguration) throws RemoteException {
-        // TODO
-        throw new NotImplementedException();
+        try {
+            Service service = PluginRegistry.getInstance().getService(wsGetConfiguration.getJndiName());
+            String configuration = service.getConfiguration(wsGetConfiguration.getOptionalParameter());
+            return new WSString(configuration);
+        } catch (Exception e) {
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     @Override
     public WSString putServiceConfiguration(WSServicePutConfiguration wsPutConfiguration) throws RemoteException {
-        // TODO
-        throw new NotImplementedException();
+        try {
+            Service service = PluginRegistry.getInstance().getService(wsPutConfiguration.getJndiName());
+            service.putConfiguration(wsPutConfiguration.getConfiguration());
+            return new WSString(wsPutConfiguration.getConfiguration());
+        } catch (Exception e) {
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     @Override
     public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
-        // TODO
-        throw new NotImplementedException();
+        //Kept for backward compatibility
+        try {
+            Service service = PluginRegistry.getInstance().getService(PluginRegistry.SERVICE_PREFIX + serviceName.getJndiName());
+            return new WSCheckServiceConfigResponse(service == null ? false : true);
+        } catch (Exception e) {
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     @Override
     public WSServicesList getServicesList(WSGetServicesList wsGetServicesList) throws RemoteException {
         try {
             ArrayList<WSServicesListItem> wsList = new ArrayList<WSServicesListItem>();
-            String serviceJndiPrefix = "amalto/local/service/"; //$NON-NLS-1$
-            ListableBeanFactory serviceList = PluginRegistry.getInstance().getListableBeanFactory();
-            Map servicesMap = serviceList.getBeansOfType(Service.class);
-            for (String key : (Set<String>) servicesMap.keySet()) {
+            Map<String, Service> servicesMap = PluginRegistry.getInstance().getServices();
+            for (String key : servicesMap.keySet()) {
                 WSServicesListItem item = new WSServicesListItem();
-                item.setJndiName(key.replaceAll(serviceJndiPrefix, ""));
+                item.setJndiName(key.replaceAll(PluginRegistry.SERVICE_PREFIX, "")); //$NON-NLS-1$
                 wsList.add(item);
             }
             return new WSServicesList(wsList.toArray(new WSServicesListItem[wsList.size()]));
@@ -2356,8 +2375,16 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSServiceGetDocument getServiceDocument(WSString serviceName) throws RemoteException {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            Service service = PluginRegistry.getInstance().getService(PluginRegistry.SERVICE_PREFIX + serviceName.getValue());
+            String desc = service.getDescription(""); //$NON-NLS-1$
+            String configuration = service.getConfiguration(""); //$NON-NLS-1$
+            String doc = service.getDocumentation(""); //$NON-NLS-1$
+            String defaultConf = service.getDefaultConfiguration(); 
+            return new WSServiceGetDocument(desc, configuration, doc, "", defaultConf); //$NON-NLS-1$
+        } catch (Exception e) {
+            throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
+        }
     }
 
     @Override

@@ -122,7 +122,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
         <security:intercept-url pattern="\A/services/uploadFile.*\Z" requires-channel="any"
             access="hasRole('administration')" />
         <security:intercept-url pattern="\A/services/licenseUpload.*\Z" requires-channel="any"
-            access="hasRole('administration')" method="POST"/>
+            access="hasRole('administration')" method="POST" />
         <security:intercept-url pattern="\A/services/pubcomponent.*\Z" requires-channel="any" access="permitAll"
             method="GET" />
         <security:intercept-url pattern="\A/services/pubcomponent.*\Z" requires-channel="any"
@@ -133,11 +133,12 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
 
     <security:http auto-config="false" pattern="/**" entry-point-ref="formLoginAuthenticationEntryPoint"
         authentication-manager-ref="authenticationManager" use-expressions="true">
-        <security:intercept-url pattern="/auth/**" access="permitAll" />
-        <security:intercept-url pattern="/ui" access="hasRole('authenticated') and hasRole('UIAuthenticated')" />
-        <security:intercept-url pattern="/logviewer/**" access="hasRole('administration')" />
-        <security:intercept-url pattern="/h2console/**" access="hasRole('administration')" />
-        <security:intercept-url pattern="/**" access="hasRole('authenticated')" />
+        <security:intercept-url pattern="/auth/**" requires-channel="any" access="permitAll" />
+        <security:intercept-url pattern="/ui" requires-channel="any"
+            access="hasRole('authenticated') and hasRole('UIAuthenticated')" />
+        <security:intercept-url pattern="/logviewer/**" requires-channel="any" access="hasRole('administration')" />
+        <security:intercept-url pattern="/h2console/**" requires-channel="any" access="hasRole('administration')" />
+        <security:intercept-url pattern="/**" requires-channel="any" access="hasRole('authenticated')" />
         <security:custom-filter position="FORM_LOGIN_FILTER" ref="formLoginAuthenticationFilter" />
         <security:custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencySessionFilter" />
         <security:logout logout-url="/auth/logout" invalidate-session="true" delete-cookies="JSESSIONID" />

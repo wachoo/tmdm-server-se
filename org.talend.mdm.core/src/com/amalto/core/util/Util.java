@@ -676,14 +676,6 @@ public class Util {
         return null;
     }
 
-    public static boolean existsComponent(String jndiName) {
-        return PluginRegistry.getInstance().getService(jndiName) != null;
-    }
-
-    public static Service retrieveComponent(String jndiName) {
-        return PluginRegistry.getInstance().getService(jndiName);
-    }
-
     public static boolean isEnterprise() {
         return ServerAccess.INSTANCE.isEnterpriseVersion();
     }

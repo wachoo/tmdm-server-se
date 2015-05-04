@@ -346,6 +346,7 @@
     <servlet-mapping>
         <servlet-name>ImageLocateServlet</servlet-name>
         <url-pattern>/imageserver/upload/*</url-pattern>
+        <url-pattern>/services/imageserver/upload/*</url-pattern>
     </servlet-mapping>
     <!-- org.talend.mdm.ext.publish.component -->
     <servlet>
