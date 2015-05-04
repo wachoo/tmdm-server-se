@@ -241,6 +241,5 @@
         <ids>System_Admin</ids>
         <unique-id>System_Admin</unique-id>
     </PK>
-    <last-error/>
     <digest>95c6c31543fac9de5841b3a4f10f5e8e</digest>
 </role-pOJO>

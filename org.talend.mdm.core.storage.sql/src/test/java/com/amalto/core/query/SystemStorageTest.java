@@ -219,7 +219,7 @@ public class SystemStorageTest extends TestCase {
             Document document;
             try {
                 document = documentBuilder.parse(fis1);
-                typeName = document.getDocumentElement().getChildNodes().item(0).getNodeName();
+                typeName = document.getDocumentElement().getNodeName();
             } finally {
                 fis1.close();
             }
