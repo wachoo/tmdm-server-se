@@ -162,7 +162,7 @@ public class BrowseRecordsController extends Controller {
 
                     @Override
                     public void onSuccess(ItemResult result) {
-                        itemBean.setIds(result.getReturnValue());
+                        itemBean.setIds(result.getReturnValue() != null ? result.getReturnValue() : ""); //$NON-NLS-1$
                         itemBean.setLastUpdateTime(result);
                         progressBar.close();
                         MessageBox msgBox = null;
