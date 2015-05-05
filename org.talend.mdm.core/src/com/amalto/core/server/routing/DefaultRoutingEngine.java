@@ -10,7 +10,11 @@
 
 package com.amalto.core.server.routing;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,7 +39,11 @@ import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.Service;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
-import com.amalto.core.objects.routing.*;
+import com.amalto.core.objects.routing.CompletedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.FailedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.RoutingRuleExpressionPOJO;
+import com.amalto.core.objects.routing.RoutingRulePOJO;
+import com.amalto.core.objects.routing.RoutingRulePOJOPK;
 import com.amalto.core.server.api.Item;
 import com.amalto.core.server.api.RoutingEngine;
 import com.amalto.core.server.api.RoutingRule;
@@ -341,6 +349,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
                             // Record routing order was successfully executed.
                             CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
                             completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                            completedRoutingOrder.setName(itemPOJOPK.toString());
                             completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
                             completedRoutingOrder.setServiceParameters(routingRule.getParameters());
                             completedRoutingOrder.store();
