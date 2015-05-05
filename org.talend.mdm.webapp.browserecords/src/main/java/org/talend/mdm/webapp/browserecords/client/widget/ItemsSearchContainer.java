@@ -26,6 +26,8 @@ public class ItemsSearchContainer extends LayoutContainer {
 
     private static ItemsSearchContainer instance;
 
+    public static float SIZE = 34;
+    
     private BorderLayoutData northData;
 
     public static ItemsSearchContainer getInstance() {
@@ -60,7 +62,7 @@ public class ItemsSearchContainer extends LayoutContainer {
         topPanel.add(ItemsToolBar.getInstance());
         topPanel.add(ItemsToolBar.getInstance().getAdvancedPanel());
         northData = new BorderLayoutData(LayoutRegion.NORTH);
-        northData.setSize(30);
+        northData.setSize(SIZE);
         add(topPanel, northData);
 
         BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);

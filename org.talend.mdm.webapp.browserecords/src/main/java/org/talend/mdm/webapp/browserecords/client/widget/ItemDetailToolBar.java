@@ -273,10 +273,7 @@ public class ItemDetailToolBar extends ToolBar {
         }
     }
 
-    private static int TOOLBAR_HEIGHT = 29;
-
     protected void initToolBar() {
-        this.setHeight(TOOLBAR_HEIGHT + "px"); //$NON-NLS-1$
         this.addStyleName("ItemDetailToolBar"); //$NON-NLS-1$       
         if (operation.equalsIgnoreCase(ItemDetailToolBar.VIEW_OPERATION)
                 || operation.equalsIgnoreCase(ItemDetailToolBar.PERSONALEVIEW_OPERATION)) {

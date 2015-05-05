@@ -19,7 +19,6 @@
 
 .urlStyle {
 	cursor: pointer;
-    font-family: tahoma,verdana,helvetica;
     font-size: 13px;
     font-weight: bold;
     line-height: 16px;
@@ -94,17 +93,16 @@
 }
 
 #ItemsDetailPanel-breadCrumb font{
-        font-family:Arial, Helvetica, sans-serif !important;
-	font-size:11px !important;
+	font-size:12px !important;
 	color:#36506D !important;
 }
 
 #ItemsDetailPanel-breadCrumb a{
-        font-family:Arial, Helvetica, sans-serif !important;
-	font-size:11px !important;
+    font-size:12px !important;
 	color:#36506D !important;
 	font-weight:bold !important;
 	text-decoration:none !important;
+	cursor: pointer;
 }
 
 #ItemsDetailPanel-bannerWrapperLeft{
@@ -125,7 +123,6 @@
 
 #ItemsDetailPanel-textTitle{
         color: #27394E;
-	font-family: Arial,Helvetica,sans-serif;
 	font-size: 16px;
 	font-weight: bold;
 	text-align: inherit;
@@ -136,7 +133,6 @@
 /* Subtitle in banner, of which there can be more than one. */
 .ItemsDetailPanel-subTitle{
         color: #FFFFFF;
-	font-family: Arial,Helvetica,sans-serif;
 	font-size: 12px;
 	text-align: inherit;
 	text-indent: 0;
@@ -201,7 +197,6 @@
 {
     text-align: left;
 	color: #92ABC7;
-	font-family: Arial,Helvetica,sans-serif;
 	font-size: 12px;
 	font-weight: bold;
 	padding-left: 15px;
@@ -227,7 +222,6 @@
     
     text-align: left;
     color: #92ABC7;
-    font-family: Arial,Helvetica,sans-serif;
     font-size: 12px;
     font-weight: bold;
     padding-left: 15px;
@@ -260,7 +254,6 @@
 .ItemDetailToolBar .x-btn-text
 {
     color: #333333;
-	font-family: Arial,Helvetica,sans-serif;
 	font-size: 12px;
 	vertical-align: text-bottom;
 	text-decoration: none;

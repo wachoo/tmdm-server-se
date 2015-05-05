@@ -1,5 +1,6 @@
-	html, body {
-	font:13px tahoma,verdana,helvetica;
+    html, body {
+        font-family: "Source Sans Pro"!important;
+        font-size: 13px;
         margin:0;
         padding:0;
         border:0 none;
