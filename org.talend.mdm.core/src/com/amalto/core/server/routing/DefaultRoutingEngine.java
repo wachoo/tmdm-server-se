@@ -362,6 +362,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
                                 FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
                                 failedRoutingOrder.setMessage(err);
                                 failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                                failedRoutingOrder.setName(itemPOJOPK.toString());
                                 failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
                                 failedRoutingOrder.setServiceParameters(routingRule.getParameters());
                                 failedRoutingOrder.store();
