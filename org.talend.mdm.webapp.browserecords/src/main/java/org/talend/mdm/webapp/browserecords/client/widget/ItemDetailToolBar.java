@@ -1019,22 +1019,16 @@ public class ItemDetailToolBar extends ToolBar {
                                 @Override
                                 public void onSuccess(final String urlResult) {
                                     waitBar.close();
-                                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
-                                            .process_done(), new Listener<MessageBoxEvent>() {
-
-                                        @Override
-                                        public void handleEvent(MessageBoxEvent be) {
-                                            if (urlResult != null && urlResult.length() > 0) {
-                                                openWindow(urlResult);
-                                            }
-                                        }
-                                    });
+                                    if (urlResult != null && urlResult.length() > 0) {
+                                        openWindow(urlResult);
+                                    }
                                 }
 
                                 @Override
                                 protected void doOnFailure(Throwable caught) {
                                     waitBar.close();
-                                    super.doOnFailure(caught);
+                                    MessageBox.alert(MessagesFactory.getMessages().status(), MessagesFactory.getMessages()
+                                            .process_failed(), null);
                                 }
                             });
                 }

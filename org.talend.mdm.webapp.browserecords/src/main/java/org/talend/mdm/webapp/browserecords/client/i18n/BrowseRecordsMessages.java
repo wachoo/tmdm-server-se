@@ -327,8 +327,6 @@ public interface BrowseRecordsMessages extends Messages {
 
     String process_failed();
 
-    String process_done();
-
     String process_progress_bar_title();
 
     String process_progress_bar_message();
