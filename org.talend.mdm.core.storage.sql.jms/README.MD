@@ -179,5 +179,7 @@ You must repeat the following steps for all nodes of your cluster:
 "hibernate.search.jms.topic" defaults to "mdm.search.lucene".
 "hibernate.search.jms.connection_factory" defaults to "ConnectionFactory".
 
+{2} Set the "system.cluster" property to "true" (add "system.cluster=true" if property is not present).
+
 *Last step*
 Start your MDM server.

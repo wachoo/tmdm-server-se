@@ -38,11 +38,23 @@ import java.util.WeakHashMap;
 
 import javax.xml.XMLConstants;
 
+import com.amalto.core.server.Server;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
+import org.hibernate.Session;
+import org.hibernate.cfg.Environment;
+import org.hibernate.search.FullTextSession;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordConverter;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -120,21 +132,13 @@ import com.amalto.core.query.user.Visitor;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.prepare.FullTextIndexCleaner;
 import com.amalto.core.storage.prepare.JDBCStorageCleaner;
 import com.amalto.core.storage.prepare.JDBCStorageInitializer;
 import com.amalto.core.storage.prepare.StorageCleaner;
 import com.amalto.core.storage.prepare.StorageInitializer;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordConverter;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 
@@ -601,19 +605,22 @@ public class HibernateStorage implements Storage {
                     }
                     throw new IllegalStateException(sb.toString());
                 }
-                // Look for Lucene JMS extension (if any).
-                try {
-                    final Class<Interceptor> interceptor = (Class<Interceptor>) Class.forName("com.amalto.core.storage.hibernate.SearchInterceptor"); //$NON-NLS-1$
-                    configuration.setInterceptor(interceptor.newInstance());
-                } catch (ClassNotFoundException e) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Unable to use Lucene JMS topic extension.", e);
+                // Look for Lucene JMS extension (if any) and only if cluster is on.
+                final Properties configuration = MDMConfiguration.getConfiguration();
+                if (Boolean.parseBoolean(configuration.getProperty(Server.SYSTEM_CLUSTER, Boolean.FALSE.toString()))) {
+                    try {
+                        final Class<Interceptor> interceptor = (Class<Interceptor>) Class.forName("com.amalto.core.storage.hibernate.SearchInterceptor"); //$NON-NLS-1$
+                        this.configuration.setInterceptor(interceptor.newInstance());
+                    } catch (ClassNotFoundException e) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Unable to use Lucene JMS topic extension.", e);
+                        }
                     }
                 }
                 // This method is deprecated but using a 4.1+ hibernate initialization, Hibernate Search can't be
                 // started
                 // (wait for Hibernate Search 4.1 to be ready before considering changing this).
-                factory = configuration.buildSessionFactory();
+                factory = this.configuration.buildSessionFactory();
                 MDMTransactionSessionContext.declareStorage(this, factory);
             } catch (Exception e) {
                 throw new RuntimeException("Exception occurred during Hibernate initialization.", e);

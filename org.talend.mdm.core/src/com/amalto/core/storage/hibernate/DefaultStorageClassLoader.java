@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.server.Server;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -18,6 +19,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.Properties;
 
 @SuppressWarnings("UnusedDeclaration")
 // Dynamically called! Do not remove!
@@ -200,15 +203,19 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         sessionFactoryElement.appendChild(mapping);
 
         if (rdbmsDataSource.supportFullText()) {
-            // TMDM-7964: Look if cluster index replication is present in classpath.
+            // TMDM-7964: Look if cluster index replication is present in classpath (active only if "system.cluster" is
+            // on).
+            final Properties configuration = MDMConfiguration.getConfiguration();
             String indexerClassName = "org.hibernate.search.event.FullTextIndexEventListener";
-            try {
-                Class.forName("com.amalto.core.storage.hibernate.FullTextIndexer");
-                indexerClassName = "com.amalto.core.storage.hibernate.FullTextIndexer";
-            } catch (ClassNotFoundException e) {
-                // Ignored
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Cluster indexer not found, using default one (" + indexerClassName + ").", e);
+            if (Boolean.parseBoolean(configuration.getProperty(Server.SYSTEM_CLUSTER, Boolean.FALSE.toString()))) {
+                try {
+                    Class.forName("com.amalto.core.storage.hibernate.FullTextIndexer");
+                    indexerClassName = "com.amalto.core.storage.hibernate.FullTextIndexer";
+                } catch (ClassNotFoundException e) {
+                    // Ignored
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Cluster indexer not found, using default one (" + indexerClassName + ").", e);
+                    }
                 }
             }
             addEvent(document, sessionFactoryElement, "post-update", indexerClassName); //$NON-NLS-1$
