@@ -162,7 +162,12 @@ public class BrowseRecordsController extends Controller {
 
                     @Override
                     public void onSuccess(ItemResult result) {
-                        itemBean.setIds(result.getReturnValue() != null ? result.getReturnValue() : ""); //$NON-NLS-1$
+                        if (result.getReturnValue() == null && itemBean.getIds().equals("")) { //$NON-NLS-1$
+                            itemBean.setIds(""); //$NON-NLS-1$
+                        } else if (result.getReturnValue() != null) {
+                            itemBean.setIds(result.getReturnValue());
+                        }
+
                         itemBean.setLastUpdateTime(result);
                         progressBar.close();
                         MessageBox msgBox = null;
@@ -271,10 +276,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-                                                                      $wnd.setTimeout(function() {
-                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-                                                                      }, millisecond);
-                                                                      }-*/;
+		$wnd.setTimeout(function() {
+			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+		}, millisecond);
+    }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
