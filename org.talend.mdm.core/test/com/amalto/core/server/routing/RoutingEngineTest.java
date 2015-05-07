@@ -4,18 +4,20 @@ import static junit.framework.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import com.amalto.core.delegator.BeanDelegatorContainer;
-import com.amalto.core.util.PluginRegistry;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.cglib.proxy.NoOp;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.mock.env.MockEnvironment;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
@@ -26,6 +28,8 @@ import com.amalto.core.objects.routing.RoutingRulePOJOPK;
 import com.amalto.core.server.api.Item;
 import com.amalto.core.server.api.RoutingEngine;
 import com.amalto.core.server.api.RoutingRule;
+import com.amalto.core.util.PluginRegistry;
+import com.amalto.core.util.XtentisException;
 
 @SuppressWarnings("nls")
 public class RoutingEngineTest {
@@ -47,8 +51,8 @@ public class RoutingEngineTest {
         context.setResourceLoader(new PathMatchingResourcePatternResolver());
         MockEnvironment env = new MockEnvironment();
         env.setProperty("mdm.routing.engine.broker.url", "vm://localhost?broker.persistent=false");
-        env.setProperty("mdm.routing.engine.consumers","4-4");
-        env.setProperty("routing.engine.max.execution.time.millis","200");
+        env.setProperty("mdm.routing.engine.consumers", "1");
+        env.setProperty("routing.engine.max.execution.time.millis", "300");
         context.setEnvironment(env);
         context.load("classpath:**/" + RoutingEngineTest.class.getName() + ".xml");
         // FIXME Setting default-lazy-init on the top level beans element seems not applied to beans inside an imported
@@ -62,9 +66,16 @@ public class RoutingEngineTest {
         RoutingEngineTest.context = context;
         RoutingEngineTest.routingRule = context.getBean(RoutingRule.class);
         RoutingEngineTest.item = context.getBean(Item.class);
+        context.getBean(PluginRegistry.class);
         // Plugin Registry initialization (used in routing rule execution)
-        PluginRegistry.createInstance();
-        BeanDelegatorContainer.createInstance();
+        BeanDelegatorContainer.createInstance().setDelegatorInstancePool(
+                Collections.<String, Object> singletonMap("LocalUser", new ILocalUser() {
+
+                    @Override
+                    public ILocalUser getILocalUser() throws XtentisException {
+                        return this;
+                    }
+                }));
     }
 
     @AfterClass
@@ -172,20 +183,25 @@ public class RoutingEngineTest {
         clearRules();
         RoutingRulePOJO rule = new RoutingRulePOJO("testTypeMatchRule");
         rule.setConcept("*");
+        rule.setServiceJNDI("test/no_op_service");
         routingRule.putRoutingRule(rule);
-        // Expired message
+        // Expired message: put 2 messages, there's only one JMS consumer, service pauses for 400 ms, and expiration is 300 ms
+        // -> only 1 message should be consumed.
+        NoOpService.setPauseTime(400);
         int previous = routingEngine.getConsumeCallCount();
-        routingEngine.suspend(true);
         RoutingRulePOJOPK[] routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
         assertEquals(1, routes.length);
-        Thread.sleep(400); // Sleep *more* than expiration time for message
-        routingEngine.suspend(false);
-        assertEquals(previous, routingEngine.getConsumeCallCount()); // Message expired, consume should not be called.
-        // Expired message
+        routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
+        Thread.sleep(1000); // Give some time to process message
+        assertEquals(previous + 1, routingEngine.getConsumeCallCount());
+        // Expired message: put 2 messages, there's only one JMS consumer, service pauses for *200* ms, and expiration is 300 ms
+        // -> only 2 message should be consumed.
+        NoOpService.setPauseTime(200);
         previous = routingEngine.getConsumeCallCount();
-        routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[]{"1", "2"}));
+        routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
         assertEquals(1, routes.length);
-        Thread.sleep(100); // Sleep less than expiration time for a message
-        assertEquals(previous + 1, routingEngine.getConsumeCallCount()); // Message *not* expired, consume should not be called.
+        routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
+        Thread.sleep(1000); // Give some time to process messages
+        assertEquals(previous + 2, routingEngine.getConsumeCallCount());
     }
 }
