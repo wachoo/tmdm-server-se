@@ -103,21 +103,23 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         content.setId("BrowseRecords_ContentField"); //$NON-NLS-1$
         add(content);
 
-        if (ancestor != null)
+        if (ancestor != null) {
             add(new Image(Icons.INSTANCE.remove()) {
 
                 {
                     addClickHandler(new ClickHandler() {
 
+                        @Override
                         public void onClick(ClickEvent ce) {
                             parent.remove(SimpleCriterionPanel.this);
-                            if (ancestor != null)
+                            if (ancestor != null) {
                                 ancestor.redraw();
+                            }
                         }
                     });
                 }
             });
-        else {
+        } else {
         }
 
     }
@@ -156,17 +158,29 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         // field combobox
         BaseModel field;
         list.removeAll();
-        if (this.view.getSearchables() != null)
+        if (this.view.getSearchables() != null) {
             for (String key : this.view.getSearchables().keySet()) {
                 field = new BaseModel();
                 field.set("name", this.view.getSearchables().get(key)); //$NON-NLS-1$
                 //TMDM-6441: fixed the parsing errors
-                if (key.endsWith(StagingConstant.STAGING_TASKID))
+                if (key.endsWith(StagingConstant.STAGING_TASKID)) {
                     key = StagingConstant.STAGING_TASKID.substring(1);
+                }
                 field.set("value", key); //$NON-NLS-1$
+                for (BaseModel model : list.getModels()) {
+                    if (model.get("name").equals(this.view.getSearchables().get(key))) { //$NON-NLS-1$
+                        field = new BaseModel();
+                        field.set("name", this.view.getSearchables().get(key) + "(" + key + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        // TMDM-6441: fixed the parsing errors
+                        if (key.endsWith(StagingConstant.STAGING_TASKID)) {
+                            key = StagingConstant.STAGING_TASKID.substring(1);
+                        }
+                        field.set("value", key); //$NON-NLS-1$
+                    }
+                }
                 list.add(field);
             }
-        else {
+        } else {
             field = new BaseModel();
             field.set("", ""); //$NON-NLS-1$  //$NON-NLS-2$
             list.add(field);
@@ -201,11 +215,13 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         field = SearchFieldCreator.createField(typeModel);
         if (field != null) {
             field.setId("SimpleSearchValueFiled"); //$NON-NLS-1$
-            if (field instanceof FKField)
+            if (field instanceof FKField) {
                 ((FKField) field).Update(getKey(), this);
+            }
             content.add(field);
             field.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+                @Override
                 public void handleEvent(FieldEvent be) {
                     if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                         if (searchBut != null) {
@@ -238,9 +254,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     private String getValue() {
 
         if (field != null) {
-            if (field instanceof FKField)
+            if (field instanceof FKField) {
                 return ((FKField) field).getValue().getId();
-            else if (field instanceof DateField) {
+            } else if (field instanceof DateField) {
                 return ((DateField) field).getPropertyEditor().getFormat().format(((DateField) field).getValue());
             } else if (field instanceof RadioGroup) {
                 return ((RadioGroup) field).getValue().getValueAttribute();
@@ -267,8 +283,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     public SimpleCriterion getCriteria() {
         try {
             SimpleCriterion simpleCriterion = new SimpleCriterion(getKey(), getOperator(), getValue(), getInfo());
-            if (field != null && field instanceof MultiLanguageField)
+            if (field != null && field instanceof MultiLanguageField) {
                 simpleCriterion.setInputValue(field.getValue().toString());
+            }
             return simpleCriterion;
         } catch (Exception e) {
             Log.error(e.getMessage());
@@ -335,6 +352,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         }
     }
 
+    @Override
     public void setCriteriaFK(ForeignKeyBean fk) {
         if (field != null) {
             if (field instanceof FKField) {
@@ -354,6 +372,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     public void addKeyComboBoxListener(final SimpleCriterionPanel<T> simpleCriterionPanel) {
         keyComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
+            @Override
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
                 adaptOperatorAndValue();
 
@@ -375,18 +394,22 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     }
 
     private void addOperatorAndFieldListener(final SimpleCriterionPanel<T> simpleCriterionPanel, boolean isAddOperatorListener) {
-        if (isAddOperatorListener)
+        if (isAddOperatorListener) {
             operatorComboBox.addSelectionChangedListener(new SelectionChangedListener<BaseModel>() {
 
+                @Override
                 public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-                    if (simpleCriterionPanel != null)
+                    if (simpleCriterionPanel != null) {
                         simpleCriterionPanel.setOperator(getOperator());
+                    }
                 }
 
             });
-        if (field != null)
+        }
+        if (field != null) {
             field.addListener(Events.Change, new Listener<FieldEvent>() {
 
+                @Override
                 public void handleEvent(FieldEvent be) {
                     if (simpleCriterionPanel != null) {
                         TypeModel typeModel = itemsPredicates.get(getKey());
@@ -395,6 +418,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
                 };
             });
+        }
     }
 
     public SimpleCriterionPanel<?> clonePanel() {
