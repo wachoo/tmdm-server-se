@@ -179,6 +179,17 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
                     key = StagingConstant.STAGING_TASKID.substring(1);
                 }
                 field.set("value", key); //$NON-NLS-1$
+                for (BaseModel model : list.getModels()) {
+                    if (model.get("name").equals(this.view.getSearchables().get(key))) { //$NON-NLS-1$
+                        field = new BaseModel();
+                        field.set("name", this.view.getSearchables().get(key) + "(" + key + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        // TMDM-6441: fixed the parsing errors
+                        if (key.endsWith(StagingConstant.STAGING_TASKID)) {
+                            key = StagingConstant.STAGING_TASKID.substring(1);
+                        }
+                        field.set("value", key); //$NON-NLS-1$
+                    }
+                }
                 list.add(field);
             }
         } else {
