@@ -360,6 +360,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
                                 // Record routing order was successfully executed.
                                 CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
                                 completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                                completedRoutingOrder.setName(itemPOJOPK.toString());
                                 completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
                                 completedRoutingOrder.setServiceParameters(routingRule.getParameters());
                                 try {
@@ -392,6 +393,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
                                 FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
                                 failedRoutingOrder.setMessage(err);
                                 failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                                failedRoutingOrder.setName(itemPOJOPK.toString());
                                 failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
                                 failedRoutingOrder.setServiceParameters(routingRule.getParameters());
                                 failedRoutingOrder.store();
@@ -407,6 +409,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
                         FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
                         failedRoutingOrder.setMessage(errorMessage);
                         failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                        failedRoutingOrder.setName(itemPOJOPK.toString());
                         failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
                         failedRoutingOrder.setServiceParameters(routingRule.getParameters());
                         return failedRoutingOrder;
