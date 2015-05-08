@@ -1,19 +1,25 @@
 package com.amalto.core.server;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.apache.log4j.Logger;
+
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
-import com.amalto.core.objects.routing.*;
-import com.amalto.core.util.RoutingException;
+import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.AbstractRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.CompletedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.CompletedRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.FailedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.FailedRoutingOrderV2POJOPK;
+import com.amalto.core.objects.routing.RoutingRulePOJOPK;
+import com.amalto.core.server.api.RoutingEngine;
+import com.amalto.core.server.api.RoutingOrder;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.log4j.Logger;
-import com.amalto.core.server.api.RoutingOrder;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 
 
 public class DefaultRoutingOrder implements RoutingOrder {
@@ -21,8 +27,59 @@ public class DefaultRoutingOrder implements RoutingOrder {
     private final static Logger LOGGER = Logger.getLogger(DefaultRoutingOrder.class);
 
     /**
+     * Executes a Routing Order in default DELAY milliseconds
+     */
+    @Override
+    public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
+        RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
+        RoutingRulePOJOPK[] rules = ctrl.route(routingOrderPOJO.getItemPOJOPK());
+    }
+
+    /**
+     * Executes a Routing Order now
+     * 
+     * @throws XtentisException
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    @Override
+    public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
+        RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
+        RoutingRulePOJOPK[] rules = ctrl.route(routingOrderPOJO.getItemPOJOPK());
+        return null;
+    }
+
+    /**
+     * Remove an item
+     * 
+     * @throws XtentisException
+     * @ejb.interface-method view-type = "both"
+     * @ejb.facade-method
+     */
+    @Override
+    public AbstractRoutingOrderV2POJOPK removeRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException {
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("removeRoutingOrder() " + pk.getUniqueId());
+        }
+        try {
+            if (ObjectPOJO.load(pk.getRoutingOrderClass(), pk) != null) {
+                ObjectPOJO.remove(pk.getRoutingOrderClass(), pk);
+            }
+            return pk;
+        } catch (XtentisException e) {
+            throw (e);
+        } catch (Exception e) {
+            String err = "Unable to remove the Routing Order of class " + pk.getRoutingOrderClass() + " and id " + pk.getName()
+                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            LOGGER.error(err);
+            throw new XtentisException(err, e);
+        }
+    }
+
+    /**
      * Get Routing Order
      */
+    @Override
     public AbstractRoutingOrderV2POJO getRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException {
         try {
             AbstractRoutingOrderV2POJO routingOrder = ObjectPOJO.load(pk.getRoutingOrderClass(), pk);
@@ -45,6 +102,7 @@ public class DefaultRoutingOrder implements RoutingOrder {
     /**
      * Get a RoutingOrder knowing its class - no exception is thrown: returns null if not found
      */
+    @Override
     public AbstractRoutingOrderV2POJO existsRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException {
         try {
             return ObjectPOJO.load(pk.getRoutingOrderClass(), pk);
@@ -63,6 +121,7 @@ public class DefaultRoutingOrder implements RoutingOrder {
     /**
      * Retrieve all Completed Routing Order PKs
      */
+    @Override
     public Collection<CompletedRoutingOrderV2POJOPK> getCompletedRoutingOrderPKs(String regex) throws XtentisException {
         Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(CompletedRoutingOrderV2POJO.class, regex);
         ArrayList<CompletedRoutingOrderV2POJOPK> l = new ArrayList<CompletedRoutingOrderV2POJOPK>();
@@ -75,6 +134,7 @@ public class DefaultRoutingOrder implements RoutingOrder {
     /**
      * Retrieve all Failed Routing Order PKs
      */
+    @Override
     public Collection<FailedRoutingOrderV2POJOPK> getFailedRoutingOrderPKs(String regex) throws XtentisException {
         Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(FailedRoutingOrderV2POJO.class, regex);
         ArrayList<FailedRoutingOrderV2POJOPK> l = new ArrayList<FailedRoutingOrderV2POJOPK>();
@@ -88,6 +148,7 @@ public class DefaultRoutingOrder implements RoutingOrder {
     /**
      * Retrieve all RoutingOrder PKs whatever the class
      */
+    @Override
     public Collection<AbstractRoutingOrderV2POJOPK> getAllRoutingOrderPKs(String regex) throws XtentisException {
         ArrayList<AbstractRoutingOrderV2POJOPK> l = new ArrayList<AbstractRoutingOrderV2POJOPK>();
         l.addAll(getCompletedRoutingOrderPKs(regex));
@@ -98,6 +159,7 @@ public class DefaultRoutingOrder implements RoutingOrder {
     /**
      * Retrieve all RoutingOrder PKs by CriteriaWithPaging
      */
+    @Override
     public Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrderPKsByCriteriaWithPaging(
             Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass, String anyFieldContains, String name,
             long timeCreatedMin, long timeCreatedMax, long timeScheduledMin, long timeScheduledMax, long timeLastRunStartedMin,
@@ -191,6 +253,7 @@ public class DefaultRoutingOrder implements RoutingOrder {
     /**
      * Retrieve all RoutingOrder PKs by Criteria
      */
+    @Override
     public Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrderPKsByCriteria(
             Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass,
             String anyFieldContains,

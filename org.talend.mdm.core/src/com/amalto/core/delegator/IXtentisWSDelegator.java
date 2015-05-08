@@ -1803,6 +1803,55 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         }
     }
 
+    @Override
+    public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
+        try {
+            RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
+            return XConverter.POJO2WS(ctrl.removeRoutingOrder(XConverter.WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOGGER.debug(err, e);
+            }
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Override
+    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
+            WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
+        try {
+            RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
+            AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderAsynchronously
+                    .getRoutingOrderV2PK()));
+            ctrl.executeAsynchronously(ro);
+            return XConverter.POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOGGER.debug(err, e);
+            }
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Override
+    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
+            throws RemoteException {
+        try {
+            RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
+            AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderSynchronously
+                    .getRoutingOrderV2PK()));
+            return new WSString(ctrl.executeSynchronously(ro));
+        } catch (Exception e) {
+            if (LOGGER.isDebugEnabled()) {
+                String err = "ERROR SYSTRACE: " + e.getMessage();
+                LOGGER.debug(err, e);
+            }
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+        }
+    }
+
     protected Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrdersByCriteria(WSRoutingOrderV2SearchCriteria criteria)
             throws Exception {
         try {
