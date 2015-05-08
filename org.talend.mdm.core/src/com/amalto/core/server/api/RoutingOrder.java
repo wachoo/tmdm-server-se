@@ -10,39 +10,15 @@ import com.amalto.core.util.XtentisException;
 public interface RoutingOrder {
 
     /**
-     * Executes a Routing Order in default DELAY milliseconds
-     * 
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
-
-    /**
-     * Executes a Routing Order now
-     * 
-     * @throws XtentisException
-     */
-    public java.lang.String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
-    
-    /**
-     * Get Routing Order
-     * 
-     * @throws com.amalto.core.util.XtentisException
-     */
+    * Get Routing Order
+    * @throws com.amalto.core.util.XtentisException
+    */
    public AbstractRoutingOrderV2POJO getRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
 
-    /**
-     * Remove an item
-     * 
-     * @throws com.amalto.core.util.XtentisException
-     */
-    public AbstractRoutingOrderV2POJOPK removeRoutingOrder(AbstractRoutingOrderV2POJOPK pk)
-            throws com.amalto.core.util.XtentisException;
-
-    /**
-     * Get a RoutingOrder knowing its class - no exception is thrown: returns null if not found
-     * 
-     * @throws com.amalto.core.util.XtentisException
-     */
+   /**
+    * Get a RoutingOrder knowing its class - no exception is thrown: returns null if not found
+    * @throws com.amalto.core.util.XtentisException
+    */
    public AbstractRoutingOrderV2POJO existsRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
 
     /**

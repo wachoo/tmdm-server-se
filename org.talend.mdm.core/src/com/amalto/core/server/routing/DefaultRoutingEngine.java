@@ -401,8 +401,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
     // TODO It doesn't make quite sense to stop a consumer (stop is just an infinite suspend, right?)
     @Override
     public int getStatus() throws XtentisException {
-        boolean running = jmsListeningContainer.isRunning();
-        if (running) {
+        boolean active = jmsListeningContainer.isActive();
+        if (active) {
             return RoutingEngine.RUNNING;
         } else {
             return RoutingEngine.SUSPENDED;

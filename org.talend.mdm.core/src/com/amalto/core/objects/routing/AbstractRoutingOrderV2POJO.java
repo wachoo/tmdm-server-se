@@ -3,10 +3,11 @@ package com.amalto.core.objects.routing;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.amalto.core.metadata.LongString;
+
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
+import com.amalto.core.metadata.LongString;
 
 
 /**
@@ -240,13 +241,4 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
     	return new ObjectPOJOPK(new String[]{name,status+""});
     }
 
-    public AbstractRoutingOrderV2POJOPK getAbstractRoutingOrderPOJOPK() {
-        switch (this.status) {
-        case AbstractRoutingOrderV2POJO.COMPLETED:
-            return new CompletedRoutingOrderV2POJOPK(name);
-        case AbstractRoutingOrderV2POJO.FAILED:
-            return new FailedRoutingOrderV2POJOPK(name);
-        }
-        return null;
-    }
 }

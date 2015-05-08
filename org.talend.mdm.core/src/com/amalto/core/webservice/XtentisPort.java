@@ -5,9 +5,9 @@
 
 package com.amalto.core.webservice;
 
-import java.rmi.RemoteException;
-
 import com.amalto.core.integrity.FKIntegrityCheckResult;
+
+import java.rmi.RemoteException;
 
 public interface XtentisPort extends java.rmi.Remote {
 
@@ -241,14 +241,6 @@ public interface XtentisPort extends java.rmi.Remote {
             WSGetTransformerPluginV2Details wsGetTransformerPluginV2Details) throws RemoteException;
 
     public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginV2SList)
-            throws RemoteException;
-
-    public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException;
-
-    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
-            WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException;
-
-    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
             throws RemoteException;
 
     public WSRoutingOrderV2PKArray getRoutingOrderV2PKsByCriteria(
