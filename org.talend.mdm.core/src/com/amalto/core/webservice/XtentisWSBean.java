@@ -16,8 +16,6 @@ import java.rmi.RemoteException;
 
 import javax.jws.WebService;
 
-import com.amalto.core.storage.transaction.InTransactionInterceptor;
-import com.amalto.core.storage.transaction.OutTransactionInterceptor;
 import org.apache.cxf.interceptor.InInterceptors;
 import org.apache.cxf.interceptor.OutInterceptors;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
@@ -25,6 +23,8 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.server.security.ws.WebServiceRoles;
+import com.amalto.core.storage.transaction.InTransactionInterceptor;
+import com.amalto.core.storage.transaction.OutTransactionInterceptor;
 
 @WebService(name = "TMDMService", serviceName = "TMDMService", portName = "TMDMPort", targetNamespace = ICoreConstants.TALEND_NAMESPACE)
 @InInterceptors(classes = InTransactionInterceptor.class)
@@ -594,6 +594,25 @@ public class XtentisWSBean implements XtentisPort {
     public WSTransformerPluginV2SList getTransformerPluginV2SList(WSGetTransformerPluginV2SList wsGetTransformerPluginsList)
             throws RemoteException {
         return delegator.getTransformerPluginV2SList(wsGetTransformerPluginsList);
+    }
+
+    @Override
+    public WSRoutingOrderV2PK deleteRoutingOrderV2(WSDeleteRoutingOrderV2 wsDeleteRoutingOrder) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator().deleteRoutingOrderV2(wsDeleteRoutingOrder);
+    }
+
+    @Override
+    public WSRoutingOrderV2PK executeRoutingOrderV2Asynchronously(
+            WSExecuteRoutingOrderV2Asynchronously wsExecuteRoutingOrderAsynchronously) throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
+                .executeRoutingOrderV2Asynchronously(wsExecuteRoutingOrderAsynchronously);
+    }
+
+    @Override
+    public WSString executeRoutingOrderV2Synchronously(WSExecuteRoutingOrderV2Synchronously wsExecuteRoutingOrderSynchronously)
+            throws RemoteException {
+        return BeanDelegatorContainer.getInstance().getXtentisWSDelegator()
+                .executeRoutingOrderV2Synchronously(wsExecuteRoutingOrderSynchronously);
     }
 
     @Override
