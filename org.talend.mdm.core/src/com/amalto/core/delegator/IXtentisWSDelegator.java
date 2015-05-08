@@ -2176,9 +2176,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     systemStorage.commit();
                     return new WSLong(result.getRecordMetadata().getLastModificationTime());
                 } else {
+                    systemStorage.rollback();   // storage begin() must paired with commit() or rollback(), clean up transactions
                     return null;
                 }
             } else {
+                systemStorage.rollback();
                 return null;
             }
         } catch (Exception e) {
