@@ -79,6 +79,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
     @Value("${routing.engine.max.execution.time.millis}")
     private long timeToLive = 0;
 
+    private boolean isStopped;
+
     @PostConstruct
     public void init() {
         if (timeToLive > 0) {
@@ -201,6 +203,10 @@ public class DefaultRoutingEngine implements RoutingEngine {
 
     @Override
     public RoutingRulePOJOPK[] route(final ItemPOJOPK itemPOJOPK) throws XtentisException {
+        if (isStopped) {
+            LOGGER.error("Not publishing event for '" + itemPOJOPK + "' (event manager is stopped).");
+            return new RoutingRulePOJOPK[0];
+        }
         // The cached ItemPOJO - will only be retrieved if needed: we have expressions on the routing rules
         String type = itemPOJOPK.getConceptName();
         // Get the item
@@ -420,6 +426,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
     @Override
     public void stop() throws XtentisException {
         jmsListeningContainer.stop();
+        isStopped = true;
     }
 
     @Override
@@ -431,14 +438,13 @@ public class DefaultRoutingEngine implements RoutingEngine {
         }
     }
 
-    // TODO It doesn't make quite sense to stop a consumer (stop is just an infinite suspend, right?)
     @Override
     public int getStatus() throws XtentisException {
         boolean active = jmsListeningContainer.isActive();
         if (active) {
             return RoutingEngine.RUNNING;
         } else {
-            return RoutingEngine.SUSPENDED;
+            return isStopped ? RoutingEngine.STOPPED : RoutingEngine.SUSPENDED;
         }
     }
 }
