@@ -47,7 +47,7 @@ public class At implements Expression {
         return visitor.visit(this);
     }
 
-    public static enum Swing {
+    public enum Swing {
         CLOSEST,
         BEFORE,
         AFTER

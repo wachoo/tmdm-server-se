@@ -134,7 +134,7 @@ public class QueryParserTest extends TestCase {
         assertTrue(expression instanceof Select);
         Select select = (Select) expression;
         Condition condition = select.getCondition();
-        final List<Predicate> metPredicates = new ArrayList<Predicate>();
+        final List<Predicate> metPredicates = new ArrayList<>();
         condition.accept(new VisitorAdapter<Object>() {
 
             @Override
@@ -306,7 +306,7 @@ public class QueryParserTest extends TestCase {
         Expression expression = parser.parse(QueryParserTest.class.getResourceAsStream("query20.json")); //$NON-NLS-1$
         assertTrue(expression instanceof Select);
         Select select = (Select) expression;
-        final List<Class<? extends MetadataField>> expectedMetadataFields = new ArrayList<Class<? extends MetadataField>>(
+        final List<Class<? extends MetadataField>> expectedMetadataFields = new ArrayList<>(
                 Arrays.asList(Timestamp.class, TaskId.class, GroupSize.class, StagingError.class, StagingSource.class,
                         StagingStatus.class, StagingBlockKey.class));
         select.getCondition().accept(new VisitorAdapter<Void>() {
@@ -482,7 +482,7 @@ public class QueryParserTest extends TestCase {
         Select select = (Select) expression;
         At condition = select.getHistory();
         assertNotNull(condition);
-        assertEquals(At.Swing.BEFORE, condition.getSwing());
+        assertEquals(At.Swing.AFTER, condition.getSwing());
         assertEquals(0, condition.getDateTime());
     }
 
