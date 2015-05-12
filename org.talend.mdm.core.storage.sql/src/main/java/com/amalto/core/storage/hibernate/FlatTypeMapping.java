@@ -260,6 +260,9 @@ class FlatTypeMapping extends TypeMapping {
                         }
                     }
                 } else {
+                    if (userField.isMany()) {
+                        value = new ArrayList<>(getFullList((List) value));
+                    }
                     to.set(userField, value);
                 }
                 to = previous;
