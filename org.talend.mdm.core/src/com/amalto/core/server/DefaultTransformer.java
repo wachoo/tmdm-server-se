@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -65,7 +65,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     @Override
     public TransformerV2POJOPK putTransformer(TransformerV2POJO transformer) throws XtentisException {
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("putTransformer() " + transformer.getName());
+            LOGGER.trace("putTransformer() " + transformer.getName()); //$NON-NLS-1$
         }
         try {
             // Check and compile the parameters one by one
@@ -76,11 +76,8 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                 step.setCompiledParameters(plugin.compileParameters(step.getParameters()));
             }
             return new TransformerV2POJOPK(transformer.store());
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
-            String err = "Unable to create/update the Transfomer " + transformer.getName() + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
+            String err = "Unable to create/update the Transfomer '" + transformer.getName() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -94,16 +91,13 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         try {
             TransformerV2POJO transformer = ObjectPOJO.load(TransformerV2POJO.class, pk);
             if (transformer == null) {
-                String err = "The Transformer " + pk.getUniqueId() + " does not exist.";
+                String err = "The Transformer '" + pk.getUniqueId() + "' does not exist."; //$NON-NLS-1$ //$NON-NLS-2$
                 LOGGER.error(err);
                 throw new XtentisException(err);
             }
             return transformer;
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
-            String err = "Unable to get the Transformer " + pk.toString() + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
+            String err = "Unable to get the Transformer '" + pk.toString() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -116,12 +110,9 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     public TransformerV2POJO existsTransformer(TransformerV2POJOPK pk) throws XtentisException {
         try {
             return ObjectPOJO.load(TransformerV2POJO.class, pk);
-        } catch (XtentisException e) {
-            return null;
         } catch (Exception e) {
-            String info = "Could not check whether this Transformer exists:  " + pk.toString() + ": " + e.getClass().getName()
-                    + ": " + e.getLocalizedMessage();
-            LOGGER.debug("existsTransformer() " + info, e);
+            String info = "Could not check whether this Transformer exists '" + pk.toString() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+            LOGGER.error(info, e);
             return null;
         }
     }
@@ -132,15 +123,12 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     @Override
     public TransformerV2POJOPK removeTransformer(TransformerV2POJOPK pk) throws XtentisException {
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("removeTransformer() " + pk.getUniqueId());
+            LOGGER.trace("removeTransformer() " + pk.getUniqueId()); //$NON-NLS-1$
         }
         try {
             return new TransformerV2POJOPK(ObjectPOJO.remove(TransformerV2POJO.class, pk));
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
-            String err = "Unable to remove the Transformer " + pk.toString() + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
+            String err = "Unable to remove the Transformer '" + pk.toString() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -172,11 +160,11 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         TransformerContext ctx = new TransformerContext(transformerV2POJOPK);
         try {
             ItemPOJO item = Util.getItemCtrl2Local().getItem(itemPOJOPK);
-            ctx.putInPipeline(Transformer.DEFAULT_VARIABLE, new TypedContent(item.getProjectionAsString().getBytes("UTF-8"),
-                    "text/xml; charset=utf-8"));
+            ctx.putInPipeline(Transformer.DEFAULT_VARIABLE, new TypedContent(item.getProjectionAsString().getBytes("UTF-8"), //$NON-NLS-1$
+                    "text/xml; charset=utf-8")); //$NON-NLS-1$
         } catch (Exception e) {
-            String err = "Unable to extract '" + itemPOJOPK.getUniqueID() + "' through the Transformer '"
-                    + transformerV2POJOPK.getUniqueId() + "'";
+            String err = "Unable to extract '" + itemPOJOPK.getUniqueID() + "' through the Transformer '" //$NON-NLS-1$ //$NON-NLS-2$
+                    + transformerV2POJOPK.getUniqueId() + "'"; //$NON-NLS-1$
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -209,11 +197,8 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             throw new NotImplementedException();
             // TODO create timer
             // return new BackgroundJobPOJOPK(bgPOJO.getPK());
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
-            String err = "Unable to execute the Transformer: " + context.getTransformerV2POJOPK().getUniqueId() + ": "
-                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to execute the Transformer '" + context.getTransformerV2POJOPK().getUniqueId() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(err, e);
             throw new XtentisException(err);
         }
@@ -244,12 +229,8 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                 // signal done to the call back
                 callBack.done(globalContext);
             }
-
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
-            String err = "Unable to execute the Transformer: " + context.getTransformerV2POJOPK().getUniqueId() + ": "
-                    + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to execute the Transformer: '" + context.getTransformerV2POJOPK().getUniqueId() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(err, e);
             throw new XtentisException(err);
         } finally {
@@ -262,9 +243,10 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                     TransformerPluginV2LocalInterface plugin = instantiatedPlugins.get(pluginNumber);
                     plugin.end(globalContext.getTransformerPluginContext(pluginNumber.intValue()));
                 }
+                // clean global context
+                globalContext.removeAll();
             } catch (Exception e) {
-                String err = "Error ending plugins: " + e.getClass().getName() + ": " + e.getMessage();
-                LOGGER.warn("endPlugins() " + err);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
     }
@@ -286,7 +268,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     @Override
     public TransformerContext executeUntilDone(TransformerContext context) throws XtentisException {
         // Set ready variable
-        context.put("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready", Boolean.FALSE);
+        context.put("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready", Boolean.FALSE); //$NON-NLS-1$
         // execute the Transformer
         execute(context, new TransformerCallBack() {
 
@@ -294,16 +276,16 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             }
 
             public void done(TransformerContext context) throws XtentisException {
-                context.put("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready", Boolean.TRUE);
+                context.put("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready", Boolean.TRUE); //$NON-NLS-1$
             }
         });
-        while (context.get("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready").equals(Boolean.FALSE)) {
+        while (context.get("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready").equals(Boolean.FALSE)) { //$NON-NLS-1$
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
             }
         }
-        context.remove("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready");
+        context.remove("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready"); //$NON-NLS-1$
         return context;
     }
 
@@ -335,7 +317,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         // get the plugin parameters
         String parameters = processStep.getCompiledParameters();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("executePlugin() " + processStep.getDescription() + " -- Initializing plugin "
+            LOGGER.debug("executePlugin() " + processStep.getDescription() + " -- Initializing plugin " //$NON-NLS-1$ //$NON-NLS-2$
                     + processStep.getPluginJNDI());
         }
         // Check if plugin is already instantiated and initialized
@@ -359,28 +341,27 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
          *******************************************************************/
         try {
             // fetch descriptors
-            ArrayList<TransformerPluginVariableDescriptor> descriptors = plugin.getInputVariableDescriptors("en");
+            ArrayList<TransformerPluginVariableDescriptor> descriptors = plugin.getInputVariableDescriptors("en"); //$NON-NLS-1$
             // loop over the input variables - map content and determine if all mandatory variables have content
             for (TransformerPluginVariableDescriptor descriptor : descriptors) {
                 TypedContent content = getMappedInputVariable(descriptor, processStep, globalContext);
                 if (content instanceof TypedContent_Do_Not_Process) {
                     // we stop the plugin processing
-                    String msg = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
-                            + globalContext.getTransformerV2POJOPK().getUniqueId() + "': " + "not executed --> input variable '"
-                            + descriptor.getVariableName() + "' is marked as stopped";
-                    LOGGER.debug("executeNextPlugin() " + msg);
+                    if (LOGGER.isDebugEnabled()) {
+                        String msg = "Transformer step '" + processStep.getDescription() + "' of Transformer '" //$NON-NLS-1$ //$NON-NLS-2$
+                                + globalContext.getTransformerV2POJOPK().getUniqueId() + "': " //$NON-NLS-1$
+                                + "not executed --> input variable '" + descriptor.getVariableName() + "' is marked as stopped"; //$NON-NLS-1$ //$NON-NLS-2$
+                        LOGGER.debug("executeNextPlugin() " + msg); //$NON-NLS-1$
+                    }
                     return;
                 }
                 // insert the plugin input variable content in the plugin context
                 pluginContext.put(descriptor.getVariableName(), content);
             }
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
-            String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
-                    + globalContext.getTransformerV2POJOPK().getUniqueId() + "':" + "the mapping of the input variables failed "
-                    + e.getClass().getName() + ": " + e.getMessage();
-            LOGGER.error("executeNextplugin() " + err);
+            String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '" //$NON-NLS-1$ //$NON-NLS-2$
+                    + globalContext.getTransformerV2POJOPK().getUniqueId() + "':" + "the mapping of the input variables failed"; //$NON-NLS-1$ //$NON-NLS-2$
+            LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
         /*******************************************************************
@@ -438,12 +419,12 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             if (mapping == null) {
                 // The input variable is mandatory - it is a design time error
                 if (descriptor.isMandatory()) {
-                    String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
-                            + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '"
-                            + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI()
-                            + "' is mandatory and was not mapped during the Transformer '"
-                            + context.getTransformerV2POJOPK().getUniqueId() + "' design.";
-                    LOGGER.error("getMappedInputVariable() " + err);
+                    String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '" //$NON-NLS-1$ //$NON-NLS-2$
+                            + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '" //$NON-NLS-1$ //$NON-NLS-2$
+                            + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI() //$NON-NLS-1$
+                            + "' is mandatory and was not mapped during the Transformer '" //$NON-NLS-1$
+                            + context.getTransformerV2POJOPK().getUniqueId() + "' design."; //$NON-NLS-1$
+                    LOGGER.error(err);
                     throw new XtentisException(err);
                 }
                 // not mandatory --> return the special USE_DEFAULT Typed Content
@@ -454,8 +435,9 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             if (pipelineVariable == null)
                 pipelineVariable = Transformer.DEFAULT_VARIABLE;
 
-            LOGGER.debug("getMappedInputVariable() Mapping pipeline " + pipelineVariable + " ---> " + pluginVariable);
-
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("getMappedInputVariable() Mapping pipeline " + pipelineVariable + " ---> " + pluginVariable); //$NON-NLS-1$ //$NON-NLS-2$
+            }
             // Mapping is found --> retrieve the pipeline content;
             TypedContent content = context.getFromPipeline(pipelineVariable);
 
@@ -479,19 +461,19 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                 }
             }
             if (!match) {
-                String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
-                        + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '"
-                        + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI()
-                        + "' cannot accept the pipeline variable '" + mapping.getPipelineVariable() + "' content-type of '"
-                        + content.getContentType() + "'";
-                LOGGER.error("getMappedInputVariable() " + err);
+                String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '" //$NON-NLS-1$ //$NON-NLS-2$
+                        + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '" //$NON-NLS-1$ //$NON-NLS-2$
+                        + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI() //$NON-NLS-1$
+                        + "' cannot accept the pipeline variable '" + mapping.getPipelineVariable() + "' content-type of '" //$NON-NLS-1$ //$NON-NLS-2$
+                        + content.getContentType() + "'"; //$NON-NLS-1$
+                LOGGER.error(err);
                 throw new XtentisException(err);
             }
 
             // check possible values regex
             if ((descriptor.getPossibleValuesRegex() != null) && (descriptor.getPossibleValuesRegex().size() != 0)
-                    && (!descriptor.getPossibleValuesRegex().contains(".*"))
-                    && (Util.extractTypeAndSubType(content.getContentType()).startsWith("text"))) {
+                    && (!descriptor.getPossibleValuesRegex().contains(".*")) //$NON-NLS-1$
+                    && (Util.extractTypeAndSubType(content.getContentType()).startsWith("text"))) { //$NON-NLS-1$
                 String charset = Util.extractCharset(content.getContentType());
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 int b;
@@ -507,25 +489,21 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                     }
                 }
                 if (!match) {
-                    String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
-                            + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '"
-                            + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI()
-                            + "' cannot accept the pipeline variable '" + mapping.getPipelineVariable() + "' value of '" + text
-                            + "'";
-                    LOGGER.error("getMappedInputVariable() " + err);
+                    String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '" //$NON-NLS-1$ //$NON-NLS-2$
+                            + context.getTransformerV2POJOPK().getUniqueId() + "':" + "The input variable '" //$NON-NLS-1$ //$NON-NLS-2$
+                            + descriptor.getVariableName() + "' of plugin '" + processStep.getPluginJNDI() //$NON-NLS-1$
+                            + "' cannot accept the pipeline variable '" + mapping.getPipelineVariable() + "' value of '" + text //$NON-NLS-1$ //$NON-NLS-2$
+                            + "'"; //$NON-NLS-1$
+                    LOGGER.error(err);
                     throw new XtentisException(err);
                 }
             }
 
             return content;
-        } catch (XtentisException e) {
-            throw (e);
         } catch (Exception e) {
-            e.printStackTrace();
-            String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '"
-                    + context.getTransformerV2POJOPK().getUniqueId() + "':" + "the mapping of the input variables failed "
-                    + e.getClass().getName() + ": " + e.getMessage();
-            LOGGER.error("executeNextplugin() " + err);
+            String err = "Transformer step '" + processStep.getDescription() + "' of Transformer '" //$NON-NLS-1$ //$NON-NLS-2$
+                    + context.getTransformerV2POJOPK().getUniqueId() + "':" + "the mapping of the input variables failed"; //$NON-NLS-1$ //$NON-NLS-2$
+            LOGGER.error(err, e);
             throw new XtentisException(err);
         }
 
@@ -568,31 +546,39 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                         // check content null
                         if (content != null) {
                             if (content instanceof TypedContent_Drop_Variable) {
-                                LOGGER.debug("contentIsReady() Dropping pipeline variable: " + mapping.getPipelineVariable());
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("contentIsReady() Dropping pipeline variable: " + mapping.getPipelineVariable()); //$NON-NLS-1$
+                                }
                                 globalContext.removeFrompipeline(mapping.getPipelineVariable());
                             } else {
-                                String s = content.toString();
-                                LOGGER.debug("contentIsReady() Mapping plugin variable: " + pluginvariable + " -----> pipeline: "
-                                        + mapping.getPipelineVariable() + "   Content: "
-                                        + s.substring(0, Math.min(0, s.length())) + "...");
+                                if (LOGGER.isDebugEnabled()) {
+                                    String s = content.toString();
+                                    LOGGER.debug("contentIsReady() Mapping plugin variable: " + pluginvariable //$NON-NLS-1$
+                                            + " -----> pipeline: " + mapping.getPipelineVariable() + "   Content: " //$NON-NLS-1$ //$NON-NLS-2$
+                                            + s.substring(0, Math.min(0, s.length())) + "..."); //$NON-NLS-1$
+                                }
                                 globalContext.putInPipeline(mapping.getPipelineVariable(), content);
                             }
                         }
                     } else if (mapping.getHardCoding() != null) {
                         // harcode the value into the pipeline
                         if (mapping.getHardCoding() instanceof TypedContent_Drop_Variable) {
-                            LOGGER.debug("contentIsReady() Hard Dropping pipeline variable: " + mapping.getPipelineVariable());
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("contentIsReady() Hard Dropping pipeline variable: " + mapping.getPipelineVariable()); //$NON-NLS-1$
+                            }
                             globalContext.removeFrompipeline(mapping.getPipelineVariable());
                         } else {
-                            LOGGER.debug("contentIsReady() Hard Coding the result in pipeline variable: "
-                                    + mapping.getPipelineVariable() + "   Content: "
-                                    + mapping.getHardCoding().getContentType().toString().substring(0, 100) + "...");
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("contentIsReady() Hard Coding the result in pipeline variable: " //$NON-NLS-1$
+                                        + mapping.getPipelineVariable() + "   Content: " //$NON-NLS-1$
+                                        + mapping.getHardCoding().getContentType().toString().substring(0, 100) + "..."); //$NON-NLS-1$
+                            }
                             globalContext.putInPipeline(mapping.getPipelineVariable(), mapping.getHardCoding());
                         }
                     } else {
-                        String err = "Output Mapping incorrect for pipeline variable " + mapping.getPipelineVariable()
-                                + " in process step " + processStep.getDescription() + ": "
-                                + "both the plugin variable name and the hard codings are empty";
+                        String err = "Output Mapping incorrect for pipeline variable '" + mapping.getPipelineVariable() //$NON-NLS-1$
+                                + "' in process step " + processStep.getDescription() + ": " //$NON-NLS-1$ //$NON-NLS-2$
+                                + "both the plugin variable name and the hard codings are empty"; //$NON-NLS-1$
                         LOGGER.error(err);
                         throw new XtentisException(err);
                     }
@@ -612,10 +598,11 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         }
 
         // end of transformer branch, signal that content is ready
-        String msg = "End of current branch of Transformer '" + pluginContext.getTransformerV2POJOPK().getUniqueId()
-                + "' calling execute callback";
-        LOGGER.debug("contentIsReady() " + msg);
-
+        if (LOGGER.isDebugEnabled()) {
+            String msg = "End of current branch of Transformer '" + pluginContext.getTransformerV2POJOPK().getUniqueId() //$NON-NLS-1$
+                    + "' calling execute callback"; //$NON-NLS-1$
+            LOGGER.debug("contentIsReady() " + msg); //$NON-NLS-1$
+        }
         globalContext.getExecuteCallBack().contentIsReady(globalContext);
     }
 }
