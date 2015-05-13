@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -19,15 +19,12 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
-/**
- * DOC HSHU class global comment. Detailled comment
- */
 public class ItemsSearchContainer extends LayoutContainer {
 
     private static ItemsSearchContainer instance;
 
     public static float SIZE = 34;
-    
+
     private BorderLayoutData northData;
 
     public static ItemsSearchContainer getInstance() {
@@ -38,10 +35,10 @@ public class ItemsSearchContainer extends LayoutContainer {
     }
 
     protected void onDetach() {
-    	super.onDetach();
-    	instance = null;
+        super.onDetach();
+        instance = null;
     }
-    
+
     private ItemsSearchContainer() {
         setLayout(new BorderLayout());
         setBorders(false);
@@ -69,7 +66,8 @@ public class ItemsSearchContainer extends LayoutContainer {
         westData.setSplit(true);
         westData.setMargins(new Margins(0, 5, 0, 0));
         westData.setFloatable(true);
-        westData.setMaxSize(800);
+        westData.setMinSize(0);
+        westData.setMaxSize(7000);
         add(ItemsListPanel.getInstance(), westData);
 
         add(ItemsMainTabPanel.getInstance(), new BorderLayoutData(LayoutRegion.CENTER));
