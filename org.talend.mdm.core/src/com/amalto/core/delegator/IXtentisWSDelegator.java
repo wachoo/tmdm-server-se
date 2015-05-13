@@ -1120,8 +1120,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 wsDeleteItem.setSource(SUCCESS_KEYWORD);
                 return new WSString("logical delete item successful!"); //$NON-NLS-1$
             } else { // Physical delete
-                String status;
-                String message;
+                String status = null;
+                String message = null;
                 if (wsDeleteItem.getInvokeBeforeSaving()) {
                     Util.BeforeDeleteResult result = Util.beforeDeleting(dataClusterPK, concept, ids,
                             wsDeleteItem.getOperateType());
@@ -1151,8 +1151,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                         pushToUpdateReport(dataClusterPK, dataModelPK, concept, ids, wsDeleteItem.getInvokeBeforeSaving(),
                                 wsDeleteItem.getSource(), wsDeleteItem.getOperateType(), wsDeleteItem.getUser());
                     }
-                    status = SUCCESS_KEYWORD;
-                    message = "physical delete item successful!"; //$NON-NLS-1$
+                    if (status == null) { // do not overwrite BeforeDeleting message
+                        status = SUCCESS_KEYWORD;
+                        message = "physical delete item successful!"; //$NON-NLS-1$
+                    }
                 } else {
                     status = FAIL_KEYWORD;
                     message = "Unable to delete item"; //$NON-NLS-1$
@@ -1228,8 +1230,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             if (wsExecuteStoredProcedure.getWsDataClusterPK() != null) {
                 dcpk = new DataClusterPOJOPK(wsExecuteStoredProcedure.getWsDataClusterPK().getPk());
             }
-            Collection<String> collection = ctrl.execute(new StoredProcedurePOJOPK(wsExecuteStoredProcedure.getWsStoredProcedurePK()
-                    .getPk()), dcpk, wsExecuteStoredProcedure.getParameters());
+            Collection<String> collection = ctrl.execute(new StoredProcedurePOJOPK(wsExecuteStoredProcedure
+                    .getWsStoredProcedurePK().getPk()), dcpk, wsExecuteStoredProcedure.getParameters());
             if (collection == null) {
                 return null;
             }
@@ -2017,7 +2019,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 return request;
             }
         } catch (XtentisException e) {
-            if(LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage(), e);
             }
             return null;
@@ -2048,7 +2050,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 return request;
             }
         } catch (XtentisException e) {
-            if(LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage(), e);
             }
             return null;
@@ -2176,7 +2178,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     systemStorage.commit();
                     return new WSLong(result.getRecordMetadata().getLastModificationTime());
                 } else {
-                    systemStorage.rollback();   // storage begin() must paired with commit() or rollback(), clean up transactions
+                    systemStorage.rollback(); // storage begin() must paired with commit() or rollback(), clean up
+                                              // transactions
                     return null;
                 }
             } else {
@@ -2237,7 +2240,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             RolePOJO role = ctrl.getRole(new RolePOJOPK(wsGetRole.getWsRolePK().getPk()));
             return XConverter.POJO2WS(role);
         } catch (Exception e) {
-            if(LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException(e.getLocalizedMessage(), e);
@@ -2251,7 +2254,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             RolePOJO pojo = ctrl.existsRole(new RolePOJOPK(wsExistsRole.getWsRolePK().getPk()));
             return new WSBoolean(pojo != null);
         } catch (Exception e) {
-            if(LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException(e.getLocalizedMessage(), e);
@@ -2285,9 +2288,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             LocalUser.resetLocalUsers();
             return new WSRolePK(pk.getUniqueId());
         } catch (Exception e) {
-            if(LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage(), e);
-            }throw new RemoteException(e.getLocalizedMessage(), e);
+            }
+            throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
 
@@ -2319,7 +2323,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             }
             return new WSString(result);
         } catch (Exception e) {
-            if(LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage(), e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -2350,7 +2354,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSCheckServiceConfigResponse checkServiceConfiguration(WSCheckServiceConfigRequest serviceName) throws RemoteException {
-        //Kept for backward compatibility
+        // Kept for backward compatibility
         try {
             Service service = PluginRegistry.getInstance().getService(PluginRegistry.SERVICE_PREFIX + serviceName.getJndiName());
             return new WSCheckServiceConfigResponse(service == null ? false : true);
@@ -2382,7 +2386,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             String desc = service.getDescription(""); //$NON-NLS-1$
             String configuration = service.getConfiguration(""); //$NON-NLS-1$
             String doc = service.getDocumentation(""); //$NON-NLS-1$
-            String defaultConf = service.getDefaultConfiguration(); 
+            String defaultConf = service.getDefaultConfiguration();
             return new WSServiceGetDocument(desc, configuration, doc, "", defaultConf); //$NON-NLS-1$
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
