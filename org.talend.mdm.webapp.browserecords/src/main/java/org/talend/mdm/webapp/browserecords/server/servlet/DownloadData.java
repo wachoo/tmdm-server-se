@@ -33,12 +33,12 @@ import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.server.util.DownloadUtil;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 
-import com.amalto.webapp.core.util.Util;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSGetItem;
 import com.amalto.core.webservice.WSGetItems;
 import com.amalto.core.webservice.WSItem;
 import com.amalto.core.webservice.WSItemPK;
+import com.amalto.webapp.core.util.Util;
 
 public class DownloadData extends HttpServlet {
 
@@ -192,7 +192,11 @@ public class DownloadData extends HttpServlet {
                             if (fkDisplay.equalsIgnoreCase("Id-FKInfo")) { //$NON-NLS-1$
                                 infoList.add(0, tmp);
                             }
-                            tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$
+                            if (multipleValueSeparator != null && multipleValueSeparator.length() > 0) {
+                                tmp = LabelUtil.convertList2String(infoList, multipleValueSeparator);
+                            } else {
+                                tmp = LabelUtil.convertList2String(infoList, "-"); //$NON-NLS-1$
+                            }
                         }
                     }
                 }

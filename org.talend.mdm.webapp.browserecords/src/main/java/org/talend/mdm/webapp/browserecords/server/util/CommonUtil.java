@@ -68,38 +68,39 @@ public class CommonUtil {
                 true);
     }
 
-    public static int getFKFormatType(String str) {
+    public static int getFKFormatType(String str, String separator) {
         if (str == null) {
             return 0;
         }
-
         if (str.trim().equalsIgnoreCase("")) { //$NON-NLS-1$
             return 0;
         }
-
         Pattern p = Pattern.compile("^\\[.+\\]$"); //$NON-NLS-1$
         Matcher m = p.matcher(str);
         if (m.matches()) {
             return 1;
         }
-
-        p = Pattern.compile("^\\[.+\\]-.+"); //$NON-NLS-1$
-        m = p.matcher(str);
-        if (m.matches()) {
-            return 2;
+        if (separator != null && separator.length() > 0) {
+            p = Pattern.compile("^\\[.+\\].+"); //$NON-NLS-1$
+            m = p.matcher(str);
+            if (m.matches()) {
+                return 2;
+            }
         }
-
         return 0;
     }
 
-    public static String getForeignKeyId(String str, int type) {
+    public static String getForeignKeyId(String str, int type, String separator) {
         if (type == 1) {
             return str;
         }
         if (type == 2) {
-            int index = str.indexOf("-"); //$NON-NLS-1$
-            if (index > 0) {
-                return str.substring(0, index);
+            int index;
+            if (separator != null && separator.length() > 0) {
+                index = str.indexOf(separator);
+                if (index > 0) {
+                    return str.substring(0, index);
+                }
             }
         }
         return null;
