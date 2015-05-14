@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -13,7 +13,6 @@
 package org.talend.mdm.webapp.journal.client.widget;
 
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -23,7 +22,6 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 /**
@@ -53,7 +51,6 @@ public class JournalTabPanel extends TabPanel {
         this.setAnimScroll(true);
 
         resultTabItem = new TabItem(MessagesFactory.getMessages().results_tab());
-        resultTabItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.table()));
         resultTabItem.setId("resultTabItem"); //$NON-NLS-1$
         resultTabItem.setLayout(new FitLayout());
         resultTabItem.setClosable(false);
@@ -67,7 +64,6 @@ public class JournalTabPanel extends TabPanel {
         this.add(resultTabItem);
 
         timeLineTabItem = new TabItem(MessagesFactory.getMessages().timeline_tab());
-        timeLineTabItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.time()));
         timeLineTabItem.setId("timeLineTabItem"); //$NON-NLS-1$
         timeLineTabItem.setClosable(false);
         timeLineTabItem.setScrollMode(Scroll.AUTO);
