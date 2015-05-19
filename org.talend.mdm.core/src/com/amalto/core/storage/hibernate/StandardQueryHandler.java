@@ -1542,17 +1542,21 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
             Set<String> aliases = getAliases(mainType, field);
-            for (String alias : aliases) {
-                List<FieldMetadata> path = field.getPath();
-                if (path.size() > 1) {
-                    // For path with more than 1 element, the alias for the criterion is the *containing* one(s).
-                    String containerAlias = pathToAlias.get(path.get(path.size() - 2).getPath());
-                    addCondition(condition, containerAlias, field.getFieldMetadata());
-                } else {
-                    // For path with size 1, code did not generate an alias for field and returned containing alias.
-                    addCondition(condition, alias, field.getFieldMetadata());
+            if (aliases.size() > 1) {
+                for (String alias : aliases) {
+                    List<FieldMetadata> path = field.getPath();
+                    if (path.size() > 1) {
+                        // For path with more than 1 element, the alias for the criterion is the *containing* one(s).
+                        String containerAlias = pathToAlias.get(path.get(path.size() - 2).getPath());
+                        addCondition(condition, containerAlias, field.getFieldMetadata());
+                    } else {
+                        // For path with size 1, code did not generate an alias for field and returned containing alias.
+                        addCondition(condition, alias, field.getFieldMetadata());
+                    }
                 }
-            }
+            } else {
+                condition.criterionFieldNames.add(getFieldName(field));
+            }  
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;
             condition.isProperty = true;
