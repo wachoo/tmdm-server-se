@@ -252,36 +252,23 @@ public class DroppedItemPOJO implements Serializable {
             for (String uid : ids) {
                 String[] uidValues = uid.split("\\."); //$NON-NLS-1$
                 ItemPOJOPK refItemPOJOPK;
-                if (MDMConfiguration.isSqlDataBase()) {
-                    if (uidValues.length < 3) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Could not read id '" + uid + "'. Skipping it.");
-                        }
-                        continue;
+                if (uidValues.length < 3) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Could not read id '" + uid + "'. Skipping it.");
                     }
-                    // check xsd key's length
-                    String uidPrefix = uidValues[0] + "." + uidValues[1] + ".";  //$NON-NLS-1$//$NON-NLS-2$
-                    String[] idArray = Arrays.copyOfRange(uidValues, 2, uidValues.length);
-                    if (!conceptMap.containsKey(uidPrefix)) {
-                        MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(uidValues[0]);
-                        conceptMap.put(uidPrefix, repository.getComplexType(uidValues[1]));
-                    }
-                    if (conceptMap.get(uidPrefix) != null && conceptMap.get(uidPrefix).getKeyFields().size() == 1) {
-                        idArray = new String[] {StringUtils.removeStart(uid, uidPrefix)};
-                    }
-                    refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]), uidValues[1], idArray);
-                } else {
-                    // XML db format (deprecated)
-                    if (uidValues.length < 4) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Could not read id '" + uid + "'. Skipping it.");
-                        }
-                        continue;
-                    }
-                    uidValues[uidValues.length - 1] = uidValues[uidValues.length - 1].replaceAll("\\-$", ""); //$NON-NLS-1$//$NON-NLS-2$
-                    refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[1]), uidValues[2], Arrays.copyOfRange(
-                            uidValues, 3, uidValues.length));
+                    continue;
                 }
+                // check xsd key's length
+                String uidPrefix = uidValues[0] + "." + uidValues[1] + ".";  //$NON-NLS-1$//$NON-NLS-2$
+                String[] idArray = Arrays.copyOfRange(uidValues, 2, uidValues.length);
+                if (!conceptMap.containsKey(uidPrefix)) {
+                    MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(uidValues[0]);
+                    conceptMap.put(uidPrefix, repository.getComplexType(uidValues[1]));
+                }
+                if (conceptMap.get(uidPrefix) != null && conceptMap.get(uidPrefix).getKeyFields().size() == 1) {
+                    idArray = new String[] {StringUtils.removeStart(uid, uidPrefix)};
+                }
+                refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]), uidValues[1], idArray);
                 // set revision id as ""
                 DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(refItemPOJOPK, "/"); //$NON-NLS-1$ //$NON-NLS-2$
                 if (regex != null) {
