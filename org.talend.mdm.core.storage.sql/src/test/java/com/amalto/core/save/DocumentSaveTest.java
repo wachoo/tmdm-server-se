@@ -3130,4 +3130,22 @@ public class DocumentSaveTest extends TestCase {
         }
     }
 
+    private static class TestUserDelegator implements SecuredStorage.UserDelegator {
+
+        boolean isActive = true;
+
+        public void setActive(boolean active) {
+            isActive = active;
+        }
+
+        @Override
+        public boolean hide(FieldMetadata field) {
+            return isActive && field.getHideUsers().contains("System_Users");
+        }
+
+        @Override
+        public boolean hide(ComplexTypeMetadata type) {
+            return isActive && type.getHideUsers().contains("System_Users");
+        }
+    }
 }

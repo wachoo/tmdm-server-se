@@ -440,8 +440,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
 
     @Override
     public int getStatus() throws XtentisException {
-        boolean active = jmsListeningContainer.isActive();
-        if (active) {
+        boolean running = jmsListeningContainer.isRunning();
+        if (running) {
             return RoutingEngine.RUNNING;
         } else {
             return isStopped ? RoutingEngine.STOPPED : RoutingEngine.SUSPENDED;
