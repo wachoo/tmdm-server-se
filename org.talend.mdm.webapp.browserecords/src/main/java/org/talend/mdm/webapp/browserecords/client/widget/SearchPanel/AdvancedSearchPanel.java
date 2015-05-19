@@ -479,7 +479,7 @@ public class AdvancedSearchPanel extends FormPanel {
                         }
                     }
                     instance.layout(true);
-                    ItemsSearchContainer.getInstance().resizeTop(30 + instance.getOffsetHeight());
+                    ItemsSearchContainer.getInstance().resizeTop(ItemsSearchContainer.SIZE + instance.getOffsetHeight());
                 }
             }
 

@@ -226,7 +226,7 @@ public class ItemsToolBar extends ToolBar {
                 advancedPanel.setVisible(true);
                 advancedSearchButton.toggle(true);
                 advancedPanelVisible = true;
-                ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
+                ItemsSearchContainer.getInstance().resizeTop(ItemsSearchContainer.SIZE + advancedPanel.getOffsetHeight());
             }
             qm.setCriteria(advancedPanel.getCriteria());
             MultipleCriteria multipleCriteria = (MultipleCriteria) (BrowseRecords.getSession().get(
@@ -624,9 +624,9 @@ public class ItemsToolBar extends ToolBar {
                 advancedPanelVisible = !advancedPanelVisible;
                 advancedPanel.setVisible(advancedPanelVisible);
                 if (advancedPanelVisible) {
-                    ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
+                    ItemsSearchContainer.getInstance().resizeTop(ItemsSearchContainer.SIZE + advancedPanel.getOffsetHeight());
                 } else {
-                    ItemsSearchContainer.getInstance().resizeTop(30);
+                    ItemsSearchContainer.getInstance().resizeTop(ItemsSearchContainer.SIZE);
                 }
                 advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn").setVisible(false); //$NON-NLS-1$
 
@@ -740,7 +740,7 @@ public class ItemsToolBar extends ToolBar {
                                                     advancedPanelVisible = true;
                                                     advancedPanel.setVisible(advancedPanelVisible);
                                                     ItemsSearchContainer.getInstance().resizeTop(
-                                                            30 + advancedPanel.getOffsetHeight());
+                                                            ItemsSearchContainer.SIZE + advancedPanel.getOffsetHeight());
                                                     advancedPanel.getButtonBar().getItemByItemId("updateBookmarkBtn") //$NON-NLS-1$
                                                             .setVisible(true);
                                                     bookmarkName = model.get("value").toString(); //$NON-NLS-1$
@@ -944,7 +944,7 @@ public class ItemsToolBar extends ToolBar {
 
                         BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE, mutilCriteria);
                         advancedPanel.setCriteria(arg0);
-                        ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
+                        ItemsSearchContainer.getInstance().resizeTop(ItemsSearchContainer.SIZE + advancedPanel.getOffsetHeight());
                         String viewPk = entityCombo.getValue().get("value"); //$NON-NLS-1$
                         AppEvent event = new AppEvent(BrowseRecordsEvents.SearchView, viewPk);
                         event.setData(BrowseRecordsView.IS_STAGING, isStaging());
@@ -973,7 +973,7 @@ public class ItemsToolBar extends ToolBar {
     private void resizeAfterSearch() {
         advancedPanelVisible = false;
         advancedPanel.setVisible(advancedPanelVisible);
-        ItemsSearchContainer.getInstance().resizeTop(30);
+        ItemsSearchContainer.getInstance().resizeTop(ItemsSearchContainer.SIZE);
         advancedSearchButton.toggle(advancedPanelVisible);
         // resize result grid
         if (ItemsListPanel.getInstance().gridContainer != null) {
@@ -1045,7 +1045,7 @@ public class ItemsToolBar extends ToolBar {
                     advancedPanel.cleanCriteria();
                     BrowseRecords.getSession().put(UserSession.CUSTOMIZE_CRITERION_STORE_ADVANCE, null);
                     advancedPanel.layout(true);
-                    ItemsSearchContainer.getInstance().resizeTop(30 + advancedPanel.getOffsetHeight());
+                    ItemsSearchContainer.getInstance().resizeTop(ItemsSearchContainer.SIZE + advancedPanel.getOffsetHeight());
 
                     if (ItemsListPanel.getInstance().gridContainer != null) {
                         ItemsListPanel.getInstance().gridContainer.setHeight(ItemsToolBar.this.getParent().getOffsetHeight()

@@ -97,16 +97,9 @@ public class ProcessPortlet extends BasePortlet {
                                     @Override
                                     public void onSuccess(final String result2) {
                                         box.close();
-                                        MessageBox.alert(MessagesFactory.getMessages().run_status(), MessagesFactory
-                                                .getMessages().run_done(), new Listener<MessageBoxEvent>() {
-
-                                            @Override
-                                            public void handleEvent(MessageBoxEvent be) {
-                                                if (result2.length() > 0) {
-                                                    portal.openWindow(result2);
-                                                }
-                                            }
-                                        });
+                                        if (result2.length() > 0) {
+                                            portal.openWindow(result2);
+                                        }
                                     }
                                 });
                             }

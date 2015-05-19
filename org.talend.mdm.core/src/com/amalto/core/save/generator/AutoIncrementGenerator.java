@@ -17,31 +17,16 @@ public class AutoIncrementGenerator {
 
     private static final InMemoryAutoIncrementGenerator inMemoryAutoIncrementGenerator = new InMemoryAutoIncrementGenerator();
 
-    private static final StorageAutoIncrementGenerator  storageAutoIncrementGenerator;
+    private static final StorageAutoIncrementGenerator  storageAutoIncrementGenerator = new StorageAutoIncrementGenerator();
 
     static {
-        // Initialize Storage auto increment generator (only if system SQL is available).
-        StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
-        if (admin.exist(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM)) {
-            storageAutoIncrementGenerator = new StorageAutoIncrementGenerator();
-        } else {
-            storageAutoIncrementGenerator = null;
-        }
         // Enable concurrent auto increment generator
         Properties properties = MDMConfiguration.getConfiguration();
         boolean enableConcurrentIncrement = Boolean.parseBoolean(properties.getProperty(Server.SYSTEM_CLUSTER, Boolean.FALSE.toString()));
         if (enableConcurrentIncrement) {
-            if (MDMConfiguration.isSqlDataBase()) {
-                if (storageAutoIncrementGenerator == null) {
-                    LOGGER.error("Unable to enable concurrent access support for auto increment generator (system database must use SQL).");
-                    enableConcurrentIncrement = false;
-                } else {
-                    LOGGER.info("Enable concurrent access support for auto increment generator.");
-                }
-            } else {
-                LOGGER.error("Unable to enable concurrent access support for auto increment generator (must use SQL databases).");
-                enableConcurrentIncrement = false;
-            }
+            LOGGER.info("Enable concurrent access support for auto increment generator.");
+        } else {
+            LOGGER.info("Concurrent access support for auto increment generator is disabled.");
         }
         ENABLE_SAFE_CONCURRENT_INCREMENT = enableConcurrentIncrement;
     } 

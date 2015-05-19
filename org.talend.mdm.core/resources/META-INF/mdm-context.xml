@@ -55,9 +55,16 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
             <ref bean="jmsFactory" />
         </property>
     </bean>
+    <!-- Listener for expired messages (needs to be captured as failed events by MDM) -->
+    <bean id="expiredRoutingOrderListener" class="com.amalto.core.server.routing.ExpiredMessageListener"/>
     <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsFactory"
         destination-type="queue">
-        <jms:listener destination="org.talend.mdm.server.routing.events" ref="defaultRoutingEngine" method="consume" />
+        <jms:listener destination="org.talend.mdm.server.routing.events" ref="defaultRoutingEngine" method="consume" id="activeEvents" />
+    </jms:listener-container>
+    <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsFactory"
+                            destination-type="topic">
+        <!-- Listen to ActiveMQ-specific queue for expired messages -->
+        <jms:listener destination="ActiveMQ.Advisory.Expired.Queue.org.talend.mdm.server.routing.events" ref="expiredRoutingOrderListener" method="consume" id="expiredEvents"/>
     </jms:listener-container>
 
     <amq:broker brokerName="localhost" dataDirectory="${mdm.root}/data/activemq-data/localhost" useShutdownHook="false">

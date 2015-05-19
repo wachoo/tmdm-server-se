@@ -10,10 +10,15 @@
 
 package com.amalto.core.server.routing;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
@@ -22,6 +27,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
@@ -35,7 +41,11 @@ import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.Service;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
-import com.amalto.core.objects.routing.*;
+import com.amalto.core.objects.routing.CompletedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.FailedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.RoutingRuleExpressionPOJO;
+import com.amalto.core.objects.routing.RoutingRulePOJO;
+import com.amalto.core.objects.routing.RoutingRulePOJOPK;
 import com.amalto.core.server.api.Item;
 import com.amalto.core.server.api.RoutingEngine;
 import com.amalto.core.server.api.RoutingRule;
@@ -63,10 +73,23 @@ public class DefaultRoutingEngine implements RoutingEngine {
     JmsTemplate jmsTemplate;
 
     @Autowired
+    @Qualifier("activeEvents")
     AbstractJmsListeningContainer jmsListeningContainer;
 
     @Value("${routing.engine.max.execution.time.millis}")
     private long timeToLive = 0;
+
+    private boolean isStopped;
+
+    @PostConstruct
+    public void init() {
+        if (timeToLive > 0) {
+            jmsTemplate.setExplicitQosEnabled(true);
+            jmsTemplate.setTimeToLive(timeToLive);
+        } else {
+            jmsTemplate.setTimeToLive(0);
+        }
+    }
 
     private static String strip(String condition) {
         String compiled = condition;
@@ -82,10 +105,6 @@ public class DefaultRoutingEngine implements RoutingEngine {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    void setTimeToLive(long timeToLive) {
-        this.timeToLive = timeToLive;
     }
 
     /**
@@ -184,6 +203,10 @@ public class DefaultRoutingEngine implements RoutingEngine {
 
     @Override
     public RoutingRulePOJOPK[] route(final ItemPOJOPK itemPOJOPK) throws XtentisException {
+        if (isStopped) {
+            LOGGER.error("Not publishing event for '" + itemPOJOPK + "' (event manager is stopped).");
+            return new RoutingRulePOJOPK[0];
+        }
         // The cached ItemPOJO - will only be retrieved if needed: we have expressions on the routing rules
         String type = itemPOJOPK.getConceptName();
         // Get the item
@@ -285,11 +308,6 @@ public class DefaultRoutingEngine implements RoutingEngine {
                 message.setStringProperty("type", itemPOJOPK.getConceptName()); //$NON-NLS-1$
                 message.setStringProperty("pk", Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$
                 message.setObjectProperty("parameters", Arrays.asList(ruleParameters)); //$NON-NLS-1$
-                if (timeToLive > 0) {
-                    message.setJMSExpiration(System.currentTimeMillis() + timeToLive);
-                } else {
-                    message.setJMSExpiration(0);
-                }
                 return message;
             }
         });
@@ -337,13 +355,34 @@ public class DefaultRoutingEngine implements RoutingEngine {
                     public void run() {
                         try {
                             message.acknowledge();
-                            service.receiveFromInbound(itemPOJOPK, message.getJMSMessageID(), parameters.get(parameterIndex));
-                            // Record routing order was successfully executed.
-                            CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
-                            completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
-                            completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
-                            completedRoutingOrder.setServiceParameters(routingRule.getParameters());
-                            completedRoutingOrder.store();
+                            if (service != null) {
+                                service.receiveFromInbound(itemPOJOPK, message.getJMSMessageID(), parameters.get(parameterIndex));
+                                // Record routing order was successfully executed.
+                                CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
+                                completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                                completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
+                                completedRoutingOrder.setServiceParameters(routingRule.getParameters());
+                                try {
+                                    completedRoutingOrder.store();
+                                } catch (Throwable e) {
+                                    LOGGER.error("Unable to store completed routing order (enable DEBUG for details).");
+                                    if (LOGGER.isDebugEnabled()) {
+                                        LOGGER.debug("Unable to store completed routing order.", e);
+                                    }
+                                }
+                            } else {
+                                final String errorMessage = "Service '" + routingRule.getServiceJNDI() + "' does not exist.";
+                                LOGGER.error(errorMessage);
+                                FailedRoutingOrderV2POJO failedRoutingOrder = createFail(errorMessage);
+                                try {
+                                    failedRoutingOrder.store();
+                                } catch (Throwable e) {
+                                    LOGGER.error("Unable to store failed routing order (enable DEBUG for details).");
+                                    if (LOGGER.isDebugEnabled()) {
+                                        LOGGER.debug("Unable to store failed routing order.", e);
+                                    }
+                                }
+                            }
                         } catch (Exception e) {
                             try {
                                 String err = "Unable to execute the Routing Order '" + message.getJMSMessageID() + "'."
@@ -362,6 +401,16 @@ public class DefaultRoutingEngine implements RoutingEngine {
                             }
                         }
                     }
+
+                    private FailedRoutingOrderV2POJO createFail(String errorMessage) {
+                        // Record routing order has failed.
+                        FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
+                        failedRoutingOrder.setMessage(errorMessage);
+                        failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                        failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
+                        failedRoutingOrder.setServiceParameters(routingRule.getParameters());
+                        return failedRoutingOrder;
+                    }
                 });
             }
         } catch (Exception e) {
@@ -377,6 +426,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
     @Override
     public void stop() throws XtentisException {
         jmsListeningContainer.stop();
+        isStopped = true;
     }
 
     @Override
@@ -388,14 +438,13 @@ public class DefaultRoutingEngine implements RoutingEngine {
         }
     }
 
-    // TODO It doesn't make quite sense to stop a consumer (stop is just an infinite suspend, right?)
     @Override
     public int getStatus() throws XtentisException {
         boolean active = jmsListeningContainer.isActive();
         if (active) {
             return RoutingEngine.RUNNING;
         } else {
-            return RoutingEngine.SUSPENDED;
+            return isStopped ? RoutingEngine.STOPPED : RoutingEngine.SUSPENDED;
         }
     }
 }

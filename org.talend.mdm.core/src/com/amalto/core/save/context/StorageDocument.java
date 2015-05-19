@@ -94,6 +94,9 @@ public class StorageDocument implements MutableDocument {
     @Override
     public MutableDocument create(MutableDocument content) {
         if (content instanceof StorageDocument) {
+            if (isDeleted()) {
+                recover(DeleteType.PHYSICAL);
+            }
             dataRecord = ((StorageDocument) content).getDataRecord();
         } else {
             DataRecordReader<String> reader = new XmlStringDataRecordReader();
@@ -122,7 +125,7 @@ public class StorageDocument implements MutableDocument {
     @Override
     public MutableDocument recover(DeleteType deleteType) {
         dataRecord = previousDataRecord;
-        previousDataRecord = null;
+        isDeleted = false;
         return this;
     }
 

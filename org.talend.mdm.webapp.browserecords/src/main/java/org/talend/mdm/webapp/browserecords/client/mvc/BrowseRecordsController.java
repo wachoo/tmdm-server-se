@@ -162,8 +162,12 @@ public class BrowseRecordsController extends Controller {
 
                     @Override
                     public void onSuccess(ItemResult result) {
-                        itemBean.setIds(result.getReturnValue());
-                        itemBean.setLastUpdateTime(result);
+                        // backend return null value for an update to existing record
+                        // only if save succeeds, update item bean's id and lastUpdateTime
+                        if (result.getReturnValue() != null) {
+                            itemBean.setIds(result.getReturnValue());
+                            itemBean.setLastUpdateTime(result);
+                        }
                         progressBar.close();
                         MessageBox msgBox = null;
                         if (result.getStatus() == ItemResult.FAILURE) {

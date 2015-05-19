@@ -23,12 +23,6 @@ public interface Icons extends ClientBundle {
 
     Icons INSTANCE = GWT.create(Icons.class);
 
-    @Source("table.png")
-    ImageResource table();
-
-    @Source("time.png")
-    ImageResource time();
-
     @Source("browse.png")
     ImageResource browse();
 

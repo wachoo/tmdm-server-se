@@ -80,7 +80,6 @@ public class UploadServiceTest extends TestCase {
         headerVisibleMap.put("UploadTestModel_Polymorphism/info/@xsi:type", true); //$NON-NLS-1$
         inheritanceNodePathList = new LinkedList<String>();
         inheritanceNodePathList.add("UploadTestModel_Polymorphism/info"); //$NON-NLS-1$
-        multipleValueSeparator = "|"; //$NON-NLS-1$
         String[] keys = { "UploadTestModel_Polymorphism/id" }; //$NON-NLS-1$
         entityModel = getEntityModel("UploadTestModel.xsd", "UploadTestModel", "UploadTestModel_Polymorphism", keys); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }

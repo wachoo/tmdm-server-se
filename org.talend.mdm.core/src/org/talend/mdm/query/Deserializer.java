@@ -169,18 +169,28 @@ class Deserializer implements JsonDeserializer<Expression> {
                         synchronized (DateTimeConstant.DATE_FORMAT) {
                             dateAsString = DateTimeConstant.DATE_FORMAT.format(yesterday);
                         }
+                        queryBuilder.at(dateAsString);
                     } else if ("now".equalsIgnoreCase(dateAsString)) { //$NON-NLS-1$
                         Date yesterday = new Date(System.currentTimeMillis());
                         synchronized (DateTimeConstant.DATE_FORMAT) {
                             dateAsString = DateTimeConstant.DATE_FORMAT.format(yesterday);
                         }
+                        queryBuilder.at(dateAsString);
                     } else if ("creation".equalsIgnoreCase(dateAsString)) { //$NON-NLS-1$
-                        Date yesterday = new Date(0);
+                        Date minDate = new Date(0);
                         synchronized (DateTimeConstant.DATE_FORMAT) {
-                            dateAsString = DateTimeConstant.DATE_FORMAT.format(yesterday);
+                            dateAsString = DateTimeConstant.DATE_FORMAT.format(minDate);
                         }
+                        queryBuilder.at(dateAsString);
+                        // For creation, move to initial date (no record exists, then swing to the state after).
+                        queryBuilder.swing(At.Swing.AFTER.name());
+                        if (object.has("swing")) { //$NON-NLS-1$
+                            // We *could* support BEFORE as swing, but not AFTER (can't swing twice).
+                            throw new IllegalArgumentException("Swing argument is not supported for 'creation' date.");
+                        }
+                    } else {
+                        queryBuilder.at(dateAsString);
                     }
-                    queryBuilder.at(dateAsString);
                     // Swing is optional
                     if (object.has("swing")) { //$NON-NLS-1$
                         queryBuilder.swing(object.get("swing").getAsString()); //$NON-NLS-1$

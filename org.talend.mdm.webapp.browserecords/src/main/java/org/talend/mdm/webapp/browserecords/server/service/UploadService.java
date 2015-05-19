@@ -45,12 +45,12 @@ import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.webapp.core.util.Util;
-import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSPutItem;
 import com.amalto.core.webservice.WSPutItemWithReport;
+import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.core.util.XmlUtil;
 
 public class UploadService {
 
@@ -179,10 +179,11 @@ public class UploadService {
                         }
                         case Cell.CELL_TYPE_STRING: {
                             fieldValue = tmpCell.getRichStringCellValue().getString();
-                            int result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType(fieldValue);
+                            int result = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getFKFormatType(fieldValue,
+                                    multipleValueSeparator);
                             if (result > 0) {
                                 fieldValue = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getForeignKeyId(
-                                        fieldValue, result);
+                                        fieldValue, result, multipleValueSeparator);
                             }
                             break;
                         }
