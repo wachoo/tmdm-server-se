@@ -3945,7 +3945,71 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
     }
+    
+    public void testEmptyOrNullOnFK() throws Exception {
+        FieldMetadata field = address.getField("country");
 
+        UserQueryBuilder qb = from(address).where(isNull(field));
+        storage.begin();
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+
+        qb = from(address).where(or(isNull(field), isEmpty(field)));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+
+        qb = from(address).where(emptyOrNull(field));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+
+        qb = UserQueryBuilder.from(product).where(emptyOrNull(product.getField("Stores/Store")));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+
+        qb = UserQueryBuilder.from(product).where(emptyOrNull(product.getField("Family")));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+
+        qb = UserQueryBuilder.from(product).where(emptyOrNull(product.getField("Features/Sizes/Size")));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+    }
+    
     private static class TestRDBMSDataSource extends RDBMSDataSource {
 
         private ContainsOptimization optimization;

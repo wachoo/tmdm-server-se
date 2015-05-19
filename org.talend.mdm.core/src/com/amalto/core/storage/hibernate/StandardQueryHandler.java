@@ -786,7 +786,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Criterion visit(IsNull isNull) {
-            FieldCondition fieldCondition = isNull.getField().accept(visitor);
+            TypedExpression field = isNull.getField();
+            FieldCondition fieldCondition = field.accept(visitor);
             if (fieldCondition == null) {
                 return NO_OP_CRITERION;
             }
@@ -799,10 +800,24 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 // Criterion affect multiple fields
                 Criterion current = null;
                 for (String criterionFieldName : fieldCondition.criterionFieldNames) {
-                    if (current == null) {
-                        current = Restrictions.isNull(criterionFieldName);
+                    Criterion criterion;
+                    if (field instanceof Field) {
+                        // TMDM-7700: Fix incorrect alias for isNull condition on FK (pick the FK's containing type
+                        // iso. the referenced type).
+                        FieldMetadata fieldMetadata = ((Field) field).getFieldMetadata();
+                        if (fieldMetadata.getContainingType().isInstantiable()) {
+                            String typeName = fieldMetadata.getEntityTypeName();
+                            criterion = Restrictions.isNull(typeName + '.' + fieldMetadata.getName());
+                        } else {
+                            criterion = Restrictions.isNull(criterionFieldName);
+                        }
                     } else {
-                        current = Restrictions.and(current, Restrictions.isNull(criterionFieldName));
+                        criterion = Restrictions.isNull(criterionFieldName);
+                    }
+                    if (current == null) {
+                        current = criterion;
+                    } else {
+                        current = Restrictions.and(current, criterion);
                     }
                 }
                 return current;
