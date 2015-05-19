@@ -89,6 +89,8 @@ public class JournalSearchPanel extends FormPanel {
     private JournalSearchPanel() {
         FormData formData = new FormData();
         this.setFrame(true);
+        this.setHeight(-1);
+        this.setPadding(5);
         this.setHeading(MessagesFactory.getMessages().search_panel_title());
         this.setButtonAlign(HorizontalAlignment.RIGHT);
 
