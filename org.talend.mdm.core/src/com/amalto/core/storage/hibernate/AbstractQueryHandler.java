@@ -90,7 +90,7 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
             throw new IllegalStateException("Could not find containing type mapping for field '" + fieldMetadata.getName() + "'.");
         }
         String fieldName;
-        if (fieldMetadata instanceof ReferenceFieldMetadata) { // Handle query on FK field
+        if (fieldMetadata instanceof ReferenceFieldMetadata && !fieldMetadata.isMany()) { // Handle query on FK field
             FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
             if (!(referencedField instanceof CompoundFieldMetadata)) {
                 // If asked to resolve referenced field (to return "country.id" instead of "country" -> useful for
