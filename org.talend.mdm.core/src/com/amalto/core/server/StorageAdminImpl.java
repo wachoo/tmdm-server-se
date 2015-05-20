@@ -333,8 +333,12 @@ public class StorageAdminImpl implements StorageAdmin {
         }
         if (storage == null && supportStaging(cleanedStorageName)) {
             LOGGER.info("Container '" + cleanedStorageName + "' does not exist.");
-            String dataSourceName = getDatasource(cleanedStorageName);
-            storage = create(cleanedStorageName, cleanedStorageName, type, dataSourceName);
+            // If data model xsd exits on server, create storage
+            MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
+            if (metadataRepositoryAdmin.exist(storageName)) {
+                String dataSourceName = getDatasource(cleanedStorageName);
+                storage = create(cleanedStorageName, cleanedStorageName, type, dataSourceName);
+            }
         }
         return storage;
     }

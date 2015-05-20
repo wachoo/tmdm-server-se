@@ -14,6 +14,7 @@ package com.amalto.webapp.core.bean;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -60,6 +61,11 @@ public class Configuration {
             }
             configuration = load();
             storeInSession(configuration);
+        } else {// Handle undeploy model/container from studio during using server
+            if (!exitsCluster(configuration.getCluster()) || !exitsModel(configuration.getModel())) {
+                configuration.setCluster(null);
+                configuration.setModel(null);
+            }
         }
         return configuration;
     }
@@ -98,9 +104,9 @@ public class Configuration {
     }
 
     private static void store(String cluster, String model) throws Exception {
-        if (cluster == null || cluster.trim().length() == 0) {
+        if (StringUtils.isBlank(cluster)) {
             throw new Exception("nocontainer"); //$NON-NLS-1$
-        } else if (model == null || model.trim().length() == 0) {
+        } else if (StringUtils.isBlank(model)) {
             throw new Exception("nomodel"); //$NON-NLS-1$
         }
 
@@ -161,6 +167,28 @@ public class Configuration {
         }
     }
 
+    private static boolean exitsCluster(String cluster) throws Exception {
+        if (StringUtils.isNotBlank(cluster)) {
+            WSExistsDataCluster wsExistsDataCluster = new WSExistsDataCluster();
+            wsExistsDataCluster.setWsDataClusterPK(new WSDataClusterPK(cluster));
+            WSBoolean wsBoolean = Util.getPort().existsDataCluster(wsExistsDataCluster);
+            return wsBoolean.is_true();
+        } else {
+            return false;
+        }
+    }
+    
+    private static boolean exitsModel(String model) throws Exception {
+        if (StringUtils.isNotBlank(model)) {
+            WSExistsDataModel wsExistsDataModel = new WSExistsDataModel();
+            wsExistsDataModel.setWsDataModelPK(new WSDataModelPK(model));
+            WSBoolean wsBoolean = Util.getPort().existsDataModel(wsExistsDataModel);
+            return wsBoolean.is_true();
+        } else {
+            return false;
+        }
+    }
+    
     private static Configuration load() throws Exception {
         Configuration configuration = new Configuration();
 
@@ -180,14 +208,8 @@ public class Configuration {
             Node node = nodeList.item(i);
             if ("cluster".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
                 Node fchild = com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild(); //$NON-NLS-1$
-                if (fchild != null) {
-                    WSExistsDataCluster wsExistsDataCluster = new WSExistsDataCluster();
-                    wsExistsDataCluster.setWsDataClusterPK(new WSDataClusterPK(fchild.getNodeValue()));
-                    WSBoolean wsBoolean = Util.getPort().existsDataCluster(wsExistsDataCluster);
-                    if (wsBoolean.is_true()) {
-                        configuration.setCluster(fchild.getNodeValue());
-                    }
-
+                if (fchild != null && exitsCluster(fchild.getNodeValue())) {
+                    configuration.setCluster(fchild.getNodeValue());
                 }
 
             }
@@ -196,13 +218,8 @@ public class Configuration {
             Node node = nodeList.item(i);
             if ("model".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
                 Node fchild = com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild(); //$NON-NLS-1$
-                if (fchild != null) {
-                    WSExistsDataModel wsExistsDataModel = new WSExistsDataModel();
-                    wsExistsDataModel.setWsDataModelPK(new WSDataModelPK(fchild.getNodeValue()));
-                    WSBoolean wsBoolean = Util.getPort().existsDataModel(wsExistsDataModel);
-                    if (wsBoolean.is_true()) {
-                        configuration.setModel(fchild.getNodeValue());
-                    }
+                if (fchild != null && exitsModel(fchild.getNodeValue())) {
+                    configuration.setModel(fchild.getNodeValue());
                 }
 
             }
@@ -218,10 +235,15 @@ public class Configuration {
         }
 
         if (attemptToStoreAgain) {
-            try {
-                store(configuration.getCluster(), configuration.getModel());
-            } catch (Exception e) {
-                LOG.error("Unable to store updated configuration", e); //$NON-NLS-1$
+            if (StringUtils.isBlank(configuration.getCluster()) || StringUtils.isBlank(configuration.getModel())) {
+                configuration.setCluster(null);
+                configuration.setModel(null);
+            } else {
+                try {
+                    store(configuration.getCluster(), configuration.getModel());
+                } catch (Exception e) {
+                    LOG.error("Unable to store updated configuration", e); //$NON-NLS-1$
+                }
             }
         }
 
