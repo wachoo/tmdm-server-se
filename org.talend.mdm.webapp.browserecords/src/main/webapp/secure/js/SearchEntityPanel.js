@@ -164,7 +164,7 @@ amalto.itemsbrowser.SearchEntity.bundle.onReady(function(){
 				height : 170,
 				layout : "fit",
 				split : false,
-				title : searchEntityBundle.getMsg("LABEL_SEARCH_PANEL"),
+				header : false,
 				collapsible : true,
 				border: false,
 				items : [{
