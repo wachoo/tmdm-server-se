@@ -134,6 +134,8 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
             method="GET" />
         <security:intercept-url pattern="\A/services/pubcomponent.*\Z" requires-channel="any"
             access="hasRole('administration')" />
+        <security:intercept-url pattern="\A/services/syncuser.*\Z" requires-channel="any"
+            access="hasRole('administration')" />
         <security:intercept-url pattern="\A/services.*\Z" requires-channel="any" access="hasRole('authenticated')" />
         <security:custom-filter position="BASIC_AUTH_FILTER" ref="basicAuthenticationFilter" />
     </security:http>
