@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -46,7 +46,6 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -252,7 +251,7 @@ public class PictureField extends TextField<String> {
 
         if (value != null && value.length() != 0) {
             if (value.startsWith("/imageserver")) { //$NON-NLS-1$
-                value = value.substring(1); //$NON-NLS-1$
+                value = value.substring(1);
             }
             if (!value.startsWith("imageserver")) { //$NON-NLS-1$
                 value = "imageserver/" + value; //$NON-NLS-1$
@@ -341,7 +340,8 @@ public class PictureField extends TextField<String> {
             super();
             this.setLayout(new FitLayout());
             this.setHeading(MessagesFactory.getMessages().picture_select_title());
-            this.setSize(460, 450);
+            this.setSize(540, 450);
+            this.setResizable(true);
             this.setModal(true);
             this.setBlinkModal(true);
 
@@ -349,7 +349,7 @@ public class PictureField extends TextField<String> {
             TabItem localTabItem = new TabItem(MessagesFactory.getMessages().picture_upload_local_title());
             ContentPanel localContentPanel = new ContentPanel();
 
-            FormData formData = new FormData();
+            FormData formData = new FormData("85%"); //$NON-NLS-1$
             editForm.setEncoding(FormPanel.Encoding.MULTIPART);
             editForm.setMethod(FormPanel.Method.POST);
             editForm.setAction("imageserver/ImageUploadServlet"); //$NON-NLS-1$
@@ -357,7 +357,7 @@ public class PictureField extends TextField<String> {
             editForm.setBodyBorder(false);
             editForm.setLabelWidth(110);
 
-            MultiField imgIdRow = new MultiField();
+            MultiField<String> imgIdRow = new MultiField<String>();
             imgIdRow.setFieldLabel(MessagesFactory.getMessages().picture_field_imgid());
 
             name = new TextField<String>();
@@ -369,7 +369,7 @@ public class PictureField extends TextField<String> {
             final LabelField extFileNameLabel = new LabelField();
             imgIdRow.add(extFileNameLabel);
 
-            MultiField catalogRow = new MultiField();
+            MultiField<String> catalogRow = new MultiField<String>();
             catalogRow.setFieldLabel(MessagesFactory.getMessages().picture_field_imgcatalog());
 
             final TextField<String> catalog = new TextField<String>();
@@ -453,7 +453,6 @@ public class PictureField extends TextField<String> {
             });
             uploadTabPanel.add(remoteTabItem);
             add(uploadTabPanel);
-            this.setResizable(false);
         }
 
         @Override
