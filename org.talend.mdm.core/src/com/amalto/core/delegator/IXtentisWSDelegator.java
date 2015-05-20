@@ -389,15 +389,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     @Override
     public WSDataClusterPKArray getDataClusterPKs(WSRegexDataClusterPKs regexp) throws RemoteException {
         try {
-            String[] storageNames = ServerContext.INSTANCE.get().getStorageAdmin().getAll();
             WSDataClusterPKArray array = new WSDataClusterPKArray();
-            List<WSDataClusterPK> wsDataClusterPKs = new ArrayList<>(storageNames.length);
-            for (String storageName : storageNames) {
-                if ("*".equals(regexp.getRegex()) || storageName.matches(regexp.getRegex())) { //$NON-NLS-1$
-                    wsDataClusterPKs.add(new WSDataClusterPK(storageName));
-                }
+            ArrayList<WSDataClusterPK> l = new ArrayList<WSDataClusterPK>();
+            Collection<DataClusterPOJOPK> vos = Util.getDataClusterCtrlLocal().getDataClusterPKs(regexp.getRegex());
+            for (DataClusterPOJOPK pk : vos) {
+                l.add(new WSDataClusterPK(pk.getUniqueId()));
             }
-            array.setWsDataClusterPKs(wsDataClusterPKs.toArray(new WSDataClusterPK[wsDataClusterPKs.size()]));
+            array.setWsDataClusterPKs(l.toArray(new WSDataClusterPK[l.size()]));
             return array;
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
