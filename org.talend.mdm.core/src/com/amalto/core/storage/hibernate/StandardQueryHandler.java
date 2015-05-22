@@ -316,8 +316,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private String getAlias(ComplexTypeMetadata type, FieldMetadata databaseField) {
         String previousAlias = type.getName();
-        String alias;
-        for (FieldMetadata next : MetadataUtils.path(type, databaseField)) {
+        String alias;        
+        List<FieldMetadata> paths ;        
+        if (databaseField instanceof ReferenceFieldMetadata || !databaseField.getContainingType().isInstantiable()) {
+            paths = MetadataUtils.path(type, databaseField);
+        } else {
+            paths = Collections.singletonList(databaseField);
+        }
+        for (FieldMetadata next : paths) {
             if (next instanceof ReferenceFieldMetadata) {
                 alias = joinFieldsToAlias.get(next);
                 if (alias == null) {
@@ -443,7 +449,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (orderByExpression instanceof Field) {
             Field field = (Field) orderByExpression;
             FieldMetadata userFieldMetadata = field.getFieldMetadata();
-            String alias = getAlias(userFieldMetadata.getContainingType(), userFieldMetadata);
+            ComplexTypeMetadata containingType = getContainingType(userFieldMetadata);
+            String alias = getAlias(containingType, userFieldMetadata);
             condition.criterionFieldName = alias + '.' + userFieldMetadata.getName();
         }
         if (condition != null) {
@@ -461,6 +468,15 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         return null;
     }
+    
+    private ComplexTypeMetadata getContainingType(FieldMetadata userFieldMetadata) {
+        ComplexTypeMetadata containingType = userFieldMetadata.getContainingType();
+        if (!containingType.isInstantiable()) {
+            containingType = mainType;
+        }
+        return containingType;
+    }
+
 
     @Override
     public StorageResults visit(BinaryLogicOperator condition) {
