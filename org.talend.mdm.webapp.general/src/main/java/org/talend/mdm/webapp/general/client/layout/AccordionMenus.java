@@ -55,8 +55,6 @@ public class AccordionMenus extends ContentPanel {
         this.setHeading(MessageFactory.getMessages().menus());
         this.addStyleName("menus-list"); //$NON-NLS-1$
         this.setLayout(new AccordionLayout());
-        // this.setScrollMode(Scroll.AUTO);// add it for vertical ScrollBar
-        // registerOpenPages();
     }
 
     public static AccordionMenus getInstance() {
@@ -71,11 +69,7 @@ public class AccordionMenus extends ContentPanel {
         String icon = makeImageIconPart(mb, toCheckMenuID);
         StringBuffer str = new StringBuffer();
         str.append("<span class='body'>"); //$NON-NLS-1$
-        if ("workflowtasks.BonitaWorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
-            str.append("<img style='width: 16px;height: 16px;' src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else {
-            str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$    
-        }
+        str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$ 
         str.append("<span class='desc'>" + mb.getName() + "</span></span>"); //$NON-NLS-1$ //$NON-NLS-2$
         HTMLMenuItem tempItem = new HTMLMenuItem(mb, str.toString());
         if (CHECKMENUID_WELCOME_PORTAL.equals(toCheckMenuID)) {
@@ -90,6 +84,7 @@ public class AccordionMenus extends ContentPanel {
         menuPanel.setAnimCollapse(false);
         menuPanel.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.accordion()));
         menuPanel.setScrollMode(Scroll.AUTO);
+        menuPanel.addStyleName("menus-group"); //$NON-NLS-1$
         this.add(menuPanel);
     }
 

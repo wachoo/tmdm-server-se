@@ -1,18 +1,37 @@
-body { 
+body {
+    font-family: "Source Sans Pro"!important;
+    font: normal 13px "Source Sans Pro"!important;
     background-color:#FFFFFF;
     margin: 0;
     font-family: "Source Sans Pro";
 }
 
+input[type="text"], input[type="password"], input:-webkit-autofill {
+    font-family: "Source Sans Pro"!important;
+    color: black;
+    font-size: 15px;
+    background-color: white !important;
+    border: 1px solid gray;
+}
+
+input[type="submit"] {
+    font-family: "Source Sans Pro"!important;
+    color: white;
+    font-size: 14px;
+    width: 85px;
+    height: 30px;
+    background-color: #00a6ce;
+    border: 1px solid transparent;
+}
+
 td { 
     color:#000000;
-    font-size: 12px;
+    font-size: 15px;
     line-height:130%;
 }
 
 table.form {
     background-color:#FFFFFF;
-    border-style: dashed;
     border-color: green;
     border-width: 1px;
     padding-right: 10px;
@@ -46,8 +65,10 @@ table.form {
 
 .suiteName {
     font-size: 26px;
+    text-shadow: 0 1px 2px black;
+    font-weight: bold;
     text-align: center;
-    color: #BBBBBB;
+    color: #EBEBEB;
     vertical-align: middle;
 }
 
