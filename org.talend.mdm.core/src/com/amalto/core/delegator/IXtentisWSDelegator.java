@@ -2206,10 +2206,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         MetadataRepository repository = systemStorage.getMetadataRepository();
         String type = wsDigest.getWsDigestKey().getType();
         String name = wsDigest.getWsDigestKey().getObjectName();
-        systemStorage.begin(); // Storage needs an active transaction (even for read operations).
-        try {
-            String typeName = DigestHelper.getInstance().getTypeName(type);
-            if (typeName != null) {
+        String typeName = DigestHelper.getInstance().getTypeName(type);
+        if (typeName != null) {
+            try {
+                systemStorage.begin(); // Storage needs an active transaction (even for read operations).
                 ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
                 UserQueryBuilder qb = UserQueryBuilder.from(storageType)
                         .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)) //$NON-NLS-1$
@@ -2229,13 +2229,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                                               // transactions
                     return null;
                 }
-            } else {
+            } catch (Exception e) {
                 systemStorage.rollback();
-                return null;
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            systemStorage.rollback();
-            throw new RuntimeException(e);
+        } else {
+            return null;
         }
     }
 
