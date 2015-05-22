@@ -110,6 +110,10 @@ public class UserQueryBuilder {
         assertValueConditionArguments(expression, constant);
         return new Compare(expression, Predicate.GREATER_THAN, createConstant(expression, constant));
     }
+    
+    public static Condition gt(TypedExpression expression, FieldMetadata field) {
+        return new Compare(expression, Predicate.GREATER_THAN, new Field(field));
+    }
 
     public static Condition gte(FieldMetadata field, String constant) {
         assertValueConditionArguments(field, constant);

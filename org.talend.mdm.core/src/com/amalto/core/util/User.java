@@ -41,6 +41,8 @@ public class User implements Cloneable {
     long registrationDateAsLong;
 
     long lastVisitDateAsLong;
+    
+    long lastSyncTimeAsLong;
 
     String password;
 
@@ -78,48 +80,48 @@ public class User implements Cloneable {
      */
 
     public String serialize() {
-        String user = "<User>" + "    <username>" + userName + "</username>" + "    <password>" + password + "</password>"
-                + "    <givenname>" + (givenName == null ? "" : givenName) + "</givenname>" + "    <familyname>"
-                + (familyName == null ? "" : familyName) + "</familyname>" + "    <phonenumber>"
-                + (phoneNumber == null ? "" : phoneNumber) + "</phonenumber>" + "    <company>"
-                + (company == null ? "" : company) + "</company>" + "    <id>" + ID + "</id>" + "    <signature>"
-                + (signature == null ? "" : signature) + "</signature>" + "    <realemail>"
-                + (realEmail == null ? "" : realEmail) + "</realemail>" + "    <fakeemail>"
-                + (fakeEmail == null ? "" : fakeEmail) + "</fakeemail>" + "    <viewrealemail>" + (viewRealEmail ? "yes" : "no")
-                + "</viewrealemail>" + "    <registrationdate>"
-                + (registrationDateAsLong == 0 ? System.currentTimeMillis() : registrationDateAsLong) + "</registrationdate>"
-                + "    <lastvisitdate>" + lastVisitDateAsLong + "</lastvisitdate>" + "    <enabled>" + (enabled ? "yes" : "no")
-                + "</enabled>" + "    <homepage>" + homePage + "</homepage>" + "    <universe>"
-                + (universe == null ? "" : universe) + "</universe>" + "    <language>" + (language == null ? "" : language)
-                + "</language>";
-        user += "    <roles>";
+        String user = "<User>" + "    <username>" + userName + "</username>" + "    <password>" + password + "</password>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                + "    <givenname>" + (givenName == null ? "" : givenName) + "</givenname>" + "    <familyname>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                + (familyName == null ? "" : familyName) + "</familyname>" + "    <phonenumber>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                + (phoneNumber == null ? "" : phoneNumber) + "</phonenumber>" + "    <company>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                + (company == null ? "" : company) + "</company>" + "    <id>" + ID + "</id>" + "    <signature>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                + (signature == null ? "" : signature) + "</signature>" + "    <realemail>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                + (realEmail == null ? "" : realEmail) + "</realemail>" + "    <fakeemail>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                + (fakeEmail == null ? "" : fakeEmail) + "</fakeemail>" + "    <viewrealemail>" + (viewRealEmail ? "yes" : "no") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+                + "</viewrealemail>" + "    <registrationdate>" //$NON-NLS-1$ //$NON-NLS-2$
+                + (registrationDateAsLong == 0 ? System.currentTimeMillis() : registrationDateAsLong) + "</registrationdate>" //$NON-NLS-1$
+                + "    <lastvisitdate>" + lastVisitDateAsLong + "</lastvisitdate>"  + "    <lastsynctime>" + lastSyncTimeAsLong + "</lastsynctime>"  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                + "    <enabled>" + (enabled ? "yes" : "no") + "</enabled>" + "    <homepage>" + homePage + "</homepage>" + "    <universe>" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+                + (universe == null ? "" : universe) + "</universe>" + "    <language>" + (language == null ? "" : language) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                + "</language>"; //$NON-NLS-1$
+        user += "    <roles>"; //$NON-NLS-1$
         Iterator<String> iter = roleNames.iterator();
         while (iter.hasNext()) {
-            user += "<role>" + iter.next() + "</role>";
+            user += "<role>" + iter.next() + "</role>"; //$NON-NLS-1$ //$NON-NLS-2$
         }
-        user += "    </roles>";
-        user += "    <properties>";
+        user += "    </roles>"; //$NON-NLS-1$
+        user += "    <properties>"; //$NON-NLS-1$
         if (properties != null) {
             for (iter = properties.keySet().iterator(); iter.hasNext();) {
                 String key = iter.next();
                 String value = properties.get(key);
-                user += "        <property>" + "            <name>" + key + "</name>" + "            <value>" + value
-                        + "</value>" + "        </property>";
+                user += "        <property>" + "            <name>" + key + "</name>" + "            <value>" + value //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        + "</value>" + "        </property>"; //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
-        user += "    </properties>";
+        user += "    </properties>"; //$NON-NLS-1$
 
-        user += "    <applications>";
+        user += "    <applications>"; //$NON-NLS-1$
         if (applications != null) {
             for (iter = applications.keySet().iterator(); iter.hasNext();) {
                 String key = iter.next();
                 String value = applications.get(key);
-                user += "        <application>" + "            <name>" + key + "</name>" + "            <value>" + value
-                        + "</value>" + "        </application>";
+                user += "        <application>" + "            <name>" + key + "</name>" + "            <value>" + value //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                        + "</value>" + "        </application>"; //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
-        user += "    </applications>";
-        user += "</User>";
+        user += "    </applications>"; //$NON-NLS-1$
+        user += "</User>"; //$NON-NLS-1$
 
         return user;
 
@@ -135,16 +137,16 @@ public class User implements Cloneable {
 
         try {
             Element result = Util.parse(xml).getDocumentElement();
-            user.setUserName(Util.getFirstTextNode(result, "//username"));
-            user.setPassword(Util.getFirstTextNode(result, "//password"));
-            user.setGivenName(Util.getFirstTextNode(result, "//givenname"));
-            user.setFamilyName(Util.getFirstTextNode(result, "//familyname"));
-            user.setPhoneNumber(Util.getFirstTextNode(result, "//phonenumber"));
-            user.setCompany(Util.getFirstTextNode(result, "//company"));
-            user.setSignature(Util.getFirstTextNode(result, "//signature"));
-            user.setRealEmail(Util.getFirstTextNode(result, "//realemail"));
-            user.setFakeEmail(Util.getFirstTextNode(result, "//fakeemail"));
-            user.setViewRealEmail("yes".equals(Util.getFirstTextNode(result, "//viewrealemail")));
+            user.setUserName(Util.getFirstTextNode(result, "//username")); //$NON-NLS-1$
+            user.setPassword(Util.getFirstTextNode(result, "//password")); //$NON-NLS-1$
+            user.setGivenName(Util.getFirstTextNode(result, "//givenname")); //$NON-NLS-1$
+            user.setFamilyName(Util.getFirstTextNode(result, "//familyname")); //$NON-NLS-1$
+            user.setPhoneNumber(Util.getFirstTextNode(result, "//phonenumber")); //$NON-NLS-1$
+            user.setCompany(Util.getFirstTextNode(result, "//company")); //$NON-NLS-1$
+            user.setSignature(Util.getFirstTextNode(result, "//signature")); //$NON-NLS-1$
+            user.setRealEmail(Util.getFirstTextNode(result, "//realemail")); //$NON-NLS-1$
+            user.setFakeEmail(Util.getFirstTextNode(result, "//fakeemail")); //$NON-NLS-1$
+            user.setViewRealEmail("yes".equals(Util.getFirstTextNode(result, "//viewrealemail"))); //$NON-NLS-1$ //$NON-NLS-2$
 
             try {
                 user.setRegistrationDate(new Date(Long.parseLong(Util.getFirstTextNode(result, "//registrationdate")))); //$NON-NLS-1$
@@ -157,12 +159,18 @@ public class User implements Cloneable {
             } catch (Exception nfe) {
                 user.setLastVisitDate(null);
             }
-            user.setEnabled("yes".equals(Util.getFirstTextNode(result, "//enabled")));
-            user.setHomePage(Util.getFirstTextNode(result, "//homepage"));
-            user.setUniverse(Util.getFirstTextNode(result, "//universe"));
-            user.setLanguage(Util.getFirstTextNode(result, "//language"));
+            
+            try {
+                user.setLastSyncTime(new Date(Long.parseLong(Util.getFirstTextNode(result, "//lastsynctime")))); //$NON-NLS-1$
+            } catch (Exception nfe) {
+                user.setLastSyncTime(null);
+            }
+            user.setEnabled("yes".equals(Util.getFirstTextNode(result, "//enabled"))); //$NON-NLS-1$ //$NON-NLS-2$
+            user.setHomePage(Util.getFirstTextNode(result, "//homepage")); //$NON-NLS-1$
+            user.setUniverse(Util.getFirstTextNode(result, "//universe")); //$NON-NLS-1$
+            user.setLanguage(Util.getFirstTextNode(result, "//language")); //$NON-NLS-1$
 
-            String[] roles = Util.getTextNodes(result, "//roles/role");
+            String[] roles = Util.getTextNodes(result, "//roles/role"); //$NON-NLS-1$
             HashSet<String> rs = new HashSet<String>();
             if (roles != null) {
                 Collections.addAll(rs, roles);
@@ -171,24 +179,24 @@ public class User implements Cloneable {
 
             // XtentisPropertyMap propertyMap = new XtentisPropertyMap(user);
             HashMap<String, String> props = new HashMap<String, String>();
-            NodeList properties = Util.getNodeList(result, "//properties/property");
+            NodeList properties = Util.getNodeList(result, "//properties/property"); //$NON-NLS-1$
             if (properties != null) {
                 for (int i = 0; i < properties.getLength(); i++) {
                     Element property = (Element) properties.item(i);
-                    String name = Util.getFirstTextNode(property, "name");
-                    String value = Util.getFirstTextNode(property, "value");
+                    String name = Util.getFirstTextNode(property, "name"); //$NON-NLS-1$
+                    String value = Util.getFirstTextNode(property, "value"); //$NON-NLS-1$
                     props.put(name, value);
                 }
             }
             user.setProperties(props);
 
             HashMap<String, String> apps = new HashMap<String, String>();
-            NodeList appNodes = Util.getNodeList(result, "//applications/application");
+            NodeList appNodes = Util.getNodeList(result, "//applications/application"); //$NON-NLS-1$
             if (appNodes != null) {
                 for (int i = 0; i < appNodes.getLength(); i++) {
                     Element application = (Element) appNodes.item(i);
-                    String name = Util.getFirstTextNode(application, "name");
-                    String value = Util.getFirstTextNode(application, "value");
+                    String name = Util.getFirstTextNode(application, "name"); //$NON-NLS-1$
+                    String value = Util.getFirstTextNode(application, "value"); //$NON-NLS-1$
                     apps.put(name, value);
                 }
             }
@@ -298,6 +306,14 @@ public class User implements Cloneable {
 
     public void setLastVisitDate(Date lastVisitDate) {
         this.lastVisitDateAsLong = (lastVisitDate == null ? 0 : lastVisitDate.getTime());
+    }
+    
+    public long getLastSyncTime() {
+        return lastSyncTimeAsLong;
+    }
+
+    public void setLastSyncTime(Date lastSyncTime) {
+        this.lastSyncTimeAsLong = (lastSyncTime == null ? 0 : lastSyncTime.getTime());
     }
 
     public String getPassword() {
