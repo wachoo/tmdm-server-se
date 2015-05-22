@@ -168,14 +168,10 @@ public class UploadData extends HttpServlet {
                                 wsPutItemWithReportList.toArray(new WSPutItemWithReport[wsPutItemWithReportList.size()])),
                         concept);
             }
-            writer.print("true"); //$NON-NLS-1$
-        } catch (UploadException uploadException) {
-            LOG.error(uploadException.getMessage(), uploadException);
-            writer.print(uploadException.getMessage());
+            writer.print(MESSAGES.getMessage("import_success_label")); //$NON-NLS-1$
         } catch (Exception exception) {
             LOG.error(exception.getMessage(), exception);
-            throw exception instanceof ServletException ? (ServletException) exception : new ServletException(
-                    exception.getMessage(), exception);
+            writer.print(extractErrorMessage(exception.getMessage()));
         } finally {
             writer.close();
         }
@@ -206,5 +202,15 @@ public class UploadData extends HttpServlet {
         return new UploadService(getEntityModel(concept), fileType, headersOnFirstLine, headerVisibleMap,
                 inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, clusterName, dataModelName,
                 language);
+    }
+
+    public static String extractErrorMessage(String errorMsg) {
+        String saveExceptionString = "com.amalto.core.save.SaveException: Exception occurred during save: "; //$NON-NLS-1$
+        int saveExceptionIndex = errorMsg.indexOf(saveExceptionString);
+        if (saveExceptionIndex > -1) {
+            errorMsg = errorMsg.substring(saveExceptionIndex + saveExceptionString.length());
+        }
+
+        return errorMsg;
     }
 }

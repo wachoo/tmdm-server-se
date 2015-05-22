@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -44,6 +43,8 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.core.client.GWT;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -146,11 +147,9 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     private void renderForm() {
-
-        clusterField = new HiddenField<String>();
-        clusterField.setName("cluster"); //$NON-NLS-1$
-        clusterField.setValue(dataCluster);
-        this.add(clusterField);
+        FormData fileData = new FormData("98%"); //$NON-NLS-1$
+        FormData multipleValueData = new FormData(100, 20);
+        FormData comboData = new FormData("84%"); //$NON-NLS-1$
 
         conceptField = new HiddenField<String>();
         conceptField.setName("concept");//$NON-NLS-1$
@@ -370,35 +369,26 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     @Override
     public void handleEvent(FormEvent be) {
-        String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
-
         waitBar.close();
-        if (result.equals("<f>true</f>") || ("true".equals(result))) { //$NON-NLS-1$ //$NON-NLS-2$ second condition for ie9
+        if (be.getResultHtml().contains(MessagesFactory.getMessages().import_success_label())) {
             window.hide();
-            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(),
-                    null);
+            MessageBox.alert(MessagesFactory.getMessages().info_title(), filterFormatTag(be.getResultHtml()), null);
             ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
             ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, buttonEvent);
         } else {
-            String errorMsg = MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result));
-            if (errorMsg == null || errorMsg.length() == 0 || errorMsg.equals("<f></f>")) { //$NON-NLS-1$
-                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
-            }
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), errorMsg, null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                    MultilanguageMessageParser.pickOutISOMessage(filterFormatTag(be.getResultHtml())), null);
         }
-    }
-
-    public static String extractErrorMessage(String errMsg) {
-        String saveExceptionString = "com.amalto.core.save.SaveException: Exception occurred during save: "; //$NON-NLS-1$
-        int saveExceptionIndex = errMsg.indexOf(saveExceptionString);
-        if (saveExceptionIndex > -1) {
-            errMsg = errMsg.substring(saveExceptionIndex + saveExceptionString.length());
-        }
-
-        return errMsg;
     }
 
     protected String getActionUrl() {
         return "/browserecords/upload"; //$NON-NLS-1$
+    }
+
+    private String filterFormatTag(String message) {
+        String msg = message;
+        msg = msg.replace("<pre>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        msg = msg.replace("</pre>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        return msg;
     }
 }
