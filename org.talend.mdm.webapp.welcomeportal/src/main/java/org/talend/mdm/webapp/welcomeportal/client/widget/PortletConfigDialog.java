@@ -214,11 +214,11 @@ public class PortletConfigDialog extends Window {
         formData.setMargins(new Margins(0, -20, 0, 20));
         if (isForNonCharts) {
             container.add(configGroupAutoRefresh, formData);
-            setSize(240, 130);
+            setSize(240, 150);
         } else {
             container.add(configGroupAutoRefresh, formData);
             container.add(configGroupChart, formData);
-            setSize(240, 240);
+            setSize(240, 245);
         }
 
         ok.addSelectionListener(new SelectionListener<ButtonEvent>() {
