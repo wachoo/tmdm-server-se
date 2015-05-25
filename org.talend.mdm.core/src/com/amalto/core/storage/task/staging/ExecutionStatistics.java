@@ -14,7 +14,11 @@ package com.amalto.core.storage.task.staging;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.wordnik.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "execution")
+@ApiModel(value="execution", description="Validation execution statistics")
 public class ExecutionStatistics {
 
     private String id;
@@ -34,6 +38,7 @@ public class ExecutionStatistics {
     public ExecutionStatistics() {
     }
 
+    @ApiModelProperty(name="id", value="Execution id")
     @XmlElement(name = "id")
     public String getId() {
         return id;
@@ -43,6 +48,7 @@ public class ExecutionStatistics {
         this.id = id;
     }
 
+    @ApiModelProperty(name="processed_records", value="Number of records processed by this execution")
     @XmlElement(name = "processed_records")
     public int getProcessedRecords() {
         return processedRecords;
@@ -52,6 +58,7 @@ public class ExecutionStatistics {
         this.processedRecords = processedRecords;
     }
 
+    @ApiModelProperty(name="start_date", value="This execution start date")
     @XmlElement(name = "start_date")
     public String getStartDate() {
         return startDate;
@@ -61,6 +68,7 @@ public class ExecutionStatistics {
         this.startDate = startDate;
     }
 
+    @ApiModelProperty(name="end_date", value="This execution end date")
     @XmlElement(name = "end_date")
     public String getEndDate() {
         return endDate;
@@ -70,6 +78,7 @@ public class ExecutionStatistics {
         this.endDate = endDate;
     }
 
+    @ApiModelProperty(name="running_time", value="How long this execution did last")
     @XmlElement(name = "running_time")
     public String getRunningTime() {
         return runningTime;
@@ -79,6 +88,7 @@ public class ExecutionStatistics {
         this.runningTime = runningTime;
     }
 
+    @ApiModelProperty(name="total_record", value="Total number of records")
     @XmlElement(name = "total_record")
     public int getTotalRecords() {
         return totalRecords;
@@ -88,6 +98,7 @@ public class ExecutionStatistics {
         this.totalRecords = totalRecords;
     }
 
+    @ApiModelProperty(name="invalid_records", value="Number of invalid records")
     @XmlElement(name = "invalid_records")
     public int getInvalidRecords() {
         return invalidRecords;

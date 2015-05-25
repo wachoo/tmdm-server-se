@@ -10,14 +10,24 @@
 
 package com.amalto.core.storage.services;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.count;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,19 +44,24 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
-@Path("/system/stats/data")//$NON-NLS-1$
+@Path("/system/stats/data")
+@Api(value="Data statistics", tags="Statistics")
 public class DataStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(DataStatistics.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("{container}")//$NON-NLS-1$
-    public Response getDataStatistics(@PathParam("container")//$NON-NLS-1$
-            String containerName, @QueryParam("lang")//$NON-NLS-1$
-            String language, @QueryParam("top")//$NON-NLS-1$
-            Integer top) {
+    @Path("{container}")
+    @ApiOperation(value="Provides statistics about data contained in the provided container.")
+    public Response getDataStatistics(
+            @ApiParam(value="Container name") @PathParam("container") String containerName, 
+            @ApiParam(value="Optional language to get translated types names") @QueryParam("lang") String language,
+            @ApiParam(value="Limit result to the first x data types") @QueryParam("top") Integer top) { 
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER);
         if (dataStorage == null) {

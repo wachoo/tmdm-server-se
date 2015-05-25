@@ -14,7 +14,11 @@ package com.amalto.core.storage.task.staging;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.wordnik.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.ApiModelProperty;
+
 @XmlRootElement(name = "staging")
+@ApiModel(value="staging", description="Staging area statistics")
 public class StagingContainerSummary {
 
     private int totalRecord = 0;
@@ -32,6 +36,7 @@ public class StagingContainerSummary {
     public StagingContainerSummary() {
     }
 
+    @ApiModelProperty(name="total_records")
     @XmlElement(name = "total_records")
     public int getTotalRecord() {
         return totalRecord;
@@ -42,6 +47,7 @@ public class StagingContainerSummary {
     }
 
     @XmlElement(name = "waiting_validation_records")
+    @ApiModelProperty(name="waiting_validation_records", value="Number of records waiting for validation")
     public int getWaitingForValidation() {
         return waitingForValidation;
     }
@@ -51,6 +57,7 @@ public class StagingContainerSummary {
     }
 
     @XmlElement(name = "valid_records")
+    @ApiModelProperty(name="valid_records", value="Number of valid records")
     public int getValidRecords() {
         return validRecords;
     }
@@ -60,6 +67,7 @@ public class StagingContainerSummary {
     }
 
     @XmlElement(name = "invalid_records")
+    @ApiModelProperty(name="invalid_records", value="Number of invalid records")
     public int getInvalidRecords() {
         return invalidRecords;
     }
@@ -73,6 +81,7 @@ public class StagingContainerSummary {
     }
 
     @XmlElement(name = "data_container")
+    @ApiModelProperty(name="data_container", value="Data container name")
     public String getDataContainer() {
         return dataContainer;
     }
@@ -82,6 +91,7 @@ public class StagingContainerSummary {
     }
 
     @XmlElement(name = "data_model")
+    @ApiModelProperty(name="data_model", value="Data model name")
     public String getDataModel() {
         return dataModel;
     }

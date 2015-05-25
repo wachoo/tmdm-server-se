@@ -44,8 +44,12 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Path("/system/stats/journal")
+@Api(value="Journal statistics", tags="Statistics")
 public class JournalStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(JournalStatistics.class);
@@ -84,11 +88,12 @@ public class JournalStatistics {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{container}")
-    public Response getJournalStatistics(@PathParam("container")
-    String containerName, @QueryParam("lang")
-    String language, @QueryParam("timeframe")
-    Long timeFrame, @QueryParam("top")
-    Integer top) {
+    @ApiOperation(value="Returns journal entries for container")
+    public Response getJournalStatistics(
+            @ApiParam(value="Container name") @PathParam("container") String containerName, 
+            @ApiParam(value="Optional language to get translated types names") @QueryParam("lang") String language, 
+            @ApiParam(value="Only return entries not older than x seconds") @QueryParam("timeframe") Long timeFrame, 
+            @ApiParam(value="Limit result to the first x entries") @QueryParam("top") Integer top) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER);
         if (dataStorage == null) {

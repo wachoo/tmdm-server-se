@@ -17,27 +17,22 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
 import com.amalto.core.util.XtentisException;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Path("/system/containers")
+@Api(value="Containers management", tags="Administration")
 public class SystemContainers {
 
     public SystemContainers() {
     }
 
     @POST
-    public void createContainer(@QueryParam("name") String containerName) {
+    @ApiOperation("Creates a new data container with the provided name")
+    public void createContainer(@ApiParam("The new container name") @QueryParam("name") String containerName) {
         try {
             DataClusterPOJO dataClusterPOJO = new DataClusterPOJO(containerName);
             dataClusterPOJO.store();

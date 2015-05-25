@@ -13,11 +13,16 @@ package com.amalto.core.storage.transaction;
 
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.task.staging.SerializableList;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 import javax.ws.rs.*;
+
 import java.util.List;
 
-@Path("/transactions") //$NON-NLS-1$
+@Path("/transactions")
+@Api("Transactions")
 public class TransactionService {
 
     /**
@@ -25,7 +30,8 @@ public class TransactionService {
      * @return A space-separated list of transaction ids (as UUID).
      */
     @GET
-    @Path("/") //$NON-NLS-1$
+    @Path("/")
+    @ApiOperation("Lists all active transactions ids")
     public List<String> list() {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         List<String> list = transactionManager.list();
@@ -37,7 +43,8 @@ public class TransactionService {
      * @return A transaction id (as UUID).
      */
     @PUT
-    @Path("/") //$NON-NLS-1$
+    @Path("/")
+    @ApiOperation("Begins a new transactions and returns the new transaction id")
     public String begin() {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.create(Transaction.Lifetime.LONG);
@@ -49,8 +56,10 @@ public class TransactionService {
      * @param transactionId A transaction id.
      */
     @GET
-    @Path("{id}/") //$NON-NLS-1$
-    public void resume(@PathParam("id") String transactionId) { //$NON-NLS-1$
+    @Path("{id}/")
+    @ApiOperation("Associates the current request with the transaction with the provided id")
+    public void resume(
+            @ApiParam("Transaction id") @PathParam("id") String transactionId) { //$NON-NLS-1$
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.get(transactionId);
         if (transaction != null) {
@@ -63,8 +72,10 @@ public class TransactionService {
      * @param transactionId A valid transaction id.
      */
     @POST
-    @Path("{id}/") //$NON-NLS-1$
-    public void commit(@PathParam("id") String transactionId) { //$NON-NLS-1$
+    @Path("{id}/")
+    @ApiOperation("Commits the transaction identified by the provided id")
+    public void commit(
+            @ApiParam("Transaction id") @PathParam("id") String transactionId) {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.get(transactionId);
         if (transaction != null) {
@@ -77,8 +88,10 @@ public class TransactionService {
      * @param transactionId A transaction id.
      */
     @DELETE
-    @Path("{id}/") //$NON-NLS-1$
-    public void rollback(@PathParam("id") String transactionId) { //$NON-NLS-1$
+    @Path("{id}/")
+    @ApiOperation("Rollbacks the transaction identified by the provided id")
+    public void rollback(
+            @ApiParam("Transaction id") @PathParam("id") String transactionId) {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.get(transactionId);
         if (transaction != null) {

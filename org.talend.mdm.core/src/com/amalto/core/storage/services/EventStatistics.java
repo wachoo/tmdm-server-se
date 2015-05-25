@@ -13,8 +13,6 @@ package com.amalto.core.storage.services;
 import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.*;
 
 import javax.ws.rs.GET;
@@ -25,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.amalto.core.query.user.UserQueryBuilder;
+
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONWriter;
@@ -38,15 +37,22 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
-@Path("/system/stats/events") //$NON-NLS-1$
+@Path("/system/stats/events")
+@Api(value="Events statistics", tags="Statistics")
 public class EventStatistics {
 
     private static final Logger LOGGER = Logger.getLogger(EventStatistics.class);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getEventStatistics(@QueryParam("timeframe") Long timeFrame, @QueryParam("top") Integer top) { //$NON-NLS-1$ //$NON-NLS-2
+    @ApiOperation(value="Lists number of executed triggers grouped by status (failed and completed) and name.")
+    public Response getEventStatistics(
+            @ApiParam(value="Limit result to triggers executed less than x seconds from now") @QueryParam("timeframe") Long timeFrame, 
+            @ApiParam(value="Limit result to the first x entries") @QueryParam("top") Integer top) {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage system = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         // Build statistics

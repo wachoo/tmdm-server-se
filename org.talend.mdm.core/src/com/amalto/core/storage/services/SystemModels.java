@@ -56,8 +56,13 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.XtentisException;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+
 
 @Path("/system/models")
+@Api(value="Models management", tags="Administration")
 public class SystemModels {
 
     private static final Logger LOGGER = Logger.getLogger(SystemModels.class);
@@ -85,8 +90,8 @@ public class SystemModels {
 
     @GET
     @Path("{model}")
-    public String getSchema(@PathParam("model")
-    String modelName) {
+    @ApiOperation("Returns the requested data model XML schema")
+    public String getSchema(@ApiParam("The model name") @PathParam("model") String modelName) {
         if (!isSystemStorageAvailable()) {
             return StringUtils.EMPTY;
         }
@@ -114,7 +119,8 @@ public class SystemModels {
 
     @POST
     @Path("/")
-    public void createDataModel(@QueryParam("name") String modelName, InputStream dataModel) {
+    @ApiOperation("Create a new data model given its name and XSD provided as request content")
+    public void createDataModel(@ApiParam("New model name") @QueryParam("name") String modelName, InputStream dataModel) {
         try {
             DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
             dataModelPOJO.setSchema(IOUtils.toString(dataModel, "UTF-8")); //$NON-NLS-1$
@@ -131,9 +137,9 @@ public class SystemModels {
 
     @PUT
     @Path("{model}")
-    public void updateModel(@PathParam("model")
-    String modelName, @QueryParam("force")
-    boolean force, InputStream dataModel) {
+    @ApiOperation("Updates the requested model with the XSD provided as request content")
+    public void updateModel(@ApiParam("Model name") @PathParam("model") String modelName, 
+            @ApiParam("Update model even if HIGH or MEDIUM impacts were found") @QueryParam("force") boolean force, InputStream dataModel) {
         if (!isSystemStorageAvailable()) { // If no system storage is available, store new schema version.
             try {
                 DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
@@ -215,8 +221,10 @@ public class SystemModels {
 
     @POST
     @Path("{model}")
-    public String analyzeModelChange(@PathParam("model")
-    String modelName, @QueryParam("lang") String locale, InputStream dataModel) {
+    @ApiOperation("Get impacts of the model update with the new XSD provided as request content. Changes will not be performed !")
+    public String analyzeModelChange(@ApiParam("Model name") @PathParam("model") String modelName, 
+            @ApiParam("Optional language to get localized result") @QueryParam("lang") String locale, 
+            InputStream dataModel) {
         Map<ImpactAnalyzer.Impact, List<Change>> impacts;
         if (!isSystemStorageAvailable()) {
             impacts = new EnumMap<>(ImpactAnalyzer.Impact.class);

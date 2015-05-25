@@ -42,9 +42,10 @@ import com.amalto.core.storage.task.Filter;
 import com.amalto.core.util.Util;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Path(StagingTaskService.TASKS)
-@Api(value = StagingTaskService.TASKS, description = "Operations about staging tasks")
+@Api(value = "Staging area management")
 public class StagingTaskService {
 
     private static final Logger LOGGER = Logger.getLogger(StagingTaskService.class);
@@ -56,7 +57,7 @@ public class StagingTaskService {
     @GET
     @Path("/")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-    @ApiOperation(value="list staging tasks", response=StagingContainerSummary.class)
+    @ApiOperation(value="Provides staging area statistics for the user's current container and model", response=StagingContainerSummary.class)
     public StagingContainerSummary getContainerSummary(@Context final HttpServletResponse response) {
         StagingContainerSummary result = delegate.getContainerSummary();
         if(result == null){
@@ -68,6 +69,7 @@ public class StagingTaskService {
 
     @POST
     @Path("/")
+    @ApiOperation(value="Starts a new validation task and returns the validation task id for the user's current container and model")
     public String startValidation() {
         return delegate.startValidation();
     }
@@ -75,16 +77,18 @@ public class StagingTaskService {
     @GET
     @Path("{container}/")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-    public StagingContainerSummary getContainerSummary(@PathParam("container") String dataContainer,
-                                                       @QueryParam("model") String dataModel) {
+    @ApiOperation(value="Provides staging area statistics for provided container and model", response=StagingContainerSummary.class)
+    public StagingContainerSummary getContainerSummary(@ApiParam(value="Container name") @PathParam("container") String dataContainer,
+                                                       @ApiParam(value="Model name") @QueryParam("model") String dataModel) {
         return delegate.getContainerSummary(dataContainer, dataModel);
     }
 
     @POST
     @Path("{container}/")
     @Consumes(MediaType.APPLICATION_XML)
-    public String startValidation(@PathParam("container") String dataContainer,
-                                  @QueryParam("model") String dataModel,
+    @ApiOperation(value="start a new validation on provided container and model and returns the validation task id")
+    public String startValidation(@ApiParam(value="Container name") @PathParam("container") String dataContainer,
+                                  @ApiParam(value="Model name") @QueryParam("model") String dataModel,
                                   @Context HttpServletRequest request) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Filter filter;
@@ -108,45 +112,52 @@ public class StagingTaskService {
 
     @GET
     @Path("{container}/execs")
-    public List<String> listCompletedTaskExecutions(@PathParam("container") String dataContainer,
-                                                    @QueryParam("before") String beforeDate,
-                                                    @DefaultValue("1") @QueryParam("start") int start,
-                                                    @DefaultValue("-1") @QueryParam("size") int size) {
+    @ApiOperation(value="Lists all completed validation tasks ids")
+    public List<String> listCompletedTaskExecutions(@ApiParam(value="Container name") @PathParam("container") String dataContainer,
+                                                    @ApiParam(value="Limit search to tasks started before this date (yyyy-MM-ddTHH:mm:ss)") @QueryParam("before") String beforeDate,
+                                                    @ApiParam(value="Pagination start offset") @DefaultValue("1") @QueryParam("start") int start,
+                                                    @ApiParam(value="Pagination size") @DefaultValue("-1") @QueryParam("size") int size) {
         return SerializableList.create(delegate.listCompletedExecutions(dataContainer, beforeDate, start, size), "executions", "execution");
     }
 
     @GET
     @Path("{container}/execs/count")
-    public int countCompletedTaskExecutions(@PathParam("container") String dataContainer,
-                                            @QueryParam("before") String beforeDate) {
+    @ApiOperation(value="Count all completed validation tasks ids")
+    public int countCompletedTaskExecutions(@ApiParam(value="Container name") @PathParam("container") String dataContainer,
+                                            @ApiParam(value="Limit search to tasks started before this date (yyyy-MM-ddTHH:mm:ss)")@QueryParam("before") String beforeDate) {
         return delegate.listCompletedExecutions(dataContainer, beforeDate, 1, -1).size();
     }
 
     @GET
     @Path("{container}/execs/current/")
-    public ExecutionStatistics getCurrentExecutionStats(@PathParam("container") String dataContainer,
-                                                        @QueryParam("model") String dataModel) {
+    @ApiOperation(value="Returns statistics of the current validation execution for the provided container and model")
+    public ExecutionStatistics getCurrentExecutionStats(@ApiParam(value="Container name") @PathParam("container") String dataContainer,
+                                                        @ApiParam(value="Model name") @QueryParam("model") String dataModel) {
         return delegate.getCurrentExecutionStats(dataContainer, dataModel);
     }
 
     @DELETE
     @Path("{container}/execs/current/")
-    public void cancelCurrentExecution(@PathParam("container") String dataContainer,
-                                       @QueryParam("model") String dataModel) {
+    @ApiOperation(value="Cancels the current validation execution for the provided container and model."
+            + "If no current execution, as no effect.")
+    public void cancelCurrentExecution(@ApiParam(value="Container name") @PathParam("container") String dataContainer,
+                                       @ApiParam(value="Model name") @QueryParam("model") String dataModel) {
         delegate.cancelCurrentExecution(dataContainer, dataModel);
     }
 
     @GET
     @Path("{container}/execs/{executionId}/")
-    public ExecutionStatistics getExecutionStats(@PathParam("container") String dataContainer,
-                                                 @QueryParam("model") String dataModel,
-                                                 @PathParam("executionId") String executionId) {
+    @ApiOperation(value="Returns execution statistics for the validation task with the provided id.")
+    public ExecutionStatistics getExecutionStats(@ApiParam(value="Container name") @PathParam("container") String dataContainer,
+                                                 @ApiParam(value="Model name") @QueryParam("model") String dataModel,
+                                                 @ApiParam(value="Execution id") @PathParam("executionId") String executionId) {
         return delegate.getExecutionStats(dataContainer, dataModel, executionId);
     }
     
     @GET
     @Path("{container}/hasStaging")
-    public String isSupportStaging(@PathParam("container")
+    @ApiOperation(value="Returns true of ths container has a staging area, false otherwise.")
+    public String isSupportStaging(@ApiParam(value="Container name") @PathParam("container")
             String dataContainer) {
         try {
             return String.valueOf(Util.getXmlServerCtrlLocal().supportStaging(dataContainer));
