@@ -328,8 +328,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
     private String getAlias(ComplexTypeMetadata type, FieldMetadata databaseField) {
         String previousAlias = type.getName();
-        String alias;
-        for (FieldMetadata next : MetadataUtils.path(type, databaseField, false)) {
+        String alias;        
+        List<FieldMetadata> paths ;        
+        if (databaseField instanceof ReferenceFieldMetadata || !databaseField.getContainingType().isInstantiable()) {
+            paths = MetadataUtils.path(type, databaseField);
+        } else {
+            paths = Collections.singletonList(databaseField);
+        }
+        for (FieldMetadata next : paths) {
             if (next instanceof ReferenceFieldMetadata) {
                 alias = joinFieldsToAlias.get(next);
                 if (alias == null) {
@@ -473,7 +479,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         return null;
     }
-
+    
     @Override
     public StorageResults visit(BinaryLogicOperator condition) {
         criteria.add(condition.accept(criterionVisitor));
