@@ -94,9 +94,9 @@ public class ForeignKeyListWindow extends Window {
 
     private static final int COLUMN_WIDTH = 100;
 
-    private static final int WINDOW_WIDTH = 450;
+    private static final int WINDOW_WIDTH = 530;
 
-    private static final int WINDOW_HEIGH = 300;
+    private static final int WINDOW_HEIGH = 310;
 
     private Grid<ForeignKeyBean> relatedRecordGrid;
 

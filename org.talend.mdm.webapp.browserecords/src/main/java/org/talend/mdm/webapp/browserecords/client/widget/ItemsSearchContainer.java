@@ -62,7 +62,7 @@ public class ItemsSearchContainer extends LayoutContainer {
         northData.setSize(SIZE);
         add(topPanel, northData);
 
-        BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 400);
+        BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 470);
         westData.setSplit(true);
         westData.setMargins(new Margins(0, 5, 0, 0));
         westData.setFloatable(true);
