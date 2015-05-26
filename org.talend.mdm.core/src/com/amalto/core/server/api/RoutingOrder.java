@@ -14,21 +14,14 @@ public interface RoutingOrder {
      * 
      * @throws com.amalto.core.util.XtentisException
      */
-    public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
+    public String executeRoutingOrder(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
 
-    /**
-     * Executes a Routing Order now
-     * 
-     * @throws XtentisException
-     */
-    public java.lang.String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException;
-    
     /**
      * Get Routing Order
      * 
      * @throws com.amalto.core.util.XtentisException
      */
-   public AbstractRoutingOrderV2POJO getRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
+    public AbstractRoutingOrderV2POJO getRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
 
     /**
      * Remove an item
@@ -43,51 +36,50 @@ public interface RoutingOrder {
      * 
      * @throws com.amalto.core.util.XtentisException
      */
-   public AbstractRoutingOrderV2POJO existsRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
+    public AbstractRoutingOrderV2POJO existsRoutingOrder(AbstractRoutingOrderV2POJOPK pk) throws XtentisException;
 
     /**
-    * Retrieve all Completed Routing Order PKs
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public java.util.Collection getCompletedRoutingOrderPKs(String regex) throws XtentisException;
+     * Retrieve all Completed Routing Order PKs
+     * 
+     * @throws com.amalto.core.util.XtentisException
+     */
+    public java.util.Collection getCompletedRoutingOrderPKs(String regex) throws XtentisException;
 
-   /**
-    * Retrieve all Failed Routing Order PKs
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public java.util.Collection getFailedRoutingOrderPKs(String regex) throws XtentisException;
+    /**
+     * Retrieve all Failed Routing Order PKs
+     * 
+     * @throws com.amalto.core.util.XtentisException
+     */
+    public java.util.Collection getFailedRoutingOrderPKs(String regex) throws XtentisException;
 
-   /**
-    * Retrieve all RoutingOrder PKs whatever the class
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public java.util.Collection getAllRoutingOrderPKs(String regex) throws XtentisException;
+    /**
+     * Retrieve all RoutingOrder PKs whatever the class
+     * 
+     * @throws com.amalto.core.util.XtentisException
+     */
+    public java.util.Collection getAllRoutingOrderPKs(String regex) throws XtentisException;
 
-   /**
-    * Retrieve all RoutingOrder PKs by CriteriaWithPaging
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public java.util.Collection getRoutingOrderPKsByCriteriaWithPaging(Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass, String anyFieldContains, String name,
-                                                                      long timeCreatedMin, long timeCreatedMax, long timeScheduledMin, long timeScheduledMax, long timeLastRunStartedMin,
-                                                                      long timeLastRunStartedMax, long timeLastRunCompletedMin, long timeLastRunCompletedMax, String itemConceptContains,
-                                                                      String itemIDsContain, String serviceJNDIContains, String serviceParametersContains, String messageContains,
-                                                                      int start, int limit, boolean withTotalCount) throws XtentisException;
+    /**
+     * Retrieve all RoutingOrder PKs by CriteriaWithPaging
+     * 
+     * @throws com.amalto.core.util.XtentisException
+     */
+    public java.util.Collection getRoutingOrderPKsByCriteriaWithPaging(
+            Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass, String anyFieldContains, String name,
+            long timeCreatedMin, long timeCreatedMax, long timeScheduledMin, long timeScheduledMax, long timeLastRunStartedMin,
+            long timeLastRunStartedMax, long timeLastRunCompletedMin, long timeLastRunCompletedMax, String itemConceptContains,
+            String itemIDsContain, String serviceJNDIContains, String serviceParametersContains, String messageContains,
+            int start, int limit, boolean withTotalCount) throws XtentisException;
 
-   /**
-    * Retrieve all RoutingOrder PKs by Criteria
-    * @throws com.amalto.core.util.XtentisException
-    */
-   public java.util.Collection getRoutingOrderPKsByCriteria(Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass,
-                                                            String anyFieldContains,
-                                                            String name,
-                                                            long timeCreatedMin, long timeCreatedMax,
-                                                            long timeScheduledMin, long timeScheduledMax,
-                                                            long timeLastRunStartedMin, long timeLastRunStartedMax,
-                                                            long timeLastRunCompletedMin, long timeLastRunCompletedMax,
-                                                            String itemConceptContains,
-                                                            String itemIDsContain,
-                                                            String serviceJNDIContains,
-                                                            String serviceParametersContains,
-                                                            String messageContains) throws XtentisException;
+    /**
+     * Retrieve all RoutingOrder PKs by Criteria
+     * 
+     * @throws com.amalto.core.util.XtentisException
+     */
+    public java.util.Collection getRoutingOrderPKsByCriteria(Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass,
+            String anyFieldContains, String name, long timeCreatedMin, long timeCreatedMax, long timeScheduledMin,
+            long timeScheduledMax, long timeLastRunStartedMin, long timeLastRunStartedMax, long timeLastRunCompletedMin,
+            long timeLastRunCompletedMax, String itemConceptContains, String itemIDsContain, String serviceJNDIContains,
+            String serviceParametersContains, String messageContains) throws XtentisException;
 
 }

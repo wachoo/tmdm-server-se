@@ -109,7 +109,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
 
     /**
      * Check that a rule actually matches a document
-     *
+     * 
      * @return true if it matches
      * @throws XtentisException
      */
@@ -201,6 +201,65 @@ public class DefaultRoutingEngine implements RoutingEngine {
         }
     }
 
+    private void sendMessage(final ItemPOJOPK itemPOJOPK, ArrayList<RoutingRulePOJO> routingRulesThatMatched) {
+
+        // Sort execution order and send JMS message
+        Collections.sort(routingRulesThatMatched);
+        final String[] ruleNames = new String[routingRulesThatMatched.size()];
+        final String[] ruleParameters = new String[routingRulesThatMatched.size()];
+        int i = 0;
+
+        for (RoutingRulePOJO rulePOJO : routingRulesThatMatched) {
+            ruleNames[i] = rulePOJO.getPK().getUniqueId();
+            ruleParameters[i] = rulePOJO.getParameters();
+            i++;
+        }
+
+        jmsTemplate.send(EVENTS_DESTINATION, new MessageCreator() {
+
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                Message message = session.createMessage();
+                message.setObjectProperty("rules", Arrays.asList(ruleNames)); //$NON-NLS-1$
+                message.setStringProperty("container", itemPOJOPK.getDataClusterPOJOPK().getUniqueId()); //$NON-NLS-1$
+                message.setStringProperty("type", itemPOJOPK.getConceptName()); //$NON-NLS-1$
+                message.setStringProperty("pk", Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$
+                message.setObjectProperty("parameters", Arrays.asList(ruleParameters)); //$NON-NLS-1$
+                return message;
+            }
+        });
+
+    }
+
+    private Message sendAndReceiveMessage(final ItemPOJOPK itemPOJOPK, ArrayList<RoutingRulePOJO> routingRulesThatMatched) {
+
+        // Sort execution order and send JMS message
+        Collections.sort(routingRulesThatMatched);
+        final String[] ruleNames = new String[routingRulesThatMatched.size()];
+        final String[] ruleParameters = new String[routingRulesThatMatched.size()];
+        int i = 0;
+
+        for (RoutingRulePOJO rulePOJO : routingRulesThatMatched) {
+            ruleNames[i] = rulePOJO.getPK().getUniqueId();
+            ruleParameters[i] = rulePOJO.getParameters();
+            i++;
+        }
+
+        return jmsTemplate.sendAndReceive(EVENTS_DESTINATION, new MessageCreator() {
+
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                Message message = session.createMessage();
+                message.setObjectProperty("rules", Arrays.asList(ruleNames)); //$NON-NLS-1$
+                message.setStringProperty("container", itemPOJOPK.getDataClusterPOJOPK().getUniqueId()); //$NON-NLS-1$
+                message.setStringProperty("type", itemPOJOPK.getConceptName()); //$NON-NLS-1$
+                message.setStringProperty("pk", Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$
+                message.setObjectProperty("parameters", Arrays.asList(ruleParameters)); //$NON-NLS-1$
+                return message;
+            }
+        });
+    }
+
     @Override
     public RoutingRulePOJOPK[] route(final ItemPOJOPK itemPOJOPK) throws XtentisException {
         if (isStopped) {
@@ -215,7 +274,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
             return new RoutingRulePOJOPK[0];
         }
         // Rules that matched
-        ArrayList<RoutingRulePOJO> routingRulesThatMatched = new ArrayList<>();
+        ArrayList<RoutingRulePOJO> routingRulesThatSyncMatched = new ArrayList<>();
+        ArrayList<RoutingRulePOJO> routingRulesThatAsyncMatched = new ArrayList<>();
         // loop over the known rules
         Collection<RoutingRulePOJOPK> routingRulePOJOPKs = routingRules.getRoutingRulePKs(".*"); //$NON-NLS-1$
         for (RoutingRulePOJOPK routingRulePOJOPK : routingRulePOJOPKs) {
@@ -286,50 +346,43 @@ public class DefaultRoutingEngine implements RoutingEngine {
                         + itemPOJOPK.getUniqueID() + "'");
             }
             // increment matching routing rules counter
-            routingRulesThatMatched.add(routingRule);
-        }
-        // Sort execution order and send JMS message
-        Collections.sort(routingRulesThatMatched);
-        final String[] ruleNames = new String[routingRulesThatMatched.size()];
-        final String[] ruleParameters = new String[routingRulesThatMatched.size()];
-        int i = 0;
-        for (RoutingRulePOJO rulePOJO : routingRulesThatMatched) {
-            ruleNames[i] = rulePOJO.getPK().getUniqueId();
-            ruleParameters[i] = rulePOJO.getParameters();
-            i++;
-        }
-        jmsTemplate.send(EVENTS_DESTINATION, new MessageCreator() {
-
-            @Override
-            public Message createMessage(Session session) throws JMSException {
-                Message message = session.createMessage();
-                message.setObjectProperty("rules", Arrays.asList(ruleNames)); //$NON-NLS-1$
-                message.setStringProperty("container", itemPOJOPK.getDataClusterPOJOPK().getUniqueId()); //$NON-NLS-1$
-                message.setStringProperty("type", itemPOJOPK.getConceptName()); //$NON-NLS-1$
-                message.setStringProperty("pk", Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$
-                message.setObjectProperty("parameters", Arrays.asList(ruleParameters)); //$NON-NLS-1$
-                return message;
+            if (routingRule.isSynchronous()) {
+                routingRulesThatSyncMatched.add(routingRule);
+            } else {
+                routingRulesThatAsyncMatched.add(routingRule);
             }
-        });
+        }
+
+        // Contract imposes to send matching rule names
+        RoutingRulePOJOPK[] pks = new RoutingRulePOJOPK[routingRulesThatSyncMatched.size() + routingRulesThatAsyncMatched.size()];
+
         // Log debug information if no rule found for document
-        if (routingRulesThatMatched.size() == 0) {
+        if (pks.length == 0) {
             if (LOGGER.isDebugEnabled()) {
                 String err = "Unable to find a routing rule for document " + itemPOJOPK.getUniqueID();
                 LOGGER.debug(err);
             }
             return new RoutingRulePOJOPK[0];
         }
-        // Contract imposes to send matching rule names
-        RoutingRulePOJOPK[] pks = new RoutingRulePOJOPK[routingRulesThatMatched.size()];
-        for (int j = 0; j < pks.length; j++) {
-            pks[j] = new RoutingRulePOJOPK(ruleNames[j]);
+        if (routingRulesThatAsyncMatched.size() > 0) {
+            sendMessage(itemPOJOPK, routingRulesThatAsyncMatched);
+            for (int j = 0; j < routingRulesThatAsyncMatched.size(); j++) {
+                pks[j] = new RoutingRulePOJOPK(routingRulesThatAsyncMatched.get(j).getPK().getUniqueId());
+            }
+        }
+        if (routingRulesThatSyncMatched.size() > 0) {
+            sendAndReceiveMessage(itemPOJOPK, routingRulesThatSyncMatched);
+            for (int j = 0; j < routingRulesThatSyncMatched.size(); j++) {
+                pks[j + routingRulesThatAsyncMatched.size()] = new RoutingRulePOJOPK(routingRulesThatSyncMatched.get(j).getPK()
+                        .getUniqueId());
+            }
         }
         return pks;
     }
 
     // Called by Spring, do not remove
     @Override
-    public void consume(final Message message) {
+    public Message consume(final Message message) {
         try {
             final List<String> rules = (List<String>) message.getObjectProperty("rules");
             final List<String> parameters = (List<String>) message.getObjectProperty("parameters");
@@ -419,6 +472,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
         } catch (Exception e) {
             throw new RuntimeException("Unable to process message.", e);
         }
+
+        return message;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.amalto.core.server.routing;
 
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.*;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,7 +10,6 @@ import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.cglib.proxy.NoOp;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -185,7 +184,8 @@ public class RoutingEngineTest {
         rule.setConcept("*");
         rule.setServiceJNDI("test/no_op_service");
         routingRule.putRoutingRule(rule);
-        // Expired message: put 2 messages, there's only one JMS consumer, service pauses for 400 ms, and expiration is 300 ms
+        // Expired message: put 2 messages, there's only one JMS consumer, service pauses for 400 ms, and expiration is
+        // 300 ms
         // -> only 1 message should be consumed.
         NoOpService.setPauseTime(400);
         int previous = routingEngine.getConsumeCallCount();
@@ -194,7 +194,8 @@ public class RoutingEngineTest {
         routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
         Thread.sleep(1000); // Give some time to process message
         assertEquals(previous + 1, routingEngine.getConsumeCallCount());
-        // Expired message: put 2 messages, there's only one JMS consumer, service pauses for *200* ms, and expiration is 300 ms
+        // Expired message: put 2 messages, there's only one JMS consumer, service pauses for *200* ms, and expiration
+        // is 300 ms
         // -> only 2 message should be consumed.
         NoOpService.setPauseTime(200);
         previous = routingEngine.getConsumeCallCount();
@@ -203,5 +204,35 @@ public class RoutingEngineTest {
         routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
         Thread.sleep(1000); // Give some time to process messages
         assertEquals(previous + 2, routingEngine.getConsumeCallCount());
+    }
+
+    @Test
+    public void testSendAndReceiveMessage() throws Exception {
+        RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
+        clearRules();
+        RoutingRulePOJO rule1 = new RoutingRulePOJO("testTypeMatchRule1");
+        rule1.setConcept("*");
+        rule1.setSynchronous(true);
+        List<RoutingRuleExpressionPOJO> expressions = Arrays.asList(new RoutingRuleExpressionPOJO("Person", "id1",
+                RoutingRuleExpressionPOJO.EQUALS, "1"), new RoutingRuleExpressionPOJO("Person", "id2",
+                RoutingRuleExpressionPOJO.EQUALS, "2"));
+        rule1.setRoutingExpressions(expressions);
+        rule1.setExecuteOrder(2);
+        routingRule.putRoutingRule(rule1);
+        RoutingRulePOJO rule2 = new RoutingRulePOJO("testTypeMatchRule2");
+        rule2.setConcept("*");
+        rule2.setSynchronous(true);
+        expressions = Arrays.asList(new RoutingRuleExpressionPOJO("Person", "id1", RoutingRuleExpressionPOJO.EQUALS, "1"),
+                new RoutingRuleExpressionPOJO("Person", "id2", RoutingRuleExpressionPOJO.EQUALS, "2"));
+        rule2.setRoutingExpressions(expressions);
+        rule2.setExecuteOrder(1);
+        routingRule.putRoutingRule(rule2);
+        item.putItem(
+                new ItemPOJO(container, "Person", new String[] { "1", "2" }, 0, "<Person><id1>1</id1><id2>2</id2></Person>"),
+                dataModel);
+        RoutingRulePOJOPK[] routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
+        assertEquals(2, routes.length);
+        assertEquals("testTypeMatchRule2", routes[0].getUniqueId());
+        assertEquals("testTypeMatchRule1", routes[1].getUniqueId());
     }
 }

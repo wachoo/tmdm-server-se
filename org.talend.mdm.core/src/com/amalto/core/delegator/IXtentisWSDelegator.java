@@ -1822,7 +1822,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
             AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderAsynchronously
                     .getRoutingOrderV2PK()));
-            ctrl.executeAsynchronously(ro);
+            ctrl.executeRoutingOrder(ro);
             return XConverter.POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
@@ -1840,7 +1840,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             RoutingOrder ctrl = Util.getRoutingOrderV2CtrlLocal();
             AbstractRoutingOrderV2POJO ro = ctrl.getRoutingOrder(XConverter.WS2POJO(wsExecuteRoutingOrderSynchronously
                     .getRoutingOrderV2PK()));
-            return new WSString(ctrl.executeSynchronously(ro));
+            return new WSString(ctrl.executeRoutingOrder(ro));
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
                 String err = "ERROR SYSTRACE: " + e.getMessage();

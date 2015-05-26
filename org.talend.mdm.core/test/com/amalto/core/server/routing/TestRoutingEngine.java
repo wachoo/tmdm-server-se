@@ -13,12 +13,12 @@
 
 package com.amalto.core.server.routing;
 
+import javax.jms.Message;
+
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.routing.RoutingRulePOJOPK;
 import com.amalto.core.server.api.RoutingEngine;
 import com.amalto.core.util.XtentisException;
-
-import javax.jms.Message;
 
 public class TestRoutingEngine implements RoutingEngine {
 
@@ -40,9 +40,10 @@ public class TestRoutingEngine implements RoutingEngine {
     }
 
     @Override
-    public void consume(Message message) {
+    public Message consume(Message message) {
         consumeCallCount++;
         delegate.consume(message);
+        return message;
     }
 
     @Override
