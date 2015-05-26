@@ -29,6 +29,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="com.amalto.core.storage.task.staging.SerializableListWriter" />
+	    <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider" />
         </jaxrs:providers>
     </jaxrs:server>
 
