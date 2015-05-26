@@ -54,8 +54,6 @@ public class BrandingBar extends ContentPanel {
 
     private HTML versionLabel = new HTML();
 
-    private Image logoMdm = new Image("secure/img/logo-mdm.png"); //$NON-NLS-1$
-
     private ListBox languageBox = new ListBox();
 
     private Boolean languageBoxEnable = true;
@@ -177,11 +175,9 @@ public class BrandingBar extends ContentPanel {
     }-*/;
 
     public void setProductInfo(ProductInfo info) {
-        if (info != null && info.getProductKey() != null) {
-            logoMdm.setUrl("secure/img/branding/" + info.getProductKey() + "_header.png"); //$NON-NLS-1$//$NON-NLS-2$
-            versionLabel.setHTML(""); //$NON-NLS-1$
+        if (info != null && info.getProductName() != null) {
+            versionLabel.setHTML(info.getProductName() + " " + info.getProductEdition()); //$NON-NLS-1$
         } else {
-            logoMdm.setUrl("secure/img/logo-mdm.png"); //$NON-NLS-1$
             UserBean userBean = Registry.get(General.USER_BEAN);
             versionLabel.setHTML(userBean.isEnterprise() ? MessageFactory.getMessages().enterprise() : MessageFactory
                     .getMessages().community());
@@ -191,7 +187,6 @@ public class BrandingBar extends ContentPanel {
     private void buildBar() {
         UserBean userBean = Registry.get(General.USER_BEAN);
         bar.add(new Image("secure/img/header-back-title.png")); //$NON-NLS-1$
-        bar.add(logoMdm);
         versionLabel.setStyleName("version-label"); //$NON-NLS-1$
         bar.add(versionLabel);
 
