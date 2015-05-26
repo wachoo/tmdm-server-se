@@ -11,10 +11,10 @@
 
 package com.amalto.core.storage.task.staging;
 
-import java.io.InputStream;
 import java.io.StringReader;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -23,6 +23,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -66,15 +68,15 @@ public class StagingTaskService {
 
     @POST
     @Path("{container}/")
-    @Consumes("application/xml")
+    @Consumes(MediaType.APPLICATION_XML)
     public String startValidation(@PathParam("container") String dataContainer,
                                   @QueryParam("model") String dataModel,
-                                  InputStream body) {
+                                  @Context HttpServletRequest request) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Filter filter;
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            String content = IOUtils.toString(body);
+            String content = IOUtils.toString(request.getInputStream());
             if (!content.isEmpty()) {
                 Document doc = builder.parse(new InputSource(new StringReader(content)));
                 filter = new ConfigurableFilter(doc);
