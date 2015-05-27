@@ -21,6 +21,11 @@ import com.amalto.core.load.io.XMLStreamUnwrapper;
 
 public class XMLUnwrapperTest extends TestCase {
 
+    public void testEmptyRootElement() throws Exception {
+        XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(new ByteArrayInputStream("<root>\n</root>".getBytes()));
+        assertFalse(tokenizer.hasMoreElements());
+    }
+
     public void testSingleRootElement() throws Exception {
         XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(new ByteArrayInputStream("<root><test></test></root>".getBytes()));
         int i = 0;

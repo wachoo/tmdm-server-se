@@ -128,7 +128,7 @@ public class XMLStreamUnwrapper implements Enumeration<String> {
                             }
                         }
                     } else if (event.isCharacters()) {
-                        writer.writeCharacters(event.asCharacters().getData());
+                        writer.writeCharacters(event.asCharacters().getData().trim());
                     }
                 }
             } while (level > RECORD_LEVEL);
