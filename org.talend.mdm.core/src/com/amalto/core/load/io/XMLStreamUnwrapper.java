@@ -60,16 +60,20 @@ public class XMLStreamUnwrapper implements Enumeration<String> {
 
     private int level = 0;
 
-    public XMLStreamUnwrapper(InputStream stream) throws XMLStreamException {
-        reader = XMLInputFactory.newFactory().createXMLEventReader(stream);
-        // Skip to first record
-        while (reader.hasNext() && level < RECORD_LEVEL) {
-            final XMLEvent event = reader.nextEvent();
-            if (event.isStartElement()) {
-                level++;
+    public XMLStreamUnwrapper(InputStream stream) {
+        try {
+            reader = XMLInputFactory.newFactory().createXMLEventReader(stream);
+            // Skip to first record
+            while (reader.hasNext() && level < RECORD_LEVEL) {
+                final XMLEvent event = reader.nextEvent();
+                if (event.isStartElement()) {
+                    level++;
+                }
             }
+            xmlOutputFactory = XMLOutputFactory.newFactory();
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Unexpected parsing configuration error.", e);
         }
-        xmlOutputFactory = XMLOutputFactory.newFactory();
     }
 
     @Override
