@@ -1342,8 +1342,22 @@ class StandardQueryHandler extends AbstractQueryHandler {
             for (FieldMetadata subFieldMetadata : fields) {
                 condition.criterionFieldNames.add(alias + '.' + subFieldMetadata.getName());
             }
+        } else if (fieldMetadata instanceof ReferenceFieldMetadata
+                && ((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata == false) {
+            condition.criterionFieldNames.add(getFieldName(fieldMetadata, true));
         } else {
             condition.criterionFieldNames.add(alias + '.' + fieldMetadata.getName());
+        }
+    }
+
+    private void addCondition(FieldCondition condition, FieldMetadata fieldMetadata) {
+        if (fieldMetadata instanceof CompoundFieldMetadata) {
+            FieldMetadata[] fields = ((CompoundFieldMetadata) fieldMetadata).getFields();
+            for (FieldMetadata subFieldMetadata : fields) {
+                condition.criterionFieldNames.add(getFieldName(subFieldMetadata, true));
+            }
+        } else {
+            condition.criterionFieldNames.add(getFieldName(fieldMetadata, true));
         }
     }
 
@@ -1443,7 +1457,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
             Set<String> aliases = getAliases(mainType, field);
-            if (aliases.size() > 1) {
+            if (aliases.size() > 0) {
                 for (String alias : aliases) {
                     List<FieldMetadata> path = field.getPath();
                     if (path.size() > 1) {
@@ -1456,8 +1470,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     }
                 }
             } else {
-                condition.criterionFieldNames.add(getFieldName(field));
-            }  
+                addCondition(condition, field.getFieldMetadata());
+            }
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;
             condition.isProperty = true;
