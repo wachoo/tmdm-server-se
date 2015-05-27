@@ -1446,6 +1446,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
     }
 
+    private void addCondition(FieldCondition condition, FieldMetadata fieldMetadata) {
+        if (fieldMetadata instanceof CompoundFieldMetadata) {
+            FieldMetadata[] fields = ((CompoundFieldMetadata) fieldMetadata).getFields();
+            for (FieldMetadata subFieldMetadata : fields) {
+                condition.criterionFieldNames.add(getFieldName(subFieldMetadata, true));
+            }
+        } else {
+            condition.criterionFieldNames.add(getFieldName(fieldMetadata, true));
+        }
+    }
+
     private class CriterionFieldCondition extends VisitorAdapter<FieldCondition> {
 
         private FieldCondition createInternalCondition(String fieldName) {
@@ -1555,8 +1566,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     }
                 }
             } else {
-                condition.criterionFieldNames.add(getFieldName(field));
-            }  
+                addCondition(condition, field.getFieldMetadata());
+            }
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;
             condition.isProperty = true;
