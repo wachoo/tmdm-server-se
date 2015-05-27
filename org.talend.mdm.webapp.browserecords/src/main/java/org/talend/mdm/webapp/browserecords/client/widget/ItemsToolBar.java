@@ -658,7 +658,7 @@ public class ItemsToolBar extends ToolBar {
                 winBookmark.setHeading(MessagesFactory.getMessages().bookmarkmanagement_heading());
                 winBookmark.setAutoHeight(true);
                 // winBookmark.setAutoWidth(true);
-                winBookmark.setWidth(413);
+                winBookmark.setWidth(563);
                 winBookmark.setModal(true);
                 FormPanel content = new FormPanel();
                 FormData formData = new FormData("-10");//$NON-NLS-1$
@@ -666,7 +666,7 @@ public class ItemsToolBar extends ToolBar {
                 content.setLayout(new FitLayout());
                 content.setBodyBorder(false);
                 content.setHeaderVisible(false);
-                content.setSize(400, 350);
+                content.setSize(550, 350);
                 winBookmark.add(content);
 
                 // display bookmark grid

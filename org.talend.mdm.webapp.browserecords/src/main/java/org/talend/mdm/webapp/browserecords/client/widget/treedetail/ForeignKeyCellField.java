@@ -64,7 +64,7 @@ public class ForeignKeyCellField extends TextField<ForeignKeyBean> implements Re
         this.setWidth(400);
         this.itemsDetailPanel = itemsDetailPanel;
         fkWindow.setForeignKeyInfos(foreignKey, foreignKeyInfo);
-        fkWindow.setSize(470, 340);
+        fkWindow.setSize(550, 350);
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
         fkWindow.setBlinkModal(true);

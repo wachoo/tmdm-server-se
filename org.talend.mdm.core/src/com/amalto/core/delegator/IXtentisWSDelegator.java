@@ -389,15 +389,13 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     @Override
     public WSDataClusterPKArray getDataClusterPKs(WSRegexDataClusterPKs regexp) throws RemoteException {
         try {
-            String[] storageNames = ServerContext.INSTANCE.get().getStorageAdmin().getAll();
             WSDataClusterPKArray array = new WSDataClusterPKArray();
-            List<WSDataClusterPK> wsDataClusterPKs = new ArrayList<>(storageNames.length);
-            for (String storageName : storageNames) {
-                if ("*".equals(regexp.getRegex()) || storageName.matches(regexp.getRegex())) { //$NON-NLS-1$
-                    wsDataClusterPKs.add(new WSDataClusterPK(storageName));
-                }
+            ArrayList<WSDataClusterPK> l = new ArrayList<WSDataClusterPK>();
+            Collection<DataClusterPOJOPK> vos = Util.getDataClusterCtrlLocal().getDataClusterPKs(regexp.getRegex());
+            for (DataClusterPOJOPK pk : vos) {
+                l.add(new WSDataClusterPK(pk.getUniqueId()));
             }
-            array.setWsDataClusterPKs(wsDataClusterPKs.toArray(new WSDataClusterPK[wsDataClusterPKs.size()]));
+            array.setWsDataClusterPKs(l.toArray(new WSDataClusterPK[l.size()]));
             return array;
         } catch (Exception e) {
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -2208,10 +2206,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         MetadataRepository repository = systemStorage.getMetadataRepository();
         String type = wsDigest.getWsDigestKey().getType();
         String name = wsDigest.getWsDigestKey().getObjectName();
-        systemStorage.begin(); // Storage needs an active transaction (even for read operations).
-        try {
-            String typeName = DigestHelper.getInstance().getTypeName(type);
-            if (typeName != null) {
+        String typeName = DigestHelper.getInstance().getTypeName(type);
+        if (typeName != null) {
+            try {
+                systemStorage.begin(); // Storage needs an active transaction (even for read operations).
                 ComplexTypeMetadata storageType = repository.getComplexType(ClassRepository.format(typeName));
                 UserQueryBuilder qb = UserQueryBuilder.from(storageType)
                         .where(UserQueryBuilder.eq(storageType.getField("unique-id"), name)) //$NON-NLS-1$
@@ -2231,13 +2229,12 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                                               // transactions
                     return null;
                 }
-            } else {
+            } catch (Exception e) {
                 systemStorage.rollback();
-                return null;
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            systemStorage.rollback();
-            throw new RuntimeException(e);
+        } else {
+            return null;
         }
     }
 

@@ -84,7 +84,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         fkWindow.setForeignKeyInfos(foreignKey, foreignKeyInfo);
         fkWindow.setCurrentXpath(currentNodeXpath);
         fkWindow.setForeignKeyFilter(fkFilter);
-        fkWindow.setSize(470, 340);
+        fkWindow.setSize(550, 350);
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
         fkWindow.setBlinkModal(true);

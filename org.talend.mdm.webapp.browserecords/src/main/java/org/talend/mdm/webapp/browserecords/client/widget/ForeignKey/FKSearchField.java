@@ -159,7 +159,7 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
     private void showWindow(EntityModel entityModel) {
         relWindow = new FKRelRecordWindow();
         relWindow.setEntityModel(entityModel);
-        relWindow.setSize(470, 340);
+        relWindow.setSize(550, 350);
         relWindow.setResizable(false);
         relWindow.setModal(true);
         relWindow.setBlinkModal(true);

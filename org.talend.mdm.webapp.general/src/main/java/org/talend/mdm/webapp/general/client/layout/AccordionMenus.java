@@ -55,8 +55,6 @@ public class AccordionMenus extends ContentPanel {
         this.setHeading(MessageFactory.getMessages().menus());
         this.addStyleName("menus-list"); //$NON-NLS-1$
         this.setLayout(new AccordionLayout());
-        // this.setScrollMode(Scroll.AUTO);// add it for vertical ScrollBar
-        // registerOpenPages();
     }
 
     public static AccordionMenus getInstance() {
@@ -71,11 +69,7 @@ public class AccordionMenus extends ContentPanel {
         String icon = makeImageIconPart(mb, toCheckMenuID);
         StringBuffer str = new StringBuffer();
         str.append("<span class='body'>"); //$NON-NLS-1$
-        if ("workflowtasks.BonitaWorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
-            str.append("<img style='width: 16px;height: 16px;' src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else {
-            str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$    
-        }
+        str.append("<img src='" + icon + "'/>&nbsp;&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$ 
         str.append("<span class='desc'>" + mb.getName() + "</span></span>"); //$NON-NLS-1$ //$NON-NLS-2$
         HTMLMenuItem tempItem = new HTMLMenuItem(mb, str.toString());
         if (CHECKMENUID_WELCOME_PORTAL.equals(toCheckMenuID)) {
@@ -90,6 +84,7 @@ public class AccordionMenus extends ContentPanel {
         menuPanel.setAnimCollapse(false);
         menuPanel.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.accordion()));
         menuPanel.setScrollMode(Scroll.AUTO);
+        menuPanel.addStyleName("menus-group"); //$NON-NLS-1$
         this.add(menuPanel);
     }
 
@@ -131,7 +126,7 @@ public class AccordionMenus extends ContentPanel {
 
     private MenuBean getMenuBean(String menuName, List<MenuBean> menus) {
         for (MenuBean mb : menus) {
-            if ((mb.getContext() + "." + mb.getApplication()).equals(menuName)) {
+            if ((mb.getContext() + '.' + mb.getApplication()).equals(menuName)) {
                 return mb;
             }
         }
@@ -142,33 +137,23 @@ public class AccordionMenus extends ContentPanel {
         String icon = null;
         if (item.getIcon() != null && item.getIcon().trim().length() != 0) {
             icon = "/imageserver/" + item.getIcon() + "?width=16&height=16"; //$NON-NLS-1$ //$NON-NLS-2$
-        } else if ("itemsbrowser.ItemsBrowser".equals(toCheckMenuID) || "viewbrowser.ViewBrowser".equals(toCheckMenuID) || "itemsbrowser2.ItemsBrowser2".equals(toCheckMenuID) || "browserecords.BrowseRecords".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        } else if ("browserecords.BrowseRecords".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/browse.png"; //$NON-NLS-1$
         } else if ("browserecords.BrowseRecordsInStaging".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/browsestaging.png"; //$NON-NLS-1$
         } else if ("crossreferencing.CrossReferencing".equals(toCheckMenuID) || "crossreference.CrossReference".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "secure/img/menu/crossref.png"; //$NON-NLS-1$
-        } else if ("hierarchical.GroupingHierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$
-            icon = "secure/img/menu/grouping_hier.png"; //$NON-NLS-1$
-        } else if ("ehierarchical.DerivedHierarchy".equals(toCheckMenuID) || "hierarchy.Hierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if ("hierarchy.Hierarchy".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/derived_hier.png"; //$NON-NLS-1$
         } else if ("usersandroles.Users".equals(toCheckMenuID) || "usermanager.UserManager".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "secure/img/menu/manage_users.png"; //$NON-NLS-1$
-        } else if ("reporting.Reporting".equals(toCheckMenuID)) { //$NON-NLS-1$
-            icon = "secure/img/menu/reporting.png"; //$NON-NLS-1$
-        } else if ("SynchronizationItem.SynchronizationItem".equals(toCheckMenuID)) { //$NON-NLS-1$
-            icon = "secure/img/menu/synchro_item.png"; //$NON-NLS-1$
-        } else if ("SynchronizationAction.SynchronizationAction".equals(toCheckMenuID)) { //$NON-NLS-1$
-            icon = "secure/img/menu/synchronize.png"; //$NON-NLS-1$
         } else if ("ItemsTrash.ItemsTrash".equals(toCheckMenuID) || "recyclebin.RecycleBin".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "secure/img/menu/trash.png"; //$NON-NLS-1$
         } else if ("journal.Journal".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/updatereport.png"; //$NON-NLS-1$
-        } else if ("workflowtasks.WorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
-            icon = "secure/img/menu/workflowtasks.png"; //$NON-NLS-1$
         } else if ("workflowtasks.BonitaWorkflowTasks".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/bonita_user_xp.png"; //$NON-NLS-1$
-        } else if ("license.License".equals(toCheckMenuID) || "licenseManager.LicenseManager".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
+        } else if ("license.License".equals(toCheckMenuID) || "licensemanager.LicenseManager".equals(toCheckMenuID)) { //$NON-NLS-1$ //$NON-NLS-2$
             icon = "secure/img/menu/license.png"; //$NON-NLS-1$
         } else if ("datastewardship.Datastewardship".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/stewardship.png"; //$NON-NLS-1$
@@ -176,9 +161,11 @@ public class AccordionMenus extends ContentPanel {
             icon = "secure/img/menu/find.png"; //$NON-NLS-1$
         } else if ("stagingarea.Stagingarea".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/stagingarea.png"; //$NON-NLS-1$
+        } else if ("welcomeportal.WelcomePortal".equals(toCheckMenuID)) { //$NON-NLS-1$
+            icon = "secure/img/menu/welcome.png"; //$NON-NLS-1$
         } else {
             // default menus icon
-            icon = "secure/img/menu/default.gif"; //$NON-NLS-1$
+            icon = "secure/img/menu/default.png"; //$NON-NLS-1$
         }
         return icon;
     }
@@ -225,7 +212,7 @@ public class AccordionMenus extends ContentPanel {
                 MessageBox.alert(null, menuBean.getDisabledDesc(), null);
                 return;
             }
-            if (!menuBean.getContext().toLowerCase().equals("licensemanager")) {
+            if (!menuBean.getContext().toLowerCase().equals("licensemanager")) { //$NON-NLS-1$
                 service.isExpired(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Boolean>() {
 
                     @Override

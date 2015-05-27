@@ -288,7 +288,6 @@ public class ForeignKeyHelperTest extends TestCase {
         whereItem1 = whereItem.getWhereAnd().getWhereItems()[0];
         condition1 = whereItem1.getWhereOr().getWhereItems()[0].getWhereAnd().getWhereItems()[0].getWhereAnd().getWhereItems()[0]
                 .getWhereCondition();
-        assertTrue(MDMConfiguration.isSqlDataBase());
         assertEquals("ProductFamily/../*", condition1.getLeftPath());
         assertEquals(WSWhereOperator.CONTAINS, condition1.getOperator());
         assertEquals("1", condition1.getRightValueOrPath());

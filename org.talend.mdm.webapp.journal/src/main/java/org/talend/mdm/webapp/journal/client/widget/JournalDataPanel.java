@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.journal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import org.talend.mdm.webapp.journal.shared.JournalTreeModel;
+
 import com.amalto.core.objects.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -44,7 +45,6 @@ import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -130,6 +130,7 @@ public class JournalDataPanel extends FormPanel {
 
     public JournalDataPanel(final JournalTreeModel root, final JournalGridModel journalGridModel) {
         this.setFrame(false);
+        this.setHeight(-1);
         this.setItemId(journalGridModel.getIds());
         this.journalGridModel = journalGridModel;
         this.root = root;
@@ -198,7 +199,6 @@ public class JournalDataPanel extends FormPanel {
 
         initializeMain();
         FormData formData = new FormData("100%"); //$NON-NLS-1$
-        formData.setMargins(new Margins(10, 10, 10, 10));
         this.add(main, formData);
 
         final JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);

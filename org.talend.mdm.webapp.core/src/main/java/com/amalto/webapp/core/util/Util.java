@@ -226,14 +226,7 @@ public abstract class Util {
             }
         }
         if (condition.size() > 0) {
-            WSWhereItem whereItem;
-            if (MDMConfiguration.isSqlDataBase()) {
-                whereItem = makeWhereItem(condition);
-            } else {
-                WSWhereAnd and = new WSWhereAnd(condition.toArray(new WSWhereItem[condition.size()]));
-                whereItem = new WSWhereItem(null, and, null);
-            }
-            return whereItem;
+            return makeWhereItem(condition);
         } else {
             return null;
         }

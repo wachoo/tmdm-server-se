@@ -1,5 +1,5 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.Locale"%>
 <%@page import="com.amalto.core.util.Util"%>
 <%@page import="com.amalto.core.util.Version"%>
@@ -11,27 +11,23 @@
     
     String _USERNAME_;
     String _PASSWORD_;
-    String _UNIVERSE_;
     String _LOGIN_;
     String _ERROR_;
     
     if ("fr".equals(language)) {
          _USERNAME_ = "Identifiant";
          _PASSWORD_ = "Mot&nbsp;de&nbsp;passe";
-         _UNIVERSE_ = "Version";
          _LOGIN_= "Connexion";
          _ERROR_ = "Mauvais identifiant ou mot de passe";
     } else if ("ru".equals(language)) {
          _USERNAME_ = "Имя&nbsp;пользователя";
          _PASSWORD_ = "Пароль";
-         _UNIVERSE_ = "Версия";
          _LOGIN_= "Войти";
          _ERROR_ = "Неверное имя пользователя или пароль";       
     } else { 
          language="en"; //default language
          _USERNAME_ = "Login";
          _PASSWORD_ = "Password";
-         _UNIVERSE_ = "Version";
          _LOGIN_ = "Login";
          _ERROR_ = "Login failed. Please check your login and password";
     }
@@ -70,21 +66,22 @@
                         <tr>
                             <td colspan="2">
                                 <c:if test="${'fail' eq param.auth}">
-                                    <div style="text-align:center;color:red"><%= _ERROR_ %></div>
+                                    <div style="text-align:center;color:red;font-size:13px;"><%= _ERROR_ %></div>
                                 </c:if>
                             </td>
                         </tr>
                         <tr>
-                            <td align="right" width="120"><%= _USERNAME_ %>:&nbsp;</td>
+                            <td align="right" width="120" style="padding-right:10px;"><%= _USERNAME_ %></td>
                             <td align="left"><input type="text" name="j_username" value="" onKeyDown="if(event.keyCode==13){document.all.login.click()}"/></td>
                         </tr>
                         <tr>
-                            <td align="right" width="120"><%= _PASSWORD_ %>:&nbsp;</td>
+                            <td align="right" width="120" style="padding-right:10px;"><%= _PASSWORD_ %></td>
                             <td align="left"><input type="password" name="j_password" value="" onKeyDown="if(event.keyCode==13){document.all.login.click()}"/>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="2" align="center"><input type="submit" name="login" value="<%=_LOGIN_%>"/></td>
+                            <td/>
+                            <td align="left"><input type="submit" name="login" value="<%=_LOGIN_%>"/></td>
                         </tr>
                     </table>
                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />

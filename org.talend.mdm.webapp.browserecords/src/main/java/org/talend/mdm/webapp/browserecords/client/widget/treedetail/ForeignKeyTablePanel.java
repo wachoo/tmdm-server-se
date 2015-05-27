@@ -195,7 +195,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         addListener();
 
         fkWindow.setForeignKeyInfos(fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo());
-        fkWindow.setSize(470, 340);
+        fkWindow.setSize(550, 350);
         fkWindow.setResizable(false);
         fkWindow.setModal(true);
         fkWindow.setBlinkModal(true);

@@ -24,9 +24,9 @@ public interface Icons extends ClientBundle {
 
     Icons INSTANCE = GWT.create(Icons.class);
 
-    @Source("delete.gif")
+    @Source("delete.png")
     ImageResource delete();
 
-    @Source("restore.gif")
+    @Source("restore.png")
     ImageResource restore();
 }

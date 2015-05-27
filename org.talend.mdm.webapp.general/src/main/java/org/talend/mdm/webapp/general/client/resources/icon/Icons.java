@@ -21,6 +21,6 @@ public interface Icons extends ClientBundle {
 
     Icons INSTANCE = GWT.create(Icons.class);
 
-    @Source("accordion.gif")
+    @Source("accordion.png")
     ImageResource accordion();
 }
