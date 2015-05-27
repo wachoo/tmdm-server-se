@@ -26,6 +26,17 @@ public class XMLUnwrapperTest extends TestCase {
         assertFalse(tokenizer.hasMoreElements());
     }
 
+    public void testLineFeedsElement() throws Exception {
+        XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(new ByteArrayInputStream("<root>\n<test>\n</test>\n</root>".getBytes()));
+        int i = 0;
+        while (tokenizer.hasMoreElements()) {
+            i++;
+            final String element = tokenizer.nextElement();
+            assertEquals("<test/>", element);
+        }
+        assertEquals(1, i);
+    }
+
     public void testSingleRootElement() throws Exception {
         XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(new ByteArrayInputStream("<root><test></test></root>".getBytes()));
         int i = 0;

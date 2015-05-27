@@ -93,7 +93,12 @@ public class XMLStreamUnwrapper implements Enumeration<String> {
     private void moveToNext() {
         try {
             XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(stringWriter);
+            boolean hasMadeChanges;
             do {
+                if (!reader.hasNext()) {
+                    break;
+                }
+                hasMadeChanges = false; // Keep a state to skip line feeds
                 final XMLEvent event = reader.nextEvent();
                 if (event.isEndElement()) {
                     level--;
@@ -105,6 +110,7 @@ public class XMLStreamUnwrapper implements Enumeration<String> {
                 if (level >= RECORD_LEVEL) {
                     if (event.isEndElement()) {
                         writer.writeEndElement();
+                        hasMadeChanges = true;
                     } else if (event.isStartElement()) {
                         final StartElement startElement = event.asStartElement();
                         final QName name = startElement.getName();
@@ -127,11 +133,16 @@ public class XMLStreamUnwrapper implements Enumeration<String> {
                                 writer.writeAttribute(attributeName.getNamespaceURI(), attributeName.getLocalPart(), value);
                             }
                         }
+                        hasMadeChanges = true;
                     } else if (event.isCharacters()) {
-                        writer.writeCharacters(event.asCharacters().getData().trim());
+                        final String text = event.asCharacters().getData().trim();
+                        if (!text.isEmpty()) {
+                            writer.writeCharacters(text);
+                            hasMadeChanges = true;
+                        }
                     }
                 }
-            } while (level > RECORD_LEVEL);
+            } while (level > RECORD_LEVEL || !hasMadeChanges);
             writer.flush();
         } catch (XMLStreamException e) {
             throw new RuntimeException("Unexpected parsing exception.", e);
