@@ -50,7 +50,7 @@ public class StagingTaskService {
 
     @GET
     @Path("/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
     public StagingContainerSummary getContainerSummary() {
         return delegate.getContainerSummary();
     }
@@ -63,7 +63,7 @@ public class StagingTaskService {
 
     @GET
     @Path("{container}/")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
     public StagingContainerSummary getContainerSummary(@PathParam("container") String dataContainer,
                                                        @QueryParam("model") String dataModel) {
         return delegate.getContainerSummary(dataContainer, dataModel);
