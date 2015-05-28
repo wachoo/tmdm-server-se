@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -33,13 +34,10 @@ import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.dom.client.Style.Float;
 import com.google.gwt.dom.client.Style.Overflow;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -225,10 +223,9 @@ public class ItemsDetailPanel extends ContentPanel {
         banner.removeAll();
         banner.layout(true);
         if (isStaging) {
-            Image img = new Image("secure/img/staging.png"); //$NON-NLS-1$
-            img.getElement().getStyle().setFloat(Float.RIGHT);
-            img.getElement().getStyle().setMarginTop(6D, Unit.PX);
-            banner.add(img);
+            Text text = new Text(MessagesFactory.getMessages().staging_hint());
+            text.setId("staging-flag"); //$NON-NLS-1$
+            banner.add(text);
         }
     }
 
