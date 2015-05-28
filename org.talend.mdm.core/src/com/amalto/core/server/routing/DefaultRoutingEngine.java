@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,6 +57,14 @@ import com.amalto.core.util.XtentisException;
 
 @Component
 public class DefaultRoutingEngine implements RoutingEngine {
+
+    private static final String JMS_PK_PROPERTY = "pk"; //$NON-NLS-1
+
+    private static final String JMS_TYPE_PROPERTY = "type"; //$NON-NLS-1
+
+    private static final String JMS_CONTAINER_PROPERTY = "container"; //$NON-NLS-1
+
+    private static final String JMS_RULES_PROPERTY = "rules"; //$NON-NLS-1
 
     public static final String EVENTS_DESTINATION = "org.talend.mdm.server.routing.events"; //$NON-NLS-1
 
@@ -200,7 +209,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
             throw new XtentisException(err, e);
         }
     }
-
+    
     private void sendMessage(final ItemPOJOPK itemPOJOPK, ArrayList<RoutingRulePOJO> routingRulesThatMatched) {
 
         // Sort execution order and send JMS message
@@ -220,44 +229,14 @@ public class DefaultRoutingEngine implements RoutingEngine {
             @Override
             public Message createMessage(Session session) throws JMSException {
                 Message message = session.createMessage();
-                message.setObjectProperty("rules", Arrays.asList(ruleNames)); //$NON-NLS-1$
-                message.setStringProperty("container", itemPOJOPK.getDataClusterPOJOPK().getUniqueId()); //$NON-NLS-1$
-                message.setStringProperty("type", itemPOJOPK.getConceptName()); //$NON-NLS-1$
-                message.setStringProperty("pk", Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$
-                message.setObjectProperty("parameters", Arrays.asList(ruleParameters)); //$NON-NLS-1$
+                message.setObjectProperty(JMS_RULES_PROPERTY, Arrays.asList(ruleNames));
+                message.setStringProperty(JMS_CONTAINER_PROPERTY, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
+                message.setStringProperty(JMS_TYPE_PROPERTY, itemPOJOPK.getConceptName());
+                message.setStringProperty(JMS_PK_PROPERTY, Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$
                 return message;
             }
         });
 
-    }
-
-    private Message sendAndReceiveMessage(final ItemPOJOPK itemPOJOPK, ArrayList<RoutingRulePOJO> routingRulesThatMatched) {
-
-        // Sort execution order and send JMS message
-        Collections.sort(routingRulesThatMatched);
-        final String[] ruleNames = new String[routingRulesThatMatched.size()];
-        final String[] ruleParameters = new String[routingRulesThatMatched.size()];
-        int i = 0;
-
-        for (RoutingRulePOJO rulePOJO : routingRulesThatMatched) {
-            ruleNames[i] = rulePOJO.getPK().getUniqueId();
-            ruleParameters[i] = rulePOJO.getParameters();
-            i++;
-        }
-
-        return jmsTemplate.sendAndReceive(EVENTS_DESTINATION, new MessageCreator() {
-
-            @Override
-            public Message createMessage(Session session) throws JMSException {
-                Message message = session.createMessage();
-                message.setObjectProperty("rules", Arrays.asList(ruleNames)); //$NON-NLS-1$
-                message.setStringProperty("container", itemPOJOPK.getDataClusterPOJOPK().getUniqueId()); //$NON-NLS-1$
-                message.setStringProperty("type", itemPOJOPK.getConceptName()); //$NON-NLS-1$
-                message.setStringProperty("pk", Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$ //$NON-NLS-2$
-                message.setObjectProperty("parameters", Arrays.asList(ruleParameters)); //$NON-NLS-1$
-                return message;
-            }
-        });
     }
 
     @Override
@@ -354,41 +333,126 @@ public class DefaultRoutingEngine implements RoutingEngine {
         }
 
         // Contract imposes to send matching rule names
-        RoutingRulePOJOPK[] pks = new RoutingRulePOJOPK[routingRulesThatSyncMatched.size() + routingRulesThatAsyncMatched.size()];
+        List<RoutingRulePOJOPK> pks = new ArrayList<RoutingRulePOJOPK>(routingRulesThatSyncMatched.size() + routingRulesThatAsyncMatched.size());
 
         // Log debug information if no rule found for document
-        if (pks.length == 0) {
+        if (routingRulesThatSyncMatched.size() == 0 && routingRulesThatAsyncMatched.size() == 0) {
             if (LOGGER.isDebugEnabled()) {
                 String err = "Unable to find a routing rule for document " + itemPOJOPK.getUniqueID();
                 LOGGER.debug(err);
             }
             return new RoutingRulePOJOPK[0];
         }
+        
+        // execute asynchronous triggers (send JMS message)
         if (routingRulesThatAsyncMatched.size() > 0) {
-            sendMessage(itemPOJOPK, routingRulesThatAsyncMatched);
-            for (int j = 0; j < routingRulesThatAsyncMatched.size(); j++) {
-                pks[j] = new RoutingRulePOJOPK(routingRulesThatAsyncMatched.get(j).getPK().getUniqueId());
-            }
+            this.sendMessage(itemPOJOPK, routingRulesThatAsyncMatched);
+            pks.addAll(buildListOfRulePK(routingRulesThatAsyncMatched));
         }
+        
+        // execute synchronous triggers directly
         if (routingRulesThatSyncMatched.size() > 0) {
-            sendAndReceiveMessage(itemPOJOPK, routingRulesThatSyncMatched);
-            for (int j = 0; j < routingRulesThatSyncMatched.size(); j++) {
-                pks[j + routingRulesThatAsyncMatched.size()] = new RoutingRulePOJOPK(routingRulesThatSyncMatched.get(j).getPK()
-                        .getUniqueId());
+            Collections.sort(routingRulesThatSyncMatched);
+            String routingOrder = UUID.randomUUID().toString();
+            for(RoutingRulePOJO rule : routingRulesThatSyncMatched){
+                applyRule(itemPOJOPK, rule, routingOrder);
+            }
+            pks.addAll(buildListOfRulePK(routingRulesThatSyncMatched));
+        }
+        return pks.toArray(new RoutingRulePOJOPK[pks.size()]);
+    }
+    
+    private List<RoutingRulePOJOPK> buildListOfRulePK(final List<RoutingRulePOJO> routingRules){
+        List<RoutingRulePOJOPK> result = new ArrayList<RoutingRulePOJOPK>(routingRules.size());
+        for (RoutingRulePOJO rulePOJO : routingRules) {
+            result.add(new RoutingRulePOJOPK(rulePOJO.getPK().getUniqueId()));
+        }
+        return result;
+    }
+    
+    /**
+     * Proceed with rule execution, either the rule is synchronous or asynchronous.
+     * 
+     * @param itemPOJOPK source instance PK
+     * @param routingRule the rule to execute
+     * @param routingOrderId routing id
+     */
+    private void applyRule(ItemPOJOPK itemPOJOPK, RoutingRulePOJO routingRule, String routingOrderId) {
+        // Proceed with rule execution
+        final Service service = PluginRegistry.getInstance().getService(routingRule.getServiceJNDI());
+        try {
+            if(service != null){
+                service.receiveFromInbound(itemPOJOPK, routingOrderId, routingRule.getParameters());
+                // Record routing order was successfully executed.
+                CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
+                completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+                completedRoutingOrder.setName(itemPOJOPK.toString());
+                completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
+                completedRoutingOrder.setServiceParameters(routingRule.getParameters());
+                try {
+                    completedRoutingOrder.store();
+                } catch (Throwable e) {
+                    LOGGER.error("Unable to store completed routing order (enable DEBUG for details).");
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Unable to store completed routing order.", e);
+                    }
+                }
+            }
+            else {
+                final String errorMessage = "Service '" + routingRule.getServiceJNDI() + "' does not exist.";
+                LOGGER.error(errorMessage);
+                createAndStoreFailedRoutingOrder(itemPOJOPK, routingRule, errorMessage);
             }
         }
-        return pks;
+        catch(Exception e){
+            String errorMessage = "Unable to execute the Routing Order '" + routingOrderId + "'."
+                    + " The service: '" + routingRule.getServiceJNDI() + "' failed to execute. "
+                    + e.getMessage();
+            LOGGER.error(errorMessage, e);
+            createAndStoreFailedRoutingOrder(itemPOJOPK, routingRule, errorMessage);
+        }
+    }
+    
+    /**
+     * In case of rule execution error: creates and stores a new FailedRoutingOrderV2POJO regarding the entity identified by itemPOJOPK
+     * when executing rule routingRule, with provided error message. 
+     * 
+     * In case of storage failure, logs error but does not throw exception.
+     * 
+     * @param itemPOJOPK the entity PK
+     * @param routingRule the rule
+     * @param errorMessage the error message to save
+     * @return the new FailedRoutingOrderV2POJO
+     */
+    private FailedRoutingOrderV2POJO createAndStoreFailedRoutingOrder(ItemPOJOPK itemPOJOPK, RoutingRulePOJO routingRule, String errorMessage) {
+        // Record routing order has failed.
+        FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
+        failedRoutingOrder.setMessage(errorMessage);
+        failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
+        failedRoutingOrder.setName(itemPOJOPK.toString());
+        failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
+        failedRoutingOrder.setServiceParameters(routingRule.getParameters());
+        try {
+            failedRoutingOrder.store();
+        } catch (XtentisException e) {
+            LOGGER.error("Unable to store failed routing order (enable DEBUG for details).");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Unable to store failed routing order.", e);
+            }
+        }
+        return failedRoutingOrder;
     }
 
     // Called by Spring, do not remove
     @Override
-    public Message consume(final Message message) {
+    public void consume(final Message message) {
         try {
-            final List<String> rules = (List<String>) message.getObjectProperty("rules");
-            final List<String> parameters = (List<String>) message.getObjectProperty("parameters");
-            final String pk = message.getStringProperty("pk");
-            String type = message.getStringProperty("type");
-            String container = message.getStringProperty("container");
+            @SuppressWarnings("unchecked")
+            final List<String> rules = (List<String>) message.getObjectProperty(JMS_RULES_PROPERTY);
+            final String pk = message.getStringProperty(JMS_PK_PROPERTY);
+            final String type = message.getStringProperty(JMS_TYPE_PROPERTY);
+            final String container = message.getStringProperty(JMS_CONTAINER_PROPERTY);
+            final String routingOrderId = message.getJMSMessageID();
             for (int ruleIndex = 0; ruleIndex < rules.size(); ruleIndex++) {
                 String rule = rules.get(ruleIndex);
                 final RoutingRulePOJO routingRule = routingRules.getRoutingRule(new RoutingRulePOJOPK(rule));
@@ -398,82 +462,21 @@ public class DefaultRoutingEngine implements RoutingEngine {
                     throw new RuntimeException("Cannot execute rule(s) " + rules + ": routing rule '" + rule
                             + "' can not be found.");
                 }
-                // Proceed with rule execution
-                final ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, pk.split("\\.")); //$NON-NLS-1$
-                final Service service = PluginRegistry.getInstance().getService(routingRule.getServiceJNDI());
-                final int parameterIndex = ruleIndex;
                 SecurityConfig.invokeSynchronousPrivateInternal(new Runnable() {
-
                     @Override
                     public void run() {
-                        try {
-                            message.acknowledge();
-                            if (service != null) {
-                                service.receiveFromInbound(itemPOJOPK, message.getJMSMessageID(), parameters.get(parameterIndex));
-                                // Record routing order was successfully executed.
-                                CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
-                                completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
-                                completedRoutingOrder.setName(itemPOJOPK.toString());
-                                completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
-                                completedRoutingOrder.setServiceParameters(routingRule.getParameters());
-                                try {
-                                    completedRoutingOrder.store();
-                                } catch (Throwable e) {
-                                    LOGGER.error("Unable to store completed routing order (enable DEBUG for details).");
-                                    if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("Unable to store completed routing order.", e);
-                                    }
-                                }
-                            } else {
-                                final String errorMessage = "Service '" + routingRule.getServiceJNDI() + "' does not exist.";
-                                LOGGER.error(errorMessage);
-                                FailedRoutingOrderV2POJO failedRoutingOrder = createFail(errorMessage);
-                                try {
-                                    failedRoutingOrder.store();
-                                } catch (Throwable e) {
-                                    LOGGER.error("Unable to store failed routing order (enable DEBUG for details).");
-                                    if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("Unable to store failed routing order.", e);
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            try {
-                                String err = "Unable to execute the Routing Order '" + message.getJMSMessageID() + "'."
-                                        + " The service: '" + routingRule.getServiceJNDI() + "' failed to execute. "
-                                        + e.getMessage();
-                                // Record routing order has failed.
-                                FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
-                                failedRoutingOrder.setMessage(err);
-                                failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
-                                failedRoutingOrder.setName(itemPOJOPK.toString());
-                                failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
-                                failedRoutingOrder.setServiceParameters(routingRule.getParameters());
-                                failedRoutingOrder.store();
-                            } catch (Exception e1) {
-                                LOGGER.error("Trigger execution execution error.", e);
-                                LOGGER.error("Unable to store trigger execution for '" + rules + "' on '" + pk + "'.", e1);
-                            }
-                        }
-                    }
-
-                    private FailedRoutingOrderV2POJO createFail(String errorMessage) {
-                        // Record routing order has failed.
-                        FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
-                        failedRoutingOrder.setMessage(errorMessage);
-                        failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
-                        failedRoutingOrder.setName(itemPOJOPK.toString());
-                        failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
-                        failedRoutingOrder.setServiceParameters(routingRule.getParameters());
-                        return failedRoutingOrder;
+                        // execute all rules synchronously
+                        final ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, pk.split("\\.")); //$NON-NLS-1$
+                        applyRule(itemPOJOPK, routingRule, routingOrderId);
                     }
                 });
             }
-        } catch (Exception e) {
+            // acknowledge message once all rules are executed
+            message.acknowledge();
+        } 
+        catch (Exception e) {
             throw new RuntimeException("Unable to process message.", e);
         }
-
-        return message;
     }
 
     @Override
@@ -505,4 +508,5 @@ public class DefaultRoutingEngine implements RoutingEngine {
             return isStopped ? RoutingEngine.STOPPED : RoutingEngine.SUSPENDED;
         }
     }
+    
 }

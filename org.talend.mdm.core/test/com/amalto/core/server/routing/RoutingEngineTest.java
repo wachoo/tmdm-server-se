@@ -207,7 +207,7 @@ public class RoutingEngineTest {
     }
 
     @Test
-    public void testSendAndReceiveMessage() throws Exception {
+    public void testSynchronousRule() throws Exception {
         RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
         clearRules();
         RoutingRulePOJO rule1 = new RoutingRulePOJO("testTypeMatchRule1");

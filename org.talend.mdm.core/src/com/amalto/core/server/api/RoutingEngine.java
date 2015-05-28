@@ -35,7 +35,7 @@ public interface RoutingEngine {
     RoutingRulePOJOPK[] route(ItemPOJOPK itemPOJOPK) throws com.amalto.core.util.XtentisException;
 
     // Called by Spring, do not remove
-    Message consume(Message message);
+    void consume(Message message);
 
     /**
      * Starts/restarts the router

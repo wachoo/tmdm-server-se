@@ -40,10 +40,9 @@ public class TestRoutingEngine implements RoutingEngine {
     }
 
     @Override
-    public Message consume(Message message) {
+    public void consume(Message message) {
         consumeCallCount++;
         delegate.consume(message);
-        return message;
     }
 
     @Override
