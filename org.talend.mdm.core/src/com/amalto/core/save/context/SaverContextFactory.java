@@ -264,7 +264,7 @@ public class SaverContextFactory {
             invokeBeforeSaving = false;
             updateReport = false;
         }
-        context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
+        context = new StorageSaver(storage, dataModelName, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
         // Additional options (update report, auto commit).
         if (updateReport) {
             context = ReportDocumentSaverContext.decorate(context, changeSource);

@@ -27,6 +27,8 @@ import java.util.List;
 public class StorageSaver implements DocumentSaverContext {
 
     private final Storage storage;
+    
+    private final String datamodelName;
 
     private List<Action> actions = new LinkedList<Action>();
 
@@ -51,12 +53,14 @@ public class StorageSaver implements DocumentSaverContext {
     private final boolean preserveOldCollectionValues;
 
     public StorageSaver(Storage storage,
+                        String datamodelName,
                         MutableDocument userDocument,
                         UserAction userAction,
                         boolean invokeBeforeSaving,
                         boolean updateReport,
                         boolean validate) {
         this.storage = storage;
+        this.datamodelName = datamodelName;
         this.userDocument = userDocument;
         this.userAction = userAction;
         this.invokeBeforeSaving = invokeBeforeSaving;
@@ -146,7 +150,7 @@ public class StorageSaver implements DocumentSaverContext {
 
     @Override
     public String getDataModelName() {
-        return storage.getName();
+        return this.datamodelName;
     }
 
     @Override
