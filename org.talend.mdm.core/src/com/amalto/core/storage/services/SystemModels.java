@@ -108,6 +108,19 @@ public class SystemModels {
         }
     }
 
+    @POST
+    public void createDataModel(@QueryParam("name") String modelName, InputStream dataModel) {
+        try {
+            DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
+            dataModelPOJO.setSchema(IOUtils.toString(dataModel));
+            dataModelPOJO.store();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not fully read new data model.", e); //$NON-NLS-1$
+        } catch (XtentisException e) {
+            throw new RuntimeException("Could not store new data model.", e); //$NON-NLS-1$
+        }
+    }
+
     @PUT
     @Path("{model}")
     public void updateModel(@PathParam("model")
@@ -198,7 +211,7 @@ public class SystemModels {
     String modelName, @QueryParam("lang") String locale, InputStream dataModel) {
         Map<ImpactAnalyzer.Impact, List<Change>> impacts;
         if (!isSystemStorageAvailable()) {
-            impacts = new EnumMap<ImpactAnalyzer.Impact, List<Change>>(ImpactAnalyzer.Impact.class);
+            impacts = new EnumMap<>(ImpactAnalyzer.Impact.class);
             for (ImpactAnalyzer.Impact impact : impacts.keySet()) {
                 impacts.put(impact, Collections.<Change> emptyList());
             }
