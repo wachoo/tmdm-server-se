@@ -1436,17 +1436,28 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         return current;
     }
-    
-     private void addCondition(FieldCondition condition, String alias, FieldMetadata fieldMetadata) {
-         if (fieldMetadata instanceof CompoundFieldMetadata) {
-         FieldMetadata[] fields = ((CompoundFieldMetadata) fieldMetadata).getFields();
-         for (FieldMetadata subFieldMetadata : fields) {
-         condition.criterionFieldNames.add(alias + '.' + subFieldMetadata.getName());
-         }
-         } else {
-         condition.criterionFieldNames.add(alias + '.' + fieldMetadata.getName());
-         }
-         }
+
+    private void addCondition(FieldCondition condition, String alias, FieldMetadata fieldMetadata) {
+        if (fieldMetadata instanceof CompoundFieldMetadata) {
+            FieldMetadata[] fields = ((CompoundFieldMetadata) fieldMetadata).getFields();
+            for (FieldMetadata subFieldMetadata : fields) {
+                condition.criterionFieldNames.add(alias + '.' + subFieldMetadata.getName());
+            }
+        } else {
+            condition.criterionFieldNames.add(alias + '.' + fieldMetadata.getName());
+        }
+    }
+
+    private void addCondition(FieldCondition condition, FieldMetadata fieldMetadata) {
+        if (fieldMetadata instanceof CompoundFieldMetadata) {
+            FieldMetadata[] fields = ((CompoundFieldMetadata) fieldMetadata).getFields();
+            for (FieldMetadata subFieldMetadata : fields) {
+                condition.criterionFieldNames.add(getFieldName(subFieldMetadata, true));
+            }
+        } else {
+            condition.criterionFieldNames.add(getFieldName(fieldMetadata, true));
+        }
+    }
 
     private class CriterionFieldCondition extends VisitorAdapter<FieldCondition> {
 
@@ -1557,7 +1568,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     }
                 }
             } else {
-                condition.criterionFieldNames.add(getFieldName(field));
+                addCondition(condition, field.getFieldMetadata());
             }
             condition.fieldMetadata = field.getFieldMetadata();
             condition.field = field;

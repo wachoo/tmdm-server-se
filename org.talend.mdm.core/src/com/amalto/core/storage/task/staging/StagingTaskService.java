@@ -22,6 +22,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -49,6 +50,7 @@ public class StagingTaskService {
 
     @GET
     @Path("/")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
     public StagingContainerSummary getContainerSummary() {
         return delegate.getContainerSummary();
     }
@@ -61,6 +63,7 @@ public class StagingTaskService {
 
     @GET
     @Path("{container}/")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
     public StagingContainerSummary getContainerSummary(@PathParam("container") String dataContainer,
                                                        @QueryParam("model") String dataModel) {
         return delegate.getContainerSummary(dataContainer, dataModel);
