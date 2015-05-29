@@ -118,5 +118,16 @@ public interface Transaction {
      * @see StorageTransaction#hasFailed()
      */
     boolean hasFailed();
+    
+    /**
+     * @return the stack-trace of the current thread when this transaction
+     * was created. 
+     * 
+     * This feature is enabled only if the logger for
+     * com.amalto.core.server.MDMTransaction is in DEBUG 
+     * otherwise creation stack-traces are not recorded at transaction creation
+     */
+    String getCreationStackTrace();
+    
 
 }
