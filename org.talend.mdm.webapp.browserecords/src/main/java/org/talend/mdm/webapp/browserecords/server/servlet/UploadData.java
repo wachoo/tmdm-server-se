@@ -166,10 +166,11 @@ public class UploadData extends HttpServlet {
                                 wsPutItemWithReportList.toArray(new WSPutItemWithReport[wsPutItemWithReportList.size()])),
                         concept);
             }
-            writer.print("true"); //$NON-NLS-1$
+            writer.print("<result>0</result>"); //$NON-NLS-1$
         } catch (UploadException uploadException) {
             LOG.error(uploadException.getMessage(), uploadException);
-            writer.print(uploadException.getMessage());
+            writer.print("<result>1</result"); //$NON-NLS-1$
+            writer.print("<error>" + uploadException.getMessage() + "</error>"); //$NON-NLS-1$ //$NON-NLS-2$
         } catch (Exception exception) {
             LOG.error(exception.getMessage(), exception);
             throw exception instanceof ServletException ? (ServletException) exception : new ServletException(

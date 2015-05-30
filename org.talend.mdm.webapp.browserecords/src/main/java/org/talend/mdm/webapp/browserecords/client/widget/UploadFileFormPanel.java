@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.util.XmlUtil;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -44,6 +45,9 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -360,21 +364,30 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     @Override
     public void handleEvent(FormEvent be) {
-        String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
-
+        Document document = XMLParser.parse(XmlUtil.transformStringToXml(be.getResultHtml()));
+        NodeList resultNodeList = document.getElementsByTagName("result"); //$NON-NLS-1$
         waitBar.close();
-        if (result.equals("<f>true</f>") || ("true".equals(result))) { //$NON-NLS-1$ //$NON-NLS-2$ second condition for ie9
-            window.hide();
-            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(),
-                    null);
-            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
-            ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, buttonEvent);
-        } else {
-            String errorMsg = MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result));
-            if (errorMsg == null || errorMsg.length() == 0 || errorMsg.equals("<f></f>")) { //$NON-NLS-1$
-                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
+        if (resultNodeList.getLength() > 0) {
+            if ("0".equals(resultNodeList.item(0).getFirstChild().getNodeValue())) { //$NON-NLS-1$
+                window.hide();
+                MessageBox.alert(MessagesFactory.getMessages().info_title(),
+                        MessagesFactory.getMessages().import_success_label(), null);
+                ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchBut);
+                ItemsToolBar.getInstance().searchBut.fireEvent(Events.Select, buttonEvent);
+            } else {
+                NodeList errorNodeList = document.getElementsByTagName("error"); //$NON-NLS-1$
+                if (errorNodeList.getLength() > 0) {
+                    String errorMsg = MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(errorNodeList.item(0)
+                            .getFirstChild().getNodeValue()));
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), errorMsg, null);
+                } else {
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), BaseMessagesFactory.getMessages()
+                            .unknown_error(), null);
+                }
             }
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), errorMsg, null);
+        } else {
+            MessageBox
+                    .alert(MessagesFactory.getMessages().error_title(), BaseMessagesFactory.getMessages().unknown_error(), null);
         }
     }
 
