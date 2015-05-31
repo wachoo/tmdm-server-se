@@ -106,7 +106,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         add(content);
 
         if (ancestor != null) {
-            add(new Image(Icons.INSTANCE.remove()) {
+            add(new Image(Icons.INSTANCE.Delete()) {
 
                 {
                     addClickHandler(new ClickHandler() {

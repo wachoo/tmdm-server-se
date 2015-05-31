@@ -92,7 +92,7 @@ public class MultipleCriteriaPanel extends SimplePanel {
         main.add(separationRightPanel);
 
         if (parent != null) {
-            main.add(new Image(Icons.INSTANCE.remove()) {
+            main.add(new Image(Icons.INSTANCE.Delete()) {
 
                 {
                     addClickListener(new ClickListener() {

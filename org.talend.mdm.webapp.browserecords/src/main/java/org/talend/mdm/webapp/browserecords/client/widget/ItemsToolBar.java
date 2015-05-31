@@ -772,7 +772,7 @@ public class ItemsToolBar extends ToolBar {
                     public Object render(final ItemBaseModel model, String property, ColumnData config, int rowIndex,
                             int colIndex, ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                         Image image = new Image();
-                        image.setResource(Icons.INSTANCE.remove());
+                        image.setResource(Icons.INSTANCE.Delete());
                         if (!ifManage(model)) {
                             image.addStyleName("x-item-disabled"); //$NON-NLS-1$
                         } else {
