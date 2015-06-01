@@ -36,6 +36,7 @@ import com.extjs.gxt.ui.client.widget.menu.HeaderMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
+import com.extjs.gxt.ui.client.widget.tips.ToolTip;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -262,11 +263,18 @@ public class PagingToolBarEx extends PagingToolBar {
             } else if (c instanceof Button) {
                 final Button b = (Button) c;
                 String menuText = b.getText();
+                ToolTip tt = b.getToolTip();
                 if (menuText == null || menuText.trim().length() == 0) {
-                    menuText = b.getToolTip().getToolTipConfig() == null ? "" : b.getToolTip().getToolTipConfig().getText(); //$NON-NLS-1$
+                    if (tt != null) {
+                        menuText = tt.getToolTipConfig() == null ? "" : tt.getToolTipConfig().getText(); //$NON-NLS-1$
+                    } else {
+                        menuText = ""; //$NON-NLS-1$
+                    }
                 }
                 MenuItem item = new MenuItem(menuText, b.getIcon());
-                item.setToolTip(b.getToolTip().getToolTipConfig());
+                if (tt != null) {
+                    item.setToolTip(b.getToolTip().getToolTipConfig());
+                }
                 item.setItemId(c.getItemId());
                 if (b.getMenu() != null) {
                     item.setHideOnClick(false);
