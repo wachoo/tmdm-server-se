@@ -20,8 +20,10 @@ import org.talend.mdm.webapp.stagingareabrowser.client.controller.ControllerCont
 import org.talend.mdm.webapp.stagingareabrowser.client.controller.SearchController;
 import org.talend.mdm.webapp.stagingareabrowser.client.view.StagingareaBrowseView;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -40,6 +42,7 @@ public class StagingareaBrowse implements EntryPoint {
 
     @Override
     public void onModuleLoad() {
+        GXT.setDefaultTheme(Theme.GRAY, true);
         service = GWT.create(StagingAreaBrowseService.class);
         ServiceEnhancer.customizeService((ServiceDefTarget) service);
         XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
