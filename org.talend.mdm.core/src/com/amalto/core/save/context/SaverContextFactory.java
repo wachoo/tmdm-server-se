@@ -15,11 +15,14 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
 import com.amalto.core.save.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
+import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -168,8 +171,21 @@ public class SaverContextFactory {
             DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOCUMENT_BUILDER, false);
             InputSource source = new InputSource(documentStream);
             Document userDomDocument = documentBuilder.parse(source);
-            MetadataRepository repository = server.getMetadataRepositoryAdmin().get(dataModelName);
+            final MetadataRepositoryAdmin admin = server.getMetadataRepositoryAdmin();
             String typeName = userDomDocument.getDocumentElement().getNodeName();
+            MetadataRepository repository;
+            if (!admin.exist(dataModelName)) {
+                final Storage systemStorage = server.getStorageAdmin().get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
+                final MetadataRepository systemRepository = systemStorage.getMetadataRepository();
+                if (systemRepository.getComplexType(typeName) != null) {
+                    // Record to save is a system object!
+                    return new DirectWriteContext(dataCluster, Util.nodeToString(userDomDocument));
+                } else {
+                    throw new IllegalArgumentException("Data model '" + dataModelName + "' does not exist.");
+                }
+            } else {
+                repository = admin.get(dataModelName);
+            }
             ComplexTypeMetadata type = repository.getComplexType(typeName);
             if (type == null) {
                 throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data model '" + dataModelName + "'.");

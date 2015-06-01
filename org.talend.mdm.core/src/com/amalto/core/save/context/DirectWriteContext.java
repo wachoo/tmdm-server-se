@@ -10,37 +10,29 @@
 
 package com.amalto.core.save.context;
 
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 
-import com.amalto.core.save.DocumentSaverContext;
 import org.apache.commons.lang.StringUtils;
 
 import com.amalto.core.history.Action;
+import com.amalto.core.history.EmptyDocument;
 import com.amalto.core.history.MutableDocument;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.SaverSession;
 import com.amalto.core.save.UserAction;
+import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.util.Util;
 
-class SystemContext implements DocumentSaverContext {
+class DirectWriteContext implements DocumentSaverContext {
 
     private final String dataCluster;
 
-    private final String dataModelName;
+    private final String record;
 
-    private final List<Action> actions = new LinkedList<Action>();
-
-    private String[] id = new String[0];
-
-    private MutableDocument userDocument;
-
-    private MutableDocument databaseDocument;
-
-    private UserAction userAction;
-
-    public SystemContext(String dataCluster, String dataModelName, MutableDocument document, UserAction userAction) {
+    public DirectWriteContext(String dataCluster, String record) {
         this.dataCluster = dataCluster;
-        this.dataModelName = dataModelName;
-        this.userDocument = document;
-        this.userAction = userAction;
+        this.record = record;
     }
 
     @Override
@@ -50,34 +42,60 @@ class SystemContext implements DocumentSaverContext {
 
     @Override
     public DocumentSaver createSaver() {
-        DocumentSaver saver = SaverContextFactory.invokeSaverExtension(new Save());
-        return new Init(new ID(new GenerateActions(new ApplyActions(saver))));
+        return new DocumentSaver() {
+
+            @Override
+            public void save(SaverSession session, DocumentSaverContext context) {
+                try {
+                    final XmlServer xmlServer = Util.getXmlServerCtrlLocal();
+                    xmlServer.putDocumentFromString(record, null, dataCluster);
+                } catch (Exception e) {
+                    throw new RuntimeException("Unable to save system record.", e);
+                }
+            }
+
+            @Override
+            public String[] getSavedId() {
+                return new String[0];
+            }
+
+            @Override
+            public String getSavedConceptName() {
+                return null;
+            }
+
+            @Override
+            public String getBeforeSavingMessage() {
+                return null;
+            }
+        };
     }
 
     @Override
     public MutableDocument getDatabaseDocument() {
-        return databaseDocument;
+        return EmptyDocument.INSTANCE;
+    }
+
+    @Override
+    public void setDatabaseDocument(MutableDocument databaseDocument) {
     }
 
     @Override
     public MutableDocument getUserDocument() {
-        return userDocument;
+        return EmptyDocument.INSTANCE;
     }
 
     @Override
     public void setUserDocument(MutableDocument document) {
-        this.userDocument = document;
     }
 
     @Override
     public List<Action> getActions() {
-        return actions;
+        return Collections.emptyList();
     }
 
     @Override
     public void setActions(List<Action> actions) {
-        this.actions.clear();
-        this.actions.addAll(actions);
     }
 
     @Override
@@ -87,22 +105,17 @@ class SystemContext implements DocumentSaverContext {
 
     @Override
     public String getDataModelName() {
-        return dataModelName;
-    }
-
-    @Override
-    public void setDatabaseDocument(MutableDocument databaseDocument) {
-        this.databaseDocument = databaseDocument;
-    }
-
-    @Override
-    public void setTaskId(String taskId) {
-        throw new UnsupportedOperationException();
+        return dataCluster;
     }
 
     @Override
     public String getTaskId() {
         return null;
+    }
+
+    @Override
+    public void setTaskId(String taskId) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -122,12 +135,11 @@ class SystemContext implements DocumentSaverContext {
 
     @Override
     public UserAction getUserAction() {
-        return userAction;
+        return UserAction.AUTO;
     }
 
     @Override
     public void setUserAction(UserAction userAction) {
-        this.userAction = userAction;
     }
 
     @Override
@@ -157,12 +169,12 @@ class SystemContext implements DocumentSaverContext {
 
     @Override
     public String[] getId() {
-        return id;
+        return new String[0];
     }
 
     @Override
     public void setId(String[] id) {
-        this.id = id;
+
     }
 
 }
