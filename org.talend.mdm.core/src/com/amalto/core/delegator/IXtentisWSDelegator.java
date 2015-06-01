@@ -2207,6 +2207,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         String type = wsDigest.getWsDigestKey().getType();
         String name = wsDigest.getWsDigestKey().getObjectName();
         String typeName = DigestHelper.getInstance().getTypeName(type);
+        WSLong res = null;
         if (typeName != null) {
             try {
                 systemStorage.begin(); // Storage needs an active transaction (even for read operations).
@@ -2216,26 +2217,24 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                         .forUpdate(); // <- Important line here!
                 StorageResults results = systemStorage.fetch(qb.getSelect());
                 Iterator<DataRecord> iterator = results.iterator();
+                DataRecord result = null;
                 if (iterator.hasNext()) {
-                    DataRecord result = iterator.next();
+                    result = iterator.next();
                     FieldMetadata digestField = storageType.getField("digest"); //$NON-NLS-1$
                     // Using convert ensure type is correct
                     result.set(digestField, StorageMetadataUtils.convert(wsDigest.getDigestValue(), digestField));
                     systemStorage.update(result); // No need to set timestamp (update will update it).
-                    systemStorage.commit();
-                    return new WSLong(result.getRecordMetadata().getLastModificationTime());
-                } else {
-                    systemStorage.rollback(); // storage begin() must paired with commit() or rollback(), clean up
-                                              // transactions
-                    return null;
+                }
+                systemStorage.commit();
+                if (result != null) {
+                    res = new WSLong(result.getRecordMetadata().getLastModificationTime());
                 }
             } catch (Exception e) {
                 systemStorage.rollback();
                 throw new RuntimeException(e);
             }
-        } else {
-            return null;
         }
+        return res;
     }
 
     @Override
