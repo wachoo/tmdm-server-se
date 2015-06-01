@@ -22,6 +22,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
             <bean class="com.amalto.core.storage.task.staging.StagingTaskService" />
             <!-- Data related services -->
             <bean class="com.amalto.core.storage.services.SystemModels" />
+            <bean class="com.amalto.core.storage.services.SystemContainers" />
             <!-- Statistics services -->
             <bean class="com.amalto.core.storage.services.JournalStatistics" />
             <bean class="com.amalto.core.storage.services.DataStatistics" />
