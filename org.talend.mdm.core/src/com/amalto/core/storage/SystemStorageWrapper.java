@@ -10,47 +10,31 @@
 
 package com.amalto.core.storage;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.MetadataVisitor;
+import org.talend.mdm.commmon.metadata.*;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlDOMDataRecordReader;
-import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.*;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 
@@ -220,7 +204,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         } else if (XSystemObjects.DC_CROSSREFERENCING.getName().equals(clusterName)) {
             return Collections.emptyList(); // TODO Support crossreferencing
         } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
-            return filter(repository, "User", "Role"); //$NON-NLS-1$ //$NON-NLS-2$
+            return filter(repository, "User", "Role", "role-pOJO"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else if (XSystemObjects.DC_SEARCHTEMPLATE.getName().equals(clusterName)) {
             return filter(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
@@ -259,31 +243,32 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     @Override
     public String[] getAllDocumentsUniqueID(String clusterName) throws XmlServerException {
+        Collection<ComplexTypeMetadata> typeToQuery = getClusterTypes(clusterName);
+        List<String> uniqueIds = new LinkedList<>();
         Storage storage = getStorage(clusterName);
-        ComplexTypeMetadata type = getType(clusterName, storage, null);
-        if (type != null) {
-            FieldMetadata keyField = type.getKeyFields().iterator().next();
-            UserQueryBuilder qb = from(type).select(keyField);
-            try {
-                storage.begin();
+        try {
+            storage.begin();
+            for (ComplexTypeMetadata currentType : typeToQuery) {
+                UserQueryBuilder qb = from(currentType).selectId(currentType);
                 StorageResults results = storage.fetch(qb.getSelect());
-                try {
-                    String[] ids = new String[results.getCount()];
-                    int i = 0;
-                    for (DataRecord result : results) {
-                        ids[i++] = String.valueOf(result.get(keyField));
+                for (DataRecord result : results) {
+                    Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(clusterName).append('.').append(currentType.getName()).append('.');
+                    while (setFields.hasNext()) {
+                        builder.append(String.valueOf(result.get(setFields.next())));
+                        if (setFields.hasNext()) {
+                            builder.append('.');
+                        }
                     }
-                    storage.commit();
-                    return ids;
-                } finally {
-                    results.close();
+                    uniqueIds.add(builder.toString());
                 }
-            } catch (Exception e) {
-                storage.rollback();
-                throw new XmlServerException(e);
             }
-        } else {
-            return new String[0];
+            storage.commit();
+            return uniqueIds.toArray(new String[uniqueIds.size()]);
+        } catch (Exception e) {
+            storage.rollback();
+            throw new XmlServerException(e);
         }
     }
 
