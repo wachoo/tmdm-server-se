@@ -109,11 +109,15 @@ public class SystemModels {
     }
 
     @POST
+    @Path("/")
     public void createDataModel(@QueryParam("name") String modelName, InputStream dataModel) {
         try {
             DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
             dataModelPOJO.setSchema(IOUtils.toString(dataModel));
             dataModelPOJO.store();
+            // synchronize with outer agents
+            DataModelChangeNotifier dmUpdateEventNotifier = DataModelChangeNotifier.createInstance();
+            dmUpdateEventNotifier.notifyChange(new DMUpdateEvent(modelName));
         } catch (IOException e) {
             throw new RuntimeException("Could not fully read new data model.", e); //$NON-NLS-1$
         } catch (XtentisException e) {
