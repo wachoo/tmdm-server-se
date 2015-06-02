@@ -16,6 +16,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -261,7 +262,13 @@ class FlatTypeMapping extends TypeMapping {
                     }
                 } else {
                     if (userField.isMany()) {
-                        value = new ArrayList<>(getFullList((List) value));
+                        if(value == null){
+                            value = new ArrayList<>(0);
+                        }
+                        else {
+                            value = new ArrayList<>(getFullList((List) value));
+                        }
+                        
                     }
                     to.set(userField, value);
                 }
