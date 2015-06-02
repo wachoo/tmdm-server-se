@@ -16,6 +16,7 @@ import com.amalto.core.server.api.XmlServer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 public class DefaultDataCluster implements DataCluster {
@@ -171,12 +172,13 @@ public class DefaultDataCluster implements DataCluster {
      */
     @Override
     public Collection<DataClusterPOJOPK> getDataClusterPKs(String regex) throws XtentisException {
-        Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(DataClusterPOJO.class, regex);
-        ArrayList<DataClusterPOJOPK> l = new ArrayList<DataClusterPOJOPK>();
-        for (ObjectPOJOPK currentDataCluster : c) {
-            l.add(new DataClusterPOJOPK(currentDataCluster));
+        final StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
+        final String[] names = admin.getAll();
+        List<DataClusterPOJOPK> clusterNames = new ArrayList<>(names.length + 1);
+        for (String name : names) {
+            clusterNames.add(new DataClusterPOJOPK(name));
         }
-        return l;
+        return clusterNames;
     }
 
     /**

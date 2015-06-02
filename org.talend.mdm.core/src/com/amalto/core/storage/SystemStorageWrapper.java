@@ -199,20 +199,30 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     public static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String clusterName) {
-        if (XSystemObjects.DC_CONF.getName().equals(clusterName)) {
-            return filter(repository, "Conf", "AutoIncrement"); //$NON-NLS-1$ //$NON-NLS-2$
+        if (clusterName.startsWith(SYSTEM_PREFIX) || clusterName.startsWith("amalto")) { //$NON-NLS-1$
+            if (!"amaltoOBJECTSservices".equals(clusterName)) { //$NON-NLS-1$
+                final String className = ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO"); //$NON-NLS-1$
+                return filterRepository(repository, className); //$NON-NLS-1$
+            } else {
+                final String className = ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()));
+                return filterRepository(repository, className);
+            }
+        } else if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
+            return filterRepository(repository, DROPPED_ITEM_TYPE); //$NON-NLS-1$
+        } else if (XSystemObjects.DC_CONF.getName().equals(clusterName)) {
+            return filterRepository(repository, "Conf", "AutoIncrement"); //$NON-NLS-1$ //$NON-NLS-2$
         } else if (XSystemObjects.DC_CROSSREFERENCING.getName().equals(clusterName)) {
             return Collections.emptyList(); // TODO Support crossreferencing
         } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
-            return filter(repository, "User", "Role", "role-pOJO"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return filterRepository(repository, "User", "Role", "role-pOJO"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else if (XSystemObjects.DC_SEARCHTEMPLATE.getName().equals(clusterName)) {
-            return filter(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
+            return filterRepository(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
             return repository.getUserComplexTypes();
         }
     }
 
-    private static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String... typeNames) {
+    private static Collection<ComplexTypeMetadata> filterRepository(MetadataRepository repository, String... typeNames) {
         final Set<ComplexTypeMetadata> filteredTypes = new HashSet<ComplexTypeMetadata>();
         MetadataVisitor<Void> transitiveTypeClosure = new DefaultMetadataVisitor<Void>() {
 
@@ -254,7 +264,6 @@ public class SystemStorageWrapper extends StorageWrapper {
                 for (DataRecord result : results) {
                     Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
                     StringBuilder builder = new StringBuilder();
-                    builder.append(clusterName).append('.').append(currentType.getName()).append('.');
                     while (setFields.hasNext()) {
                         builder.append(String.valueOf(result.get(setFields.next())));
                         if (setFields.hasNext()) {
