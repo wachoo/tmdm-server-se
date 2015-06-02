@@ -151,6 +151,69 @@ public class SystemStorageTest extends TestCase {
         return repository;
     }
 
+    public void testGetAllDocumentUniqueId() throws Exception {
+        LOG.info("Setting up MDM server environment...");
+        ServerContext.INSTANCE.get(new MockServerLifecycle());
+        LOG.info("MDM server environment set.");
+        // Build a system storage
+        ClassRepository repository = buildRepository();
+        // Additional setup to get User type in repository
+        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
+        };
+        for (String model : models) {
+            InputStream builtInStream = this.getClass().getResourceAsStream(model);
+            if (builtInStream == null) {
+                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
+            }
+            try {
+                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
+                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
+            } catch (Exception e) {
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
+            } finally {
+                try {
+                    builtInStream.close();
+                } catch (IOException e) {
+                    // Ignored
+                }
+            }
+        }
+        LOG.info("Preparing storage for tests...");
+        final Storage storage = new HibernateStorage("MDM", StorageType.SYSTEM);
+        storage.init(getDatasource("H2-Default"));
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
+        LOG.info("Storage prepared.");
+        // Wraps it to test wrapper methods
+        SystemStorageWrapper wrapper = new SystemStorageWrapper() {
+
+            @Override
+            protected void init() {
+                // Nothing to do.
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+        };
+        // Test method
+        final String[] emptyIds = wrapper.getAllDocumentsUniqueID(null, "PROVISIONING");
+        assertEquals(0, emptyIds.length);
+        // Add a user (parse a user XML from a 5.0 install)
+        XmlDOMDataRecordReader reader = new XmlDOMDataRecordReader();
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_1.xml"));
+        Element element = (Element) document.getElementsByTagName("User").item(0);
+        final DataRecord user = reader.read(null, repository, repository.getComplexType("User"), element);
+        storage.begin();
+        storage.update(user);
+        storage.commit();
+        // Test method again (should be one user now)
+        final String[] ids = wrapper.getAllDocumentsUniqueID(null, "PROVISIONING");
+        assertEquals(1, ids.length);
+        assertEquals("a", ids[0]);
+    }
+
     public void testStorageInit() throws Exception {
         LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
