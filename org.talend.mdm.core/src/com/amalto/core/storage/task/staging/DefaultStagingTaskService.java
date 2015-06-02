@@ -26,6 +26,8 @@ import com.amalto.core.storage.StagingStorage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.task.*;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -66,6 +68,9 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             dataModel = Util.getUserDataModel();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+        if(StringUtils.isEmpty(dataContainer) || StringUtils.isEmpty(dataModel)){
+            return null;
         }
         return getContainerSummary(dataContainer, dataModel);
     }

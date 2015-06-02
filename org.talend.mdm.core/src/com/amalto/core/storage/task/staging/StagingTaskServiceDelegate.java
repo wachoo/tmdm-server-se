@@ -20,6 +20,10 @@ import com.amalto.core.storage.task.Filter;
  */
 public interface StagingTaskServiceDelegate {
 
+    /**
+     * @return StagingContainerSummury for current user selected storage and dataModel
+     * or null of user has no selected storage and dataModel
+     */
     StagingContainerSummary getContainerSummary();
 
     String startValidation();

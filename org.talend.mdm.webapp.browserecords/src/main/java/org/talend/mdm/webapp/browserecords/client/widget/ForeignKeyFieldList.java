@@ -315,7 +315,7 @@ public class ForeignKeyFieldList extends ContentPanel {
                         || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
                     HorizontalPanel recordPanel = new HorizontalPanel();
                     Button removeButton = new Button();
-                    removeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.remove()));
+                    removeButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
                     addRemoveListener(removeButton, i);
                     recordPanel.add(removeButton);
                     // HTML label = new HTML();

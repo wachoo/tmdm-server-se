@@ -15,7 +15,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_default;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:./data/h2_default</connection-url>
                 <fulltext-index-directory>indexes/H2_DEFAULT</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
                 <schema-generation>create</schema-generation>
@@ -26,7 +26,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_system;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:./data/h2_system</connection-url>
                 <fulltext-index-directory>indexes/H2_DEFAULT</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
                 <schema-generation>create</schema-generation>
@@ -40,7 +40,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_ds1;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:./data/h2_ds1</connection-url>
                 <fulltext-index-directory>target/indexes/H2_DS1</fulltext-index-directory>
                 <schema-generation>create</schema-generation>
                 <case-sensitive-search>true</case-sensitive-search>
@@ -52,7 +52,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_default_staging;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:./data/h2_default_staging</connection-url>
                 <schema-generation>create</schema-generation>
             </rdbms-configuration>
         </staging>
@@ -65,7 +65,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_ds2;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:./data/h2_ds2</connection-url>
                 <fulltext-index-directory>target/indexes/H2_DS2</fulltext-index-directory>
                 <schema-generation>create</schema-generation>
                 <case-sensitive-search>false</case-sensitive-search>
@@ -76,7 +76,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_staging_ds2;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:./data/h2_staging_ds2</connection-url>
                 <schema-generation>create</schema-generation>
             </rdbms-configuration>
         </staging>
@@ -85,7 +85,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/system;MVCC=true</connection-url>
+                <connection-url>jdbc:h2:./data/system</connection-url>
                 <schema-generation>create</schema-generation>
             </rdbms-configuration>
         </system>
@@ -97,7 +97,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/h2_ds3;MVCC=TRUE</connection-url>
+                <connection-url>jdbc:h2:./data/h2_ds3</connection-url>
                 <fulltext-index-directory>target/indexes/H2_DS3</fulltext-index-directory>
                 <schema-generation>update</schema-generation>
             </rdbms-configuration>
@@ -110,7 +110,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/rdbms_1_no_ft</connection-url>
+                <connection-url>jdbc:h2:./data/rdbms_1_no_ft</connection-url>
                 <schema-generation>create</schema-generation>
             </rdbms-configuration>
         </master>
@@ -119,7 +119,7 @@
             <rdbms-configuration>
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
-                <connection-url>jdbc:h2:data/rdbms_1_no_ft</connection-url>
+                <connection-url>jdbc:h2:./data/rdbms_1_no_ft</connection-url>
                 <schema-generation>create</schema-generation>
             </rdbms-configuration>
         </system>

@@ -13,7 +13,30 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
+import static com.amalto.core.query.user.UserQueryBuilder.and;
+import static com.amalto.core.query.user.UserQueryBuilder.contains;
+import static com.amalto.core.query.user.UserQueryBuilder.count;
+import static com.amalto.core.query.user.UserQueryBuilder.distinct;
+import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.fullText;
+import static com.amalto.core.query.user.UserQueryBuilder.gt;
+import static com.amalto.core.query.user.UserQueryBuilder.gte;
+import static com.amalto.core.query.user.UserQueryBuilder.index;
+import static com.amalto.core.query.user.UserQueryBuilder.isEmpty;
+import static com.amalto.core.query.user.UserQueryBuilder.isNull;
+import static com.amalto.core.query.user.UserQueryBuilder.lt;
+import static com.amalto.core.query.user.UserQueryBuilder.lte;
+import static com.amalto.core.query.user.UserQueryBuilder.max;
+import static com.amalto.core.query.user.UserQueryBuilder.min;
+import static com.amalto.core.query.user.UserQueryBuilder.neq;
+import static com.amalto.core.query.user.UserQueryBuilder.not;
+import static com.amalto.core.query.user.UserQueryBuilder.or;
+import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
+import static com.amalto.core.query.user.UserQueryBuilder.taskId;
+import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,7 +58,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.amalto.core.storage.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -57,6 +79,7 @@ import com.amalto.core.query.user.IntegerConstant;
 import com.amalto.core.query.user.IsNull;
 import com.amalto.core.query.user.LongConstant;
 import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.OrderBy.Direction;
 import com.amalto.core.query.user.Predicate;
 import com.amalto.core.query.user.Range;
 import com.amalto.core.query.user.Select;
@@ -68,6 +91,12 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.SecuredStorage;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.StorageWrapper;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
@@ -2963,6 +2992,9 @@ public class StorageQueryTest extends StorageTestCase {
         IWhereItem fullWhere = new WhereAnd(conditions);
         qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
 
+        // add order by Id to make the test stable
+        qb.orderBy(product.getField("Id"), Direction.ASC);
+        
         for (String viewableBusinessElement : viewables) {
             String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
             String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
@@ -4104,6 +4136,19 @@ public class StorageQueryTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
         // Update 'FKtoMultiB' list records (record1..record5)
+        
+        {
+            storage.begin();
+            UserQueryBuilder qb = from(ContainedEntityB).select(ContainedEntityB.getField("id"));
+            StorageResults records = storage.fetch(qb.getSelect());
+            try {
+                assertEquals(5, records.getCount());
+            } finally {
+                storage.commit();
+            }
+        }
+        
+        
         allRecords
                 .add(factory
                         .read(repository,
@@ -4123,7 +4168,7 @@ public class StorageQueryTest extends StorageTestCase {
         storage.update(allRecords);
         storage.commit();
         // Delete 'record5' which is no longer used
-        UserQueryBuilder qb = from(ContainedEntityB).where(contains(ContainedEntityB.getField("id"), "B_record5"));
+        UserQueryBuilder qb = from(ContainedEntityB).where(eq(ContainedEntityB.getField("id"), "B_record5"));
         storage.begin();
         storage.delete(qb.getSelect());
         storage.commit();

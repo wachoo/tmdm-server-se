@@ -40,11 +40,13 @@ import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsListPanel
 import org.talend.mdm.webapp.browserecordsinstaging.client.widget.ItemsToolBar4Staging;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
+import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.EntryPoint;
@@ -115,6 +117,7 @@ public class BrowseRecordsInStaging implements EntryPoint {
      */
     @Override
     public void onModuleLoad() {
+        GXT.setDefaultTheme(Theme.GRAY, true);
         ServiceDefTarget service = GWT.create(BrowseRecordsInStagingService.class);
         ServiceEnhancer.customizeService(service);
         Registry.register(BrowseRecords.BROWSERECORDS_SERVICE, service);

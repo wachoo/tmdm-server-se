@@ -10,19 +10,19 @@
 
 package com.amalto.core.server.api;
 
+import javax.jms.Message;
+
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.routing.RoutingRulePOJOPK;
-
-import javax.jms.Message;
 
 /**
  *
  */
 public interface RoutingEngine {
 
-    int STOPPED   = 1;
+    int STOPPED = 1;
 
-    int RUNNING   = 2;
+    int RUNNING = 2;
 
     int SUSPENDED = 3;
 

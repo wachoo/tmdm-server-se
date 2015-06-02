@@ -13,11 +13,15 @@
 
 package com.amalto.core.storage.transaction;
 
+import org.apache.log4j.Logger;
+
 import com.amalto.core.server.ServerContext;
 
 public class ImplicitTransactionState implements TransactionState {
 
     public static final TransactionState INSTANCE = new ImplicitTransactionState();
+    
+    private static final Logger LOGGER = Logger.getLogger(ImplicitTransactionState.class);
 
     private ImplicitTransactionState() {
     }
@@ -28,19 +32,26 @@ public class ImplicitTransactionState implements TransactionState {
 
     @Override
     public void postRequest() {
-        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-        if (transactionManager.hasTransaction()) {
-            throw new IllegalStateException("A non-transactional (auto-commit) operation has an active " +
-                    "transaction after operation completion.");
-        }
+        this.checkNoCurrentTransaction();
     }
 
     @Override
     public void cancelRequest() {
+        this.checkNoCurrentTransaction();
+    }
+    
+    private void checkNoCurrentTransaction(){
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         if (transactionManager.hasTransaction()) {
-            throw new IllegalStateException("A non-transactional (auto-commit) operation has an active " +
-                    "transaction after operation completion.");
+            String msg = "A non-transactional (auto-commit) operation has an active " + //$NON-NLS-1$
+                    "transaction after operation completion."; //$NON-NLS-1$
+            LOGGER.error(msg);
+            Transaction t = transactionManager.currentTransaction();
+            if(t != null){
+                LOGGER.error("Transaction creation stackTrace : \n" + t.getCreationStackTrace()); //$NON-NLS-1$
+            }
+            throw new IllegalStateException(msg);
         }
+        
     }
 }

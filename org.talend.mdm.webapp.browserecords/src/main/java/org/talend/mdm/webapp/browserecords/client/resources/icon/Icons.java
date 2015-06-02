@@ -33,10 +33,7 @@ public interface Icons extends ClientBundle {
     @Source("valid.png")
     ImageResource Valid();
 
-    @Source("remove.png")
-    ImageResource remove();
-
-    @Source("add.png")
+    @Source("create.png")
     ImageResource add();
 
     @Source("chart_organisation_add.png")
@@ -107,9 +104,6 @@ public interface Icons extends ClientBundle {
 
     @Source("relations.png")
     ImageResource relations();
-
-    @Source("page_excel.png")
-    ImageResource page_excel();
 
     @Source("opentab.png")
     ImageResource openTab();

@@ -21,7 +21,6 @@ import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 
-
 public class DefaultRoutingOrder implements RoutingOrder {
 
     private final static Logger LOGGER = Logger.getLogger(DefaultRoutingOrder.class);
@@ -30,23 +29,10 @@ public class DefaultRoutingOrder implements RoutingOrder {
      * Executes a Routing Order in default DELAY milliseconds
      */
     @Override
-    public void executeAsynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
+    public String executeRoutingOrder(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
         RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
         RoutingRulePOJOPK[] rules = ctrl.route(routingOrderPOJO.getItemPOJOPK());
-    }
-
-    /**
-     * Executes a Routing Order now
-     * 
-     * @throws XtentisException
-     * @ejb.interface-method view-type = "both"
-     * @ejb.facade-method
-     */
-    @Override
-    public String executeSynchronously(AbstractRoutingOrderV2POJO routingOrderPOJO) throws XtentisException {
-        RoutingEngine ctrl = Util.getRoutingEngineV2CtrlLocal();
-        RoutingRulePOJOPK[] rules = ctrl.route(routingOrderPOJO.getItemPOJOPK());
-        return null;
+        return rules.toString();
     }
 
     /**
@@ -109,8 +95,8 @@ public class DefaultRoutingOrder implements RoutingOrder {
         } catch (XtentisException e) {
             return null;
         } catch (Exception e) {
-            String info = "Unable to check the existence of the Routing Order of class " + pk.getRoutingOrderClass() + " and id " + pk.getName()
-                    + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String info = "Unable to check the existence of the Routing Order of class " + pk.getRoutingOrderClass() + " and id "
+                    + pk.getName() + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("existsRoutingOrder() " + info, e);
             }
@@ -144,7 +130,6 @@ public class DefaultRoutingOrder implements RoutingOrder {
         return l;
     }
 
-
     /**
      * Retrieve all RoutingOrder PKs whatever the class
      */
@@ -170,9 +155,8 @@ public class DefaultRoutingOrder implements RoutingOrder {
         String pojoName = ObjectPOJO.getObjectRootElementName(ObjectPOJO.getObjectName(routingOrderV2POJOClass));
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(
-                    "getRoutingOrderPKsByCriteriaWithPaging() " + routingOrderV2POJOClass + "  " //$NON-NLS-1$ //$NON-NLS-2$
-                            + ObjectPOJO.getObjectName(routingOrderV2POJOClass) + "  " + pojoName); //$NON-NLS-1$
+            LOGGER.debug("getRoutingOrderPKsByCriteriaWithPaging() " + routingOrderV2POJOClass + "  " //$NON-NLS-1$ //$NON-NLS-2$
+                    + ObjectPOJO.getObjectName(routingOrderV2POJOClass) + "  " + pojoName); //$NON-NLS-1$
         }
 
         WhereAnd wAnd = new WhereAnd();
@@ -238,8 +222,10 @@ public class DefaultRoutingOrder implements RoutingOrder {
                     false));
         }
         ArrayList<AbstractRoutingOrderV2POJOPK> list = new ArrayList<AbstractRoutingOrderV2POJOPK>();
-        Collection<ObjectPOJOPK> col = ObjectPOJO.findPKsByCriteriaWithPaging(routingOrderV2POJOClass, new String[]{
-                pojoName + "/name", pojoName + "/@status"}, wAnd.getSize() == 0 ? null : wAnd, null, null, start, limit, withTotalCount);//$NON-NLS-1$ //$NON-NLS-2$
+        Collection<ObjectPOJOPK> col = ObjectPOJO
+                .findPKsByCriteriaWithPaging(
+                        routingOrderV2POJOClass,
+                        new String[] { pojoName + "/name", pojoName + "/@status" }, wAnd.getSize() == 0 ? null : wAnd, null, null, start, limit, withTotalCount);//$NON-NLS-1$ //$NON-NLS-2$
         for (ObjectPOJOPK objectPOJOPK : col) {
             if (routingOrderV2POJOClass.equals(CompletedRoutingOrderV2POJO.class)) {
                 list.add(new CompletedRoutingOrderV2POJOPK(objectPOJOPK.getIds()[0]));
@@ -255,18 +241,11 @@ public class DefaultRoutingOrder implements RoutingOrder {
      */
     @Override
     public Collection<AbstractRoutingOrderV2POJOPK> getRoutingOrderPKsByCriteria(
-            Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass,
-            String anyFieldContains,
-            String name,
-            long timeCreatedMin, long timeCreatedMax,
-            long timeScheduledMin, long timeScheduledMax,
-            long timeLastRunStartedMin, long timeLastRunStartedMax,
-            long timeLastRunCompletedMin, long timeLastRunCompletedMax,
-            String itemConceptContains,
-            String itemIDsContain,
-            String serviceJNDIContains,
-            String serviceParametersContains,
-            String messageContains) throws XtentisException {
+            Class<? extends AbstractRoutingOrderV2POJO> routingOrderV2POJOClass, String anyFieldContains, String name,
+            long timeCreatedMin, long timeCreatedMax, long timeScheduledMin, long timeScheduledMax, long timeLastRunStartedMin,
+            long timeLastRunStartedMax, long timeLastRunCompletedMin, long timeLastRunCompletedMax, String itemConceptContains,
+            String itemIDsContain, String serviceJNDIContains, String serviceParametersContains, String messageContains)
+            throws XtentisException {
         return getRoutingOrderPKsByCriteriaWithPaging(routingOrderV2POJOClass, anyFieldContains, name, timeCreatedMin,
                 timeCreatedMax, timeScheduledMin, timeScheduledMax, timeLastRunStartedMin, timeLastRunStartedMax,
                 timeLastRunCompletedMin, timeLastRunCompletedMax, itemConceptContains, itemIDsContain, serviceJNDIContains,

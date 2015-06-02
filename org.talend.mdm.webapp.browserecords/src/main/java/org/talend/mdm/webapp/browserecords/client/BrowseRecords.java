@@ -29,11 +29,13 @@ import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.state.StateManager;
+import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.EntryPoint;
@@ -122,6 +124,7 @@ public class BrowseRecords implements EntryPoint {
      */
     @Override
     public void onModuleLoad() {
+        GXT.setDefaultTheme(Theme.GRAY, true);
         initCurrentStateProvicer();
         registerPubService();
         ServiceDefTarget browseRecordService = GWT.create(BrowseRecordsService.class);

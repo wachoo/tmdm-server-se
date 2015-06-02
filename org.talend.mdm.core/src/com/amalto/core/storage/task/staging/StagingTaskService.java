@@ -15,6 +15,7 @@ import java.io.StringReader;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -31,6 +32,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -51,8 +53,13 @@ public class StagingTaskService {
     @GET
     @Path("/")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-    public StagingContainerSummary getContainerSummary() {
-        return delegate.getContainerSummary();
+    public StagingContainerSummary getContainerSummary(@Context final HttpServletResponse response) {
+        StagingContainerSummary result = delegate.getContainerSummary();
+        if(result == null){
+            response.setStatus(HttpStatus.NO_CONTENT.value());
+            return null;
+        }
+        return result;
     }
 
     @POST

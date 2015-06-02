@@ -11,6 +11,12 @@
 
 package com.amalto.core.save.context;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.DocumentSaverContext;
@@ -18,18 +24,11 @@ import com.amalto.core.save.UserAction;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public class StorageSaver implements DocumentSaverContext {
 
     private final Storage storage;
     
-    private final String datamodelName;
-
     private List<Action> actions = new LinkedList<Action>();
 
     private String taskId = StringUtils.EMPTY;
@@ -53,14 +52,12 @@ public class StorageSaver implements DocumentSaverContext {
     private final boolean preserveOldCollectionValues;
 
     public StorageSaver(Storage storage,
-                        String datamodelName,
                         MutableDocument userDocument,
                         UserAction userAction,
                         boolean invokeBeforeSaving,
                         boolean updateReport,
                         boolean validate) {
         this.storage = storage;
-        this.datamodelName = datamodelName;
         this.userDocument = userDocument;
         this.userAction = userAction;
         this.invokeBeforeSaving = invokeBeforeSaving;
@@ -150,7 +147,7 @@ public class StorageSaver implements DocumentSaverContext {
 
     @Override
     public String getDataModelName() {
-        return this.datamodelName;
+        return this.storage.getName();
     }
 
     @Override
