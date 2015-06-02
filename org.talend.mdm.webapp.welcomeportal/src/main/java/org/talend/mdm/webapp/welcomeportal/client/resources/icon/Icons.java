@@ -35,12 +35,6 @@ public interface Icons extends ClientBundle {
     @Source("transformer.png")
     ImageResource transformer();
 
-    @Source("browse.png")
-    ImageResource browse();
-
-    @Source("updatereport.png")
-    ImageResource journal();
-
     @Source("launch_process.png")
     ImageResource launch();
 
