@@ -16,6 +16,7 @@ import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -23,6 +24,7 @@ import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.util.List;
 
 /**
  * @ejb.bean name="DataClusterCtrl"
@@ -263,12 +265,13 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method
      */
     public Collection<DataClusterPOJOPK> getDataClusterPKs(String regex) throws XtentisException {
-        Collection<ObjectPOJOPK> c = ObjectPOJO.findAllPKs(DataClusterPOJO.class, regex);
-        ArrayList<DataClusterPOJOPK> l = new ArrayList<DataClusterPOJOPK>();
-        for (ObjectPOJOPK currentDataCluster : c) {
-            l.add(new DataClusterPOJOPK(currentDataCluster));
+        final StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
+        final String[] names = admin.getAll(null);
+        List<DataClusterPOJOPK> clusterNames = new ArrayList<DataClusterPOJOPK>(names.length + 1);
+        for (String name : names) {
+            clusterNames.add(new DataClusterPOJOPK(name));
         }
-        return l;
+        return clusterNames;
     }
 
     /**

@@ -10,29 +10,19 @@
 
 package com.amalto.core.storage;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.metadata.MetadataVisitor;
+import org.talend.mdm.commmon.metadata.*;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -43,16 +33,8 @@ import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlDOMDataRecordReader;
-import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.*;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 
@@ -80,11 +62,16 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     public SystemStorageWrapper() {
         DOCUMENT_BUILDER_FACTORY.setNamespaceAware(true);
+        init(); // Allow unit test to overwrite system storage.
+    }
+
+    protected void init() {
         // Create "system" storage
-        Server server = ServerContext.INSTANCE.get();
-        StorageAdmin admin = server.getStorageAdmin();
-        String datasource = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
-        admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, datasource, null);
+        StorageAdmin admin = getStorageAdmin();
+        if (!admin.exist(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null)) {
+            String datasource = admin.getDatasource(StorageAdmin.SYSTEM_STORAGE);
+            admin.create(StorageAdmin.SYSTEM_STORAGE, StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, datasource, null);
+        }
     }
 
     private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
@@ -181,11 +168,6 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    protected Storage getStorage(String dataClusterName) {
-        return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
-    }
-
-    @Override
     protected Storage getStorage(String dataClusterName, String revisionId) {
         return storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM, null);
     }
@@ -224,16 +206,26 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     public static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String clusterName) {
-        if (XSystemObjects.DC_CONF.getName().equals(clusterName)) {
-            return filter(repository, "Conf", "AutoIncrement"); //$NON-NLS-1$ //$NON-NLS-2$
+        if (clusterName.startsWith(SYSTEM_PREFIX) || clusterName.startsWith("amalto")) { //$NON-NLS-1$
+            if (!"amaltoOBJECTSservices".equals(clusterName)) { //$NON-NLS-1$
+                final String className = ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO"); //$NON-NLS-1$
+                return filterRepository(repository, className); //$NON-NLS-1$
+            } else {
+                final String className = ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()));
+                return filterRepository(repository, className);
+            }
+        } else if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
+            return filterRepository(repository, DROPPED_ITEM_TYPE); //$NON-NLS-1$
+        } else if (XSystemObjects.DC_CONF.getName().equals(clusterName)) {
+            return filterRepository(repository, "Conf", "AutoIncrement"); //$NON-NLS-1$ //$NON-NLS-2$
         } else if (XSystemObjects.DC_CROSSREFERENCING.getName().equals(clusterName)) {
             return Collections.emptyList(); // TODO Support crossreferencing
         } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
-            return filter(repository, "User", "Role"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else if (XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName().equals(clusterName)) {
-            return filter(repository, "Reporting", "hierarchical-report"); //$NON-NLS-1$ //$NON-NLS-2$
+            return filterRepository(repository, "User", "Role"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else if (XSystemObjects.DC_SEARCHTEMPLATE.getName().equals(clusterName)) {
-            return filter(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
+            return filterRepository(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
+        } else if (XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName().equals(clusterName)) {
+            return filterRepository(repository, "Reporting", "hierarchical-report"); //$NON-NLS-1$ //$NON-NLS-2$
         } else if (XSystemObjects.DC_JCAADAPTERS.getName().equals(clusterName)) {
             // Not supported
             return Collections.emptyList();
@@ -245,12 +237,17 @@ public class SystemStorageWrapper extends StorageWrapper {
         }
     }
 
-    private static Collection<ComplexTypeMetadata> filter(MetadataRepository repository, String... typeNames) {
+    private static Collection<ComplexTypeMetadata> filterRepository(MetadataRepository repository, String... typeNames) {
         final Set<ComplexTypeMetadata> filteredTypes = new HashSet<ComplexTypeMetadata>();
         MetadataVisitor<Void> transitiveTypeClosure = new DefaultMetadataVisitor<Void>() {
 
+            private final Set<TypeMetadata> visitedTypes = new HashSet<TypeMetadata>();
+
             @Override
             public Void visit(ComplexTypeMetadata complexType) {
+                if (!visitedTypes.add(complexType)) {
+                    return null;
+                }
                 if (complexType.isInstantiable()) {
                     filteredTypes.add(complexType);
                 }
@@ -259,6 +256,9 @@ public class SystemStorageWrapper extends StorageWrapper {
 
             @Override
             public Void visit(ContainedComplexTypeMetadata containedType) {
+                if (!visitedTypes.add(containedType)) {
+                    return null;
+                }
                 if (containedType.isInstantiable()) {
                     filteredTypes.add(containedType);
                 }
@@ -276,31 +276,34 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     @Override
     public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
+        Collection<ComplexTypeMetadata> typeToQuery = getClusterTypes(clusterName, revisionID);
+        List<String> uniqueIds = new LinkedList<String>();
         Storage storage = getStorage(clusterName, revisionID);
-        ComplexTypeMetadata type = getType(clusterName, storage, null);
-        if (type != null) {
-            FieldMetadata keyField = type.getKeyFields().iterator().next();
-            UserQueryBuilder qb = from(type).select(keyField);
-            try {
-                storage.begin();
+        try {
+            storage.begin();
+            for (ComplexTypeMetadata currentType : typeToQuery) {
+                UserQueryBuilder qb = from(currentType).selectId(currentType);
                 StorageResults results = storage.fetch(qb.getSelect());
-                try {
-                    String[] ids = new String[results.getCount()];
-                    int i = 0;
-                    for (DataRecord result : results) {
-                        ids[i++] = String.valueOf(result.get(keyField));
+                for (DataRecord result : results) {
+                    Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
+                    StringBuilder builder = new StringBuilder();
+                    if (typeToQuery.size() > 1) {
+                        builder.append(clusterName).append('.').append(currentType.getName()).append('.');
                     }
-                    storage.commit();
-                    return ids;
-                } finally {
-                    results.close();
+                    while (setFields.hasNext()) {
+                        builder.append(String.valueOf(result.get(setFields.next())));
+                        if (setFields.hasNext()) {
+                            builder.append('.');
+                        }
+                    }
+                    uniqueIds.add(builder.toString());
                 }
-            } catch (Exception e) {
-                storage.rollback();
-                throw new XmlServerException(e);
             }
-        } else {
-            return new String[0];
+            storage.commit();
+            return uniqueIds.toArray(new String[uniqueIds.size()]);
+        } catch (Exception e) {
+            storage.rollback();
+            throw new XmlServerException(e);
         }
     }
 
