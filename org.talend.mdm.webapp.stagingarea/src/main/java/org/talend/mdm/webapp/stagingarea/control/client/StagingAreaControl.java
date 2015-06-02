@@ -29,16 +29,13 @@ import org.talend.mdm.webapp.stagingarea.control.client.view.StagingAreaMainView
 import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaConfiguration;
 
-/**
- * Entry point classes define <code>onModuleLoad()</code>.
- */
 public class StagingAreaControl implements EntryPoint {
 
-    public static final String                    STAGINGAREA_ID    = "Stagingarea";                 //$NON-NLS-1$
+    public static final String STAGINGAREA_ID = "Stagingarea"; //$NON-NLS-1$
 
     private static final StagingAreaConfiguration stagingAreaConfig = new StagingAreaConfiguration();
 
-    public static StagingAreaServiceAsync         service;
+    public static StagingAreaServiceAsync service;
 
     public static StagingAreaConfiguration getStagingAreaConfig() {
         return stagingAreaConfig;
@@ -88,8 +85,8 @@ public class StagingAreaControl implements EntryPoint {
                                  };
                                  tabPanel.on("beforeremove", removeTabEvent);
                                  tabPanel.add(panel);
-                                 tabPanel.setSelection(panel.getItemId());
                                  }
+                                 tabPanel.setSelection(panel.getItemId());
                                  }-*/;
 
     native JavaScriptObject createPanel()/*-{
