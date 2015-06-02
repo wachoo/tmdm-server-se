@@ -3,8 +3,7 @@
     <inherits name='com.google.gwt.user.User' />
 
     <inherits name='com.extjs.gxt.ui.GXT' />
-    <inherits name="com.extjs.gxt.themes.Themes" />
-    
+
     <inherits name="com.google.gwt.i18n.I18N" />
 
     <!-- GWT locale -->

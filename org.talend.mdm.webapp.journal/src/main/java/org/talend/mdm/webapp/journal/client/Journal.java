@@ -19,11 +19,9 @@ import org.talend.mdm.webapp.journal.client.widget.JournalSearchPanel;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -56,7 +54,6 @@ public class Journal implements EntryPoint {
 
     @Override
     public void onModuleLoad() {
-        GXT.setDefaultTheme(Theme.GRAY, true);
         XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
         registerPubService();
         TimelineUtil.regLoadDate();
