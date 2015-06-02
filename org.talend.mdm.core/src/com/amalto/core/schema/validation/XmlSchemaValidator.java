@@ -91,4 +91,11 @@ public class XmlSchemaValidator implements Validator {
             validatorCache.clear();
         }
     }
+    
+    public static void invalidateCache(){
+        synchronized (schemaCache) {
+            schemaCache.clear();
+            validatorCache.clear();
+        }
+    }
 }

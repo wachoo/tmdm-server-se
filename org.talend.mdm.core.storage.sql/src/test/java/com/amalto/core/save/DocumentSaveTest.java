@@ -62,19 +62,23 @@ public class DocumentSaveTest extends TestCase {
 
     private XPath xPath = XPathFactory.newInstance().newXPath();
 
-    static {
+    @Override
+    public void setUp() throws Exception {
         LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
         MDMConfiguration.getConfiguration().setProperty("xmlserver.class", "com.amalto.core.storage.DispatchWrapper");
         SaverSession.setDefaultCommitter(new MockCommitter());
         LOG.info("MDM server environment set.");
-    }
-
-    @Override
-    public void setUp() throws Exception {
         XPathFactory xPathFactory = XPathFactory.newInstance();
         xPath = xPathFactory.newXPath();
         xPath.setNamespaceContext(new TestNamespaceContext());
+    }
+    
+    @Override
+    public void tearDown() throws Exception {
+        ServerContext.INSTANCE.close();
+        MockMetadataRepositoryAdmin.INSTANCE.close();
+        XmlSchemaValidator.invalidateCache();
     }
 
     private Object evaluate(Element committedElement, String path) throws XPathExpressionException {
@@ -2806,11 +2810,14 @@ public class DocumentSaveTest extends TestCase {
 
         @Override
         public void save(com.amalto.core.history.Document item) {
-            hasSaved = true;
-            lastSaved = (MutableDocument) item;
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(item.exportToString());
+            if(!item.getType().getName().equals("Update")){
+                hasSaved = true;
+                lastSaved = (MutableDocument) item;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(item.exportToString());
+                }
             }
+            
         }
 
         @Override

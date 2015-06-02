@@ -58,4 +58,10 @@ public class MDMTransactionSessionContext implements CurrentSessionContext {
             return storageTransaction.getSession();
         }
     }
+    
+    public static void forgetStorage(SessionFactory sessionFactory){
+        synchronized (declaredStorages) {
+            declaredStorages.remove(sessionFactory);
+        }
+    }
 }

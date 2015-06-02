@@ -12,12 +12,14 @@
 package com.amalto.core.server;
 
 import com.amalto.core.query.user.Expression;
+
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,6 +70,9 @@ public class MockMetadataRepositoryAdmin implements MetadataRepositoryAdmin {
     }
 
     public void close() {
+        synchronized (metadataRepository) {
+            metadataRepository.clear();
+        }
     }
 
     public Set<Expression> getIndexedExpressions(String dataModelName) {

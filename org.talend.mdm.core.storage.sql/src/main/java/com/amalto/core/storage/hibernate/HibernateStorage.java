@@ -1292,6 +1292,7 @@ public class HibernateStorage implements Storage {
     @Override
     public synchronized void close() {
         LOGGER.info("Closing storage '" + storageName + "' (" + storageType + ").");
+        MDMTransactionSessionContext.forgetStorage(factory);
         try {
             if (storageClassLoader != null) {
                 storageClassLoader.bind(Thread.currentThread());
