@@ -26,7 +26,7 @@ public class RoleWhereCondition {
 	public String toString() {
 		StringWriter sw = new StringWriter();
 		try {
-			Marshaller.marshal(this, sw);
+            new Marshaller(sw).marshal(this);
 		} catch (Exception e) {
 			String err = "toString() ERROR MARSHALLING WhereCondition: "+e.getClass().getName()+": "+e.getLocalizedMessage();
 			org.apache.log4j.Category.getInstance(this.getClass()).error(err);

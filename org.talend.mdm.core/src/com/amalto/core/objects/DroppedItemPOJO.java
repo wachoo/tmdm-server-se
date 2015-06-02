@@ -159,7 +159,7 @@ public class DroppedItemPOJO implements Serializable {
         // Marshal
         StringWriter sw = new StringWriter();
         try {
-            Marshaller.marshal(this, sw);
+            new Marshaller(sw).marshal(this);
         } catch (Exception e) {
             return "Could not marshal object due to " + e.getMessage();
         }

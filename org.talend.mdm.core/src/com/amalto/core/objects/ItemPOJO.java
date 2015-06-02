@@ -434,7 +434,7 @@ public class ItemPOJO implements Serializable {
                     System.currentTimeMillis());
             // Marshal
             StringWriter sw = new StringWriter();
-            Marshaller.marshal(droppedItemPOJO, sw);
+            new Marshaller(sw).marshal(droppedItemPOJO);
             // copy item content
             server.start("MDMItemsTrash"); //$NON-NLS-1$
             long res = server.putDocumentFromString(sw.toString(), droppedItemPOJO.obtainDroppedItemPK().getUniquePK(),

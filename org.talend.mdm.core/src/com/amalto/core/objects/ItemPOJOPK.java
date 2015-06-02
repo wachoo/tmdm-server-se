@@ -82,7 +82,7 @@ public class ItemPOJOPK implements Serializable,Comparable{
 	 public String  marshal() throws XtentisException {	
 	        try {
 	    		StringWriter sw = new StringWriter();
-	    		Marshaller.marshal(this, sw);
+                new Marshaller(sw).marshal(this);
 	    		return sw.toString();
 		    } catch (Exception e) {
 	    	    String err = "Unable to marshal the PK "+getDataClusterPOJOPK()+"."+getConceptName()+"."+Util.joinStrings(getIds(),".")

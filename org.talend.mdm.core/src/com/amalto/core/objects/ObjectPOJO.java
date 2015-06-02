@@ -506,7 +506,7 @@ public abstract class ObjectPOJO implements Serializable {
                 XmlServer server = Util.getXmlServerCtrlLocal();
                 // Marshal
                 StringWriter sw = new StringWriter();
-                Marshaller.marshal(this, sw);
+                new Marshaller(sw).marshal(this);
                 // store
                 String dataClusterName = getCluster(this.getClass());
                 server.start(dataClusterName);

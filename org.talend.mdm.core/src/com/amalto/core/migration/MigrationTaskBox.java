@@ -37,7 +37,7 @@ public class MigrationTaskBox implements  Serializable{
 	public String toString() {
 		try {
 			StringWriter sw = new StringWriter();
-			Marshaller.marshal(this, sw);
+            new Marshaller(sw).marshal(this);
 			return sw.toString();
 	    } catch (Exception e) {
 		    org.apache.log4j.Logger.getLogger(this.getClass()).error(e);
