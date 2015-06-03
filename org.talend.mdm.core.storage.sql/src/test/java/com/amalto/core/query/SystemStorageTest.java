@@ -10,27 +10,35 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.contains;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import com.amalto.core.storage.*;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
@@ -45,9 +53,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.initdb.InitDBUtil;
 import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.objects.menu.MenuEntryPOJO;
 import com.amalto.core.objects.menu.MenuPOJO;
@@ -55,6 +63,12 @@ import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.DispatchWrapper;
+import com.amalto.core.storage.SecuredStorage;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.SystemStorageWrapper;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.hibernate.TypeMappingStrategy;
@@ -69,31 +83,56 @@ public class SystemStorageTest extends TestCase {
 
     private static Logger LOG = Logger.getLogger(StorageTestCase.class);
 
-    private static Collection<File> getConfigFiles() throws URISyntaxException {
+    private static Collection<String> getConfigFiles() throws Exception {
         URL data = InitDBUtil.class.getResource("data");
-        return FileUtils.listFiles(new File(data.toURI()), new IOFileFilter() {
-
-            @Override
-            public boolean accept(File file) {
-                return true;
+        List<String> result = new ArrayList<String>();
+        if("jar".equals(data.getProtocol())){
+            JarURLConnection connection = (JarURLConnection)data.openConnection();
+            JarEntry entry = connection.getJarEntry();
+            JarFile file = connection.getJarFile();
+            Enumeration<JarEntry> entries = file.entries();
+            while(entries.hasMoreElements()){
+                JarEntry e = entries.nextElement();
+                if(e.getName().startsWith(entry.getName()) && !e.isDirectory()){
+                    result.add(IOUtils.toString(file.getInputStream(e)));
+                }
             }
+        }
+        else {
+            Collection<File> files = FileUtils.listFiles(new File(data.toURI()), new IOFileFilter() {
 
-            @Override
-            public boolean accept(File file, String s) {
-                return true;
-            }
-        }, new IOFileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return true;
+                }
 
-            @Override
-            public boolean accept(File file) {
-                return !".svn".equals(file.getName());
-            }
+                @Override
+                public boolean accept(File file, String s) {
+                    return true;
+                }
+            }, new IOFileFilter() {
 
-            @Override
-            public boolean accept(File file, String s) {
-                return !".svn".equals(file.getName());
+                @Override
+                public boolean accept(File file) {
+                    return !".svn".equals(file.getName());
+                }
+
+                @Override
+                public boolean accept(File file, String s) {
+                    return !".svn".equals(file.getName());
+                }
+            });
+            for(File f : files){
+                result.add(IOUtils.toString(new FileInputStream(f)));
             }
-        });
+        }
+        return result;
+    }
+    
+    private InputStream prepareInputStream(InputStream stream) throws Exception {
+        String content = IOUtils.toString(stream);
+        ByteArrayInputStream bais = new ByteArrayInputStream(content.getBytes());
+        return bais;
     }
 
     protected static DataSourceDefinition getDatasource(String dataSourceName) {
@@ -224,7 +263,7 @@ public class SystemStorageTest extends TestCase {
     }
 
     public void testDOMParsing() throws Exception {
-        Collection<File> files = getConfigFiles();
+        Collection<String> files = getConfigFiles();
         ClassRepository repository = buildRepository();
 
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
@@ -232,22 +271,19 @@ public class SystemStorageTest extends TestCase {
         factory.setNamespaceAware(true);
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
         int error = 0;
-        for (File file : files) {
-            FileInputStream fis1 = new FileInputStream(file);
+        for (String fis1 : files) {
+            //FileInputStream fis1 = new FileInputStream(file);
             String typeName;
             Document document;
             try {
-                document = documentBuilder.parse(fis1);
+                document = documentBuilder.parse(new ByteArrayInputStream(fis1.getBytes()));
                 typeName = document.getDocumentElement().getNodeName();
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new RuntimeException(e);
-            } finally {
-                fis1.close();
             }
             ComplexTypeMetadata complexType = repository.getComplexType(typeName);
             if (complexType == null) {
-                System.out.println("Ignore: " + file);
+                //System.out.println("Ignore: " + file);
                 continue;
             }
             try {
@@ -260,7 +296,7 @@ public class SystemStorageTest extends TestCase {
     }
 
     public void testSAXParsing() throws Exception {
-        Collection<File> files = getConfigFiles();
+        Collection<String> files = getConfigFiles();
         ClassRepository repository = buildRepository();
 
         DataRecordReader<XmlSAXDataRecordReader.Input> dataRecordReader = new XmlSAXDataRecordReader();
@@ -269,37 +305,26 @@ public class SystemStorageTest extends TestCase {
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
         XMLReader reader = XMLReaderFactory.createXMLReader();
         int error = 0;
-        for (File file : files) {
-            FileInputStream fis1 = new FileInputStream(file);
-            String typeName;
-            Document document;
+        for (String fis1: files) {
             try {
-                document = documentBuilder.parse(fis1);
+                String typeName;
+                Document document;
+                document = documentBuilder.parse(new ByteArrayInputStream(fis1.getBytes()));
                 typeName = document.getDocumentElement().getNodeName();
-            } finally {
-                fis1.close();
-            }
-            ComplexTypeMetadata complexType = repository.getComplexType(typeName);
-            if (complexType == null) {
-                System.out.println("Ignore: " + file);
-                continue;
-            }
-            FileInputStream fis2 = new FileInputStream(file);
-            try {
-                dataRecordReader.read(repository, complexType, new XmlSAXDataRecordReader.Input(reader,
-                        new InputSource(fis2)));
+                ComplexTypeMetadata complexType = repository.getComplexType(typeName);
+                if (complexType == null) {
+                    continue;
+                }
+                dataRecordReader.read(repository, complexType, new XmlSAXDataRecordReader.Input(reader, new InputSource(new ByteArrayInputStream(fis1.getBytes()))));
             } catch (Exception e) {
-                System.out.println("Error: " + file);
                 error++;
-            } finally {
-                fis2.close();
             }
         }
         assertEquals(0, error);
     }
 
     public void testStringParsing() throws Exception {
-        Collection<File> files = getConfigFiles();
+        Collection<String> files = getConfigFiles();
         ClassRepository repository = buildRepository();
 
         DataRecordReader<String> dataRecordReader = new XmlStringDataRecordReader();
@@ -307,24 +332,19 @@ public class SystemStorageTest extends TestCase {
         factory.setNamespaceAware(true);
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
         int error = 0;
-        for (File file : files) {
-            FileInputStream fis1 = new FileInputStream(file);
+        for (String fis1 : files) {
             String typeName;
             Document document;
             try {
-                document = documentBuilder.parse(fis1);
+                document = documentBuilder.parse(new ByteArrayInputStream(fis1.getBytes()));
                 typeName = document.getDocumentElement().getNodeName();
-            } finally {
-                fis1.close();
-            }
-            ComplexTypeMetadata complexType = repository.getComplexType(typeName);
-            if (complexType == null) {
-                System.out.println("Ignore: " + file);
-                continue;
-            }
-            try {
-                dataRecordReader.read(repository, complexType, FileUtils.readFileToString(file));
+                ComplexTypeMetadata complexType = repository.getComplexType(typeName);
+                if (complexType == null) {
+                    continue;
+                }
+                dataRecordReader.read(repository, complexType, fis1);
             } catch (Exception e) {
+                e.printStackTrace();
                 error++;
             }
         }
@@ -453,7 +473,7 @@ public class SystemStorageTest extends TestCase {
         storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
         LOG.info("Storage prepared.");
 
-        Collection<File> files = getConfigFiles();
+        Collection<String> files = getConfigFiles();
 
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -463,27 +483,21 @@ public class SystemStorageTest extends TestCase {
         int ignore = 0;
         List<DataRecord> records = new LinkedList<DataRecord>();
         Set<ComplexTypeMetadata> presentTypes = new HashSet<ComplexTypeMetadata>();
-        for (File file : files) {
-            FileInputStream fis1 = new FileInputStream(file);
+        for (String fis1 : files) {
+            //FileInputStream fis1 = new FileInputStream(file);
             String typeName;
             Document document;
             try {
-                document = documentBuilder.parse(fis1);
+                document = documentBuilder.parse(new ByteArrayInputStream(fis1.getBytes()));
                 typeName = document.getDocumentElement().getNodeName();
-            } finally {
-                fis1.close();
-            }
-            ComplexTypeMetadata complexType = repository.getComplexType(typeName);
-            if (complexType == null) {
-                System.out.println("Ignore: " + file);
-                ignore++;
-                continue;
-            }
-            presentTypes.add(complexType);
-            try {
+                ComplexTypeMetadata complexType = repository.getComplexType(typeName);
+                if (complexType == null) {
+                    ignore++;
+                    continue;
+                }
+                presentTypes.add(complexType);
                 records.add(dataRecordReader.read(repository, complexType, document.getDocumentElement()));
             } catch (Exception e) {
-                System.out.println("Error: " + file);
                 e.printStackTrace();
                 error++;
             }
