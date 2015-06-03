@@ -380,16 +380,20 @@ public class DefaultRoutingEngine implements RoutingEngine {
     private void applyRule(ItemPOJOPK itemPOJOPK, RoutingRulePOJO routingRule, String routingOrderId) {
         // Proceed with rule execution
         final Service service = PluginRegistry.getInstance().getService(routingRule.getServiceJNDI());
+        final long startTime = System.currentTimeMillis();
         try {
             if(service != null){
-                service.receiveFromInbound(itemPOJOPK, routingOrderId, routingRule.getParameters());
-                // Record routing order was successfully executed.
                 CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
+                completedRoutingOrder.setTimeLastRunStarted(startTime);
+                service.receiveFromInbound(itemPOJOPK, routingOrderId, routingRule.getParameters());
+                completedRoutingOrder.setTimeLastRunCompleted(System.currentTimeMillis());
+                // Record routing order was successfully executed.
                 completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
                 completedRoutingOrder.setName(itemPOJOPK.toString());
                 completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
                 completedRoutingOrder.setServiceParameters(routingRule.getParameters());
                 try {
+                    completedRoutingOrder.setTimeCreated(System.currentTimeMillis());
                     completedRoutingOrder.store();
                 } catch (Throwable e) {
                     LOGGER.error("Unable to store completed routing order (enable DEBUG for details).");
@@ -401,7 +405,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
             else {
                 final String errorMessage = "Service '" + routingRule.getServiceJNDI() + "' does not exist.";
                 LOGGER.error(errorMessage);
-                createAndStoreFailedRoutingOrder(itemPOJOPK, routingRule, errorMessage);
+                createAndStoreFailedRoutingOrder(itemPOJOPK, routingRule, errorMessage, startTime);
             }
         }
         catch(Exception e){
@@ -409,7 +413,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
                     + " The service: '" + routingRule.getServiceJNDI() + "' failed to execute. "
                     + e.getMessage();
             LOGGER.error(errorMessage, e);
-            createAndStoreFailedRoutingOrder(itemPOJOPK, routingRule, errorMessage);
+            createAndStoreFailedRoutingOrder(itemPOJOPK, routingRule, errorMessage, startTime);
         }
     }
     
@@ -422,17 +426,21 @@ public class DefaultRoutingEngine implements RoutingEngine {
      * @param itemPOJOPK the entity PK
      * @param routingRule the rule
      * @param errorMessage the error message to save
+     * @param startTime
      * @return the new FailedRoutingOrderV2POJO
      */
-    private FailedRoutingOrderV2POJO createAndStoreFailedRoutingOrder(ItemPOJOPK itemPOJOPK, RoutingRulePOJO routingRule, String errorMessage) {
+    private FailedRoutingOrderV2POJO createAndStoreFailedRoutingOrder(ItemPOJOPK itemPOJOPK, RoutingRulePOJO routingRule, String errorMessage, long startTime) {
         // Record routing order has failed.
         FailedRoutingOrderV2POJO failedRoutingOrder = new FailedRoutingOrderV2POJO();
+        failedRoutingOrder.setTimeLastRunStarted(startTime);
+        failedRoutingOrder.setTimeLastRunCompleted(startTime);
         failedRoutingOrder.setMessage(errorMessage);
         failedRoutingOrder.setItemPOJOPK(itemPOJOPK);
         failedRoutingOrder.setName(itemPOJOPK.toString());
         failedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
         failedRoutingOrder.setServiceParameters(routingRule.getParameters());
         try {
+            failedRoutingOrder.setTimeCreated(System.currentTimeMillis());
             failedRoutingOrder.store();
         } catch (XtentisException e) {
             LOGGER.error("Unable to store failed routing order (enable DEBUG for details).");
