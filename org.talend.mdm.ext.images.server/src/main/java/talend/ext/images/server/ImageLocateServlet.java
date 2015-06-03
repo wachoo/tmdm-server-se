@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.coobird.thumbnailator.Thumbnails;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -103,9 +104,7 @@ public class ImageLocateServlet extends HttpServlet {
         // So better to not rely onto getPathInfo() and ensure we got the 
         // raw UTF-8 value (thx to our CharacterEncodingFilter)
         String requestURI = req.getRequestURI();
-        String contextPath = req.getContextPath();
-        String servletPath = req.getServletPath();
-        String path = requestURI.substring(contextPath.length() + servletPath.length());
+        String path = StringUtils.substringAfterLast(requestURI, "/upload"); //$NON-NLS-1$
         try {
             path = URLDecoder.decode(path, "UTF-8"); //$NON-NLS-1$
         } catch (UnsupportedEncodingException e) {
