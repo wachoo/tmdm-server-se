@@ -214,4 +214,9 @@ class MDMTransaction implements Transaction {
         }
         return writer.toString();
     }
+
+    @Override
+    public Lifetime getLifetime() {
+        return lifetime;
+    }
 }

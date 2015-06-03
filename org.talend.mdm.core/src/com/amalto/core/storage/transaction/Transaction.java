@@ -19,10 +19,11 @@ import com.amalto.core.storage.Storage;
  * @see StorageTransaction
  */
 public interface Transaction {
+
     /**
      * Describes all locking strategies to be applied to records read/written withing this transaction boundaries.
      */
-    public enum LockStrategy {
+    enum LockStrategy {
         /**
          * No lock: implementation of strategy is not required to perform any lock/synchronization (e.g. for concurrent
          * updates).
@@ -38,7 +39,7 @@ public interface Transaction {
     /**
      * Configures what is the transaction "life time": how long it should remain active in MDM server.
      */
-    public enum Lifetime {
+    enum Lifetime {
         /**
          * A short life transaction: usually life time is bound to the HTTP request life time.
          */
@@ -128,6 +129,9 @@ public interface Transaction {
      * otherwise creation stack-traces are not recorded at transaction creation
      */
     String getCreationStackTrace();
-    
 
+    /**
+     * @return The {@link com.amalto.core.storage.transaction.Transaction.Lifetime lifetime} of this transaction.
+     */
+    Lifetime getLifetime();
 }
