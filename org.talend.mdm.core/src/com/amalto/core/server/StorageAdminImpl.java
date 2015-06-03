@@ -61,10 +61,11 @@ public class StorageAdminImpl implements StorageAdmin {
             MATCH_RULE_POJO_CLASS
     };
 
+    // TODO Change value to an EnumMap
     private final Map<String, MultiKeyMap> storages = new StorageMap();
 
     public String[] getAll() {
-        Set<String> allStorageNames = new HashSet<String>();
+        Set<String> allStorageNames = new HashSet<>();
         for (Map.Entry<String, MultiKeyMap> currentStorage : storages.entrySet()) {
             MultiKeyMap value = currentStorage.getValue();
             if (value.containsKey(StringUtils.EMPTY, StorageType.MASTER)) {
@@ -93,7 +94,7 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     public void deleteAll(boolean dropExistingData) {
-        for (String clusterName : new HashSet<String>(storages.keySet())) {
+        for (String clusterName : new HashSet<>(storages.keySet())) {
             delete(clusterName, StorageType.MASTER, dropExistingData);
             delete(clusterName, StorageType.STAGING, dropExistingData);
         }
@@ -109,22 +110,35 @@ public class StorageAdminImpl implements StorageAdmin {
         String actualStorageName = StringUtils.substringBefore(storageName, STAGING_SUFFIX);
         String actualDataModelName = StringUtils.substringBefore(dataModelName, STAGING_SUFFIX);
         try {
-            Storage masterDataModelStorage = internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.MASTER);
-            if (supportStaging(actualStorageName)) {
-                boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, actualStorageName, StorageType.STAGING);
-                if (hasDataSource) {
-                    internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.STAGING);
-                }
+            switch (type) {
+                case MASTER:
+                    return internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.MASTER);
+                case STAGING:
+                    if (supportStaging(actualStorageName)) {
+                        boolean hasDataSource = ServerContext.INSTANCE.get().hasDataSource(dataSourceName, actualStorageName, StorageType.STAGING);
+                        if (hasDataSource) {
+                            return internalCreateStorage(actualDataModelName, actualStorageName, dataSourceName, StorageType.STAGING);
+                        } else {
+                            throw new IllegalArgumentException("Data source '" + dataSourceName + "' does not exist for STAGING.");
+                        }
+                    } else {
+                        throw new IllegalArgumentException("Storage '" + actualStorageName + "' does not support STAGING.");
+                    }
+                case SYSTEM:
+                default:
+                    throw new IllegalStateException("System storages are not created by this method.");
             }
-            return masterDataModelStorage;
         } catch (Exception e) {
             throw new RuntimeException("Could not create storage '" + actualStorageName + "' with data model '" + dataModelName + "'.", e);
         }
     }
 
     public boolean supportStaging(String storageName) {
+        final Server server = ServerContext.INSTANCE.get();
+        final boolean supportStaging = server.hasDataSource(getDatasource(storageName), storageName, StorageType.STAGING);
         return !XSystemObjects.DC_UPDATE_PREPORT.getName().equalsIgnoreCase(storageName)
-                && !XSystemObjects.DC_CROSSREFERENCING.getName().equalsIgnoreCase(storageName);
+                && !XSystemObjects.DC_CROSSREFERENCING.getName().equalsIgnoreCase(storageName)
+                && supportStaging;
     }
 
     @Override
@@ -293,11 +307,6 @@ public class StorageAdminImpl implements StorageAdmin {
             default:
                 throw new NotImplementedException("No support for storage type '" + storageType + "'.");
         }
-        if (storage == null) {
-            LOGGER.info("Container '" + storageName + "' does not exist.");
-            String dataSourceName = getDatasource(storageName);
-            storage = create(storageName, storageName, storageType, dataSourceName);
-        }
         return storage != null && storage.getType() == storageType;
     }
 
@@ -328,12 +337,11 @@ public class StorageAdminImpl implements StorageAdmin {
         }
         if (storage == null) {
             // May get request for "StorageName/Concept" (especially in case of XML DB -> SQL migration).
-            cleanedStorageName = StringUtils.substringBefore(cleanedStorageName, "/"); //$NON-NLS-1$
-            storage = getRegisteredStorage(cleanedStorageName, type);
+            storage = getRegisteredStorage(StringUtils.substringBefore(cleanedStorageName, "/"), type); //$NON-NLS-1$
         }
-        if (storage == null && supportStaging(cleanedStorageName)) {
+        if (storage == null) {
             LOGGER.info("Container '" + cleanedStorageName + "' does not exist.");
-            // If data model xsd exits on server, create storage
+            // If data model xsd exists on server, create storage
             MetadataRepositoryAdmin metadataRepositoryAdmin = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin();
             if (metadataRepositoryAdmin.exist(storageName)) {
                 String dataSourceName = getDatasource(cleanedStorageName);
@@ -344,7 +352,12 @@ public class StorageAdminImpl implements StorageAdmin {
     }
 
     private void registerStorage(String storageName, Storage storage) {
-        storages.get(storageName).put(StringUtils.EMPTY, storage.getType(), storage);
+        MultiKeyMap multiKeyMap = storages.get(storageName);
+        if (multiKeyMap == null) {
+            multiKeyMap = new MultiKeyMap();
+            storages.put(storageName, multiKeyMap);
+        }
+        multiKeyMap.put(StringUtils.EMPTY, storage.getType(), storage);
     }
 
     private Storage getRegisteredStorage(String storageName, StorageType storageType) {

@@ -252,7 +252,6 @@ public class DefaultXmlServer implements XmlServer {
             return false;
         }
         Server server = ServerContext.INSTANCE.get();
-        Storage storage = server.getStorageAdmin().get(dataCluster, StorageType.STAGING);
-        return storage != null;
+        return server.getStorageAdmin().supportStaging(dataCluster);
     }
 }
