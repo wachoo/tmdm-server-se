@@ -175,8 +175,11 @@ public class DefaultDataCluster implements DataCluster {
         final StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
         final String[] names = admin.getAll();
         List<DataClusterPOJOPK> clusterNames = new ArrayList<>(names.length + 1);
+        ILocalUser user = LocalUser.getLocalUser();
         for (String name : names) {
-            clusterNames.add(new DataClusterPOJOPK(name));
+            if(user.userCanRead(DataClusterPOJO.class, name)) {
+                clusterNames.add(new DataClusterPOJOPK(name));
+            }
         }
         return clusterNames;
     }
