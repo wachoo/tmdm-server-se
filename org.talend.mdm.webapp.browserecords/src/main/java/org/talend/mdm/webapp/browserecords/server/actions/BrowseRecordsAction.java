@@ -1122,7 +1122,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 if (type != null) {
                     // Hides the entity if at least one of user's role is in the "hide" roles (i.e. "No Access" roles).
-                    if (type.getHideUsers().isEmpty() || !Collections.disjoint(type.getHideUsers(), userRoles)) {
+                    if (type.getHideUsers().isEmpty() || Collections.disjoint(type.getHideUsers(), userRoles)) {
                         WSView view = CommonUtil.getPort().getView(new WSGetView(viewPK));
                         String viewDesc = ViewHelper.getViewLabel(language, view);
                         views.put(view.getName(), viewDesc);
