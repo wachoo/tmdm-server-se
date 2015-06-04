@@ -44,6 +44,10 @@ import com.amalto.webapp.core.util.Util;
 @SuppressWarnings("nls")
 public class ForeignKeyHelperTest extends TestCase {
 
+    static {
+        MDMConfiguration.createConfiguration("", true);
+    }
+    
     // TODO Refactor FK handler, also this JUnit case
     public void testGetForeignKeyHolder() throws Exception {
 
