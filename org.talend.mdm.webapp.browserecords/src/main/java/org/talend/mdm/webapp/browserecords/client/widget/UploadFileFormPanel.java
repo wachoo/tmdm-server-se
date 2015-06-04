@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -358,22 +359,22 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     @Override
-    public void handleEvent(FormEvent be) {
-        String result = be.getResultHtml().replace("pre>", "f>"); //$NON-NLS-1$//$NON-NLS-2$
-
+    public void handleEvent(final FormEvent formEvent) {
         waitBar.close();
-        if (result.equals("<f>true</f>") || ("true".equals(result))) { //$NON-NLS-1$ //$NON-NLS-2$ second condition for ie9
-            window.hide();
-            MessageBox.alert(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().import_success_label(),
-                    null);
-            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
-            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, buttonEvent);
+        if (formEvent.getResultHtml().contains(MessagesFactory.getMessages().import_success_label())) {
+            MessageBox.alert(MessagesFactory.getMessages().info_title(), filterFormatTag(formEvent.getResultHtml()),
+                    new Listener<MessageBoxEvent>() {
+
+                        @Override
+                        public void handleEvent(MessageBoxEvent be) {
+                            window.hide();
+                            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+                            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, buttonEvent);
+                        }
+                    });
         } else {
-            String errorMsg = MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(result));
-            if (errorMsg == null || errorMsg.length() == 0 || errorMsg.equals("<f></f>")) { //$NON-NLS-1$
-                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
-            }
-            MessageBox.alert(MessagesFactory.getMessages().error_title(), errorMsg, null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                    MultilanguageMessageParser.pickOutISOMessage(filterFormatTag(formEvent.getResultHtml())), null);
         }
     }
 
@@ -389,5 +390,12 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     protected String getActionUrl() {
         return "/browserecords/upload"; //$NON-NLS-1$
+    }
+    
+    private String filterFormatTag(String message) {
+        String msg = message;
+        msg = msg.replace("<pre>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        msg = msg.replace("</pre>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        return msg;
     }
 }

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -44,6 +45,10 @@ import com.amalto.core.webservice.WSPutItemWithReport;
  */
 @PrepareForTest({ Util.class })
 public class UploadServiceTest extends TestCase {
+
+    static {
+        new UploadServiceTest();
+    }
 
     protected String clusterName = null;
 
@@ -71,18 +76,12 @@ public class UploadServiceTest extends TestCase {
 
     protected char textDelimiter = '\"';
 
+    private Pattern removeFormatPattern = Pattern.compile("\t|\r|\n"); //$NON-NLS-1$
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         headersOnFirstLine = true;
-        headerVisibleMap = new HashMap<String, Boolean>();
-        headerVisibleMap.put("UploadTestModel_Polymorphism/id", true); //$NON-NLS-1$
-        headerVisibleMap.put("UploadTestModel_Polymorphism/info/@xsi:type", true); //$NON-NLS-1$
-        inheritanceNodePathList = new LinkedList<String>();
-        inheritanceNodePathList.add("UploadTestModel_Polymorphism/info"); //$NON-NLS-1$
-        multipleValueSeparator = "|"; //$NON-NLS-1$
-        String[] keys = { "UploadTestModel_Polymorphism/id" }; //$NON-NLS-1$
-        entityModel = getEntityModel("UploadTestModel.xsd", "UploadTestModel", "UploadTestModel_Polymorphism", keys); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @SuppressWarnings("unchecked")
@@ -91,7 +90,14 @@ public class UploadServiceTest extends TestCase {
     }
 
     public void testUploadModel_Polymorphism() throws Exception {
-        // set test parameter value
+        headerVisibleMap = new HashMap<String, Boolean>();
+        headerVisibleMap.put("UploadTestModel_Polymorphism/id", true); //$NON-NLS-1$
+        headerVisibleMap.put("UploadTestModel_Polymorphism/info/@xsi:type", true); //$NON-NLS-1$
+        inheritanceNodePathList = new LinkedList<String>();
+        inheritanceNodePathList.add("UploadTestModel_Polymorphism/info"); //$NON-NLS-1$
+        String[] keys = { "UploadTestModel_Polymorphism/id" }; //$NON-NLS-1$
+        entityModel = getEntityModel("UploadTestModel.xsd", "UploadTestModel", "UploadTestModel_Polymorphism", keys); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
         String record1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><info xsi:type=\"SuperInfoType\"><name>1</name></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
         String record2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><info xsi:type=\"SubInfoType\"><name>2</name></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
         String record3 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><info xsi:type=\"SuperInfoType\"><name/></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
@@ -122,6 +128,71 @@ public class UploadServiceTest extends TestCase {
         assertEquals(record3, wsPutItemWithReportList.get(2).getWsPutItem().getXmlString());
         assertEquals(record4, wsPutItemWithReportList.get(3).getWsPutItem().getXmlString());
         assertEquals(record5, wsPutItemWithReportList.get(4).getWsPutItem().getXmlString());
+    }
+
+    public void testMultiNode1() throws Exception {
+        String expectedResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Entity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><field1>1</field1><field2><atr1>1</atr1><atr2>2</atr2><atr3>3</atr3></field2><field2><atr1>11</atr1><atr2>22</atr2><atr3>33</atr3></field2></Entity>"; //$NON-NLS-1$
+        // test upload excel file
+        fileType = "xls"; //$NON-NLS-1$
+        headerVisibleMap = new HashMap<String, Boolean>();
+        headerVisibleMap.put("Entity/field1", true); //$NON-NLS-1$
+        headerVisibleMap.put("Entity/field2/atr1", true); //$NON-NLS-1$
+        headerVisibleMap.put("Entity/field2/atr2", true); //$NON-NLS-1$
+        headerVisibleMap.put("Entity/field2/atr3", true); //$NON-NLS-1$
+        multipleValueSeparator = "|"; //$NON-NLS-1$
+        file = new File(this.getClass().getResource("UploadTestModel_MultiNode1.xls").getFile()); //$NON-NLS-1$
+        String[] keys = { "Entity/field1" }; //$NON-NLS-1$
+        entityModel = getEntityModel("UploadTestModel_MultiNode1.xsd", "Entity", "Entity", keys); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        UploadService service = new TestUploadService(entityModel, fileType, headersOnFirstLine, headerVisibleMap,
+                inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, language);
+        List<WSPutItemWithReport> wsPutItemWithReportList = service.readUploadFile(file);
+        assertEquals(expectedResult, removeFormatPattern.matcher(wsPutItemWithReportList.get(0).getWsPutItem().getXmlString())
+                .replaceAll("")); //$NON-NLS-1$
+
+        expectedResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Entity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><field1>1</field1><field2><atr1>1</atr1><atr2>2</atr2><atr3>3</atr3></field2></Entity>"; //$NON-NLS-1$
+        file = new File(this.getClass().getResource("UploadTestModel_MultiNode12.xls").getFile()); //$NON-NLS-1$
+        wsPutItemWithReportList = service.readUploadFile(file);
+        assertEquals(expectedResult, removeFormatPattern.matcher(wsPutItemWithReportList.get(0).getWsPutItem().getXmlString())
+                .replaceAll("")); //$NON-NLS-1$
+    }
+
+    public void testMultiNode2() throws Exception {
+        String expectedResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Product xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Picture/><Id>1</Id><Name>1</Name><Description>1</Description><Features><Sizes><Size>Medium</Size><Size>Small</Size></Sizes><Colors><Color>White</Color><Color>Light Blue</Color><Color>Lemon</Color></Colors></Features><Availability/><Price>1.00</Price><Family/><OnlineStore/><Stores><Store/></Stores></Product>"; //$NON-NLS-1$
+        // test upload excel file
+        fileType = "xls"; //$NON-NLS-1$
+        headerVisibleMap = new HashMap<String, Boolean>();
+        headerVisibleMap.put("Product/Id", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Name", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Price", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Description", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Availability", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Features/Sizes/Size", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Features/Colors/Color", true); //$NON-NLS-1$"
+        headerVisibleMap.put("Product/Family", true); //$NON-NLS-1$"
+        multipleValueSeparator = "|"; //$NON-NLS-1$
+        file = new File(this.getClass().getResource("Product.xls").getFile()); //$NON-NLS-1$
+        String[] keys = { "Product/Id" }; //$NON-NLS-1$
+        entityModel = getEntityModel("Product.xsd", "Product", "Product", keys); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        UploadService service = new TestUploadService(entityModel, fileType, headersOnFirstLine, headerVisibleMap,
+                inheritanceNodePathList, multipleValueSeparator, seperator, encoding, textDelimiter, language);
+        List<WSPutItemWithReport> wsPutItemWithReportList = service.readUploadFile(file);
+        assertEquals(expectedResult, removeFormatPattern.matcher(wsPutItemWithReportList.get(0).getWsPutItem().getXmlString())
+                .replaceAll("")); //$NON-NLS-1$
+
+        expectedResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Product xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Picture/><Id>1</Id><Name>1</Name><Description>1</Description><Features><Sizes><Size/></Sizes><Colors><Color/></Colors></Features><Availability/><Price>1.00</Price><Family/><OnlineStore/><Stores><Store/></Stores></Product>"; //$NON-NLS-1$
+        headerVisibleMap = new HashMap<String, Boolean>();
+        headerVisibleMap.put("Product/Id", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Name", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Price", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Description", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Availability", true); //$NON-NLS-1$
+        headerVisibleMap.put("Product/Family", true); //$NON-NLS-1$"
+        file = new File(this.getClass().getResource("Product2.xls").getFile()); //$NON-NLS-1$
+        service = new TestUploadService(entityModel, fileType, headersOnFirstLine, headerVisibleMap, inheritanceNodePathList,
+                multipleValueSeparator, seperator, encoding, textDelimiter, language);
+        wsPutItemWithReportList = service.readUploadFile(file);
+        assertEquals(expectedResult, removeFormatPattern.matcher(wsPutItemWithReportList.get(0).getWsPutItem().getXmlString())
+                .replaceAll("")); //$NON-NLS-1$
     }
 
     protected EntityModel getEntityModel(String xsdFileName, String dataModel, String concept, String[] keys) throws Exception {
