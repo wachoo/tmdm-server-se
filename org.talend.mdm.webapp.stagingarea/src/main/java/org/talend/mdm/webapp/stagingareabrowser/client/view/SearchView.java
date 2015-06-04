@@ -17,6 +17,7 @@ import org.talend.mdm.webapp.stagingareabrowser.client.controller.SearchControll
 import org.talend.mdm.webapp.stagingareabrowser.client.model.SearchModel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -31,10 +32,9 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
@@ -80,6 +80,8 @@ public class SearchView extends AbstractView {
     private ContentPanel buttonPanel;
 
     private ContentPanel hp;
+
+    private static final int SEARCH_PANEL_HEIGHT = 120;
 
     @Override
     protected void initComponents() {
@@ -166,15 +168,18 @@ public class SearchView extends AbstractView {
         resetButton.setWidth("90px"); //$NON-NLS-1$
 
         hp = new ContentPanel();
+        ColumnLayout cl = new ColumnLayout();
+        hp.setScrollMode(Scroll.AUTO);
+        hp.setLayout(cl);
         hp.setHeaderVisible(false);
         hp.setBodyBorder(false);
+        hp.setHeight(SEARCH_PANEL_HEIGHT);
 
     }
 
     @Override
     protected void initLayout() {
         mainPanel.setLayout(new RowLayout());
-        hp.setLayout(new HBoxLayout());
         FormLayout leftLayout = new FormLayout();
         leftLayout.setLabelWidth(80);
         leftPanel.setLayout(leftLayout);
@@ -185,7 +190,7 @@ public class SearchView extends AbstractView {
         fieldSet.setLayout(centerLayout);
 
         FormData formData = new FormData();
-        formData.setMargins(new Margins(0, 0, 5, 0));
+        formData.setMargins(new Margins(8, 0, 0, 0));
         leftPanel.add(entityCombo, formData);
         leftPanel.add(sourceField, formData);
         leftPanel.add(keyField, formData);
@@ -218,9 +223,22 @@ public class SearchView extends AbstractView {
         td2.setHorizontalAlign(HorizontalAlignment.CENTER);
         buttonPanel.add(resetButton, td2);
 
-        hp.add(leftPanel, new HBoxLayoutData(10, 0, 0, 10));
-        hp.add(centerPanel, new HBoxLayoutData(5, 0, 0, 10));
-        hp.add(rightPanel, new HBoxLayoutData(5, 0, 0, 10));
+        ContentPanel space1 = new ContentPanel();
+        ContentPanel space2 = new ContentPanel();
+        ContentPanel space3 = new ContentPanel();
+        space1.setWidth(20);
+        space1.setHeight(SEARCH_PANEL_HEIGHT);
+        space2.setWidth(20);
+        space2.setHeight(SEARCH_PANEL_HEIGHT);
+        space3.setWidth(20);
+        space3.setHeight(SEARCH_PANEL_HEIGHT);
+
+        hp.add(space1);
+        hp.add(leftPanel);
+        hp.add(space2);
+        hp.add(centerPanel);
+        hp.add(space3);
+        hp.add(rightPanel);
 
         mainPanel.add(hp, new RowData(1, -1));
         mainPanel.add(buttonPanel, new RowData(1, -1));
