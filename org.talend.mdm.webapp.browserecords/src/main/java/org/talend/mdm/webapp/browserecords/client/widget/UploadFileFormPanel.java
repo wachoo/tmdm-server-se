@@ -28,6 +28,7 @@ import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -44,7 +45,10 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NodeList;
@@ -146,6 +150,10 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     private void renderForm() {
+        FormData fileData = new FormData("98%"); //$NON-NLS-1$
+        FormData multipleValueData = new FormData(100, 20); //$NON-NLS-1$
+        FormData comboData = new FormData("84%"); //$NON-NLS-1$
+
         conceptField = new HiddenField<String>();
         conceptField.setName("concept");//$NON-NLS-1$
         conceptField.setValue(viewBean.getBindingEntityModel().getConceptName());
@@ -210,15 +218,19 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
                 }
             }
         });
-        this.add(file);
+        this.add(file, fileData);
 
         multipleValueSeparatorField = new TextField<String>();
         multipleValueSeparatorField.setId("multipleValueSeparator"); //$NON-NLS-1$
         multipleValueSeparatorField.setName("multipleValueSeparator"); //$NON-NLS-1$
-        multipleValueSeparatorField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
         multipleValueSeparatorField.setMaxLength(1);
         multipleValueSeparatorField.setValue("|"); //$NON-NLS-1$
-        this.add(multipleValueSeparatorField);
+        MultiField<String> multipleValueField = new MultiField<String>();
+        LabelField lf = new LabelField();
+        multipleValueField.setFieldLabel(MessagesFactory.getMessages().multiple_value_separator_field_label());
+        multipleValueField.add(multipleValueSeparatorField);
+        multipleValueField.add(lf);
+        this.add(multipleValueField, multipleValueData);
 
         List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
         ItemBaseModel excel = new ItemBaseModel();
@@ -265,7 +277,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         separatorCombo.setValueField("key"); //$NON-NLS-1$
         separatorCombo.setStore(separatorStoreList);
         separatorCombo.setTriggerAction(TriggerAction.ALL);
-        this.add(separatorCombo);
+        this.add(separatorCombo, comboData);
 
         List<ItemBaseModel> textDelimiterList = new ArrayList<ItemBaseModel>();
         ItemBaseModel doubleDelimiter = new ItemBaseModel();
@@ -289,7 +301,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         textDelimiterCombo.setValueField("key"); //$NON-NLS-1$
         textDelimiterCombo.setStore(textDelimiterStoreList);
         textDelimiterCombo.setTriggerAction(TriggerAction.ALL);
-        this.add(textDelimiterCombo);
+        this.add(textDelimiterCombo, comboData);
 
         List<ItemBaseModel> encodingList = new ArrayList<ItemBaseModel>();
         ItemBaseModel utf8 = new ItemBaseModel();
@@ -328,7 +340,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         encodingCombo.setValueField("key"); //$NON-NLS-1$
         encodingCombo.setStore(encodingStoreList);
         encodingCombo.setTriggerAction(TriggerAction.ALL);
-        this.add(encodingCombo);
+        this.add(encodingCombo, comboData);
 
         Button submit = new Button(MessagesFactory.getMessages().label_button_submit());
         submit.setId("btnSubmit");//$NON-NLS-1$
@@ -351,8 +363,8 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
                         .getMessages().import_progress_bar_message(), MessagesFactory.getMessages().import_progress_bar_laod());
             }
         });
-
-        this.add(submit);
+        this.addButton(submit);
+        this.setButtonAlign(HorizontalAlignment.CENTER);
 
         separatorCombo.disable();
         textDelimiterCombo.disable();

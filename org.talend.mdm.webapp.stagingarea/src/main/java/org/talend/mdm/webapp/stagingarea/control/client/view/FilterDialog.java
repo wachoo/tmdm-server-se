@@ -12,6 +12,14 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.control.client.view;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.talend.mdm.webapp.stagingarea.control.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.ConceptRelationshipModel;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.FilterModel;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -36,14 +44,18 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.*;
-import org.talend.mdm.webapp.stagingarea.control.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.stagingarea.control.shared.model.ConceptRelationshipModel;
-import org.talend.mdm.webapp.stagingarea.control.shared.model.FilterModel;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 class FilterDialog extends Window {
 
@@ -125,7 +137,7 @@ class FilterDialog extends Window {
                 }
             }
         });
-        setSize(660, 540);
+        setSize(660, 570);
     }
 
     class EntitySet extends FieldSet {

@@ -134,7 +134,7 @@ public class ExplainTablePanel extends ContentPanel {
         });
         columnList.add(fieldScoreColumn);
         ColumnConfig detailsColumn = new ColumnConfig(StagingConstant.MATCH_DETAILS, MessagesFactory.getMessages()
-                .explainResult_details_header(), 30);
+                .explainResult_details_header(), 60);
         detailsColumn.setRenderer(new GridCellRenderer<ModelData>() {
 
             @Override

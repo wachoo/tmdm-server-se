@@ -12,6 +12,17 @@
 // ============================================================================
 package org.talend.mdm.webapp.stagingarea.control.client.view;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.util.StorageProvider;
+import org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer;
+import org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl;
+import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
+import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
+import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEventHandler;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.ConceptRelationshipModel;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.FilterModel;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingContainerModel;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -30,17 +41,6 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.StorageProvider;
-import org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer;
-import org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl;
-import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
-import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEvent;
-import org.talend.mdm.webapp.stagingarea.control.shared.event.ModelEventHandler;
-import org.talend.mdm.webapp.stagingarea.control.shared.model.ConceptRelationshipModel;
-import org.talend.mdm.webapp.stagingarea.control.shared.model.FilterModel;
-import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaValidationModel;
-import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingContainerModel;
 
 public class StagingContainerSummaryView extends AbstractView implements ModelEventHandler {
 
@@ -78,7 +78,7 @@ public class StagingContainerSummaryView extends AbstractView implements ModelEv
                         + STAGING_AREA_INVALID + "'></div>"
                         + "<div style='margin-left:20px; color:#00aa00; margin-bottom:5px;' id='" + STAGING_AREA_VALID
                         + "'></div>");
-        detailPanel.setSize("400px", "80px"); //$NON-NLS-1$//$NON-NLS-2$
+        detailPanel.setSize("400px", "90px"); //$NON-NLS-1$//$NON-NLS-2$
         gaugeBar = new ProgressBar();
         startValidate = new Button(messages.start_validation());
         startValidate.setSize(200, 30);
@@ -154,11 +154,11 @@ public class StagingContainerSummaryView extends AbstractView implements ModelEv
     }
 
     private native void addClickForRecord(int state, Element el)/*-{
-                                                                var instance = this;
-                                                                el.onclick = function() {
-                                                                instance.@org.talend.mdm.webapp.stagingarea.control.client.view.StagingContainerSummaryView::onOpenRecord(I)(state);
-                                                                };
-                                                                }-*/;
+		var instance = this;
+		el.onclick = function() {
+			instance.@org.talend.mdm.webapp.stagingarea.control.client.view.StagingContainerSummaryView::onOpenRecord(I)(state);
+		};
+    }-*/;
 
     // Called by JS
     void onOpenRecord(int state) {
