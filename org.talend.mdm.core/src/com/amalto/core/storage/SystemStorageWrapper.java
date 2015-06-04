@@ -226,8 +226,13 @@ public class SystemStorageWrapper extends StorageWrapper {
         final Set<ComplexTypeMetadata> filteredTypes = new HashSet<ComplexTypeMetadata>();
         MetadataVisitor<Void> transitiveTypeClosure = new DefaultMetadataVisitor<Void>() {
 
+            private final Set<TypeMetadata> visitedTypes = new HashSet<>();
+
             @Override
             public Void visit(ComplexTypeMetadata complexType) {
+                if (!visitedTypes.add(complexType)) {
+                    return null;
+                }
                 if (complexType.isInstantiable()) {
                     filteredTypes.add(complexType);
                 }
@@ -236,6 +241,9 @@ public class SystemStorageWrapper extends StorageWrapper {
 
             @Override
             public Void visit(ContainedComplexTypeMetadata containedType) {
+                if (!visitedTypes.add(containedType)) {
+                    return null;
+                }
                 if (containedType.isInstantiable()) {
                     filteredTypes.add(containedType);
                 }
