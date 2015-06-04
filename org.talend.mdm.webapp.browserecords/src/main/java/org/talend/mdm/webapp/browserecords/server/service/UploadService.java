@@ -15,6 +15,7 @@ package org.talend.mdm.webapp.browserecords.server.service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -95,6 +96,8 @@ public class UploadService {
 
     private QName xsiTypeQName = null;
 
+    private Map<String, List<Element>> multiNodeMap;
+
     public UploadService(EntityModel entityModel, String fileType, boolean headersOnFirstLine,
             Map<String, Boolean> headerVisibleMap, List<String> inheritanceNodePathList, String multipleValueSeparator,
             String seperator, String encoding, char textDelimiter, String language) {
@@ -111,6 +114,7 @@ public class UploadService {
     }
 
     public List<WSPutItemWithReport> readUploadFile(File file) throws Exception {
+        multiNodeMap = new HashMap<String, List<Element>>();
         List<WSPutItemWithReport> wsPutItemWithReportList = null;
         FileInputStream fileInputStream = null;
         try {
@@ -381,33 +385,74 @@ public class UploadService {
 
     protected void fillFieldValue(Element currentElement, String fieldPath, String fieldValue, Row row, String[] record)
             throws Exception {
+        String parentPath = null;
         boolean isAttribute = false;
+        List<String> valueList = null;
+        List<Element> valueNodeList = new ArrayList<Element>();
         if (fieldPath.endsWith(Constants.XSI_TYPE_QUALIFIED_NAME)) {
             isAttribute = true;
             String field[] = fieldPath.split(Constants.FILE_EXPORT_IMPORT_SEPARATOR);
             fieldPath = field[0];
         }
+        if (!isAttribute) {
+            if (multipleValueSeparator != null && !multipleValueSeparator.isEmpty()
+                    && fieldValue.contains(multipleValueSeparator)) {
+                valueList = CommonUtil.splitString(fieldValue, multipleValueSeparator.charAt(0));
+            }
+        }
         String[] xpathPartArray = fieldPath.split("/"); //$NON-NLS-1$
+        String xpath = xpathPartArray[0];
         for (int i = 1; i < xpathPartArray.length; i++) {
             if (currentElement != null) {
-                currentElement = currentElement.element(xpathPartArray[i]);
-                if (i == xpathPartArray.length - 1) {
-                    if (fieldValue != null && !fieldValue.isEmpty()) {
-                        if (isAttribute) {
-                            setAttributeValue(currentElement, fieldValue);
-                        } else {
-                            if (multipleValueSeparator != null && !multipleValueSeparator.isEmpty()
-                                    && fieldValue.contains(multipleValueSeparator)) {
-                                List<String> valueList = CommonUtil.splitString(fieldValue, multipleValueSeparator.charAt(0));
-                                for (int j = 0; j < valueList.size(); j++) {
-                                    List<Element> contentList = currentElement.getParent().content();
-                                    Element copyElement = currentElement.createCopy();
-                                    contentList.add(contentList.indexOf(currentElement) + j, copyElement);
-                                    setFieldValue(copyElement, valueList.get(j));
-                                }
+                parentPath = xpath;
+                xpath = xpath + "/" + xpathPartArray[i]; //$NON-NLS-1$
+                if (entityModel.getTypeModel(xpath).isMultiOccurrence() && multiNodeMap.get(xpath) == null) {
+                    List<Element> multiNodeList = new ArrayList<Element>();
+                    if (valueList != null) {
+                        for (int j = 0; j < valueList.size(); j++) {
+                            Element element = currentElement.element(xpathPartArray[i]);
+                            int index = currentElement.content().indexOf(element);
+                            if (index + j >= currentElement.content().size()
+                                    || currentElement.content().get(currentElement.content().indexOf(element) + j) != element) {
+                                Element createCopy = element.createCopy();
+                                currentElement.content().add(createCopy);
+                                multiNodeList.add(createCopy);
                             } else {
-                                setFieldValue(currentElement, fieldValue);
+                                multiNodeList.add(element);
                             }
+                        }
+                    }
+                    multiNodeMap.put(xpath, multiNodeList);
+                    if (multiNodeList.size() > 0) {
+                        currentElement = multiNodeList.get(multiNodeList.size() - 1);
+                    }
+                } else if (multiNodeMap.get(parentPath) != null) {
+                    List<Element> parentlist = multiNodeMap.get(parentPath);
+                    for (int j = 0; j < parentlist.size(); j++) {
+                        Element parentElement = parentlist.get(j);
+                        Element element = parentElement.element(xpathPartArray[i]);
+                        valueNodeList.add(element);
+                    }
+                } else {
+                    currentElement = currentElement.element(xpathPartArray[i]);
+                }
+                if (i == xpathPartArray.length - 1) {
+                    if (isAttribute) {
+                        setAttributeValue(currentElement, fieldValue);
+                    } else {
+                        if (valueList != null) {
+                            if (valueNodeList.size() > 0) {
+                                for (int j = 0; j < valueList.size(); j++) {
+                                    setFieldValue(valueNodeList.get(j), valueList.get(j));
+                                }
+                            } else if (multiNodeMap.get(xpath) != null) {
+                                List<Element> multiNodeList = multiNodeMap.get(xpath);
+                                for (int j = 0; j < valueList.size(); j++) {
+                                    setFieldValue(multiNodeList.get(j), valueList.get(j));
+                                }
+                            }
+                        } else {
+                            setFieldValue(currentElement, fieldValue);
                         }
                     }
                 } else {
