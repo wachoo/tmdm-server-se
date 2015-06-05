@@ -115,7 +115,6 @@ public class UploadService {
     }
 
     public List<WSPutItemWithReport> readUploadFile(File file) throws Exception {
-        multiNodeMap = new HashMap<String, List<Element>>();
         List<WSPutItemWithReport> wsPutItemWithReportList = null;
         FileInputStream fileInputStream = null;
         try {
@@ -167,6 +166,7 @@ public class UploadService {
                     continue;
                 }
             }
+            multiNodeMap = new HashMap<String, List<Element>>();
             if (importHeader != null) {
                 Document document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(
                         typeModel, null, null, language));
