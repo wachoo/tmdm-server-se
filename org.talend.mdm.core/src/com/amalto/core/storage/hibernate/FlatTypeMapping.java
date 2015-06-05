@@ -233,16 +233,14 @@ class FlatTypeMapping extends TypeMapping {
                         List<Wrapper> wrapperList = getFullList((List<Wrapper>) value);
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
-                                if(wrapper != null) {
-                                    TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
-                                    DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                                    for (FieldMetadata fkField : mapping.getDatabase().getFields()) {
-                                        if (mapping.getUser(fkField) != null) {
-                                            referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
-                                        }
+                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+                                DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+                                for (FieldMetadata fkField : mapping.getDatabase().getFields()) {
+                                    if (mapping.getUser(fkField) != null) {
+                                        referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
                                     }
-                                    to.set(userField, referencedRecord);
                                 }
+                                to.set(userField, referencedRecord);
                             }
                         }
                     }
