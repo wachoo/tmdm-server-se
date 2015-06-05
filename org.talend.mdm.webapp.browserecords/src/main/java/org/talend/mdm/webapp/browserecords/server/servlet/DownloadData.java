@@ -155,7 +155,6 @@ public class DownloadData extends HttpServlet {
         entity = org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getEntityModel(concept, language);
         List<String> results = new LinkedList<String>();
         // This blank line is for excel file header
-        results.add(""); //$NON-NLS-1$ 
         if (idsList != null) {
             for (String ids : idsList) {
                 results.add(CommonUtil
@@ -171,9 +170,9 @@ public class DownloadData extends HttpServlet {
                             new WSGetItems(new WSDataClusterPK(getCurrentDataCluster()), concept, (criteria != null ? CommonUtil
                                     .buildWhereItem(criteria) : null), -1, new Integer(0), maxCount, false)).getStrings());
         }
-        for (int i = 1; i < results.size(); i++) {
+        for (int i = 0; i < results.size(); i++) {
             Document document = XmlUtil.parseText(results.get(i));
-            HSSFRow row = sheet.createRow((short) i);
+            HSSFRow row = sheet.createRow((short) i + 1);
             fillRow(row, document);
         }
     }

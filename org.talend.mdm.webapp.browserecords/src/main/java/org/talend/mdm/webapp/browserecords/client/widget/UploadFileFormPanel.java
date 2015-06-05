@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
@@ -378,20 +377,10 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         }
     }
 
-    public static String extractErrorMessage(String errMsg) {
-        String saveExceptionString = "com.amalto.core.save.SaveException: Exception occurred during save: "; //$NON-NLS-1$
-        int saveExceptionIndex = errMsg.indexOf(saveExceptionString);
-        if (saveExceptionIndex > -1) {
-            errMsg = errMsg.substring(saveExceptionIndex + saveExceptionString.length());
-        }
-
-        return errMsg;
-    }
-
     protected String getActionUrl() {
         return "/browserecords/upload"; //$NON-NLS-1$
     }
-    
+
     private String filterFormatTag(String message) {
         String msg = message;
         msg = msg.replace("<pre>", ""); //$NON-NLS-1$ //$NON-NLS-2$

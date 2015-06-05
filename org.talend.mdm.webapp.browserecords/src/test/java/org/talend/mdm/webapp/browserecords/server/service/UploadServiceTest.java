@@ -179,7 +179,7 @@ public class UploadServiceTest extends TestCase {
         assertEquals(expectedResult, removeFormatPattern.matcher(wsPutItemWithReportList.get(0).getWsPutItem().getXmlString())
                 .replaceAll("")); //$NON-NLS-1$
 
-        expectedResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Product xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Picture/><Id>1</Id><Name>1</Name><Description>1</Description><Features><Sizes><Size/></Sizes><Colors><Color/></Colors></Features><Availability/><Price>1.00</Price><Family/><OnlineStore/><Stores><Store/></Stores></Product>"; //$NON-NLS-1$
+        expectedResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Product xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Picture/><Id>1</Id><Name>1</Name><Description>1</Description><Availability/><Price>1.00</Price><Family/><OnlineStore/><Stores><Store/></Stores></Product>"; //$NON-NLS-1$
         headerVisibleMap = new HashMap<String, Boolean>();
         headerVisibleMap.put("Product/Id", true); //$NON-NLS-1$
         headerVisibleMap.put("Product/Name", true); //$NON-NLS-1$
@@ -191,6 +191,9 @@ public class UploadServiceTest extends TestCase {
         service = new TestUploadService(entityModel, fileType, headersOnFirstLine, headerVisibleMap, inheritanceNodePathList,
                 multipleValueSeparator, seperator, encoding, textDelimiter, language);
         wsPutItemWithReportList = service.readUploadFile(file);
+        System.out.println(expectedResult);
+        System.out.println(removeFormatPattern.matcher(wsPutItemWithReportList.get(0).getWsPutItem().getXmlString()).replaceAll(
+                ""));
         assertEquals(expectedResult, removeFormatPattern.matcher(wsPutItemWithReportList.get(0).getWsPutItem().getXmlString())
                 .replaceAll("")); //$NON-NLS-1$
     }
