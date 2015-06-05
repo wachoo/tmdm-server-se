@@ -83,14 +83,15 @@ public class InMemoryStorage implements Storage {
 
     @Override
     public StorageResults fetch(Expression userQuery) {
-        Matcher matcher = userQuery.accept(new MatcherCreator());
+        Expression expression = userQuery.normalize();
+        Matcher matcher = expression.accept(new MatcherCreator());
         List<DataRecord> matchRecords = new LinkedList<DataRecord>();
         for (DataRecord dataRecord : storage) {
             if (matcher.match(dataRecord)) {
                 matchRecords.add(dataRecord);
             }
         }
-        List<DataRecord> filteredRecords = userQuery.accept(new Filter(matchRecords));
+        List<DataRecord> filteredRecords = expression.accept(new Filter(matchRecords));
         return new InMemoryStorageResults(filteredRecords);
     }
 
