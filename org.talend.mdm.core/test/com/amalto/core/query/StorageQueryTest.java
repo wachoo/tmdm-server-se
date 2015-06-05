@@ -345,6 +345,11 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, repeatableElementsEntity, RepeatableElementsEntity_Record));
         allRecords.add(factory.read("1", repository, compte, COMPTE_Record1));
         allRecords.add(factory.read("1", repository, compte, COMPTE_Record2));
+        
+        allRecords.add(factory.read("1", repository, contexte, "<Contexte><IdContexte>111</IdContexte><name>aaa</name><name>bbb</name></Contexte>"));
+        allRecords.add(factory.read("1", repository, contexte, "<Contexte><IdContexte>222</IdContexte><name>ccc</name></Contexte>"));
+        allRecords.add(factory.read("1", repository, contexte, "<Contexte><IdContexte>333</IdContexte><name>ddd</name></Contexte>"));
+        allRecords.add(factory.read("1", repository, personne, "<Personne><IdMDM>1</IdMDM><Contextes><ContexteFk>[111]</ContexteFk><ContexteFk>[222]</ContexteFk><ContexteFk>[333]</ContexteFk></Contextes></Personne>"));
 
         try {
             storage.begin();
@@ -4403,6 +4408,45 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void testQueryWithFKContainsMultipleValues() throws Exception {
+        FieldMetadata field = personne.getField("Contextes/ContexteFk");
+        UserQueryBuilder qb = from(personne).where(contains(field, "111"));
+        storage.begin();
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            List<Object> contextes = (List<Object>)results.iterator().next().get(field);
+            assertEquals(3, contextes.size());
+        } finally {
+            results.close();
+        }
+        
+        qb = from(personne).where(contains(field, "222"));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            List<Object> contextes = (List<Object>)results.iterator().next().get(field);
+            assertEquals(3, contextes.size());
+        } finally {
+            results.close();
+        }
+        
+        qb = from(personne).where(contains(field, "333"));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            List<Object> contextes = (List<Object>)results.iterator().next().get(field);
+            assertEquals(3, contextes.size());
+        } finally {
+            results.close();
+        }
+        
+        storage.commit();
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
