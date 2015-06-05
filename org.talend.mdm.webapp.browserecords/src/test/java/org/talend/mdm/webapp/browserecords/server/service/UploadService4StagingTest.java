@@ -13,6 +13,8 @@
 package org.talend.mdm.webapp.browserecords.server.service;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +37,13 @@ public class UploadService4StagingTest extends UploadServiceTest {
     @Override
     public void testUploadModel_Polymorphism() throws Exception {
         // Set test parameter value
-        clusterName = "UploadTestModel"; //$NON-NLS-1$
-        dataModelName = "UploadTestModel"; //$NON-NLS-1$
+        headerVisibleMap = new HashMap<String, Boolean>();
+        headerVisibleMap.put("UploadTestModel_Polymorphism/id", true); //$NON-NLS-1$
+        headerVisibleMap.put("UploadTestModel_Polymorphism/info/@xsi:type", true); //$NON-NLS-1$
+        inheritanceNodePathList = new LinkedList<String>();
+        inheritanceNodePathList.add("UploadTestModel_Polymorphism/info"); //$NON-NLS-1$
+        String[] keys = { "UploadTestModel_Polymorphism/id" }; //$NON-NLS-1$
+        entityModel = getEntityModel("UploadTestModel.xsd", "UploadTestModel", "UploadTestModel_Polymorphism", keys); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         String record1 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>1</id><info xsi:type=\"SuperInfoType\"><name>1</name></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
         String record2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>2</id><info xsi:type=\"SubInfoType\"><name>2</name></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
         String record3 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<UploadTestModel_Polymorphism xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>3</id><info xsi:type=\"SuperInfoType\"><name/></info></UploadTestModel_Polymorphism>"; //$NON-NLS-1$
