@@ -115,7 +115,7 @@ public class StorageQueryTest extends StorageTestCase {
     private final String COMPTE_Record2 = "<Compte><Level>Nature Comptable SF</Level><Code>11</Code><Label>11</Label><childOf>[Compte SF][1]</childOf></Compte>";
 
     private final String RepeatableElementsEntity_Record = "<RepeatableElementsEntity><id>1</id><info><name>n1</name><age>1</age></info><info><name>n2</name><age>2</age></info><info><name>n3</name><age>3</age></info></RepeatableElementsEntity>";
-
+    
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
@@ -327,6 +327,11 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, compte, COMPTE_Record1));
         allRecords.add(factory.read("1", repository, compte, COMPTE_Record2));
 
+        allRecords.add(factory.read("1", repository, contexte, "<Contexte><IdContexte>111</IdContexte><name>aaa</name><name>bbb</name></Contexte>"));
+        allRecords.add(factory.read("1", repository, contexte, "<Contexte><IdContexte>222</IdContexte><name>ccc</name></Contexte>"));
+        allRecords.add(factory.read("1", repository, contexte, "<Contexte><IdContexte>333</IdContexte><name>ddd</name></Contexte>"));
+        allRecords.add(factory.read("1", repository, personne, "<Personne><IdMDM>1</IdMDM><Contextes><ContexteFk>[111]</ContexteFk><ContexteFk>[222]</ContexteFk><ContexteFk>[333]</ContexteFk></Contextes></Personne>"));
+        
         try {
             storage.begin();
             storage.update(allRecords);
@@ -4007,6 +4012,45 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+        storage.commit();
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void testQueryWithFKContainsMultipleValues() throws Exception {
+        FieldMetadata field = personne.getField("Contextes/ContexteFk");
+        UserQueryBuilder qb = from(personne).where(contains(field, "111"));
+        storage.begin();
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            List<Object> contextes = (List<Object>)results.iterator().next().get(field);
+            assertEquals(3, contextes.size());
+        } finally {
+            results.close();
+        }
+        
+        qb = from(personne).where(contains(field, "222"));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            List<Object> contextes = (List<Object>)results.iterator().next().get(field);
+            assertEquals(3, contextes.size());
+        } finally {
+            results.close();
+        }
+        
+        qb = from(personne).where(contains(field, "333"));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            List<Object> contextes = (List<Object>)results.iterator().next().get(field);
+            assertEquals(3, contextes.size());
+        } finally {
+            results.close();
+        }
+        
         storage.commit();
     }
     
