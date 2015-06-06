@@ -163,6 +163,10 @@ public class AccordionMenus extends ContentPanel {
             icon = "secure/img/menu/stagingarea.png"; //$NON-NLS-1$
         } else if ("welcomeportal.WelcomePortal".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/welcome.png"; //$NON-NLS-1$
+        } else if ("logviewer.LogViewer".equals(toCheckMenuID)) { //$NON-NLS-1$
+            icon = "secure/img/menu/tool.png"; //$NON-NLS-1$
+        } else if ("h2console.H2Console".equals(toCheckMenuID)) { //$NON-NLS-1$
+            icon = "secure/img/menu/tool.png"; //$NON-NLS-1$
         } else {
             // default menus icon
             icon = "secure/img/menu/default.png"; //$NON-NLS-1$

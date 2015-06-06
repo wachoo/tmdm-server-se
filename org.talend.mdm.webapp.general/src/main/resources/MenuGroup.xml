@@ -22,4 +22,8 @@
         <item>usermanager.UserManager</item>
         <item>licensemanager.LicenseManager</item>
     </groupitem>
+    <groupitem en="Tools" fr="Outils">
+        <item>logviewer.LogViewer</item>
+        <item>h2console.H2Console</item>
+    </groupitem>
 </menugroup>

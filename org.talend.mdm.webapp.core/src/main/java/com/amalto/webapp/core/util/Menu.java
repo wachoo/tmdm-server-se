@@ -1,14 +1,33 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.webapp.core.util;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.core.CommonUtil;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
 
 import com.amalto.core.server.security.SecurityConfig;
 import com.amalto.core.util.LocalUser;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.CommonUtil;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-
+import com.amalto.core.util.Messages;
+import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.webservice.WSBoolean;
 import com.amalto.core.webservice.WSExistsMenu;
 import com.amalto.core.webservice.WSGetMenu;
@@ -27,6 +46,9 @@ public class Menu {
     private static final Logger LOGGER = Logger.getLogger(Menu.class);
 
     private static final DecimalFormat twoDigits = new DecimalFormat("00"); //$NON-NLS-1$
+
+    private static final Messages MESSAGES = MessagesFactory.getMessages(
+            "com.amalto.webapp.core.util.messages", Menu.class.getClassLoader()); //$NON-NLS-1$
 
     private HashMap<String, String> labels = new HashMap<String, String>();
 
@@ -130,7 +152,7 @@ public class Menu {
                 Menu menu = menuIndex.get(id);
                 if (menu.getParent() != null)
                     continue; // we are good keep going
-                if ((menu.getParentID() == null) || "".equals(menu.getParentID())) {
+                if ((menu.getParentID() == null) || "".equals(menu.getParentID())) { //$NON-NLS-1$
                     // attach to root
                     root.getSubMenus().put(twoDigits.format(menu.getPosition()) + " - " + menu.getId(), menu); //$NON-NLS-1$
                     // update parent with root
@@ -141,7 +163,9 @@ public class Menu {
                 Menu parentMenu = menuIndex.get(menu.getParentID());
                 if (parentMenu == null) {
                     // discard
-                    LOGGER.debug("getRootMenu() No parent found for " + menu.getId());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("getRootMenu() No parent found for " + menu.getId()); //$NON-NLS-1$
+                    }
                     continue;
                 }
                 // found - add it to parent
@@ -161,29 +185,72 @@ public class Menu {
         // The index of Menu Entries
         HashMap<String, Menu> menuIndex = new HashMap<String, Menu>();
         try {
-            if (MDMConfiguration.getAdminUser().equals(LocalUser.getLocalUser().getUsername())) {
-                // TODO: should we do anything here?
-                return menuIndex;
+            HashSet<String> roles = LocalUser.getLocalUser().getRoles();
+            if (roles.contains(ICoreConstants.ADMIN_PERMISSION)) {
+                // Add tool menus
+                Menu menu = new Menu();
+                menu.setApplication("H2Console"); //$NON-NLS-1$
+                menu.setContext("h2console"); //$NON-NLS-1$
+                menu.setId("H2Console"); //$NON-NLS-1$
+                HashMap<String, String> labels = new HashMap<String, String>() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    public String get(Object key) {
+                        return MESSAGES.getMessage(new Locale(key.toString()), "menu.h2console"); //$NON-NLS-1$
+                    };
+                };
+                menu.setLabels(labels);
+                menu.setParent(null);
+                menu.setParentID(""); //$NON-NLS-1$
+                menu.setPosition(0);
+                menuIndex.put(menu.getId(), menu);
+
+                menu = new Menu();
+                menu.setApplication("LogViewer"); //$NON-NLS-1$
+                menu.setContext("logviewer"); //$NON-NLS-1$
+                menu.setId("LogViewer"); //$NON-NLS-1$
+                labels = new HashMap<String, String>() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    public String get(Object key) {
+                        return MESSAGES.getMessage(new Locale(key.toString()), "menu.logviewer"); //$NON-NLS-1$
+                    };
+                };
+                menu.setLabels(labels);
+                menu.setParent(null);
+                menu.setParentID(""); //$NON-NLS-1$
+                menu.setPosition(0);
+                menuIndex.put(menu.getId(), menu);
             }
             // not admin
-            for (String role : LocalUser.getLocalUser().getRoles()) {
-                LOGGER.debug("getMenuIndex() ROLE " + role);
+            for (String role : roles) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("getMenuIndex() ROLE " + role); //$NON-NLS-1$
+                }
                 if (!SecurityConfig.isSecurityPermission(role)) {
                     WSRole wsRole = Util.getPort().getRole(new WSGetRole(new WSRolePK(role)));
-                    LOGGER.debug("getMenuIndex() WSROLE " + wsRole.getName());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("getMenuIndex() WSROLE " + wsRole.getName()); //$NON-NLS-1$
+                    }
                     WSRoleSpecification[] specifications = wsRole.getSpecification();
                     if (specifications != null) {
                         for (WSRoleSpecification specification : specifications) {
-                            LOGGER.debug("getMenuIndex() OBJECT TYPE " + specification.getObjectType());
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("getMenuIndex() OBJECT TYPE " + specification.getObjectType()); //$NON-NLS-1$
+                            }
                             if ("Menu".equals(specification.getObjectType())) { //$NON-NLS-1$
                                 WSRoleSpecificationInstance[] instances = specification.getInstance();
                                 if (instances != null) {
                                     for (WSRoleSpecificationInstance instance : instances) {
-                                        LOGGER.debug("getMenuIndex() INSTANCE NAME " + instance.getInstanceName());
+                                        if (LOGGER.isDebugEnabled()) {
+                                            LOGGER.debug("getMenuIndex() INSTANCE NAME " + instance.getInstanceName()); //$NON-NLS-1$
+                                        }
                                         try {
                                             addMenuEntries(menuIndex, instance);
                                         } catch (Exception e) {
-                                            e.printStackTrace();
+                                            LOGGER.error(e.getMessage(), e);
                                         }
                                     }
                                 }
@@ -203,19 +270,18 @@ public class Menu {
 
     private static void addMenuEntries(HashMap<String, Menu> index, WSRoleSpecificationInstance instance)
             throws XtentisWebappException {
-        LOGGER.debug("addMenuEntries() " + instance.getInstanceName());
+        String menuPK = instance.getInstanceName();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("addMenuEntries() " + menuPK); //$NON-NLS-1$
+        }
         try {
             // check menu exist
-            WSBoolean menuExist = Util.getPort().existsMenu(new WSExistsMenu(new WSMenuPK(instance.getInstanceName())));
+            WSBoolean menuExist = Util.getPort().existsMenu(new WSExistsMenu(new WSMenuPK(menuPK)));
             if (menuExist.is_true()) {
                 RoleMenuParameters params = RoleMenuParameters.unmarshalMenuParameters(instance.getParameter()[0]);
-                WSMenu wsMenu = Util.getPort().getMenu(new WSGetMenu(new WSMenuPK(instance.getInstanceName())));
-                WSMenuEntry[] wsEntries = wsMenu.getMenuEntries();
-                if (wsEntries != null) {
-                    for (WSMenuEntry wsEntry : wsEntries) {
-                        index.put(wsEntry.getId(), wsMenu2Menu(index, wsEntry, null, params.getParentID(), params.getPosition()));
-                    }
-                }
+                addMenuEntry(index, new WSMenuPK(menuPK), params);
+            } else {
+                LOGGER.error("Menu '" + menuPK + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         } catch (XtentisWebappException e) {
             throw (e);
@@ -224,7 +290,17 @@ public class Menu {
         }
     }
 
-    public static Menu wsMenu2Menu(HashMap<String, Menu> index, WSMenuEntry entry, Menu parent, String parentID, int position)
+    private static void addMenuEntry(Map<String, Menu> index, WSMenuPK menuPK, RoleMenuParameters params) throws Exception {
+        WSMenu wsMenu = Util.getPort().getMenu(new WSGetMenu(menuPK));
+        WSMenuEntry[] wsEntries = wsMenu.getMenuEntries();
+        if (wsEntries != null) {
+            for (WSMenuEntry wsEntry : wsEntries) {
+                index.put(wsEntry.getId(), wsMenu2Menu(index, wsEntry, null, params.getParentID(), params.getPosition()));
+            }
+        }
+    }
+
+    public static Menu wsMenu2Menu(Map<String, Menu> index, WSMenuEntry entry, Menu parent, String parentID, int position)
             throws XtentisWebappException {
         try {
             Menu menu = new Menu();
@@ -248,7 +324,7 @@ public class Menu {
             TreeMap<String, Menu> subMenus = new TreeMap<String, Menu>();
             if (wsSubMenus != null) {
                 for (int i = 0; i < wsSubMenus.length; i++) {
-                    subMenus.put(twoDigits.format(i) + " - " + wsSubMenus[i].getId(),
+                    subMenus.put(twoDigits.format(i) + " - " + wsSubMenus[i].getId(), //$NON-NLS-1$
                             wsMenu2Menu(index, wsSubMenus[i], menu, menu.getParentID(), i));
                 }
             }
