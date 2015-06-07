@@ -3,19 +3,23 @@
 <title>Talend MDM Log Viewer</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel='shortcut icon' href='../auth/favicon.ico'/>
+<link rel='stylesheet' type='text/css' href='../auth/googleapi/fonts.css'/>
 <script type="text/javascript" language="javascript" src="../secure/ext-2.2/adapter/prototype/prototype.js"></script>
 <script type="text/javascript" language="javascript" src="logviewer.js"></script>
 <style>
 body {
     margin: 1;
+    font-family: "Source Sans Pro";
+    font: normal 13px "Source Sans Pro";
+    background-color:#FFFFFF;
 }
+
 #logScroller {
     height: 93%;
     background: #F3F3F3;
     color: black;
     overflow: auto;
-    margin-bottom: 10px;
-    border: 1px solid #b5b8c8;
+    border: #E0E0E0 solid 1px;
     margin: 5px;
 }
 pre {
@@ -25,11 +29,11 @@ pre {
     white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
     margin: 1;
-    font-family: Arial;
+    font-family: "Source Sans Pro";
     font-size: 13px;
 }
 #logToolbar {
-    font-family: Arial;
+    font-family: "Source Sans Pro";
     font-size: 13px;
 }
 #logToolbarLeft {
@@ -40,6 +44,25 @@ pre {
     position: absolute;
     right: 5;
 }
+input[type="button"] {
+    color: white;
+    font-size: 14px;
+    font-family: "Source Sans Pro";
+    width: 85px;
+    height: 30px;
+    background-color: #00a6ce;
+    border: 1px solid transparent;
+}
+
+input[type="text"] {
+    font-family: "Source Sans Pro";
+    color: black;
+    font-size: 15px;
+    background-color: white;
+    border: 1px solid gray;
+    -webkit-box-shadow: 0 0 0px 1000px white inset;
+}
+
 </style>
 </head>
 <body>
@@ -54,13 +77,13 @@ pre {
             </select>
             <input type="button" value="Reload" onclick="window.location.reload();">
             <input type="button" value="Clear" onclick="clearLog();">
-            <input type="button" value="Download" onclick="downloadLog();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input type="button" id="toggleLoad" onclick="toggleLoading();">
+            <input type="button" value="Download" onclick="downloadLog();">
+            <input type="button" id="toggleLoad" onclick="toggleLoading();" style="margin-left:30px;">
             <img id="spinner" alt="" src="../secure/ext-2.2/resources/images/default/shared/loading-balls.gif" />
         </div>
         <div id="logToolbarRight">
-            Fetch Period:<input type="text" size="6" name="frequency" id="logFetchPeriod" />
-            Max lines:<input type="text" size="6" name="maxlines" id="logMaxLines" />
+            Fetch Period: <input type="text" size="6" name="frequency" id="logFetchPeriod" />
+            Max lines: <input type="text" size="6" name="maxlines" id="logMaxLines" />
             <input type="button" value="Set Params" onclick="FETCH_PERIOD=parseInt($('logFetchPeriod').value);MAX_LINES=parseInt($('logMaxLines').value);">
         </div>
     </div>
