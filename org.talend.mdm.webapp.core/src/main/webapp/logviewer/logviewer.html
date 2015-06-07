@@ -46,12 +46,22 @@ pre {
 }
 input[type="button"] {
     color: white;
+    cursor: pointer;
     font-size: 14px;
     font-family: "Source Sans Pro";
     width: 85px;
     height: 30px;
     background-color: #00a6ce;
     border: 1px solid transparent;
+}
+
+input[type="button"]:active {
+    background-color: #C0D72D;
+}
+
+input[type="button"]:disabled {
+    cursor: none;
+    background-color: #D7D7D7;
 }
 
 input[type="text"] {
