@@ -16,11 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
-import org.talend.mdm.webapp.base.client.util.XmlUtil;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.FileUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -50,9 +48,6 @@ import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -151,7 +146,7 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     private void renderForm() {
         FormData fileData = new FormData("98%"); //$NON-NLS-1$
-        FormData multipleValueData = new FormData(100, 20); //$NON-NLS-1$
+        FormData multipleValueData = new FormData(100, 20);
         FormData comboData = new FormData("84%"); //$NON-NLS-1$
 
         conceptField = new HiddenField<String>();
@@ -376,44 +371,26 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
 
     @Override
     public void handleEvent(FormEvent be) {
-        Document document = XMLParser.parse(XmlUtil.transformStringToXml(be.getResultHtml()));
-        NodeList resultNodeList = document.getElementsByTagName("result"); //$NON-NLS-1$
         waitBar.close();
-        if (resultNodeList.getLength() > 0) {
-            if ("0".equals(resultNodeList.item(0).getFirstChild().getNodeValue())) { //$NON-NLS-1$
-                window.hide();
-                MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                        MessagesFactory.getMessages().import_success_label(), null);
-                ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
-                ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, buttonEvent);
-            } else {
-                NodeList errorNodeList = document.getElementsByTagName("error"); //$NON-NLS-1$
-                if (errorNodeList.getLength() > 0) {
-                    String errorMsg = MultilanguageMessageParser.pickOutISOMessage(extractErrorMessage(errorNodeList.item(0)
-                            .getFirstChild().getNodeValue()));
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), errorMsg, null);
-                } else {
-                    MessageBox.alert(MessagesFactory.getMessages().error_title(), BaseMessagesFactory.getMessages()
-                            .unknown_error(), null);
-                }
-            }
+        if (be.getResultHtml().contains(MessagesFactory.getMessages().import_success_label())) {
+            window.hide();
+            MessageBox.alert(MessagesFactory.getMessages().info_title(), filterFormatTag(be.getResultHtml()), null);
+            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, buttonEvent);
         } else {
-            MessageBox
-                    .alert(MessagesFactory.getMessages().error_title(), BaseMessagesFactory.getMessages().unknown_error(), null);
+            MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                    MultilanguageMessageParser.pickOutISOMessage(filterFormatTag(be.getResultHtml())), null);
         }
-    }
-
-    public static String extractErrorMessage(String errMsg) {
-        String saveExceptionString = "com.amalto.core.save.SaveException: Exception occurred during save: "; //$NON-NLS-1$
-        int saveExceptionIndex = errMsg.indexOf(saveExceptionString);
-        if (saveExceptionIndex > -1) {
-            errMsg = errMsg.substring(saveExceptionIndex + saveExceptionString.length());
-        }
-
-        return errMsg;
     }
 
     protected String getActionUrl() {
         return GWT.getHostPageBaseURL() + "/browserecords/upload"; //$NON-NLS-1$
+    }
+
+    private String filterFormatTag(String message) {
+        String msg = message;
+        msg = msg.replace("<pre>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        msg = msg.replace("</pre>", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        return msg;
     }
 }
