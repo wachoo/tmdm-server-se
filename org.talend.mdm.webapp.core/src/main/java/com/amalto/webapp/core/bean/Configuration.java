@@ -123,40 +123,11 @@ public class Configuration {
                                         new WSDataClusterPK("PROVISIONING"), "User", new String[] { user.getUsername() }))) //$NON-NLS-1$//$NON-NLS-2$
                 .getContent();
         Document d = Util.parse(xml);
-        NodeList nodeList = com.amalto.core.util.Util.getNodeList(d, "//property"); //$NON-NLS-1$
-        if (nodeList.getLength() == 0) {
-            if (com.amalto.core.util.Util.getNodeList(d, "//properties").item(0) == null) { //$NON-NLS-1$
-                d.getDocumentElement().appendChild(d.createElement("properties")); //$NON-NLS-1$
-            }
-            Node node = com.amalto.core.util.Util.getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
-            node.appendChild(d.createElement("name")).appendChild(d.createTextNode("cluster")); //$NON-NLS-1$ //$NON-NLS-2$
-            node.appendChild(d.createElement("value")).appendChild(d.createTextNode(cluster)); //$NON-NLS-1$
-            Node node2 = com.amalto.core.util.Util
-                    .getNodeList(d, "//properties").item(0).appendChild(d.createElement("property")); //$NON-NLS-1$ //$NON-NLS-2$
-            node2.appendChild(d.createElement("name")).appendChild(d.createTextNode("model")); //$NON-NLS-1$ //$NON-NLS-2$
-            node2.appendChild(d.createElement("value")).appendChild(d.createTextNode(model)); //$NON-NLS-1$
-        }
-
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if ("cluster".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                if (com.amalto.core.util.Util.getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
-                    com.amalto.core.util.Util.getNodeList(node, "value").item(0).appendChild(d.createTextNode(cluster)); //$NON-NLS-1$
-                } else {
-                    com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(cluster); //$NON-NLS-1$
-                }
-            }
-        }
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if ("model".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                if (com.amalto.core.util.Util.getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
-                    com.amalto.core.util.Util.getNodeList(node, "value").item(0).appendChild(d.createTextNode(model)); //$NON-NLS-1$
-                } else {
-                    com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild().setNodeValue(model); //$NON-NLS-1$
-                }
-            }
-        }
+        
+        com.amalto.core.util.Util.setUserProperty(d, "cluster", cluster); //$NON-NLS-1$
+        com.amalto.core.util.Util.setUserProperty(d, "model", model); //$NON-NLS-1$
+        
+        
         if (com.amalto.core.util.Util.isEnterprise()) {
             Util.getPort().putItem(
                     new WSPutItem(new WSDataClusterPK("PROVISIONING"), Util.nodeToString(d.getDocumentElement()).replaceAll( //$NON-NLS-1$

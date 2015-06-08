@@ -320,4 +320,41 @@ public class UtilTestCase extends TestCase {
             assertTrue("bj".equals(condition4.getRightValueOrPath()));
         }
     }
+    
+    public void testSetUserPropertyDoesNotExist() throws Exception {
+        String xml = "<User><username>A</username><id>B</id><properties><property><name>x</name><value>y</value></property></properties></User>";
+        Document user = Util.parse(xml);
+        Util.setUserProperty(user, "newprop", "newvalue");
+        
+        String result = Util.nodeToString(user, true, false);
+        assertEquals("<User><username>A</username><id>B</id><properties><property><name>x</name><value>y</value></property><property><name>newprop</name><value>newvalue</value></property></properties></User>", result);
+    }
+    
+    public void testSetUserPropertyNoProperties() throws Exception {
+        String xml = "<User><username>A</username><id>B</id></User>";
+        Document user = Util.parse(xml);
+        Util.setUserProperty(user, "newprop", "newvalue");
+        
+        String result = Util.nodeToString(user, true, false);
+        assertEquals("<User><username>A</username><id>B</id><properties><property><name>newprop</name><value>newvalue</value></property></properties></User>", result);
+    }
+    
+    public void testSetUserPropertyOverride() throws Exception {
+        String xml = "<User><username>A</username><id>B</id><properties><property><name>x</name><value>y</value></property></properties></User>";
+        Document user = Util.parse(xml);
+        Util.setUserProperty(user, "x", "z");
+        
+        String result = Util.nodeToString(user, true, false);
+        assertEquals("<User><username>A</username><id>B</id><properties><property><name>x</name><value>z</value></property></properties></User>", result);
+    }
+    
+    public void testSetUserPropertyNullName() throws Exception {
+        String xml = "<User><username>A</username><id>B</id><properties><property><name>x</name><value>y</value></property></properties></User>";
+        Document user = Util.parse(xml);
+        Util.setUserProperty(user, null, "z");
+        
+        String result = Util.nodeToString(user, true, false);
+        assertEquals("<User><username>A</username><id>B</id><properties><property><name>x</name><value>y</value></property></properties></User>", result);
+    }
+    
 }

@@ -910,6 +910,48 @@ public class Util {
         }
         return null;
     }
+    
+    public static void setUserProperty(Document user, String name, String value) throws Exception {
+        if(name == null){
+            return;
+        }
+        NodeList properties = Util.getNodeList(user, "//properties"); //$NON-NLS-1$
+        Element propertiesElement = null;
+        if(properties == null || properties.getLength() == 0){
+            propertiesElement = user.createElement("properties"); //$NON-NLS-1$
+            user.getDocumentElement().appendChild(propertiesElement);
+        }
+        else {
+            propertiesElement = (Element)properties.item(0);
+        }
+        NodeList props = Util.getNodeList(propertiesElement, "//property"); //$NON-NLS-1$
+        boolean propertyFound = false;
+        if(props != null){
+            for(int i=0; i<props.getLength(); i++){
+                Node node = props.item(i);
+                if (name.equals(getFirstTextNode(node, "name"))) { //$NON-NLS-1$
+                    propertyFound = true;
+                    if (getFirstTextNode(node, "value") == null) { //$NON-NLS-1$
+                        getNodeList(node, "value").item(0).appendChild(user.createTextNode(value)); //$NON-NLS-1$
+                    } else {
+                        getNodeList(node, "value").item(0).getFirstChild().setNodeValue(value); //$NON-NLS-1$
+                    }
+                }
+            }
+        }
+        if(!propertyFound){
+            Element propertyElement = user.createElement("property"); //$NON-NLS-1$
+            propertiesElement.appendChild(propertyElement);
+            
+            Element nameElement = user.createElement("name"); //$NON-NLS-1$
+            nameElement.setTextContent(name);
+            propertyElement.appendChild(nameElement);
+            
+            Element valueElement = user.createElement("value"); //$NON-NLS-1$
+            valueElement.setTextContent(value);
+            propertyElement.appendChild(valueElement);
+        }
+    }
 
     public static IWhereItem fixWebConditions(IWhereItem whereItem, String userXML) throws Exception {
         if (whereItem == null) {
