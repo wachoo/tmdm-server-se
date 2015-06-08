@@ -351,6 +351,7 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, contexte, "<Contexte><IdContexte>333</IdContexte><name>ddd</name></Contexte>"));
         allRecords.add(factory.read("1", repository, personne, "<Personne><IdMDM>1</IdMDM><Contextes><ContexteFk>[111]</ContexteFk><ContexteFk>[222]</ContexteFk><ContexteFk>[333]</ContexteFk></Contextes></Personne>"));
 
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -4447,6 +4448,33 @@ public class StorageQueryTest extends StorageTestCase {
         }
         
         storage.commit();
+    }
+
+    public void testIdContainsSlash() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord record1 = factory.read("1", repository, tt,
+                "<TT><Id>Slash/Id</Id><MUl><E1>1</E1><E2>1</E2><E3>[R1]</E3></MUl></TT>");
+        try {
+            storage.begin();
+            storage.update(record1);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = UserQueryBuilder.from(tt);
+        String fieldName = "TT/Id";
+        IWhereItem item = new WhereOr(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "Slash/Id",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        storage.begin();
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+            storage.commit();
+        }
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
