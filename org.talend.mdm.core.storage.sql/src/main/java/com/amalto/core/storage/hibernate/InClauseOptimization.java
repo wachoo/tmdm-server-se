@@ -64,16 +64,10 @@ public class InClauseOptimization extends StandardQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {
-        // Standard criteria
-        Criteria criteria = createCriteria(select);
-        // Create in clause for the id
-        ComplexTypeMetadata mainType = select.getTypes().get(0);
-        Paging paging = select.getPaging();
-        int start = paging.getStart();
-        int limit = paging.getLimit();
+        StorageResults results = null;
         switch (mode) {
         case SUB_QUERY:
-            throw new NotImplementedException("Not supported in this MDM version");
+            throw new NotImplementedException("Not supported in this MDM version"); //$NON-NLS-1$
             //
             // Uncomment lines below for supporting this (NOT SUPPORTED ON ALL DATABASES!!!).
             //
@@ -82,6 +76,11 @@ public class InClauseOptimization extends StandardQueryHandler {
             // String tableName = typeMetadata.getName();
             // criteria.add(new IdInSubQueryClause(idColumnName, tableName, start, limit));
         case CONSTANT:
+            // Create in clause for the id
+            ComplexTypeMetadata mainType = select.getTypes().get(0);
+            Paging paging = select.getPaging();
+            int start = paging.getStart();
+            int limit = paging.getLimit();
             UserQueryBuilder qb = from(mainType).selectId(mainType).start(start).limit(limit);
             if (select.getCondition() != null) {
                 qb.where(select.getCondition());
@@ -98,30 +97,31 @@ public class InClauseOptimization extends StandardQueryHandler {
             // and too many values in 'IN (...)' clause hurt database performance
             if (records.getCount() >= IN_CLAUSE_MAX) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Too many ids in 'IN()' clause, abort this optimization. Total ids = " + records.getCount());
+                    LOGGER.debug("Too many ids in 'IN()' clause, abort this optimization. Total ids = " + records.getCount()); //$NON-NLS-1$
                 }
-                return super.visit(select);
-            }
-            for (DataRecord record : records) {
-                Set<FieldMetadata> setFields = record.getSetFields();
-                String[] constant = new String[setFields.size()];
-                int i = 0;
-                for (FieldMetadata setField : setFields) {
-                    Object o = record.get(setField);
-                    constant[i++] = String.valueOf(o);
-                }
-                constants.add(constant);
-            }
-            if (!constants.isEmpty()) {
-                criteria.add(new IdInConstantClause(mainType.getKeyFields(), resolver, constants));
+                results = super.visit(select);
             } else {
-                return new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
+                for (DataRecord record : records) {
+                    Set<FieldMetadata> setFields = record.getSetFields();
+                    String[] constant = new String[setFields.size()];
+                    int i = 0;
+                    for (FieldMetadata setField : setFields) {
+                        Object o = record.get(setField);
+                        constant[i++] = String.valueOf(o);
+                    }
+                    constants.add(constant);
+                }
+                if (!constants.isEmpty()) {
+                    // Standard criteria
+                    Criteria criteria = createCriteria(select);
+                    criteria.add(new IdInConstantClause(mainType.getKeyFields(), resolver, constants));
+                    results = createResults(criteria.list(), select.isProjection());
+                } else {
+                    results = new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
+                }
             }
-            break;
         }
-        // Create results
-        List list = criteria.list();
-        return createResults(list, select.isProjection());
+      return results;
     }
 
     private static class IdInConstantClause implements Criterion {
@@ -191,7 +191,7 @@ public class InClauseOptimization extends StandardQueryHandler {
             Dialect dialect = criteriaQuery.getFactory().getDialect();
             boolean useOffset = dialect.supportsLimitOffset();
             if (!dialect.supportsLimit()) {
-                throw new HibernateException("Can not use this optimization: database does not support limits.");
+                throw new HibernateException("Can not use this optimization: database does not support limits."); //$NON-NLS-1$
             }
             String sql = "SELECT " //$NON-NLS-1$
                     + idColumnName + " FROM " //$NON-NLS-1$
