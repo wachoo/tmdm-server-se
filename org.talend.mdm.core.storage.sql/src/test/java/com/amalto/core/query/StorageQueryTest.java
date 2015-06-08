@@ -13,30 +13,7 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
-import static com.amalto.core.query.user.UserQueryBuilder.and;
-import static com.amalto.core.query.user.UserQueryBuilder.contains;
-import static com.amalto.core.query.user.UserQueryBuilder.count;
-import static com.amalto.core.query.user.UserQueryBuilder.distinct;
-import static com.amalto.core.query.user.UserQueryBuilder.emptyOrNull;
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
-import static com.amalto.core.query.user.UserQueryBuilder.fullText;
-import static com.amalto.core.query.user.UserQueryBuilder.gt;
-import static com.amalto.core.query.user.UserQueryBuilder.gte;
-import static com.amalto.core.query.user.UserQueryBuilder.index;
-import static com.amalto.core.query.user.UserQueryBuilder.isEmpty;
-import static com.amalto.core.query.user.UserQueryBuilder.isNull;
-import static com.amalto.core.query.user.UserQueryBuilder.lt;
-import static com.amalto.core.query.user.UserQueryBuilder.lte;
-import static com.amalto.core.query.user.UserQueryBuilder.max;
-import static com.amalto.core.query.user.UserQueryBuilder.min;
-import static com.amalto.core.query.user.UserQueryBuilder.neq;
-import static com.amalto.core.query.user.UserQueryBuilder.not;
-import static com.amalto.core.query.user.UserQueryBuilder.or;
-import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
-import static com.amalto.core.query.user.UserQueryBuilder.taskId;
-import static com.amalto.core.query.user.UserQueryBuilder.timestamp;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -4506,6 +4483,33 @@ public class StorageQueryTest extends StorageTestCase {
         }
         
         storage.commit();
+    }
+
+    public void testIdContainsSlash() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord record1 = factory.read(repository, tt,
+                "<TT><Id>Slash/Id</Id><MUl><E1>1</E1><E2>1</E2><E3>[R1]</E3></MUl></TT>");
+        try {
+            storage.begin();
+            storage.update(record1);
+            storage.commit();
+        } finally {
+            storage.end();
+        }
+
+        UserQueryBuilder qb = UserQueryBuilder.from(tt);
+        String fieldName = "TT/Id";
+        IWhereItem item = new WhereOr(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS, "Slash/Id",
+                WhereCondition.NO_OPERATOR)));
+        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
+        storage.begin();
+        StorageResults storageResults = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, storageResults.getCount());
+        } finally {
+            storageResults.close();
+            storage.commit();
+        }
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
