@@ -40,29 +40,39 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
 
     <!-- Routing engine -->
     <context:component-scan base-package="com.amalto.core" />
-    <bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
-        <property name="connectionFactory">
-            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-                <property name="brokerURL">
-                    <value>${mdm.routing.engine.broker.url}</value>
-                </property>
-            </bean>
-        </property>
+    
+    <bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    	<property name="brokerURL">
+    		<value>${mdm.routing.engine.broker.url}</value>
+		</property>
+     </bean>
+    
+    <bean id="jmsPooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    </bean>
+    
+    <bean id="jmsSingleConnectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+    	<constructor-arg ref="jmsConnectionFactory"/>
+    </bean>
+    
+    <bean id="jmsSingleConnectionFactoryForExpired" class="org.springframework.jms.connection.SingleConnectionFactory">
+    	<constructor-arg ref="jmsConnectionFactory"/>
     </bean>
 
     <bean id="routingEngineJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory">
-            <ref bean="jmsFactory" />
-        </property>
+        <property name="connectionFactory" ref="jmsPooledConnectionFactory"/>
     </bean>
+    
     <!-- Listener for expired messages (needs to be captured as failed events by MDM) -->
     <bean id="expiredRoutingOrderListener" class="com.amalto.core.server.routing.ExpiredMessageListener"/>
-    <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsFactory"
+    
+    <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsSingleConnectionFactory"
         destination-type="queue">
         <jms:listener destination="org.talend.mdm.server.routing.events" ref="defaultRoutingEngine" method="consume" id="activeEvents" />
     </jms:listener-container>
-    <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsFactory"
-                            destination-type="topic">
+    
+    <jms:listener-container concurrency="${mdm.routing.engine.consumers}" connection-factory="jmsSingleConnectionFactoryForExpired" 
+    	destination-type="topic">
         <!-- Listen to ActiveMQ-specific queue for expired messages -->
         <jms:listener destination="ActiveMQ.Advisory.Expired.Queue.org.talend.mdm.server.routing.events" ref="expiredRoutingOrderListener" method="consume" id="expiredEvents"/>
     </jms:listener-container>
