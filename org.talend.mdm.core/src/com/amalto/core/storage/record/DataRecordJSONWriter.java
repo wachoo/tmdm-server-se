@@ -34,74 +34,76 @@ public class DataRecordJSONWriter implements DataRecordWriter {
     private void writeRecord(final DataRecord record, final JSONWriter writer) throws JSONException {
         writer.object();
         {
-            for (FieldMetadata field : record.getType().getFields()) {
-                field.accept(new DefaultMetadataVisitor<Void>() {
-
-                    private Void handleSimpleField(FieldMetadata field) {
-                        if (delegator.hide(field)) {
-                            return null;
-                        }
-                        try {
-                            if (!field.isMany()) {
-                                writer.key(field.getName().toLowerCase()).value(StorageMetadataUtils.toString(record.get(field)));
-                            } else {
-                                List<Object> values = (List<Object>) record.get(field);
-                                if (values != null) {
-                                    writer.key(field.getName().toLowerCase()).array();
-                                    for (Object value : values) {
-                                        writer.value(StorageMetadataUtils.toString(value));
-                                    }
-                                    writer.endArray();
-                                }
+            if(record != null){
+                for (FieldMetadata field : record.getType().getFields()) {
+                    field.accept(new DefaultMetadataVisitor<Void>() {
+    
+                        private Void handleSimpleField(FieldMetadata field) {
+                            if (delegator.hide(field)) {
+                                return null;
                             }
-                        } catch (JSONException e) {
-                            throw new RuntimeException("Unable to serialize simple field '" + field.getName() + "'", e);
-                        }
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(SimpleTypeFieldMetadata simpleField) {
-                        return handleSimpleField(simpleField);
-                    }
-
-                    @Override
-                    public Void visit(EnumerationFieldMetadata enumField) {
-                        return handleSimpleField(enumField);
-                    }
-
-                    @Override
-                    public Void visit(ContainedTypeFieldMetadata containedField) {
-                        if (delegator.hide(containedField)) {
-                            return null;
-                        }
-                        try {
-                            writer.key(containedField.getName());
-                            if (!containedField.isMany()) {
-                                writeRecord((DataRecord) record.get(containedField), writer);
-                            } else {
-                                List<DataRecord> values = (List<DataRecord>) record.get(containedField);
-                                {
+                            try {
+                                if (!field.isMany()) {
+                                    writer.key(field.getName().toLowerCase()).value(StorageMetadataUtils.toString(record.get(field)));
+                                } else {
+                                    List<Object> values = (List<Object>) record.get(field);
                                     if (values != null) {
-                                        writer.key(containedField.getName().toLowerCase()).array();
-                                        for (DataRecord value : values) {
-                                            writeRecord(value, writer);
+                                        writer.key(field.getName().toLowerCase()).array();
+                                        for (Object value : values) {
+                                            writer.value(StorageMetadataUtils.toString(value));
                                         }
                                         writer.endArray();
                                     }
                                 }
+                            } catch (JSONException e) {
+                                throw new RuntimeException("Unable to serialize simple field '" + field.getName() + "'", e);
                             }
-                        } catch (JSONException e) {
-                            throw new RuntimeException("Unable to serialize complex field '" + containedField.getName() + "'", e);
+                            return null;
                         }
-                        return null;
-                    }
-
-                    @Override
-                    public Void visit(ReferenceFieldMetadata referenceField) {
-                        return handleSimpleField(referenceField);
-                    }
-                });
+    
+                        @Override
+                        public Void visit(SimpleTypeFieldMetadata simpleField) {
+                            return handleSimpleField(simpleField);
+                        }
+    
+                        @Override
+                        public Void visit(EnumerationFieldMetadata enumField) {
+                            return handleSimpleField(enumField);
+                        }
+    
+                        @Override
+                        public Void visit(ContainedTypeFieldMetadata containedField) {
+                            if (delegator.hide(containedField)) {
+                                return null;
+                            }
+                            try {
+                                writer.key(containedField.getName());
+                                if (!containedField.isMany()) {
+                                    writeRecord((DataRecord) record.get(containedField), writer);
+                                } else {
+                                    List<DataRecord> values = (List<DataRecord>) record.get(containedField);
+                                    {
+                                        if (values != null) {
+                                            writer.key(containedField.getName().toLowerCase()).array();
+                                            for (DataRecord value : values) {
+                                                writeRecord(value, writer);
+                                            }
+                                            writer.endArray();
+                                        }
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                throw new RuntimeException("Unable to serialize complex field '" + containedField.getName() + "'", e);
+                            }
+                            return null;
+                        }
+    
+                        @Override
+                        public Void visit(ReferenceFieldMetadata referenceField) {
+                            return handleSimpleField(referenceField);
+                        }
+                    });
+                }
             }
         }
         writer.endObject();
