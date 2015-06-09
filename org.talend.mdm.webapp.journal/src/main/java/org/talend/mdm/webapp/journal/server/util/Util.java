@@ -143,8 +143,6 @@ public class Util {
                 elementName =  "Concept"; //$NON-NLS-1$
             } else if ("key".equals(fieldName)) { //$NON-NLS-1$
                 elementName =  "Key"; //$NON-NLS-1$
-            } else if ("revisionId".equals(fieldName)) { //$NON-NLS-1$
-                elementName =  "RevisionID"; //$NON-NLS-1$
             } else if ("operationType".equals(fieldName)) { //$NON-NLS-1$
                 elementName =  "OperationType"; //$NON-NLS-1$
             } else if ("operationTime".equals(fieldName)) { //$NON-NLS-1$

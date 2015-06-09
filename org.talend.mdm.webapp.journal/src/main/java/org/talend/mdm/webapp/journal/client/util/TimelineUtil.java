@@ -56,11 +56,10 @@ public class TimelineUtil {
         model.setDataModel(configArr[2]);
         model.setEntity(configArr[3]);
         model.setKey(configArr[4]);
-        model.setRevisionId(configArr[5]);
-        model.setOperationType(configArr[6]);
-        model.setOperationTime(configArr[7]);
-        model.setSource(configArr[8]);
-        model.setUserName(configArr[9]);
+        model.setOperationType(configArr[5]);
+        model.setOperationTime(configArr[6]);
+        model.setSource(configArr[7]);
+        model.setUserName(configArr[8]);
         JournalGridPanel.getInstance().openTabPanel(model);
     }
         

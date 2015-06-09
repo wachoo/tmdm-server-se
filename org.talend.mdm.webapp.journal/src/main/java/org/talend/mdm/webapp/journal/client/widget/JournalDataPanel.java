@@ -122,8 +122,6 @@ public class JournalDataPanel extends FormPanel {
 
     private LabelField oeprationTimeField;
 
-    private LabelField revisionIdField;
-
     private SelectionListener<ButtonEvent> updateReportListener;
 
     private SelectionListener<ButtonEvent> openRecordListener;
@@ -387,10 +385,6 @@ public class JournalDataPanel extends FormPanel {
         oeprationTimeField.setFieldLabel(MessagesFactory.getMessages().operation_time_label() + " : "); //$NON-NLS-1$
         oeprationTimeField.setValue(this.journalGridModel.getOperationDate());
         right.add(oeprationTimeField);
-        revisionIdField = new LabelField();
-        revisionIdField.setFieldLabel(MessagesFactory.getMessages().revision_id_label() + " : "); //$NON-NLS-1$
-        revisionIdField.setValue(this.journalGridModel.getRevisionId());
-        right.add(revisionIdField);
 
         main.add(left, new ColumnData(.5));
         main.add(right, new ColumnData(.5));
@@ -645,7 +639,6 @@ public class JournalDataPanel extends FormPanel {
         this.keyField.setValue(gridModel.getKey());
         this.operationTypeField.setValue(gridModel.getOperationType());
         this.oeprationTimeField.setValue(gridModel.getOperationDate());
-        this.revisionIdField.setValue(gridModel.getRevisionId());
     }
 
     private native void openBrowseRecordPanel(String title, String key, String concept)/*-{

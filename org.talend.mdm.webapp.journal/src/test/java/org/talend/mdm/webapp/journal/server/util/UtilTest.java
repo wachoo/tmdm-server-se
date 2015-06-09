@@ -133,8 +133,6 @@ public class UtilTest extends TestCase {
         assertEquals("Update/Concept", returnValue); //$NON-NLS-1$
         returnValue = method.invoke(null, new Object[] { "key" }); //$NON-NLS-1$ 
         assertEquals("Update/Key", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "revisionId" }); //$NON-NLS-1$ 
-        assertEquals("Update/RevisionID", returnValue); //$NON-NLS-1$
         returnValue = method.invoke(null, new Object[] { "operationType" }); //$NON-NLS-1$ 
         assertEquals("Update/OperationType", returnValue); //$NON-NLS-1$
         returnValue = method.invoke(null, new Object[] { "operationTime" }); //$NON-NLS-1$ 

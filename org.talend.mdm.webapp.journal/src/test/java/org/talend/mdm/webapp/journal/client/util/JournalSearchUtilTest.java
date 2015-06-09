@@ -33,7 +33,6 @@ public class JournalSearchUtilTest extends TestCase {
         gridModel.setDataModel("Product-Model"); //$NON-NLS-1$
         gridModel.setEntity("Product-Entity"); //$NON-NLS-1$
         gridModel.setOperationTime("1381903894501"); //$NON-NLS-1$
-        gridModel.setRevisionId("Head"); //$NON-NLS-1$
         gridModel.setIds("genericUI.1381903894501"); //$NON-NLS-1$
         gridModel.setKey("3.5.6"); //$NON-NLS-1$
         
@@ -42,7 +41,6 @@ public class JournalSearchUtilTest extends TestCase {
         assertEquals(parameter.getDataModelName(), gridModel.getDataModel());
         assertEquals(parameter.getConceptName(), gridModel.getEntity());
         assertEquals(parameter.getDate(), Long.parseLong(gridModel.getOperationTime()));
-        assertEquals(parameter.getRevisionId(), gridModel.getRevisionId());
         assertEquals(parameter.getIds(), gridModel.getIds());
         assertArrayEquals(parameter.getId(), new String[] {"3","5","6"});  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
         assertEquals(parameter.getAction(), action);
@@ -57,7 +55,6 @@ public class JournalSearchUtilTest extends TestCase {
         gridModel.setDataModel("Product-Model"); //$NON-NLS-1$
         gridModel.setEntity("Product-Entity"); //$NON-NLS-1$
         gridModel.setOperationTime("1381903894501"); //$NON-NLS-1$
-        gridModel.setRevisionId("Head"); //$NON-NLS-1$
         gridModel.setIds("genericUI.1381903894501"); //$NON-NLS-1$
         gridModel.setKey(".3.5.6"); //$NON-NLS-1$
         
@@ -66,7 +63,6 @@ public class JournalSearchUtilTest extends TestCase {
         assertEquals(parameter.getDataModelName(), gridModel.getDataModel());
         assertEquals(parameter.getConceptName(), gridModel.getEntity());
         assertEquals(parameter.getDate(), Long.parseLong(gridModel.getOperationTime()));
-        assertEquals(parameter.getRevisionId(), gridModel.getRevisionId());
         assertEquals(parameter.getIds(), gridModel.getIds());
         assertArrayEquals(parameter.getId(), new String[] {"","3","5","6"});   //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$  //$NON-NLS-4$
         assertEquals(parameter.getAction(), action);
@@ -81,7 +77,6 @@ public class JournalSearchUtilTest extends TestCase {
         gridModel.setDataModel("Product-Model"); //$NON-NLS-1$
         gridModel.setEntity("Product-Entity"); //$NON-NLS-1$
         gridModel.setOperationTime("1381903894501"); //$NON-NLS-1$
-        gridModel.setRevisionId("Head"); //$NON-NLS-1$
         gridModel.setIds("genericUI.1381903894501"); //$NON-NLS-1$
         gridModel.setKey(".3.5.6."); //$NON-NLS-1$
         
@@ -90,7 +85,6 @@ public class JournalSearchUtilTest extends TestCase {
         assertEquals(parameter.getDataModelName(), gridModel.getDataModel());
         assertEquals(parameter.getConceptName(), gridModel.getEntity());
         assertEquals(parameter.getDate(), Long.parseLong(gridModel.getOperationTime()));
-        assertEquals(parameter.getRevisionId(), gridModel.getRevisionId());
         assertEquals(parameter.getIds(), gridModel.getIds());
         assertArrayEquals(parameter.getId(), new String[] {"","3","5","6",""});   //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$  //$NON-NLS-4$   //$NON-NLS-5$
         assertEquals(parameter.getAction(), action);

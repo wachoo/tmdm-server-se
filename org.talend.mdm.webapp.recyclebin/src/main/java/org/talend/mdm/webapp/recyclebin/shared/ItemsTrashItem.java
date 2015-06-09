@@ -31,23 +31,18 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
 
     private String itemName;
 
-    private String partPath;
-
     private String insertionUserName;
 
     private String insertionTime;
 
     private String projection;
 
-    private String revisionID;
-
     public ItemsTrashItem() {
         super();
     }
 
     public ItemsTrashItem(String conceptName, String dataModelName, String ids, String itemName, String insertionTime,
-                          String insertionUserName, String dataClusterName, String partPath, String projection,
-                          String uniqueId) {
+            String insertionUserName, String dataClusterName, String projection, String uniqueId) {
         this.conceptName = conceptName;
         this.dataModelName = dataModelName;
         this.ids = ids;
@@ -55,9 +50,7 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
         this.insertionTime = insertionTime;
         this.insertionUserName = insertionUserName;
         this.dataClusterName = dataClusterName;
-        this.partPath = partPath;
         this.projection = projection;
-        this.revisionID = revisionID;
         this.uniqueId = uniqueId;
         set("conceptName", conceptName); //$NON-NLS-1$
         set("dataModelName", dataModelName); //$NON-NLS-1$
@@ -66,18 +59,8 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
         set("insertionTime", insertionTime); //$NON-NLS-1$
         set("insertionUserName", insertionUserName); //$NON-NLS-1$
         set("dataClusterName", dataClusterName); //$NON-NLS-1$
-        set("partPath", partPath); //$NON-NLS-1$
         set("projection", projection); //$NON-NLS-1$
-        set("revisionID", revisionID); //$NON-NLS-1$
         set("uniqueId", uniqueId); //$NON-NLS-1$
-    }
-
-    public String getRevisionID() {
-        return revisionID;
-    }
-
-    public void setRevisionID(String revisionID) {
-        this.revisionID = revisionID;
     }
 
     public String getDataClusterName() {
@@ -110,14 +93,6 @@ public class ItemsTrashItem extends BaseModelData implements IsSerializable {
 
     public void setIds(String ids) {
         this.ids = ids;
-    }
-
-    public String getPartPath() {
-        return partPath;
-    }
-
-    public void setPartPath(String partPath) {
-        this.partPath = partPath;
     }
 
     public String getInsertionUserName() {

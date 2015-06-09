@@ -35,10 +35,9 @@ public class JournalExcelTest extends TestCase {
         assertEquals("Data Model", row.getCell(1).getStringCellValue()); //$NON-NLS-1$
         assertEquals("Entity", row.getCell(2).getStringCellValue()); //$NON-NLS-1$
         assertEquals("Key", row.getCell(3).getStringCellValue()); //$NON-NLS-1$
-        assertEquals("Revision ID", row.getCell(4).getStringCellValue()); //$NON-NLS-1$
-        assertEquals("Operation Type", row.getCell(5).getStringCellValue()); //$NON-NLS-1$
-        assertEquals("Operation Time", row.getCell(6).getStringCellValue()); //$NON-NLS-1$
-        assertEquals("Source", row.getCell(7).getStringCellValue()); //$NON-NLS-1$
-        assertEquals("User Name", row.getCell(8).getStringCellValue()); //$NON-NLS-1$
+        assertEquals("Operation Type", row.getCell(4).getStringCellValue()); //$NON-NLS-1$
+        assertEquals("Operation Time", row.getCell(5).getStringCellValue()); //$NON-NLS-1$
+        assertEquals("Source", row.getCell(6).getStringCellValue()); //$NON-NLS-1$
+        assertEquals("User Name", row.getCell(7).getStringCellValue()); //$NON-NLS-1$
     }
 }

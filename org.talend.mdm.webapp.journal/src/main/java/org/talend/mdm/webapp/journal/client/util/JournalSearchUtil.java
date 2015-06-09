@@ -31,7 +31,6 @@ public class JournalSearchUtil {
         parameter.setDataModelName(gridModel.getDataModel());
         parameter.setConceptName(gridModel.getEntity());
         parameter.setDate(Long.parseLong(gridModel.getOperationTime()));
-        parameter.setRevisionId(gridModel.getRevisionId());
         parameter.setIds(gridModel.getIds());
         parameter.setAction(action);
         String[] id = parseKey(gridModel.getKey());

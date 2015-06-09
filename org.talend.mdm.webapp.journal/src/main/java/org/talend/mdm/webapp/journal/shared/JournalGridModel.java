@@ -35,8 +35,6 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
 
     private String key;
 
-    private String revisionId;
-
     private String operationType;
 
     private String operationTime;
@@ -98,15 +96,6 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
         this.key = key;
     }
 
-    public String getRevisionId() {
-        return revisionId;
-    }
-
-    public void setRevisionId(String revisionId) {
-        set("revisionId", revisionId); //$NON-NLS-1$
-        this.revisionId = revisionId;
-    }
-
     public String getOperationType() {
         return operationType;
     }
@@ -163,7 +152,6 @@ public class JournalGridModel extends BaseModel implements IsSerializable {
         sb.append(dataModel).append(","); //$NON-NLS-1$
         sb.append(entity).append(","); //$NON-NLS-1$
         sb.append(key).append(","); //$NON-NLS-1$
-        sb.append(revisionId).append(","); //$NON-NLS-1$
         sb.append(operationType).append(","); //$NON-NLS-1$
         sb.append(operationTime).append(","); //$NON-NLS-1$
         sb.append(source).append(","); //$NON-NLS-1$

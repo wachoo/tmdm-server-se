@@ -28,11 +28,10 @@ public interface RecycleBinService extends RemoteService {
 
     ItemBasePageLoadResult<ItemsTrashItem> getTrashItems(String regex, BasePagingLoadConfigImpl load) throws ServiceException;
 
-    String removeDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
-            String ids, String language) throws ServiceException;
+    String removeDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language)
+            throws ServiceException;
 
-    void recoverDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
-            String ids) throws ServiceException;
+    void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids) throws ServiceException;
 
     boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException;
 

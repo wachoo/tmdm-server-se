@@ -69,15 +69,14 @@ public class JournalExportServlet extends HttpServlet {
                 row.createCell((short) 1).setCellValue(model.getDataModel());
                 row.createCell((short) 2).setCellValue(model.getEntity());
                 row.createCell((short) 3).setCellValue(model.getKey());
-                row.createCell((short) 4).setCellValue(model.getRevisionId());
-                row.createCell((short) 5).setCellValue(model.getOperationType());
+                row.createCell((short) 4).setCellValue(model.getOperationType());
                 String operationTimeValue = (model.getOperationTime() == null ? "" : model.getOperationTime()); //$NON-NLS-1$
                 if (!"".equals(operationTimeValue)) { //$NON-NLS-1$
                     operationTimeValue = simpleDateFormat.format(new Date(Long.parseLong(model.getOperationTime())));                    
                 }
-                row.createCell((short) 6).setCellValue(operationTimeValue);
-                row.createCell((short) 7).setCellValue(model.getSource());
-                row.createCell((short) 8).setCellValue(model.getUserName());
+                row.createCell((short) 5).setCellValue(operationTimeValue);
+                row.createCell((short) 6).setCellValue(model.getSource());
+                row.createCell((short) 7).setCellValue(model.getUserName());
             }
         } catch (Exception e) {
             LOG.error(e.getMessage());

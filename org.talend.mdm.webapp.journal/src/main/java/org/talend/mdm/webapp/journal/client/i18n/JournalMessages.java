@@ -51,8 +51,6 @@ public interface JournalMessages extends Messages {
 
     public String data_model_label();
 
-    public String revision_id_label();
-
     public String operation_time_label();
 
     public String user_name_label();

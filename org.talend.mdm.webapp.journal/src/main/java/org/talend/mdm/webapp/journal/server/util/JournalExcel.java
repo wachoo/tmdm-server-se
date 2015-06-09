@@ -84,20 +84,17 @@ public class JournalExcel {
         row.createCell((short) 3).setCellValue(messages.getMessage(locale, "key_label")); //$NON-NLS-1$
         row.getCell((short) 3).setCellStyle(cellStyle);
 
-        row.createCell((short) 4).setCellValue(messages.getMessage(locale, "revision_id_label")); //$NON-NLS-1$
+        row.createCell((short) 4).setCellValue(messages.getMessage(locale, "operation_type_label")); //$NON-NLS-1$
         row.getCell((short) 4).setCellStyle(cellStyle);
 
-        row.createCell((short) 5).setCellValue(messages.getMessage(locale, "operation_type_label")); //$NON-NLS-1$
+        row.createCell((short) 5).setCellValue(messages.getMessage(locale, "operation_time_label")); //$NON-NLS-1$
         row.getCell((short) 5).setCellStyle(cellStyle);
 
-        row.createCell((short) 6).setCellValue(messages.getMessage(locale, "operation_time_label")); //$NON-NLS-1$
+        row.createCell((short) 6).setCellValue(messages.getMessage(locale, "source_label")); //$NON-NLS-1$
         row.getCell((short) 6).setCellStyle(cellStyle);
 
-        row.createCell((short) 7).setCellValue(messages.getMessage(locale, "source_label")); //$NON-NLS-1$
+        row.createCell((short) 7).setCellValue(messages.getMessage(locale, "user_name_label")); //$NON-NLS-1$
         row.getCell((short) 7).setCellStyle(cellStyle);
-
-        row.createCell((short) 8).setCellValue(messages.getMessage(locale, "user_name_label")); //$NON-NLS-1$
-        row.getCell((short) 8).setCellStyle(cellStyle);
     }
     
     public HSSFRow createRow(short number) {

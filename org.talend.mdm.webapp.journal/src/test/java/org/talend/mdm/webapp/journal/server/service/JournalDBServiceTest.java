@@ -149,21 +149,19 @@ public class JournalDBServiceTest extends TestCase{
         childModel = (JournalTreeModel)journalTreeModel.getChild(4);
         assertEquals("Concept:Product", childModel.getName()); //$NON-NLS-1$
         childModel = (JournalTreeModel)journalTreeModel.getChild(5);
-        assertEquals("RevisionID:", childModel.getName()); //$NON-NLS-1$
-        childModel = (JournalTreeModel)journalTreeModel.getChild(6);
         assertEquals("DataCluster:Product", childModel.getName()); //$NON-NLS-1$
-        childModel = (JournalTreeModel)journalTreeModel.getChild(7);
+        childModel = (JournalTreeModel)journalTreeModel.getChild(6);
         assertEquals("DataModel:Product", childModel.getName()); //$NON-NLS-1$
-        childModel = (JournalTreeModel)journalTreeModel.getChild(8);
+        childModel = (JournalTreeModel)journalTreeModel.getChild(7);
         assertEquals("Key:1",childModel.getName()); //$NON-NLS-1$
-        childModel = (JournalTreeModel)journalTreeModel.getChild(9);        
+        childModel = (JournalTreeModel)journalTreeModel.getChild(8);        
         assertEquals("path:Name",((JournalTreeModel)childModel.getChild(0)).getName()); //$NON-NLS-1$
         assertEquals("oldValue:1",((JournalTreeModel)childModel.getChild(1)).getName()); //$NON-NLS-1$
         assertEquals("newValue:123",((JournalTreeModel)childModel.getChild(2)).getName()); //$NON-NLS-1$
     }
     
     public void testGetComparisionTreeModel() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {
-        String xmlString = "<result><Update><UserName>Jennifer</UserName><Source>genericUI</Source><TimeInMillis>1360032633336</TimeInMillis><OperationType>UPDATE</OperationType><RevisionID>null</RevisionID><DataCluster>DStar</DataCluster><DataModel>DStar</DataModel><Concept>Agency</Concept><Key>2</Key><Item><path>Name</path><oldValue>23456</oldValue><newValue>34567</newValue></Item></Update></result>"; //$NON-NLS-1$
+        String xmlString = "<result><Update><UserName>Jennifer</UserName><Source>genericUI</Source><TimeInMillis>1360032633336</TimeInMillis><OperationType>UPDATE</OperationType><DataCluster>DStar</DataCluster><DataModel>DStar</DataModel><Concept>Agency</Concept><Key>2</Key><Item><path>Name</path><oldValue>23456</oldValue><newValue>34567</newValue></Item></Update></result>"; //$NON-NLS-1$
         JournalTreeModel returnValue = journalDBService.getComparisionTreeModel(xmlString);
         assertEquals("root", returnValue.getId()); //$NON-NLS-1$
         assertEquals("Document", returnValue.getName()); //$NON-NLS-1$
@@ -176,12 +174,11 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("Source:genericUI",journalTreeModelList.get(1).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals("TimeInMillis:1360032633336",journalTreeModelList.get(2).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals("OperationType:UPDATE",journalTreeModelList.get(3).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("RevisionID:null",journalTreeModelList.get(4).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("DataCluster:DStar",journalTreeModelList.get(5).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("DataModel:DStar",journalTreeModelList.get(6).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("Concept:Agency",journalTreeModelList.get(7).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("Key:2",journalTreeModelList.get(8).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
-        journalTreeModel = (JournalTreeModel) journalTreeModelList.get(9);
+        assertEquals("DataCluster:DStar",journalTreeModelList.get(4).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("DataModel:DStar",journalTreeModelList.get(5).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Concept:Agency",journalTreeModelList.get(6).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Key:2",journalTreeModelList.get(7).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
+        journalTreeModel = (JournalTreeModel) journalTreeModelList.get(8);
         journalTreeModelList = journalTreeModel.getChildren();
         assertEquals("oldValue:23456",journalTreeModelList.get(1).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
         assertEquals("newValue:34567",journalTreeModelList.get(2).get("name")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -212,7 +209,7 @@ public class JournalDBServiceTest extends TestCase{
     }
     
     public void testParseString2Model() throws NoSuchMethodException,InvocationTargetException,IllegalArgumentException,IllegalAccessException {
-        String xmlString = "<result><Update><UserName>Jennifer</UserName><Source>genericUI</Source><TimeInMillis>1360032633336</TimeInMillis><OperationType>UPDATE</OperationType><RevisionID>null</RevisionID><DataCluster>DStar</DataCluster><DataModel>DStar</DataModel><Concept>Agency</Concept><Key>2</Key><Item><path>Name</path><oldValue>23456</oldValue><newValue>34567</newValue><path>Feautres/Sizes/Size[3]</path><oldValue>ccc</oldValue><newValue>333</newValue><path>Feautres/Sizes/Size[2]</path><oldValue>bbb</oldValue><newValue>222</newValue><path>Feautres/Sizes/Size[1]</path><oldValue>aaa</oldValue><newValue>111</newValue></Item></Update></result>"; //$NON-NLS-1$        
+        String xmlString = "<result><Update><UserName>Jennifer</UserName><Source>genericUI</Source><TimeInMillis>1360032633336</TimeInMillis><OperationType>UPDATE</OperationType><DataCluster>DStar</DataCluster><DataModel>DStar</DataModel><Concept>Agency</Concept><Key>2</Key><Item><path>Name</path><oldValue>23456</oldValue><newValue>34567</newValue><path>Feautres/Sizes/Size[3]</path><oldValue>ccc</oldValue><newValue>333</newValue><path>Feautres/Sizes/Size[2]</path><oldValue>bbb</oldValue><newValue>222</newValue><path>Feautres/Sizes/Size[1]</path><oldValue>aaa</oldValue><newValue>111</newValue></Item></Update></result>"; //$NON-NLS-1$        
         Method method = journalDBService.getClass().getDeclaredMethod("parseString2Model", String.class); //$NON-NLS-1$
         method.setAccessible(true);
         JournalGridModel returnValue = (JournalGridModel)method.invoke(journalDBService, new Object[] { xmlString });
@@ -222,7 +219,6 @@ public class JournalDBServiceTest extends TestCase{
         assertEquals("Agency", returnValue.getEntity()); //$NON-NLS-1$   
         assertEquals("genericUI.1360032633336", returnValue.getIds()); //$NON-NLS-1$   
         assertEquals("2", returnValue.getKey()); //$NON-NLS-1$   
-        assertEquals("", returnValue.getRevisionId()); //$NON-NLS-1$   
         assertEquals(UpdateReportPOJO.OPERATION_TYPE_UPDATE, returnValue.getOperationType());
         assertEquals("genericUI", returnValue.getSource()); //$NON-NLS-1$   
         assertEquals("1360032633336", returnValue.getOperationTime()); //$NON-NLS-1$

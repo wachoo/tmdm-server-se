@@ -21,13 +21,9 @@ public interface RecycleBinMessages extends Messages {
 
     String dataClusterName();
 
-    String revisionID();
-
     String conceptName();
 
     String Ids();
-
-    String partPath();
 
     String UserName();
 

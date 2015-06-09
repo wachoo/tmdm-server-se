@@ -25,11 +25,10 @@ public interface RecycleBinServiceAsync {
 
     void getTrashItems(String regex, BasePagingLoadConfigImpl load, AsyncCallback<ItemBasePageLoadResult<ItemsTrashItem>> callback);
 
-    void removeDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
-            String ids, String language, AsyncCallback<String> callback);
+    void removeDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language,
+            AsyncCallback<String> callback);
 
-    void recoverDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
-            String ids, AsyncCallback<Void> callback);
+    void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids, AsyncCallback<Void> callback);
 
     void isEntityPhysicalDeletable(String conceptName, AsyncCallback<Boolean> callback);
 

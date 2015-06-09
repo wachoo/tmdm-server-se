@@ -42,14 +42,14 @@ public class RecycleBinServiceAsyncMock implements RecycleBinServiceAsync {
     }
 
     @Override
-    public void recoverDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
-            String ids, AsyncCallback<Void> callback) {
+    public void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids,
+            AsyncCallback<Void> callback) {
         // do nothing
     }
 
     @Override
-    public void removeDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
-            String ids, String language, AsyncCallback<String> callback) {
+    public void removeDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language,
+            AsyncCallback<String> callback) {
         FakeData.remvoeItem(clusterName, conceptName, ids);
         callback.onSuccess("[EN:del succ][FR:del succ]");
     }

@@ -134,7 +134,6 @@ public class JournalDBService {
         root.add(new JournalTreeModel("TimeInMillis:" + checkNull(Util.getFirstTextNode(doc, "/Update/TimeInMillis")))); //$NON-NLS-1$ //$NON-NLS-2$
         root.add(new JournalTreeModel("OperationType:" + checkNull(Util.getFirstTextNode(doc, "/Update/OperationType")))); //$NON-NLS-1$ //$NON-NLS-2$
         root.add(new JournalTreeModel("Concept:" + checkNull(concept))); //$NON-NLS-1$
-        root.add(new JournalTreeModel("RevisionID:" + checkNull(Util.getFirstTextNode(doc, "/Update/RevisionID")))); //$NON-NLS-1$ //$NON-NLS-2$
         root.add(new JournalTreeModel("DataCluster:" + checkNull(dataCluster))); //$NON-NLS-1$
         root.add(new JournalTreeModel("DataModel:" + checkNull(dataModel))); //$NON-NLS-1$
         root.add(new JournalTreeModel("Key:" + checkNull(Util.getFirstTextNode(doc, "/Update/Key")))); //$NON-NLS-1$ //$NON-NLS-2$                       
@@ -240,7 +239,6 @@ public class JournalDBService {
         model.setDataModel(checkNull(Util.getFirstTextNode(doc, "result/Update/DataModel"))); //$NON-NLS-1$
         model.setEntity(checkNull(Util.getFirstTextNode(doc, "result/Update/Concept"))); //$NON-NLS-1$
         model.setKey(checkNull(Util.getFirstTextNode(doc, "result/Update/Key"))); //$NON-NLS-1$
-        model.setRevisionId(checkNull(Util.getFirstTextNode(doc, "result/Update/RevisionID"))); //$NON-NLS-1$
         model.setOperationType(checkNull(Util.getFirstTextNode(doc, "result/Update/OperationType"))); //$NON-NLS-1$
         model.setOperationTime(timeInMillis);
         model.setOperationDate(sdf.format(new Date(Long.parseLong(timeInMillis))));

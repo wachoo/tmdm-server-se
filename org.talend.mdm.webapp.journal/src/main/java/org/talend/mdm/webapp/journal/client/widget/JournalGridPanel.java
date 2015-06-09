@@ -129,12 +129,6 @@ public class JournalGridPanel extends ContentPanel {
         ccKey.setWidth(120);
         ccList.add(ccKey);
 
-        ColumnConfig ccRevisionId = new ColumnConfig();
-        ccRevisionId.setId("revisionId"); //$NON-NLS-1$
-        ccRevisionId.setHeader(MessagesFactory.getMessages().revision_id_label());
-        ccRevisionId.setWidth(120);
-        ccList.add(ccRevisionId);
-
         ColumnConfig ccOperationType = new ColumnConfig();
         ccOperationType.setId("operationType"); //$NON-NLS-1$
         ccOperationType.setHeader(MessagesFactory.getMessages().operation_type_label());

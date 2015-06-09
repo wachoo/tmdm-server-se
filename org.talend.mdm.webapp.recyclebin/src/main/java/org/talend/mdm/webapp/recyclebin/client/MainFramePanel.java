@@ -145,11 +145,6 @@ public class MainFramePanel extends ContentPanel {
         colDataModelName.setWidth(COLUMN_WIDTH);
         colDataModelName.setHeader(MessagesFactory.getMessages().dataModelName());
         ccList.add(colDataModelName);
-        ColumnConfig colRevisionID = new ColumnConfig();
-        colRevisionID.setId("revisionID");//$NON-NLS-1$
-        colRevisionID.setWidth(COLUMN_WIDTH);
-        colRevisionID.setHeader(MessagesFactory.getMessages().revisionID());
-        ccList.add(colRevisionID);
         ColumnConfig colConceptName = new ColumnConfig();
         colConceptName.setId("conceptName");//$NON-NLS-1$
         colConceptName.setWidth(COLUMN_WIDTH);
@@ -165,11 +160,6 @@ public class MainFramePanel extends ContentPanel {
         colItemName.setWidth(COLUMN_WIDTH);
         colItemName.setHeader(MessagesFactory.getMessages().name());
         ccList.add(colItemName);
-        ColumnConfig colPartPath = new ColumnConfig();
-        colPartPath.setId("partPath");//$NON-NLS-1$
-        colPartPath.setWidth(COLUMN_WIDTH);
-        colPartPath.setHeader(MessagesFactory.getMessages().partPath());
-        ccList.add(colPartPath);
         ColumnConfig colUserName = new ColumnConfig();
         colUserName.setId("insertionUserName");//$NON-NLS-1$
         colUserName.setWidth(COLUMN_WIDTH);
@@ -535,8 +525,8 @@ public class MainFramePanel extends ContentPanel {
     }
 
     public void restoreSelectedItem(final ItemsTrashItem r) {
-        service.recoverDroppedItem(r.getDataClusterName(), r.getDataModelName(), r.getPartPath(), r.getRevisionID(),
-                r.getConceptName(), r.getIds(), new AsyncCallback<Void>() {
+        service.recoverDroppedItem(r.getDataClusterName(), r.getDataModelName(), r.getConceptName(), r.getIds(),
+                new AsyncCallback<Void>() {
 
                     @Override
                     public void onSuccess(Void arg0) {
@@ -633,8 +623,8 @@ public class MainFramePanel extends ContentPanel {
                         }
                     }
 
-                    service.removeDroppedItem(r.getDataClusterName(), r.getDataModelName(), r.getPartPath(), r.getRevisionID(),
-                            r.getConceptName(), r.getIds(), UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
+                    service.removeDroppedItem(r.getDataClusterName(), r.getDataModelName(), r.getConceptName(), r.getIds(),
+                            UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
                                 @Override
                                 public void onSuccess(String msg) {
@@ -729,9 +719,8 @@ public class MainFramePanel extends ContentPanel {
 
     private void deleteItem(final ItemsTrashItem model) {
 
-        service.removeDroppedItem(model.getDataClusterName(), model.getDataModelName(), model.getPartPath(),
-                model.getRevisionID(), model.getConceptName(), model.getIds(), UrlUtil.getLanguage(),
-                new SessionAwareAsyncCallback<String>() {
+        service.removeDroppedItem(model.getDataClusterName(), model.getDataModelName(), model.getConceptName(), model.getIds(),
+                UrlUtil.getLanguage(), new SessionAwareAsyncCallback<String>() {
 
                     @Override
                     public void onSuccess(String msg) {
@@ -767,8 +756,8 @@ public class MainFramePanel extends ContentPanel {
     }
 
     public void recoverDroppedItem(final ItemsTrashItem model, final Grid<ItemsTrashItem> modelGrid) {
-        service.recoverDroppedItem(model.getDataClusterName(), model.getDataModelName(), model.getPartPath(),
-                model.getRevisionID(), model.getConceptName(), model.getIds(), new SessionAwareAsyncCallback<Void>() {
+        service.recoverDroppedItem(model.getDataClusterName(), model.getDataModelName(), model.getConceptName(), model.getIds(),
+                new SessionAwareAsyncCallback<Void>() {
 
                     @Override
                     public void onSuccess(Void arg0) {

@@ -59,8 +59,6 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
 
     MetadataRepository metadataRepository;
 
-    String revisionId;
-
     ComplexTypeMetadata typeMetadata;
 
     com.amalto.core.history.Document document;

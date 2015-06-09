@@ -32,8 +32,6 @@ public class JournalParameters implements Serializable, IsSerializable {
     private String dataModelName;
     
     private String conceptName;
-        
-    private String revisionId;
 
     private long date;
 
@@ -85,14 +83,6 @@ public class JournalParameters implements Serializable, IsSerializable {
 
     public void setConceptName(String conceptName) {
         this.conceptName = conceptName;
-    }
-
-    public String getRevisionId() {
-        return revisionId;
-    }
-
-    public void setRevisionId(String revisionId) {
-        this.revisionId = revisionId;
     }
     
     public long getDate() {

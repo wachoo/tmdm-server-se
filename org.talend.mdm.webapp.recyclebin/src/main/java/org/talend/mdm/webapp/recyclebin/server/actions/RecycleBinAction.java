@@ -119,7 +119,7 @@ public class RecycleBinAction implements RecycleBinService {
         return new ItemsTrashItem(item.getConceptName(), values[1],
                 Util.joinStrings(item.getIds(), "."), values[0] != null ? values[0] : "", df.format(new Date(//$NON-NLS-1$ //$NON-NLS-2$
                         item.getInsertionTime())), item.getInsertionUserName(), item.getWsDataClusterPK().getPk(),
-                item.getPartPath(), item.getProjection(), item.getUniqueId());
+                item.getProjection(), item.getUniqueId());
     }
 
     @Override
@@ -138,15 +138,15 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     @Override
-    public String removeDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
-            String ids, String language) throws ServiceException {
+    public String removeDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language)
+            throws ServiceException {
         try {
             WSGetBusinessConceptKey conceptKey = new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName);
             WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(conceptKey);
             String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
             WSDataClusterPK dataClusterPK = new WSDataClusterPK(clusterName);
             WSItemPK wsItemPK = new WSItemPK(dataClusterPK, conceptName, ids1);
-            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, partPath);
+            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, "/"); //$NON-NLS-1$
             WSRemoveDroppedItem wsRemoveDroppedItem = new WSRemoveDroppedItem(wsDroppedItemPK);
             Util.getPort().removeDroppedItem(wsRemoveDroppedItem);
             Locale locale = new Locale(language);
@@ -176,8 +176,7 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     @Override
-    public void recoverDroppedItem(String clusterName, String modelName, String partPath, String revisionId, String conceptName,
-            String ids) throws ServiceException {
+    public void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids) throws ServiceException {
         try {
             if (Webapp.INSTANCE.isEnterpriseVersion()
                     && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName)) {
@@ -188,7 +187,7 @@ public class RecycleBinAction implements RecycleBinService {
             String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
             WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(clusterName);
             WSItemPK wsItemPK = new WSItemPK(wsDataClusterPK, conceptName, ids1);
-            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, partPath);
+            WSDroppedItemPK wsDroppedItemPK = new WSDroppedItemPK(wsItemPK, "/"); //$NON-NLS-1$
             WSRecoverDroppedItem recoverDroppedItem = new WSRecoverDroppedItem(wsDroppedItemPK);
             Util.getPort().recoverDroppedItem(recoverDroppedItem);
         } catch (Exception e) {
