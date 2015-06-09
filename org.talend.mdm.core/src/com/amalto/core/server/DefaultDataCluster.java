@@ -1,22 +1,22 @@
 package com.amalto.core.server;
 
+import java.util.*;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.ObjectPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.server.api.DataCluster;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import com.amalto.core.server.api.DataCluster;
-import com.amalto.core.server.api.XmlServer;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 
 public class DefaultDataCluster implements DataCluster {
@@ -173,11 +173,14 @@ public class DefaultDataCluster implements DataCluster {
     @Override
     public Collection<DataClusterPOJOPK> getDataClusterPKs(String regex) throws XtentisException {
         final StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
-        final String[] names = admin.getAll();
-        List<DataClusterPOJOPK> clusterNames = new ArrayList<>(names.length + 1);
+        List<String> names = new ArrayList<>(Arrays.asList(XSystemObjects.DC_CONF.getName(),
+                XSystemObjects.DC_PROVISIONING.getName()));
+        names.addAll(Arrays.asList(admin.getAll()));
+        List<DataClusterPOJOPK> clusterNames = new ArrayList<>(names.size() + 1);
         ILocalUser user = LocalUser.getLocalUser();
         for (String name : names) {
-            if(user.userCanRead(DataClusterPOJO.class, name)) {
+            boolean hasMatch = "*".equals(regex) || ".*".equals(regex) || Pattern.compile(regex).matcher(regex).matches(); //$NON-NLS-1$ //$NON-NLS-2$
+            if (hasMatch && user.userCanRead(DataClusterPOJO.class, name)) {
                 clusterNames.add(new DataClusterPOJOPK(name));
             }
         }
