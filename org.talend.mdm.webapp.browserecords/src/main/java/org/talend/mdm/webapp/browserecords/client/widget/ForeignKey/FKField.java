@@ -13,6 +13,8 @@
 
 package org.talend.mdm.webapp.browserecords.client.widget.ForeignKey;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.EntityModel;
@@ -45,7 +47,11 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
     private String foreignKey;
 
+    private String foreignKeyField;
+
     private ReturnCriteriaFK returnCriteriaFK;
+
+    private List<String> foreignKeyInfo;
 
     public boolean isRetrieveFKinfos() {
         return retrieveFKinfos;
@@ -55,10 +61,13 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
         this.retrieveFKinfos = retrieveFKinfos;
     }
 
-    public FKField() {
+    public FKField(String foreignKey, List<String> foreignKeyInfo) {
+        this.foreignKey = foreignKey;
+        this.foreignKeyInfo = foreignKeyInfo;
         this.setFireChangeEventOnSetValue(true);
     }
 
+    @Override
     protected void onRender(Element target, int index) {
         El wrap = new El(DOM.createDiv());
         wrap.addStyleName("x-form-field-wrap"); //$NON-NLS-1$
@@ -77,6 +86,7 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
         foreignBtn.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.link()));
         foreignBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
                 if (relWindow != null) {
                     relWindow.show();
@@ -84,13 +94,15 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
                     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry
                             .get(BrowseRecords.BROWSERECORDS_SERVICE);
                     EntityModel currentEntityModel = BrowseRecords.getSession().getCurrentEntityModel();
-                    String concept = currentEntityModel.getTypeModel(foreignKey).getForeignkey().split("/")[0]; //$NON-NLS-1$
+                    String concept = currentEntityModel.getTypeModel(foreignKeyField).getForeignkey().split("/")[0]; //$NON-NLS-1$
                     service.getEntityModel(concept, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
+                        @Override
                         public void onSuccess(EntityModel entityModel) {
                             showWindow(entityModel);
                         }
 
+                        @Override
                         protected void doOnFailure(Throwable caught) {
                             super.doOnFailure(caught);
                         }
@@ -108,9 +120,11 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
 
         final SelectionListener<ButtonEvent> closer = new SelectionListener<ButtonEvent>() {
 
+            @Override
             public void componentSelected(ButtonEvent ce) {
-                if (relWindow != null)
+                if (relWindow != null) {
                     relWindow.hide();
+                }
             }
 
         };
@@ -127,32 +141,36 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
         relWindow.setResizable(false);
         relWindow.setModal(true);
         relWindow.setBlinkModal(true);
-        relWindow.setFkKey(foreignKey);
         relWindow.setReturnCriteriaFK(returnCriteriaFK);
         relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
+        relWindow.setForeignKeyInfos(this.foreignKey, this.foreignKeyInfo);
         relWindow.show();
     }
 
+    @Override
     protected void onResize(int width, int height) {
         super.onResize(width, height);
         input.setWidth(width - foreignBtn.getWidth() - 4, true);
     }
 
+    @Override
     protected void doAttachChildren() {
         super.doAttachChildren();
         ComponentHelper.doAttach(foreignBtn);
     }
 
+    @Override
     protected void doDetachChildren() {
         super.doDetachChildren();
         ComponentHelper.doDetach(foreignBtn);
     }
 
-    public void Update(String foreignKey, ReturnCriteriaFK returnCriteriaFK) {
-        this.foreignKey = foreignKey;
+    public void Update(String foreignKeyField, ReturnCriteriaFK returnCriteriaFK) {
+        this.foreignKeyField = foreignKeyField;
         this.returnCriteriaFK = returnCriteriaFK;
     }
 
+    @Override
     public void setCriteriaFK(final ForeignKeyBean fk) {
         if (retrieveFKinfos) {
             fk.setShowInfo(true);
@@ -161,14 +179,17 @@ public class FKField extends TextField<ForeignKeyBean> implements ReturnCriteria
         setValue(fk);
     }
 
+    @Override
     public void setEnabled(boolean enabled) {
         foreignBtn.setEnabled(enabled);
     }
 
+    @Override
     public void setValue(ForeignKeyBean fk) {
         super.setValue(fk);
     }
 
+    @Override
     public ForeignKeyBean getValue() {
         return value;
     }

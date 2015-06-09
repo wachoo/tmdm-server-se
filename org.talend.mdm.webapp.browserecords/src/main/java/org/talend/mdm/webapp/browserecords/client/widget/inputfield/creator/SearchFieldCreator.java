@@ -43,14 +43,15 @@ public class SearchFieldCreator {
                 field = textField;
                 cons = OperatorConstants.stringOperators;
             } else if (typeModel.getForeignkey() != null) {
-                FKField fkField = new FKField();
+            FKField fkField = new FKField(typeModel.getForeignkey(), typeModel.getForeignKeyInfo());
                 field = fkField;
                 cons = OperatorConstants.foreignKeyOperators;
             } else if (typeModel.hasEnumeration()) {
                 SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
                 comboBox.setFireChangeEventOnSetValue(true);
-                if (typeModel.getMinOccurs() > 0)
+                if (typeModel.getMinOccurs() > 0) {
                     comboBox.setAllowBlank(false);
+                }
                 comboBox.setEditable(false);
                 comboBox.setForceSelection(true);
                 comboBox.setTriggerAction(TriggerAction.ALL);
