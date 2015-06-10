@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -370,16 +371,22 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
     }
 
     @Override
-    public void handleEvent(FormEvent be) {
+    public void handleEvent(final FormEvent formEvent) {
         waitBar.close();
-        if (be.getResultHtml().contains(MessagesFactory.getMessages().import_success_label())) {
-            window.hide();
-            MessageBox.alert(MessagesFactory.getMessages().info_title(), filterFormatTag(be.getResultHtml()), null);
-            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
-            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, buttonEvent);
+        if (formEvent.getResultHtml().contains(MessagesFactory.getMessages().import_success_label())) {
+            MessageBox.alert(MessagesFactory.getMessages().info_title(), filterFormatTag(formEvent.getResultHtml()),
+                    new Listener<MessageBoxEvent>() {
+
+                        @Override
+                        public void handleEvent(MessageBoxEvent be) {
+                            window.hide();
+                            ButtonEvent buttonEvent = new ButtonEvent(ItemsToolBar.getInstance().searchButton);
+                            ItemsToolBar.getInstance().searchButton.fireEvent(Events.Select, buttonEvent);
+                        }
+                    });
         } else {
             MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                    MultilanguageMessageParser.pickOutISOMessage(filterFormatTag(be.getResultHtml())), null);
+                    MultilanguageMessageParser.pickOutISOMessage(filterFormatTag(formEvent.getResultHtml())), null);
         }
     }
 

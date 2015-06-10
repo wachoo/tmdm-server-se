@@ -244,6 +244,7 @@ public class UploadService {
                     continue;
                 }
             }
+            multiNodeMap = new HashMap<String, List<Element>>();
             if (importHeader != null) {
                 Document document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(
                         typeModel, null, null, language));
@@ -395,14 +396,13 @@ public class UploadService {
             String field[] = fieldPath.split(Constants.FILE_EXPORT_IMPORT_SEPARATOR);
             fieldPath = field[0];
         }
+        String[] xpathPartArray = fieldPath.split("/"); //$NON-NLS-1$
+        String xpath = xpathPartArray[0];
         if (!isAttribute) {
-            if (multipleValueSeparator != null && !multipleValueSeparator.isEmpty()
-                    && fieldValue.contains(multipleValueSeparator)) {
+            if (multipleValueSeparator != null && !multipleValueSeparator.isEmpty()) {
                 valueList = CommonUtil.splitString(fieldValue, multipleValueSeparator.charAt(0));
             }
         }
-        String[] xpathPartArray = fieldPath.split("/"); //$NON-NLS-1$
-        String xpath = xpathPartArray[0];
         for (int i = 1; i < xpathPartArray.length; i++) {
             if (currentElement != null) {
                 parentPath = xpath;
@@ -434,6 +434,9 @@ public class UploadService {
                         Element element = parentElement.element(xpathPartArray[i]);
                         valueNodeList.add(element);
                     }
+                    if (valueNodeList.size() > 0) {
+                        currentElement = valueNodeList.get(valueNodeList.size() - 1);
+                    }
                 } else {
                     currentElement = currentElement.element(xpathPartArray[i]);
                 }
@@ -441,16 +444,14 @@ public class UploadService {
                     if (isAttribute) {
                         setAttributeValue(currentElement, fieldValue);
                     } else {
-                        if (valueList != null) {
-                            if (valueNodeList.size() > 0) {
-                                for (int j = 0; j < valueList.size(); j++) {
-                                    setFieldValue(valueNodeList.get(j), valueList.get(j));
-                                }
-                            } else if (multiNodeMap.get(xpath) != null) {
-                                List<Element> multiNodeList = multiNodeMap.get(xpath);
-                                for (int j = 0; j < valueList.size(); j++) {
-                                    setFieldValue(multiNodeList.get(j), valueList.get(j));
-                                }
+                        if (valueNodeList.size() > 0) {
+                            for (int j = 0; j < valueList.size(); j++) {
+                                setFieldValue(valueNodeList.get(j), valueList.get(j));
+                            }
+                        } else if (multiNodeMap.get(xpath) != null) {
+                            List<Element> multiNodeList = multiNodeMap.get(xpath);
+                            for (int j = 0; j < valueList.size(); j++) {
+                                setFieldValue(multiNodeList.get(j), valueList.get(j));
                             }
                         } else {
                             setFieldValue(currentElement, fieldValue);
