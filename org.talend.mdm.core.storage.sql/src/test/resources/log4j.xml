@@ -25,13 +25,13 @@
         <priority value="ERROR"/>
     </category>
     <category name="com.amalto.core.storage.hibernate">
-        <priority value="DEBUG"/>
+        <priority value="ERROR"/>
     </category>
     <category name="com.amalto.core.query">
-        <priority value="DEBUG"/>
+        <priority value="ERROR"/>
     </category>
     <root>
-        <level value="DEBUG" />
+        <level value="ERROR" />
         <appender-ref ref="CONSOLE"/>
     </root>
 </log4j:configuration>
