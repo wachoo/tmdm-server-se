@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecordsinstaging.server.actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -121,6 +122,18 @@ public class BrowseRecordsInStagingAction extends BrowseRecordsAction implements
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public void dynamicAssembleByResultOrder(ItemBean itemBean, ViewBean viewBean, EntityModel entityModel,
+            Map<String, EntityModel> map, String language) throws Exception {
+        List<String> viewableXpaths = new ArrayList<String>(viewBean.getViewableXpaths());
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_TASKID);
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_STATUS);
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_ERROR);
+        viewableXpaths.add(entityModel.getConceptName() + StagingConstant.STAGING_SOURCE);
+        org.talend.mdm.webapp.browserecords.server.util.CommonUtil.dynamicAssembleByResultOrder(itemBean, viewableXpaths,
+                entityModel, map, language, true);
     }
 
     @Override
