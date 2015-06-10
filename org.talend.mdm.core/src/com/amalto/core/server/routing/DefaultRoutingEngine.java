@@ -490,6 +490,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
     @Override
     public void start() throws XtentisException {
         jmsListeningContainer.start();
+        isStopped = false;
     }
 
     @Override
