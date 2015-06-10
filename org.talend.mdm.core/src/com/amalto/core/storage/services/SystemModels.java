@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -10,13 +10,19 @@
 
 package com.amalto.core.storage.services;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -39,9 +45,7 @@ import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
-import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
-import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.server.MetadataRepositoryAdmin;
@@ -113,7 +117,7 @@ public class SystemModels {
     public void createDataModel(@QueryParam("name") String modelName, InputStream dataModel) {
         try {
             DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
-            dataModelPOJO.setSchema(IOUtils.toString(dataModel));
+            dataModelPOJO.setSchema(IOUtils.toString(dataModel, "UTF-8")); //$NON-NLS-1$
             dataModelPOJO.store();
             // synchronize with outer agents
             DataModelChangeNotifier dmUpdateEventNotifier = DataModelChangeNotifier.createInstance();
@@ -133,7 +137,7 @@ public class SystemModels {
         if (!isSystemStorageAvailable()) { // If no system storage is available, store new schema version.
             try {
                 DataModelPOJO dataModelPOJO = new DataModelPOJO(modelName);
-                dataModelPOJO.setSchema(IOUtils.toString(dataModel));
+                dataModelPOJO.setSchema(IOUtils.toString(dataModel, "UTF-8")); //$NON-NLS-1$
                 dataModelPOJO.store();
                 return;
             } catch (IOException e) {
