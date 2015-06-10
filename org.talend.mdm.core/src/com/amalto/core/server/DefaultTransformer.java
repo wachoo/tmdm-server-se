@@ -13,16 +13,15 @@
 package com.amalto.core.server;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.objects.ItemPOJO;
@@ -58,6 +57,8 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     public static final long serialVersionUID = 1986745965402456L;
 
     public static final Logger LOGGER = Logger.getLogger(DefaultTransformer.class);
+
+    protected final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss-SSS z");
 
     /**
      * Creates or updates a Transformer
@@ -174,7 +175,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     }
 
     /**
-     * Executes theTransformer
+     * Executes theTransformer as job
      */
     @Override
     public BackgroundJobPOJOPK executeAsJob(TransformerContext context, TransformerCallBack callBack) throws XtentisException {
@@ -194,13 +195,131 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             // launch job in background
             JobActionInfo actionInfo = new JobActionInfo(bgPOJO.getId(), context.getTransformerV2POJOPK().getUniqueId(), // action
                     context);
-            throw new NotImplementedException();
-            // TODO create timer
-            // return new BackgroundJobPOJOPK(bgPOJO.getPK());
+            executeAsBackGroundJob(actionInfo, callBack);
+            return new BackgroundJobPOJOPK(bgPOJO.getPK());
         } catch (Exception e) {
             String err = "Unable to execute the Transformer '" + context.getTransformerV2POJOPK().getUniqueId() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(err, e);
             throw new XtentisException(err);
+        }
+    }
+
+    /**
+     * Executes theTransformer as background job
+     */
+    public void executeAsBackGroundJob(JobActionInfo actionInfo, TransformerCallBack callBack) throws XtentisException {
+        String transformerName = actionInfo.getAction();
+        TransformerGlobalContext transformerContext = null;
+
+        try {
+            // recover process parameters
+            transformerContext = new TransformerGlobalContext((TransformerContext) actionInfo.getInfo());
+
+            // update Back Ground Job
+            BackgroundJobPOJO bgPOJO = Util.getBackgroundJobCtrlLocal().getBackgroundJob(
+                    new BackgroundJobPOJOPK(actionInfo.getJobId()));
+            bgPOJO.setMessage("Starting processing"); //$NON-NLS-1$
+            bgPOJO.setStatus(BackgroundJobPOJO._RUNNING_);
+            bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
+            try {
+                Util.getBackgroundJobCtrlLocal().putBackgroundJob(bgPOJO);
+            } catch (Exception unlikely) {
+                unlikely.printStackTrace();
+            }
+            transformerContext.setJob(bgPOJO);
+
+            // Execute
+            execute(transformerContext, new TransformerCallBack() {
+
+                @Override
+                public void contentIsReady(TransformerContext globalContext) throws XtentisException {
+                    long counter = ((TransformerGlobalContext) globalContext).getIterationNumber();
+                    org.apache.log4j.Logger.getLogger(this.getClass()).trace("contentIsReady() item " + counter); //$NON-NLS-1$
+                    if (counter % 100 == 0) {
+                        long time = System.currentTimeMillis() - ((TransformerGlobalContext) globalContext).getStartTime();
+                        int processRate = (int) ((double) (counter * 1000) / (double) time);
+                        BackgroundJobPOJO bgPOJO = ((TransformerGlobalContext) globalContext).getJob();
+                        bgPOJO.setMessage("Processed item " + counter + " at " + processRate + " items per second"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+                        bgPOJO.setStatus(BackgroundJobPOJO._RUNNING_);
+                        bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
+                        try {
+                            Util.getBackgroundJobCtrlLocal().putBackgroundJob(bgPOJO);
+                        } catch (Exception e) {
+                            LOGGER.error("Unable to execute the transformer as back ground job."); //$NON-NLS-1$
+                        }
+                    }
+                }
+
+                @Override
+                public void done(TransformerContext globalContext) throws XtentisException {
+                    org.apache.log4j.Logger.getLogger(this.getClass()).trace("done() "); //$NON-NLS-1$
+                    long counter = ((TransformerGlobalContext) globalContext).getIterationNumber();
+                    long time = System.currentTimeMillis() - ((TransformerGlobalContext) globalContext).getStartTime();
+                    int processRate = (int) ((double) (counter * 1000) / (double) time);
+                    BackgroundJobPOJO bgPOJO = ((TransformerGlobalContext) globalContext).getJob();
+                    ;
+                    // Add the Item PKs to the pipeline as comma separated lines
+                    String pksAsLine = ""; //$NON-NLS-1$
+                    Collection<ItemPOJOPK> pks = ((TransformerGlobalContext) globalContext).getProjectedPKs();
+                    synchronized (pks) {
+                        for (ItemPOJOPK pk : pks) {
+                            if (!"".equals(pksAsLine)) { //$NON-NLS-1$
+                                pksAsLine += "\n"; //$NON-NLS-1$
+                            }
+                            pksAsLine += pk.getUniqueID();
+                        }
+                    }
+                    org.apache.log4j.Logger.getLogger(this.getClass()).debug("done() Projected PKs\n" + pksAsLine); //$NON-NLS-1$
+
+                    try {
+                        globalContext.putInPipeline("records saved in the database", new TypedContent( //$NON-NLS-1$
+                                pksAsLine.getBytes("UTF-8"), "text/plain; charset=\"utf-8\"")); //$NON-NLS-1$//$NON-NLS-2$
+                    } catch (Exception e) {
+                        LOGGER.error("Unable put item pks to transformer context."); //$NON-NLS-1$
+                    }
+
+                    try {
+                        bgPOJO.setMessage("Processing successfully completed at item " + counter + " (running at " + processRate //$NON-NLS-1$//$NON-NLS-2$
+                                + " items per second)"); //$NON-NLS-1$
+                        bgPOJO.setStatus(BackgroundJobPOJO._COMPLETED_);
+                        bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
+                        bgPOJO.setSerializedObject(null);
+                        bgPOJO.setPipeline(globalContext.getPipelineClone());
+                        try {
+                            Util.getBackgroundJobCtrlLocal().putBackgroundJob(bgPOJO);
+                        } catch (Exception e) {
+                            LOGGER.error("Unable add the Item PKs to the back ground job pipeline."); //$NON-NLS-1$
+                        }
+                    } catch (Exception e) {
+                        String err = "Transformer Done but unable to store the result in the background object: " + ": " //$NON-NLS-1$ //$NON-NLS-2$
+                                + e.getClass().getName() + ": " + e.getLocalizedMessage(); //$NON-NLS-1$
+                        LOGGER.error(err, e);
+                        throw new XtentisException(err);
+                    }
+                }
+            }
+            );
+
+        } catch (Exception e) {
+            try {
+                // Update Background job and try to put pipeline
+                BackgroundJobPOJO bgPOJO = Util.getBackgroundJobCtrlLocal().getBackgroundJob(
+                        new BackgroundJobPOJOPK(actionInfo.getJobId()));
+                bgPOJO.setMessage("Error processing Transformer. '" + transformerName + "': " + e.getMessage()); //$NON-NLS-1$//$NON-NLS-2$
+                bgPOJO.setStatus(BackgroundJobPOJO._STOPPED_);
+                bgPOJO.setTimestamp(sdf.format(new Date(System.currentTimeMillis())));
+                bgPOJO.setSerializedObject(null);
+                bgPOJO.setPipeline(transformerContext == null ? null : transformerContext.getPipelineClone());
+                try {
+                    Util.getBackgroundJobCtrlLocal().putBackgroundJob(bgPOJO);
+                } catch (Exception err) {
+                    LOGGER.error(err);
+                }
+            } catch (Exception ex) {
+                String err = "Unable to Process the Transformer '" + transformerName + "': " + e.getClass().getName() + ": " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        + e.getLocalizedMessage();
+                LOGGER.error(err, e);
+            }
         }
     }
 
@@ -272,9 +391,11 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
         // execute the Transformer
         execute(context, new TransformerCallBack() {
 
+            @Override
             public void contentIsReady(TransformerContext context) throws XtentisException {
             }
 
+            @Override
             public void done(TransformerContext context) throws XtentisException {
                 context.put("com.amalto.core.objects.transformers.v2.transformerCtrlV2.ready", Boolean.TRUE); //$NON-NLS-1$
             }
@@ -407,8 +528,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
 
             // find input in mappings and detemine pipeline variable name
             TransformerVariablesMapping mapping = null;
-            for (Iterator<TransformerVariablesMapping> iterator = processStep.getInputMappings().iterator(); iterator.hasNext();) {
-                TransformerVariablesMapping mpg = iterator.next();
+            for (TransformerVariablesMapping mpg : processStep.getInputMappings()) {
                 if (pluginVariable.equals(mpg.getPluginVariable())) {
                     mapping = mpg;
                     break;
@@ -432,8 +552,9 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             }
 
             String pipelineVariable = mapping.getPipelineVariable();
-            if (pipelineVariable == null)
+            if (pipelineVariable == null) {
                 pipelineVariable = Transformer.DEFAULT_VARIABLE;
+            }
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("getMappedInputVariable() Mapping pipeline " + pipelineVariable + " ---> " + pluginVariable); //$NON-NLS-1$ //$NON-NLS-2$
@@ -453,8 +574,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
 
             // check if content-types match
             boolean match = false;
-            for (Iterator<Pattern> iter = descriptor.getContentTypesRegex().iterator(); iter.hasNext();) {
-                Pattern pattern = iter.next();
+            for (Pattern pattern : descriptor.getContentTypesRegex()) {
                 if (pattern.matcher(Util.extractTypeAndSubType(content.getContentType())).matches()) {
                     match = true;
                     break;
@@ -477,12 +597,12 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
                 String charset = Util.extractCharset(content.getContentType());
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 int b;
-                while ((b = content.getContentStream().read()) != -1)
+                while ((b = content.getContentStream().read()) != -1) {
                     bos.write(b);
+                }
                 String text = new String(bos.toByteArray(), charset);
                 match = false;
-                for (Iterator<Pattern> iter = descriptor.getContentTypesRegex().iterator(); iter.hasNext();) {
-                    Pattern pattern = iter.next();
+                for (Pattern pattern : descriptor.getContentTypesRegex()) {
                     if (pattern.matcher(text).matches()) {
                         match = true;
                         break;
@@ -536,8 +656,7 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             ArrayList<TransformerVariablesMapping> outputMappings = processStep.getOutputMappings();
 
             // first create all the pipeline variables
-            for (Iterator<TransformerVariablesMapping> iter = outputMappings.iterator(); iter.hasNext();) {
-                TransformerVariablesMapping mapping = iter.next();
+            for (TransformerVariablesMapping mapping : outputMappings) {
                 if (mapping.getPipelineVariable() != null) {
                     String pluginvariable = mapping.getPluginVariable();
                     if (pluginvariable != null) {
