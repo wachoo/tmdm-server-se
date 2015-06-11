@@ -324,10 +324,12 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
     }
 
     /**
-     * Executes the Transformer Asynchronously
+     * Executes the Transformer synchronously
      */
     @Override
     public void execute(TransformerContext context, TransformerCallBack callBack) throws XtentisException {
+        // TODO for long running process, asynchronous execution will not block client (Studio or WebUI)
+        // current design is still based on synchronous execution of process
         // transform the context as a global context if not already done
         // The context will be a TransformerContext if called directly,
         // a TransformerGlobalCOntext if called from process
