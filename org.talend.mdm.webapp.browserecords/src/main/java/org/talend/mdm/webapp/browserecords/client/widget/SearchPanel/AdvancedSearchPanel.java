@@ -101,7 +101,7 @@ public class AdvancedSearchPanel extends FormPanel {
             String condition = criteriaStr.endsWith(")") ? criteriaStr.substring(criteriaStr.indexOf(modifiedON), criteriaStr.length() - 1) : criteriaStr.substring(criteriaStr.indexOf(modifiedON), criteriaStr.length()); //$NON-NLS-1$
             if (!modifiedonCriteria.isAttached()) {
                 matchgroupCriteria.removeFromParent();
-                instance.add(modifiedonCriteria, new FormData("75%")); //$NON-NLS-1$ 
+                instance.add(modifiedonCriteria, new FormData("95%")); //$NON-NLS-1$ 
                 instance.layout(true);
             }
 
@@ -469,7 +469,7 @@ public class AdvancedSearchPanel extends FormPanel {
                             matchgroupCriteria.removeFromParent();
                             modifiedonCriteria.setStartDate(null);
                             modifiedonCriteria.setEndDate(null);
-                            instance.add(modifiedonCriteria, new FormData("75%")); //$NON-NLS-1$
+                            instance.add(modifiedonCriteria, new FormData("95%")); //$NON-NLS-1$
                         }
                     } else if (selvalue.equals("matchgroup")) { //$NON-NLS-1$
                         if (!matchgroupCriteria.isAttached()) {
@@ -484,7 +484,7 @@ public class AdvancedSearchPanel extends FormPanel {
             }
 
         });
-        this.add(cb, new FormData("20%")); //$NON-NLS-1$
+        this.add(cb, new FormData("35%")); //$NON-NLS-1$
 
     }
 

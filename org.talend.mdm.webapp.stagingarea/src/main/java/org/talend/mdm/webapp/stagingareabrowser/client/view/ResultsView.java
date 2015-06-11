@@ -170,7 +170,7 @@ public class ResultsView extends AbstractView {
                 if (item.getStatus() >= 400) {
                     MessageBox.alert(title.toString(), message.toString(), null).getDialog().setWidth(500);
                 } else {
-                    MessageBox.info(title.toString(), message.toString(), null).getDialog().setSize(500, 100);
+                    MessageBox.info(title.toString(), message.toString(), null).getDialog().setWidth(500);
                 }
             }
         });
