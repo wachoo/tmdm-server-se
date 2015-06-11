@@ -11,28 +11,34 @@
 
 package com.amalto.core.storage.hibernate;
 
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Map;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 
 @SuppressWarnings("UnusedDeclaration")
 // Dynamically called! Do not remove!
@@ -47,7 +53,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
                                      StorageType type) {
         super(parent, storageName, type);
     }
-
+    
     @Override
     public InputStream generateEhCacheConfig() {
         try {
@@ -146,6 +152,10 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         String indexBase = rdbmsDataSource.getIndexDirectory();
         int connectionPoolMinSize = rdbmsDataSource.getConnectionPoolMinSize();
         int connectionPoolMaxSize = rdbmsDataSource.getConnectionPoolMaxSize();
+        if(connectionPoolMaxSize == 0){
+            LOGGER.warn("No value provided for property connectionPoolMaxSize of datasource " + rdbmsDataSource.getName() + ". Using default value: " + 20); //$NON-NLS-1$ //$NON-NLS-2$
+            connectionPoolMaxSize = 20;
+        }
 
         setPropertyValue(document, "hibernate.connection.url", connectionUrl); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.connection.username", userName); //$NON-NLS-1$
@@ -153,9 +163,11 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         setPropertyValue(document, "hibernate.dialect", dialect); //$NON-NLS-1$
         setPropertyValue(document, "hibernate.connection.password", password); //$NON-NLS-1$
         // Sets up DBCP pool features
-        setPropertyValue(document, "hibernate.dbcp.initialSize", String.valueOf(connectionPoolMinSize));
-        setPropertyValue(document, "hibernate.dbcp.maxActive", String.valueOf(connectionPoolMaxSize));
-        setPropertyValue(document, "hibernate.dbcp.maxIdle", String.valueOf(connectionPoolMaxSize));
+        setPropertyValue(document, "hibernate.dbcp.initialSize", String.valueOf(connectionPoolMinSize)); //$NON-NLS-1$
+        setPropertyValue(document, "hibernate.dbcp.maxActive", String.valueOf(connectionPoolMaxSize)); //$NON-NLS-1$
+        setPropertyValue(document, "hibernate.dbcp.maxIdle", String.valueOf(10)); //$NON-NLS-1$
+        setPropertyValue(document, "hibernate.dbcp.maxTotal", String.valueOf(connectionPoolMaxSize)); //$NON-NLS-1$
+        setPropertyValue(document, "hibernate.dbcp.maxWaitMillis", "60000"); //$NON-NLS-1$ //$NON-NLS-2$
 
         Node sessionFactoryElement = document.getElementsByTagName("session-factory").item(0); //$NON-NLS-1$
         if (rdbmsDataSource.supportFullText()) {
@@ -249,7 +261,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         property.appendChild(document.createTextNode(propertyValue));
         sessionFactoryElement.appendChild(property);
     }
-
+    
     private static void setPropertyValue(Document document, String propertyName, String value) throws XPathExpressionException {
         XPathExpression compile = pathFactory.compile("hibernate-configuration/session-factory/property[@name='" + propertyName + "']"); //$NON-NLS-1$ //$NON-NLS-2$
         Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
