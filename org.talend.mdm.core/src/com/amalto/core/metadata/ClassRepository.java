@@ -205,6 +205,9 @@ public class ClassRepository extends MetadataRepository {
                         LongString annotation = declaredMethod.getAnnotation(LongString.class);
                         if (Types.STRING.equals(fieldTypeName) && annotation != null) {
                             fieldType.setData(MetadataRepository.DATA_MAX_LENGTH, String.valueOf(Integer.MAX_VALUE));
+                            if (annotation.preferLongVarchar()) {
+                                fieldType.setData(LongString.PREFER_LONGVARCHAR, Boolean.TRUE);
+                            }
                         }
                     } else {
                         ComplexTypeMetadata fieldType;

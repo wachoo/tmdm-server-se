@@ -64,7 +64,7 @@ public class DataClusterPOJO extends ObjectPOJO{
 	 * 
 	 * @return the xsd Vocabulary
 	 */
-    @LongString
+    @LongString(preferLongVarchar = true)
 	public String getVocabulary() {
 		return vocabulary;
 	}

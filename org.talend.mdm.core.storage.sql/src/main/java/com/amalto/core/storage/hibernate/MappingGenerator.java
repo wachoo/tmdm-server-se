@@ -11,16 +11,31 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.storage.HibernateMetadataUtils;
-import org.talend.mdm.commmon.metadata.*;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Stack;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.*;
+import com.amalto.core.metadata.LongString;
+import com.amalto.core.storage.HibernateMetadataUtils;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 
 // TODO Refactor (+ NON-NLS)
 public class MappingGenerator extends DefaultMetadataVisitor<Element> {
@@ -37,7 +52,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
 
     private static final String TEXT_TYPE_NAME = "text"; //$NON-NLS-1$
-
+    
     private final Document document;
 
     private final TableResolver resolver;
@@ -643,9 +658,13 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             if (sqlType != null) { // SQL Type may enforce use of "CLOB" iso. "LONG VARCHAR"
                 elementTypeName = String.valueOf(sqlType);
                 if (dialect == RDBMSDataSource.DataSourceDialect.DB2) {
-                    Attr length = document.createAttribute("length"); //$NON-NLS-1$
-                    length.setValue("1048576"); // 1MB Clob limit for DB2
-                    propertyElement.getAttributes().setNamedItem(length);
+                    if (fieldType.getData(LongString.PREFER_LONGVARCHAR) != null) {
+                        elementTypeName = TEXT_TYPE_NAME; // Will be mapped to LONGVARCHAR in DB2
+                    } else {
+                        Attr length = document.createAttribute("length"); //$NON-NLS-1$
+                        length.setValue("1048576"); //$NON-NLS-1$ 1MB CLOB limit for DB2
+                        propertyElement.getAttributes().setNamedItem(length);
+                    }
                 }
             } else if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
                 int limit = dialect.getTextLimit();
