@@ -174,7 +174,7 @@ public class DefaultDataCluster implements DataCluster {
     public Collection<DataClusterPOJOPK> getDataClusterPKs(String regex) throws XtentisException {
         final StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
         List<String> names = new ArrayList<>(Arrays.asList(XSystemObjects.DC_CONF.getName(),
-                XSystemObjects.DC_PROVISIONING.getName()));
+                XSystemObjects.DC_PROVISIONING.getName(), XSystemObjects.DC_MDMITEMSTRASH.getName()));
         names.addAll(Arrays.asList(admin.getAll()));
         List<DataClusterPOJOPK> clusterNames = new ArrayList<>(names.size() + 1);
         ILocalUser user = LocalUser.getLocalUser();
