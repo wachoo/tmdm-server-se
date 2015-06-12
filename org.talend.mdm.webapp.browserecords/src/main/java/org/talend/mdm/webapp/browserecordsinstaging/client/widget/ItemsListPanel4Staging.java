@@ -199,9 +199,9 @@ public class ItemsListPanel4Staging extends ItemsListPanel {
             if (matchGroup.equals(item.get(item.getConcept() + StagingConstant.STAGING_TASKID))) {
                 Element rowEl = grid.getView().getRow(item);
                 if (mark) {
-                    rowEl.addClassName("x-matchgroup-highlight"); //$NON-NLS-1$
+                    rowEl.addClassName("staging-matchgroup-highlight"); //$NON-NLS-1$
                 } else {
-                    rowEl.removeClassName("x-matchgroup-highlight"); //$NON-NLS-1$
+                    rowEl.removeClassName("staging-matchgroup-highlight"); //$NON-NLS-1$
                 }
             }
         }
