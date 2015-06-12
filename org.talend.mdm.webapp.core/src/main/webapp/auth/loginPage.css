@@ -1,13 +1,15 @@
 body {
-    font-family: "Source Sans Pro"!important;
-    font: normal 13px "Source Sans Pro", Tahoma!important;
     background-color:#FFFFFF;
     margin: 0;
-    font-family: "Source Sans Pro";
+}
+
+body, input {
+    font-family: "Source Sans Pro", tahoma !important;
+	font-size: 13px;
+	font-weight: normal; 
 }
 
 input[type="text"], input[type="password"], input:-webkit-autofill {
-    font-family: "Source Sans Pro"!important;
     color: black;
     font-size: 15px;
     background-color: white !important;
@@ -16,7 +18,6 @@ input[type="text"], input[type="password"], input:-webkit-autofill {
 }
 
 input[type="submit"] {
-    font-family: "Source Sans Pro"!important;
     color: white;
     font-size: 14px;
     width: 85px;
