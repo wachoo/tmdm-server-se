@@ -77,14 +77,14 @@ public class DataRecordJSONWriter implements DataRecordWriter {
                                 return null;
                             }
                             try {
-                                writer.key(containedField.getName());
+                                writer.key(containedField.getName().toLowerCase());
                                 if (!containedField.isMany()) {
                                     writeRecord((DataRecord) record.get(containedField), writer);
                                 } else {
                                     List<DataRecord> values = (List<DataRecord>) record.get(containedField);
                                     {
                                         if (values != null) {
-                                            writer.key(containedField.getName().toLowerCase()).array();
+                                            writer.array();
                                             for (DataRecord value : values) {
                                                 writeRecord(value, writer);
                                             }

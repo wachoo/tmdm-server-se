@@ -43,4 +43,44 @@
 		</xsd:sequence>
 	</xsd:complexType>
 	
+	<xsd:element name="WithContained">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="Id" type="xsd:string"/>
+				<xsd:element name="Contained">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="ContainedId" type="xsd:string"/>
+							<xsd:element name="ContainedName" type="xsd:string"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+		<xsd:unique name="WithContained">
+			<xsd:selector xpath="."/>
+			<xsd:field xpath="Id"/>
+		</xsd:unique>
+	</xsd:element>
+	
+	<xsd:element name="WithMultiContained">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="Id" type="xsd:string"/>
+				<xsd:element name="Contained" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="ContainedId" type="xsd:string"/>
+							<xsd:element name="ContainedName" type="xsd:string"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+		<xsd:unique name="WithMultiContained">
+			<xsd:selector xpath="."/>
+			<xsd:field xpath="Id"/>
+		</xsd:unique>
+	</xsd:element>
+	
 </xsd:schema>
