@@ -1443,6 +1443,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
             for (FieldMetadata subFieldMetadata : fields) {
                 condition.criterionFieldNames.add(alias + '.' + subFieldMetadata.getName());
             }
+        } else if (fieldMetadata instanceof ReferenceFieldMetadata
+                && ((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata == false) {
+            condition.criterionFieldNames.add(getFieldName(fieldMetadata, true));
         } else {
             condition.criterionFieldNames.add(alias + '.' + fieldMetadata.getName());
         }

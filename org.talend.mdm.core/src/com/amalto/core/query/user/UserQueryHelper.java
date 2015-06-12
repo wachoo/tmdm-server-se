@@ -236,7 +236,7 @@ public class UserQueryHelper {
     }
 
     private static Boolean isRealXpath(MetadataRepository repository, String rightValueOrPath) {
-        if (rightValueOrPath.contains("/")) { //$NON-NLS-1$
+        if (rightValueOrPath != null && rightValueOrPath.contains("/")) { //$NON-NLS-1$
             String rightTypeName = StringUtils.substringBefore(rightValueOrPath, "/"); //$NON-NLS-1$
             ComplexTypeMetadata metaData = repository.getComplexType(rightTypeName);
             if (repository.getComplexType(rightTypeName) != null) {
