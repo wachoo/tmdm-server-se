@@ -83,4 +83,17 @@
 		</xsd:unique>
 	</xsd:element>
 	
+	<xsd:element name="WithArray">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="Id" type="xsd:string"/>
+				<xsd:element name="Repeat" maxOccurs="unbounded" type="xsd:string"/>
+			</xsd:sequence>
+		</xsd:complexType>
+		<xsd:unique name="WithArray">
+			<xsd:selector xpath="."/>
+			<xsd:field xpath="Id"/>
+		</xsd:unique>
+	</xsd:element>
+	
 </xsd:schema>

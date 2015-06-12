@@ -62,6 +62,33 @@ public class DataRecordJSONWriterTestCase {
     }
     
     @Test
+    public void testSimpleTypeWithArray() throws Exception {
+        DataRecord record = createDataRecord(repository.getComplexType("WithArray"));
+        setDataRecordField(record, "Id", "12345");
+        setDataRecordField(record, "Repeat", "ABC");
+        setDataRecordField(record, "Repeat", "DEF");
+        String result = toJSON(record);
+        Assert.assertEquals("{\"witharray\":{\"id\":\"12345\",\"repeat\":[\"ABC\",\"DEF\"]}}", result);
+    }
+    
+    @Test
+    public void testSimpleTypeWithNullArray() throws Exception {
+        DataRecord record = createDataRecord(repository.getComplexType("WithArray"));
+        setDataRecordField(record, "Id", "12345");
+        String result = toJSON(record);
+        Assert.assertEquals("{\"witharray\":{\"id\":\"12345\"}}", result);
+    }
+    
+    @Test
+    public void testSimpleTypeWithEmptyArray() throws Exception {
+        DataRecord record = createDataRecord(repository.getComplexType("WithArray"));
+        setDataRecordField(record, "Id", "12345");
+        setDataRecordField(record, "Repeat", new ArrayList<String>());
+        String result = toJSON(record);
+        Assert.assertEquals("{\"witharray\":{\"id\":\"12345\",\"repeat\":[]}}", result);
+    }
+    
+    @Test
     public void testTypeWithComplexType() throws Exception {
         DataRecord record = createDataRecord(repository.getComplexType("Customer"));
         setDataRecordField(record, "Id", "12345");
@@ -119,6 +146,40 @@ public class DataRecordJSONWriterTestCase {
         Assert.assertEquals("{\"withmulticontained\":{\"id\":\"ABCD\",\"contained\":"
                 + "[{\"containedid\":\"CID1\",\"containedname\":\"CName1\"},"
                 + "{\"containedid\":\"CID2\",\"containedname\":\"CName2\"}]}}", result);
+    }
+    
+    @Test
+    public void testMultiContainedTypeWithNullList() throws Exception {
+        ComplexTypeMetadata type = repository.getComplexType("WithMultiContained");
+        DataRecord record = createDataRecord(type);
+        setDataRecordField(record, "Id", "ABCD");
+        FieldMetadata field = type.getField("Contained");
+        Assert.assertTrue(field instanceof ContainedTypeFieldMetadata);
+        ContainedTypeFieldMetadata containedField = (ContainedTypeFieldMetadata)field;
+        ContainedComplexTypeMetadata tm = (ContainedComplexTypeMetadata)containedField.getType();
+        
+        String result = toJSON(record);
+        
+        Assert.assertEquals("{\"withmulticontained\":{\"id\":\"ABCD\",\"contained\":"
+                + "[]}}", result);
+    }
+    
+    @Test
+    public void testMultiContainedTypeWithEmptyList() throws Exception {
+        ComplexTypeMetadata type = repository.getComplexType("WithMultiContained");
+        DataRecord record = createDataRecord(type);
+        setDataRecordField(record, "Id", "ABCD");
+        FieldMetadata field = type.getField("Contained");
+        Assert.assertTrue(field instanceof ContainedTypeFieldMetadata);
+        ContainedTypeFieldMetadata containedField = (ContainedTypeFieldMetadata)field;
+        ContainedComplexTypeMetadata tm = (ContainedComplexTypeMetadata)containedField.getType();
+
+        setDataRecordField(record, "Contained", new ArrayList<DataRecord>());
+        
+        String result = toJSON(record);
+        
+        Assert.assertEquals("{\"withmulticontained\":{\"id\":\"ABCD\",\"contained\":"
+                + "[]}}", result);
     }
     
     private void setDataRecordField(DataRecord record, String name, Object value) throws Exception {
