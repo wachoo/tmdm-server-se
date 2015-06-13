@@ -53,7 +53,7 @@ public class FieldCreator {
             MultipleField multipleField = new MultipleField(dataType, language);
             field = multipleField;
         } else if (dataType.getForeignkey() != null) {
-            FKField fkField = new FKField();
+            FKField fkField = new FKField(dataType.getForeignkey(), dataType.getForeignKeyInfo());
             fkField.Update(dataType.getXpath(), fkField);
             fkField.setRetrieveFKinfos(dataType.isRetrieveFKinfos());
             field = fkField;

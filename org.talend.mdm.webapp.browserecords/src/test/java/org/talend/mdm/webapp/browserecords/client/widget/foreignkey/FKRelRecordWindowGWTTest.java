@@ -26,7 +26,7 @@ import com.google.gwt.junit.client.GWTTestCase;
 @SuppressWarnings("nls")
 public class FKRelRecordWindowGWTTest extends GWTTestCase {
 
-    private String foreignKey = "Product/Family";
+    private String foreignKey = "ProductFamily";
 
     @Override
     protected void gwtSetUp() throws Exception {
@@ -41,7 +41,7 @@ public class FKRelRecordWindowGWTTest extends GWTTestCase {
         fkWindow.setEntityModel(getProductFamilyModel());
         fkWindow.setFkKey(foreignKey);
         assertNotNull(fkWindow.getEntityModel());
-        assertTrue(fkWindow.getEntityModel().getConceptName().equals("Product"));
+        assertTrue(fkWindow.getEntityModel().getConceptName().equals("ProductFamily"));
         assertTrue(fkWindow.buildTypeModel().getXpath().equals(foreignKey));
         assertNotNull(fkWindow.getParentEntityModel().getConceptName().equals("ProductFamily"));
     }

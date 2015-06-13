@@ -1378,7 +1378,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
             for (FieldMetadata subFieldMetadata : fields) {
                 condition.criterionFieldNames.add(alias + '.' + subFieldMetadata.getName());
             }
+        } else if (fieldMetadata instanceof ReferenceFieldMetadata
+                && ((ReferenceFieldMetadata) fieldMetadata).getReferencedField() instanceof CompoundFieldMetadata == false) {
+            condition.criterionFieldNames.add(getFieldName(fieldMetadata, true, true));
         } else {
+
             condition.criterionFieldNames.add(alias + '.' + fieldMetadata.getName());
         }
     }
@@ -1387,10 +1391,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (fieldMetadata instanceof CompoundFieldMetadata) {
             FieldMetadata[] fields = ((CompoundFieldMetadata) fieldMetadata).getFields();
             for (FieldMetadata subFieldMetadata : fields) {
-                condition.criterionFieldNames.add(getFieldName(subFieldMetadata, true,true));
+                condition.criterionFieldNames.add(getFieldName(subFieldMetadata, true, true));
             }
         } else {
-            condition.criterionFieldNames.add(getFieldName(fieldMetadata, true,true));
+
+            condition.criterionFieldNames.add(getFieldName(fieldMetadata, true, true));
         }
     }
 
@@ -1482,7 +1487,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             // condition.criterionFieldNames = field.getFieldMetadata().isMany() ? "elements" : getFieldName(field,
             // StandardQueryHandler.this.mappingMetadataRepository);
             Set<String> aliases = getAliases(mainType, field);
-            if (aliases.size() > 1) {
+            if (aliases.size() > 0) {
                 for (String alias : aliases) {
                     List<FieldMetadata> path = field.getPath();
                     if (path.size() > 1) {

@@ -13,8 +13,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.ForeignKey;
 
 import org.talend.mdm.webapp.base.shared.EntityModel;
-import org.talend.mdm.webapp.base.shared.TypeModel;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.ForeignKeyListWindow;
 
 public class FKRelRecordWindow extends ForeignKeyListWindow {
@@ -25,21 +23,6 @@ public class FKRelRecordWindow extends ForeignKeyListWindow {
     @Override
     protected void closeOrHideWindow() {
         hide();
-    }
-
-    @Override
-    public void setEntityModel(EntityModel entityModel) {
-        super.setEntityModel(entityModel);
-    }
-
-    @Override
-    public EntityModel getEntityModel() {
-        return BrowseRecords.getSession().getCurrentEntityModel();
-    }
-
-    @Override
-    public TypeModel buildTypeModel() {
-        return getEntityModel().getMetaDataTypes().get(getFkKey());
     }
 
     public EntityModel getParentEntityModel() {
