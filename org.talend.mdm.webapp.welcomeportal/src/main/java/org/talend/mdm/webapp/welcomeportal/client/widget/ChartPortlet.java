@@ -237,6 +237,7 @@ public abstract class ChartPortlet extends BasePortlet {
                 if (item != null) {
                     String text = getHoveringText(item);
                     hoverLabel.setText(text);
+                    hoverLabel.setStyleName("welcomePieChartHover"); //$NON-NLS-1$
                     popup.setPopupPosition(item.getPageX() + 10, item.getPageY() - 25);
                     popup.show();
                 } else {
