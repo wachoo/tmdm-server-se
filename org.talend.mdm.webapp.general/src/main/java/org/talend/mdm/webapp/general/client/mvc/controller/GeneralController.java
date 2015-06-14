@@ -39,6 +39,7 @@ import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.Timer;
 
 public class GeneralController extends Controller {
 
@@ -155,15 +156,27 @@ public class GeneralController extends Controller {
             }
 
             public void onSuccess(Void result) {
-                MessageBox.alert(MessageFactory.getMessages().status(), MessageFactory.getMessages().status_msg_success(), null);
-                UserContextUtil.setDataContainer(dataCluster);
-                UserContextUtil.setDataModel(dataModel);
-                WorkSpace.getInstance().clearTabs();
-                WorkSpace.getInstance().loadApp(GeneralView.WELCOMECONTEXT, GeneralView.WELCOMEAPP);
-                Dispatcher dispatcher = Dispatcher.get();
-                AppEvent event = new AppEvent(GeneralEvent.SupportStaging);
-                event.setData("dataCluster", dataCluster); //$NON-NLS-1$
-                dispatcher.dispatch(event);
+                final MessageBox msgBox = new MessageBox();
+                msgBox.setTitle(MessageFactory.getMessages().status());
+                msgBox.setMessage(MessageFactory.getMessages().status_msg_success());
+                msgBox.setButtons(""); //$NON-NLS-1$
+                msgBox.setIcon(MessageBox.INFO);
+                msgBox.show();
+                Timer timer = new Timer() {
+
+                    public void run() {
+                        msgBox.close();
+                        UserContextUtil.setDataContainer(dataCluster);
+                        UserContextUtil.setDataModel(dataModel);
+                        WorkSpace.getInstance().clearTabs();
+                        WorkSpace.getInstance().loadApp(GeneralView.WELCOMECONTEXT, GeneralView.WELCOMEAPP);
+                        Dispatcher dispatcher = Dispatcher.get();
+                        AppEvent event = new AppEvent(GeneralEvent.SupportStaging);
+                        event.setData("dataCluster", dataCluster); //$NON-NLS-1$
+                        dispatcher.dispatch(event);
+                    }
+                };
+                timer.schedule(700);
             }
         });
     }
