@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -26,17 +26,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 /**
  * Class that handles common tasks for job execution:
- *
+ * 
  * <ul>
- *     <li>Class loader isolation: Makes sure current thread uses an isolated class loader.</li>
- *     <li>System properties isolation: Makes sure current thread uses standard system properties (Removes all JBoss and
- *     MDM properties).</li>
- *     <li>'Locks' the job in the container: Container will prevent any modification to be done on the job.</li>
+ * <li>Class loader isolation: Makes sure current thread uses an isolated class loader.</li>
+ * <li>System properties isolation: Makes sure current thread uses standard system properties (Removes all JBoss and MDM
+ * properties).</li>
+ * <li>'Locks' the job in the container: Container will prevent any modification to be done on the job.</li>
  * </ul>
  */
 public abstract class JobInvoker {
+
+    private static final Logger LOGGER = Logger.getLogger(JobInvoker.class);
 
     private final JobContainer container = JobContainer.getUniqueInstance();
 
@@ -50,16 +54,15 @@ public abstract class JobInvoker {
     }
 
     public String[][] call() throws JoboxException {
-        return call(Collections.<String, String>emptyMap());
+        return call(Collections.<String, String> emptyMap());
     }
 
     /**
      * @param parameters Input values for job execution
      * @return Result of job execution
-     * @throws com.amalto.core.jobox.util.JoboxException
-     *          In case of call error.
+     * @throws com.amalto.core.jobox.util.JoboxException In case of call error.
      */
-    public String[][] call(Map<String, String> parameters) {
+    public final String[][] call(Map<String, String> parameters) {
         ClassLoader previousCallLoader = Thread.currentThread().getContextClassLoader();
         ThreadIsolatedSystemProperties isolatedSystemProperties = ThreadIsolatedSystemProperties.getInstance();
 
@@ -77,6 +80,8 @@ public abstract class JobInvoker {
                 throw new JobNotFoundException(jobName, version);
             }
 
+            LOGGER.info("Invoking job '" + jobName + '_' + version + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+
             ClassLoader jobClassLoader = container.getJobClassLoader(jobInfo);
             Thread.currentThread().setContextClassLoader(jobClassLoader);
 
@@ -88,7 +93,7 @@ public abstract class JobInvoker {
             }
 
             // container.updateJobLoadersPool(jobInfo);
-            Class jobClass = container.getJobClass(jobInfo);
+            Class<?> jobClass = container.getJobClass(jobInfo);
             Method runJobMethod = jobClass.getMethod("runJob", String[].class);//$NON-NLS-1$
 
             Map<String, String> paramMap = jobInfo.getDefaultParamMap();

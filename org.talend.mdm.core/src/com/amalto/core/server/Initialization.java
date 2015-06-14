@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -13,6 +13,7 @@ package com.amalto.core.server;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +26,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
+import com.amalto.core.jobox.properties.ThreadIsolatedSystemProperties;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleConcreteBuilder;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
@@ -45,7 +47,9 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
     @Autowired(required = true)
     private ServerLifecycle serverLifecycle;
 
-    protected static final Logger LOGGER = Logger.getLogger(Initialization.class);
+    private static final Logger LOGGER = Logger.getLogger(Initialization.class);
+    
+    private Properties previousSystemProperties;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -55,10 +59,11 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
     public void destroy() throws Exception {
         LOGGER.info("Shutdown in progress..."); //$NON-NLS-1$
         try {
+            System.setProperties(previousSystemProperties);
             ServerContext.INSTANCE.get().close();
             LOGGER.info("Shutdown done."); //$NON-NLS-1$
         } catch (Exception e) {
-            LOGGER.info("Shutdown done (with error).", e);
+            LOGGER.info("Shutdown done (with error).", e); //$NON-NLS-1$
         }
     }
 
@@ -68,6 +73,11 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
         LOGGER.info("======================================================="); //$NON-NLS-1$
         LOGGER.info("Talend MDM " + version); //$NON-NLS-1$
         LOGGER.info("======================================================="); //$NON-NLS-1$
+        
+        //TMDM-2933: ThreadIsolatedSystemProperties allows threads to get different system properties when needed.
+        previousSystemProperties = System.getProperties();
+        System.setProperties(ThreadIsolatedSystemProperties.getInstance());
+        LOGGER.info("Enabled system properties isolation for threads."); //$NON-NLS-1$
 
         // Initializes server now
         if (serverLifecycle == null) {
