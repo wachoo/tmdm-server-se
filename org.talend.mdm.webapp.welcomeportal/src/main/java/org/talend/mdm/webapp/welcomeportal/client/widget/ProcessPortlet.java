@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -22,8 +22,6 @@ import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -97,9 +95,22 @@ public class ProcessPortlet extends BasePortlet {
                                     @Override
                                     public void onSuccess(final String result2) {
                                         box.close();
-                                        if (result2.length() > 0) {
-                                            portal.openWindow(result2);
-                                        }
+                                        final MessageBox msgBox = new MessageBox();
+                                        msgBox.setTitle(MessagesFactory.getMessages().run_status());
+                                        msgBox.setMessage(MessagesFactory.getMessages().run_launched());
+                                        msgBox.setButtons(""); //$NON-NLS-1$
+                                        msgBox.setIcon(MessageBox.INFO);
+                                        msgBox.show();
+                                        Timer timer = new Timer() {
+
+                                            public void run() {
+                                                msgBox.close();
+                                                if (result2.length() > 0) {
+                                                    portal.openWindow(result2);
+                                                }
+                                            }
+                                        };
+                                        timer.schedule(700);
                                     }
                                 });
                             }
@@ -112,7 +123,7 @@ public class ProcessPortlet extends BasePortlet {
             }
         }
     }
-
+    
     private void updateProcesses() {
         service.getStandaloneProcess(UrlUtil.getLanguage(), new SessionAwareAsyncCallback<Map<String, String>>() {
 

@@ -109,6 +109,8 @@ public interface WelcomePortalMessages extends Messages {
 
     String run_fail();
 
+    String run_launched();
+
     String search_title();
 
     String search_button_text();

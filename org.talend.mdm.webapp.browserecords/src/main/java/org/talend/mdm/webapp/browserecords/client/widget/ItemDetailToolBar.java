@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -93,6 +93,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -1019,9 +1020,22 @@ public class ItemDetailToolBar extends ToolBar {
                                 @Override
                                 public void onSuccess(final String urlResult) {
                                     waitBar.close();
-                                    if (urlResult != null && urlResult.length() > 0) {
-                                        openWindow(urlResult);
-                                    }
+                                    final MessageBox msgBox = new MessageBox();
+                                    msgBox.setTitle(MessagesFactory.getMessages().status());
+                                    msgBox.setMessage(MessagesFactory.getMessages().process_launched());
+                                    msgBox.setButtons(""); //$NON-NLS-1$
+                                    msgBox.setIcon(MessageBox.INFO);
+                                    msgBox.show();
+                                    Timer timer = new Timer() {
+
+                                        public void run() {
+                                            msgBox.close();
+                                            if (urlResult != null && urlResult.length() > 0) {
+                                                openWindow(urlResult);
+                                            }
+                                        }
+                                    };
+                                    timer.schedule(700);
                                 }
 
                                 @Override
