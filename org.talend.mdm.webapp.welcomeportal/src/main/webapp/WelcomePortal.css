@@ -1,22 +1,6 @@
 /** Add css rules here for your application. */
 
-
-/** Example rules used by the template application (remove for your app) */
-h1 {
-  font-size: 2em;
-  font-weight: bold;
-  color: #777777;
-  margin: 40px 0px 70px;
-  text-align: center;
-}
-
 .labelStyle{
-  font-family : tahoma,arial,helvetica,sans-serif;
-  font-size : 11px;
-  font-style : normal;
-  font-variant : normal;
-  font-weight : normal;
-  font-stretch : normal;
 }
 
 .sendButton {
@@ -40,4 +24,16 @@ h1 {
 /** Set ids using widget.getElement().setId("idOfElement") */
 #closeButton {
   margin: 15px 6px 6px;
+}
+
+.welcomePieChartLabel {
+    font-size: 12px;
+    text-align: center;
+    padding: 2px;
+    color: white;
+}
+
+.welcomePieChartHover {
+    color: black;
+    background-color: #f0f6c5;
 }

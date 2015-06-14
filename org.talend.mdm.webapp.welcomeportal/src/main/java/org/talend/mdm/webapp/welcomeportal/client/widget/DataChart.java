@@ -23,6 +23,8 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -39,6 +41,7 @@ import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
 import com.googlecode.gflot.client.event.PlotHoverListener;
 import com.googlecode.gflot.client.event.PlotItem;
+import com.googlecode.gflot.client.event.PlotLoadEvent;
 import com.googlecode.gflot.client.event.PlotPosition;
 import com.googlecode.gflot.client.jsni.Plot;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
@@ -168,7 +171,7 @@ public class DataChart extends ChartPortlet {
 
                                             @Override
                                             public String format(String label, Series series) {
-                                                return "<div style=\"font-size:8pt;text-align:center;padding:2px;color:white;\">" //$NON-NLS-1$
+                                                return "<div class='welcomePieChartLabel'>" //$NON-NLS-1$
                                                         + label + "<br/>" + formatter.format(series.getData().getY(0)) + " / " //$NON-NLS-1$//$NON-NLS-2$
                                                         + formatter.format(percentageValueMap.get(label)) + "%</div>"; //$NON-NLS-1$
                                             }
@@ -200,6 +203,32 @@ public class DataChart extends ChartPortlet {
 
         }, MouseMoveEvent.getType());
 
+        plot.addLoadHandler(new PlotLoadEvent.Handler() {
+
+            @Override
+            public void onLoad(PlotLoadEvent event) {
+                boolean errorOccurred = false;
+                // Flot has limitations on the pie labels
+                // If it cannot be drawn it creates a div of class error with message
+                // "Could not draw pie with labels contained inside canvas"
+                // Workaround the issue by redrawing but without the labels
+                NodeList<Element> list = plot.getParent().getElement().getElementsByTagName("div"); //$NON-NLS-1$
+                if (list != null && list.getLength() > 0) {
+                    Element first = list.getItem(0);
+                    if ("error".equals(first.getAttribute("class"))) { //$NON-NLS-1$ //$NON-NLS-2$
+                        errorOccurred = true;
+                    }
+                }
+                PlotOptions plotOptions = plot.getOptions();
+                GlobalSeriesOptions globalSeriesOptions = plotOptions.getGlobalSeriesOptions();
+                PieSeriesOptions pieSeriesOptions = globalSeriesOptions.getPieSeriesOptions();
+                pieSeriesOptions.getLabel().setShow(!errorOccurred); // dont show labels if error occurred, otherwise
+                                                                    // reset to true for next creation
+                if (errorOccurred) {
+                    plot.redraw();
+                }
+            }
+        });
     }
 
     @Override
@@ -292,6 +321,7 @@ public class DataChart extends ChartPortlet {
                             + formatter.format(item.getSeries().getData().getY(0)) + " / " //$NON-NLS-1$
                             + formatter.format(percentageValueMap.get(item.getSeries().getLabel())) + "%"); //$NON-NLS-1$
                     hoverLabel.setText(hoveringTXT);
+                    hoverLabel.setStyleName("welcomePieChartHover"); //$NON-NLS-1$
                     popup.setPopupPosition(cursorX, cursorY);
                     popup.show();
                 } else {
