@@ -128,6 +128,18 @@
             <param-value>10000</param-value>
         </init-param>
     </servlet>
+    <servlet>
+        <servlet-name>JobLogViewerServlet</servlet-name>
+        <servlet-class>com.amalto.core.servlet.LogViewerServlet</servlet-class>
+        <init-param>
+            <param-name>logFile</param-name>
+            <param-value>${mdm.root}/logs/mdm-job.log</param-value>
+        </init-param>
+        <init-param>
+            <param-name>maxLinesByChunk</param-name>
+            <param-value>10000</param-value>
+        </init-param>
+    </servlet>
     <servlet-mapping>
         <servlet-name>runServlet</servlet-name>
         <url-pattern>/services/run</url-pattern>
@@ -152,7 +164,11 @@
         <servlet-name>LogViewerServlet</servlet-name>
         <url-pattern>/services/logviewer/log</url-pattern>
     </servlet-mapping>
-    
+    <servlet-mapping>
+        <servlet-name>JobLogViewerServlet</servlet-name>
+        <url-pattern>/services/logviewer/job</url-pattern>
+    </servlet-mapping>
+        
      <!-- h2 console -->
     <servlet>
         <servlet-name>H2Console</servlet-name>
