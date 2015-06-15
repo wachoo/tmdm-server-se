@@ -48,6 +48,18 @@ amalto.itemsbrowser.SearchEntity.bundle.onReady(function(){
 	         dateRangeText: 'Start Data can not be greater than End Date '  
 	    });  
 
+	    Ext.override(Ext.menu.DateMenu, {
+	    	autoWidth : function(){
+	    		var el = this.el;
+	    		el.setWidth(this.width);
+	    		if(check(/msie/)){
+	    			el.setWidth(180);
+	    			var t = el.dom.offsetWidth;
+	    			el.setWidth(this.ul.getWidth() + el.getFrameWidth("lr"));
+	    		}
+	    	}
+	    });
+	    
 		this.recordType = Ext.data.Record.create([
 	        {name: "date", mapping : "date", type: "string"},
 	        {name: "entity", mapping : "entity", type: "string"},
@@ -394,12 +406,11 @@ amalto.itemsbrowser.SearchEntity.bundle.onReady(function(){
 			check = function(r){ 
 				return r.test(ua); 
 			};
-			var isChrome = check(/chrome/);
 			
-			if(isChrome){
+			if(check(/chrome/)){
 			    var chromeDatePickerCSS = ".x-date-picker {width: 175px;}";
 			    Ext.util.CSS.createStyleSheet(chromeDatePickerCSS,'chromeDatePickerStyle');
-			}
+			};
 		}
 	}
 	); 
