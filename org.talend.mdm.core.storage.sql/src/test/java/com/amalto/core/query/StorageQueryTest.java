@@ -337,6 +337,10 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read(repository, contexte, "<Contexte><IdContexte>333</IdContexte><name>ddd</name></Contexte>"));
         allRecords.add(factory.read(repository, personne, "<Personne><IdMDM>1</IdMDM><Contextes><ContexteFk>[111]</ContexteFk><ContexteFk>[222]</ContexteFk><ContexteFk>[333]</ContexteFk></Contextes></Personne>"));
         
+        allRecords.add(factory.read(repository, cpo_service,"<cpo_service><id_service>111111</id_service><etat>I</etat></cpo_service>"));
+        allRecords.add(factory.read(repository, cpo_service,"<cpo_service><id_service>222222</id_service><id_service_pere>[111111]</id_service_pere><etat>I</etat></cpo_service>"));
+        allRecords.add(factory.read(repository, hierarchy, "<HierarchySearchItem><HierarchySearchName>test1</HierarchySearchName><Owner>administrator</Owner><Separator>-</Separator><HierarchyRelation>true</HierarchyRelation><HierarchySearchCriterias><Concept>cpo_service</Concept><View>Browse_items_cpo_service</View><LabelXpath>cpo_service/id_service</LabelXpath><FkXpath>cpo_service/id_service_pere</FkXpath></HierarchySearchCriterias><HierarchySearchCriterias><Concept>cpo_service</Concept><View>Browse_items_cpo_service</View><LabelXpath>cpo_service/id_service</LabelXpath></HierarchySearchCriterias></HierarchySearchItem>"));
+        
         try {
             storage.begin();
             storage.update(allRecords);
@@ -4508,6 +4512,17 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals(1, storageResults.getCount());
         } finally {
             storageResults.close();
+            storage.commit();
+        }
+    }
+    
+    public void testQueryHierachyWhenEntityContainsFKReferToEntitySelf() {
+        UserQueryBuilder qb = from(hierarchy);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getSize());
+        } finally {
+            results.close();
             storage.commit();
         }
     }

@@ -120,6 +120,10 @@ public class StorageTestCase extends TestCase {
     protected static final ComplexTypeMetadata contexte;
     
     protected static final ComplexTypeMetadata personne;
+    
+    protected static final ComplexTypeMetadata hierarchy;
+    
+    protected static final ComplexTypeMetadata cpo_service;
 
     public static final String DATABASE = "H2";
 
@@ -173,6 +177,9 @@ public class StorageTestCase extends TestCase {
         
         contexte = repository.getComplexType("Contexte");
         personne = repository.getComplexType("Personne");
+        
+        hierarchy = repository.getComplexType("HierarchySearchItem");
+        cpo_service = repository.getComplexType("cpo_service");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
