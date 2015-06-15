@@ -138,7 +138,7 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     @Override
-    public String removeDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language)
+    public synchronized String removeDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language)
             throws ServiceException {
         try {
             WSGetBusinessConceptKey conceptKey = new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName);
@@ -176,7 +176,7 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     @Override
-    public void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids) throws ServiceException {
+    public synchronized void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids) throws ServiceException {
         try {
             if (Webapp.INSTANCE.isEnterpriseVersion()
                     && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName)) {
