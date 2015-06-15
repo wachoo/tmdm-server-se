@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -125,12 +125,12 @@ public class MainFramePanel extends Portal {
         }
         defaultLocationList = getDefaultLocations(colNum);
 
-        this.addListener(Events.Add, new Listener<ContainerEvent>() {
+        this.addListener(Events.Add, new Listener<ContainerEvent<Portal, BasePortlet>>() {
 
             @Override
-            public void handleEvent(ContainerEvent be) {
+            public void handleEvent(ContainerEvent<Portal, BasePortlet> be) {
 
-                BasePortlet portlet = (BasePortlet) be.getItem();
+                BasePortlet portlet = be.getItem();
                 String portletName = portlet.getPortletName();
                 int column = MainFramePanel.this.getPortletColumn(portlet);
                 int row = MainFramePanel.this.getPortletIndex(portlet);
@@ -454,10 +454,10 @@ public class MainFramePanel extends Portal {
         return result;
     }
 
-    private void add(Portlet portlet) {
+    private void add(BasePortlet portlet) {
         this.add(portlet, pos % numColumns);
         pos++;
-        fireEvent(Events.Add, new ContainerEvent<Portal, Portlet>(this, portlet));
+        fireEvent(Events.Add, new ContainerEvent<Portal, BasePortlet>(this, portlet));
     }
 
     private void add(Portlet portlet, List<Integer> loc) {
@@ -650,7 +650,9 @@ public class MainFramePanel extends Portal {
 
             @Override
             public void onSuccess(Boolean result) {
-                initUI(context, application);
+                if(!result) {
+                    initUI(context, application);
+                }
             }
         });
     }
