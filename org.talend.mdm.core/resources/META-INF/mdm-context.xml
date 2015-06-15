@@ -157,7 +157,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
             access="hasRole('authenticated') and hasRole('UIAuthenticated')" />
         <security:intercept-url pattern="/logviewer/**" requires-channel="any" access="hasRole('administration')" />
         <security:intercept-url pattern="/h2console/**" requires-channel="any" access="hasRole('administration')" />
-        <security:intercept-url pattern="/**" requires-channel="any" access="hasRole('authenticated')" />
+        <security:intercept-url pattern="/api/**" requires-channel="any" access="hasRole('administration')" />
         <security:custom-filter position="FORM_LOGIN_FILTER" ref="formLoginAuthenticationFilter" />
         <security:custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencySessionFilter" />
         <security:logout logout-url="/auth/logout" invalidate-session="true" delete-cookies="JSESSIONID" />

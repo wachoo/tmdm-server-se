@@ -25,5 +25,6 @@
     <groupitem en="Tools" fr="Outils">
         <item>logviewer.LogViewer</item>
         <item>h2console.H2Console</item>
+        <item>apidoc.RestApiDoc</item>
     </groupitem>
 </menugroup>

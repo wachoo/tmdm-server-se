@@ -167,7 +167,9 @@ public class AccordionMenus extends ContentPanel {
             icon = "secure/img/menu/tool.png"; //$NON-NLS-1$
         } else if ("h2console.H2Console".equals(toCheckMenuID)) { //$NON-NLS-1$
             icon = "secure/img/menu/tool.png"; //$NON-NLS-1$
-        } else {
+        } else if ("apidoc.RestApiDoc".equals(toCheckMenuID)) { //$NON-NLS-1$
+            icon = "secure/img/menu/tool.png"; //$NON-NLS-1$
+        }else {
             // default menus icon
             icon = "secure/img/menu/default.png"; //$NON-NLS-1$
         }

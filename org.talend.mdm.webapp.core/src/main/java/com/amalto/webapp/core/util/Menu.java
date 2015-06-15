@@ -223,6 +223,26 @@ public class Menu {
                 menu.setParentID(""); //$NON-NLS-1$
                 menu.setPosition(0);
                 menuIndex.put(menu.getId(), menu);
+                
+                // REST API documentation
+                menu = new Menu();
+                menu.setApplication("RestApiDoc"); //$NON-NLS-1$
+                menu.setContext("apidoc"); //$NON-NLS-1$
+                menu.setId("RestApiDoc"); //$NON-NLS-1$
+                labels = new HashMap<String, String>() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    public String get(Object key) {
+                        return MESSAGES.getMessage(new Locale(key.toString()), "menu.apidoc"); //$NON-NLS-1$
+                    };
+                };
+                menu.setLabels(labels);
+                menu.setParent(null);
+                menu.setParentID(""); //$NON-NLS-1$
+                menu.setPosition(0);
+                menuIndex.put(menu.getId(), menu);
+                
             }
             // not admin
             for (String role : roles) {
