@@ -88,7 +88,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
     @Value("${routing.engine.max.execution.time.millis}")
     private long timeToLive = 0;
 
-    private boolean isStopped;
+    private boolean isStopped = true;
 
     @PostConstruct
     public void init() {
