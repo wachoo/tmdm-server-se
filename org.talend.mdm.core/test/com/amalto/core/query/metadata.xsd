@@ -1892,4 +1892,101 @@
 	<xsd:simpleType name="AUTO_INCREMENT">
 		<xsd:restriction base="xsd:string" />
 	</xsd:simpleType>
+	<xsd:element name="HierarchySearchItem">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element maxOccurs="1" minOccurs="1"
+					name="HierarchySearchName" type="xsd:string" />
+				<xsd:element maxOccurs="1" minOccurs="1" name="Owner"
+					type="xsd:string" />
+				<xsd:element maxOccurs="1" minOccurs="0" name="Separator"
+					type="xsd:string" />
+				<xsd:element maxOccurs="1" minOccurs="1" name="HierarchyRelation"
+					type="xsd:boolean" />
+				<xsd:element maxOccurs="unbounded" minOccurs="1"
+					name="HierarchySearchCriterias">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element maxOccurs="1" minOccurs="1" name="Concept"
+								type="xsd:string" />
+							<xsd:element maxOccurs="1" minOccurs="0" name="View"
+								type="xsd:string" />
+							<xsd:element maxOccurs="unbounded" minOccurs="1"
+								name="LabelXpath" type="xsd:string" />
+							<xsd:element maxOccurs="1" minOccurs="0" name="FkXpath"
+								type="xsd:string" />
+							<xsd:element maxOccurs="1" minOccurs="0" name="FilterCriteria"
+								type="text" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+		<xsd:unique name="HierarchySearchItem">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="HierarchySearchName" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:simpleType name="text">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="2147483647" />
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="cpo_service">
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element maxOccurs="1" minOccurs="1" name="id_service"
+					type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0" name="id_institution"
+					type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0" name="id_service_pere"
+					type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0" name="id_type_service"
+					type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0"
+					name="id_categorie_service" type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0"
+					name="abreviation_service" type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0"
+					name="abreviation_contextuelle_service" type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0" name="libelle_service"
+					type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0"
+					name="libelle_contextuel_service" type="xsd:string">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0"
+					name="intervalle_min_hierarchie_service" type="xsd:int">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0"
+					name="intervalle_max_hierarchie_service" type="xsd:int">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0"
+					name="intervalle_niveau_service" type="xsd:int">
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="1" name="etat"
+					type="etatType">
+				</xsd:element>
+			</xsd:all>
+		</xsd:complexType>
+		<xsd:unique name="cpo_service">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="id_service" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:simpleType name="etatType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="V" />
+			<xsd:enumeration value="I" />
+			<xsd:enumeration value="U" />
+			<xsd:enumeration value="D" />
+		</xsd:restriction>
+	</xsd:simpleType>
 </xsd:schema>
