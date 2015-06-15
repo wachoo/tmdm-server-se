@@ -197,8 +197,8 @@ public class DataChart extends ChartPortlet {
 
             @Override
             public void onMouseMove(MouseMoveEvent event) {
-                cursorX = event.getScreenX() + 10;
-                cursorY = event.getScreenY() - 90;
+                cursorX = event.getClientX() + 10;
+                cursorY = event.getClientY() - 10;
             }
 
         }, MouseMoveEvent.getType());
