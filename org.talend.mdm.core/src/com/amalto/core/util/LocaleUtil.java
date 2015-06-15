@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -17,9 +17,28 @@ import java.util.Locale;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 public class LocaleUtil {
 
+    public static Locale getLocale() {
+        HttpServletRequest request;
+        RequestAttributes requestAttrs = RequestContextHolder.currentRequestAttributes();
+        if (requestAttrs instanceof ServletRequestAttributes) {
+            ServletRequestAttributes servletRequestAttrs = (ServletRequestAttributes) requestAttrs;
+            request = servletRequestAttrs.getRequest();
+        } else {
+            request = null;
+        }
+        return getLocale(request);
+    }
+
     public static Locale getLocale(HttpServletRequest request) {
+        if (request == null) {
+            return Locale.getDefault();
+        }
         Locale locale;
         String language = request.getParameter("language"); //$NON-NLS-1$
         if (language == null) {
