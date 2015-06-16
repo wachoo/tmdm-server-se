@@ -151,7 +151,8 @@ public class JournalChart extends ChartPortlet {
                                 CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(entityNamesSorted)));
 
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
-        plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setClickable(true));
+        plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setClickable(true).setBorderWidth(0)
+                .setBackgroundColor(BACKGROUND_COLOR));
 
         // create series
         SeriesHandler seriesCreation = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_creation())

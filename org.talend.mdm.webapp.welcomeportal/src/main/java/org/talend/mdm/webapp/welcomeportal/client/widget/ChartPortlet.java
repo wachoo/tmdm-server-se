@@ -43,10 +43,12 @@ import com.googlecode.gflot.client.options.PlotOptions;
 
 public abstract class ChartPortlet extends BasePortlet {
 
-    public static final String SERIES_1_COLOR ="#555964"; //dark-gray //$NON-NLS-1$
+    public static final String SERIES_1_COLOR ="#00a6ce"; //blue //$NON-NLS-1$
     
     public static final String SERIES_2_COLOR ="#b6be00"; //dark-green //$NON-NLS-1$
     
+    public static final String BACKGROUND_COLOR = "#FDFDFD"; //light-gray //$NON-NLS-1$ 
+
     protected SimplePlot plot;
 
     protected Map<String, Object> chartData;

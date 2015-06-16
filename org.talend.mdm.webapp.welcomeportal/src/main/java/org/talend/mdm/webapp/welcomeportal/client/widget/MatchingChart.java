@@ -146,7 +146,8 @@ public class MatchingChart extends ChartPortlet {
                                 CategoriesAxisOptions.create().setAxisLabelAngle(70d)
                                         .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
-        plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
+        plotOptions
+                .setGridOptions(GridOptions.create().setHoverable(true).setBorderWidth(0).setBackgroundColor(BACKGROUND_COLOR));
 
         // create series
         SeriesHandler seriesMatched = model.addSeries(Series.of(MessagesFactory.getMessages().chart_matching_duplicates())
