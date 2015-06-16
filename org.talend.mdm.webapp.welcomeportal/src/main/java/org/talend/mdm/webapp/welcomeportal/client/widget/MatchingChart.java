@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -149,7 +149,8 @@ public class MatchingChart extends ChartPortlet {
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
 
         // create series
-        SeriesHandler seriesMatched = model.addSeries(Series.of(MessagesFactory.getMessages().chart_matching_duplicates()));
+        SeriesHandler seriesMatched = model.addSeries(Series.of(MessagesFactory.getMessages().chart_matching_duplicates())
+                .setColor(SERIES_2_COLOR));
 
         // add data
         for (String entityName : entityNamesSorted) {

@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -111,8 +111,10 @@ public class RoutingChart extends ChartPortlet {
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
 
         // create series
-        SeriesHandler seriesCompleted = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_completed()));
-        SeriesHandler seriesFailed = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_failed()));
+        SeriesHandler seriesCompleted = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_completed())
+                .setColor(SERIES_1_COLOR));
+        SeriesHandler seriesFailed = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_failed())
+                .setColor(SERIES_2_COLOR));
 
         // add data
         for (String appName : entityNamesSorted) {

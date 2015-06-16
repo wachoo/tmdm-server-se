@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -154,8 +154,10 @@ public class JournalChart extends ChartPortlet {
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setClickable(true));
 
         // create series
-        SeriesHandler seriesCreation = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_creation()));
-        SeriesHandler seriesUpdate = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_update()));
+        SeriesHandler seriesCreation = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_creation())
+                .setColor(SERIES_1_COLOR));
+        SeriesHandler seriesUpdate = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_update()).setColor(
+                SERIES_2_COLOR));
 
         // add data
         for (String entityName : entityNamesSorted) {
