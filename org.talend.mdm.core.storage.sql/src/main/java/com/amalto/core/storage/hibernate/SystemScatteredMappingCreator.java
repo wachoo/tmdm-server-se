@@ -14,6 +14,8 @@ package com.amalto.core.storage.hibernate;
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.commons.lang.StringUtils;
 
+import com.amalto.core.metadata.LongString;
+
 import javax.xml.XMLConstants;
 import java.util.*;
 
@@ -74,8 +76,9 @@ class SystemScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> 
             newFlattenField.setDeclaringType(type);
         }
         String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
-        if (data != null && preferClobUse) {
-            newFlattenField.getType().setData(TypeMapping.SQL_TYPE, "clob"); //$NON-NLS-1$
+        Boolean preferLongVarchar = field.getType().getData(LongString.PREFER_LONGVARCHAR);
+        if (data != null && preferClobUse && preferLongVarchar == null) {
+            newFlattenField.getType().setData(TypeMapping.SQL_TYPE, TypeMapping.SQL_TYPE_CLOB);
             newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.FALSE);
         }
         currentType.peek().addField(newFlattenField);

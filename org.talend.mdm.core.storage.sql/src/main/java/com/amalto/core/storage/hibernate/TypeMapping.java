@@ -129,11 +129,11 @@ public abstract class TypeMapping {
                     zos.close();
                     return new String(characters.toByteArray());
                 } catch (IOException e) {
-                    throw new RuntimeException("Unexpected compression exception", e);
+                    throw new RuntimeException("Unexpected compression exception", e); //$NON-NLS-1$
                 }
             }
             String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
-            if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
+            if (targetSQLType != null && SQL_TYPE_CLOB.equalsIgnoreCase(targetSQLType)) {
                 if (value != null) {
                     return Hibernate.getLobCreator(session).createClob(String.valueOf(value));
                 } else {
@@ -165,17 +165,17 @@ public abstract class TypeMapping {
                     }
                     return new String(bos.toByteArray(), "UTF-8"); //$NON-NLS-1$
                 } catch (IOException e) {
-                    throw new RuntimeException("Unexpected deflate exception", e);
+                    throw new RuntimeException("Unexpected deflate exception", e); //$NON-NLS-1$
                 }
             }
             String targetSQLType = sourceField.getType().getData(TypeMapping.SQL_TYPE);
-            if (value != null && targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
+            if (value != null && targetSQLType != null && SQL_TYPE_CLOB.equalsIgnoreCase(targetSQLType)) {
                 try {
                     Reader characterStream = ((Clob) value).getCharacterStream();
                     return new String(IOUtils.toCharArray(characterStream)); // No need to close (Hibernate seems to
                                                                              // handle this).
                 } catch (Exception e) {
-                    throw new RuntimeException("Unexpected read from clob exception", e);
+                    throw new RuntimeException("Unexpected read from clob exception", e); //$NON-NLS-1$
                 }
             }
         }
@@ -186,6 +186,7 @@ public abstract class TypeMapping {
      * See TMDM-5524: Hibernate sometimes "hides" values of a collection when condition is on contained value. This
      * piece of code forces load. Relates also to TMDM-7452.
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected static <T> List<T> getFullList(List valueList) {
         if (valueList == null) {
             return null;
@@ -197,7 +198,7 @@ public abstract class TypeMapping {
         List<T> fullList = new LinkedList<T>();
         SessionImplementor session = list.getSession();
         if (!session.isConnected()) {
-            throw new IllegalStateException("Session is not connected: impossible to read values from database.");
+            throw new IllegalStateException("Session is not connected: impossible to read values from database."); //$NON-NLS-1$
         }
         CollectionEntry entry = session.getPersistenceContext().getCollectionEntry(list);
         CollectionPersister persister = entry.getLoadedPersister();

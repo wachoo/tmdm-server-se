@@ -658,13 +658,9 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             if (sqlType != null) { // SQL Type may enforce use of "CLOB" iso. "LONG VARCHAR"
                 elementTypeName = String.valueOf(sqlType);
                 if (dialect == RDBMSDataSource.DataSourceDialect.DB2) {
-                    if (fieldType.getData(LongString.PREFER_LONGVARCHAR) != null) {
-                        elementTypeName = TEXT_TYPE_NAME; // Will be mapped to LONGVARCHAR in DB2
-                    } else {
-                        Attr length = document.createAttribute("length"); //$NON-NLS-1$
-                        length.setValue("1048576"); //$NON-NLS-1$ 1MB CLOB limit for DB2
-                        propertyElement.getAttributes().setNamedItem(length);
-                    }
+                    Attr length = document.createAttribute("length"); //$NON-NLS-1$
+                    length.setValue("1048576"); //$NON-NLS-1$ 1MB CLOB limit for DB2
+                    propertyElement.getAttributes().setNamedItem(length);
                 }
             } else if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
                 int limit = dialect.getTextLimit();

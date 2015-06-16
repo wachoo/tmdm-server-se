@@ -74,7 +74,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
         if (data != null && preferClobUse) {
             if (Integer.parseInt(data) > context.getTextLimit()) {
-                newFlattenField.getType().setData(TypeMapping.SQL_TYPE, "clob"); //$NON-NLS-1$
+                newFlattenField.getType().setData(TypeMapping.SQL_TYPE, TypeMapping.SQL_TYPE_CLOB);
                 newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.FALSE);
             }
         }
@@ -301,7 +301,7 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         currentType.pop();
         currentMapping.pop();
         if (complexType.isInstantiable() && !currentType.isEmpty()) { // This is unexpected
-            throw new IllegalStateException("Type remained in process stack.");
+            throw new IllegalStateException("Type remained in process stack."); //$NON-NLS-1$
         }
         return typeMapping;
     }

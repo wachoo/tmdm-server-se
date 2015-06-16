@@ -103,7 +103,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     return hasNext;
                 } catch (Exception e) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Unable to check for next result.", e);
+                        LOGGER.debug("Unable to check for next result.", e); //$NON-NLS-1$
                     }
                     return false;
                 }
@@ -315,15 +315,15 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                 String typeName = value.toString();
                 ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
                 if (!(contextClassLoader instanceof StorageClassLoader)) {
-                    throw new IllegalStateException("Expected a instance of " + StorageClassLoader.class.getName()
-                            + " as current class loader.");
+                    throw new IllegalStateException("Expected a instance of " + StorageClassLoader.class.getName() //$NON-NLS-1$
+                            + " as current class loader."); //$NON-NLS-1$
                 }
                 try {
                     Class<?> aClass = contextClassLoader.loadClass(ClassCreator.getClassName(typeName));
                     ComplexTypeMetadata typeFromClass = ((StorageClassLoader) contextClassLoader).getTypeFromClass(aClass);
                     value = mappingMetadataRepository.getMappingFromDatabase(typeFromClass).getUser().getName();
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Exception occurred during type name conversion.", e);
+                    throw new RuntimeException("Exception occurred during type name conversion.", e); //$NON-NLS-1$
                 }
             }
             currentElement.value = value;
@@ -399,7 +399,7 @@ class ProjectionIterator implements CloseableIterator<DataRecord> {
                     }
                 } catch (Exception e) {
                     currentElement.value = ""; //$NON-NLS-1$
-                    throw new RuntimeException("Unexpected read from clob exception", e);
+                    throw new RuntimeException("Unexpected read from clob exception", e); //$NON-NLS-1$
                 }
             } else {
                 currentElement.value = values[currentIndex++];

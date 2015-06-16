@@ -145,11 +145,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
         criterionFieldCondition = new CriterionFieldCondition();
         DataSource dataSource = storage.getDataSource();
         if (!(dataSource instanceof RDBMSDataSource)) {
-            throw new IllegalArgumentException("Storage '" + storage.getName() + "' is not using a RDBMS datasource.");
+            throw new IllegalArgumentException("Storage '" + storage.getName() + "' is not using a RDBMS datasource."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         criterionVisitor = new CriterionAdapter((RDBMSDataSource) dataSource);
     }
 
+    @SuppressWarnings("rawtypes")
     protected StorageResults createResults(List list, boolean isProjection) {
         CloseableIterator<DataRecord> iterator;
         final Iterator listIterator = list.iterator();
@@ -214,7 +215,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             joinType = JoinType.FULL_JOIN;
             break;
         default:
-            throw new NotImplementedException("No support for join type " + join.getJoinType());
+            throw new NotImplementedException("No support for join type " + join.getJoinType()); //$NON-NLS-1$
         }
         // Select a path from mainType to the selected field (properties are '.' separated).
         List<FieldMetadata> path = StorageMetadataUtils.path(mainType, leftField);
@@ -226,13 +227,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
             } catch (Exception e) {
                 // Ignored
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Exception occurred during exception creation", e);
+                    LOGGER.debug("Exception occurred during exception creation", e); //$NON-NLS-1$
                 }
                 destinationFieldName = String.valueOf(rightField);
             }
-            throw new IllegalArgumentException("Join to '" + destinationFieldName + "' (in type '"
-                    + rightField.getContainingType().getName() + "') is invalid since there is no path from '"
-                    + mainType.getName() + "' to this field.");
+            throw new IllegalArgumentException("Join to '" + destinationFieldName + "' (in type '" //$NON-NLS-1$ //$NON-NLS-2$
+                    + rightField.getContainingType().getName() + "') is invalid since there is no path from '" //$NON-NLS-1$
+                    + mainType.getName() + "' to this field."); //$NON-NLS-1$
         }
         // Generate all necessary joins to go from main type to join right table.
         generateJoinPath(Collections.singleton(rightAlias), joinType, path);
@@ -312,7 +313,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 projectionList = previousList;
             }
         } else {
-            throw new IllegalStateException("Expected an alias for a type expression.");
+            throw new IllegalStateException("Expected an alias for a type expression."); //$NON-NLS-1$
         }
         return null;
     }
@@ -323,7 +324,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         if (currentAliasName != null) {
             projectionList.add(p, currentAliasName);
         } else {
-            throw new IllegalStateException("Expected an alias for a constant expression.");
+            throw new IllegalStateException("Expected an alias for a constant expression."); //$NON-NLS-1$
         }
         return null;
     }
@@ -536,6 +537,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
         return createResults(select);
     }
 
+    @SuppressWarnings("rawtypes")
     protected StorageResults createResults(Select select) {
         Paging paging = select.getPaging();
         int pageSize = paging.getLimit();
@@ -565,7 +567,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
     protected Criteria createCriteria(Select select) {
         List<ComplexTypeMetadata> selectedTypes = select.getTypes();
         if (selectedTypes.isEmpty()) {
-            throw new IllegalArgumentException("Select clause is expected to select at least one entity type.");
+            throw new IllegalArgumentException("Select clause is expected to select at least one entity type."); //$NON-NLS-1$
         }
         mainType = selectedTypes.get(0);
         String mainClassName = ClassCreator.getClassName(mainType.getName());
@@ -623,8 +625,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     RDBMSDataSource dataSource = (RDBMSDataSource) storage.getDataSource();
                     if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.DB2
                             || dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.SQL_SERVER) {
-                        LOGGER.error("The query is not supported by DB2 and SQLSERVER Database.");
-                        throw new UnsupportedQueryException("The query is not supported by DB2 and SQLSERVER Database.");
+                        LOGGER.error("The query is not supported by DB2 and SQLSERVER Database."); //$NON-NLS-1$
+                        throw new UnsupportedQueryException("The query is not supported by DB2 and SQLSERVER Database."); //$NON-NLS-1$
                     }
                 }
             }
@@ -678,7 +680,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 list = ((ReadOnlyProjectionList) projectionList).inner();
             }
             list.add(Projections.groupProperty(propertyName));
-            String alias = "x_talend_countField" + countAggregateIndex++; //$NON-NLS-1
+            String alias = "x_talend_countField" + countAggregateIndex++; //$NON-NLS-1$
             list.add(Projections.count(propertyName).as(alias));
             switch (orderBy.getDirection()) {
             case ASC:
@@ -816,7 +818,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             if (predicate == Predicate.NOT) {
                 return not(conditionCriterion);
             } else {
-                throw new NotImplementedException("No support for predicate '" + predicate + "'");
+                throw new NotImplementedException("No support for predicate '" + predicate + "'"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
 
@@ -834,8 +836,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 // First, need to join with all tables to get to the table that stores the type
                 List<FieldMetadata> path = StorageMetadataUtils.path(mainType, fieldCondition.fieldMetadata);
                 if (path.isEmpty()) {
-                    throw new IllegalStateException("Expected field '" + fieldCondition.fieldMetadata.getName()
-                            + "' to be reachable from '" + mainType.getName() + "'.");
+                    throw new IllegalStateException("Expected field '" + fieldCondition.fieldMetadata.getName() //$NON-NLS-1$
+                            + "' to be reachable from '" + mainType.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 // Generate the joins
                 Set<String> aliases = getAliases(mainType, fieldCondition.field);
@@ -855,10 +857,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 return TRUE_CRITERION;
             }
             if (fieldCondition.isMany) {
-                throw new UnsupportedOperationException("Does not support 'is null' operation on collections.");
+                throw new UnsupportedOperationException("Does not support 'is null' operation on collections."); //$NON-NLS-1$
             }
             if (fieldCondition.criterionFieldNames.isEmpty()) {
-                throw new IllegalStateException("No field name for 'is null' condition on " + field);
+                throw new IllegalStateException("No field name for 'is null' condition on " + field); //$NON-NLS-1$
             } else {
                 // Criterion affect multiple fields
                 Criterion current = null;
@@ -895,7 +897,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
             if (fieldCondition.isMany) {
                 if (fieldCondition.criterionFieldNames.isEmpty()) {
-                    throw new IllegalStateException("No field name for 'is empty' condition on " + isEmpty.getField());
+                    throw new IllegalStateException("No field name for 'is empty' condition on " + isEmpty.getField()); //$NON-NLS-1$
                 } else {
                     // Criterion affect multiple fields
                     Criterion current = null;
@@ -910,7 +912,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             } else {
                 if (fieldCondition.criterionFieldNames.isEmpty()) {
-                    throw new IllegalStateException("No field name for 'is empty' condition on " + isEmpty.getField());
+                    throw new IllegalStateException("No field name for 'is empty' condition on " + isEmpty.getField()); //$NON-NLS-1$
                 } else {
                     // Criterion affect multiple fields
                     Criterion current = null;
@@ -934,7 +936,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
             if (fieldCondition.isMany) {
                 if (fieldCondition.criterionFieldNames.isEmpty()) {
-                    throw new IllegalStateException("No field name for 'not is empty' condition on " + notIsEmpty.getField());
+                    throw new IllegalStateException("No field name for 'not is empty' condition on " + notIsEmpty.getField()); //$NON-NLS-1$
                 } else {
                     // Criterion affect multiple fields
                     Criterion current = null;
@@ -949,7 +951,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             } else {
                 if (fieldCondition.criterionFieldNames.isEmpty()) {
-                    throw new IllegalStateException("No field name for 'not is empty' condition on " + notIsEmpty.getField());
+                    throw new IllegalStateException("No field name for 'not is empty' condition on " + notIsEmpty.getField()); //$NON-NLS-1$
                 } else {
                     // Criterion affect multiple fields
                     Criterion current = null;
@@ -968,7 +970,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
 
         @Override
         public Criterion visit(GroupSize groupSize) {
-            return Restrictions.sqlRestriction("count()");
+            return Restrictions.sqlRestriction("count()"); //$NON-NLS-1$
         }
 
         @Override
@@ -978,10 +980,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 return TRUE_CRITERION;
             }
             if (fieldCondition.isMany) {
-                throw new UnsupportedOperationException("Does not support 'not is null' operation on collections.");
+                throw new UnsupportedOperationException("Does not support 'not is null' operation on collections."); //$NON-NLS-1$
             }
             if (fieldCondition.criterionFieldNames.isEmpty()) {
-                throw new IllegalStateException("No field name for 'not is null' condition on " + notIsNull.getField());
+                throw new IllegalStateException("No field name for 'not is null' condition on " + notIsNull.getField()); //$NON-NLS-1$
             } else {
                 // Criterion affect multiple fields
                 Criterion current = null;
@@ -1006,7 +1008,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             } else if (predicate == Predicate.OR) {
                 return or(left, right);
             } else {
-                throw new NotImplementedException("No support for predicate '" + predicate + "'");
+                throw new NotImplementedException("No support for predicate '" + predicate + "'"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
 
@@ -1029,7 +1031,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
             if (condition != null) {
                 if (condition.criterionFieldNames.isEmpty()) {
-                    throw new IllegalStateException("No field name for 'range' condition on " + range.getExpression());
+                    throw new IllegalStateException("No field name for 'range' condition on " + range.getExpression()); //$NON-NLS-1$
                 } else {
                     // Criterion affect multiple fields
                     Criterion current = null;
@@ -1047,6 +1049,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
         }
 
+        @SuppressWarnings("rawtypes")
         @Override
         public Criterion visit(Compare condition) {
             FieldCondition leftFieldCondition = condition.getLeft().accept(criterionFieldCondition);
@@ -1070,18 +1073,18 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     } else if (predicate == Predicate.LOWER_THAN_OR_EQUALS) {
                         comparator = "<="; //$NON-NLS-1$
                     } else {
-                        throw new IllegalArgumentException("Predicate '" + predicate + "' is not supported on group_size value.");
+                        throw new IllegalArgumentException("Predicate '" + predicate + "' is not supported on group_size value."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     String sqlConditionBuilder = "("; //$NON-NLS-1$
                     sqlConditionBuilder += "select count(1) from"; //$NON-NLS-1$
                     sqlConditionBuilder += ' ' + mainTableName + ' ';
-                    sqlConditionBuilder += "where " + Storage.METADATA_TASK_ID + " = " + mainTableAlias + "." + Storage.METADATA_TASK_ID; //$NON-NLS-1$  
+                    sqlConditionBuilder += "where " + Storage.METADATA_TASK_ID + " = " + mainTableAlias + "." + Storage.METADATA_TASK_ID; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$  
                     sqlConditionBuilder += ')';
                     sqlConditionBuilder += ' ' + comparator + ' ' + value;
                     return Restrictions.sqlRestriction(sqlConditionBuilder);
                 }
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Query on '" + leftFieldCondition + "' is not a user set property. Ignore this condition.");
+                    LOGGER.debug("Query on '" + leftFieldCondition + "' is not a user set property. Ignore this condition."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 return TRUE_CRITERION;
             }
@@ -1131,7 +1134,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                                     .getRight().accept(VALUE_ADAPTER));
                         }
                     } else {
-                        throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
+                        throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + "."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
             }
@@ -1167,8 +1170,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         if (fieldMetadata instanceof ReferenceFieldMetadata) {
                             FieldMetadata referencedField = ((ReferenceFieldMetadata) fieldMetadata).getReferencedField();
                             if (!(referencedField instanceof CompoundFieldMetadata)) {
-                                throw new IllegalArgumentException("Expected field '" + referencedField
-                                        + "' to be a composite key.");
+                                throw new IllegalArgumentException("Expected field '" + referencedField //$NON-NLS-1$
+                                        + "' to be a composite key."); //$NON-NLS-1$
                             }
                             Set<String> aliases = getAliases(mainType, leftField);
                             current = null;
@@ -1193,14 +1196,14 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         } else {
                             Set<String> aliases = getAliases(mainType, leftField);
                             if (aliases.isEmpty()) {
-                                throw new IllegalStateException("No alias found for field '" + fieldMetadata.getName() + "'.");
+                                throw new IllegalStateException("No alias found for field '" + fieldMetadata.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                             }
                             for (String alias : aliases) {
                                 current = Restrictions.in(alias + '.' + fieldMetadata.getName(), (Object[]) compareValue);
                             }
                         }
                         if (current == null) {
-                            throw new IllegalStateException("No condition was generated for '" + fieldMetadata.getName() + "'.");
+                            throw new IllegalStateException("No condition was generated for '" + fieldMetadata.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                         return current;
                     } else {
@@ -1322,12 +1325,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     }
                     return current;
                 } else {
-                    throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
+                    throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             } else { // Since we expect left part to be a field, this 'else' means we're comparing 2 fields
                 if (rightFieldCondition.criterionFieldNames.size() > 1) {
-                    throw new UnsupportedOperationException("Can't compare to multiple right fields (was "
-                            + rightFieldCondition.criterionFieldNames.size() + ").");
+                    throw new UnsupportedOperationException("Can't compare to multiple right fields (was " //$NON-NLS-1$
+                            + rightFieldCondition.criterionFieldNames.size() + ")."); //$NON-NLS-1$
                 }
                 String rightValue = rightFieldCondition.criterionFieldNames.get(0);
                 if (predicate == Predicate.EQUALS) {
@@ -1390,19 +1393,20 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     }
                     return current;
                 } else {
-                    throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'");
+                    throw new NotImplementedException("No support for predicate '" + predicate.getClass() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
         }
     }
 
     private Object applyDatabaseType(FieldCondition field, Object value) {
-        if (field.fieldMetadata != null && "clob".equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) { //$NON-NLS-1$
+        if (field.fieldMetadata != null && TypeMapping.SQL_TYPE_CLOB.equals(field.fieldMetadata.getType().getData(TypeMapping.SQL_TYPE))) {
             return Hibernate.getLobCreator(session).createClob(String.valueOf(value));
         }
         return value;
     }
 
+    @SuppressWarnings("rawtypes")
     public static Criteria findCriteria(Criteria mainCriteria, Set<String> aliases) {
         if (aliases.contains(mainCriteria.getAlias())) {
             return mainCriteria;
@@ -1418,11 +1422,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 }
             }
             if (foundSubCriteria == null) {
-                throw new IllegalStateException("Could not find criteria for type check.");
+                throw new IllegalStateException("Could not find criteria for type check."); //$NON-NLS-1$
             }
             return foundSubCriteria;
         } else {
-            throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + ".");
+            throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + "."); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
