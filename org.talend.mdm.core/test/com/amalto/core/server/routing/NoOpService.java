@@ -22,7 +22,7 @@ import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.Service;
 import com.amalto.core.util.XtentisException;
 
-@org.springframework.stereotype.Service("test/no_op_service")
+@org.springframework.stereotype.Service("amalto/local/service/test/no_op_service")
 public class NoOpService extends Service {
 
     public static int pauseTime = 400;

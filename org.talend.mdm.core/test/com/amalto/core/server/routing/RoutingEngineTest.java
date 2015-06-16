@@ -186,7 +186,7 @@ public class RoutingEngineTest {
         clearRules();
         RoutingRulePOJO rule = new RoutingRulePOJO("testTypeMatchRule");
         rule.setConcept("*");
-        rule.setServiceJNDI("test/no_op_service");
+        rule.setServiceJNDI("amalto/local/service/test/no_op_service");
         routingRule.putRoutingRule(rule);
         // Expired message: put 2 messages, there's only one JMS consumer, service pauses for 400 ms, and expiration is
         // 300 ms
