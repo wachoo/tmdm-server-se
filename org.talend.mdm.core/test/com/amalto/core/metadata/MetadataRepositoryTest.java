@@ -17,6 +17,7 @@ import java.util.Locale;
 
 import junit.framework.TestCase;
 
+import org.junit.Assert;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -318,6 +319,9 @@ public class MetadataRepositoryTest extends TestCase {
         List<ComplexTypeMetadata> sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
         boolean hasMetHexavia = false;
         boolean hasMetAdresse = false;
+        System.out.println(sortTypes.indexOf(repository.getComplexType("Hexavia")));
+        System.out.println(sortTypes.indexOf(repository.getComplexType("Adresse")));
+        
         for (ComplexTypeMetadata sortType : sortTypes) {
             if ("Hexavia".equals(sortType.getName())) {
                 hasMetHexavia = true;
@@ -387,5 +391,55 @@ public class MetadataRepositoryTest extends TestCase {
         for (FieldMetadata keyField : entityType.getKeyFields()) {
             assertEquals(keyNames[i++], keyField.getName());
         }
+    }
+    
+    public void testLenientSortSimpleTest() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("product.xsd");
+        repository.load(stream);
+        List<ComplexTypeMetadata> sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+        Assert.assertEquals(repository.getInstantiableTypes().size(), sortTypes.size());
+        assertIsBefore(sortTypes, repository, "ProductFamily", "Product");
+        assertIsBefore(sortTypes, repository, "Supplier", "Product");
+    }
+    
+    public void testLenientSortComplexTest() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema9.xsd");
+        repository.load(stream);
+        List<ComplexTypeMetadata> sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+        Assert.assertEquals(repository.getInstantiableTypes().size(), sortTypes.size());
+        assertIsBefore(sortTypes, repository, "Contrat", "SocieteCliente");
+        assertIsBefore(sortTypes, repository, "TypeInterlocuteur", "Interlocuteur");
+        assertIsBefore(sortTypes, repository, "Interlocuteur", "Eda");
+        assertIsBefore(sortTypes, repository, "UseUrse", "Eda");
+        assertIsBefore(sortTypes, repository, "EdaFuture", "Eda");
+        assertIsBefore(sortTypes, repository, "Pays", "Eda");
+        assertIsBefore(sortTypes, repository, "UniteAgregation", "Eda");
+        assertIsBefore(sortTypes, repository, "Contrat", "Edp");
+        assertIsBefore(sortTypes, repository, "Interlocuteur", "Edp");
+        assertIsBefore(sortTypes, repository, "UseUrse", "Edp");
+        assertIsBefore(sortTypes, repository, "Contrat", "Edp");
+        assertIsBefore(sortTypes, repository, "Grt", "Eda");
+        assertIsBefore(sortTypes, repository, "UseUrse", "SiteInjectionRpt");
+        assertIsBefore(sortTypes, repository, "SiteInjectionRpt", "Gdp");
+        assertIsBefore(sortTypes, repository, "UseUrse", "Gdp");
+        assertIsBefore(sortTypes, repository, "Contrat", "EdaFuture");
+        assertIsBefore(sortTypes, repository, "Interlocuteur", "EdaFuture");
+        assertIsBefore(sortTypes, repository, "UseUrse", "EdaFuture");
+        assertIsBefore(sortTypes, repository, "Pays", "EdaFuture");
+    }
+    
+    private void assertIsBefore(List<ComplexTypeMetadata> types, MetadataRepository repository, String type1, String type2){
+        ComplexTypeMetadata m1 = repository.getComplexType(type1);
+        Assert.assertNotNull(type1 + " does not exist", m1);
+        Assert.assertFalse(type1 + " not part of list", types.indexOf(m1) == -1);
+        ComplexTypeMetadata m2 = repository.getComplexType(type2);
+        Assert.assertNotNull(type2 + " does not exist", m2);
+        Assert.assertFalse(type2 + " not part of list", types.indexOf(m2) == -1);
+        Assert.assertTrue(type1 + " is not before " + type2, types.indexOf(m1) < types.indexOf(m2));
+        
+        
+        
     }
 }
