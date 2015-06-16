@@ -81,8 +81,9 @@ public class JournalSearchPanel extends FormPanel {
     private Button exportButton;
     
     public static JournalSearchPanel getInstance() {
-        if (formPanel == null)
+        if (formPanel == null) {
             formPanel = new JournalSearchPanel();
+        }
         return formPanel;
     }
     
@@ -99,6 +100,7 @@ public class JournalSearchPanel extends FormPanel {
 
         LayoutContainer left = new LayoutContainer();
         left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
+        left.setStyleAttribute("paddingTop", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
         FormLayout layout = new FormLayout();
         layout.setLabelAlign(LabelAlign.LEFT);
         left.setWidth(350);
@@ -108,6 +110,7 @@ public class JournalSearchPanel extends FormPanel {
         entityField.setFieldLabel(MessagesFactory.getMessages().entity_label());
         entityField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent be) {
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                     if (searchButton != null) {
@@ -119,7 +122,7 @@ public class JournalSearchPanel extends FormPanel {
         left.add(entityField, formData);
 
         List<String> list = new ArrayList<String>();
-        list.add(UpdateReportPOJO.GENERIC_UI_SOURCE); //$NON-NLS-1$
+        list.add(UpdateReportPOJO.GENERIC_UI_SOURCE); 
         list.add("adminWorkbench"); //$NON-NLS-1$
         list.add("dataSynchronization"); //$NON-NLS-1$
         list.add("workflow"); //$NON-NLS-1$
@@ -134,6 +137,7 @@ public class JournalSearchPanel extends FormPanel {
         sourceCombo.setTriggerAction(TriggerAction.ALL);
         sourceCombo.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent be) {
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                     if (searchButton != null) {
@@ -149,6 +153,7 @@ public class JournalSearchPanel extends FormPanel {
         startDateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss")); //$NON-NLS-1$
         startDateField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent be) {
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                     if (searchButton != null) {
@@ -161,6 +166,7 @@ public class JournalSearchPanel extends FormPanel {
 
         LayoutContainer right = new LayoutContainer();
         right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
+        right.setStyleAttribute("paddingTop", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
         right.setWidth(350);
         layout = new FormLayout();
         layout.setLabelAlign(LabelAlign.LEFT);
@@ -170,6 +176,7 @@ public class JournalSearchPanel extends FormPanel {
         keyField.setFieldLabel(MessagesFactory.getMessages().key_label());
         keyField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent be) {
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                     if (searchButton != null) {
@@ -200,6 +207,7 @@ public class JournalSearchPanel extends FormPanel {
         operationTypeCombo.setEditable(false);
         operationTypeCombo.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent be) {
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER && !operationTypeCombo.isExpanded()) {
                     if (searchButton != null) {
@@ -217,6 +225,7 @@ public class JournalSearchPanel extends FormPanel {
         endDateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss")); //$NON-NLS-1$
         endDateField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
+            @Override
             public void handleEvent(FieldEvent be) {
                 if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
                     if (searchButton != null) {
@@ -307,10 +316,11 @@ public class JournalSearchPanel extends FormPanel {
             criteria.setSource(null);
         }
 
-        if (operationTypeCombo.getValue() != null && !"ALL".equals(operationTypeCombo.getValue().get("key").toString())) //$NON-NLS-1$ //$NON-NLS-2$
+        if (operationTypeCombo.getValue() != null && !"ALL".equals(operationTypeCombo.getValue().get("key").toString())) {
             criteria.setOperationType(operationTypeCombo.getValue().get("key").toString()); //$NON-NLS-1$
-        else
+        } else {
             criteria.setOperationType(null);
+        }
 
         criteria.setStartDate(startDateField.getValue());
         criteria.setEndDate(endDateField.getValue());
@@ -320,17 +330,29 @@ public class JournalSearchPanel extends FormPanel {
     private Map<String, String> getCriteriaMap() {
         Map<String, String> map = new HashMap<String, String>();
         if (entityField.getValue() != null)
+         {
             map.put("entity", entityField.getValue()); //$NON-NLS-1$
+        }
         if (keyField.getValue() != null)
+         {
             map.put("key", keyField.getValue()); //$NON-NLS-1$
+        }
         if (sourceCombo.getValue() != null)
+         {
             map.put("source", sourceCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
-        if (operationTypeCombo.getValue() != null && ! operationTypeCombo.getValue().get("key").equals("ALL")) //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        if (operationTypeCombo.getValue() != null && ! operationTypeCombo.getValue().get("key").equals("ALL"))
+         {
             map.put("operationType", operationTypeCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
         if (startDateField.getValue() != null)
+         {
             map.put("startDate", String.valueOf(startDateField.getValue().getTime())); //$NON-NLS-1$
+        }
         if (endDateField.getValue() != null)
+         {
             map.put("endDate", String.valueOf(endDateField.getValue().getTime())); //$NON-NLS-1$
+        }
         map.put("isStrict", String.valueOf(strictCheckBox.getValue())); //$NON-NLS-1$
         map.put("language", UrlUtil.getLanguage()); //$NON-NLS-1$
 

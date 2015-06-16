@@ -51,6 +51,7 @@ public class MatchGroupCriteria extends Composite {
         FormLayout layout = new FormLayout();
         layout.setLabelWidth(110);
         container.setLayout(layout);
+        container.setStyleAttribute("paddingTop", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
         matchGroupField.setFieldLabel(MessagesFactory.getMessages().match_group());
         matchGroupField.setWidth(120);
         container.add(matchGroupField);

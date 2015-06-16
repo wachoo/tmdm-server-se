@@ -58,6 +58,7 @@ public class ModifiedOnCriteria extends Composite {
         container.setLayout(new ColumnLayout());
         LayoutContainer left = new LayoutContainer();
         left.setStyleAttribute("paddingRight", "10px"); //$NON-NLS-1$  //$NON-NLS-2$
+        left.setStyleAttribute("paddingTop", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
         FormLayout layout = new FormLayout();
         layout.setLabelWidth(110);
         left.setLayout(layout);
@@ -69,6 +70,7 @@ public class ModifiedOnCriteria extends Composite {
 
         LayoutContainer right = new LayoutContainer();
         right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$  //$NON-NLS-2$
+        right.setStyleAttribute("paddingTop", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
         layout = new FormLayout();
         layout.setLabelWidth(50);
         right.setLayout(layout);
