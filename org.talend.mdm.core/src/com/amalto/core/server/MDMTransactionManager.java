@@ -11,17 +11,27 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.storage.transaction.Transaction;
-import com.amalto.core.storage.transaction.TransactionManager;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Stack;
+import java.util.UUID;
+
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import com.amalto.core.storage.transaction.Transaction;
+import com.amalto.core.storage.transaction.TransactionManager;
 
 public class MDMTransactionManager implements TransactionManager {
 
     private static final Logger LOGGER = Logger.getLogger(MDMTransactionManager.class);
 
-    private static final Map<Thread, Transaction> currentTransactions = new HashMap<Thread, Transaction>();
+    private static final Map<Thread, Stack<Transaction>> currentTransactions = new HashMap<Thread, Stack<Transaction>>();
 
     private static final Map<String, Transaction> activeTransactions = new HashMap<String, Transaction>();
 
@@ -55,7 +65,7 @@ public class MDMTransactionManager implements TransactionManager {
             activeTransactions.put(transaction.getId(), transaction);
         }
         synchronized (currentTransactions) {
-            if (!currentTransactions.containsKey(Thread.currentThread())) {
+            if(!currentTransactionsContains(transaction)){
                 associate(transaction);
             }
         }
@@ -85,22 +95,28 @@ public class MDMTransactionManager implements TransactionManager {
             transaction.rollback();
         }
         synchronized (currentTransactions) {
-            if(currentTransactions.remove(Thread.currentThread()) != null) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Transaction removed: " + transaction.getId());
-                }
-            }
-            // remove all of transactions by transaction id
             for (Iterator<Thread> it = currentTransactions.keySet().iterator(); it.hasNext();) {
                 Thread thread = it.next();
-                if (transaction.getId().equals(currentTransactions.get(thread).getId())) {
-                    it.remove();
-                    currentTransactions.remove(thread);
+                Stack<Transaction> stack = getTransactionStack(thread);
+                Iterator<Transaction> transIt = stack.iterator();
+                while(transIt.hasNext()){
+                    Transaction t = transIt.next();
+                    if(t!=null && transaction.getId().equals(t.getId())){
+                        transIt.remove();
+                    }
                 }
             }
         }
+        // remove all of transactions by transaction id
         synchronized (activeTransactions) {
-            activeTransactions.remove(transaction.getId());
+            Set<Entry<String, Transaction>> entries = activeTransactions.entrySet();
+            Iterator<Entry<String, Transaction>>  iterator = entries.iterator();
+            while(iterator.hasNext()){
+                Entry<String, Transaction> t = iterator.next();
+                if(t.getKey().equals(transaction.getId())){
+                    iterator.remove();
+                }
+            }
         }
     }
 
@@ -152,11 +168,11 @@ public class MDMTransactionManager implements TransactionManager {
     @Override
     public Transaction currentTransaction() {
         synchronized (currentTransactions) {
-            Transaction transaction = currentTransactions.get(Thread.currentThread());
-            if (transaction == null) {
+            Stack<Transaction> stack = this.getTransactionStack();
+            if(stack.isEmpty()){
                 return associate(create(Transaction.Lifetime.AD_HOC));
             }
-            return transaction;
+            return stack.lastElement();
         }
     }
 
@@ -166,7 +182,11 @@ public class MDMTransactionManager implements TransactionManager {
             throw new IllegalArgumentException("Transaction cannot be null.");
         }
         synchronized (currentTransactions) {
-            currentTransactions.put(Thread.currentThread(), transaction);
+            Stack<Transaction> transactionStack = getTransactionStack();
+            if(!transactionStack.contains(transaction)){
+                getTransactionStack().push(transaction);
+            }
+             
         }
         return transaction;
     }
@@ -177,14 +197,32 @@ public class MDMTransactionManager implements TransactionManager {
             throw new IllegalArgumentException("Transaction cannot be null.");
         }
         synchronized (currentTransactions) {
-            if (transaction == currentTransactions.get(Thread.currentThread())) {
-                currentTransactions.remove(Thread.currentThread());
+            Stack<Transaction> stack = getTransactionStack();
+            if(stack.firstElement() == transaction){
+                stack.pop();
             }
         }
     }
 
     @Override
     public boolean hasTransaction() {
-        return currentTransactions.get(Thread.currentThread()) != null;
+        return !getTransactionStack().isEmpty();
+    }
+    
+    private Stack<Transaction> getTransactionStack(){
+        return getTransactionStack(Thread.currentThread());
+    }
+    
+    private Stack<Transaction> getTransactionStack(Thread t){
+        Stack<Transaction> currentStack = currentTransactions.get(t);
+        if(currentStack == null){
+            currentStack = new Stack<Transaction>();
+            currentTransactions.put(t, currentStack);
+        }
+        return currentStack;
+    }
+    
+    private boolean currentTransactionsContains(Transaction t){
+        return getTransactionStack().contains(t);
     }
 }

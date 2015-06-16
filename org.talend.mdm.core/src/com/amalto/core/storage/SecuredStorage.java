@@ -183,5 +183,4 @@ public class SecuredStorage implements Storage {
     public boolean isClosed() {
         return delegate.isClosed();
     }
-
 }

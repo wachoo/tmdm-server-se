@@ -38,6 +38,13 @@ public class TransactionTest extends TestCase {
         manager = new MDMTransactionManager();
         manager.init();
     }
+    
+    @Override
+    public void tearDown() throws Exception {
+        if(manager!=null){
+            manager.close();
+        }
+    }
 
     public void testArguments() throws Exception {
         try {
