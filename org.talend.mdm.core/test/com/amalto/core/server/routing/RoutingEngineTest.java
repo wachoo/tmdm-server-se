@@ -101,6 +101,7 @@ public class RoutingEngineTest {
     @Test
     public void testMatchRuleType() throws Exception {
         RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
+        routingEngine.start();
         item.putItem(new ItemPOJO(container, "Person", new String[] { "1", "2" }, 0, "<Person><id>1</id><id2>2</id2></Person>"),
                 dataModel);
         // Match all rule
@@ -129,6 +130,7 @@ public class RoutingEngineTest {
     @Test
     public void testMatchRuleExpression() throws Exception {
         RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
+        routingEngine.start();
         clearRules();
         RoutingRulePOJO rule = new RoutingRulePOJO("testTypeMatchRule");
         rule.setConcept("*");
@@ -148,6 +150,7 @@ public class RoutingEngineTest {
     @Test
     public void testMatchRulesOrder() throws Exception {
         RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
+        routingEngine.start();
         clearRules();
         RoutingRulePOJO rule1 = new RoutingRulePOJO("testTypeMatchRule1");
         rule1.setConcept("*");
@@ -179,6 +182,7 @@ public class RoutingEngineTest {
                 dataModel);
         // Adds a routing rule
         TestRoutingEngine routingEngine = (TestRoutingEngine) context.getBean(RoutingEngine.class);
+        routingEngine.start();
         clearRules();
         RoutingRulePOJO rule = new RoutingRulePOJO("testTypeMatchRule");
         rule.setConcept("*");
@@ -209,6 +213,7 @@ public class RoutingEngineTest {
     @Test
     public void testSynchronousRule() throws Exception {
         RoutingEngine routingEngine = context.getBean(RoutingEngine.class);
+        routingEngine.start();
         clearRules();
         RoutingRulePOJO rule1 = new RoutingRulePOJO("testTypeMatchRule1");
         rule1.setConcept("*");
