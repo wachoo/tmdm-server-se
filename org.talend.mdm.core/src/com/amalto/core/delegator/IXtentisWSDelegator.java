@@ -143,8 +143,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 return new WSVersion(version.getMajor(), version.getMinor(), version.getRevision(), version.getBuild(),
                         version.getDescription(), version.getDate());
             }
-            throw new RemoteException("Version information is not available yet for " + wsGetComponentVersion.getComponent()
-                    + " components");
+            throw new RemoteException("Version information is not available yet for " + wsGetComponentVersion.getComponent() //$NON-NLS-1$
+                    + " components"); //$NON-NLS-1$
         } catch (RemoteException e) {
             throw (e);
         } catch (Exception e) {
@@ -154,10 +154,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSString ping(WSPing wsPing) throws RemoteException {
-        if ("Studio".equals(wsPing.getEcho())) {// check view user can't use studio //$NON-NLS-1$
+        if ("Studio".equals(wsPing.getEcho())) {//$NON-NLS-1$ check view user can't use studio 
             try {
                 if (LocalUser.getLocalUser().getRoles().contains(XSystemObjects.ROLE_DEFAULT_VIEWER.getName())) {
-                    throw new RemoteException("Viewer user can't use MDM Studio!");
+                    throw new RemoteException("Viewer user can't use MDM Studio!"); //$NON-NLS-1$
                 }
             } catch (Exception e) {
                 throw new RemoteException(e.getLocalizedMessage(), e);
@@ -168,7 +168,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSString logout(WSLogout logout) throws RemoteException {
-        String msg = "OK";
+        String msg = "OK"; //$NON-NLS-1$
         try {
             ILocalUser user = LocalUser.getLocalUser();
             user.logout();
@@ -621,8 +621,8 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 authorized = true;
             }
             if (!authorized) {
-                throw new RemoteException("Unauthorized read access on data cluster '" + dataClusterName + "' by user '"
-                        + user.getUsername() + "'");
+                throw new RemoteException("Unauthorized read access on data cluster '" + dataClusterName + "' by user '" //$NON-NLS-1$ //$NON-NLS-2$
+                        + user.getUsername() + "'"); //$NON-NLS-1$
             }
             // If not all concepts are store in the same revision,
             // force the concept to be specified by the user.
@@ -679,7 +679,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     public WSItem getItem(WSGetItem wsGetItem) throws RemoteException {
         try {
             if (wsGetItem.getWsItemPK().getIds() == null) {
-                throw (new RemoteException("input ids is null!"));
+                throw (new RemoteException("input ids is null!")); //$NON-NLS-1$
             }
             ItemPOJOPK pk = new ItemPOJOPK(new DataClusterPOJOPK(wsGetItem.getWsItemPK().getWsDataClusterPK().getPk()), wsGetItem
                     .getWsItemPK().getConceptName(), wsGetItem.getWsItemPK().getIds());
@@ -689,7 +689,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     pojo.getProjectionAsString());
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
+                String err = "ERROR SYSTRACE: " + e.getMessage(); //$NON-NLS-1$
                 LOGGER.debug(err, e);
             }
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
@@ -790,7 +790,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             String savedConceptName = saver.getSavedConceptName();
             return new WSItemPK(new WSDataClusterPK(partialPutItem.getDatacluster()), savedConceptName, savedId);
         } catch (Exception e) {
-            LOGGER.error("Could not do partial update.", e);
+            LOGGER.error("Could not do partial update.", e); //$NON-NLS-1$
             throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
@@ -815,7 +815,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 try {
                     session.abort();
                 } catch (Exception e1) {
-                    LOGGER.error("Could not abort save session.", e1);
+                    LOGGER.error("Could not abort save session.", e1); //$NON-NLS-1$
                 }
                 throw new RuntimeException(e);
             }
@@ -825,7 +825,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             String savedConceptName = saver.getSavedConceptName();
             return new WSItemPK(dataClusterPK, savedConceptName, savedId);
         } catch (Exception e) {
-            LOGGER.error("Error during save.", e);
+            LOGGER.error("Error during save.", e); //$NON-NLS-1$
             // TMDM-5594: Original cause was somehow lost during serialization,implementing a workaround here
             Throwable cause = e.getCause();
             if (cause == null) {
@@ -859,7 +859,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     try {
                         session.abort();
                     } catch (Exception e1) {
-                        LOGGER.error("Could not abort save session.", e1);
+                        LOGGER.error("Could not abort save session.", e1); //$NON-NLS-1$
                     }
                     throw new RuntimeException(e);
                 }
@@ -869,7 +869,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             session.end();
             return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
         } catch (Exception e) {
-            LOGGER.error("Error during save.", e);
+            LOGGER.error("Error during save.", e); //$NON-NLS-1$
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
@@ -901,11 +901,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                     try {
                         session.abort();
                     } catch (Exception e1) {
-                        LOGGER.error("Could not abort save session.", e1);
+                        LOGGER.error("Could not abort save session.", e1); //$NON-NLS-1$
                     }
                     // Expected (legacy) behavior: set the before saving message as source.
                     item.setSource(e.getBeforeSavingMessage());
-                    throw new RemoteException("Could not save record.", e);
+                    throw new RemoteException("Could not save record.", e); //$NON-NLS-1$
                 }
                 pks.add(new WSItemPK(new WSDataClusterPK(), saver.getSavedConceptName(), saver.getSavedId()));
             }
@@ -913,7 +913,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             session.end();
             return new WSItemPKArray(pks.toArray(new WSItemPK[pks.size()]));
         } catch (Exception e) {
-            LOGGER.error("Error during save.", e);
+            LOGGER.error("Error during save.", e); //$NON-NLS-1$
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
@@ -942,7 +942,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 try {
                     session.abort();
                 } catch (Exception e1) {
-                    LOGGER.error("Could not abort save session.", e1);
+                    LOGGER.error("Could not abort save session.", e1); //$NON-NLS-1$
                 }
                 ValidateException ve = Util.getException(e, ValidateException.class);
                 if (ve != null) {
@@ -950,7 +950,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 }
                 // Expected (legacy) behavior: set the before saving message as source.
                 wsPutItemWithReport.setSource(e.getBeforeSavingMessage());
-                throw new RemoteException("Could not save record.", e);
+                throw new RemoteException("Could not save record.", e); //$NON-NLS-1$
             }
             // Cause items being saved to be committed to database.
             session.end();
@@ -959,7 +959,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             String conceptName = saver.getSavedConceptName();
             return new WSItemPK(dataClusterPK, conceptName, savedId);
         } catch (Exception e) {
-            LOGGER.error("Error during save.", e);
+            LOGGER.error("Error during save.", e); //$NON-NLS-1$
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
@@ -993,17 +993,17 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 try {
                     session.abort();
                 } catch (Exception e1) {
-                    LOGGER.error("Could not abort save session.", e1);
+                    LOGGER.error("Could not abort save session.", e1); //$NON-NLS-1$
                 }
                 // Expected (legacy) behavior: set the before saving message as source.
                 wsPutItemWithReport.setSource(e.getBeforeSavingMessage());
-                throw new RemoteException("Could not save record.", e);
+                throw new RemoteException("Could not save record.", e); //$NON-NLS-1$
             }
             String[] savedId = saver.getSavedId();
             String conceptName = saver.getSavedConceptName();
             return new WSItemPK(dataClusterPK, conceptName, savedId);
         } catch (Exception e) {
-            LOGGER.error("Error during save.", e);
+            LOGGER.error("Error during save.", e); //$NON-NLS-1$
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
@@ -1035,7 +1035,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSPipeline extractUsingTransformer(WSExtractUsingTransformer wsExtractUsingTransformer) throws RemoteException {
-        throw new RemoteException("Not supported.");
+        throw new RemoteException("Not supported."); //$NON-NLS-1$
     }
 
     @Override
@@ -1634,7 +1634,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
     @Override
     public WSTransformerContext executeTransformerV2(WSExecuteTransformerV2 wsExecuteTransformerV2) throws RemoteException {
         try {
-            final String RUNNING = "XtentisWSBean.executeTransformerV2.running";
+            final String RUNNING = "XtentisWSBean.executeTransformerV2.running"; //$NON-NLS-1$
             TransformerContext context = XConverter.WS2POJO(wsExecuteTransformerV2.getWsTransformerContext());
             context.put(RUNNING, Boolean.TRUE);
             Transformer ctrl = Util.getTransformerV2CtrlLocal();
@@ -1811,10 +1811,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return XConverter.POJO2WS(ctrl.removeRoutingOrder(XConverter.WS2POJO(wsDeleteRoutingOrder.getWsRoutingOrderPK())));
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
+                String err = "ERROR SYSTRACE: " + e.getMessage(); //$NON-NLS-1$
                 LOGGER.debug(err, e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e); //$NON-NLS-1$
         }
     }
 
@@ -1829,10 +1829,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return XConverter.POJO2WS(ro.getAbstractRoutingOrderPOJOPK());
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
+                String err = "ERROR SYSTRACE: " + e.getMessage(); //$NON-NLS-1$
                 LOGGER.debug(err, e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e);
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage(), e); //$NON-NLS-1$
         }
     }
 
@@ -1846,10 +1846,10 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return new WSString(ctrl.executeRoutingOrder(ro));
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
-                String err = "ERROR SYSTRACE: " + e.getMessage();
+                String err = "ERROR SYSTRACE: " + e.getMessage(); //$NON-NLS-1$
                 LOGGER.debug(err, e);
             }
-            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage());
+            throw new RemoteException(e.getClass().getName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
         }
     }
 
