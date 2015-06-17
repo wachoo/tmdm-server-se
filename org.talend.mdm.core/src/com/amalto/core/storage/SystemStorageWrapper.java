@@ -290,6 +290,9 @@ public class SystemStorageWrapper extends StorageWrapper {
                 for (DataRecord result : results) {
                     Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
                     StringBuilder builder = new StringBuilder();
+                    if (typeToQuery.size() > 1) {
+                        builder.append(clusterName).append('.').append(currentType.getName()).append('.');
+                    }
                     while (setFields.hasNext()) {
                         builder.append(String.valueOf(result.get(setFields.next())));
                         if (setFields.hasNext()) {
