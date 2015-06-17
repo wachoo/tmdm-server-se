@@ -153,7 +153,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         int connectionPoolMinSize = rdbmsDataSource.getConnectionPoolMinSize();
         int connectionPoolMaxSize = rdbmsDataSource.getConnectionPoolMaxSize();
         if(connectionPoolMaxSize == 0){
-            LOGGER.warn("No value provided for property connectionPoolMaxSize of datasource " + rdbmsDataSource.getName() + ". Using default value: " + 20); //$NON-NLS-1$ //$NON-NLS-2$
+            LOGGER.info("No value provided for property connectionPoolMaxSize of datasource " + rdbmsDataSource.getName() + ". Using default value: " + 20); //$NON-NLS-1$ //$NON-NLS-2$
             connectionPoolMaxSize = 20;
         }
 
