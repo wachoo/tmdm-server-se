@@ -10,19 +10,30 @@
 
 package com.amalto.core.storage;
 
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataVisitor;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,7 +45,13 @@ import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.record.*;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 
@@ -192,6 +209,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         return true;
     }
 
+    @Override
     protected Collection<ComplexTypeMetadata> getClusterTypes(String clusterName) {
         Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
@@ -202,19 +220,19 @@ public class SystemStorageWrapper extends StorageWrapper {
         if (clusterName.startsWith(SYSTEM_PREFIX) || clusterName.startsWith("amalto")) { //$NON-NLS-1$
             if (!"amaltoOBJECTSservices".equals(clusterName)) { //$NON-NLS-1$
                 final String className = ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()) + "POJO"); //$NON-NLS-1$
-                return filterRepository(repository, className); //$NON-NLS-1$
+                return filterRepository(repository, className);
             } else {
                 final String className = ClassRepository.format(clusterName.substring(SYSTEM_PREFIX.length()));
                 return filterRepository(repository, className);
             }
         } else if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
-            return filterRepository(repository, DROPPED_ITEM_TYPE); //$NON-NLS-1$
+            return filterRepository(repository, DROPPED_ITEM_TYPE);
         } else if (XSystemObjects.DC_CONF.getName().equals(clusterName)) {
             return filterRepository(repository, "Conf", "AutoIncrement"); //$NON-NLS-1$ //$NON-NLS-2$
         } else if (XSystemObjects.DC_CROSSREFERENCING.getName().equals(clusterName)) {
             return Collections.emptyList(); // TODO Support crossreferencing
         } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
-            return filterRepository(repository, "User", "Role", "role-pOJO"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return filterRepository(repository, "User", "Role"); //$NON-NLS-1$ //$NON-NLS-2$ 
         } else if (XSystemObjects.DC_SEARCHTEMPLATE.getName().equals(clusterName)) {
             return filterRepository(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
@@ -290,8 +308,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName)
-            throws XmlServerException {
+    public long putDocumentFromDOM(Element root, String uniqueID, String clusterName) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
             DataRecordReader<Element> reader = new XmlDOMDataRecordReader();
@@ -318,8 +335,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input)
-            throws XmlServerException {
+    public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input) throws XmlServerException {
         long start = System.currentTimeMillis();
         {
             Storage storage = getStorage(dataClusterName);
@@ -336,14 +352,13 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName)
-            throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName) throws XmlServerException {
         return putDocumentFromString(xmlString, uniqueID, clusterName, null);
     }
 
     @Override
-    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName,
-                                      String documentType) throws XmlServerException {
+    public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String documentType)
+            throws XmlServerException {
         try {
             InputSource source = new InputSource(new StringReader(xmlString));
             Document document = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder().parse(source);
@@ -359,8 +374,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public String getDocumentAsString(String clusterName, String uniqueID, String encoding)
-            throws XmlServerException {
+    public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException {
         if (encoding == null) {
             encoding = "UTF-8"; //$NON-NLS-1$
         }
@@ -454,8 +468,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     }
 
     @Override
-    public long deleteDocument(String clusterName, String uniqueID, String documentType)
-            throws XmlServerException {
+    public long deleteDocument(String clusterName, String uniqueID, String documentType) throws XmlServerException {
         Storage storage = getStorage(clusterName);
         ComplexTypeMetadata type = getType(clusterName, storage, uniqueID);
         if (type == null) {
@@ -466,8 +479,7 @@ public class SystemStorageWrapper extends StorageWrapper {
             uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
             uniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
         } else if (!COMPLETED_ROUTING_ORDER.equals(type.getName()) && !FAILED_ROUTING_ORDER.equals(type.getName())
-                && !CUSTOM_FORM_TYPE.equals(type.getName())
-                && !SYNCHRONIZATION_OBJECT_TYPE.equals(type.getName())) {
+                && !CUSTOM_FORM_TYPE.equals(type.getName()) && !SYNCHRONIZATION_OBJECT_TYPE.equals(type.getName())) {
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 uniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
             } else if (uniqueID.contains(".")) { //$NON-NLS-1$
