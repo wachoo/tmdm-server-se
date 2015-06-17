@@ -24,6 +24,7 @@ import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
+import org.talend.mdm.webapp.welcomeportal.client.widget.options.AxeTicks;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -31,11 +32,12 @@ import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.PlotModel;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
+import com.googlecode.gflot.client.Tick;
+import com.googlecode.gflot.client.event.PlotItem;
 import com.googlecode.gflot.client.options.AxesOptions;
 import com.googlecode.gflot.client.options.AxisOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
-import com.googlecode.gflot.client.options.CategoriesAxisOptions;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
@@ -98,18 +100,17 @@ public class RoutingChart extends ChartPortlet {
                 .setGlobalSeriesOptions(
                         GlobalSeriesOptions
                                 .create()
-                                .setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
+                                .setHighlightColor("rgba(255, 255, 255, 0.3)") //$NON-NLS-1$
+                                .setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setSteps(false))
                                 .setBarsSeriesOptions(
-                                        BarSeriesOptions.create().setShow(true).setBarWidth(0.6)
-                                                .setAlignment(BarAlignment.CENTER)).setStack(true))
+                                        BarSeriesOptions.create().setShow(true).setBarWidth(0.9).setFill(1)
+                                                .setAlignment(BarAlignment.CENTER)).setStack(false))
                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
-                .setXAxesOptions(
-                        AxesOptions.create().addAxisOptions(
-                                CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(entityNamesSorted)));
+                .setXAxesOptions(getXAxesOptions());
 
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
-        plotOptions
-                .setGridOptions(GridOptions.create().setHoverable(true).setBorderWidth(0).setBackgroundColor(BACKGROUND_COLOR));
+        plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setBorderWidth(0).setColor(COLOR)
+                .setBackgroundColor(BACKGROUND_COLOR));
 
         // create series
         SeriesHandler seriesCompleted = model.addSeries(Series.of(MessagesFactory.getMessages().chart_routing_event_completed())
@@ -118,11 +119,7 @@ public class RoutingChart extends ChartPortlet {
                 .setColor(SERIES_2_COLOR));
 
         // add data
-        for (String appName : entityNamesSorted) {
-            seriesCompleted.add(DataPoint.of(appName,
-                    ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
-            seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
-        }
+        addDataToSeries(seriesCompleted, seriesFailed);
     }
 
     @Override
@@ -131,8 +128,7 @@ public class RoutingChart extends ChartPortlet {
         PlotOptions plotOptions = plot.getOptions();
         entityNamesSorted = sort(chartData.keySet());
 
-        plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setAxisLabelAngle(70d).setCategories(entityNamesSorted)));
+        plotOptions.setXAxesOptions(getXAxesOptions());
 
         List<? extends SeriesHandler> series = model.getHandlers();
         assert series.size() == 2;
@@ -141,11 +137,40 @@ public class RoutingChart extends ChartPortlet {
 
         seriesCompleted.clear();
         seriesFailed.clear();
-        for (String appName : entityNamesSorted) {
-            seriesCompleted.add(DataPoint.of(appName,
-                    ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_COMPLETED)));
-            seriesFailed.add(DataPoint.of(appName, ((Map<String, Integer>) chartData.get(appName)).get(ROUTING_STATUS_FAILED)));
+        addDataToSeries(seriesCompleted, seriesFailed);
+    }
+
+    private AxesOptions getXAxesOptions() {
+        return AxesOptions.create().addAxisOptions(
+                AxisOptions.create().setAxisLabelAngle(70d).setTicks(getTicks()).setAutoscaleMargin(0.1));
+    }
+
+    private AxeTicks getTicks() {
+        AxeTicks routingTicks = AxeTicks.create();
+        double x = 1;
+        for (String routingName : entityNamesSorted) {
+            routingTicks.push(Tick.of(x, routingName));
+            x = x + 3;
         }
+        return routingTicks;
+    }
+
+    private void addDataToSeries(SeriesHandler seriesCompleted, SeriesHandler seriesFailed) {
+        double x = 0.0;
+        for (String routingName : entityNamesSorted) {
+            Map<String, Integer> routingData = (Map<String, Integer>) chartData.get(routingName);
+            seriesCompleted.add(DataPoint.of(x, routingData.get(ROUTING_STATUS_COMPLETED)));
+            seriesFailed.add(DataPoint.of(x + 1, routingData.get(ROUTING_STATUS_FAILED)));
+            x = x + 3;
+        }
+    }
+
+    @Override
+    protected String getHoveringText(PlotItem item) {
+        int valueY = (int) item.getDataPoint().getY();
+        int valueX = (int) item.getDataPoint().getX();
+        int routingNameIndex = valueX == 0 ? 0 : valueX / 3;
+        return entityNamesSorted.get(routingNameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override

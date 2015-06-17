@@ -136,18 +136,17 @@ public class MatchingChart extends ChartPortlet {
                 .setGlobalSeriesOptions(
                         GlobalSeriesOptions
                                 .create()
-                                .setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setFill(true))
+                                .setHighlightColor("rgba(255, 255, 255, 0.3)") //$NON-NLS-1$
+                                .setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setSteps(false))
                                 .setBarsSeriesOptions(
-                                        BarSeriesOptions.create().setShow(true).setBarWidth(0.6)
-                                                .setAlignment(BarAlignment.CENTER)).setStack(true))
+                                        BarSeriesOptions.create().setShow(true).setBarWidth(0.6).setFill(1)
+                                                .setAlignment(BarAlignment.CENTER)).setStack(false))
                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(2).setMinimum(0.00)))
-                .setXAxesOptions(
-                        AxesOptions.create().addAxisOptions(
-                                CategoriesAxisOptions.create().setAxisLabelAngle(70d)
-                                        .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
+                .setXAxesOptions(getXAxesOptions());
+
         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
-        plotOptions
-                .setGridOptions(GridOptions.create().setHoverable(true).setBorderWidth(0).setBackgroundColor(BACKGROUND_COLOR));
+        plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setBorderWidth(0).setColor(COLOR)
+                .setBackgroundColor(BACKGROUND_COLOR));
 
         // create series
         SeriesHandler seriesMatched = model.addSeries(Series.of(MessagesFactory.getMessages().chart_matching_duplicates())
@@ -165,9 +164,7 @@ public class MatchingChart extends ChartPortlet {
         PlotOptions plotOptions = plot.getOptions();
         entityNamesSorted = sort(chartData.keySet());
 
-        plotOptions.setXAxesOptions(AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setAxisLabelAngle(70d)
-                        .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()]))));
+        plotOptions.setXAxesOptions(getXAxesOptions());
 
         List<? extends SeriesHandler> series = model.getHandlers();
         assert series.size() == 1;
@@ -177,6 +174,12 @@ public class MatchingChart extends ChartPortlet {
         for (String entityName : entityNamesSorted) {
             seriesMatched.add(DataPoint.of(entityName, (Double) chartData.get(entityName)));
         }
+    }
+
+    private AxesOptions getXAxesOptions() {
+        return AxesOptions.create().addAxisOptions(
+                CategoriesAxisOptions.create().setAxisLabelAngle(70d)
+                        .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()])).setAutoscaleMargin(0.1));
     }
 
     @Override

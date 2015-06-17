@@ -47,6 +47,12 @@ public abstract class ChartPortlet extends BasePortlet {
     
     public static final String SERIES_2_COLOR ="#b6be00"; //dark-green //$NON-NLS-1$
     
+    public static final String SERIES_3_COLOR ="#f7a800"; //orange //$NON-NLS-1$
+    
+    public static final String SERIES_4_COLOR ="#8A6A29"; //brown //$NON-NLS-1$
+    
+    public static final String COLOR ="#555964"; //dark-grey //$NON-NLS-1$
+    
     public static final String BACKGROUND_COLOR = "#FDFDFD"; //light-gray //$NON-NLS-1$ 
 
     protected SimplePlot plot;
@@ -256,10 +262,10 @@ public abstract class ChartPortlet extends BasePortlet {
     }
 
     protected String getHoveringText(PlotItem item) {
-        String valueY = "" + (int) item.getDataPoint().getY(); //$NON-NLS-1$
-        int nameIndex = (int) item.getDataPoint().getX();
+        int valueY = (int) item.getDataPoint().getY();
+        int valueX = (int) item.getDataPoint().getX();
 
-        return entityNamesSorted.get(nameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return entityNamesSorted.get(valueX) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
 }

@@ -50,6 +50,7 @@ import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
 import com.googlecode.gflot.client.options.PieSeriesOptions;
+import com.googlecode.gflot.client.options.PieSeriesOptions.Highlight;
 import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Background;
 import com.googlecode.gflot.client.options.PieSeriesOptions.Label.Formatter;
 import com.googlecode.gflot.client.options.PlotOptions;
@@ -166,6 +167,7 @@ public class DataChart extends ChartPortlet {
                         .setShow(true)
                         .setRadius(1)
                         .setInnerRadius(0.2)
+                        .setHighlight(Highlight.create().setOpacity(0.3))
                         .setLabel(
                                 com.googlecode.gflot.client.options.PieSeriesOptions.Label.create().setShow(true)
                                         .setRadius(3d / 4d).setBackground(Background.create().setOpacity(0.8)).setThreshold(0.05)
@@ -180,10 +182,12 @@ public class DataChart extends ChartPortlet {
                                         }))));
         plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
-        
+
         JsArrayString colors = JavaScriptObject.createArray().cast();
         colors.push(SERIES_1_COLOR);
-        colors.push(SERIES_2_COLOR);       
+        colors.push(SERIES_2_COLOR);
+        colors.push(SERIES_3_COLOR);
+        colors.push(SERIES_4_COLOR);
         plotOptions.setDefaultColorTheme(colors);
         
         // create series and add data
