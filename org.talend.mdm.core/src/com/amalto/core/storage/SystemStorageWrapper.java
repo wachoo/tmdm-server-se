@@ -221,7 +221,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         } else if (XSystemObjects.DC_CROSSREFERENCING.getName().equals(clusterName)) {
             return Collections.emptyList(); // TODO Support crossreferencing
         } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
-            return filterRepository(repository, "User", "Role", "role-pOJO"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return filterRepository(repository, "User", "Role"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else if (XSystemObjects.DC_SEARCHTEMPLATE.getName().equals(clusterName)) {
             return filterRepository(repository, "BrowseItem", "HierarchySearchItem"); //$NON-NLS-1$ //$NON-NLS-2$
         } else if (XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName().equals(clusterName)) {
@@ -287,6 +287,9 @@ public class SystemStorageWrapper extends StorageWrapper {
                 for (DataRecord result : results) {
                     Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
                     StringBuilder builder = new StringBuilder();
+                    if (typeToQuery.size() > 1) {
+                        builder.append(clusterName).append('.').append(currentType.getName()).append('.');
+                    }
                     while (setFields.hasNext()) {
                         builder.append(String.valueOf(result.get(setFields.next())));
                         if (setFields.hasNext()) {
