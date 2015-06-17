@@ -23,6 +23,8 @@ import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -178,7 +180,12 @@ public class DataChart extends ChartPortlet {
                                         }))));
         plotOptions.setLegendOptions(LegendOptions.create().setShow(false));
         plotOptions.setGridOptions(GridOptions.create().setHoverable(true));
-
+        
+        JsArrayString colors = JavaScriptObject.createArray().cast();
+        colors.push(SERIES_1_COLOR);
+        colors.push(SERIES_2_COLOR);       
+        plotOptions.setDefaultColorTheme(colors);
+        
         // create series and add data
         for (String entityName : entityNamesSorted) {
             SeriesHandler seriesEntity = model.addSeries(Series.of(entityName));
