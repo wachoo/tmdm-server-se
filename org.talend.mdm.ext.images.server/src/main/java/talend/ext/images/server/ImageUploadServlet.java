@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import talend.ext.images.server.util.ImagePathUtil;
 import talend.ext.images.server.util.Uuid;
 
 public class ImageUploadServlet extends HttpServlet {
@@ -223,7 +223,7 @@ public class ImageUploadServlet extends HttpServlet {
             }
 
             if (writeToFile) {
-                StringBuffer upath = new StringBuffer();
+                StringBuilder upath = new StringBuilder();
                 if (StringUtils.isEmpty(imageUploadInfo.targetCatalogName)) {
                     imageUploadInfo.targetCatalogName = generateCatalogName();
                 }
@@ -236,11 +236,14 @@ public class ImageUploadServlet extends HttpServlet {
                 imageUploadInfo.targetFileName = (imageUploadInfo.targetFileShortName + "." + imageUploadInfo.sourceFileType); //$NON-NLS-1$
                 upath.append(File.separator).append(imageUploadInfo.targetFileName);
 
+                StringBuilder imagePath = new StringBuilder();
                 if (!imageUploadInfo.targetCatalogName.equals("/")) { //$NON-NLS-1$
-                    imageUploadInfo.targetUri += ('/' + URLEncoder.encode(imageUploadInfo.targetCatalogName, "UTF-8")); //$NON-NLS-1$
+                    imagePath.append('/').append(imageUploadInfo.targetCatalogName);
                 }
 
-                imageUploadInfo.targetUri += ('/' + URLEncoder.encode(imageUploadInfo.targetFileShortName, "UTF-8") + '.' + imageUploadInfo.sourceFileType); //$NON-NLS-1$
+                imagePath.append('/').append(imageUploadInfo.targetFileName);
+                imageUploadInfo.targetUri = imageUploadInfo.targetUri + ImagePathUtil.encodeURL(imagePath.toString());
+
                 File uploadedFile = new File(upath.toString());
                 item.write(uploadedFile);
 
@@ -313,7 +316,7 @@ public class ImageUploadServlet extends HttpServlet {
         return catalogName;
     }
 
-    private void locateCatalog(StringBuffer basePath) {
+    private void locateCatalog(StringBuilder basePath) {
         File d = new File(basePath.toString());
         if (!d.exists()) {
             d.mkdir();
@@ -322,7 +325,7 @@ public class ImageUploadServlet extends HttpServlet {
     }
 
     private String buildUploadResult(boolean success, String message) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (outputFormat.equals("xml")) { //$NON-NLS-1$
 

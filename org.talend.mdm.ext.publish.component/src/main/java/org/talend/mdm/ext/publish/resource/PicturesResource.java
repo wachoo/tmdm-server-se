@@ -24,11 +24,11 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.talend.mdm.ext.publish.model.PicturePojo;
-import org.talend.mdm.ext.publish.util.CommonUtil;
 import org.talend.mdm.ext.publish.util.DAOFactory;
 import org.talend.mdm.ext.publish.util.PicturesDAO;
 
 import talend.ext.images.server.ImageServerInfo;
+import talend.ext.images.server.util.ImagePathUtil;
 
 /**
  * Resource which has only one representation.
@@ -84,9 +84,9 @@ public class PicturesResource extends BaseResource {
         String file = pk.substring(index+1, pk.length());
         String requestLocatePath = ImageServerInfo.getInstance().getLocateBaseUrl();
         if (!catalog.equals("") && !catalog.equals("/") && !catalog.equals("//")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            requestLocatePath = requestLocatePath + "/" + CommonUtil.urlEncode(catalog); //$NON-NLS-1$
+            requestLocatePath = requestLocatePath + ImagePathUtil.encodeURL("/" + catalog); //$NON-NLS-1$
         }
-        requestLocatePath = requestLocatePath + "/" + CommonUtil.urlEncode(file); //$NON-NLS-1$
+        requestLocatePath = requestLocatePath + ImagePathUtil.encodeURL("/" + file); //$NON-NLS-1$
 
         String[] parsedPK = new String[3];
         parsedPK[0] = catalog;

@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.ui.Image;
 
 public class ImagePreviewWindow extends Window {
@@ -117,6 +118,7 @@ public class ImagePreviewWindow extends Window {
         String defaultName = ""; //$NON-NLS-1$
         if (imagePath != null && imagePath.contains("/")) { //$NON-NLS-1$
             defaultName = imagePath.substring(imagePath.lastIndexOf("/") + 1); //$NON-NLS-1$
+            defaultName = URL.decode(defaultName);
         }
         return defaultName;
     }
