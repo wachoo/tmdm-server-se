@@ -9,15 +9,16 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.util.Properties;
 
+@SuppressWarnings("nls")
 public class AutoIncrementGenerator {
 
-    private static final Logger                         LOGGER                         = Logger.getLogger(AutoIncrementGenerator.class);
+    private static final Logger LOGGER = Logger.getLogger(AutoIncrementGenerator.class);
 
-    private static final boolean                        ENABLE_SAFE_CONCURRENT_INCREMENT;
+    private static final boolean ENABLE_SAFE_CONCURRENT_INCREMENT;
 
     private static final InMemoryAutoIncrementGenerator inMemoryAutoIncrementGenerator = new InMemoryAutoIncrementGenerator();
 
-    private static final StorageAutoIncrementGenerator  storageAutoIncrementGenerator;
+    private static final StorageAutoIncrementGenerator storageAutoIncrementGenerator;
 
     static {
         // Initialize Storage auto increment generator (only if system SQL is available).

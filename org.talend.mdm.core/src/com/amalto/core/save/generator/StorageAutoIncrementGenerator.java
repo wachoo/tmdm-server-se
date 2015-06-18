@@ -1,5 +1,16 @@
 package com.amalto.core.save.generator;
 
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
@@ -9,27 +20,21 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-
-import java.util.Iterator;
-import java.util.List;
-
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 /**
  * This {@link com.amalto.core.save.generator.AutoIdGenerator generator} is a more secure way to generate auto increment
  * values in case of concurrent access to the same underlying database.
  */
+@SuppressWarnings("nls")
 public class StorageAutoIncrementGenerator implements AutoIdGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(StorageAutoIncrementGenerator.class);
+
+    private static final String AUTO_INCREMENT = "AutoIncrement";
 
     private final Storage system;
 
@@ -58,14 +63,14 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
         this.system = storage;
         // Create auto increment if doesn't exist
         MetadataRepository repository = system.getMetadataRepository();
-        ComplexTypeMetadata autoIncrementType = repository.getComplexType("AutoIncrement"); //$NON-NLS-1
+        ComplexTypeMetadata autoIncrementType = repository.getComplexType(AUTO_INCREMENT);
         UserQueryBuilder qb = from(autoIncrementType).forUpdate();
         system.begin();
         try {
             StorageResults results = system.fetch(qb.getSelect());
             if (results.getCount() == 0) {
                 DataRecord autoIncrementRecord = new DataRecord(autoIncrementType, UnsupportedDataRecordMetadata.INSTANCE);
-                autoIncrementRecord.set(autoIncrementType.getField("id"), "AutoIncrement"); //$NON-NLS-1
+                autoIncrementRecord.set(autoIncrementType.getField("id"), AUTO_INCREMENT);
                 system.update(autoIncrementRecord);
             }
             system.commit();
@@ -82,7 +87,7 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
     @Override
     public String generateId(String universe, String dataClusterName, String conceptName, String keyElementName) {
         if (universe == null) {
-            universe = "[HEAD]"; //$NON-NLS-1$
+            universe = "[HEAD]";
         }
         Server server = ServerContext.INSTANCE.get();
         // Create or get current transaction
@@ -100,52 +105,27 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
             system.begin(); // Implicitly adds system in current transaction
             // Query and update auto increment record
             MetadataRepository repository = system.getMetadataRepository();
-            ComplexTypeMetadata autoIncrementType = repository.getComplexType("AutoIncrement"); //$NON-NLS-1
-            FieldMetadata entryField = autoIncrementType.getField("entry"); //$NON-NLS-1
-            ComplexTypeMetadata entryType = (ComplexTypeMetadata) entryField.getType();
-            FieldMetadata keyField = entryType.getField("key"); //$NON-NLS-1
-            FieldMetadata valueField = entryType.getField("value"); //$NON-NLS-1
+            ComplexTypeMetadata autoIncrementType = repository.getComplexType(AUTO_INCREMENT);
             // Get the auto increment record
             UserQueryBuilder qb = from(autoIncrementType)
-                    .where(eq(autoIncrementType.getField("id"), "AutoIncrement")) //$NON-NLS-1 //$NON-NLS-2
+                    .where(eq(autoIncrementType.getField("id"), AUTO_INCREMENT))
                     .limit(1)
                     .forUpdate();
             DataRecord autoIncrementRecord = null;
             StorageResults autoIncrementRecordResults = system.fetch(qb.getSelect());
             Iterator<DataRecord> iterator = autoIncrementRecordResults.iterator();
-            while (iterator.hasNext()) {
+            if (iterator.hasNext()) {
                 autoIncrementRecord = iterator.next();
-                if (iterator.hasNext()) {
-                    throw new IllegalArgumentException("Expected only 1 auto increment to be returned.");
-                }
+            } else {
+                autoIncrementRecord = new DataRecord(autoIncrementType, new DataRecordMetadataImpl());
+                autoIncrementRecord.set(autoIncrementType.getField("id"), AUTO_INCREMENT);
             }
             // Update it
-            String key = universe + '.' + dataClusterName + '.' + conceptName + '.' + keyElementName;
-            List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
-            Integer value = null;
-            if (entries != null) {
-                for (DataRecord entry : entries) { // Find entry for type in database object
-                    if (key.equals(String.valueOf(entry.get(keyField)))) {
-                        Integer integer = (Integer) entry.get(valueField);
-                        integer ++;
-                        entry.set(valueField, integer);
-                        value = integer;
-                    }
-                }
-            }
-            if (value == null) { // No entry for current asked type, creates one
-                DataRecord entry = new DataRecord(entryType, UnsupportedDataRecordMetadata.INSTANCE);
-                entry.set(keyField, key);
-                entry.set(valueField, 0);
-                autoIncrementRecord.set(entryField, entry); // This add at end of collection is already present
-            }
+            String key = universe + "." + dataClusterName + "." + conceptName + "." + keyElementName;
+            Integer value = getValue(autoIncrementType, autoIncrementRecord, key);
             // Update the DB record before leaving
             system.update(autoIncrementRecord);
             transaction.commit();
-            if (value == null) {
-                // Re-entry in order to re-acquire lock (for concurrent initialization of first id).
-                return generateId(universe, dataClusterName, conceptName, keyElementName);
-            }
             return String.valueOf(value);
         } catch (Exception e) {
             transaction.rollback();
@@ -155,6 +135,34 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
                 manager.associate(previousTransaction); // Restore previous transaction (if any).
             }
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Integer getValue(ComplexTypeMetadata autoIncrementType, DataRecord autoIncrementRecord, String key){
+        Integer value = null;
+        FieldMetadata entryField = autoIncrementType.getField("entry");
+        ComplexTypeMetadata entryType = (ComplexTypeMetadata) entryField.getType();
+        FieldMetadata keyField = entryType.getField("key");
+        FieldMetadata valueField = entryType.getField("value");
+        List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
+        if (entries != null) {
+            for (DataRecord entry : entries) { // Find entry for type in database object
+                if (key.equals(String.valueOf(entry.get(keyField)))) {
+                    Integer integer = (Integer) entry.get(valueField);
+                    integer ++;
+                    entry.set(valueField, integer);
+                    value = integer;
+                }
+            }
+        }
+        if (value == null) { // No entry for current asked type, creates one
+            DataRecord entry = new DataRecord((ComplexTypeMetadata) entryField.getType(), UnsupportedDataRecordMetadata.INSTANCE);
+            entry.set(keyField, key);
+            entry.set(valueField, 0);
+            autoIncrementRecord.set(entryField, entry); // This add at end of collection is already present
+            value = getValue(autoIncrementType, autoIncrementRecord, key);
+        }
+        return value;
     }
 
     @Override

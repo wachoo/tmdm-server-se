@@ -24,6 +24,10 @@ public class DataRecordMetadataImpl implements DataRecordMetadata {
 
     private Map<String,String> recordProperties;
 
+    public DataRecordMetadataImpl() {
+
+    }
+
     public DataRecordMetadataImpl(long lastModificationTime, String taskId) {
         this.lastModificationTime = lastModificationTime;
         this.taskId = taskId;

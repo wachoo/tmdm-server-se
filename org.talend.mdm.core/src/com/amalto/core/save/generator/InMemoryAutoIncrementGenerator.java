@@ -11,21 +11,20 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.util.Properties;
 
+@SuppressWarnings("nls")
 class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
+    
+    private static final Logger LOGGER = Logger.getLogger(InMemoryAutoIncrementGenerator.class);
 
-    private static final Logger            logger         = Logger.getLogger(InMemoryAutoIncrementGenerator.class);
+    private static final DataClusterPOJOPK DC = new DataClusterPOJOPK(XSystemObjects.DC_CONF.getName());
 
-    private static final DataClusterPOJOPK DC             = new DataClusterPOJOPK(XSystemObjects.DC_CONF.getName());
+    private static final String AUTO_INCREMENT = "AutoIncrement";
 
-    private static final String[]          IDS            = new String[] { "AutoIncrement" };                       // $NON-NLS-1$
+    private static final String[] IDS = new String[] { AUTO_INCREMENT };
 
-    private static final String            CONCEPT        = "AutoIncrement";                                        // $NON-NLS-1$
+    private static Properties CONFIGURATION = null;
 
-    public static String                   AUTO_INCREMENT = "Auto_Increment";                                       // $NON-NLS-1$
-
-    private static Properties              CONFIGURATION  = null;
-
-    private boolean                        wasInitCalled  = false;
+    private boolean wasInitCalled = false;
 
     // This method is not secure in clustered environments (when several MDM nodes share same database).
     // See com.amalto.core.save.generator.StorageAutoIncrementGenerator for better concurrency support.
@@ -55,14 +54,14 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
         try {
             String xmlString = Util.convertAutoIncrement(CONFIGURATION);
             ItemPOJO pojo = new ItemPOJO(DC, // cluster
-                    CONCEPT, // concept name
+                    AUTO_INCREMENT, // concept name
                     IDS, System.currentTimeMillis(), // insertion time
                     xmlString // actual data
             );
             pojo.setDataModelName(XSystemObjects.DM_CONF.getName());
             pojo.store(null);
         } catch (Exception e) {
-            logger.error(e.getLocalizedMessage(), e);
+            LOGGER.error(e.getLocalizedMessage(), e);
         }
     }
 
@@ -71,10 +70,10 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
         // first try Current path
         CONFIGURATION = new Properties();
         try {
-            ItemPOJOPK pk = new ItemPOJOPK(DC, CONCEPT, IDS);
+            ItemPOJOPK pk = new ItemPOJOPK(DC, AUTO_INCREMENT, IDS);
             ItemPOJO itempojo = ItemPOJO.load(pk);
             if (itempojo == null) {
-                logger.info("Could not load configuration from database, use default configuration."); //$NON-NLS-1$
+                LOGGER.info("Could not load configuration from database, use default configuration."); //$NON-NLS-1$
             } else {
                 String xml = itempojo.getProjectionAsString();
                 if (xml != null && xml.trim().length() > 0) {
@@ -83,7 +82,7 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
             }
             wasInitCalled = true;
         } catch (Exception e) {
-            logger.error(e.getLocalizedMessage(), e);
+            LOGGER.error(e.getLocalizedMessage(), e);
         }
     }
 }
