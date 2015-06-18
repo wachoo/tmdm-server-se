@@ -34,10 +34,15 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 
+@SuppressWarnings("nls")
 public class AutoIncrementUpdateTask implements Task {
+
+    private static final String AUTO_INCREMENT = "AutoIncrement";
 
     private final Storage origin;
 
@@ -127,6 +132,7 @@ public class AutoIncrementUpdateTask implements Task {
         return UserQueryHelper.TRUE;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         Server server = ServerContext.INSTANCE.get();
@@ -139,7 +145,7 @@ public class AutoIncrementUpdateTask implements Task {
         // Get System storage
         system = server.getStorageAdmin().get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         MetadataRepository repository = system.getMetadataRepository();
-        autoIncrementType = repository.getComplexType("AutoIncrement");
+        autoIncrementType = repository.getComplexType(AUTO_INCREMENT);
         entryField = autoIncrementType.getField("entry");
         ComplexTypeMetadata entryType = (ComplexTypeMetadata) entryField.getType();
         keyField = entryType.getField("key");
@@ -152,35 +158,36 @@ public class AutoIncrementUpdateTask implements Task {
             transaction.setLockStrategy(Transaction.LockStrategy.LOCK_FOR_UPDATE);
             system.begin(); // Implicitly adds system in current transaction
             // Get AutoIncrement record
-            UserQueryBuilder qb = from(autoIncrementType).where(eq(autoIncrementType.getField("id"), "AutoIncrement")) //$NON-NLS-1 //$NON-NLS-2
-                    .limit(1).forUpdate();
+            UserQueryBuilder qb = from(autoIncrementType)
+                    .where(eq(autoIncrementType.getField("id"), AUTO_INCREMENT))
+                    .limit(1)
+                    .forUpdate();
             StorageResults autoIncrementRecordResults = system.fetch(qb.getSelect());
             Iterator<DataRecord> iterator = autoIncrementRecordResults.iterator();
-            while (iterator.hasNext()) {
+            if (iterator.hasNext()) {
                 autoIncrementRecord = iterator.next();
-                if (iterator.hasNext()) {
-                    throw new IllegalArgumentException("Expected only 1 auto increment to be returned.");
-                }
+            } else {
+                autoIncrementRecord = new DataRecord(autoIncrementType, new DataRecordMetadataImpl());
+                autoIncrementRecord.set(autoIncrementType.getField("id"), AUTO_INCREMENT);
             }
+            // Add default entries with value of 0
+            initAutoIncrementEntries(origin, destination);
             // Build auto increment values
-            buildAutoIncrementValues(origin);
-            buildAutoIncrementValues(destination);
+            buildAutoIncrementValues(origin, destination);
             // Update auto increment with computed values
             for (Map.Entry<String, Integer> autoIncrementValues : values.entrySet()) {
                 List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
-                if (entries != null) {
-                    for (DataRecord entry : entries) { // Find entry for type in database object
-                        if (autoIncrementValues.getKey().equals(String.valueOf(entry.get(keyField)))) {
-                            entry.set(valueField, autoIncrementValues.getValue());
-                        }
+                for (DataRecord entry : entries) { // Find entry for type in database object
+                    if (autoIncrementValues.getKey().equals(String.valueOf(entry.get(keyField)))) {
+                        entry.set(valueField, autoIncrementValues.getValue());
                     }
                 }
             }
             system.update(autoIncrementRecord);
-            // Re-init for in-memory auto increment generator (storage based auto increment should be no op).
-            AutoIncrementGenerator.get().init();
             // Done, commit changes
             transaction.commit();
+            // Re-init for in-memory auto increment generator (storage based auto increment should be no op).
+            AutoIncrementGenerator.get().init();
             hasFailed = false;
         } catch (Exception e) {
             hasFailed = true;
@@ -193,29 +200,60 @@ public class AutoIncrementUpdateTask implements Task {
             hasFinished = true;
         }
     }
+    
+    /**
+     * Add default entries to autoIncrementRecord with value of 0 <br>
+     * After invoke this method, autoIncrementRecord.get(entryField) will never return null
+     * @param storages
+     */
+    @SuppressWarnings("unchecked")
+    private void initAutoIncrementEntries(Storage... storages) {
+        List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
+        Map<String, DataRecord> entriesMap = new HashMap<String, DataRecord>();
+        if (entries != null) {
+            for (DataRecord entry : entries) {
+                entriesMap.put(String.valueOf(entry.get(keyField)), entry);
+            }
+        }
+        for (Storage storage : storages) {
+            String entryKey = getKeyString(storage);
+            if (!entriesMap.containsKey(entryKey)) {
+                DataRecord entry = new DataRecord((ComplexTypeMetadata) entryField.getType(),
+                        UnsupportedDataRecordMetadata.INSTANCE);
+                entry.set(keyField, entryKey);
+                entry.set(valueField, 0);
+                autoIncrementRecord.set(entryField, entry);
+            }
+        }
+    }
 
-    private void buildAutoIncrementValues(Storage storage) {
-        // Build max auto increment values
+    private String getKeyString(Storage storage) {
+        FieldMetadata keyField = type.getKeyFields().iterator().next();
         String storageName = storage.getName();
         if (storage.getType() == StorageType.STAGING) {
             storageName += StorageAdmin.STAGING_SUFFIX;
         }
-        String destinationName = destination.getName();
-        if (destination.getType() == StorageType.STAGING) {
-            destinationName += StorageAdmin.STAGING_SUFFIX;
-        }
-        for (FieldMetadata typeKeyField : type.getKeyFields()) {
-            String destinationStorageKey = destinationName + '.' + type.getName() + '.' + typeKeyField.getName();
-            String key = storageName + '.' + type.getName() + '.' + typeKeyField.getName();
+        return storageName + "." + type.getName() + "." + keyField.getName();
+    }
+
+    /**
+     * Build max auto increment values
+     * @param storages
+     */
+    @SuppressWarnings("unchecked")
+    private void buildAutoIncrementValues(Storage... storages) {
+        for (Storage storage : storages) {
+            String destinationKey = getKeyString(destination);
+            String key = getKeyString(storage);
             List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
             if (entries != null) {
                 for (DataRecord entry : entries) { // Find entry for type in database object
                     if (key.equals(String.valueOf(entry.get(keyField)))) {
                         Integer integer = (Integer) entry.get(valueField);
-                        if (values.containsKey(destinationStorageKey)) {
-                            values.put(destinationStorageKey, Math.max(values.get(destinationStorageKey), integer));
+                        if (values.containsKey(destinationKey)) {
+                            values.put(destinationKey, Math.max(values.get(destinationKey), integer));
                         } else {
-                            values.put(destinationStorageKey, integer);
+                            values.put(destinationKey, integer);
                         }
                     }
                 }

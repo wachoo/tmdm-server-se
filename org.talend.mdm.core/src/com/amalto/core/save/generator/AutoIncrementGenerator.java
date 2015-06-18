@@ -1,23 +1,22 @@
 package com.amalto.core.save.generator;
 
-import com.amalto.core.server.Server;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.StorageType;
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
-import java.util.Properties;
+import com.amalto.core.server.Server;
 
+@SuppressWarnings("nls")
 public class AutoIncrementGenerator {
 
-    private static final Logger                         LOGGER                         = Logger.getLogger(AutoIncrementGenerator.class);
+    private static final Logger LOGGER = Logger.getLogger(AutoIncrementGenerator.class);
 
-    private static final boolean                        ENABLE_SAFE_CONCURRENT_INCREMENT;
+    private static final boolean ENABLE_SAFE_CONCURRENT_INCREMENT;
 
     private static final InMemoryAutoIncrementGenerator inMemoryAutoIncrementGenerator = new InMemoryAutoIncrementGenerator();
 
-    private static final StorageAutoIncrementGenerator  storageAutoIncrementGenerator = new StorageAutoIncrementGenerator();
+    private static final StorageAutoIncrementGenerator storageAutoIncrementGenerator = new StorageAutoIncrementGenerator();
 
     static {
         // Enable concurrent auto increment generator
@@ -29,7 +28,7 @@ public class AutoIncrementGenerator {
             LOGGER.info("Concurrent access support for auto increment generator is disabled.");
         }
         ENABLE_SAFE_CONCURRENT_INCREMENT = enableConcurrentIncrement;
-    } 
+    }
 
     public static AutoIdGenerator get() {
         if (ENABLE_SAFE_CONCURRENT_INCREMENT) {
