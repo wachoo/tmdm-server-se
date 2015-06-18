@@ -69,7 +69,7 @@ public class PictureSelector extends ContentPanel {
 
     private ListLoader<ListLoadResult<BeanModel>> imageloader;
 
-    final private PagingToolBarEx pagingBar = new PagingToolBarEx(8);
+    final private PagingToolBarEx pagingBar = new PagingToolBarEx(10);
 
     final private TextField<String> searchFiled = new TextField<String>();
 
