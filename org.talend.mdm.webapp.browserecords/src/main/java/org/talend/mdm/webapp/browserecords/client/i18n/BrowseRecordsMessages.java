@@ -83,10 +83,6 @@ public interface BrowseRecordsMessages extends Messages {
 
     String trash_btn();
 
-    String path();
-
-    String path_desc();
-
     String delete_confirm();
 
     String delete_occurrence_confirm();

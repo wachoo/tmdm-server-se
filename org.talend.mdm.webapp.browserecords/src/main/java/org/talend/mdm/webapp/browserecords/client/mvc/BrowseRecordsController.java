@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -169,7 +169,7 @@ public class BrowseRecordsController extends Controller {
                             itemBean.setLastUpdateTime(result);
                         }
                         progressBar.close();
-                        MessageBox msgBox = null;
+                        MessageBox msgBox;
                         if (result.getStatus() == ItemResult.FAILURE) {
                             MessageBox
                                     .alert(MessagesFactory.getMessages().error_title(),
@@ -177,13 +177,17 @@ public class BrowseRecordsController extends Controller {
                                             MessageBox.ERROR);
                             return;
                         }
-                        if (result.getDescription() != "") { //$NON-NLS-1$
-                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
+                        msgBox = new MessageBox();
+                        msgBox.setTitle(MessagesFactory.getMessages().info_title());
+                        msgBox.setButtons(""); //$NON-NLS-1$
+                        msgBox.setIcon(MessageBox.INFO);
+                        String message = result.getDescription() ;
+                        if (message !=null && !message.isEmpty()) {
+                            msgBox.setMessage(MultilanguageMessageParser.pickOutISOMessage(message));
                         } else {
-                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                    .save_success(), null);
+                            msgBox.setMessage(MessagesFactory.getMessages().save_success());
                         }
+                        msgBox.show();
                         setTimeout(msgBox, 1000);
 
                         if (!detailToolBar.isOutMost() && (isClose || isCreate)) {

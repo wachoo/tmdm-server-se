@@ -37,7 +37,6 @@ public class PhysicalDeleteAction implements DeleteAction {
             public void onSuccess(List<ItemResult> msgs) {
                 progressBar.close();
 
-                MessageBox msgBox = null;
                 if (msgs != null && msgs.size() > 0) {
                     String windowTitle = MessagesFactory.getMessages().info_title();
                     for(ItemResult bean : msgs){
@@ -56,7 +55,12 @@ public class PhysicalDeleteAction implements DeleteAction {
                     messageWindow.setHeading(windowTitle);
                     messageWindow.show();
                 } else {
-                    msgBox = MessageBox.info(message.info_title(), MessagesFactory.getMessages().delete_item_record_success(items.size()), null);
+                    MessageBox msgBox = new MessageBox();
+                    msgBox.setTitle(MessagesFactory.getMessages().info_title());
+                    msgBox.setButtons(""); //$NON-NLS-1$
+                    msgBox.setIcon(MessageBox.INFO);
+                    msgBox.setMessage(MessagesFactory.getMessages().delete_item_record_success(items.size()));
+                    msgBox.show();
                     setTimeout(msgBox, 1000);
                 }
                 postDeleteAction.doAction();
