@@ -1,8 +1,5 @@
 package com.amalto.core.objects.routing;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import com.amalto.core.metadata.LongString;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.ObjectPOJO;
@@ -13,14 +10,14 @@ import com.amalto.core.objects.ObjectPOJOPK;
  * @author bgrieder
  * 
  */
+@SuppressWarnings("nls")
 public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
-   
 
-	public final static int FAILED = 0;
+    private static final long serialVersionUID = -4752706364468289676L;
+    
+    public final static int FAILED = 0;
 	public final static int ACTIVE = 1;
 	public final static int COMPLETED = 2;
-	
-	protected final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss,SSS");
 	
     protected String name;
     protected int status = ACTIVE;
@@ -31,7 +28,7 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
     protected ItemPOJOPK itemPOJOPK = null;
     protected String serviceJNDI = "";
     protected String serviceParameters = "";
-    protected String message = "---> CREATED "+sdf.format(new Date());
+    protected String message = "";
     protected RoutingEngineV2POJOPK routingEnginePOJOPK;
     protected String routingEngineToken = null;
     protected String bindingUniverseName = null;
@@ -237,7 +234,7 @@ public abstract class AbstractRoutingOrderV2POJO extends ObjectPOJO{
 
 	@Override
     public ObjectPOJOPK getPK() {
-    	return new ObjectPOJOPK(new String[]{name,status+""});
+        return new ObjectPOJOPK(new String[] { name, status + "" });
     }
 
     public AbstractRoutingOrderV2POJOPK getAbstractRoutingOrderPOJOPK() {

@@ -10,10 +10,12 @@
 
 package com.amalto.core.server.routing;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -56,17 +58,22 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
 @Component
+@SuppressWarnings("nls")
 public class DefaultRoutingEngine implements RoutingEngine {
+    
+    public static final String EVENTS_DESTINATION = "org.talend.mdm.server.routing.events";
 
-    private static final String JMS_PK_PROPERTY = "pk"; //$NON-NLS-1
+    private static final String JMS_PK_PROPERTY = "pk";
 
-    private static final String JMS_TYPE_PROPERTY = "type"; //$NON-NLS-1
+    private static final String JMS_TYPE_PROPERTY = "type";
 
-    private static final String JMS_CONTAINER_PROPERTY = "container"; //$NON-NLS-1
+    private static final String JMS_CONTAINER_PROPERTY = "container";
 
-    private static final String JMS_RULES_PROPERTY = "rules"; //$NON-NLS-1
+    private static final String JMS_RULES_PROPERTY = "rules";
+    
+    private static final String JMS_SCHEDULED = "timeScheduled";
 
-    public static final String EVENTS_DESTINATION = "org.talend.mdm.server.routing.events"; //$NON-NLS-1
+    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'm'SSS");
 
     private static final Logger LOGGER = Logger.getLogger(DefaultRoutingEngine.class);
 
@@ -102,9 +109,9 @@ public class DefaultRoutingEngine implements RoutingEngine {
 
     private static String strip(String condition) {
         String compiled = condition;
-        compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(+)", "$1&&$3"); //$NON-NLS-1$ //$NON-NLS-2$
-        compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(+)", "$1||$3"); //$NON-NLS-1$//$NON-NLS-2$
-        compiled = compiled.replaceAll("(\\s*)([nN][oO][tT])(\\s+|\\(+)", "$1!$3"); //$NON-NLS-1$ //$NON-NLS-2$
+        compiled = compiled.replaceAll("(\\s+)([aA][nN][dD])(\\s+|\\(+)", "$1&&$3");
+        compiled = compiled.replaceAll("(\\s+)([oO][rR])(\\s+|\\(+)", "$1||$3");
+        compiled = compiled.replaceAll("(\\s*)([nN][oO][tT])(\\s+|\\(+)", "$1!$3");
         return compiled;
     }
 
@@ -215,12 +222,10 @@ public class DefaultRoutingEngine implements RoutingEngine {
         // Sort execution order and send JMS message
         Collections.sort(routingRulesThatMatched);
         final String[] ruleNames = new String[routingRulesThatMatched.size()];
-        final String[] ruleParameters = new String[routingRulesThatMatched.size()];
         int i = 0;
 
         for (RoutingRulePOJO rulePOJO : routingRulesThatMatched) {
             ruleNames[i] = rulePOJO.getPK().getUniqueId();
-            ruleParameters[i] = rulePOJO.getParameters();
             i++;
         }
 
@@ -232,7 +237,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
                 message.setObjectProperty(JMS_RULES_PROPERTY, Arrays.asList(ruleNames));
                 message.setStringProperty(JMS_CONTAINER_PROPERTY, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
                 message.setStringProperty(JMS_TYPE_PROPERTY, itemPOJOPK.getConceptName());
-                message.setStringProperty(JMS_PK_PROPERTY, Util.joinStrings(itemPOJOPK.getIds(), ".")); //$NON-NLS-1$
+                message.setStringProperty(JMS_PK_PROPERTY, Util.joinStrings(itemPOJOPK.getIds(), "."));
+                message.setLongProperty(JMS_SCHEDULED, System.currentTimeMillis());
                 return message;
             }
         });
@@ -256,7 +262,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
         ArrayList<RoutingRulePOJO> routingRulesThatSyncMatched = new ArrayList<>();
         ArrayList<RoutingRulePOJO> routingRulesThatAsyncMatched = new ArrayList<>();
         // loop over the known rules
-        Collection<RoutingRulePOJOPK> routingRulePOJOPKs = routingRules.getRoutingRulePKs(".*"); //$NON-NLS-1$
+        Collection<RoutingRulePOJOPK> routingRulePOJOPKs = routingRules.getRoutingRulePKs(".*");
         for (RoutingRulePOJOPK routingRulePOJOPK : routingRulePOJOPKs) {
             RoutingRulePOJO routingRule = routingRules.getRoutingRule(routingRulePOJOPK);
             if (routingRule.isDeActive()) {
@@ -266,7 +272,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
                 continue;
             }
             // check if type matches the routing rule
-            if (!"*".equals(routingRule.getConcept())) { //$NON-NLS-1$
+            if (!"*".equals(routingRule.getConcept())) {
                 if (!type.equals(routingRule.getConcept())) {
                     continue;
                 }
@@ -302,8 +308,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
                         }
                     }
                     // compile
-                    ntp.eval("routingRuleResult = " + compileCondition + ";"); //$NON-NLS-1$ //$NON-NLS-2$
-                    boolean result = (Boolean) ntp.get("routingRuleResult"); //$NON-NLS-1$
+                    ntp.eval("routingRuleResult = " + compileCondition + ";");
+                    boolean result = (Boolean) ntp.get("routingRuleResult");
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(condition + " : " + result);
                         if (result) {
@@ -355,7 +361,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
             Collections.sort(routingRulesThatSyncMatched);
             String routingOrder = UUID.randomUUID().toString();
             for(RoutingRulePOJO rule : routingRulesThatSyncMatched){
-                applyRule(itemPOJOPK, rule, routingOrder);
+                applyRule(itemPOJOPK, rule, routingOrder, System.currentTimeMillis());
             }
             pks.addAll(buildListOfRulePK(routingRulesThatSyncMatched));
         }
@@ -377,19 +383,22 @@ public class DefaultRoutingEngine implements RoutingEngine {
      * @param routingRule the rule to execute
      * @param routingOrderId routing id
      */
-    private void applyRule(ItemPOJOPK itemPOJOPK, RoutingRulePOJO routingRule, String routingOrderId) {
+    private void applyRule(ItemPOJOPK itemPOJOPK, RoutingRulePOJO routingRule, String routingOrderId, long timeScheduled) {
         // Proceed with rule execution
         final Service service = PluginRegistry.getInstance().getService(routingRule.getServiceJNDI());
         final long startTime = System.currentTimeMillis();
         try {
             if(service != null){
+                String startTimeStr = sdf.format(new Date(startTime));
                 CompletedRoutingOrderV2POJO completedRoutingOrder = new CompletedRoutingOrderV2POJO();
                 completedRoutingOrder.setTimeLastRunStarted(startTime);
+                completedRoutingOrder.setTimeScheduled(timeScheduled);
                 service.receiveFromInbound(itemPOJOPK, routingOrderId, routingRule.getParameters());
                 completedRoutingOrder.setTimeLastRunCompleted(System.currentTimeMillis());
                 // Record routing order was successfully executed.
                 completedRoutingOrder.setItemPOJOPK(itemPOJOPK);
-                completedRoutingOrder.setName(itemPOJOPK.toString());
+                completedRoutingOrder.setName(itemPOJOPK.getUniqueID() + "-" + startTimeStr);
+                completedRoutingOrder.setMessage("---> CREATED " + startTimeStr + " activated by trigger '" + routingRule.getName() + "'");
                 completedRoutingOrder.setServiceJNDI(routingRule.getServiceJNDI());
                 completedRoutingOrder.setServiceParameters(routingRule.getParameters());
                 try {
@@ -460,6 +469,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
             final String pk = message.getStringProperty(JMS_PK_PROPERTY);
             final String type = message.getStringProperty(JMS_TYPE_PROPERTY);
             final String container = message.getStringProperty(JMS_CONTAINER_PROPERTY);
+            final long timeScheduled = message.getLongProperty(JMS_SCHEDULED);
             final String routingOrderId = message.getJMSMessageID();
             for (int ruleIndex = 0; ruleIndex < rules.size(); ruleIndex++) {
                 String rule = rules.get(ruleIndex);
@@ -474,8 +484,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
                     @Override
                     public void run() {
                         // execute all rules synchronously
-                        final ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, pk.split("\\.")); //$NON-NLS-1$
-                        applyRule(itemPOJOPK, routingRule, routingOrderId);
+                        final ItemPOJOPK itemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(container), type, pk.split("\\."));
+                        applyRule(itemPOJOPK, routingRule, routingOrderId, timeScheduled);
                     }
                 });
             }
