@@ -256,7 +256,7 @@ public abstract class Util {
             if (item instanceof WSWhereItem) {
                 rpn.add(item);
             } else {
-                String predicate = (String) item;
+                String predicate = item.toString();
                 while (!stackOp.isEmpty()) {
                     rpn.add(stackOp.pop());
                 }
