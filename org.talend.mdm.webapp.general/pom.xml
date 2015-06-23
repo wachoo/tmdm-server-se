@@ -143,9 +143,6 @@
                                 		<copy todir="${mdm.app.dir}/general">
                                 			<fileset dir="${mdm.build.web.dir}/general"/>
                                 		</copy>
-                                		<copy todir="${mdm.app.dir}/secure" overwrite="true">
-                                			<fileset dir="${mdm.build.web.dir}/secure"/>
-                                		</copy>
                                 		<copy tofile="${mdm.app.dir}/General-menus.css" file="${mdm.build.web.dir}/General-menus.css" overwrite="true"/>
                                 		<copy tofile="${mdm.app.dir}/General.css" file="${mdm.build.web.dir}/General.css" overwrite="true"/>
                                 		<copy tofile="${mdm.app.dir}/proxy_core.js" file="${mdm.build.web.dir}/proxy_core.js" overwrite="true"/>
