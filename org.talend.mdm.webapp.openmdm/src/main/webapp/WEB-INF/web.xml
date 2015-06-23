@@ -357,7 +357,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageDeleteServlet</servlet-name>
-        <url-pattern>/imageserver/ImageDeleteServlet</url-pattern>
+        <url-pattern>/services/imageserver/ImageDeleteServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageLocateServlet</servlet-name>
