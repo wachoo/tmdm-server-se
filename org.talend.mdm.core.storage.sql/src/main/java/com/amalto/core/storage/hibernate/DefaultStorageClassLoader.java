@@ -39,6 +39,7 @@ import org.xml.sax.SAXException;
 
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSourceBuilder;
 
 @SuppressWarnings("UnusedDeclaration")
 // Dynamically called! Do not remove!
@@ -153,8 +154,8 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
         int connectionPoolMinSize = rdbmsDataSource.getConnectionPoolMinSize();
         int connectionPoolMaxSize = rdbmsDataSource.getConnectionPoolMaxSize();
         if(connectionPoolMaxSize == 0){
-            LOGGER.info("No value provided for property connectionPoolMaxSize of datasource " + rdbmsDataSource.getName() + ". Using default value: " + 20); //$NON-NLS-1$ //$NON-NLS-2$
-            connectionPoolMaxSize = 20;
+            LOGGER.info("No value provided for property connectionPoolMaxSize of datasource " + rdbmsDataSource.getName() + ". Using default value: " + RDBMSDataSourceBuilder.CONNECTION_POOL_MAX_SIZE_DEFAULT); //$NON-NLS-1$ //$NON-NLS-2$
+            connectionPoolMaxSize = RDBMSDataSourceBuilder.CONNECTION_POOL_MAX_SIZE_DEFAULT;
         }
 
         setPropertyValue(document, "hibernate.connection.url", connectionUrl); //$NON-NLS-1$

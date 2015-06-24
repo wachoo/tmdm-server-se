@@ -7,6 +7,8 @@ import org.apache.commons.lang.StringUtils;
 
 public class RDBMSDataSourceBuilder {
 
+    public static final int CONNECTION_POOL_MAX_SIZE_DEFAULT = 50;
+    
     private boolean generateTechnicalFK = true;
 
     private RDBMSDataSource.ContainsOptimization containsOptimization = RDBMSDataSource.ContainsOptimization.FULL_TEXT;
@@ -43,7 +45,7 @@ public class RDBMSDataSourceBuilder {
 
     private int connectionPoolMinSize = 5;
 
-    private int connectionPoolMaxSize = 50;
+    private int connectionPoolMaxSize = CONNECTION_POOL_MAX_SIZE_DEFAULT;
 
     private boolean generateConstraints;
 
