@@ -250,13 +250,13 @@ public abstract class Util {
                 conds.add(predicate);
             }
         }
-        Stack<String> stackOp = new Stack<String>();
+        Stack<WSStringPredicate> stackOp = new Stack<WSStringPredicate>();
         List<Object> rpn = new ArrayList<Object>();
         for (Object item : conds) {
             if (item instanceof WSWhereItem) {
                 rpn.add(item);
             } else {
-                String predicate = item.toString();
+                WSStringPredicate predicate = (WSStringPredicate) item;
                 while (!stackOp.isEmpty()) {
                     rpn.add(stackOp.pop());
                 }
