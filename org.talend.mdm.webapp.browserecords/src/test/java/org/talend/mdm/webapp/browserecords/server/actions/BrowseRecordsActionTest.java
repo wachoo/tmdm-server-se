@@ -69,8 +69,6 @@ import org.xml.sax.SAXException;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
-import com.amalto.webapp.core.util.WebCoreException;
-import com.amalto.webapp.core.util.XmlUtil;
 import com.amalto.core.webservice.WSBoolean;
 import com.amalto.core.webservice.WSInt;
 import com.amalto.core.webservice.WSItem;
@@ -78,6 +76,8 @@ import com.amalto.core.webservice.WSStringArray;
 import com.amalto.core.webservice.WSView;
 import com.amalto.core.webservice.WSViewSearch;
 import com.amalto.core.webservice.XtentisPort;
+import com.amalto.webapp.core.util.WebCoreException;
+import com.amalto.webapp.core.util.XmlUtil;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 @PrepareForTest({ Util.class, org.talend.mdm.webapp.base.server.util.CommonUtil.class, XtentisPort.class, WSViewSearch.class,
@@ -709,7 +709,7 @@ public class BrowseRecordsActionTest extends TestCase {
                 method.setAccessible(true);
                 Object para[] = { webCoreException, "TestModel", "1", new Locale("en") };
                 Object result = method.invoke(action, para);
-                String expectedMsg = MESSAGES.getMessage("delete_failure_constraint_violation", "TestModel.1");
+                String expectedMsg = MESSAGES.getMessage(new Locale("en"), "delete_failure_constraint_violation", "TestModel.1");
                 assertEquals(expectedMsg, result);
                 break;
             }
