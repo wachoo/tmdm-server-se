@@ -108,9 +108,9 @@ public class ServerTest extends TestCase {
         StorageAdmin storageAdmin = server.getStorageAdmin();
         assertNotNull(storageAdmin);
         Storage storage = storageAdmin.create(storageName, storageName, StorageType.MASTER, "H2-DS1");
-        assertTrue(new File("data/h2_ds1.lock.db").exists());
-        storage.close(false);
-        assertFalse(new File("data/h2_ds1.lock.db").exists());
+        assertTrue(new File("data/h2_ds1.mv.db").exists());
+        storage.close(true);
+        assertFalse(new File("data/h2_ds1.mv.db").exists());
     }
 
     public void testCreateWithSlash() throws Exception {
