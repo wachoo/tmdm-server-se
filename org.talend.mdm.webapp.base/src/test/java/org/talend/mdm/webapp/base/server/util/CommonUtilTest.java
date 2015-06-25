@@ -21,10 +21,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.talend.mdm.webapp.base.client.exception.ParserException;
+import org.talend.mdm.webapp.base.client.i18n.BaseMessages;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
-import org.talend.mdm.webapp.base.server.i18n.BaseMessagesImpl;
 
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.core.webservice.WSWhereAnd;
@@ -38,7 +38,7 @@ public class CommonUtilTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        BaseMessagesFactory.setMessages(new BaseMessagesImpl());
+        BaseMessagesFactory.setMessages(new MockBaseMessages());
     }
 
     @Override
@@ -395,5 +395,193 @@ public class CommonUtilTest extends TestCase {
         result = CommonUtil.splitString(s, ';');
         assertEquals(1, result.size());
         assertEquals(s, result.get(0));
+    }
+
+    private class MockBaseMessages implements BaseMessages {
+
+        @Override
+        public String exception_parse_illegalChar(int beginIndex) {
+            return "";
+        }
+
+        @Override
+        public String exception_parse_unknownOperator(String value) {
+            return "";
+        }
+
+        @Override
+        public String exception_parse_missEndBlock(char endBlock, int i) {
+            return "";
+        }
+
+        @Override
+        public String exception_parse_tooManyEndBlock(char endBlock, int i) {
+            return "";
+        }
+
+        @Override
+        public String page_size_label() {
+            return "";
+        }
+
+        @Override
+        public String page_size_notice() {
+            return "";
+        }
+
+        @Override
+        public String info_title() {
+            return "";
+        }
+
+        @Override
+        public String error_title() {
+            return "";
+        }
+
+        @Override
+        public String warning_title() {
+            return "";
+        }
+
+        @Override
+        public String confirm_title() {
+            return "";
+        }
+
+        @Override
+        public String unknown_error() {
+            return "";
+        }
+
+        @Override
+        public String session_timeout_error() {
+            return "";
+        }
+
+        @Override
+        public String open_mls_title() {
+            return "";
+        }
+
+        @Override
+        public String language_title() {
+            return "";
+        }
+
+        @Override
+        public String value_title() {
+            return "";
+        }
+
+        @Override
+        public String multiLanguage_edit_failure() {
+            return "";
+        }
+
+        @Override
+        public String multiLangauge_language_duplicate() {
+            return "";
+        }
+
+        @Override
+        public String edit_success_info() {
+            return null;
+        }
+
+        @Override
+        public String message_success() {
+            return "";
+        }
+
+        @Override
+        public String message_error() {
+            return "";
+        }
+
+        @Override
+        public String message_fail() {
+            return "";
+        }
+
+        @Override
+        public String edititem() {
+            return "";
+        }
+
+        @Override
+        public String add_btn() {
+            return "";
+        }
+
+        @Override
+        public String remove_btn() {
+            return "";
+        }
+
+        @Override
+        public String exception_fk_malform(String fk) {
+            return "";
+        }
+
+        @Override
+        public String overwrite_confirm() {
+            return "";
+        }
+
+        @Override
+        public String label_exception_id_malform(String id) {
+            return "";
+        }
+
+        @Override
+        public String server_error() {
+            return "";
+        }
+
+        @Override
+        public String server_error_notification() {
+            return "";
+        }
+
+        @Override
+        public String service_rest_error() {
+            return "";
+        }
+
+        @Override
+        public String service_rest_exception() {
+            return "";
+        }
+
+        @Override
+        public String underlying_cause() {
+            return "";
+        }
+
+        @Override
+        public String matching_failed(String concept) {
+            return "";
+        }
+
+        @Override
+        public String delete_success_prefix() {
+            return "";
+        }
+
+        @Override
+        public String delete_fail_prefix() {
+            return "";
+        }
+
+        @Override
+        public String restore_success_prefix() {
+            return "";
+        }
+
+        @Override
+        public String restore_fail_prefix() {
+            return "";
+        }
     }
 }
