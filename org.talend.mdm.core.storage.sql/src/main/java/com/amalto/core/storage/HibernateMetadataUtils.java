@@ -49,6 +49,8 @@ public class HibernateMetadataUtils {
             return "java.lang.String"; //$NON-NLS-1$
         } else if (Types.DOUBLE.equals(type)) {
             return "java.lang.Double"; //$NON-NLS-1$
+        } else if (Types.UUID.equals(type)) {
+            return "java.lang.String"; //$NON-NLS-1$
         } else {
             throw new UnsupportedOperationException("No support for field typed as '" + type + "'"); //$NON-NLS-1$ //$NON-NLS-2$
         }
