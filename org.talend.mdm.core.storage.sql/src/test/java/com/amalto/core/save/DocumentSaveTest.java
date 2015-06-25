@@ -558,6 +558,7 @@ public class DocumentSaveTest extends TestCase {
 
         assertFalse(source.hasCalledInitAutoIncrement);
 
+        XmlSchemaValidator.invalidateCache();
         repository.load(DocumentSaveTest.class.getResourceAsStream("CONF.xsd"));
         MockMetadataRepositoryAdmin.INSTANCE.register("CONF", repository);
 
@@ -2810,7 +2811,7 @@ public class DocumentSaveTest extends TestCase {
 
         @Override
         public void save(com.amalto.core.history.Document item) {
-            if(!item.getType().getName().equals("Update")){
+            if(!item.getType().getName().equals("Update") || !hasSaved){    // when update UpdateReport directly
                 hasSaved = true;
                 lastSaved = (MutableDocument) item;
                 if (LOG.isDebugEnabled()) {
