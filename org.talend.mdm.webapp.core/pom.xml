@@ -36,10 +36,6 @@
                         <id>jar-lib</id>
                         <configuration>
                             <classifier>lib</classifier>
-                            <includes>
-                                <include>**/*.class</include>
-                                <include>**/*.properties</include>
-                            </includes>
                         </configuration>
                         <goals>
                             <goal>jar</goal>
