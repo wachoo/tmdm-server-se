@@ -32,8 +32,8 @@ public class TransactionHandler implements Handler {
     private static final String TRANSACTION_ID = "transaction-id"; //$NON-NLS-1$
 
     private static final String LOGOUT_OPERATION_NAME = "WSLogout"; //$NON-NLS-1$
-
-    private TransactionState state;
+    
+    private static final String MESSAGE_CONTEXT_PROPERTY = "MDM-transaction-id"; //$NON-NLS-1$
 
     private static TransactionState getState(MessageContext messageContext) {
         try {
@@ -86,20 +86,23 @@ public class TransactionHandler implements Handler {
 
     @Override
     public boolean handleRequest(MessageContext messageContext) throws JAXRPCException, SOAPFaultException {
-        state = getState(messageContext);
-        state.preRequest();
+        TransactionState s = getState(messageContext);
+        s.preRequest();
+        messageContext.setProperty(MESSAGE_CONTEXT_PROPERTY, s);
         return true;
     }
 
     @Override
     public boolean handleResponse(MessageContext messageContext) {
-        state.postRequest();
+        TransactionState s = (TransactionState)messageContext.getProperty(MESSAGE_CONTEXT_PROPERTY);
+        s.postRequest();
         return true;
     }
 
     @Override
     public boolean handleFault(MessageContext messageContext) {
-        state.cancelRequest();
+        TransactionState s = (TransactionState)messageContext.getProperty(MESSAGE_CONTEXT_PROPERTY);
+        s.postRequest();
         return true;
     }
 
