@@ -13,9 +13,19 @@
 package com.amalto.core.query;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
+
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
@@ -30,21 +40,8 @@ import com.amalto.core.storage.transaction.TransactionManager;
 /**
  * Test transactions behaviour with Hibernate
  */
-public class LongTransactionTest extends StorageTestCase {
+public class LongTransactionTest extends LongTransactionAbstractTestCase {
 
-    @Override
-    public void setUp() throws Exception {
-        // override to avoid storage.begin in superclass setup
-    }
-    
-    @Override
-    public void tearDown() throws Exception{
-        storage.begin();
-        storage.delete(UserQueryBuilder.from(country).getSelect());
-        storage.commit();
-        storage.end();
-    }
-    
     /**
      * Tests that rows updated within a long transaction are not visible
      * to others as long as the transaction is not committed
@@ -250,68 +247,4 @@ public class LongTransactionTest extends StorageTestCase {
         longTransaction.commit();
         Assert.assertEquals(nbThreads, countCountriesInAnotherThread());
     }
-    
-    private static DataRecord createDataRecord(int id){
-        DataRecord result = new DataRecord(country, new DataRecordMetadataImpl(System.currentTimeMillis(), "T1")); //$NON-NLS-1$
-        result.set(country.getField("id"), id); //$NON-NLS-1$
-        result.set(country.getField("name"), "Country" + id); //$NON-NLS-1$ //$NON-NLS-2$
-        result.set(country.getField("creationTime"), new Timestamp(new Date().getTime())); //$NON-NLS-1$
-        result.set(country.getField("creationDate"), new Timestamp(new Date().getTime())); //$NON-NLS-1$
-        return result;
-    }
-    
-    private int countCountriesInAnotherThread() throws Exception {
-        FetchRunnable fetch = new FetchRunnable();
-        Thread t = new Thread(fetch);
-        t.start();
-        t.join();
-        return fetch.getResultSize();
-    }
-    
-    private int countCountries() throws Exception {
-        FetchRunnable fetch = new FetchRunnable();
-        fetch.run();
-        return fetch.getResultSize();
-    }
-    
-    private static class UpdateRunnable implements Runnable {
-        
-        private int id;
-        private String transactionId;
-        
-        public UpdateRunnable(String transactionId, int id){
-            this.transactionId = transactionId;
-            this.id = id;
-        }
-        
-        @Override
-        public void run() {
-            TransactionManager tm = ServerContext.INSTANCE.get().getTransactionManager();
-            Transaction transaction = tm.get(this.transactionId);
-            tm.associate(transaction);
-            storage.begin();
-            storage.update(createDataRecord(id));
-            storage.commit();
-            tm.dissociate(transaction);
-        }
-    }
-    
-    private static class FetchRunnable implements Runnable{
-        
-        private int resultSize;
-        
-        @Override
-        public void run() {
-            storage.begin();
-            StorageResults result = storage.fetch(UserQueryBuilder.from(country).select(country.getField("id")).getSelect());
-            this.resultSize = result.getCount();
-            storage.commit();
-            storage.end();
-        }
-        
-        public int getResultSize(){
-            return this.resultSize;
-        }
-    }
-    
 }

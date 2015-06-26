@@ -19,6 +19,9 @@
                 <fulltext-index-directory>indexes/H2_DEFAULT</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
                 <schema-generation>create</schema-generation>
+                <properties>
+                    <property name="hibernate.dbcp.maxTotal">300</property>
+                </properties>
             </rdbms-configuration>
         </master>
         <system>
@@ -27,9 +30,12 @@
                 <dialect>H2</dialect>
                 <connection-driver-class>org.h2.Driver</connection-driver-class>
                 <connection-url>jdbc:h2:./data/h2_system</connection-url>
-                <fulltext-index-directory>indexes/H2_DEFAULT</fulltext-index-directory>
+                <fulltext-index-directory>indexes/H2_DEFAULT_MASTER</fulltext-index-directory>
                 <case-sensitive-search>false</case-sensitive-search>
                 <schema-generation>create</schema-generation>
+                <properties>
+                    <property name="hibernate.dbcp.maxTotal">300</property>
+                </properties>
             </rdbms-configuration>
         </system>
     </datasource>

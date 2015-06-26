@@ -48,6 +48,7 @@ public class TransactionService {
     public String begin() {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         Transaction transaction = transactionManager.create(Transaction.Lifetime.LONG);
+        transactionManager.dissociate(transaction);
         return transaction.getId();
     }
 

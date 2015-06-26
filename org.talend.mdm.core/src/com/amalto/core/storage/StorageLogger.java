@@ -95,7 +95,7 @@ public class StorageLogger implements Storage {
             return delegate.fetch(userQuery);
         } catch (Exception e) {
             // Dumps query to console
-            LOGGER.error("##### Error during fetch operation #####");
+            LOGGER.error("##### Error during fetch operation #####", e);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Query:");
                 userQuery.accept(new UserQueryDumpConsole(LOGGER));

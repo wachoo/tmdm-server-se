@@ -23,12 +23,15 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
+import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 
@@ -37,7 +40,11 @@ public class StorageTestCase extends TestCase {
 
     private static Logger LOG = Logger.getLogger(StorageTestCase.class);
 
+    protected static final Storage systemStorage;
+    
     protected static final Storage storage;
+    
+    protected static final MetadataRepository systemRepository;
 
     protected static final MetadataRepository repository;
 
@@ -193,8 +200,29 @@ public class StorageTestCase extends TestCase {
         indexedExpressions.add(UserQueryBuilder.from(e).where(isNull(e.getField("commonText"))).getExpression());
         storage.prepare(repository, new HashSet<Expression>(indexedExpressions), true, true);
         LOG.info("Storage prepared.");
+        
+        LOG.info("Preparing system storage");
+        
+        systemStorage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), userSecurity);
+        systemStorage.init(getDatasource(DATABASE + "-Default"));
+        systemRepository = buildSystemRepository();
+        systemStorage.prepare(systemRepository, new HashSet<Expression>(), true, true);
+        
+        LOG.info("System storage prepared");
+        
     }
 
+    private static ClassRepository buildSystemRepository() {
+        ClassRepository repository = new ClassRepository();
+        Class[] objectsToParse = new Class[ObjectPOJO.OBJECT_TYPES.length];
+        int i = 0;
+        for (Object[] objects : ObjectPOJO.OBJECT_TYPES) {
+            objectsToParse[i++] = (Class) objects[1];
+        }
+        repository.load(objectsToParse);
+        return repository;
+    }
+    
     private ClassLoader previous;
 
     protected static DataSourceDefinition getDatasource(String dataSourceName) {
