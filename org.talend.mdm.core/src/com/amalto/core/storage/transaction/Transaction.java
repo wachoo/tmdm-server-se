@@ -12,6 +12,7 @@
 package com.amalto.core.storage.transaction;
 
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.transaction.Transaction.Lifetime;
 
 /**
  * A MDM transaction: it composed of multiple underlying {@link StorageTransaction}, each of them handles {@link Storage}
@@ -118,5 +119,9 @@ public interface Transaction {
      * @see StorageTransaction#hasFailed()
      */
     boolean hasFailed();
+
+    String getCreationStackTrace();
+
+    Lifetime getLifetime();
 
 }

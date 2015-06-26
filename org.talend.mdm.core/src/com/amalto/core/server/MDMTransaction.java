@@ -10,6 +10,7 @@
 
 package com.amalto.core.server;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -35,10 +36,15 @@ class MDMTransaction implements Transaction {
     private final Object[] lockChange = new Object[0];
 
     private LockStrategy lockStrategy = LockStrategy.NO_LOCK;
+    
+    private StackTraceElement[] creationStackTrace = null;
 
     MDMTransaction(Lifetime lifetime, String id) {
         this.lifetime = lifetime;
         this.id = id;
+        if(LOGGER.isDebugEnabled()){
+            this.creationStackTrace = Thread.currentThread().getStackTrace();
+        }
     }
 
     private void transactionComplete() {
@@ -83,11 +89,20 @@ class MDMTransaction implements Transaction {
 
     @Override
     public void begin() {
+        if(LOGGER.isDebugEnabled()){
+            LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Begin.");
+        }
         synchronized (storageTransactions) {
             Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
             for (StorageTransaction storageTransaction : values) {
+                if(LOGGER.isDebugEnabled()){
+                    LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Beginning storage transaction: " + storageTransaction);
+                }
                 storageTransaction.autonomous().begin();
             }
+        }
+        if(LOGGER.isDebugEnabled()){
+            LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Begin done.");
         }
     }
 
@@ -106,7 +121,7 @@ class MDMTransaction implements Transaction {
                     LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit done.");
                 }
             } catch (Throwable t) {
-                LOGGER.warn("Commit failed for transaction " + getId() + ". Perform automatic rollback.");
+                LOGGER.warn("Commit failed for transaction " + getId() + ". Perform automatic rollback.", t);
                 rollback();
             } finally {
                 transactionComplete();
@@ -136,16 +151,16 @@ class MDMTransaction implements Transaction {
 
     @Override
     public StorageTransaction exclude(Storage storage) {
-        StorageTransaction transaction = (StorageTransaction) storageTransactions.remove(storage, Thread.currentThread());
         synchronized (storageTransactions) {
+            StorageTransaction transaction = (StorageTransaction) storageTransactions.remove(storage.asInternal(), Thread.currentThread());
             if (storageTransactions.isEmpty()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Transaction '" + getId() + "' no longer has storage transactions. Removing it.");
+                    LOGGER.debug("Transaction '" + getId() + "' no longer has storage transactions. Removing it."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 transactionComplete();
             }
+            return transaction;
         }
-        return transaction;
     }
 
     @Override
@@ -167,11 +182,11 @@ class MDMTransaction implements Transaction {
         }
         StorageTransaction storageTransaction;
         synchronized (storageTransactions) {
-            storageTransaction = (StorageTransaction) storageTransactions.get(storage, Thread.currentThread());
+            storageTransaction = (StorageTransaction) storageTransactions.get(storage.asInternal(), Thread.currentThread());
             if (storageTransaction == null) {
                 storageTransaction = storage.newStorageTransaction();
                 storageTransaction.setLockStrategy(lockStrategy);
-                storageTransactions.put(storage, Thread.currentThread(), storageTransaction);
+                storageTransactions.put(storage.asInternal(), Thread.currentThread(), storageTransaction);
             }
         }
         switch (lifetime) {
@@ -188,5 +203,29 @@ class MDMTransaction implements Transaction {
     public String toString() {
         return "MDMTransaction{" + "id='" + id + '\'' + ", storageTransactions=" + storageTransactions + ", lifetime=" + lifetime
                 + '}';
+    }
+
+    @Override
+    public String getCreationStackTrace() {
+        String eol = System.getProperty("line.separator"); //$NON-NLS-1$
+        StringWriter writer = new StringWriter();
+        if(this.creationStackTrace != null){
+            writer.write("==================================================================================" + eol); //$NON-NLS-1$
+            writer.write("MDM Transaction creation stacktrace:" + eol); //$NON-NLS-1$
+            for(StackTraceElement s : this.creationStackTrace){
+                writer.append(s.toString());
+                writer.append(eol);
+            }
+            writer.write("==================================================================================" + eol); //$NON-NLS-1$
+        }
+        else {
+            writer.append("No creationStackTrace captured at transaction creation. Activate DEBUG on " + MDMTransaction.class.getCanonicalName() + " to capture future transactions."); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return writer.toString();
+    }
+
+    @Override
+    public Lifetime getLifetime() {
+        return lifetime;
     }
 }
