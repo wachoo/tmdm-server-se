@@ -13,6 +13,7 @@
 package talend.core.transformer.plugin.v2.tiscall;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -41,6 +42,7 @@ public class TISCallTransformerPluginBeanTest {
         MockEnvironment env = new MockEnvironment();
         env.setProperty("mdm.routing.engine.broker.url", "vm://localhost?broker.persistent=false");
         env.setProperty("mdm.routing.engine.consumers","1");
+        env.setProperty("routing.engine.max.execution.time.millis","300000");
         context.setEnvironment(env);
         context.load("classpath:mdm-test-context.xml");
         // FIXME Setting default-lazy-init on the top level beans element seems not applied to beans inside an imported
@@ -68,7 +70,7 @@ public class TISCallTransformerPluginBeanTest {
         assertTrue(plugin instanceof TISCallTransformerPluginBean);
         try {
             plugin = registry.getPlugin("amalto/local/transformer/plugin/xslt");
-            fail();
+            assertNull(plugin);     // xslt component is not scanned
         } catch (NoSuchBeanDefinitionException e) {
 
         }
