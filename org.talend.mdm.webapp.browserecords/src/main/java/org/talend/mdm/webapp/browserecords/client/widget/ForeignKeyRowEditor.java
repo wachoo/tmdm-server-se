@@ -3,6 +3,7 @@ package org.talend.mdm.webapp.browserecords.client.widget;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.ItemResult;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -14,6 +15,7 @@ import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
+import com.google.gwt.user.client.Timer;
 
 public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
 
@@ -74,11 +76,11 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
 
                                     String err = caught.getLocalizedMessage();
                                     if (err != null) {
-                                        err.replaceAll("\\[", "{").replaceAll("\\]", "}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+                                        MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                                                MultilanguageMessageParser.pickOutISOMessage(err), null);
+                                    } else {
+                                        super.doOnFailure(caught);
                                     }
-                                    MessageBox.alert(MessagesFactory.getMessages().error_title(),
-                                            Locale.getExceptionString(Locale.getLanguage(), err), null);
-
                                 }
 
                                 @Override
@@ -94,10 +96,31 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
                                     if (record != null) {
                                         record.commit(false);
                                     }
-                                    // TODO refreshForm(itemBean);
-                                    MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                            Locale.getExceptionMessageByLanguage(Locale.getLanguage(), result.getDescription()),
-                                            null);
+                                    
+                                    final MessageBox msgBox = new MessageBox();
+                                    String msg = MultilanguageMessageParser.pickOutISOMessage(result.getDescription());
+                                    if (result.getStatus() == ItemResult.FAILURE) {
+                                        msgBox.setTitle(MessagesFactory.getMessages().error_title());
+                                        msgBox.setButtons(MessageBox.OK);
+                                        msgBox.setIcon(MessageBox.ERROR);
+                                        msgBox.setMessage(msg == null || msg.isEmpty() ? MessagesFactory.getMessages()
+                                                .output_report_null() : msg);
+                                        msgBox.show();                                   
+                                    } else {
+                                        msgBox.setTitle(MessagesFactory.getMessages().info_title());
+                                        msgBox.setButtons(""); //$NON-NLS-1$
+                                        msgBox.setIcon(MessageBox.INFO);
+                                        msgBox.setMessage(msg == null || msg.isEmpty() ? MessagesFactory.getMessages()
+                                                .save_success() : msg);
+                                        msgBox.show();
+                                        Timer timer = new Timer() {
+
+                                            public void run() {
+                                                msgBox.close();
+                                            }
+                                        };
+                                        timer.schedule(1000);
+                                    }
                                 }
                             });
         }

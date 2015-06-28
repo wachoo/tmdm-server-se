@@ -95,12 +95,13 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
@@ -411,7 +412,7 @@ public class ItemsListPanel extends ContentPanel {
             @Override
             public void selectionChanged(final SelectionChangedEvent<ItemBean> se) {
                 if (se.getSelectedItem() != null) {
-                    DeferredCommand.addCommand(new Command() {
+                    Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 
                         @Override
                         public void execute() {
@@ -560,19 +561,36 @@ public class ItemsListPanel extends ContentPanel {
                                 if (record != null) {
                                     record.commit(false);
                                 }
-                                MessageBox.alert(MessagesFactory.getMessages().info_title(),
-                                        MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
-                                // refreshForm(itemBean)
-                                if (itemBean != null) {
-                                    if (gridUpdateLock) {
-                                        return;
-                                    }
-                                    gridUpdateLock = true;
-                                    refresh(itemBean.getIds(), false);
-                                    AppEvent event = new AppEvent(BrowseRecordsEvents.ViewItem, itemBean);
-                                    event.setData("isStaging", isStaging()); //$NON-NLS-1$
-                                    Dispatcher.forwardEvent(event);
-                                    gridUpdateLock = false;
+                                final MessageBox msgBox = new MessageBox();
+                                String msg = MultilanguageMessageParser.pickOutISOMessage(result.getDescription());
+                                if (result.getStatus() == ItemResult.FAILURE) {
+                                    msgBox.setTitle(MessagesFactory.getMessages().error_title());
+                                    msgBox.setButtons(MessageBox.OK);
+                                    msgBox.setIcon(MessageBox.ERROR);
+                                    msgBox.setMessage(msg == null || msg.isEmpty() ? MessagesFactory.getMessages()
+                                            .output_report_null() : msg);
+                                    msgBox.addCallback(new Listener<MessageBoxEvent>() {
+                                        @Override
+                                        public void handleEvent(MessageBoxEvent be) {
+                                            refreshOnSaveCompleted(itemBean);
+                                        }
+                                    });
+                                    msgBox.show();                                   
+                                } else {
+                                    msgBox.setTitle(MessagesFactory.getMessages().info_title());
+                                    msgBox.setButtons(""); //$NON-NLS-1$
+                                    msgBox.setIcon(MessageBox.INFO);
+                                    msgBox.setMessage(msg == null || msg.isEmpty() ? MessagesFactory.getMessages()
+                                            .save_success() : msg);
+                                    msgBox.show();
+                                    Timer timer = new Timer() {
+
+                                        public void run() {
+                                            msgBox.close();
+                                            refreshOnSaveCompleted(itemBean);
+                                        }
+                                    };
+                                    timer.schedule(1000);
                                 }
                             }
                         });
@@ -583,6 +601,20 @@ public class ItemsListPanel extends ContentPanel {
         add(gridContainer);
         this.syncSize();
         this.doLayout();
+    }
+    
+    private void refreshOnSaveCompleted(ItemBean itemBean) {
+        if (itemBean != null) {
+            if (gridUpdateLock) {
+                return;
+            }
+            gridUpdateLock = true;
+            refresh(itemBean.getIds(), false);
+            AppEvent event = new AppEvent(BrowseRecordsEvents.ViewItem, itemBean);
+            event.setData("isStaging", isStaging()); //$NON-NLS-1$
+            Dispatcher.forwardEvent(event);
+            gridUpdateLock = false;
+        }
     }
 
     private void hookContextMenu() {
