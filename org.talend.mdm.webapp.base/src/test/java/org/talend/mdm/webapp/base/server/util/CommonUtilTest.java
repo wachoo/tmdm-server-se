@@ -17,6 +17,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.powermock.api.mockito.PowerMockito;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.talend.mdm.webapp.base.client.exception.ParserException;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 import org.talend.mdm.webapp.base.client.model.Criteria;
@@ -331,6 +334,8 @@ public class CommonUtilTest extends TestCase {
 
     public void testError5() {
         String criteria = "blahblah";
+        RequestAttributes mockRequestAtrributes = PowerMockito.mock(RequestAttributes.class);
+        RequestContextHolder.setRequestAttributes(mockRequestAtrributes);
         try {
             CommonUtil.buildWhereItems(criteria);
         } catch (ParserException e) {

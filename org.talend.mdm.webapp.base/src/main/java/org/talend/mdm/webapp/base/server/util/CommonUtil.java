@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
+import org.talend.mdm.webapp.base.client.exception.ParserException;
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
@@ -97,7 +98,7 @@ public class CommonUtil {
         return valueList;
     }
 
-    public static WSWhereItem buildWhereItems(String criteria) throws Exception {
+    public static WSWhereItem buildWhereItems(String criteria) throws ParserException, Exception {
         WSWhereItem wi;
         if (criteria.contains("../../t")) { //$NON-NLS-1$
             List<WSWhereItem> conditions = new ArrayList<WSWhereItem>();
