@@ -90,12 +90,6 @@ public class MDMTransactionManager implements TransactionManager {
         if (transaction == null) {
             throw new IllegalArgumentException("Transaction cannot be null.");
         }
-        try{
-            throw new Exception("Removing transaction: " + transaction.getId());
-        }
-        catch(Exception e){
-            LOGGER.error(e.getMessage(), e);
-        }
         if (transaction.hasFailed()) {
             LOGGER.error("Transaction " + transaction.getId() + " should not be removed from current transactions (it has failed).");
             transaction.rollback();
