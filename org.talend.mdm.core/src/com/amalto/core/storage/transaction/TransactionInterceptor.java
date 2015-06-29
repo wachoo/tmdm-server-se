@@ -33,7 +33,7 @@ public abstract class TransactionInterceptor extends AbstractPhaseInterceptor<Me
 
     private static final String TRANSACTION_ID = "transaction-id"; //$NON-NLS-1$
 
-    private static final String LOGOUT_OPERATION_NAME = "WSLogout"; //$NON-NLS-1$
+    private static final String LOGOUT_OPERATION_NAME = "logout"; //$NON-NLS-1$
 
     private static final String PING_OPERATION_NAME = "ping"; //$NON-NLS-1$
 
