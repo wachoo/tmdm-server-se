@@ -762,7 +762,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return true;
     }
 
-    private StorageAdmin getStorageAdmin() {
+    protected StorageAdmin getStorageAdmin() {
         if (storageAdmin == null) {
             storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         }
