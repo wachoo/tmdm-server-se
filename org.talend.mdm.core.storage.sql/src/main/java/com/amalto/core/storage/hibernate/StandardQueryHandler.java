@@ -460,6 +460,24 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         return false;
     }
+    
+    /**
+     * Test if a path has elements part of parent type
+     * 
+     * @param path A list of {@link org.talend.mdm.commmon.metadata.FieldMetadata fields} that represents a path from an
+     * entity type down to a selected field (for projection or condition).
+     * @param type A type contains this field    
+     * @return <code>true</code> if field's path has contained its parent
+     * {@link org.talend.mdm.commmon.metadata.ComplexTypeMetadata type}
+     */
+    private static boolean pathContainsParentType(List<FieldMetadata> path, ComplexTypeMetadata type) {
+        for (FieldMetadata fieldMetadata : path) {
+            if (type.equals(fieldMetadata.getContainingType())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * <p>
@@ -473,14 +491,15 @@ class StandardQueryHandler extends AbstractQueryHandler {
      */
     private Set<String> getAliases(ComplexTypeMetadata type, Field field) {
         FieldMetadata fieldMetadata = field.getFieldMetadata();
+        boolean fieldContainerInstantiable = fieldMetadata.getContainingType().getEntity().isInstantiable();
         String previousAlias;
-        if (fieldMetadata.getContainingType().getEntity().isInstantiable()) {
-            previousAlias = field.getFieldMetadata().getEntityTypeName();
+        if (fieldContainerInstantiable) {
+            previousAlias = fieldMetadata.getEntityTypeName();
         } else {
             previousAlias = type.getName();
         }
         Set<List<FieldMetadata>> paths;
-        if (pathContainsInheritance(field.getPath())) {
+        if (pathContainsInheritance(field.getPath()) || (!fieldContainerInstantiable && !pathContainsParentType(field.getPath(), type))) {
             paths = StorageMetadataUtils.paths(type, fieldMetadata);
         } else {
             paths = Collections.singleton(field.getPath());
