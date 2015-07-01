@@ -65,6 +65,8 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
 
     private String usageField;
 
+    private String foreignKeyFilter;
+
     public boolean isRetrieveFKinfos() {
         return retrieveFKinfos;
     }
@@ -96,9 +98,9 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
         foreignBtn.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
             @Override
-            public void componentSelected(ButtonEvent ce) {                
+            public void componentSelected(ButtonEvent ce) {
                 if (relWindow != null) {
-                    if(relWindow.getTypeComboBox() != null){
+                    if (relWindow.getTypeComboBox() != null) {
                         relWindow.getTypeComboBox().setRawValue(concept);
                     }
                     relWindow.show();
@@ -167,6 +169,8 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
         relWindow.setHeading(MessagesFactory.getMessages().fk_RelatedRecord());
         relWindow.setStaging(staging);
         relWindow.setForeignKeyInfos(this.foreignKey, this.foreignKeyInfo);
+        relWindow.setForeignKeyFilter(this.foreignKeyFilter);
+        relWindow.setCurrentXpath(this.foreignKeyField);
         relWindow.show();
     }
 
@@ -230,7 +234,7 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
         }
         super.setValue(fk);
     }
-    
+
     @Override
     public void setSuperValue(ForeignKeyBean fk) {
         super.setValue(fk);
@@ -254,6 +258,14 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
         return this.foreignKeyInfo;
     }
 
+    public String getForeignKeyFilter() {
+        return this.foreignKeyFilter;
+    }
+
+    public void setForeignKeyFilter(String foreignKeyFilter) {
+        this.foreignKeyFilter = foreignKeyFilter;
+    }
+
     public void setStaging(boolean staging) {
         this.staging = staging;
     }
@@ -266,5 +278,4 @@ public class FKSearchField extends TextField<ForeignKeyBean> implements ReturnCr
     public void setUsageField(String usageField) {
         this.usageField = usageField;
     }
-
 }

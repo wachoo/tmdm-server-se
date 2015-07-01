@@ -55,6 +55,7 @@ public class FieldCreator {
         } else if (dataType.getForeignkey() != null) {
             FKSearchField fkField = new FKSearchField(dataType.getForeignkey(), dataType.getForeignKeyInfo());
             fkField.Update(dataType.getXpath(), fkField);
+            fkField.setForeignKeyFilter(dataType.getFkFilter());
             fkField.setRetrieveFKinfos(dataType.isRetrieveFKinfos());
             field = fkField;
         } else if (dataType.hasEnumeration()) {
