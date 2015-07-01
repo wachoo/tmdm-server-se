@@ -948,10 +948,7 @@ public class BrowseRecordsActionTest extends TestCase {
         InputStream stream = BrowseRecordsActionTest.class.getResourceAsStream("../../" + fileName);
         String xsd = inputStream2String(stream);
 
-        PowerMockito.mockStatic(Util.class);
-        Mockito.when(Util.isEnterprise()).thenReturn(false);
         DataModelHelper.overrideSchemaManager(new SchemaMockAgent(xsd, new DataModelID(datamodelName)));
-
         DataModelHelper.parseSchema(datamodelName, concept, DataModelHelper.convertXsd2ElDecl(concept, xsd), ids, entityModel,
                 Arrays.asList(roles));
         ViewBean viewBean = new ViewBean();
