@@ -13,21 +13,23 @@ package com.amalto.core.server;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
-import org.apache.commons.collections.MapIterator;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.Transaction;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 class MDMTransaction implements Transaction {
 
     private static final Logger LOGGER = Logger.getLogger(MDMTransaction.class);
 
-    private final MultiKeyMap storageTransactions = new MultiKeyMap();
+    private final Table<Storage, Thread, StorageTransaction> storageTransactions = HashBasedTable.<Storage, Thread, StorageTransaction>create();
 
     private final String id;
 
@@ -49,10 +51,9 @@ class MDMTransaction implements Transaction {
 
     private void transactionComplete() {
         synchronized (storageTransactions) {
-            MapIterator iterator = storageTransactions.mapIterator();
+            Iterator<StorageTransaction> iterator = storageTransactions.values().iterator();
             while (iterator.hasNext()) {
-                iterator.next();
-                StorageTransaction storageTransaction = (StorageTransaction) iterator.getValue();
+                StorageTransaction storageTransaction = iterator.next();
                 if (!storageTransaction.hasFailed()) {
                     iterator.remove();
                 }
@@ -180,9 +181,21 @@ class MDMTransaction implements Transaction {
         if ((storage.getCapabilities() & Storage.CAP_TRANSACTION) != Storage.CAP_TRANSACTION) {
             throw new IllegalArgumentException("Storage '" + storage.getName() + "' does not support transactions.");
         }
-        StorageTransaction storageTransaction;
+        StorageTransaction storageTransaction = null;
         synchronized (storageTransactions) {
-            storageTransaction = (StorageTransaction) storageTransactions.get(storage.asInternal(), Thread.currentThread());
+            if(this.getLifetime() == Lifetime.LONG){
+                Map<Thread, StorageTransaction> row = storageTransactions.row(storage.asInternal());
+                if(row.size() == 1){
+                    return row.values().iterator().next().dependent();
+                }
+                else if(row.size() != 0){
+                    throw new IllegalStateException("StorageTransactions table contains more than one StorageTransaction for a storage but it is a long transaction");
+                }
+            }
+            else {
+                storageTransaction = (StorageTransaction) storageTransactions.get(storage.asInternal(), Thread.currentThread());
+            }
+            // if transaction is null, create a new storage transaction
             if (storageTransaction == null) {
                 storageTransaction = storage.newStorageTransaction();
                 storageTransaction.setLockStrategy(lockStrategy);

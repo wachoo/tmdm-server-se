@@ -11,6 +11,24 @@
 
 package com.amalto.core.storage.hibernate;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.Transaction;
+import org.hibernate.classic.Session;
+import org.hibernate.engine.EntityKey;
+import org.hibernate.impl.SessionImpl;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.exception.ConstraintViolationException;
@@ -18,29 +36,22 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ObjectDataRecordReader;
 import com.amalto.core.storage.transaction.StorageTransaction;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.hibernate.*;
-import org.hibernate.classic.Session;
-import org.hibernate.engine.EntityKey;
-import org.hibernate.impl.SessionImpl;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-
-import java.util.*;
 
 class HibernateStorageTransaction extends StorageTransaction {
 
     private static final Logger LOGGER = Logger.getLogger(HibernateStorageTransaction.class);
 
     private static final int TRANSACTION_DUMP_MAX = 10;
+    
+    private static final int LOCK_TIMEOUT_SECONDS = 30;
 
     private final HibernateStorage storage;
 
     private final Session session;
 
     private final Thread initiatorThread;
+    
+    private final Lock lock = new ReentrantLock();
 
     private boolean hasFailed;
 
@@ -72,61 +83,95 @@ class HibernateStorageTransaction extends StorageTransaction {
             session.beginTransaction();
         }
     }
+    
+
+    public void acquireLock() {
+        if(LOGGER.isDebugEnabled()){
+            LOGGER.debug("Trying to acquire lock for " + this + " on thread " + Thread.currentThread().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        try {
+            if(!this.lock.tryLock(LOCK_TIMEOUT_SECONDS, TimeUnit.SECONDS)){
+                LOGGER.error("Failed to acquire lock within "+ LOCK_TIMEOUT_SECONDS + " seconds"); //$NON-NLS-1$ //$NON-NLS-2$
+                throw new RuntimeException("Failed to acquire lock within " + LOCK_TIMEOUT_SECONDS + " seconds"); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        } catch (InterruptedException e) {
+            LOGGER.error("Interrupted while trying to acquire lock on " + this); //$NON-NLS-1$
+        }
+        if(LOGGER.isDebugEnabled()){
+            LOGGER.debug("Lock acquired for " + this + " on thread " + Thread.currentThread().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+    }
+    
+    public void releaseLock(){
+        if(LOGGER.isDebugEnabled()){
+            LOGGER.debug("Trying to release for " + this + " on thread " + Thread.currentThread().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        lock.unlock();
+        if(LOGGER.isDebugEnabled()){
+            LOGGER.debug("Lock released for " + this + " on thread " + Thread.currentThread().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+    }
 
     @Override
     public void commit() {
-        if (isAutonomous) {
-            Transaction transaction = session.getTransaction();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit includes "
-                        + session.getStatistics().getEntityCount() + " not-flushed record(s)...");
-            }
-            if (!transaction.isActive()) {
-                throw new IllegalStateException("Can not commit transaction, no transaction is active.");
-            }
-            try {
-                if (!transaction.wasCommitted()) {
-                    session.flush();
-                    transaction.commit();
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
-                    }
-                } else {
-                    LOGGER.warn("Transaction was already committed.");
+        this.acquireLock();
+        try {
+            if (isAutonomous) {
+                Transaction transaction = session.getTransaction();
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit includes "
+                            + session.getStatistics().getEntityCount() + " not-flushed record(s)...");
                 }
-                if (session.isOpen()) {
-                    /*
-                     * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
-                     * is reused.
-                     */
-                    if (session.getStatistics().getEntityKeys().size() > 0) {
-                        session.clear();
-                    }
-                    session.close();
+                if (!transaction.isActive()) {
+                    throw new IllegalStateException("Can not commit transaction, no transaction is active.");
                 }
-            } catch (Exception e) {
                 try {
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
-                        dumpTransactionContent(session, storage); // Dumps all the faulty session information.
+                    if (!transaction.wasCommitted()) {
+                        session.flush();
+                        transaction.commit();
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
+                        }
+                    } else {
+                        LOGGER.warn("Transaction was already committed.");
                     }
-                    processCommitException(e);
-                } finally {
+                    if (session.isOpen()) {
+                        /*
+                         * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the session
+                         * is reused.
+                         */
+                        if (session.getStatistics().getEntityKeys().size() > 0) {
+                            session.clear();
+                        }
+                        session.close();
+                    }
+                } catch (Exception e) {
+                    try {
+                        if (LOGGER.isInfoEnabled()) {
+                            LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
+                            dumpTransactionContent(session, storage); // Dumps all the faulty session information.
+                        }
+                        processCommitException(e);
+                    } finally {
+                        hasFailed = true; // Mark this storage transaction as "failed".
+                    }
+                }
+            } else {
+                try {
+                    if (session.isDirty()) {
+                        session.flush();
+                    }
+                } catch (Exception e) {
                     hasFailed = true; // Mark this storage transaction as "failed".
+                    processCommitException(e);
                 }
             }
-        } else {
-            try {
-                if (session.isDirty()) {
-                    session.flush();
-                }
-            } catch (Exception e) {
-                hasFailed = true; // Mark this storage transaction as "failed".
-                processCommitException(e);
-            }
+            super.commit();
+            storage.getClassLoader().reset(Thread.currentThread());
         }
-        super.commit();
-        storage.getClassLoader().reset(Thread.currentThread());
+        finally {
+            this.releaseLock();
+        }
     }
 
     private static void processCommitException(Exception e) {
@@ -204,53 +249,59 @@ class HibernateStorageTransaction extends StorageTransaction {
 
     @Override
     public void rollback() {
-        if (isAutonomous) {
-            try {
-                Transaction transaction = session.getTransaction();
-                if (!transaction.isActive()) {
-                    LOGGER.warn("Can not rollback transaction, no transaction is active.");
-                    return;
-                } else {
-                    boolean dirty;
-                    try {
-                        dirty = session.isDirty();
-                    } catch (HibernateException e) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Is dirty check during rollback threw exception.", e);
-                        }
-                        dirty = true; // Consider session is dirty (exception might occur when there's an integrity issue).
-                    }
-                    if (LOGGER.isInfoEnabled() && dirty) {
-                        LOGGER.info("Transaction is being rollbacked. Transaction content:");
-                        dumpTransactionContent(session, storage); // Dumps all content in the current transaction.
-                    }
-                }
-                if (!transaction.wasRolledBack()) {
-                    transaction.rollback();
-                } else {
-                    LOGGER.warn("Transaction was already rollbacked.");
-                }
-            } finally {
+        this.acquireLock();
+        try {
+            if (isAutonomous) {
                 try {
-                    /*
-                     * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the
-                     * session is reused.
-                     */
-                    if (session.isOpen() && session.getStatistics().getEntityKeys().size() > 0) {
-                        session.clear();
-                        session.close();
+                    Transaction transaction = session.getTransaction();
+                    if (!transaction.isActive()) {
+                        LOGGER.warn("Can not rollback transaction, no transaction is active.");
+                        return;
+                    } else {
+                        boolean dirty;
+                        try {
+                            dirty = session.isDirty();
+                        } catch (HibernateException e) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Is dirty check during rollback threw exception.", e);
+                            }
+                            dirty = true; // Consider session is dirty (exception might occur when there's an integrity issue).
+                        }
+                        if (LOGGER.isInfoEnabled() && dirty) {
+                            LOGGER.info("Transaction is being rollbacked. Transaction content:");
+                            dumpTransactionContent(session, storage); // Dumps all content in the current transaction.
+                        }
                     }
-                    hasFailed = false;
-                } catch (HibernateException e) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Could not clean up session.", e);
+                    if (!transaction.wasRolledBack()) {
+                        transaction.rollback();
+                    } else {
+                        LOGGER.warn("Transaction was already rollbacked.");
                     }
                 } finally {
-                    // It is *very* important to ensure super.rollback() gets called (even if session close did not succeed).
-                    super.rollback();
-                    storage.getClassLoader().reset(Thread.currentThread());
+                    try {
+                        /*
+                         * Eviction is not <b>needed</b> (the session will not be reused), but evicts cache in case the
+                         * session is reused.
+                         */
+                        if (session.isOpen() && session.getStatistics().getEntityKeys().size() > 0) {
+                            session.clear();
+                            session.close();
+                        }
+                        hasFailed = false;
+                    } catch (HibernateException e) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Could not clean up session.", e);
+                        }
+                    } finally {
+                        // It is *very* important to ensure super.rollback() gets called (even if session close did not succeed).
+                        super.rollback();
+                        storage.getClassLoader().reset(Thread.currentThread());
+                    }
                 }
             }
+        }
+        finally {
+            this.releaseLock();
         }
     }
 

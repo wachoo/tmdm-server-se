@@ -10,7 +10,9 @@
 
 package com.amalto.core.storage.hibernate;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.and;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,24 +46,22 @@ import net.sf.ehcache.CacheManager;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Level;
-import org.hibernate.Session;
-import org.hibernate.cfg.Environment;
-import org.hibernate.search.FullTextSession;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordConverter;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.Lock;
-import org.hibernate.*;
+import org.hibernate.DuplicateMappingException;
+import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
+import org.hibernate.Interceptor;
+import org.hibernate.LockOptions;
+import org.hibernate.NonUniqueObjectException;
+import org.hibernate.PropertyValueException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.cfg.Mappings;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.mapping.Any;
 import org.hibernate.mapping.Array;
@@ -130,15 +130,24 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryDumpConsole;
 import com.amalto.core.query.user.Visitor;
 import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.prepare.FullTextIndexCleaner;
 import com.amalto.core.storage.prepare.JDBCStorageCleaner;
 import com.amalto.core.storage.prepare.JDBCStorageInitializer;
 import com.amalto.core.storage.prepare.StorageCleaner;
 import com.amalto.core.storage.prepare.StorageInitializer;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordConverter;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 
@@ -730,12 +739,12 @@ public class HibernateStorage implements Storage {
     @Override
     public StorageResults fetch(Expression userQuery) {
         assertPrepared();
+        Session session = this.getCurrentSession();
         try {
             storageClassLoader.bind(Thread.currentThread());
             if (!ServerContext.INSTANCE.get().getTransactionManager().hasTransaction()) {
                 throw new IllegalStateException("Transaction must be active during fetch operation.");
             }
-            Session session = factory.getCurrentSession();
             // Call back closes session once calling code has consumed all results.
             Set<ResultsCallback> callbacks = Collections.<ResultsCallback> singleton(new ResultsCallback() {
 
@@ -753,6 +762,7 @@ public class HibernateStorage implements Storage {
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during fetch operation", e);
         } finally {
+            this.releaseSession();
             storageClassLoader.unbind(Thread.currentThread());
         }
     }
@@ -765,9 +775,9 @@ public class HibernateStorage implements Storage {
     @Override
     public void update(Iterable<DataRecord> records) {
         assertPrepared();
+        Session session = this.getCurrentSession();
         try {
             storageClassLoader.bind(Thread.currentThread());
-            Session session = factory.getCurrentSession();
             DataRecordConverter<Object> converter = new ObjectDataRecordConverter(storageClassLoader, session);
             for (DataRecord currentDataRecord : records) {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
@@ -814,6 +824,7 @@ public class HibernateStorage implements Storage {
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during update.", e);
         } finally {
+            this.releaseSession();
             storageClassLoader.unbind(Thread.currentThread());
         }
     }
@@ -852,11 +863,11 @@ public class HibernateStorage implements Storage {
             return;
         }
         LOGGER.info("Re-indexing full-text for " + storageName + "...");
-        Session session = factory.getCurrentSession();
-        MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
-        indexer.optimizeOnFinish(true);
-        indexer.optimizeAfterPurge(true);
+        Session session = this.getCurrentSession();
         try {
+            MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
+            indexer.optimizeOnFinish(true);
+            indexer.optimizeAfterPurge(true);
             indexer.threadsForSubsequentFetching(2);
             indexer.threadsToLoadObjects(2);
             indexer.batchSizeToLoadObjects(batchSize);
@@ -864,6 +875,7 @@ public class HibernateStorage implements Storage {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
+            this.releaseSession();
             LOGGER.info("Re-indexing done.");
         }
     }
@@ -1175,9 +1187,9 @@ public class HibernateStorage implements Storage {
 
     @Override
     public void delete(Expression userQuery) {
+        Session session = this.getCurrentSession();
         try {
             storageClassLoader.bind(Thread.currentThread());
-            Session session = factory.getCurrentSession();
             userQuery = userQuery.normalize(); // First do a normalize for correct optimization detection.
             // Check if optimized delete for one type (and no filter) is applicable
             if (userQuery instanceof Select) {
@@ -1297,15 +1309,16 @@ public class HibernateStorage implements Storage {
         } catch (HibernateException e) {
             throw new RuntimeException(e);
         } finally {
+            this.releaseSession();
             storageClassLoader.unbind(Thread.currentThread());
         }
     }
 
     @Override
     public void delete(DataRecord record) {
+        Session session = this.getCurrentSession();
         try {
             storageClassLoader.bind(Thread.currentThread());
-            Session session = factory.getCurrentSession();
             ComplexTypeMetadata currentType = record.getType();
             TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
             if (mapping == null) {
@@ -1337,6 +1350,7 @@ public class HibernateStorage implements Storage {
         } catch (HibernateException e) {
             throw new RuntimeException(e);
         } finally {
+            this.releaseSession();
             storageClassLoader.unbind(Thread.currentThread());
         }
     }
@@ -1459,6 +1473,23 @@ public class HibernateStorage implements Storage {
 
     public StorageClassLoader getClassLoader() {
         return storageClassLoader;
+    }
+    
+    
+    private Session getCurrentSession(){
+        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+        com.amalto.core.storage.transaction.Transaction currentTransaction = transactionManager.currentTransaction();
+        HibernateStorageTransaction storageTransaction = (HibernateStorageTransaction)currentTransaction.include(this);
+        storageTransaction.acquireLock();
+        return storageTransaction.getSession();
+        
+    }
+    
+    private void releaseSession(){
+        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
+        com.amalto.core.storage.transaction.Transaction currentTransaction = transactionManager.currentTransaction();
+        HibernateStorageTransaction storageTransaction = (HibernateStorageTransaction)currentTransaction.include(this);
+        storageTransaction.releaseLock();
     }
 
     @Override
