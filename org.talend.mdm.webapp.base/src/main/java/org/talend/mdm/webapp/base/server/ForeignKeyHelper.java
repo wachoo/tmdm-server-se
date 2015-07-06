@@ -39,9 +39,9 @@ import org.talend.mdm.webapp.base.shared.XpathUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.amalto.core.objects.ItemPOJO;
-import com.amalto.core.objects.ItemPOJOPK;
-import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.ejb.ItemPOJO;
+import com.amalto.core.ejb.ItemPOJOPK;
+import com.amalto.core.objects.datacluster.ejb.DataClusterPOJOPK;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSGetItemsByCustomFKFilters;
 import com.amalto.core.webservice.WSInt;
