@@ -347,9 +347,9 @@ public class DefaultTransformer implements TransformerPluginCallBack, com.amalto
             TransformerV2POJO transformerPOJO = globalContext.getTransformerPOJO();
             if ((transformerPOJO.getProcessSteps() != null) && (transformerPOJO.getProcessSteps().size() > 0)) {
                 executePlugin(globalContext, 0);
-                // signal done to the call back
-                callBack.done(globalContext);
             }
+            // signal done to the call back
+            callBack.done(globalContext);
         } catch (Exception e) {
             String err = "Unable to execute the Transformer: '" + context.getTransformerV2POJOPK().getUniqueId() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(err, e);
