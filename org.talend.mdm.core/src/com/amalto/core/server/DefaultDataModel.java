@@ -10,20 +10,12 @@
 
 package com.amalto.core.server;
 
-import com.amalto.core.objects.ObjectPOJO;
-import com.amalto.core.objects.ObjectPOJOPK;
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.util.Util;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import com.amalto.core.objects.datamodel.DataModelPOJO;
-import com.amalto.core.objects.datamodel.DataModelPOJOPK;
-import com.amalto.core.util.XtentisException;
-import org.apache.log4j.Logger;
-import com.amalto.core.server.api.DataModel;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -32,11 +24,22 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+
+import com.amalto.core.objects.ObjectPOJO;
+import com.amalto.core.objects.ObjectPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.server.api.DataModel;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 public class DefaultDataModel implements DataModel {
 
@@ -136,7 +139,7 @@ public class DefaultDataModel implements DataModel {
     @Override
     public Collection<DataModelPOJOPK> getDataModelPKs(String regex) throws XtentisException {
         Collection<ObjectPOJOPK> dataModelPKs = ObjectPOJO.findAllPKs(DataModelPOJO.class, regex);
-        ArrayList<DataModelPOJOPK> l = new ArrayList<>();
+        List<DataModelPOJOPK> l = new ArrayList<DataModelPOJOPK>();
         for (ObjectPOJOPK dataModelPK : dataModelPKs) {
             l.add(new DataModelPOJOPK(dataModelPK));
         }
