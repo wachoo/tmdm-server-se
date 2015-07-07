@@ -3,9 +3,11 @@ package com.amalto.core.objects.datamodel.ejb;
 import java.io.StringReader;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.ejb.EJBException;
 import javax.ejb.SessionBean;
@@ -21,6 +23,7 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -202,9 +205,12 @@ public class DataModelCtrlBean implements SessionBean, DataModel {
     @Override
     public Collection<DataModelPOJOPK> getDataModelPKs(String regex) throws XtentisException {
         Collection<ObjectPOJOPK> dataModelPKs = ObjectPOJO.findAllPKs(DataModelPOJO.class, regex);
-        ArrayList<DataModelPOJOPK> l = new ArrayList<DataModelPOJOPK>();
+        List<DataModelPOJOPK> l = new ArrayList<DataModelPOJOPK>();
+        List<String> excludePKs = Arrays.asList(XSystemObjects.DM_XTENTIS_COMMON_REPORTING.getName());
         for (ObjectPOJOPK dataModelPK : dataModelPKs) {
-            l.add(new DataModelPOJOPK(dataModelPK));
+            if (!excludePKs.contains(dataModelPK.getIds()[0])) {
+                l.add(new DataModelPOJOPK(dataModelPK));
+            }
         }
         return l;
     }
