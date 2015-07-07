@@ -140,10 +140,6 @@
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
             </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
-                <key xsi:type="java:java.lang.String">Reporting</key>
-                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
-            </instances>
-            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">UpdateReport</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
             </instances>
@@ -172,10 +168,6 @@
                 <key xsi:type="java:java.lang.String">PROVISIONING</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
             </instances>            
-            <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
-                <key xsi:type="java:java.lang.String">Reporting</key>
-                <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
-            </instances>
             <instances xsi:type="java:org.exolab.castor.mapping.MapItem">
                 <key xsi:type="java:java.lang.String">UpdateReport</key>
                 <value writeable="false" read-only="false" xsi:type="java:com.amalto.core.util.RoleInstance"/>
