@@ -1,4 +1,41 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package com.amalto.core.objects;
+
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.XMLEvent;
+
+import org.apache.log4j.Logger;
+import org.exolab.castor.xml.Marshaller;
+import org.exolab.castor.xml.Unmarshaller;
+import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
@@ -9,7 +46,10 @@ import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.objects.menu.MenuPOJO;
 import com.amalto.core.objects.role.RolePOJO;
-import com.amalto.core.objects.routing.*;
+import com.amalto.core.objects.routing.CompletedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.FailedRoutingOrderV2POJO;
+import com.amalto.core.objects.routing.RoutingEngineV2POJO;
+import com.amalto.core.objects.routing.RoutingRulePOJO;
 import com.amalto.core.objects.storedprocedure.StoredProcedurePOJO;
 import com.amalto.core.objects.transformers.TransformerPluginV2POJO;
 import com.amalto.core.objects.transformers.TransformerV2POJO;
@@ -24,31 +64,21 @@ import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
-import org.apache.log4j.Logger;
-import org.exolab.castor.xml.Marshaller;
-import org.exolab.castor.xml.Unmarshaller;
-import org.talend.mdm.commmon.util.core.ICoreConstants;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.xml.sax.InputSource;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.XMLEvent;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.*;
 
 public abstract class ObjectPOJO implements Serializable {
 
     // Don't change this id, it forces compatibility with pre-5.3 versions (even if structure slightly changed).
-    public static final long                                      serialVersionUID                = 3157316606545297572l;
-    private static final XMLInputFactory                          xmlInputFactory                 = XMLInputFactory.newInstance();
-    private static final Map<Class<?>, String>                    OBJECTS_CLASSES_TO_NAMES_MAP    = new HashMap<Class<?>, String>();
-    private static final Map<String, Class<? extends ObjectPOJO>> OBJECTS_NAMES_TO_CLASSES_MAP    = new HashMap<String, Class<? extends ObjectPOJO>>();
-    private static final Map<String, String>                      OBJECTS_NAMES_TO_ROOT_NAMES_MAP = new HashMap<String, String>();
-    public static Object[][]                                      OBJECT_TYPES                    = new Object[][] {
-            { "Data Cluster", DataClusterPOJO.class }, //$NON-NLS-1$
+    public static final long serialVersionUID = 3157316606545297572l;
+
+    private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+
+    private static final Map<Class<?>, String> OBJECTS_CLASSES_TO_NAMES_MAP = new HashMap<Class<?>, String>();
+
+    private static final Map<String, Class<? extends ObjectPOJO>> OBJECTS_NAMES_TO_CLASSES_MAP = new HashMap<String, Class<? extends ObjectPOJO>>();
+
+    private static final Map<String, String> OBJECTS_NAMES_TO_ROOT_NAMES_MAP = new HashMap<String, String>();
+
+    public static Object[][] OBJECT_TYPES = new Object[][] { { "Data Cluster", DataClusterPOJO.class }, //$NON-NLS-1$
             { "Data Model", DataModelPOJO.class }, //$NON-NLS-1$
             { "Role", RolePOJO.class }, //$NON-NLS-1$
             { "Routing Rule", RoutingRulePOJO.class }, //$NON-NLS-1$
@@ -64,16 +94,16 @@ public abstract class ObjectPOJO implements Serializable {
             { "Routing Order V2 Completed", CompletedRoutingOrderV2POJO.class }, //$NON-NLS-1$
             { "Routing Engine V2", RoutingEngineV2POJO.class }, //$NON-NLS-1$
             { "Custom Layout", CustomFormPOJO.class }, //$NON-NLS-1$
-            { "Item", ItemPOJO.class }                                                           //$NON-NLS-1$
-                                                                                                  };
-    private static Logger                                         LOG                             = Logger.getLogger(ObjectPOJO.class);
+            { "Item", ItemPOJO.class } //$NON-NLS-1$
+    };
+
+    private static Logger LOG = Logger.getLogger(ObjectPOJO.class);
+
     /**
      * Cache the records to improve performance: this is a <b>READ</b> cache only -> only records read from underlying
      * storage should be cached (don't cache what user provide to {@link #store()} for instance).
      */
-    private static int                                            MAX_CACHE_SIZE                  = 5000;
-    private static Object[][]                                     OBJECT_ROOT_ELEMENT_NAMES       = new Object[][] {
-            { "Data Cluster", "data-cluster-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
+    private static Object[][] OBJECT_ROOT_ELEMENT_NAMES = new Object[][] { { "Data Cluster", "data-cluster-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
             { "Data Model", "data-model-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
             { "Role", "role-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
             { "Routing Rule", "routing-rule-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
@@ -91,9 +121,10 @@ public abstract class ObjectPOJO implements Serializable {
             { "Routing Engine V2", "routing-engine-v2-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
             { "Universe", "universe-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
             { "Synchronization Plan", "synchronization-plan-pOJO" }, //$NON-NLS-1$ //$NON-NLS-2$
-            { "Synchronization Conflict", "synchronization-item-pOJO" }                          //$NON-NLS-1$ //$NON-NLS-2$
-                                                                                                  };
-    private String                                                digest;
+            { "Synchronization Conflict", "synchronization-item-pOJO" } //$NON-NLS-1$ //$NON-NLS-2$
+    };
+
+    private String digest;
 
     public ObjectPOJO() {
     }
@@ -175,7 +206,7 @@ public abstract class ObjectPOJO implements Serializable {
     /**
      * Loads an object of a particular revision ID<br/>
      * NO Check is done on user rights
-     *
+     * 
      * @return the instance of the object
      * @throws XtentisException
      */
@@ -198,7 +229,7 @@ public abstract class ObjectPOJO implements Serializable {
 
     /**
      * Remove the item from the DB
-     *
+     * 
      * @return the Primary Key of the object removed
      * @throws XtentisException
      */
@@ -248,7 +279,7 @@ public abstract class ObjectPOJO implements Serializable {
 
     /**
      * Retrieve all the PKs - will fetch only the PKs for which the user is authorized
-     *
+     * 
      * @return a Collection of ObjectPOJOPK
      * @throws XtentisException
      */
@@ -314,7 +345,7 @@ public abstract class ObjectPOJO implements Serializable {
     /**
      * Retrieve all PKs of an object type unsynchronized against a particular plan<br/>
      * The user must have the "administration" role to perform this task
-     *
+     * 
      * @return a Collection of ObjectPOJOPK
      * @throws XtentisException
      */
@@ -359,7 +390,7 @@ public abstract class ObjectPOJO implements Serializable {
 
     /**
      * Get the records for which the user is authorized and matching certain conditions
-     *
+     * 
      * @param objectClass The class of the XtentisObject
      * @param idsPaths The full path (starting with the object element root name) of the ids
      * @param whereItem The condition
@@ -435,7 +466,7 @@ public abstract class ObjectPOJO implements Serializable {
 
     /**
      * Unmarshals an Object POJO to the Original Object
-     *
+     * 
      * @return The Object instance
      * @throws XtentisException
      */
@@ -468,14 +499,14 @@ public abstract class ObjectPOJO implements Serializable {
 
     /**
      * The PK
-     *
+     * 
      * @return the pk, null if undefined
      */
     public abstract ObjectPOJOPK getPK();
 
     /**
      * Store the current item in the DB
-     *
+     * 
      * @return the pk of the item
      * @throws XtentisException
      */
@@ -550,7 +581,7 @@ public abstract class ObjectPOJO implements Serializable {
 
     /**
      * Returns a marshaled version of the object<br/>
-     *
+     * 
      * @return The marshaled object
      * @throws XtentisException
      */
