@@ -2,6 +2,7 @@ package com.amalto.core.objects.datacluster.ejb;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -15,6 +16,8 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.ejb.ObjectPOJO;
 import com.amalto.core.ejb.ObjectPOJOPK;
 import com.amalto.core.ejb.local.XmlServerSLWrapperLocal;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJO;
+import com.amalto.core.objects.datamodel.ejb.DataModelPOJOPK;
 import com.amalto.core.objects.universe.ejb.UniversePOJO;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -23,6 +26,7 @@ import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import java.util.List;
 
@@ -265,13 +269,16 @@ public class DataClusterCtrlBean implements SessionBean, TimedObject {
      * @ejb.facade-method
      */
     public Collection<DataClusterPOJOPK> getDataClusterPKs(String regex) throws XtentisException {
-        final StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
-        final String[] names = admin.getAll(null);
-        List<DataClusterPOJOPK> clusterNames = new ArrayList<DataClusterPOJOPK>(names.length + 1);
-        for (String name : names) {
-            clusterNames.add(new DataClusterPOJOPK(name));
+        Collection<ObjectPOJOPK> dataClusterPKs = ObjectPOJO.findAllPKs(DataClusterPOJO.class, regex);
+        List<DataClusterPOJOPK> l = new ArrayList<DataClusterPOJOPK>();
+        List<String> excludePKs = Arrays.asList(XSystemObjects.DC_JCAADAPTERS.getName(), XSystemObjects.DC_INBOX.getName(),
+                XSystemObjects.DC_XTENTIS_COMMON_REPORTING.getName());
+        for (ObjectPOJOPK dataClusterPK : dataClusterPKs) {
+            if (!excludePKs.contains(dataClusterPK.getIds()[0])) {
+                l.add(new DataClusterPOJOPK(dataClusterPK));
+            }
         }
-        return clusterNames;
+        return l;
     }
 
     /**
