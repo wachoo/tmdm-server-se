@@ -35,6 +35,7 @@ import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,7 +54,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     private static final Logger LOGGER = Logger.getLogger(MDMValidationTask.class);
 
-    private static final int COMMIT_SIZE;
+    private static final int COMMIT_SIZE;        
 
     private final SaverSource source;
 
@@ -63,7 +64,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
 
     private int recordsCount;
 
-    private SecurityContext context;
+    private SecurityContext context;       
 
     static {
         // staging.validation.updatereport tells whether validation should generate update reports
@@ -177,6 +178,10 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         private SaverSession session;
 
         private int commitCount;
+        
+        private List<DataRecord> stagingRecords = new ArrayList<DataRecord>();
+        
+        private boolean isResolve;
 
         public MDMValidationClosure(SaverSource source, SaverSession.Committer committer, Storage destinationStorage) {
             this.source = source;
@@ -184,7 +189,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
             this.destinationStorage = destinationStorage;
         }
 
-        public synchronized void begin() {
+        public synchronized void begin() {            
             session = SaverSession.newSession(source);
             session.begin(destinationStorage.getName(), committer);
             storage.begin();
@@ -216,13 +221,18 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 }
                 saver.save(session, context);
                 commitCount++;
-                if (commitCount % COMMIT_SIZE == 0) {
-                    end(stats);
-                    begin();
-                }
                 recordProperties.put(Storage.METADATA_STAGING_STATUS, StagingConstants.SUCCESS_VALIDATE);
                 recordProperties.put(Storage.METADATA_STAGING_ERROR, StringUtils.EMPTY);
                 storage.update(stagingRecord);
+                if(isResolve) {
+                    session.end(committer);
+                } else {
+                    stagingRecords.add(stagingRecord);
+                    if ((commitCount % COMMIT_SIZE == 0)) {
+                        end(stats);
+                        begin();
+                    }
+                }
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Validation success: record id #"
                             + stagingRecord.get(stagingRecord.getType().getKeyFields().iterator().next())
@@ -240,7 +250,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                         exceptionMessages.append('\n');
                     }
                 }
-                recordProperties.put(Storage.METADATA_STAGING_ERROR, exceptionMessages.toString());
+                recordProperties.put(Storage.METADATA_STAGING_ERROR, exceptionMessages.toString());                
                 storage.update(stagingRecord);
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Validation failed: record id #"
@@ -276,20 +286,40 @@ public class MDMValidationTask extends MetadataRepositoryTask {
         @Override
         public void cancel() {
         }
+        
+        private void resolve(ClosureExecutionStats stats) {
+            isResolve = true;
+            for(DataRecord stagingRecord : stagingRecords) {
+                try {
+                    session = SaverSession.newSession(source);
+                    session.begin(destinationStorage.getName(), committer);
+                    storage.begin();
+                    execute(stagingRecord, stats);
+                    storage.commit();
+                } catch (Exception e) {
+                    storage.rollback();
+                    // unexpected error when commit into staging
+                    LOGGER.error("Could not commit changes into staging storage.", e); //$NON-NLS-1$
+                }
+            }
+            stagingRecords.clear();
+            isResolve = false;
+        }
 
         public synchronized void end(ClosureExecutionStats stats) {
             try {
+                session.end(committer);
                 storage.commit();
             } catch (Exception e) {
                 storage.rollback();
-                LOGGER.error("Could not commit " + storage.getName() + ".", e);  //$NON-NLS-1$//$NON-NLS-2$
-            }
-            try {
-                session.end(committer);
-            } catch (Exception e) {
-                // This is unexpected (session should only contain records that won't fail commit).
-                LOGGER.error("Could not commit changes.", e); //$NON-NLS-1$
-                session.abort(committer);
+                // something prevent committing the whole batch, try again one by one
+                if(COMMIT_SIZE > 1 && stagingRecords.size() > 0) {
+                    resolve(stats);
+                } else {                    
+                    // This is unexpected (session should only contain records that won't fail commit).
+                    LOGGER.error("Could not commit changes.", e); //$NON-NLS-1$
+                    session.abort(committer);                    
+                }
             }
         }
 
