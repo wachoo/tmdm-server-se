@@ -218,24 +218,16 @@ public class DataChart extends ChartPortlet {
 
             @Override
             public void onLoad(PlotLoadEvent event) {
-                boolean errorOccurred = false;
                 // Flot has limitations on the pie labels
                 // If it cannot be drawn it creates a div of class error with message
                 // "Could not draw pie with labels contained inside canvas"
-                // Workaround the issue by redrawing but without the labels
-                NodeList<Element> list = plot.getParent().getElement().getElementsByTagName("div"); //$NON-NLS-1$
-                if (list != null && list.getLength() > 0) {
-                    Element first = list.getItem(0);
-                    if ("error".equals(first.getAttribute("class"))) { //$NON-NLS-1$ //$NON-NLS-2$
-                        errorOccurred = true;
-                    }
-                }
-                PlotOptions plotOptions = plot.getOptions();
-                GlobalSeriesOptions globalSeriesOptions = plotOptions.getGlobalSeriesOptions();
-                PieSeriesOptions pieSeriesOptions = globalSeriesOptions.getPieSeriesOptions();
-                pieSeriesOptions.getLabel().setShow(!errorOccurred); // dont show labels if error occurred, otherwise
-                                                                    // reset to true for next creation
+                // Workaround the issue by redrawing but without the labels             
+                boolean errorOccurred = plot.getParent().getElement().getInnerHTML().contains("Could not draw pie with labels contained inside canvas"); //$NON-NLS-1$
                 if (errorOccurred) {
+                    PlotOptions plotOptions = plot.getOptions();
+                    GlobalSeriesOptions globalSeriesOptions = plotOptions.getGlobalSeriesOptions();
+                    PieSeriesOptions pieSeriesOptions = globalSeriesOptions.getPieSeriesOptions();
+                    pieSeriesOptions.getLabel().setShow(false); // don't show labels if error occurred, otherwise                                                                       // reset to true for next creation
                     plot.redraw();
                 }
             }

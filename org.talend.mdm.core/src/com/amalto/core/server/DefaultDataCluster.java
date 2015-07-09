@@ -173,20 +173,12 @@ public class DefaultDataCluster implements DataCluster {
      */
     @Override
     public Collection<DataClusterPOJOPK> getDataClusterPKs(String regex) throws XtentisException {
-        final StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
-        List<String> names = new ArrayList<>(Arrays.asList(XSystemObjects.DC_CONF.getName(),
-                XSystemObjects.DC_PROVISIONING.getName(), XSystemObjects.DC_MDMITEMSTRASH.getName()));
-        names.addAll(Arrays.asList(admin.getAll()));
-        List<DataClusterPOJOPK> clusterNames = new ArrayList<>(names.size() + 1);
-        ILocalUser user = LocalUser.getLocalUser();
-        for (String name : names) {
-            DataClusterPOJOPK dataClusterPOJOPK = new DataClusterPOJOPK(name);
-            boolean hasMatch = "*".equals(regex) || ".*".equals(regex) || Pattern.compile(regex).matcher(regex).matches(); //$NON-NLS-1$ //$NON-NLS-2$
-            if (hasMatch && user.userCanRead(DataClusterPOJO.class, name) && existsDataCluster(dataClusterPOJOPK) != null) {
-                clusterNames.add(dataClusterPOJOPK);
-            }
+        Collection<ObjectPOJOPK> dataClusterPKs = ObjectPOJO.findAllPKs(DataClusterPOJO.class, regex);
+        List<DataClusterPOJOPK> l = new ArrayList<DataClusterPOJOPK>();
+        for (ObjectPOJOPK dataClusterPK : dataClusterPKs) {
+            l.add(new DataClusterPOJOPK(dataClusterPK));
         }
-        return clusterNames;
+        return l;
     }
 
     /**

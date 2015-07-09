@@ -14,7 +14,7 @@
 package com.amalto.core.query;
 
 import static com.amalto.core.query.user.UserQueryBuilder.*;
-import static com.amalto.core.query.user.UserStagingQueryBuilder.error;
+import static com.amalto.core.query.user.UserStagingQueryBuilder.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
@@ -23,13 +23,16 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amalto.core.query.user.*;
-import com.amalto.xmlserver.interfaces.IWhereItem;
-import com.amalto.xmlserver.interfaces.WhereAnd;
-import com.amalto.xmlserver.interfaces.WhereCondition;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
+import com.amalto.core.query.user.BinaryLogicOperator;
+import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Expression;
+import com.amalto.core.query.user.FieldFullText;
+import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.FullTextResultsWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -40,6 +43,9 @@ import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 
 @SuppressWarnings("nls")
 public class StorageFullTextTest extends StorageTestCase {
@@ -64,11 +70,11 @@ public class StorageFullTextTest extends StorageTestCase {
                 + "            <Size>Large</Size>\n" + "        </Sizes>\n" + "        <Colors>\n"
                 + "            <Color>Blue</Color>\n" + "            <Color>Red</Color>\n" + "        </Colors>\n"
                 + "    </Features>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
-        allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>2</Id>\n"
-                + "    <Name>Renault car</Name>\n" + "    <ShortDescription>A car</ShortDescription>\n"
+        allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>2</Id>\n" + "    <Name>Renault car</Name>\n"
+                + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
-                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        <Size>Large</Size></Sizes>\n" + "        <Colors>\n"
-                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        <Size>Large</Size></Sizes>\n"
+                + "        <Colors>\n" + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
                 + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
                 + "    <Family>[1]</Family>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
@@ -89,8 +95,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 + "        <Phone>123456789</Phone>\n" + "        <Email></Email>\n" + "    </Contact>\n" + "</Supplier>"));
         allRecords
                 .add(factory
-                        .read(
-                                repository,
+                        .read(repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
         try {
@@ -218,8 +223,8 @@ public class StorageFullTextTest extends StorageTestCase {
 
     public void testSimpleSearchOrderByWithContainsCondition() throws Exception {
         // Order by "Id" field
-        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "Product"))
-                .orderBy(productFamily.getField("Id"), OrderBy.Direction.DESC);
+        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "Product")).orderBy(
+                productFamily.getField("Id"), OrderBy.Direction.DESC);
 
         StorageResults records = storage.fetch(qb.getSelect());
         try {
@@ -229,8 +234,8 @@ public class StorageFullTextTest extends StorageTestCase {
                 Integer id = Integer.parseInt((String) record.get("Id"));
                 assertTrue(id < currentId);
                 currentId = id;
-            }            
-        }  finally {
+            }
+        } finally {
             records.close();
         }
         // Order by "Name" field
@@ -246,10 +251,11 @@ public class StorageFullTextTest extends StorageTestCase {
                 assertTrue(id < currentId);
                 currentId = id;
             }
-        }  finally {
+        } finally {
             records.close();
         }
     }
+
     public void testMultipleTypesSearch() throws Exception {
         UserQueryBuilder qb = from(supplier).and(product).where(fullText("Renault"));
 
@@ -815,10 +821,40 @@ public class StorageFullTextTest extends StorageTestCase {
 
     public void testTimeStampProjectionNoAlias() throws Exception {
         // TMDM-7737: Test metadata field projection *with* paging in query.
-        UserQueryBuilder qb = from(product).select(timestamp()).where(fullText(product.getField("Features"), "klein")).start(0).limit(20);
+        UserQueryBuilder qb = from(product).select(timestamp()).where(fullText(product.getField("Features"), "klein")).start(0)
+                .limit(20);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testIdFieldContainUpperCaseKeyWordSearch() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords.add(factory.read(repository, store, "<Store><Id>Upper Case Id</Id><Name>name1</Name></Store>"));
+        allRecords.add(factory.read(repository, store, "<Store><Id>lower case id</Id><Name>name2</Name></Store>"));
+
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+
+        UserQueryBuilder qb = from(store).selectId(store).where(contains(store.getField("Id"), "case"));
+        storage.begin();
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(store).selectId(store).where(fullText("case"));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(2, results.getCount());
         } finally {
             results.close();
         }
