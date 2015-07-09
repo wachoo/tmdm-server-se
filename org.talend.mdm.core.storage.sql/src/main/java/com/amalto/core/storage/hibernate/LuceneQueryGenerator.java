@@ -11,19 +11,20 @@
 package com.amalto.core.storage.hibernate;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 import java.util.StringTokenizer;
 
-import com.amalto.core.storage.StorageMetadataUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.search.*;
-import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
@@ -62,6 +63,7 @@ import com.amalto.core.query.user.metadata.StagingStatus;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
 
 class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
@@ -284,7 +286,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
     @Override
     public Query visit(final FullText fullText) {
         // TODO Test me on conditions where many types share same field names.
-        final Set<String> fields = new HashSet<String>();
+        final Map<String, Boolean> fieldsMap = new HashMap<String, Boolean>();
         for (final ComplexTypeMetadata type : types) {
             type.accept(new DefaultMetadataVisitor<Void>() {
 
@@ -311,7 +313,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
                     if (!Storage.METADATA_TIMESTAMP.equals(simpleField.getName())
                             && !Storage.METADATA_TASK_ID.equals(simpleField.getName())) {
                         if (StorageMetadataUtils.isValueAssignable(fullText.getValue(), simpleField)) {
-                            fields.add(simpleField.getName());
+                            fieldsMap.put(simpleField.getName(), simpleField.isKey());
                         }
                     }
                     return null;
@@ -320,24 +322,29 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
                 @Override
                 public Void visit(EnumerationFieldMetadata enumField) {
                     if (StorageMetadataUtils.isValueAssignable(fullText.getValue(), enumField)) {
-                        fields.add(enumField.getName());
+                        fieldsMap.put(enumField.getName(), enumField.isKey());
                     }
                     return null;
                 }
             });
         }
 
-        String[] fieldsAsArray = fields.toArray(new String[fields.size()]);
+        String[] fieldsAsArray = fieldsMap.keySet().toArray(new String[fieldsMap.size()]);
         StringBuilder queryBuffer = new StringBuilder();
-        Iterator<String> fieldsIterator = fields.iterator();
+        Iterator<Map.Entry<String, Boolean>> fieldsIterator = fieldsMap.entrySet().iterator();
         String fullTextValue = getValue(fullText);
         while (fieldsIterator.hasNext()) {
-            String next = fieldsIterator.next();
-            queryBuffer.append(next).append(':').append(fullTextValue);
+            Map.Entry<String, Boolean> next = fieldsIterator.next();
+            if (next.getValue()) {
+                queryBuffer.append(next.getKey()).append(ToLowerCaseFieldBridge.ID_POSTFIX + ':').append(fullTextValue);
+            } else {
+                queryBuffer.append(next.getKey()).append(':').append(fullTextValue);
+            }
             if (fieldsIterator.hasNext()) {
                 queryBuffer.append(" OR "); //$NON-NLS-1$
             }
         }
+
         String fullTextQuery = queryBuffer.toString();
         return parseQuery(fieldsAsArray, fullTextQuery);
     }
@@ -347,6 +354,9 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         String fieldName = fieldFullText.getField().getFieldMetadata().getName();
         String[] fieldsAsArray = new String[] { fieldName };
         String fullTextQuery = fieldName + ':' + getValue(fieldFullText);
+        if (fieldFullText.getField().getFieldMetadata().isKey()) {
+            fullTextQuery = fieldName + ToLowerCaseFieldBridge.ID_POSTFIX + ":" + getValue(fieldFullText); //$NON-NLS-1$
+        }
         return parseQuery(fieldsAsArray, fullTextQuery);
     }
 

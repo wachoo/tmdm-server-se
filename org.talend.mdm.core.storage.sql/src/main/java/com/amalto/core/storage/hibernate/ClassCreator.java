@@ -10,21 +10,57 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.storage.HibernateMetadataUtils;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageMetadataUtils;
-import javassist.*;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewConstructor;
+import javassist.CtNewMethod;
+import javassist.LoaderClassPath;
+import javassist.Modifier;
+import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
-import javassist.bytecode.Descriptor;
-import javassist.bytecode.annotation.*;
-import org.hibernate.bytecode.instrumentation.internal.javassist.JavassistHelper;
-import org.hibernate.search.annotations.*;
-import org.talend.mdm.commmon.metadata.*;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.AnnotationMemberValue;
+import javassist.bytecode.annotation.ClassMemberValue;
+import javassist.bytecode.annotation.EnumMemberValue;
 
-import java.io.Serializable;
-import java.util.*;
+import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.ProvidedId;
+import org.hibernate.search.annotations.Store;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
+
+import com.amalto.core.storage.HibernateMetadataUtils;
+import com.amalto.core.storage.Storage;
 
 class ClassCreator extends DefaultMetadataVisitor<Void> {
 
@@ -421,6 +457,9 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                         if (metadata.isKey()) {
                             Annotation docIdAnnotation = new Annotation(DocumentId.class.getName(), cp);
                             annotations.addAnnotation(docIdAnnotation);
+                            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
+                            fieldBridge.addMemberValue("impl", new ClassMemberValue(ToLowerCaseFieldBridge.class.getName(), cp)); //$NON-NLS-1$
+                            annotations.addAnnotation(fieldBridge);
                         }
                     } else {
                         if (!classIndexed.contains(currentClass)) {
