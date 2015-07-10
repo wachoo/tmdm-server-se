@@ -13,10 +13,39 @@
 
 package com.amalto.core.query;
 
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import com.amalto.core.query.user.*;
+import org.apache.commons.io.output.NullOutputStream;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
-import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.*;
@@ -27,18 +56,6 @@ import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.xmlserver.interfaces.*;
-import org.apache.commons.io.output.NullOutputStream;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
-
-import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -841,15 +858,6 @@ public class StorageQueryTest extends StorageTestCase {
         try {
             assertEquals(2, results.getSize());
             assertEquals(2, results.getCount());
-        } finally {
-            results.close();
-        }
-
-        qb = from(address).where(eq(address.getField("Street"), (String) null));
-        assertEquals(IsNull.class, qb.getSelect().getCondition().getClass());
-        results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(0, results.getCount());
         } finally {
             results.close();
         }
@@ -2465,17 +2473,6 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             storageResults.close();
         }
-
-        qb = UserQueryBuilder.from(person);
-        item = new WhereAnd(Arrays.<IWhereItem> asList(new WhereCondition(fieldName, WhereCondition.EQUALS,
-                null, WhereCondition.NO_OPERATOR)));
-        qb = qb.where(UserQueryHelper.buildCondition(qb, item, repository));
-        storageResults = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(0, storageResults.getCount());
-        } finally {
-            storageResults.close();
-        }
     }
 
     public void testFKCollectionSearch() throws Exception {
@@ -3002,7 +2999,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
         assertTrue(expectedResults.isEmpty());
     }
-    
+
     public void testFKInReusableTypeWithViewSearch() throws Exception {
         UserQueryBuilder qb = from(organization).selectId(organization)
                 .select(alias(organization.getField("org_address/city"), "city1"))
@@ -3018,7 +3015,7 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals("changan rd", String.valueOf(result.get("street2")));
         }
     }
-    
+
     public void testFKInreusableTypeWithViewSearch2() throws Exception {
         UserQueryBuilder qb = from(organization).selectId(organization)
                 .select(organization.getField("org_address/city"))
@@ -3036,14 +3033,14 @@ public class StorageQueryTest extends StorageTestCase {
             } catch (IOException e) {
                 throw new XmlServerException(e);
             }
-            resultAsString = new String(output.toByteArray(), Charset.forName("UTF-8"));            
+            resultAsString = new String(output.toByteArray(), Charset.forName("UTF-8"));
             output.reset();
-        }        
+        }
         String startRoot = "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
         String endRoot = "</result>";
-        
+
         String expectedResult = startRoot +
-                 "<org_id>1</org_id><city>[SH]</city><street>waitan rd</street><city>[BJ]</city><street>changan rd</street>"  + endRoot;        
+                 "<org_id>1</org_id><city>[SH]</city><street>waitan rd</street><city>[BJ]</city><street>changan rd</street>"  + endRoot;
         assertTrue(expectedResult.equals(resultAsString.replaceAll("\\r|\\n|\\t", "")));
     }
 
@@ -4101,7 +4098,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         storage.commit();
-        
+
         qb = from(address).where(emptyOrNull(field));
         storage.begin();
         results = storage.fetch(qb.getSelect());
@@ -4111,7 +4108,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         storage.commit();
-        
+
         qb = UserQueryBuilder.from(product).where(emptyOrNull(product.getField("Stores/Store")));
         storage.begin();
         results = storage.fetch(qb.getSelect());
