@@ -177,9 +177,13 @@ public class BrowseRecordsController extends Controller {
                                             MessageBox.ERROR);
                             return;
                         }
-                        if (result.getDescription() != "") { //$NON-NLS-1$
-                            msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(),
-                                    MultilanguageMessageParser.pickOutISOMessage(result.getDescription()), null);
+                        msgBox = new MessageBox();
+                        msgBox.setTitle(MessagesFactory.getMessages().info_title());
+                        msgBox.setButtons(""); //$NON-NLS-1$
+                        msgBox.setIcon(MessageBox.INFO);
+                        String message = result.getDescription();
+                        if (message != null && !message.isEmpty()) {
+                            msgBox.setMessage(MultilanguageMessageParser.pickOutISOMessage(message));
                         } else {
                             msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
@@ -257,7 +261,7 @@ public class BrowseRecordsController extends Controller {
                         }
                         // Only Hierarchy call the next method
                         // TMDM-4112 : JavaScript Error on IE8
-                        if (detailToolBar.isHierarchyCall()) {
+                        if (detailToolBar.isHierarchyCall() && !detailToolBar.isOutMost()) {
                             CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,
                                     viewBean.getBindingEntityModel().getConceptName(), result.getReturnValue(), isClose);
                         }
@@ -275,10 +279,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-                                                                      $wnd.setTimeout(function() {
-                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-                                                                      }, millisecond);
-                                                                      }-*/;
+		$wnd.setTimeout(function() {
+			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+		}, millisecond);
+    }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
