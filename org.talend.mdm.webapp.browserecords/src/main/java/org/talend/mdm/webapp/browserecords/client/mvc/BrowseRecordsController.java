@@ -181,8 +181,8 @@ public class BrowseRecordsController extends Controller {
                         msgBox.setTitle(MessagesFactory.getMessages().info_title());
                         msgBox.setButtons(""); //$NON-NLS-1$
                         msgBox.setIcon(MessageBox.INFO);
-                        String message = result.getDescription() ;
-                        if (message !=null && !message.isEmpty()) {
+                        String message = result.getDescription();
+                        if (message != null && !message.isEmpty()) {
                             msgBox.setMessage(MultilanguageMessageParser.pickOutISOMessage(message));
                         } else {
                             msgBox.setMessage(MessagesFactory.getMessages().save_success());
@@ -261,7 +261,7 @@ public class BrowseRecordsController extends Controller {
                         }
                         // Only Hierarchy call the next method
                         // TMDM-4112 : JavaScript Error on IE8
-                        if (detailToolBar.isHierarchyCall()) {
+                        if (detailToolBar.isHierarchyCall() && !detailToolBar.isOutMost()) {
                             CallbackAction.getInstance().doAction(CallbackAction.HIERARCHY_SAVEITEM_CALLBACK,
                                     viewBean.getBindingEntityModel().getConceptName(), result.getReturnValue(), isClose);
                         }
@@ -279,10 +279,10 @@ public class BrowseRecordsController extends Controller {
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
-                                                                      $wnd.setTimeout(function() {
-                                                                      msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
-                                                                      }, millisecond);
-                                                                      }-*/;
+		$wnd.setTimeout(function() {
+			msgBox.@com.extjs.gxt.ui.client.widget.MessageBox::close()();
+		}, millisecond);
+    }-*/;
 
     private void onViewForeignKey(final AppEvent event) {
 
