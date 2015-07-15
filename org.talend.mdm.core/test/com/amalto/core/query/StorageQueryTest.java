@@ -275,18 +275,24 @@ public class StorageQueryTest extends StorageTestCase {
                 .add(factory
                         .read("1", repository, ContainedEntityB,
                                 "<ContainedEntityB xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><id>B_record5</id></ContainedEntityB>"));
+        allRecords.add(factory.read("1", repository, city,
+                "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
+        allRecords.add(factory.read("1", repository, city,
+                "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
         allRecords
-        .add(factory
-                .read("1", repository, city,
-                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>BJ</Code><Name>Beijing</Name></City>"));
-        allRecords
-        .add(factory
-                .read("1", repository, city,
-                        "<City xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Code>SH</Code><Name>Shanghai</Name></City>"));
-        allRecords
-        .add(factory
-                .read("1", repository, organization,
-                        "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+                .add(factory
+                        .read("1",
+                                repository,
+                                organization,
+                                "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+
+        allRecords.add(factory.read("1",repository, cpo_service,"<cpo_service><id_service>111111</id_service><etat>I</etat></cpo_service>"));
+        allRecords.add(factory.read("1",repository, cpo_service,"<cpo_service><id_service>222222</id_service><id_service_pere>[111111]</id_service_pere><etat>I</etat></cpo_service>"));
+
+        allRecords.add(factory.read("1", repository, location, "<Location><LocationId>t1</LocationId><name>t1</name></Location>"));
+        allRecords.add(factory.read("1", repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src><location>[t1]</location></locations></Organisation>"));
+        allRecords.add(factory.read("1", repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src></locations></Organisation>"));
+        
         try {
             storage.begin();
             storage.update(allRecords);
@@ -858,6 +864,23 @@ public class StorageQueryTest extends StorageTestCase {
         try {
             assertEquals(2, results.getSize());
             assertEquals(2, results.getCount());
+        } finally {
+            results.close();
+        }
+
+        qb = from(address).where(eq(address.getField("Street"), (String) null));
+        assertEquals(IsNull.class, qb.getSelect().getCondition().getClass());
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        
+        qb = from(organisation).where(eq(organisation.getField("locations/location"), (String) null));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
         } finally {
             results.close();
         }
@@ -4134,6 +4157,16 @@ public class StorageQueryTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(0, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+        
+        qb = from(organisation).where(emptyOrNull(organisation.getField("locations/location")));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
         } finally {
             results.close();
         }
