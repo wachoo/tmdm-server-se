@@ -10,7 +10,7 @@
 
 package com.amalto.core.save;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -37,6 +37,7 @@ import javax.xml.xpath.XPathFactory;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -3197,6 +3198,59 @@ public class DocumentSaveTest extends TestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(1, results.getCount());
         DataRecord result = results.iterator().next();
+    }
+    
+    /**
+     * TMDM-8674 checks no regression on updating from XML source
+     */
+    public void testRemoveFieldContentFromXml() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test72_original.xml", "metadata1.xsd");
+        SaverSession session = SaverSession.newSession(source);
+        
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", DocumentSaveTest.class.getResourceAsStream("test72.xml"), false, true, true,
+                false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertFalse(committer.hasSaved());
+    }
+    
+    /**
+     * TMDM-8674 checks when a source is provided by storage, removing a field content
+     * actually removes it.
+     */
+    public void testRemoveFieldContentFromStorage() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test72_original.xml", "metadata1.xsd");
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord updatedRecord = factory.read("1", repository, repository.getComplexType("Product"), IOUtils.toString(DocumentSaveTest.class.getResourceAsStream("test72.xml")));
+        
+        StorageDocument updatedDocument = new StorageDocument("DStar",
+                repository,
+                updatedRecord);
+        
+        SaverSession session = SaverSession.newSession(source);
+        
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", updatedDocument, false, true, true,
+                false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Description", evaluate(committedElement, "/Product/Description"));
+        assertEquals("", evaluate(committedElement, "/Product/OnlineStore"));
     }
 
     private static class AlterRecordTestSaverSource extends DocumentSaveTest.TestSaverSource {

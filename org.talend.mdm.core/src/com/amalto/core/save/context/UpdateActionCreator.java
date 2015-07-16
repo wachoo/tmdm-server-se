@@ -76,6 +76,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     private boolean isDeletingContainedElement = false;
 
     private boolean generateTouchActions = false;
+    
+    private boolean considerMissingNewValuesAsEmpty = false;
 
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
@@ -132,6 +134,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         this.date = date;
         this.source = source;
         this.userName = userName;
+        this.considerMissingNewValuesAsEmpty = (newDocument instanceof StorageDocument);
     }
 
     @Override
@@ -281,6 +284,10 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                         actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY
                                 : oldValue, null, comparedField));
                     }
+                }
+                else if(!comparedField.isMany() && considerMissingNewValuesAsEmpty) {
+                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY
+                            : oldValue, StringUtils.EMPTY, comparedField));
                 }
                 if (isDeletingContainedElement) {
                     // Null values may happen if accessor is targeting an element that contains other elements
