@@ -53,22 +53,6 @@ public class TransactionService {
     }
 
     /**
-     * Associate calling thread with transaction <code>transactionId</code>.
-     * @param transactionId A transaction id.
-     */
-    @GET
-    @Path("{id}/")
-    @ApiOperation("Associates the current request with the transaction with the provided id")
-    public void resume(
-            @ApiParam("Transaction id") @PathParam("id") String transactionId) { //$NON-NLS-1$
-        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-        Transaction transaction = transactionManager.get(transactionId);
-        if (transaction != null) {
-            transactionManager.associate(transaction);
-        }
-    }
-
-    /**
      * Commit the changes in transaction <code>transactionId</code>.
      * @param transactionId A valid transaction id.
      */
