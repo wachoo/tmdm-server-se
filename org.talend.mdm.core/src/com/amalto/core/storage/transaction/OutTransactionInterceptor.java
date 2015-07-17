@@ -26,24 +26,24 @@ public class OutTransactionInterceptor extends TransactionInterceptor {
     @Override
     public void handleMessage(Message message) throws Fault {
         try {
-            final TransactionState transactionState = states.get();
+            final TransactionState transactionState = message.getExchange().get(TransactionState.class);
             if (transactionState != null) {
                 transactionState.postRequest();
             }
         } finally {
-            states.remove();
+            message.getExchange().remove(TransactionState.class);
         }
     }
 
     @Override
     public void handleFault(Message message) {
         try {
-            final TransactionState transactionState = states.get();
+            final TransactionState transactionState = message.getExchange().get(TransactionState.class);
             if (transactionState != null) {
                 transactionState.postRequest();
             }
         } finally {
-            states.remove();
+            message.getExchange().remove(TransactionState.class);
         }
     }
 
