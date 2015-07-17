@@ -29,8 +29,6 @@ import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 
 public abstract class TransactionInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    protected static final ThreadLocal<TransactionState> states = new ThreadLocal<>();
-
     private static final String TRANSACTION_ID = "transaction-id"; //$NON-NLS-1$
 
     private static final String LOGOUT_OPERATION_NAME = "logout"; //$NON-NLS-1$

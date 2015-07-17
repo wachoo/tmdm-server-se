@@ -29,7 +29,7 @@ public class InTransactionInterceptor extends TransactionInterceptor {
         try {
             state.preRequest();
         } finally {
-            states.set(state);
+            message.getExchange().put(TransactionState.class, state);
         }
     }
 
@@ -39,7 +39,7 @@ public class InTransactionInterceptor extends TransactionInterceptor {
         try {
             state.cancelRequest();
         } finally {
-            states.set(state);
+            message.getExchange().put(TransactionState.class, state);
         }
     }
 }
