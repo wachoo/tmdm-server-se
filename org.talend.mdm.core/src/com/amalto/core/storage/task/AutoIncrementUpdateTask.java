@@ -37,6 +37,8 @@ import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 
 public class AutoIncrementUpdateTask implements Task {
+    
+    private static final String UNIVERSE = "[HEAD]"; //$NON-NLS-1$
 
     private final Storage origin;
 
@@ -200,8 +202,8 @@ public class AutoIncrementUpdateTask implements Task {
             destinationName += StorageAdmin.STAGING_SUFFIX;
         }
         for (FieldMetadata typeKeyField : type.getKeyFields()) {
-            String destinationStorageKey = destinationName + '.' + type.getName() + '.' + typeKeyField.getName();
-            String key = storageName + '.' + type.getName() + '.' + typeKeyField.getName();
+            String destinationStorageKey = UNIVERSE + "." + destinationName + '.' + type.getName() + '.' + typeKeyField.getName();
+            String key = UNIVERSE + "." + storageName + '.' + type.getName() + '.' + typeKeyField.getName();
             List<DataRecord> entries = (List<DataRecord>) autoIncrementRecord.get(entryField);
             if (entries != null) {
                 for (DataRecord entry : entries) { // Find entry for type in database object
