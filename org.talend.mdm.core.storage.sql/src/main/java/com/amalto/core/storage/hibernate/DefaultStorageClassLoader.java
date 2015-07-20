@@ -20,6 +20,11 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -28,11 +33,10 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -67,11 +71,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
             XPathExpression compile = pathFactory.compile("ehcache/diskStore"); //$NON-NLS-1$
             Node node = (Node) compile.evaluate(document, XPathConstants.NODE);
             node.getAttributes().getNamedItem("path").setNodeValue(dataSource.getCacheDirectory() + '/' + dataSource.getName()); //$NON-NLS-1$
-            OutputFormat format = new OutputFormat(document);
-            StringWriter stringOut = new StringWriter();
-            XMLSerializer serial = new XMLSerializer(stringOut, format);
-            serial.serialize(document);
-            return new ByteArrayInputStream(stringOut.toString().getBytes("UTF-8")); //$NON-NLS-1$
+            return toInputStream(document);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -100,11 +100,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
                     }
                 }
             }
-            OutputFormat format = new OutputFormat(document);
-            StringWriter stringOut = new StringWriter();
-            XMLSerializer serial = new XMLSerializer(stringOut, format);
-            serial.serialize(document);
-            return new ByteArrayInputStream(stringOut.toString().getBytes("UTF-8")); //$NON-NLS-1$
+            return toInputStream(document);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -126,11 +122,7 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
     public InputStream generateHibernateConfig() {
         try {
             Document document = generateHibernateConfiguration(dataSource);
-            OutputFormat format = new OutputFormat(document);
-            StringWriter stringOut = new StringWriter();
-            XMLSerializer serial = new XMLSerializer(stringOut, format);
-            serial.serialize(document);
-            return new ByteArrayInputStream(stringOut.toString().getBytes("UTF-8")); //$NON-NLS-1$
+            return toInputStream(document);
         } catch (Exception e) {
             throw new RuntimeException("Could not generate Hibernate configuration", e);
         }
@@ -279,5 +271,23 @@ public class DefaultStorageClassLoader extends StorageClassLoader {
             property.setTextContent(value);
             parentNode.appendChild(property);
         }
+    }
+    
+    protected InputStream toInputStream(Document document) throws Exception {
+        StringWriter buffer = new StringWriter();
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer t = tf.newTransformer();
+        DocumentType doctype = document.getDoctype();
+        if(doctype != null) {
+            if(doctype.getPublicId() != null){
+                t.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, doctype.getPublicId());
+            }
+            if(doctype.getSystemId() != null){
+                t.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, doctype.getSystemId());
+            }
+        }
+        t.transform(new DOMSource(document), new StreamResult(buffer));
+        String cnt = buffer.toString();
+        return new ByteArrayInputStream(cnt.getBytes("UTF-8")); //$NON-NLS-1$
     }
 }
