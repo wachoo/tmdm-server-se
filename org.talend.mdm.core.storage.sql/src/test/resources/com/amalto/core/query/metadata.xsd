@@ -2116,4 +2116,69 @@
 			<xsd:enumeration value="D" />
 		</xsd:restriction>
 	</xsd:simpleType>
+	<xsd:element name="Organisation">
+		<xsd:annotation>
+			<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="OrganisationId" type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element maxOccurs="unbounded" minOccurs="0" name="locations">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:all>
+							<xsd:element maxOccurs="1" minOccurs="0" name="src"
+								type="xsd:string">
+								<xsd:annotation>
+									<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+								</xsd:annotation>
+							</xsd:element>
+							<xsd:element maxOccurs="1" minOccurs="0" name="location"
+								type="xsd:string">
+								<xsd:annotation>
+									<xsd:appinfo source="X_ForeignKey">Location</xsd:appinfo>
+									<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
+									<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+								</xsd:annotation>
+							</xsd:element>
+						</xsd:all>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+		<xsd:unique name="Organisation">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="OrganisationId" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="Location">
+		<xsd:annotation>
+			<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element name="LocationId" type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0" name="name"
+					type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:all>
+		</xsd:complexType>
+		<xsd:unique name="Location">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="LocationId" />
+		</xsd:unique>
+	</xsd:element>
 </xsd:schema>

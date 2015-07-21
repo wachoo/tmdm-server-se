@@ -341,6 +341,10 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read(repository, cpo_service,"<cpo_service><id_service>222222</id_service><id_service_pere>[111111]</id_service_pere><etat>I</etat></cpo_service>"));
         allRecords.add(factory.read(repository, hierarchy, "<HierarchySearchItem><HierarchySearchName>test1</HierarchySearchName><Owner>administrator</Owner><Separator>-</Separator><HierarchyRelation>true</HierarchyRelation><HierarchySearchCriterias><Concept>cpo_service</Concept><View>Browse_items_cpo_service</View><LabelXpath>cpo_service/id_service</LabelXpath><FkXpath>cpo_service/id_service_pere</FkXpath></HierarchySearchCriterias><HierarchySearchCriterias><Concept>cpo_service</Concept><View>Browse_items_cpo_service</View><LabelXpath>cpo_service/id_service</LabelXpath></HierarchySearchCriterias></HierarchySearchItem>"));
         
+        allRecords.add(factory.read(repository, location, "<Location><LocationId>t1</LocationId><name>t1</name></Location>"));
+        allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src><location>[t1]</location></locations></Organisation>"));
+        allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src></locations></Organisation>"));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -981,6 +985,15 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+        
+        qb = from(organisation).where(eq(organisation.getField("locations/location"), (String) null));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+
     }
 
     public void testEqualsDateCondition() throws Exception {
@@ -3447,7 +3460,7 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
-    public void testIsEmptyOrNullOnRepeatable() throws Exception {
+    public void testIsEmptyOrNullOnRepeatable() throws Exception {       
         UserQueryBuilder qb = UserQueryBuilder.from(country).where(isEmpty(country.getField("notes/comment")));
         StorageResults results = storage.fetch(qb.getSelect());
         for (DataRecord result : results) {
@@ -3462,7 +3475,8 @@ public class StorageQueryTest extends StorageTestCase {
             assertEquals("Country", result.getType().getName());
             assertEquals(1, result.get("id"));
         }
-
+        
+        
         qb = UserQueryBuilder.from(person).where(
                 or(isEmpty(person.getField("addresses/address")), isNull(person.getField("addresses/address"))));
         results = storage.fetch(qb.getSelect());
@@ -4280,7 +4294,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         storage.commit();
-
+        
         qb = UserQueryBuilder.from(product).where(emptyOrNull(product.getField("Family")));
         storage.begin();
         results = storage.fetch(qb.getSelect());
@@ -4290,7 +4304,7 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         storage.commit();
-
+        
         qb = UserQueryBuilder.from(product).where(emptyOrNull(product.getField("Features/Sizes/Size")));
         storage.begin();
         results = storage.fetch(qb.getSelect());
@@ -4300,6 +4314,17 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
         storage.commit();
+        
+        qb = from(organisation).where(emptyOrNull(organisation.getField("locations/location")));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+        } finally {
+            results.close();
+        }
+        storage.commit();
+        
     }
 
     public void testSubEntityContainedFK() throws Exception {
