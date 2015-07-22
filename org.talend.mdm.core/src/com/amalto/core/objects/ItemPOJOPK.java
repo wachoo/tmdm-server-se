@@ -4,10 +4,8 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import org.exolab.castor.xml.Marshaller;
-import org.exolab.castor.xml.Unmarshaller;
-
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.marshalling.MarshallingFactory;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
@@ -82,7 +80,7 @@ public class ItemPOJOPK implements Serializable,Comparable{
 	 public String  marshal() throws XtentisException {	
 	        try {
 	    		StringWriter sw = new StringWriter();
-                new Marshaller(sw).marshal(this);
+	    		MarshallingFactory.getInstance().getMarshaller(this.getClass()).marshal(this, sw);
 	    		return sw.toString();
 		    } catch (Exception e) {
 	    	    String err = "Unable to marshal the PK "+getDataClusterPOJOPK()+"."+getConceptName()+"."+Util.joinStrings(getIds(),".")
@@ -99,7 +97,7 @@ public class ItemPOJOPK implements Serializable,Comparable{
 	 */
 	 public static ItemPOJOPK  unmarshal(String marshalledItemPOJOPK) throws XtentisException {	
 	        try {
-	    		return (ItemPOJOPK) Unmarshaller.unmarshal(ItemPOJOPK.class, new StringReader(marshalledItemPOJOPK));
+	            return MarshallingFactory.getInstance().getUnmarshaller(ItemPOJOPK.class).unmarshal(new StringReader(marshalledItemPOJOPK));
 		    } catch (Exception e) {
 	    	    String err = "Unable to unmarshal the PK "+marshalledItemPOJOPK
 	    	    		+": "+e.getClass().getName()+": "+e.getLocalizedMessage();

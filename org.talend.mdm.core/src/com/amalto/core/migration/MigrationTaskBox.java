@@ -5,7 +5,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.exolab.castor.xml.Marshaller;
+import com.amalto.core.objects.marshalling.MarshallingFactory;
 
 public class MigrationTaskBox implements  Serializable{
 	
@@ -37,7 +37,7 @@ public class MigrationTaskBox implements  Serializable{
 	public String toString() {
 		try {
 			StringWriter sw = new StringWriter();
-            new Marshaller(sw).marshal(this);
+			MarshallingFactory.getInstance().getMarshaller(this.getClass()).marshal(this, sw);
 			return sw.toString();
 	    } catch (Exception e) {
 		    org.apache.log4j.Logger.getLogger(this.getClass()).error(e);

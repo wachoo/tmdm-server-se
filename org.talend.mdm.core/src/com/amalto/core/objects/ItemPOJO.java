@@ -12,17 +12,16 @@
 // ============================================================================
 package com.amalto.core.objects;
 
-import com.amalto.core.delegator.ILocalUser;
-import com.amalto.core.objects.datacluster.DataClusterPOJO;
-import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
-import com.amalto.core.objects.datamodel.DataModelPOJO;
-import com.amalto.core.objects.datamodel.DataModelPOJOPK;
-import com.amalto.core.server.api.XmlServer;
-import com.amalto.core.util.LocalUser;
-import com.amalto.core.util.Util;
-import com.amalto.core.util.XtentisException;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.log4j.Logger;
-import org.exolab.castor.xml.Marshaller;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -32,13 +31,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
+import com.amalto.core.objects.marshalling.MarshallingFactory;
+import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 
 public class ItemPOJO implements Serializable {
 
@@ -434,7 +436,7 @@ public class ItemPOJO implements Serializable {
                     System.currentTimeMillis());
             // Marshal
             StringWriter sw = new StringWriter();
-            new Marshaller(sw).marshal(droppedItemPOJO);
+            MarshallingFactory.getInstance().getMarshaller(droppedItemPOJO.getClass()).marshal(droppedItemPOJO, sw);
             // copy item content
             server.start("MDMItemsTrash"); //$NON-NLS-1$
             long res = server.putDocumentFromString(sw.toString(), droppedItemPOJO.obtainDroppedItemPK().getUniquePK(),
