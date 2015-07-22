@@ -90,4 +90,13 @@ public interface MutableDocument extends Document {
      * @param taskId A String task id (usually a UUID).
      */
     void setTaskId(String taskId);
+    
+    /**
+     * @return whether a missing element in the document should be considered as an empty value
+     * or a missing value. 
+     * 
+     * Empty value means information exists and is empty (empty string)
+     * Missing value means document is not complete (value was not provided an should be unchanged)
+     */
+    boolean considerMissingElementsAsEmpty();
 }

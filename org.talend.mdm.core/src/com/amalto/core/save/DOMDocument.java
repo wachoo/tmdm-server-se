@@ -230,4 +230,9 @@ public class DOMDocument implements DOMMutableDocument {
         return this;
     }
 
+    @Override
+    public boolean considerMissingElementsAsEmpty() {
+        return false;
+    }
+
 }
