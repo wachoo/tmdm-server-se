@@ -168,6 +168,9 @@ public class UserQueryBuilder {
         if (expression instanceof Field) {
             return eq(((Field) expression), constant);
         } else {
+            if (constant == null) {
+                return isNull(expression);
+            }
             return new Compare(expression, Predicate.EQUALS, createConstant(expression, constant));
         }
     }
@@ -191,8 +194,7 @@ public class UserQueryBuilder {
             throw new IllegalArgumentException("Field cannot be null");
         }
         if (constant == null) {
-            // TMDM-8726: Unable to apply TMDM-7813 change for FKs, use a empty string as replacement.
-            constant = StringUtils.EMPTY;
+            return isNull(field);
         }
         assertValueConditionArguments(field, constant);
         if (!StorageMetadataUtils.isValueAssignable(constant, field.getFieldMetadata())) {
