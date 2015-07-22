@@ -3,9 +3,10 @@ package com.amalto.webapp.core.util;
 import java.io.StringReader;
 
 import org.exolab.castor.xml.MarshalException;
-import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
-import org.xml.sax.InputSource;
+
+import com.amalto.core.objects.marshalling.MarshallingException;
+import com.amalto.core.objects.marshalling.MarshallingFactory;
 
 public class RoleMenuParameters {
     public String getParentID() {
@@ -16,14 +17,13 @@ public class RoleMenuParameters {
         int position = 0;
         return position;}
 
+    // TODO: change this method signature to do not expose Castor Exception anymore
     public static RoleMenuParameters unmarshalMenuParameters(String parameters) throws ValidationException ,MarshalException{
-		return
-			(RoleMenuParameters)Unmarshaller.unmarshal(
-				RoleMenuParameters.class, 
-				new InputSource(
-						new StringReader(parameters)
-				)
-			);
+        try {
+            return MarshallingFactory.getInstance().getUnmarshaller(RoleMenuParameters.class).unmarshal(new StringReader(parameters));
+        } catch (MarshallingException e) {
+            throw new MarshalException(e);
+        }
 	}
 
 }

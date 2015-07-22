@@ -4,10 +4,10 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.amalto.core.server.api.XmlServer;
 import org.apache.log4j.Logger;
-import org.exolab.castor.xml.Unmarshaller;
 
+import com.amalto.core.objects.marshalling.MarshallingFactory;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
@@ -88,7 +88,7 @@ public abstract class AbstractMigrationTask {
 		
    public static MigrationTaskBox unmarshal(String marshalledRevision) throws XtentisException {
         try {
-    		return (MigrationTaskBox) Unmarshaller.unmarshal(MigrationTaskBox.class, new StringReader(marshalledRevision));
+            return MarshallingFactory.getInstance().getUnmarshaller(MigrationTaskBox.class).unmarshal(new StringReader(marshalledRevision));
 	    } catch (Exception e) {
     	    LOGGER.error(e);
     	    throw new XtentisException(e.getMessage(), e);

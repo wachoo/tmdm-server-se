@@ -10,25 +10,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.amalto.core.metadata.LongString;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.server.api.XmlServer;
-import com.amalto.core.util.Util;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.exolab.castor.xml.Marshaller;
-import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.metadata.LongString;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.objects.marshalling.MarshallingFactory;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 
 public class DroppedItemPOJO implements Serializable {
@@ -159,7 +156,7 @@ public class DroppedItemPOJO implements Serializable {
         // Marshal
         StringWriter sw = new StringWriter();
         try {
-            new Marshaller(sw).marshal(this);
+            MarshallingFactory.getInstance().getMarshaller(this.getClass()).marshal(this, sw);
         } catch (Exception e) {
             return "Could not marshal object due to " + e.getMessage();
         }
@@ -197,8 +194,7 @@ public class DroppedItemPOJO implements Serializable {
                 return null;
             }
             // recover source item
-            DroppedItemPOJO droppedItemPOJO = (DroppedItemPOJO) Unmarshaller.unmarshal(DroppedItemPOJO.class,
-                    new InputSource(new StringReader(doc)));
+            DroppedItemPOJO droppedItemPOJO = MarshallingFactory.getInstance().getUnmarshaller(DroppedItemPOJO.class).unmarshal(new StringReader(doc));
             String clusterName = refItemPOJOPK.getDataClusterPOJOPK().getUniqueId();
             server.start(clusterName);
             try {
@@ -310,8 +306,7 @@ public class DroppedItemPOJO implements Serializable {
             if (droppedItemStr == null) {
                 return null;
             }
-            return (DroppedItemPOJO) Unmarshaller.unmarshal(DroppedItemPOJO.class,
-                    new InputSource(new StringReader(droppedItemStr)));
+            return MarshallingFactory.getInstance().getUnmarshaller(DroppedItemPOJO.class).unmarshal(new StringReader(droppedItemStr));
         } catch (Exception e) {
             String err = "Unable to load the dropped item  " + droppedItemPOJOPK.getUniquePK()
                     + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();

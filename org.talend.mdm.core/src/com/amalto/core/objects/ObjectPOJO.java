@@ -31,11 +31,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.log4j.Logger;
-import org.exolab.castor.xml.Marshaller;
-import org.exolab.castor.xml.Unmarshaller;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
-import org.xml.sax.InputSource;
 
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.objects.backgroundjob.BackgroundJobPOJO;
@@ -44,6 +41,7 @@ import com.amalto.core.objects.customform.CustomFormPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.marshalling.MarshallingFactory;
 import com.amalto.core.objects.menu.MenuPOJO;
 import com.amalto.core.objects.role.RolePOJO;
 import com.amalto.core.objects.routing.CompletedRoutingOrderV2POJO;
@@ -475,20 +473,14 @@ public abstract class ObjectPOJO implements Serializable {
             if (marshaledItem == null) {
                 return null;
             }
-            Unmarshaller unmarshaller = new Unmarshaller(objectClass);
-            unmarshaller.setValidation(false);
-            // see 0023397 can't unmarshaller WSPipeline if unmarshaller.setReuseObjects(true)
-            unmarshaller.setReuseObjects(false);
-            // Do not remove this line unless you know what you're doing
-            unmarshaller.setWhitespacePreserve(true);
-            return (T) unmarshaller.unmarshal(new InputSource(new StringReader(marshaledItem)));
+            return MarshallingFactory.getInstance().getUnmarshaller(objectClass).unmarshal(new StringReader(marshaledItem));
         } catch (Throwable t) {
             String err = "Unable to unmarshal the object of class '" + objectClass + "' from \n" + marshaledItem;
             LOG.error(err, t);
             throw new XtentisException(err, t);
         }
     }
-
+    
     public String getDigest() {
         return this.digest;
     }
@@ -537,7 +529,7 @@ public abstract class ObjectPOJO implements Serializable {
                 XmlServer server = Util.getXmlServerCtrlLocal();
                 // Marshal
                 StringWriter sw = new StringWriter();
-                new Marshaller(sw).marshal(this);
+                MarshallingFactory.getInstance().getMarshaller(this.getClass()).marshal(this, sw);
                 // store
                 String dataClusterName = getCluster(this.getClass());
                 server.start(dataClusterName);
@@ -589,10 +581,7 @@ public abstract class ObjectPOJO implements Serializable {
         // Marshal
         StringWriter sw = new StringWriter();
         try {
-            Marshaller marshaller = new Marshaller(sw);
-            marshaller.setValidation(false);
-
-            marshaller.marshal(this);
+            MarshallingFactory.getInstance().getMarshaller(this.getClass()).marshal(this, sw);
         } catch (Throwable t) {
             String err = "Unable to marshal '" + this.getPK().getUniqueId() + "'";
             LOG.error(err, t);
