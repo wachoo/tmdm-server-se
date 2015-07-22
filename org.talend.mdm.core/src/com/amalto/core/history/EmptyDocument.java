@@ -130,4 +130,9 @@ public class EmptyDocument implements MutableDocument {
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
+
+    @Override
+    public boolean considerMissingElementsAsEmpty() {
+        return false;
+    }
 }

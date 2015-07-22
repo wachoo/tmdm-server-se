@@ -282,6 +282,10 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 : oldValue, null, comparedField));
                     }
                 }
+                else if(!comparedField.isMany() && this.newDocument.considerMissingElementsAsEmpty()){
+                    actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY : oldValue, StringUtils.EMPTY, comparedField));
+                }
+                
                 if (isDeletingContainedElement) {
                     // Null values may happen if accessor is targeting an element that contains other elements
                     actions.add(new FieldUpdateAction(date, source, userName, path, oldValue == null ? StringUtils.EMPTY

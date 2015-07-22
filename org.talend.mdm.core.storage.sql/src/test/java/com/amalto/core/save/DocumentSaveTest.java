@@ -23,12 +23,16 @@ import com.amalto.core.schema.validation.XmlSchemaValidator;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.ValidateException;
+
 import junit.framework.TestCase;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.MockMetadataRepositoryAdmin;
 import com.amalto.core.server.MockServerLifecycle;
@@ -36,6 +40,7 @@ import com.amalto.core.storage.*;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,6 +54,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
@@ -2787,6 +2793,58 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("[e1]", evaluate(committedElement2, "/EntiteA/format/CodeUniteMesure"));
         String datarecordXml = context2.getDatabaseDocument().exportToString();        
         assertEquals(datarecordXml, "<EntiteA><codeA>a1</codeA><format xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"Format_Entier\"><CodeUniteMesure>[e1]</CodeUniteMesure></format></EntiteA>");
+    }
+    
+    /**
+     * TMDM-8674 checks no regression on updating from XML source
+     */
+    public void testRemoveFieldContentFromXml() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test72_original.xml", "metadata1.xsd");
+        SaverSession session = SaverSession.newSession(source);
+        
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", DocumentSaveTest.class.getResourceAsStream("test72.xml"), false, true, true,
+                false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertFalse(committer.hasSaved());
+    }
+    
+    /**
+     * TMDM-8674 checks when a source is provided by storage, removing a field content
+     * actually removes it.
+     */
+    public void testRemoveFieldContentFromStorage() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test72_original.xml", "metadata1.xsd");
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        DataRecord updatedRecord = factory.read(repository, repository.getComplexType("Product"), IOUtils.toString(DocumentSaveTest.class.getResourceAsStream("test72.xml")));
+        
+        StorageDocument updatedDocument = new StorageDocument("DStar",
+                repository,
+                updatedRecord);
+        
+        SaverSession session = SaverSession.newSession(source);
+        
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", updatedDocument, false, true, true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Description", evaluate(committedElement, "/Product/Description"));
+        assertEquals("", evaluate(committedElement, "/Product/OnlineStore"));
     }
 
     private static class MockCommitter implements SaverSession.Committer {

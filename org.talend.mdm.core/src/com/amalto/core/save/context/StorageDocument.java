@@ -243,4 +243,10 @@ public class StorageDocument implements MutableDocument {
     public DataRecord getDataRecord() {
         return dataRecord;
     }
+
+    @Override
+    public boolean considerMissingElementsAsEmpty() {
+        // documents coming from Storage are always complete 
+        return true;
+    }
 }
