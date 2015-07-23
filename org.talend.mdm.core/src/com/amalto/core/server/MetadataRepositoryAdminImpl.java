@@ -22,16 +22,19 @@ import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+
 import com.amalto.core.server.api.DataModel;
 import com.amalto.core.server.api.View;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static com.amalto.core.query.user.UserQueryBuilder.from;
@@ -134,42 +137,45 @@ class MetadataRepositoryAdminImpl implements MetadataRepositoryAdmin {
 
     public boolean exist(String metadataRepositoryId) {
         assertMetadataRepositoryId(metadataRepositoryId);
-        synchronized (metadataRepository) {
-            try {
-                DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#")); //$NON-NLS-1$
-                return dataModelControl.existsDataModel(pk) != null;
-            } catch (XtentisException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        return this.get(metadataRepositoryId) != null;
     }
 
     public MetadataRepository get(String metadataRepositoryId) {
         assertMetadataRepositoryId(metadataRepositoryId);
-        MetadataRepository repository = metadataRepository.get(metadataRepositoryId);
-        if (repository == null) {
-            try {
-                DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#")); //$NON-NLS-1$
-                DataModelPOJO dataModel;
+        synchronized (metadataRepository) {
+            MetadataRepository repository = metadataRepository.get(metadataRepositoryId);
+            if (repository == null) {
                 try {
-                    dataModel = dataModelControl.existsDataModel(pk);
-                } catch (XtentisException e) {
+                    DataModelPOJOPK pk = new DataModelPOJOPK(StringUtils.substringBeforeLast(metadataRepositoryId, "#")); //$NON-NLS-1$
+                    DataModelPOJO dataModel = loadDataModel(pk);
+                    if (dataModel == null) {
+                        return null; // Expected per interface documentation (if not found, return null).
+                    }
+                    repository = createMetadataRepository(dataModel);
+                    metadataRepository.put(metadataRepositoryId, repository);
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                if (dataModel == null) {
-                    return null; // Expected per interface documentation (if not found, return null).
-                }
-                String schemaAsString = dataModel.getSchema();
-                repository = new MetadataRepository();
-                if (schemaAsString != null && !schemaAsString.isEmpty()) {
-                    repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8"))); //$NON-NLS-1$
-                }
-                metadataRepository.put(metadataRepositoryId, repository);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
+            return repository;
+        }
+    }
+    
+    private MetadataRepository createMetadataRepository(DataModelPOJO dataModel) throws UnsupportedEncodingException{
+        String schemaAsString = dataModel.getSchema();
+        MetadataRepository repository = new MetadataRepository();
+        if (schemaAsString != null && !schemaAsString.isEmpty()) {
+            repository.load(new ByteArrayInputStream(schemaAsString.getBytes("UTF-8"))); //$NON-NLS-1$
         }
         return repository;
+    }
+    
+    private DataModelPOJO loadDataModel(DataModelPOJOPK pk){
+        try {
+            return dataModelControl.existsDataModel(pk);
+        } catch (XtentisException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void remove(String metadataRepositoryId) {
