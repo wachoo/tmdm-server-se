@@ -74,7 +74,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     public ForeignKeyField(ItemNodeModel itemNode, String xpath, String fkFilter, String foreignKey, List<String> foreignKeyInfo,
             ItemsDetailPanel itemsDetailPanel) {
         this.validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
-        this.currentNodeXpath = currentNodeXpath;
+        this.currentNodeXpath = xpath;
         this.fkFilter = fkFilter;
         this.itemsDetailPanel = itemsDetailPanel;
         this.foreignKey = foreignKey;
@@ -85,7 +85,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
         this.itemNode = itemNode;
         fkWindow = new ForeignKeyListWindow();
         fkWindow.setForeignKeyInfos(foreignKey, foreignKeyInfo);
-        fkWindow.setCurrentXpath(currentNodeXpath);
+        fkWindow.setCurrentXpath(xpath);
         fkWindow.setForeignKeyFilter(fkFilter);
         fkWindow.setSize(470, 340);
         fkWindow.setResizable(false);
@@ -386,6 +386,7 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> implements Return
     public boolean isStaging() {
         return this.staging;
     }
+
     @Override
     public void setItemNode(ItemNodeModel node) {
         this.itemNode = node;

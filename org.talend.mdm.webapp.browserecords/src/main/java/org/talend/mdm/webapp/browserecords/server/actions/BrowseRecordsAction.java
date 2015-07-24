@@ -2336,7 +2336,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             keyWords = keyWords.replaceAll(pattern, ""); //$NON-NLS-1$
             ItemBasePageLoadResult<ForeignKeyBean> loadResult = ForeignKeyHelper.getForeignKeyList(config, typeModel,
-                    entityModel, dataClusterPK, foreignKeyFilter, keyWords);
+                    entityModel, dataClusterPK, ifFKFilter, keyWords);
 
             return loadResult.getData();
         } catch (Exception e) {
