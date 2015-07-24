@@ -431,6 +431,23 @@ public class MetadataRepositoryTest extends TestCase {
 
     }
     
+    // TMDM-8760
+    public void testLenientSortComplexTest2() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema29.xsd");
+        repository.load(stream);
+        List<ComplexTypeMetadata> sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+        Assert.assertEquals(repository.getInstantiableTypes().size(), sortTypes.size());
+        assertIsBefore(sortTypes, repository, "Fournisseur", "Variante");
+        assertIsBefore(sortTypes, repository, "Article", "Variante");
+        assertIsBefore(sortTypes, repository, "NiveauQualite", "Variante");
+        assertIsBefore(sortTypes, repository, "SousFamille", "Segment");
+        assertIsBefore(sortTypes, repository, "TypeMatiere", "Matiere");
+        assertIsBefore(sortTypes, repository, "Provenance", "Pays");
+        assertIsBefore(sortTypes, repository, "CouleurBasique", "CodePantone");
+        
+    }
+    
     
     
     private void assertIsBefore(List<ComplexTypeMetadata> types, MetadataRepository repository, String type1, String type2){
