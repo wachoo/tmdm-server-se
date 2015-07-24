@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -519,7 +519,7 @@ public class ItemsToolBar extends ToolBar {
 
     protected void addEntityCombo() {
         // add entity combo
-        RpcProxy<List<ItemBaseModel>> Entityproxy = new RpcProxy<List<ItemBaseModel>>() {
+        RpcProxy<List<ItemBaseModel>> entityproxy = new RpcProxy<List<ItemBaseModel>>() {
 
             @Override
             public void load(Object loadConfig, final AsyncCallback<List<ItemBaseModel>> callback) {
@@ -541,20 +541,10 @@ public class ItemsToolBar extends ToolBar {
             }
         };
 
-        if (BrowseRecords.getSession().getEntitiyModelList() == null) {
-            service.getViewsList(Locale.getLanguage(), new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
-
-                @Override
-                public void onSuccess(List<ItemBaseModel> modelList) {
-                    BrowseRecords.getSession().put(UserSession.ENTITY_MODEL_LIST, modelList);
-                }
-            });
-        }
-
-        ListLoader<ListLoadResult<ItemBaseModel>> Entityloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(Entityproxy);
+        ListLoader<ListLoadResult<ItemBaseModel>> entityloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(entityproxy);
 
         // HorizontalPanel entityPanel = new HorizontalPanel();
-        final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>(Entityloader);
+        final ListStore<ItemBaseModel> list = new ListStore<ItemBaseModel>(entityloader);
         entityCombo = new ComboBoxField<ItemBaseModel>();
         entityCombo.setAutoWidth(true);
         entityCombo.setEmptyText(MessagesFactory.getMessages().empty_entity());
