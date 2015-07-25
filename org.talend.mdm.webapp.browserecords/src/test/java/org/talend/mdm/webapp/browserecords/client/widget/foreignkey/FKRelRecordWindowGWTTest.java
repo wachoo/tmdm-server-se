@@ -141,6 +141,9 @@ public class FKRelRecordWindowGWTTest extends GWTTestCase {
 
         foreignKeyFilter = "Addr/AddrId$$=$$\'123\'$$#";
         assertEquals("Addr/AddrId$$=$$123$$#", fkWindow.parseForeignKeyFilter(abc, foreignKeyFilter));
+
+        foreignKeyFilter = "Addr/AddrId$$=$$Person/pname$$#";
+        assertEquals("Addr/AddrId$$=$$talend$$#", fkWindow.parseForeignKeyFilter(abc, foreignKeyFilter));
     }
 
     private EntityModel getCurrentEntityModel() {
