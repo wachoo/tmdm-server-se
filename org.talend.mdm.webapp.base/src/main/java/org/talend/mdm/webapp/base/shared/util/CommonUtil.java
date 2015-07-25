@@ -198,19 +198,12 @@ public class CommonUtil {
     public static boolean isFilterValue(String foreignKeyFilterValue) {
         return (foreignKeyFilterValue.startsWith("\"") && foreignKeyFilterValue.endsWith("\"") || //$NON-NLS-1$//$NON-NLS-2$
         foreignKeyFilterValue.startsWith("'") && foreignKeyFilterValue.endsWith("'")); //$NON-NLS-1$//$NON-NLS-2$
-
     }
 
     public static boolean isRelativePath(String foreignKeyFilterValue) {
         return (foreignKeyFilterValue.startsWith(".") || foreignKeyFilterValue.startsWith("..")); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    /**
-     * DOC xieru Comment method "buildConditionByCriteria".
-     * 
-     * @param cria
-     * @return
-     */
     public static Map<String, String> buildConditionByCriteria(String criteria) {
         Map<String, String> conditionMap = new HashMap<String, String>();
         String[] values = criteria.split("\\$\\$");//$NON-NLS-1$
@@ -236,4 +229,34 @@ public class CommonUtil {
         return conditionMap;
     }
 
+    public static String unescapeXml(String value) {
+        StringBuilder result = new StringBuilder(value.length());
+        int i = 0;
+        int n = value.length();
+        while (i < n) {
+            char charAt = value.charAt(i);
+            if (charAt != '&') {
+                result.append(charAt);
+                i++;
+            } else {
+                if (value.startsWith("&amp;", i)) { //$NON-NLS-1$
+                    result.append('&');
+                    i += 5;
+                } else if (value.startsWith("&apos;", i)) { //$NON-NLS-1$
+                    result.append('\'');
+                    i += 6;
+                } else if (value.startsWith("&quot;", i)) { //$NON-NLS-1$
+                    result.append('"');
+                    i += 6;
+                } else if (value.startsWith("&lt;", i)) { //$NON-NLS-1$
+                    result.append('<');
+                    i += 4;
+                } else if (value.startsWith("&gt;", i)) { //$NON-NLS-1$
+                    result.append('>');
+                    i += 4;
+                }
+            }
+        }
+        return result.toString().replaceAll("\t", "").replaceAll("\n", "").replaceAll("\r", ""); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$//$NON-NLS-6$
+    }
 }
