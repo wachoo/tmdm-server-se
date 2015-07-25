@@ -578,6 +578,7 @@ public class ForeignKeyListWindow extends Window {
                 }
 
                 // cases handle
+                filterValue = org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(filterValue);
                 if (org.talend.mdm.webapp.base.shared.util.CommonUtil.isFilterValue(filterValue)) {
                     filterValue = filterValue.substring(1, filterValue.length() - 1);
                 } else if (org.talend.mdm.webapp.base.shared.util.CommonUtil.isRelativePath(filterValue)) {
@@ -601,11 +602,11 @@ public class ForeignKeyListWindow extends Window {
                     }
                 } else {
                     List<String> duplicatedPathList = new ArrayList<String>();
-                    List<String> rightPathNodeList = new ArrayList<String>();
-                    List<String> leftPathNodeList = Arrays.asList(currentXpath.split("/")); //$NON-NLS-1$
-                    String[] rightValueOrPathArray = filterValue.split("/"); //$NON-NLS-1$
-                    for (String element : rightValueOrPathArray) {
-                        rightPathNodeList.add(element);
+                    List<String> leftPathNodeList = new ArrayList<String>();
+                    List<String> rightPathNodeList = Arrays.asList(filterValue.split("/")); //$NON-NLS-1$
+                    String[] leftValueOrPathArray = currentXpath.split("/"); //$NON-NLS-1$
+                    for (String element : leftValueOrPathArray) {
+                        leftPathNodeList.add(element);
                     }
                     for (int i = 0; i < leftPathNodeList.size(); i++) {
                         if (i < rightPathNodeList.size() && leftPathNodeList.get(i).equals(rightPathNodeList.get(i))) {
@@ -614,9 +615,9 @@ public class ForeignKeyListWindow extends Window {
                             break;
                         }
                     }
-                    rightPathNodeList.removeAll(duplicatedPathList);
+                    leftPathNodeList.removeAll(duplicatedPathList);
                     ItemNodeModel parentNode = node;
-                    for (int i = 0; i < rightPathNodeList.size(); i++) {
+                    for (int i = 0; i < leftPathNodeList.size(); i++) {
                         parentNode = (ItemNodeModel) parentNode.getParent();
                     }
                     ItemNodeModel targetNode = findTarget(filterValue, parentNode);
