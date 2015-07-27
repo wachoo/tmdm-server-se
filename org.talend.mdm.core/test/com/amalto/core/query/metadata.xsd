@@ -1989,4 +1989,55 @@
 			<xsd:enumeration value="D" />
 		</xsd:restriction>
 	</xsd:simpleType>
+	<xsd:element name="CheckPointDetails_1" type="CheckPointDetailsType_1">  
+	    <xsd:unique name="CheckPointDetails_1"> 
+	      <xsd:selector xpath="."/>  
+	      <xsd:field xpath="NSIKey_1"/> 
+	    </xsd:unique> 
+	  </xsd:element>
+	   <xsd:element name="CheckPointDetails_2" type="CheckPointDetailsType_2">  
+	    <xsd:unique name="CheckPointDetails_2"> 
+	      <xsd:selector xpath="."/>  
+	      <xsd:field xpath="NSIKey_2"/> 
+	    </xsd:unique> 
+	  </xsd:element>
+	  <xsd:complexType name="CheckPointDetailsType_1"> 
+	    <xsd:annotation/>  
+	    <xsd:complexContent> 
+	      <xsd:extension base="CheckPointDetailsType"> 
+	        <xsd:sequence> 
+	          <xsd:element maxOccurs="1" minOccurs="1" name="NSIKey_1" type="xsd:string"></xsd:element>  
+	        </xsd:sequence> 
+	      </xsd:extension> 
+	    </xsd:complexContent> 
+	  </xsd:complexType>
+	   <xsd:complexType name="CheckPointDetailsType_2"> 
+	    <xsd:annotation/>  
+	    <xsd:complexContent> 
+	      <xsd:extension base="CheckPointDetailsType"> 
+	        <xsd:sequence> 
+	          <xsd:element maxOccurs="1" minOccurs="1" name="NSIKey_2" type="xsd:string"></xsd:element>
+	          <xsd:element name="XFI" type="xsd:string"></xsd:element>  
+	        </xsd:sequence> 
+	      </xsd:extension> 
+	    </xsd:complexContent> 
+	  </xsd:complexType>
+	  <xsd:complexType name="CheckPointDetailsType"> 
+	    <xsd:annotation/>  
+	    <xsd:sequence>
+	      <xsd:element name="BorderCheckPointCode" type="xsd:string"></xsd:element>
+	      <xsd:element name="PointAddressDetails" type="PointAddressDetailsType"></xsd:element>
+	    </xsd:sequence> 
+	  </xsd:complexType>
+	  <xsd:complexType name="PointAddressDetailsType"> 
+	    <xsd:annotation/>  
+	    <xsd:sequence> 
+	      <xsd:element minOccurs="0" name="AddressDetails" type="AddressDetailsType"></xsd:element>  
+	    </xsd:sequence> 
+	  </xsd:complexType>
+	  <xsd:complexType name="AddressDetailsType"> 
+	    <xsd:sequence> 
+	      <xsd:element minOccurs="0" name="TerritoryCode" type="xsd:string"></xsd:element>  
+	    </xsd:sequence> 
+	  </xsd:complexType>
 </xsd:schema>

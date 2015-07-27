@@ -113,6 +113,10 @@ public class StorageTestCase extends TestCase {
     protected static final ComplexTypeMetadata hierarchy;
     
     protected static final ComplexTypeMetadata cpo_service;
+    
+    protected static final ComplexTypeMetadata checkPointDetails_1;
+    
+    protected static final ComplexTypeMetadata checkPointDetails_2;
 
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
@@ -167,6 +171,9 @@ public class StorageTestCase extends TestCase {
         
         hierarchy = repository.getComplexType("HierarchySearchItem");
         cpo_service = repository.getComplexType("cpo_service");
+        
+        checkPointDetails_1 = repository.getComplexType("CheckPointDetails_1");
+        checkPointDetails_2 = repository.getComplexType("CheckPointDetails_2");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
