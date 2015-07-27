@@ -124,6 +124,10 @@ public class StorageTestCase extends TestCase {
     protected static final ComplexTypeMetadata location;
     
     protected static final ComplexTypeMetadata organisation;
+    
+    protected static final ComplexTypeMetadata checkPointDetails_1;
+    
+    protected static final ComplexTypeMetadata checkPointDetails_2;
 
     protected static final ComplexTypeMetadata e_entity;
 
@@ -189,8 +193,12 @@ public class StorageTestCase extends TestCase {
         
         location = repository.getComplexType("Location");
         organisation = repository.getComplexType("Organisation");
+        
         e_entity = repository.getComplexType("E_Entity");
         t_entity = repository.getComplexType("T_Entity");
+       
+        checkPointDetails_1 = repository.getComplexType("CheckPointDetails_1");
+        checkPointDetails_2 = repository.getComplexType("CheckPointDetails_2");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
