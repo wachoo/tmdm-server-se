@@ -22,28 +22,11 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
-import org.talend.mdm.webapp.welcomeportal.client.widget.options.AxeTicks;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.HTML;
-import com.googlecode.gflot.client.DataPoint;
-import com.googlecode.gflot.client.PlotModel;
-import com.googlecode.gflot.client.Series;
-import com.googlecode.gflot.client.SeriesHandler;
-import com.googlecode.gflot.client.Tick;
-import com.googlecode.gflot.client.event.PlotItem;
-import com.googlecode.gflot.client.options.AxesOptions;
-import com.googlecode.gflot.client.options.AxisOptions;
-import com.googlecode.gflot.client.options.BarSeriesOptions;
-import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
-import com.googlecode.gflot.client.options.GlobalSeriesOptions;
-import com.googlecode.gflot.client.options.GridOptions;
-import com.googlecode.gflot.client.options.LegendOptions;
-import com.googlecode.gflot.client.options.LineSeriesOptions;
-import com.googlecode.gflot.client.options.PlotOptions;
 
 public class JournalChart extends ChartPortlet {
 
@@ -52,18 +35,7 @@ public class JournalChart extends ChartPortlet {
     private static String JOURNAL_ACTION_UPDATE = "update"; //$NON-NLS-1$
 
     public JournalChart(MainFramePanel portal) {
-        super(PortletConstants.JOURNAL_CHART_NAME, portal);
-        setHeading(MessagesFactory.getMessages().chart_journal_title());
-        String setting = portalConfigs.getChartSetting(portletName);
-        if (setting != null) {
-            configModel = new TimeframeConfigModel(startedAsOn, setting);
-        } else {
-            configModel = new TimeframeConfigModel(startedAsOn);
-        }
-
-        initConfigSettings();
-
-        initChart();
+        super(PortletConstants.JOURNAL_CHART_NAME, portal, MessagesFactory.getMessages().chart_journal_title(), false);
     }
 
     @Override
@@ -95,7 +67,8 @@ public class JournalChart extends ChartPortlet {
 
     }
 
-    private void initChart() {
+    @Override
+    protected void initChart() { 
         String noDCAlertPrefix = "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" //$NON-NLS-1$
                 + MessagesFactory.getMessages().alerts_title() + "\">"; //$NON-NLS-1$
         final String alertIcon = "<IMG SRC=\"secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
@@ -130,95 +103,6 @@ public class JournalChart extends ChartPortlet {
                 }
             }
         });
-    }
-
-    @Override
-    protected void initPlot() {
-        super.initPlot();
-        PlotModel model = plot.getModel();
-        PlotOptions plotOptions = plot.getOptions();
-        entityNamesSorted = sort(chartData.keySet());
-
-        plotOptions
-                .setGlobalSeriesOptions(
-                        GlobalSeriesOptions
-                                .create()
-                                .setHighlightColor("rgba(255, 255, 255, 0.3)") //$NON-NLS-1$
-                                .setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setSteps(false))
-                                .setBarsSeriesOptions(
-                                        BarSeriesOptions.create().setShow(true).setBarWidth(0.9).setFill(1)
-                                                .setAlignment(BarAlignment.CENTER)).setStack(false))
-                .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
-                .setXAxesOptions(getXAxesOptions());
-
-        plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
-        plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setBorderWidth(0).setColor(COLOR)
-                .setBackgroundColor(BACKGROUND_COLOR));
-
-        // create series
-        SeriesHandler seriesCreation = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_creation())
-                .setColor(SERIES_1_COLOR));
-        SeriesHandler seriesUpdate = model.addSeries(Series.of(MessagesFactory.getMessages().chart_journal_update()).setColor(
-                SERIES_2_COLOR));
-        addDataToSeries(seriesCreation, seriesUpdate);
-    }
-
-    @Override
-    protected void resizePlot(){
-        plot.getOptions().setXAxesOptions(getXAxesOptions());
-        super.resizePlot();
-    }
-    
-    @Override
-    protected void updatePlot() {
-        PlotModel model = plot.getModel();
-        PlotOptions plotOptions = plot.getOptions();
-        entityNamesSorted = sort(chartData.keySet());
-
-        plotOptions.setXAxesOptions(getXAxesOptions());
-
-        List<? extends SeriesHandler> series = model.getHandlers();
-        assert series.size() == 2;
-        SeriesHandler seriesCreation = series.get(0);
-        SeriesHandler seriesUpdate = series.get(1);
-
-        seriesCreation.clear();
-        seriesUpdate.clear();
-        addDataToSeries(seriesCreation, seriesUpdate);
-    }
-    
-    private AxesOptions getXAxesOptions() {
-        return AxesOptions.create().addAxisOptions(
-                AxisOptions.create().setAxisLabelAngle(70d).setTicks(getTicks()).setAutoscaleMargin(0.1));
-    }
-
-    private AxeTicks getTicks() {
-        AxeTicks entityTicks = AxeTicks.create();
-        double x = 1;
-        for (String entityName : entityNamesSorted) {
-            entityTicks.push(Tick.of(x, isDisplayText() ? entityName : "")); //$NON-NLS-1$
-            x += 3;
-        }
-        return entityTicks;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void addDataToSeries(SeriesHandler seriesCreation, SeriesHandler seriesUpdate) {
-        double x = 0;
-        for (String entityName : entityNamesSorted) {
-            Map<String, Integer> journalData = (Map<String, Integer>) chartData.get(entityName);
-            seriesCreation.add(DataPoint.of(x, journalData.get(JOURNAL_ACTION_CREATE)));
-            seriesUpdate.add(DataPoint.of(x + 1, journalData.get(JOURNAL_ACTION_UPDATE)));
-            x += 3;
-        }
-    }
-
-    @Override
-    protected String getHoveringText(PlotItem item) {
-        int valueY = (int) item.getDataPoint().getY();
-        int valueX = (int) item.getDataPoint().getX();
-        int entityNameIndex = valueX == 0 ? 0 : valueX / 3;
-        return entityNamesSorted.get(entityNameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @SuppressWarnings("deprecation")
@@ -292,5 +176,22 @@ public class JournalChart extends ChartPortlet {
             }
         }
         return false;
+    }
+
+    @Override
+    protected int getSeriesSize() {
+        return 2;
+    }
+    
+    @Override
+    protected String[] getSeriesLabels(){
+        String[] labels = { MessagesFactory.getMessages().chart_journal_creation(), MessagesFactory.getMessages().chart_journal_update() };
+        return labels;
+    }
+    
+    @Override
+    protected String[] getSeriesDataKeys(){
+        String[] keys = { JOURNAL_ACTION_CREATE, JOURNAL_ACTION_UPDATE };
+        return keys;
     }
 }

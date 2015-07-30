@@ -13,53 +13,26 @@
 package org.talend.mdm.webapp.welcomeportal.client.widget;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
-import org.talend.mdm.webapp.welcomeportal.client.widget.options.AxeTicks;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.HTML;
-import com.googlecode.gflot.client.DataPoint;
-import com.googlecode.gflot.client.PlotModel;
-import com.googlecode.gflot.client.Series;
-import com.googlecode.gflot.client.SeriesHandler;
-import com.googlecode.gflot.client.Tick;
-import com.googlecode.gflot.client.event.PlotItem;
-import com.googlecode.gflot.client.options.AxesOptions;
-import com.googlecode.gflot.client.options.AxisOptions;
-import com.googlecode.gflot.client.options.BarSeriesOptions;
-import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
-import com.googlecode.gflot.client.options.GlobalSeriesOptions;
-import com.googlecode.gflot.client.options.GridOptions;
-import com.googlecode.gflot.client.options.LegendOptions;
-import com.googlecode.gflot.client.options.LineSeriesOptions;
-import com.googlecode.gflot.client.options.PlotOptions;
 
 public class MatchingChart extends ChartPortlet {
 
     public MatchingChart(MainFramePanel portal) {
-        super(PortletConstants.MATCHING_CHART_NAME, portal);
-        setHeading(MessagesFactory.getMessages().chart_matching_title());
-        String setting = portalConfigs.getChartSetting(portletName);
-        if (setting != null) {
-            configModel = new EntityConfigModel(startedAsOn, setting);
-        } else {
-            configModel = new EntityConfigModel(startedAsOn);
-        }
-
-        initConfigSettings();
-        initChart();
+        super(PortletConstants.MATCHING_CHART_NAME, portal, MessagesFactory.getMessages().chart_matching_title(), true);
     }
 
-    private void initChart() {
+    @Override
+    protected void initChart() {
         String noDCAlertPrefix = "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" //$NON-NLS-1$
                 + MessagesFactory.getMessages().alerts_title() + "\">"; //$NON-NLS-1$
         final String alertIcon = "<IMG SRC=\"secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
@@ -127,82 +100,6 @@ public class MatchingChart extends ChartPortlet {
     }
 
     @Override
-    protected void initPlot() {
-        super.initPlot();
-        PlotModel model = plot.getModel();
-        PlotOptions plotOptions = plot.getOptions();
-        entityNamesSorted = sort(chartData.keySet());
-
-        plotOptions
-                .setGlobalSeriesOptions(
-                        GlobalSeriesOptions
-                                .create()
-                                .setHighlightColor("rgba(255, 255, 255, 0.3)") //$NON-NLS-1$
-                                .setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setSteps(false))
-                                .setBarsSeriesOptions(
-                                        BarSeriesOptions.create().setShow(true).setBarWidth(0.6).setFill(1)
-                                                .setAlignment(BarAlignment.CENTER)).setStack(false))
-                .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(2).setMinimum(0.00)))
-                .setXAxesOptions(getXAxesOptions());
-
-        plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
-        plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setBorderWidth(0).setColor(COLOR)
-                .setBackgroundColor(BACKGROUND_COLOR));
-
-        // create series
-        SeriesHandler seriesMatched = model.addSeries(Series.of(MessagesFactory.getMessages().chart_matching_duplicates())
-                .setColor(SERIES_2_COLOR));
-
-        // add data
-        addDataToSeries(seriesMatched);
-    }
-    
-    @Override
-    protected void resizePlot(){
-        plot.getOptions().setXAxesOptions(getXAxesOptions());
-        super.resizePlot();
-    }
-    
-    @Override
-    protected void updatePlot() {
-        PlotModel model = plot.getModel();
-        PlotOptions plotOptions = plot.getOptions();
-        entityNamesSorted = sort(chartData.keySet());
-
-        plotOptions.setXAxesOptions(getXAxesOptions());
-
-        List<? extends SeriesHandler> series = model.getHandlers();
-        assert series.size() == 1;
-        SeriesHandler seriesMatched = series.get(0);
-
-        seriesMatched.clear();
-        addDataToSeries(seriesMatched);
-    }
-
-    private void addDataToSeries(SeriesHandler seriesMatched){
-        double x = 0;
-        for (String entityName : entityNamesSorted) {
-            seriesMatched.add(DataPoint.of(x, (Double) chartData.get(entityName)));
-            x += 1;
-        }
-    }
-    
-    private AxesOptions getXAxesOptions() {
-        return AxesOptions.create().addAxisOptions(
-                AxisOptions.create().setAxisLabelAngle(70d).setTicks(getTicks()).setAutoscaleMargin(0.1));
-    }
-
-    private AxeTicks getTicks() {
-        AxeTicks entityTicks = AxeTicks.create();
-        double x = 0;
-        for (String entityName : entityNamesSorted) {
-            entityTicks.push(Tick.of(x, isDisplayText() ? entityName : "")); //$NON-NLS-1$
-            x += 1;
-        }
-        return entityTicks;
-    }
-
-    @Override
     protected Map<String, Object> parseJSONData(JSONArray jsonArray) {
         Map<String, Object> matchingDataNew = new HashMap<String, Object>(jsonArray.size());
         for (int i = 0; i < jsonArray.size(); i++) {
@@ -228,13 +125,17 @@ public class MatchingChart extends ChartPortlet {
         }
         return false;
     }
-
+    
     @Override
-    protected String getHoveringText(PlotItem item) {
-        int valueY = (int) item.getDataPoint().getY();
-        int valueX = (int) item.getDataPoint().getX();
-
-        return entityNamesSorted.get(valueX) + ": " + valueY; //$NON-NLS-1$
+    protected String[] getSeriesLabels(){
+        String[] labels = { MessagesFactory.getMessages().chart_matching_duplicates() };
+        return labels;
+    }
+    
+    @Override
+    protected String[] getSeriesColors() {
+        String[] colors = { ChartPortlet.SERIES_2_COLOR };
+        return colors;
     }
 
 }

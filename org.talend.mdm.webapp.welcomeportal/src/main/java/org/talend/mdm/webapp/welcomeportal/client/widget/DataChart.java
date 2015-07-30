@@ -20,7 +20,6 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -70,21 +69,11 @@ public class DataChart extends ChartPortlet {
     Map<String, Double> percentageValueMap = new HashMap<String, Double>();
 
     public DataChart(MainFramePanel portal) {
-        super(PortletConstants.DATA_CHART_NAME, portal);
-        setHeading(MessagesFactory.getMessages().chart_data_title());
-        String setting = portalConfigs.getChartSetting(portletName);
-        if (setting != null) {
-            configModel = new EntityConfigModel(startedAsOn, setting);
-        } else {
-            configModel = new EntityConfigModel(startedAsOn);
-        }
-        initConfigSettings();
-
-        initChart();
-
+        super(PortletConstants.DATA_CHART_NAME, portal, MessagesFactory.getMessages().chart_data_title(), true);
     }
-
-    private void initChart() {
+    
+    @Override
+    protected void initChart() {
         String noDCAlertPrefix = "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" //$NON-NLS-1$
                 + MessagesFactory.getMessages().alerts_title() + "\">"; //$NON-NLS-1$
         final String alertIcon = "<IMG SRC=\"secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
@@ -153,11 +142,9 @@ public class DataChart extends ChartPortlet {
     }
 
     @Override
-    protected void initPlot() {
-        super.initPlot();
+    protected void furtherInitPlot() {
         PlotModel model = plot.getModel();
-        PlotOptions plotOptions = plot.getOptions();
-        entityNamesSorted = sort(chartData.keySet());
+        PlotOptions plotOptions = plot.getOptions();        
 
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create().setPieSeriesOptions(
                 PieSeriesOptions
@@ -330,5 +317,10 @@ public class DataChart extends ChartPortlet {
                 }
             }
         }, false);
+    }
+    
+    @Override
+    protected boolean isResetXAxesOptions() {
+        return false;
     }
 }
