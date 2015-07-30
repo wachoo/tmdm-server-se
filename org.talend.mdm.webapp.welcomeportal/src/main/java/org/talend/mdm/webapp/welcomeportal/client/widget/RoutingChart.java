@@ -123,6 +123,12 @@ public class RoutingChart extends ChartPortlet {
     }
 
     @Override
+    protected void resizePlot(){
+        plot.getOptions().setXAxesOptions(getXAxesOptions());
+        super.resizePlot();
+    }
+    
+    @Override
     protected void updatePlot() {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
@@ -149,19 +155,20 @@ public class RoutingChart extends ChartPortlet {
         AxeTicks routingTicks = AxeTicks.create();
         double x = 1;
         for (String routingName : entityNamesSorted) {
-            routingTicks.push(Tick.of(x, routingName));
-            x = x + 3;
+            routingTicks.push(Tick.of(x, isDisplayText() ? routingName : "")); //$NON-NLS-1$
+            x += 3;
         }
         return routingTicks;
     }
 
+    @SuppressWarnings("unchecked")
     private void addDataToSeries(SeriesHandler seriesCompleted, SeriesHandler seriesFailed) {
-        double x = 0.0;
+        double x = 0;
         for (String routingName : entityNamesSorted) {
             Map<String, Integer> routingData = (Map<String, Integer>) chartData.get(routingName);
             seriesCompleted.add(DataPoint.of(x, routingData.get(ROUTING_STATUS_COMPLETED)));
             seriesFailed.add(DataPoint.of(x + 1, routingData.get(ROUTING_STATUS_FAILED)));
-            x = x + 3;
+            x += 3;
         }
     }
 
@@ -173,6 +180,7 @@ public class RoutingChart extends ChartPortlet {
         return entityNamesSorted.get(routingNameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected Map<String, Object> parseJSONData(JSONArray jsonArray) {
         assert (jsonArray.size() == 2);
@@ -223,6 +231,7 @@ public class RoutingChart extends ChartPortlet {
         return routingDataNew;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected boolean isDifferentFrom(Map<String, Object> newData) {
         if (chartData.size() != newData.size()) {

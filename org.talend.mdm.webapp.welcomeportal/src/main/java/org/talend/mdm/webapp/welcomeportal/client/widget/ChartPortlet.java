@@ -54,6 +54,8 @@ public abstract class ChartPortlet extends BasePortlet {
     public static final String COLOR ="#555964"; //dark-grey //$NON-NLS-1$
     
     public static final String BACKGROUND_COLOR = "#FDFDFD"; //light-gray //$NON-NLS-1$ 
+    
+    public static final int MIN_WIDTH_TO_DISPLAY_TEXT = 200; // only display name when plot's width >= 200px
 
     protected SimplePlot plot;
 
@@ -266,6 +268,10 @@ public abstract class ChartPortlet extends BasePortlet {
         int valueX = (int) item.getDataPoint().getX();
 
         return entityNamesSorted.get(valueX) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+    
+    protected boolean isDisplayText() {
+        return plotWidth >= MIN_WIDTH_TO_DISPLAY_TEXT;
     }
 
 }

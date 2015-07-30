@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
+import org.talend.mdm.webapp.welcomeportal.client.widget.options.AxeTicks;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -30,12 +31,12 @@ import com.googlecode.gflot.client.DataPoint;
 import com.googlecode.gflot.client.PlotModel;
 import com.googlecode.gflot.client.Series;
 import com.googlecode.gflot.client.SeriesHandler;
+import com.googlecode.gflot.client.Tick;
 import com.googlecode.gflot.client.event.PlotItem;
 import com.googlecode.gflot.client.options.AxesOptions;
 import com.googlecode.gflot.client.options.AxisOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions;
 import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
-import com.googlecode.gflot.client.options.CategoriesAxisOptions;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
 import com.googlecode.gflot.client.options.GridOptions;
 import com.googlecode.gflot.client.options.LegendOptions;
@@ -153,11 +154,15 @@ public class MatchingChart extends ChartPortlet {
                 .setColor(SERIES_2_COLOR));
 
         // add data
-        for (String entityName : entityNamesSorted) {
-            seriesMatched.add(DataPoint.of(entityName, (Double) chartData.get(entityName)));
-        }
+        addDataToSeries(seriesMatched);
     }
-
+    
+    @Override
+    protected void resizePlot(){
+        plot.getOptions().setXAxesOptions(getXAxesOptions());
+        super.resizePlot();
+    }
+    
     @Override
     protected void updatePlot() {
         PlotModel model = plot.getModel();
@@ -171,15 +176,30 @@ public class MatchingChart extends ChartPortlet {
         SeriesHandler seriesMatched = series.get(0);
 
         seriesMatched.clear();
-        for (String entityName : entityNamesSorted) {
-            seriesMatched.add(DataPoint.of(entityName, (Double) chartData.get(entityName)));
-        }
+        addDataToSeries(seriesMatched);
     }
 
+    private void addDataToSeries(SeriesHandler seriesMatched){
+        double x = 0;
+        for (String entityName : entityNamesSorted) {
+            seriesMatched.add(DataPoint.of(x, (Double) chartData.get(entityName)));
+            x += 1;
+        }
+    }
+    
     private AxesOptions getXAxesOptions() {
         return AxesOptions.create().addAxisOptions(
-                CategoriesAxisOptions.create().setAxisLabelAngle(70d)
-                        .setCategories(entityNamesSorted.toArray(new String[entityNamesSorted.size()])).setAutoscaleMargin(0.1));
+                AxisOptions.create().setAxisLabelAngle(70d).setTicks(getTicks()).setAutoscaleMargin(0.1));
+    }
+
+    private AxeTicks getTicks() {
+        AxeTicks entityTicks = AxeTicks.create();
+        double x = 0;
+        for (String entityName : entityNamesSorted) {
+            entityTicks.push(Tick.of(x, isDisplayText() ? entityName : "")); //$NON-NLS-1$
+            x += 1;
+        }
+        return entityTicks;
     }
 
     @Override
@@ -211,10 +231,10 @@ public class MatchingChart extends ChartPortlet {
 
     @Override
     protected String getHoveringText(PlotItem item) {
-        String valueY = "" + (int) item.getDataPoint().getY(); //$NON-NLS-1$
-        int nameIndex = (int) item.getDataPoint().getX();
+        int valueY = (int) item.getDataPoint().getY();
+        int valueX = (int) item.getDataPoint().getX();
 
-        return entityNamesSorted.get(nameIndex) + ": " + valueY; //$NON-NLS-1$
+        return entityNamesSorted.get(valueX) + ": " + valueY; //$NON-NLS-1$
     }
 
 }

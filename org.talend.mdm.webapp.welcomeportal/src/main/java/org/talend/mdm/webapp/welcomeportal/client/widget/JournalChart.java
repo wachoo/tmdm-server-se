@@ -164,6 +164,12 @@ public class JournalChart extends ChartPortlet {
     }
 
     @Override
+    protected void resizePlot(){
+        plot.getOptions().setXAxesOptions(getXAxesOptions());
+        super.resizePlot();
+    }
+    
+    @Override
     protected void updatePlot() {
         PlotModel model = plot.getModel();
         PlotOptions plotOptions = plot.getOptions();
@@ -190,19 +196,20 @@ public class JournalChart extends ChartPortlet {
         AxeTicks entityTicks = AxeTicks.create();
         double x = 1;
         for (String entityName : entityNamesSorted) {
-            entityTicks.push(Tick.of(x, entityName));
-            x = x + 3;
+            entityTicks.push(Tick.of(x, isDisplayText() ? entityName : "")); //$NON-NLS-1$
+            x += 3;
         }
         return entityTicks;
     }
 
+    @SuppressWarnings("unchecked")
     private void addDataToSeries(SeriesHandler seriesCreation, SeriesHandler seriesUpdate) {
-        double x = 0.0;
+        double x = 0;
         for (String entityName : entityNamesSorted) {
             Map<String, Integer> journalData = (Map<String, Integer>) chartData.get(entityName);
             seriesCreation.add(DataPoint.of(x, journalData.get(JOURNAL_ACTION_CREATE)));
             seriesUpdate.add(DataPoint.of(x + 1, journalData.get(JOURNAL_ACTION_UPDATE)));
-            x = x + 3;
+            x += 3;
         }
     }
 
@@ -214,6 +221,7 @@ public class JournalChart extends ChartPortlet {
         return entityNamesSorted.get(entityNameIndex) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected Map<String, Object> parseJSONData(JSONArray jsonArray) {
         JSONObject currentJSONObj;
@@ -243,24 +251,25 @@ public class JournalChart extends ChartPortlet {
             JSONObject curCreate;
             for (int j = 0; j < createArray.size(); j++) {
                 curCreate = createArray.get(j).isObject();
-                numOfCreates += (int) curCreate.get("create").isNumber().getValue(); //$NON-NLS-1$
+                numOfCreates += (int) curCreate.get(JOURNAL_ACTION_CREATE).isNumber().getValue();
             }
 
             JSONArray updateArray = updates.get("updates").isArray(); //$NON-NLS-1$
             JSONObject curUpdate;
             for (int k = 0; k < updateArray.size(); k++) {
                 curUpdate = updateArray.get(k).isObject();
-                numOfUpdates += (int) curUpdate.get("update").isNumber().getValue(); //$NON-NLS-1$
+                numOfUpdates += (int) curUpdate.get(JOURNAL_ACTION_UPDATE).isNumber().getValue(); 
             }
 
-            eventMap.put("create", numOfCreates); //$NON-NLS-1$
-            eventMap.put("update", numOfUpdates); //$NON-NLS-1$
+            eventMap.put(JOURNAL_ACTION_CREATE, numOfCreates); 
+            eventMap.put(JOURNAL_ACTION_UPDATE, numOfUpdates);
             journalDataNew.put(entityName, eventMap);
         }
 
         return journalDataNew;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected boolean isDifferentFrom(Map<String, Object> newData) {
         if (chartData.size() != newData.size()) {
