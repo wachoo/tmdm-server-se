@@ -208,12 +208,11 @@ public class DataChart extends ChartPortlet {
                 // "Could not draw pie with labels contained inside canvas"
                 // Workaround the issue by redrawing but without the labels             
                 boolean errorOccurred = plot.getParent().getElement().getInnerHTML().contains("Could not draw pie with labels contained inside canvas"); //$NON-NLS-1$
-                if (errorOccurred) {
-                    PlotOptions plotOptions = plot.getOptions();
-                    GlobalSeriesOptions globalSeriesOptions = plotOptions.getGlobalSeriesOptions();
-                    PieSeriesOptions pieSeriesOptions = globalSeriesOptions.getPieSeriesOptions();
-                    pieSeriesOptions.getLabel().setShow(false); // don't show labels if error occurred, otherwise                                                                       // reset to true for next creation
+                if (errorOccurred) {// don't show labels if error occurred  
+                    plot.getOptions().getGlobalSeriesOptions().getPieSeriesOptions().getLabel().setShow(false);
                     plot.redraw();
+                } else {// reset to true for next creation
+                    plot.getOptions().getGlobalSeriesOptions().getPieSeriesOptions().getLabel().setShow(true);
                 }
             }
         });
