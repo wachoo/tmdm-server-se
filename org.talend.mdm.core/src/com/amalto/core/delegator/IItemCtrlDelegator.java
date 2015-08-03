@@ -1,5 +1,19 @@
 package com.amalto.core.delegator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+
 import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.ObjectPOJO;
@@ -12,6 +26,10 @@ import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.metadata.StagingError;
+import com.amalto.core.query.user.metadata.StagingSource;
+import com.amalto.core.query.user.metadata.StagingStatus;
+import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -19,22 +37,22 @@ import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.server.security.SecurityConfig;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
-import com.amalto.core.util.*;
+import com.amalto.core.util.ArrayListHolder;
+import com.amalto.core.util.LocalUser;
+import com.amalto.core.util.RoleSpecification;
+import com.amalto.core.util.RoleWhereCondition;
 import com.amalto.core.util.Util;
-import com.amalto.xmlserver.interfaces.*;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.*;
+import com.amalto.core.util.XtentisException;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereOr;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDelegatorService {
 
@@ -114,11 +132,12 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             StorageAdmin storageAdmin = server.getStorageAdmin();
             Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName));
             MetadataRepository repository = storage.getMetadataRepository();
+            boolean isStaging = storage.getType() == StorageType.STAGING;
             // Build query (from 'main' type)
             ComplexTypeMetadata type = repository.getComplexType(typeName);
             if (type == null) {
-                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataModelName
-                        + "'.");
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data cluster '" + dataModelName  //$NON-NLS-1$ //$NON-NLS-2$
+                        + "'."); //$NON-NLS-1$
             }
             UserQueryBuilder qb = UserQueryBuilder.from(type);
             // Select fields
@@ -127,17 +146,19 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
                 String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
                 if (viewablePath.isEmpty()) {
-                    throw new IllegalArgumentException("View element '" + viewableBusinessElement
-                            + "' is invalid: no path to element.");
+                    throw new IllegalArgumentException("View element '" + viewableBusinessElement //$NON-NLS-1$
+                            + "' is invalid: no path to element."); //$NON-NLS-1$
                 }
                 ComplexTypeMetadata viewableType = repository.getComplexType(viewableTypeName);
-                List<TypedExpression> typeExpressions = UserQueryHelper.getFields(viewableType, viewablePath);
-                for (TypedExpression typeExpression : typeExpressions) {
-                    qb.select(typeExpression);
+                List<TypedExpression> fields = UserQueryHelper.getFields(viewableType, viewablePath);
+                for (TypedExpression field : fields) {
+                    if (isNeedToAddExplicitly(isStaging, field)) {
+                        qb.select(field);
+                    }
                 }
             }
             qb.select(repository.getComplexType(typeName), "../../taskId"); //$NON-NLS-1$
-            if (dataModelName.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+            if (isStaging) {
                 qb.select(repository.getComplexType(typeName), "$staging_status$"); //$NON-NLS-1$
                 qb.select(repository.getComplexType(typeName), "$staging_error$"); //$NON-NLS-1$
                 qb.select(repository.getComplexType(typeName), "$staging_source$"); //$NON-NLS-1$
@@ -177,7 +198,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                     } catch (IOException e) {
                         throw new XmlServerException(e);
                     }
-                    String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+                    String document = new String(output.toByteArray(), Charset.forName("UTF-8")); //$NON-NLS-1$
                     resultsAsString.add(document);
                     output.reset();
                 }
@@ -190,10 +211,19 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
         } catch (XtentisException e) {
             throw (e);
         } catch (Exception e) {
-            String err = "Unable to single search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String err = "Unable to single search: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
+    }
+    
+    private boolean isNeedToAddExplicitly(boolean isStaging, TypedExpression field) {
+        boolean isNeedToAdd = true;
+        if (field instanceof TaskId
+                || (isStaging && (field instanceof StagingStatus || field instanceof StagingError || field instanceof StagingSource))) {
+            isNeedToAdd = false;
+        }
+        return isNeedToAdd;
     }
 
     private static IWhereItem normalizeConditions(ArrayList<IWhereItem> conditions) {
@@ -208,7 +238,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 }
             } else {
                 if (predicate == null) {
-                    throw new IllegalArgumentException("No predicate in '" + conditions.get(i - 1) + "'.");
+                    throw new IllegalArgumentException("No predicate in '" + conditions.get(i - 1) + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 if (condition instanceof WhereCondition) {
                     if (WhereCondition.PRE_OR.equals(predicate)) {
@@ -218,12 +248,12 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                     } else if (WhereCondition.PRE_NOT.equals(predicate)) {
                         // TMDM-6888 Support for NOT (only when one condition).
                         if (conditions.size() > 1) {
-                            throw new IllegalArgumentException("'Not' predicate not supported for multiple conditions (got "
-                                    + conditions.size() + ")");
+                            throw new IllegalArgumentException("'Not' predicate not supported for multiple conditions (got " //$NON-NLS-1$
+                                    + conditions.size() + ")"); //$NON-NLS-1$
                         }
                         viewCondition = condition; // Since there's only one condition, no need to break.
                     } else {
-                        throw new IllegalArgumentException("Not supported predicate: " + predicate);
+                        throw new IllegalArgumentException("Not supported predicate: " + predicate); //$NON-NLS-1$
                     }
                     predicate = ((WhereCondition) condition).getStringPredicate();
                 }
@@ -235,7 +265,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
 
     public ItemPOJOPK putItem(ItemPOJO item, String schema, String dataModelName) throws XtentisException {
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("putItem() " + item.getItemPOJOPK().getUniqueID());
+            LOGGER.trace("putItem() " + item.getItemPOJOPK().getUniqueID()); //$NON-NLS-1$
         }
         try {
             // used for binding data model
@@ -254,24 +284,24 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 try {
                     xmlServerCtrlLocal.rollback(dataClusterName);
                 } catch (XtentisException e1) {
-                    LOGGER.error("Rollback error.", e1);
+                    LOGGER.error("Rollback error.", e1); //$NON-NLS-1$
                 }
                 throw new RuntimeException(e);
             }
             if (pk == null) {
-                throw new XtentisException("Could not put item " + Util.joinStrings(item.getItemIds(), ".")
-                        + ". Check server logs.");
+                throw new XtentisException("Could not put item " + Util.joinStrings(item.getItemIds(), ".") //$NON-NLS-1$ //$NON-NLS-2$
+                        + ". Check server logs."); //$NON-NLS-1$
             }
             return pk;
         } catch (Exception e) {
-            String prefix = "Unable to create/update the item " + item.getDataClusterPOJOPK().getUniqueId() + "."
-                    + Util.joinStrings(item.getItemIds(), ".") + ": ";
-            String err = prefix + e.getClass().getName() + ": " + e.getLocalizedMessage();
+            String prefix = "Unable to create/update the item " + item.getDataClusterPOJOPK().getUniqueId() + "." //$NON-NLS-1$ //$NON-NLS-2$
+                    + Util.joinStrings(item.getItemIds(), ".") + ": "; //$NON-NLS-1$ //$NON-NLS-2$
+            String err = prefix + e.getClass().getName() + ": " + e.getLocalizedMessage(); //$NON-NLS-1$
             LOGGER.error(err, e);
             // simplify the error message
-            if ("Reporting".equalsIgnoreCase(dataModelName)) {
-                if (err.contains("One of '{ListOfFilters}'")) {
-                    err = prefix + "At least one filter must be defined";
+            if ("Reporting".equalsIgnoreCase(dataModelName)) { //$NON-NLS-1$
+                if (err.contains("One of '{ListOfFilters}'")) { //$NON-NLS-1$
+                    err = prefix + "At least one filter must be defined"; //$NON-NLS-1$
                 }
             }
             throw new XtentisException(err, e);
@@ -302,7 +332,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             String orderByFieldName = StringUtils.substringAfter(orderBy, "/"); //$NON-NLS-1$
             List<TypedExpression> fields = UserQueryHelper.getFields(type, orderByFieldName);
             if (fields == null) {
-                throw new IllegalArgumentException("Field '" + orderBy + "' does not exist.");
+                throw new IllegalArgumentException("Field '" + orderBy + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             OrderBy.Direction queryDirection;
             if ("ascending".equals(direction) //$NON-NLS-1$
