@@ -4554,6 +4554,42 @@ public class StorageQueryTest extends StorageTestCase {
             storage.commit();
         }
     }
+    
+    public void testQueryByFieldInComplexTypeWhileEntityInheritsAnotherType(){
+        FieldMetadata field_1 = checkPointDetails_1.getField("PointAddressDetails/AddressDetails/TerritoryCode");
+        UserQueryBuilder qb_1 = from(checkPointDetails_1).where(eq(field_1, "2"));
+        StorageResults results_1 = null;
+        Exception ex_1 = null;
+        try {
+            results_1 = storage.fetch(qb_1.getSelect());
+        } catch(Exception e){
+            ex_1 = e;
+        } finally {
+            if(results_1 != null){
+                results_1.close();
+            }
+        }
+        if(ex_1 != null)
+            ex_1.printStackTrace();
+        assertNull(ex_1);
+        
+        FieldMetadata field_2 = checkPointDetails_2.getField("PointAddressDetails/AddressDetails/TerritoryCode");
+        UserQueryBuilder qb_2 = from(checkPointDetails_1).where(eq(field_2, "2"));
+        StorageResults results_2 = null;
+        Exception ex_2 = null;
+        try {
+            results_2 = storage.fetch(qb_2.getSelect());
+        } catch(Exception e){
+            ex_2 = e;
+        } finally {
+            if(results_2 != null){
+                results_2.close();
+            }
+        }
+        if(ex_2 != null)
+            ex_2.printStackTrace();
+        assertNull(ex_2);
+    }
 
     public void testPathContainsMultiChildQuery() throws Exception {
         UserQueryBuilder qb = from(t_entity)
