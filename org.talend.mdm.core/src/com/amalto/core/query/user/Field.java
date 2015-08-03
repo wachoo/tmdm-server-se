@@ -80,6 +80,20 @@ public class Field implements TypedExpression {
             return false;
         }
         Field field = (Field) o;
+        if (field.fieldMetadata instanceof ReferenceFieldMetadata) {
+            if (fieldMetadata.getContainingType() != null && field.fieldMetadata.getContainingType() != null) {
+                if (!fieldMetadata.getContainingType().toString().equals(field.fieldMetadata.getContainingType().toString())) {
+                    return false;
+                }
+            }
+        }
+        if (field.getPath() != null && this.getPath() != null && field.getPath().size() > 0) {
+            for (FieldMetadata fm : field.getPath()) {
+                if (!getPath().contains(fm)) {
+                    return false;
+                }
+            }
+        }
         return fieldMetadata.getName().equals(field.fieldMetadata.getName());
     }
 
