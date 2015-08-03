@@ -20,13 +20,10 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -72,21 +69,11 @@ public class DataChart extends ChartPortlet {
     Map<String, Double> percentageValueMap = new HashMap<String, Double>();
 
     public DataChart(MainFramePanel portal) {
-        super(PortletConstants.DATA_CHART_NAME, portal);
-        setHeading(MessagesFactory.getMessages().chart_data_title());
-        String setting = portalConfigs.getChartSetting(portletName);
-        if (setting != null) {
-            configModel = new EntityConfigModel(startedAsOn, setting);
-        } else {
-            configModel = new EntityConfigModel(startedAsOn);
-        }
-        initConfigSettings();
-
-        initChart();
-
+        super(PortletConstants.DATA_CHART_NAME, portal, MessagesFactory.getMessages().chart_data_title(), true);
     }
-
-    private void initChart() {
+    
+    @Override
+    protected void initChart() {
         String noDCAlertPrefix = "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" //$NON-NLS-1$
                 + MessagesFactory.getMessages().alerts_title() + "\">"; //$NON-NLS-1$
         final String alertIcon = "<IMG SRC=\"secure/img/genericUI/alert-icon.png\"/>&nbsp;"; //$NON-NLS-1$
@@ -155,11 +142,9 @@ public class DataChart extends ChartPortlet {
     }
 
     @Override
-    protected void initPlot() {
-        super.initPlot();
+    protected void furtherInitPlot() {
         PlotModel model = plot.getModel();
-        PlotOptions plotOptions = plot.getOptions();
-        entityNamesSorted = sort(chartData.keySet());
+        PlotOptions plotOptions = plot.getOptions();        
 
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create().setPieSeriesOptions(
                 PieSeriesOptions
@@ -223,12 +208,11 @@ public class DataChart extends ChartPortlet {
                 // "Could not draw pie with labels contained inside canvas"
                 // Workaround the issue by redrawing but without the labels             
                 boolean errorOccurred = plot.getParent().getElement().getInnerHTML().contains("Could not draw pie with labels contained inside canvas"); //$NON-NLS-1$
-                if (errorOccurred) {
-                    PlotOptions plotOptions = plot.getOptions();
-                    GlobalSeriesOptions globalSeriesOptions = plotOptions.getGlobalSeriesOptions();
-                    PieSeriesOptions pieSeriesOptions = globalSeriesOptions.getPieSeriesOptions();
-                    pieSeriesOptions.getLabel().setShow(false); // don't show labels if error occurred, otherwise                                                                       // reset to true for next creation
+                if (errorOccurred) {// don't show labels if error occurred  
+                    plot.getOptions().getGlobalSeriesOptions().getPieSeriesOptions().getLabel().setShow(false);
                     plot.redraw();
+                } else {// reset to true for next creation
+                    plot.getOptions().getGlobalSeriesOptions().getPieSeriesOptions().getLabel().setShow(true);
                 }
             }
         });
@@ -332,5 +316,10 @@ public class DataChart extends ChartPortlet {
                 }
             }
         }, false);
+    }
+    
+    @Override
+    protected boolean isResetXAxesOptions() {
+        return false;
     }
 }

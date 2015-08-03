@@ -22,9 +22,12 @@ import java.util.Set;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.ConfigModel;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.EntityConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
+import org.talend.mdm.webapp.welcomeportal.client.mvc.TimeframeConfigModel;
 import org.talend.mdm.webapp.welcomeportal.client.resources.icon.Icons;
 import org.talend.mdm.webapp.welcomeportal.client.widget.PortletConfigDialog.PortletConfigListener;
+import org.talend.mdm.webapp.welcomeportal.client.widget.options.AxeTicks;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -33,12 +36,23 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.googlecode.gflot.client.DataPoint;
+import com.googlecode.gflot.client.Series;
+import com.googlecode.gflot.client.SeriesHandler;
 import com.googlecode.gflot.client.SimplePlot;
+import com.googlecode.gflot.client.Tick;
 import com.googlecode.gflot.client.event.PlotHoverListener;
 import com.googlecode.gflot.client.event.PlotItem;
 import com.googlecode.gflot.client.event.PlotPosition;
 import com.googlecode.gflot.client.jsni.Plot;
+import com.googlecode.gflot.client.options.AxesOptions;
+import com.googlecode.gflot.client.options.AxisOptions;
+import com.googlecode.gflot.client.options.BarSeriesOptions;
+import com.googlecode.gflot.client.options.BarSeriesOptions.BarAlignment;
 import com.googlecode.gflot.client.options.GlobalSeriesOptions;
+import com.googlecode.gflot.client.options.GridOptions;
+import com.googlecode.gflot.client.options.LegendOptions;
+import com.googlecode.gflot.client.options.LineSeriesOptions;
 import com.googlecode.gflot.client.options.PlotOptions;
 
 public abstract class ChartPortlet extends BasePortlet {
@@ -54,6 +68,10 @@ public abstract class ChartPortlet extends BasePortlet {
     public static final String COLOR ="#555964"; //dark-grey //$NON-NLS-1$
     
     public static final String BACKGROUND_COLOR = "#FDFDFD"; //light-gray //$NON-NLS-1$ 
+    
+    public static final int MIN_WIDTH_TO_DISPLAY_TEXT = 200; // only display name when plot's width >= 200px
+    
+    public static final String[] SERIES_COLORS = { SERIES_1_COLOR, SERIES_2_COLOR, SERIES_2_COLOR, SERIES_3_COLOR };
 
     protected SimplePlot plot;
 
@@ -71,9 +89,13 @@ public abstract class ChartPortlet extends BasePortlet {
 
     private int plotHeight;
 
-    public ChartPortlet(String name, MainFramePanel portal) {
+    public ChartPortlet(String name, MainFramePanel portal, String heading, boolean isEntityConfigModel) {
         super(name, portal);
         setIcon();
+        setHeading(heading);      
+        initConfigModel(isEntityConfigModel);
+        initConfigSettings();
+        initChart();
     }
 
     @Override
@@ -174,12 +196,22 @@ public abstract class ChartPortlet extends BasePortlet {
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create());
         plot = new SimplePlot(plotOptions);
         plotWidth = this.getWidth() - 50;
-        plotHeight = this.getWidth() - 60;
+        plotHeight = plotWidth - 10;
         plot.setWidth(plotWidth);
         plot.setHeight(plotHeight);
+        entityNamesSorted = sort(chartData.keySet());
+        furtherInitPlot();
     }
+    
+    protected void furtherInitPlot() {
+        initOptions();
+        initSeries();
+     }
 
     protected void resizePlot() {
+        if (isResetXAxesOptions()) {
+            plot.getOptions().setXAxesOptions(getXAxesOptions());
+        }
         plot.setWidth(plotWidth);
         plot.setHeight(plotHeight);
         plot.redraw();
@@ -234,9 +266,102 @@ public abstract class ChartPortlet extends BasePortlet {
 
     abstract Map<String, Object> parseJSONData(JSONArray jsonArray);
 
-    abstract protected void updatePlot();
+    protected void updatePlot(){
+        entityNamesSorted = sort(chartData.keySet());
+        plot.getOptions().setXAxesOptions(getXAxesOptions());
+        for (int i = 0; i < getSeriesSize(); i++) {
+            plot.getModel().clearSeries(i);
+        }
+        addDataToSeries();
+    }
 
     abstract protected boolean isDifferentFrom(Map<String, Object> newData);
+    
+    abstract protected void initChart();
+    
+    protected void initConfigModel(boolean isEntityConfigModel) {
+        String setting = portalConfigs.getChartSetting(portletName);
+        if (setting != null) {
+            configModel = isEntityConfigModel ? new EntityConfigModel(startedAsOn, setting) : new TimeframeConfigModel(startedAsOn, setting);
+        } else {
+            configModel = isEntityConfigModel ? new EntityConfigModel(startedAsOn) : new TimeframeConfigModel(startedAsOn);
+        }
+    }
+    
+     protected void initSeries() {
+         String[] labels = getSeriesLabels();
+         String[] colors = getSeriesColors();
+         for (int i = 0; i < getSeriesSize(); i++) {
+             plot.getModel().addSeries(Series.of(labels[i]).setColor(colors[i]));
+         }
+         addDataToSeries();
+     }
+     
+     protected void initOptions() {
+         PlotOptions plotOptions = plot.getOptions();
+         plotOptions
+                 .setGlobalSeriesOptions(
+                         GlobalSeriesOptions
+                                 .create()
+                                 .setHighlightColor("rgba(255, 255, 255, 0.3)") //$NON-NLS-1$
+                                 .setLineSeriesOptions(LineSeriesOptions.create().setShow(false).setSteps(false))
+                                 .setBarsSeriesOptions(
+                                         BarSeriesOptions.create().setShow(true).setBarWidth(0.9).setFill(1)
+                                                 .setAlignment(BarAlignment.CENTER)).setStack(false))
+                 .setYAxesOptions(AxesOptions.create().addAxisOptions(AxisOptions.create().setTickDecimals(0).setMinimum(0)))
+                 .setXAxesOptions(getXAxesOptions());
+
+         plotOptions.setLegendOptions(LegendOptions.create().setShow(true));
+         plotOptions.setGridOptions(GridOptions.create().setHoverable(true).setBorderWidth(0).setColor(COLOR)
+                 .setBackgroundColor(BACKGROUND_COLOR));
+     }
+     
+     @SuppressWarnings("unchecked")
+    protected void addDataToSeries() {
+        List<? extends SeriesHandler> series = plot.getModel().getHandlers();
+        double x = 0;
+        int step = getSeriesSize() == 1 ? 1 : getSeriesSize() + 1;
+        for (String entityName : entityNamesSorted) {
+            if (getSeriesSize() == 1) {
+                series.get(0).add(DataPoint.of(x, (Double) chartData.get(entityName)));
+            } else {
+                String[] keys = getSeriesDataKeys();
+                Map<String, Integer> data = (Map<String, Integer>) chartData.get(entityName);
+                for (int i = 0; i < series.size(); i++) {
+                    series.get(i).add(DataPoint.of(x + i, data.get(keys[i])));
+                }
+            }
+            x += step;
+        }
+    }
+    
+    protected boolean isResetXAxesOptions() {
+        return true;
+    }
+    
+    protected int getSeriesSize() {
+        return 1;
+    }
+    
+    protected String[] getSeriesLabels() {
+        return null;
+    }
+    
+    protected String[] getSeriesDataKeys() {
+        return null;
+    }
+    
+    protected String[] getSeriesColors() {
+        String[] colors = new String[getSeriesSize()];
+        for (int i = 0; i < colors.length; i++) {
+            if (i <= SERIES_COLORS.length - 1) {
+                colors[i] = SERIES_COLORS[i];
+            } else {
+                colors[i] = COLOR;
+            }
+        }
+        return colors;
+    }
 
     protected void addPlotHovering() {
         final PopupPanel popup = new PopupPanel();
@@ -264,8 +389,29 @@ public abstract class ChartPortlet extends BasePortlet {
     protected String getHoveringText(PlotItem item) {
         int valueY = (int) item.getDataPoint().getY();
         int valueX = (int) item.getDataPoint().getX();
-
-        return entityNamesSorted.get(valueX) + ": " + valueY + "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        int nameIndex = valueX / (getSeriesSize() == 1 ? 1 : getSeriesSize() + 1);
+        
+        String hoveringText = entityNamesSorted.get(nameIndex) + ": " + valueY;//$NON-NLS-1$
+        if(getSeriesSize() > 1) {
+            hoveringText += "(" + item.getSeries().getLabel() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return  hoveringText;  
+    }
+    
+    protected AxesOptions getXAxesOptions() {
+        return AxesOptions.create().addAxisOptions(
+                AxisOptions.create().setAxisLabelAngle(70d).setTicks(getTicks()).setAutoscaleMargin(0.1));
+    }
+    
+    protected AxeTicks getTicks() {
+        AxeTicks entityTicks = AxeTicks.create();
+        double x = getSeriesSize() == 1 ? 0 : 1;
+        int step = getSeriesSize() == 1 ? 1 : getSeriesSize() + 1;
+        for (String entityName : entityNamesSorted) {
+            entityTicks.push(Tick.of(x, plotWidth >= MIN_WIDTH_TO_DISPLAY_TEXT ? entityName : "")); //$NON-NLS-1$
+            x += step;
+        }
+        return entityTicks;
     }
 
 }
