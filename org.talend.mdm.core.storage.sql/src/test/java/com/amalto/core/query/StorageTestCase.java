@@ -41,9 +41,9 @@ public class StorageTestCase extends TestCase {
     private static Logger LOG = Logger.getLogger(StorageTestCase.class);
 
     protected static final Storage systemStorage;
-    
+
     protected static final Storage storage;
-    
+
     protected static final MetadataRepository systemRepository;
 
     protected static final MetadataRepository repository;
@@ -119,22 +119,26 @@ public class StorageTestCase extends TestCase {
     protected static final ComplexTypeMetadata tt;
 
     protected static final ComplexTypeMetadata rr;
-    
+
     protected static final ComplexTypeMetadata compte;
 
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
-    
+
     protected static final ComplexTypeMetadata contexte;
-    
+
     protected static final ComplexTypeMetadata personne;
-    
+
     protected static final ComplexTypeMetadata hierarchy;
-    
+
     protected static final ComplexTypeMetadata cpo_service;
-    
+
     protected static final ComplexTypeMetadata location;
-    
+
     protected static final ComplexTypeMetadata organisation;
+
+    protected static final ComplexTypeMetadata e_entity;
+
+    protected static final ComplexTypeMetadata t_entity;
 
     public static final String DATABASE = "H2";
 
@@ -185,15 +189,17 @@ public class StorageTestCase extends TestCase {
         tt = repository.getComplexType("TT");
         rr = repository.getComplexType("RR");
         compte = repository.getComplexType("Compte");
-        
+
         contexte = repository.getComplexType("Contexte");
         personne = repository.getComplexType("Personne");
-        
+
         hierarchy = repository.getComplexType("HierarchySearchItem");
         cpo_service = repository.getComplexType("cpo_service");
-        
+
         location = repository.getComplexType("Location");
         organisation = repository.getComplexType("Organisation");
+        e_entity = repository.getComplexType("E_Entity");
+        t_entity = repository.getComplexType("T_Entity");
 
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
@@ -207,16 +213,16 @@ public class StorageTestCase extends TestCase {
         indexedExpressions.add(UserQueryBuilder.from(e).where(isNull(e.getField("commonText"))).getExpression());
         storage.prepare(repository, new HashSet<Expression>(indexedExpressions), true, true);
         LOG.info("Storage prepared.");
-        
+
         LOG.info("Preparing system storage");
-        
+
         systemStorage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), userSecurity);
         systemStorage.init(getDatasource(DATABASE + "-Default"));
         systemRepository = buildSystemRepository();
         systemStorage.prepare(systemRepository, new HashSet<Expression>(), true, true);
-        
+
         LOG.info("System storage prepared");
-        
+
     }
 
     private static ClassRepository buildSystemRepository() {
@@ -229,7 +235,7 @@ public class StorageTestCase extends TestCase {
         repository.load(objectsToParse);
         return repository;
     }
-    
+
     private ClassLoader previous;
 
     protected static DataSourceDefinition getDatasource(String dataSourceName) {

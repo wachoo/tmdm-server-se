@@ -12,14 +12,14 @@
 package com.amalto.core.query.user;
 
 
-import org.talend.mdm.commmon.metadata.MetadataUtils;
-import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
-import org.talend.mdm.commmon.metadata.FieldMetadata;
-import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
-
 import java.util.Collections;
 import java.util.List;
+
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 public class Field implements TypedExpression {
 
@@ -79,6 +79,20 @@ public class Field implements TypedExpression {
             return false;
         }
         Field field = (Field) o;
+        if (field.fieldMetadata instanceof ReferenceFieldMetadata) {
+            if (fieldMetadata.getContainingType() != null && field.fieldMetadata.getContainingType() != null) {
+                if (!fieldMetadata.getContainingType().toString().equals(field.fieldMetadata.getContainingType().toString())) {
+                    return false;
+                }
+            }
+        }
+        if (field.getPath() != null && this.getPath() != null && field.getPath().size() > 0) {
+            for (FieldMetadata fm : field.getPath()) {
+                if (!getPath().contains(fm)) {
+                    return false;
+                }
+            }
+        }
         return fieldMetadata.getName().equals(field.fieldMetadata.getName());
     }
 
