@@ -345,6 +345,9 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src><location>[t1]</location></locations></Organisation>"));
         allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src></locations></Organisation>"));
 
+        allRecords.add(factory.read(repository, e_entity, "<E_Entity><E_EntityId>e test data 1</E_EntityId><name>1</name></E_Entity>"));
+        allRecords.add(factory.read(repository, t_entity, "<T_Entity><T_EntityId>t test data 1</T_EntityId><columnT><elementT><A-id><element><elementB>[e test data 1]</elementB></element></A-id><A-id2><element><elementB/></element></A-id2></elementT></columnT></T_Entity>"));
+        allRecords.add(factory.read(repository, t_entity, "<T_Entity><T_EntityId>t test data 2</T_EntityId><columnT><elementT><A-id><element><elementB/></element></A-id><A-id2><element><elementB>[e test data 1]</elementB></element></A-id2></elementT></columnT></T_Entity>"));
         try {
             storage.begin();
             storage.update(allRecords);
@@ -4549,6 +4552,30 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
             storage.commit();
+        }
+    }
+
+    public void testPathContainsMultiChildQuery() throws Exception {
+        UserQueryBuilder qb = from(t_entity)
+                .select(e_entity.getField("E_EntityId"))
+                .where(or(eq(t_entity.getField("columnT/elementT/A-id/element/elementB"), "e test data 1"),
+                        eq(t_entity.getField("columnT/elementT/A-id2/element/elementB"), "e test data 1")))
+                .join(t_entity.getField("columnT/elementT/A-id2/element/elementB"));
+
+        assertTrue(qb.getSelect().normalize() instanceof Select);
+        Select sel = (Select) qb.getSelect().normalize();
+        assertTrue(sel.getCondition() instanceof BinaryLogicOperator);
+        BinaryLogicOperator blo = (BinaryLogicOperator) sel.getCondition();
+        assertNotNull(blo.getLeft());
+        assertNotNull(blo.getRight());
+        assertTrue(blo.getLeft() instanceof Compare);
+        assertTrue(blo.getRight() instanceof Compare);
+
+        StorageResults results = storage.fetch(sel);
+        try {
+            assertNotNull(results);
+        } finally {
+            results.close();
         }
     }
 
