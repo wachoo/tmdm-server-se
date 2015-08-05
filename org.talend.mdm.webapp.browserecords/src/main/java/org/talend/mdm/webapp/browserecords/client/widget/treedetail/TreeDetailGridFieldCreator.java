@@ -36,6 +36,7 @@ import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.FKPropertyEditor;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ForeignKeySelector;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.BooleanField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ForeignKeyField;
@@ -84,8 +85,8 @@ public class TreeDetailGridFieldCreator {
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
-            ForeignKeyField fkField = new ForeignKeyField(node, dataType.getXpath(), dataType.getFkFilter(),
-                    dataType.getForeignkey(), dataType.getForeignKeyInfo(), itemsDetailPanel);
+            ForeignKeySelector fkField = new ForeignKeySelector(dataType.getForeignkey(), dataType.getForeignKeyInfo(),
+                    dataType.getXpath(), dataType.getFkFilter(), itemsDetailPanel, node);
             if (value instanceof ForeignKeyBean) {
                 ForeignKeyBean fkBean = (ForeignKeyBean) value;
                 if (fkBean != null) {
