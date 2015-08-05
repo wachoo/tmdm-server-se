@@ -248,6 +248,9 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                             + stagingRecord.get(stagingRecord.getType().getKeyFields().iterator().next())
                             + " (" + stagingRecord.getType().getName() + ")", e);
                 }
+                if(isResolve) {
+                    session.abort(committer);
+                }
                 stats.reportError();
             }
         }
@@ -305,6 +308,7 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 storage.rollback();
                 // something prevent committing the whole batch, try again one by one
                 if(COMMIT_SIZE > 1 && stagingRecords.size() > 0) {
+                    session.abort(committer);
                     resolve(stats);
                 } else {                    
                     // This is unexpected (session should only contain records that won't fail commit).
