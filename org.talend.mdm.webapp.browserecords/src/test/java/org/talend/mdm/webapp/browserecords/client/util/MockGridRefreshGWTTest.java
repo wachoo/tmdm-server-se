@@ -392,12 +392,6 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK,
-                String foreignKeyFilter, String value, String language,
-                AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback) {
-        }
-
-        @Override
         public void getForeignKeyPolymTypeList(String xpathForeignKey, String language, AsyncCallback<List<Restriction>> callback) {
         }
 
@@ -604,12 +598,6 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getForeignKeySuggestion(BasePagingLoadConfigImpl config, String foregnKey, List<String> foregnKeyInfo,
-                String dataClusterPK, boolean ifFKFilter, String input, String language,
-                AsyncCallback<List<ForeignKeyBean>> callback) {
-        }
-
-        @Override
         public void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Integer> callback) {
 
         }
@@ -624,6 +612,18 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         public void getItemBeanById(String concept, String ids, String language, AsyncCallback<ItemBean> callback) {
             // TODO Auto-generated method stub
 
+        }
+
+        @Override
+        public void getForeignKeyList(BasePagingLoadConfigImpl config, String foreignKeyPath, List<String> foreignKeyInfo,
+                String foreignKeyFilter, String filterValue, TypeModel model, String dataClusterPK, String language,
+                AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback) {
+        }
+
+        @Override
+        public void getForeignKeySuggestion(BasePagingLoadConfigImpl config, String foregnKey, List<String> foregnKeyInfo,
+                String foreignKeyFilter, String dataClusterPK, String input, String language,
+                AsyncCallback<List<ForeignKeyBean>> callback) {
         }
     }
 
