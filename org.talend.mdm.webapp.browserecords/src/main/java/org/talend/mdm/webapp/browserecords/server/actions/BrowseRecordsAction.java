@@ -189,9 +189,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
 
     public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
-        
+
     public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
-    
+
     @Override
     public List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
         List<ItemResult> itemResults = new ArrayList<ItemResult>();
@@ -204,36 +204,32 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String concept = item.getConcept();
                 String[] ids = getItemId(repository, item, concept);
 
-                WSDeleteItemWithReport wsDeleteItem  = new WSDeleteItemWithReport(new WSItemPK(new WSDataClusterPK(dataClusterPK), concept, ids),
-                        "genericUI", //$NON-NLS-1$
-                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE,
-                        "/", //$NON-NLS-1$
-                        LocalUser.getLocalUser().getUsername(),
-                        true,
-                        true,
-                        override);
+                WSDeleteItemWithReport wsDeleteItem = new WSDeleteItemWithReport(new WSItemPK(new WSDataClusterPK(dataClusterPK),
+                        concept, ids), "genericUI", //$NON-NLS-1$
+                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, "/", //$NON-NLS-1$
+                        LocalUser.getLocalUser().getUsername(), true, true, override);
 
                 WSString deleteMessage = CommonUtil.getPort().deleteItemWithReport(wsDeleteItem);
-                
+
                 if (deleteMessage == null) {
                     throw new ServiceException(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
                 } else {
                     String message = deleteMessage.getValue();
                     String messageType = wsDeleteItem.getSource();
-                    if(messageType != null && INFO_KEYWORD.equals(messageType)){ 
-                        messageBean.setKey(item.getIds()); 
+                    if (messageType != null && INFO_KEYWORD.equals(messageType)) {
+                        messageBean.setKey(item.getIds());
                         messageBean.setStatus(getMessageTypeStatus(INFO_KEYWORD));
                         messageBean.setMessage(message);
                         itemResults.add(messageBean);
-                    } else if(messageType != null && FAIL_KEYWORD.equals(messageType)){ 
-                        messageBean.setKey(item.getIds()); 
+                    } else if (messageType != null && FAIL_KEYWORD.equals(messageType)) {
+                        messageBean.setKey(item.getIds());
                         messageBean.setStatus(getMessageTypeStatus(FAIL_KEYWORD));
                         messageBean.setMessage(MESSAGES.getMessage("message_fail", locale)); //$NON-NLS-1$
                         itemResults.add(messageBean);
-                    } else if(messageType != null && ERROR_KEYWORD.equals(messageType)){ 
-                        messageBean.setKey(item.getIds()); 
+                    } else if (messageType != null && ERROR_KEYWORD.equals(messageType)) {
+                        messageBean.setKey(item.getIds());
                         messageBean.setStatus(getMessageTypeStatus(ERROR_KEYWORD));
-                        messageBean.setMessage(message); 
+                        messageBean.setMessage(message);
                         itemResults.add(messageBean);
                     }
                 }
@@ -256,14 +252,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         return itemResults;
     }
-    
+
     private int getMessageTypeStatus(String keywords) {
-        int status = 0;        
-        if(INFO_KEYWORD.equalsIgnoreCase(keywords)){
+        int status = 0;
+        if (INFO_KEYWORD.equalsIgnoreCase(keywords)) {
             return 1;
-        } else if(FAIL_KEYWORD.equalsIgnoreCase(keywords)){
+        } else if (FAIL_KEYWORD.equalsIgnoreCase(keywords)) {
             return 2;
-        } else if(ERROR_KEYWORD.equalsIgnoreCase(keywords)){
+        } else if (ERROR_KEYWORD.equalsIgnoreCase(keywords)) {
             return 3;
         }
         return status;
@@ -325,12 +321,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
-            String dataClusterPK, String foreignKeyFilter, String value, String language) throws ServiceException {
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, String foreignKeyPath,
+            List<String> foreignKeyInfo, String foreignKeyFilter, String filterValue, TypeModel model, String dataClusterPK,
+            String language) throws ServiceException {
         try {
-            String foreignKeyConcept = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
-            return ForeignKeyHelper.getForeignKeyList(config, model, getEntityModel(foreignKeyConcept, language), dataClusterPK,
-                    foreignKeyFilter, value);
+            String foreignKeyConcept = foreignKeyPath.split("/")[0]; //$NON-NLS-1$
+            return ForeignKeyHelper.getForeignKeyList(config, foreignKeyPath, foreignKeyInfo,
+                    org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(foreignKeyFilter), filterValue, model,
+                    getEntityModel(foreignKeyConcept, language), dataClusterPK);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -346,7 +344,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         model.setForeignkey(foreignKey);
         model.setForeignKeyInfo(foreignKeyInfo);
         model.setRetrieveFKinfos(true);
-        model.setFkFilter(foreignKeyFilter);
+        model.setFkFilter(org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(foreignKeyFilter));
         EntityModel foreignKeyEntityModel = getEntityModel(model.getForeignkey().split("/")[0], language); //$NON-NLS-1$
         try {
             return ForeignKeyHelper.getForeignKeyBean(model, foreignKeyEntityModel, currentDataCluster, ids, xml, currentXpath,
@@ -1705,8 +1703,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @SuppressWarnings("deprecation")
     @Override
-    public ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel, String language)
-            throws ServiceException {
+    public ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml,
+            EntityModel entityModel, String language) throws ServiceException {
         try {
             org.dom4j.Document doc;
             if (xml == null || xml.trim().length() == 0) {
@@ -1730,11 +1728,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
                 org.dom4j.Element element = (org.dom4j.Element) doc.selectSingleNode(xpath);
                 element.setText(value);
-                
-                if(entityModel != null && entityModel.getMetaDataTypes() != null){
+
+                if (entityModel != null && entityModel.getMetaDataTypes() != null) {
                     TypeModel tm = entityModel.getMetaDataTypes().get(xpath);
-                    if (tm != null && tm.getForeignkey() != null && element.attributeValue("type") != null && !element.attributeValue("type").equalsIgnoreCase(tm.getForeignkey().split("/")[0])) {  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-                        element.setAttributeValue("type", tm.getForeignkey().split("/")[0]);  //$NON-NLS-1$//$NON-NLS-2$
+                    if (tm != null
+                            && tm.getForeignkey() != null
+                            && element.attributeValue("type") != null && !element.attributeValue("type").equalsIgnoreCase(tm.getForeignkey().split("/")[0])) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                        element.setAttributeValue("type", tm.getForeignkey().split("/")[0]); //$NON-NLS-1$//$NON-NLS-2$
                     }
                 }
             }
@@ -2300,18 +2300,14 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
     @Override
     public List<ForeignKeyBean> getForeignKeySuggestion(BasePagingLoadConfigImpl config, String foregnKey,
-            List<String> foregnKeyInfo, String dataClusterPK, boolean ifFKFilter, String input, String language)
+            List<String> foregnKeyInfo, String foreignKeyFilter, String dataClusterPK, String input, String language)
             throws ServiceException {
         try {
             String keyWords = input;
             String pattern = "[^a-zA-Z0-9\\s\\@\\.\\-\\_\\'\"]"; //$NON-NLS-1$
             String foregnKeyConcept = foregnKey.split("/")[0]; //$NON-NLS-1$
             EntityModel entityModel = getEntityModel(foregnKeyConcept, language);
-
             TypeModel typeModel = entityModel.getTypeModel(foregnKeyConcept);
-            typeModel.setForeignkey(foregnKey);
-            typeModel.setForeignKeyInfo(foregnKeyInfo);
-            typeModel.setRetrieveFKinfos(true);
 
             if (input.contains(":") && input.indexOf(":") > 0) { //$NON-NLS-1$ //$NON-NLS-2$
                 String entityName = input.split(":")[0]; //$NON-NLS-1$
@@ -2326,9 +2322,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             }
 
             keyWords = keyWords.replaceAll(pattern, ""); //$NON-NLS-1$
-            ItemBasePageLoadResult<ForeignKeyBean> loadResult = ForeignKeyHelper.getForeignKeyList(config, typeModel,
-                    entityModel, dataClusterPK, ifFKFilter, keyWords);
-
+            ItemBasePageLoadResult<ForeignKeyBean> loadResult = ForeignKeyHelper.getForeignKeyList(config, foregnKey,
+                    foregnKeyInfo, org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(foreignKeyFilter), keyWords,
+                    typeModel, entityModel, dataClusterPK);
             return loadResult.getData();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
