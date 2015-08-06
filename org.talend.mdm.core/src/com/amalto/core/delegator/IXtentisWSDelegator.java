@@ -1090,9 +1090,6 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 source, System.currentTimeMillis(), dataClusterPK, dataModelPK, userName, updateReportItemsMap);
         WSItemPK itemPK = putItem(new WSPutItem(new WSDataClusterPK(UpdateReportPOJO.DATA_CLUSTER), updateReportPOJO.serialize(),
                 new WSDataModelPK(UpdateReportPOJO.DATA_MODEL), false));
-        if (trigger) {
-            routeItemV2(new WSRouteItemV2(itemPK));
-        }
     }
 
     @Override
