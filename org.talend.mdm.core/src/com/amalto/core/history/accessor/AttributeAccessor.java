@@ -53,11 +53,11 @@ class AttributeAccessor implements DOMAccessor {
     private Node getAttribute() {
         Node parentNode = parent.getNode();
         if (parentNode == null) {
-            throw new IllegalStateException("Could not find a parent node in document (check if document has a root element).");
+            throw new IllegalStateException("Could not find a parent node in document (check if document has a root element)."); //$NON-NLS-1$
         }
         NamedNodeMap attributes = parentNode.getAttributes();
         if (attributes == null) {
-            throw new IllegalStateException("Could not find attributes on parent node.");
+            throw new IllegalStateException("Could not find attributes on parent node."); //$NON-NLS-1$
         }
 
         QName qName = getQName(document.asDOM());
@@ -80,7 +80,7 @@ class AttributeAccessor implements DOMAccessor {
                 } else if ("tmdm".equals(attributePrefix)) { //$NON-NLS-1$
                     domDocument.getDocumentElement().setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:tmdm", SkipAttributeDocumentBuilder.TALEND_NAMESPACE);  //$NON-NLS-1$
                 } else {
-                    throw new IllegalArgumentException("Unrecognized attribute prefix: '" + attributePrefix + "'.");
+                    throw new IllegalArgumentException("Unrecognized attribute prefix: '" + attributePrefix + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
         }
@@ -135,10 +135,10 @@ class AttributeAccessor implements DOMAccessor {
     public void set(String value) {
         Node namedItem = getAttribute();
         if (namedItem == null) {
-            throw new IllegalStateException("Attribute '" + attributeName + "' does not exist.");
+            throw new IllegalStateException("Attribute '" + attributeName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (!(namedItem instanceof Attr)) {
-            throw new IllegalStateException("Expected a " + Attr.class.getName() + " instance but got a " + namedItem.getClass().getName());
+            throw new IllegalStateException("Expected a " + Attr.class.getName() + " instance but got a " + namedItem.getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         Attr attribute = (Attr) namedItem;
@@ -148,7 +148,7 @@ class AttributeAccessor implements DOMAccessor {
     public String get() {
         Node namedItem = getAttribute();
         if (!(namedItem instanceof Attr)) {
-            throw new IllegalStateException("Expected a " + Attr.class.getName() + " instance but got a " + namedItem.getClass().getName());
+            throw new IllegalStateException("Expected a " + Attr.class.getName() + " instance but got a " + namedItem.getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
         }
 
         Attr attribute = (Attr) namedItem;
@@ -197,7 +197,7 @@ class AttributeAccessor implements DOMAccessor {
             if (attribute != null) {
                 parentNode.getAttributes().removeNamedItemNS(attribute.getNamespaceURI(), attribute.getLocalName());
             } else {
-                logger.warn("Attempt to delete the attribute '" + attributeName + "'that does not exist.");
+                logger.warn("Attempt to delete the attribute '" + attributeName + "'that does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
     }
@@ -244,7 +244,7 @@ class AttributeAccessor implements DOMAccessor {
     }
 
     public String getActualType() {
-        throw new UnsupportedOperationException("Attributes can't override their type.");
+        throw new UnsupportedOperationException("Attributes can't override their type."); //$NON-NLS-1$
     }
 
     @Override

@@ -24,12 +24,13 @@ public class WSPartialPutItem {
     protected java.lang.Integer startingPosition;
     protected java.lang.Boolean overwrite;
     protected boolean report;
-    private String source;
+    protected java.lang.String source;
+    protected java.lang.Boolean delete;
 
     public WSPartialPutItem() {
     }
     
-    public WSPartialPutItem(java.lang.String xml, java.lang.String datacluster, java.lang.String pivot, java.lang.String datamodel, java.lang.String keyXPath, java.lang.Integer startingPosition, java.lang.Boolean overwrite, boolean report, String source) {
+    public WSPartialPutItem(java.lang.String xml, java.lang.String datacluster, java.lang.String pivot, java.lang.String datamodel, java.lang.String keyXPath, java.lang.Integer startingPosition, java.lang.Boolean overwrite, boolean report, java.lang.String source, java.lang.Boolean delete) {
         this.xml = xml;
         this.datacluster = datacluster;
         this.pivot = pivot;
@@ -39,6 +40,7 @@ public class WSPartialPutItem {
         this.overwrite = overwrite;
         this.report = report;
         this.source = source;
+        this.delete = delete;
     }
     
     public java.lang.String getXml() {
@@ -105,11 +107,19 @@ public class WSPartialPutItem {
         this.report = report;
     }
 
-    public String getSource() {
+    public java.lang.String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public void setSource(java.lang.String source) {
         this.source = source;
     }
+ 
+    public java.lang.Boolean isDelete() {
+        return delete;
+    }
+ 
+    public void setDelete(java.lang.Boolean delete) {
+        this.delete = delete;
+    }   
 }

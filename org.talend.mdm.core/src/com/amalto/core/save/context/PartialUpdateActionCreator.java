@@ -87,7 +87,7 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
                 partialUpdatePivot = pivot;
             }
             if (!key.isEmpty() && key.charAt(0) != '/') {
-                this.partialUpdateKey = key + '/';
+                this.partialUpdateKey = '/' + key;
             } else {
                 this.partialUpdateKey = key;
             }
@@ -108,15 +108,15 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
         Accessor accessor = newDocument.createAccessor(partialUpdatePivot);
         for (int i = 1; i <= accessor.size(); i++) {
             String path = partialUpdatePivot + '[' + i + ']';
-            Accessor keyAccessor = newDocument.createAccessor(path + '/' + partialUpdateKey);
+            Accessor keyAccessor = newDocument.createAccessor(path + partialUpdateKey);
             if (!keyAccessor.exist()) {
-                throw new IllegalStateException("Path '" + path + '/' + partialUpdateKey + "' does not exist in document sent for partial update.");
+                throw new IllegalStateException("Path '" + path + partialUpdateKey + "' does not exist in document sent for partial update."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             String keyValue = keyAccessor.get();
             if (keyValue != null) {
                 keyValueToPath.put(keyValue, path);
             } else if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Key value at '" + path + "' has no value (was null). Ignoring it.");
+                LOGGER.debug("Key value at '" + path + "' has no value (was null). Ignoring it."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
     }
@@ -206,7 +206,7 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
             if (!inPivot && isPivot) {
                 inPivot = true;
                 if (!field.isMany()) {
-                    LOGGER.warn("Partial update pivot '" + partialUpdatePivot + "' is not a repeatable element (it might be a configuration issue).");
+                    LOGGER.warn("Partial update pivot '" + partialUpdatePivot + "' is not a repeatable element (it might be a configuration issue)."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
             if (inPivot && field.isMany()) {
@@ -314,6 +314,7 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
         leaveRight();
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void compare(FieldMetadata comparedField) {
         if (comparedField.isKey()) {
             // Can't update a key: don't even try to compare the field (but update lastMatchPath in case next compared
@@ -322,10 +323,10 @@ public class PartialUpdateActionCreator extends UpdateActionCreator {
             return;
         }
         if (rightPath.isEmpty()) {
-            throw new IllegalStateException("Path in new document can not be empty.");
+            throw new IllegalStateException("Path in new document can not be empty."); //$NON-NLS-1$
         }
         if (leftPath.isEmpty()) {
-            throw new IllegalStateException("Path in database document can not be empty.");
+            throw new IllegalStateException("Path in database document can not be empty."); //$NON-NLS-1$
         }
         String leftPath = getLeftPath();
         String rightPath = getRightPath();

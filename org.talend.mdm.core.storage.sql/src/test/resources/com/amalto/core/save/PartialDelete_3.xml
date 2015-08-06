@@ -1,0 +1,8 @@
+<Person>
+	<Id>1</Id>
+	<Habits>
+		<Habit>Basketball</Habit>
+		<Habit>Football</Habit>
+		<Habit>Boxing</Habit>
+	</Habits>
+</Person>

@@ -1,0 +1,7 @@
+<Person>
+	<Id>1</Id>
+	<Houses>
+		<House>[1]</House>
+		<House>[2]</House>
+	</Houses>
+</Person>	

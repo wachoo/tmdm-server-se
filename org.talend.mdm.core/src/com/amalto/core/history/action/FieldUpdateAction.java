@@ -129,15 +129,15 @@ public class FieldUpdateAction extends AbstractFieldAction {
     }
 
     public String getDetails() {
-        return "update field '" + updatedField.getName() + "' of type '" + updatedField.getContainingType().getName() + "'";
+        return "update field '" + updatedField.getName() + "' of type '" + updatedField.getContainingType().getName() + "'"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override
     public String toString() {
-        return "FieldUpdateAction{" +
-                "path='" + path + '\'' +
-                ", oldValue='" + getOldValue() + '\'' +
-                ", newValue='" + getNewValue() + '\'' +
+        return "FieldUpdateAction{" + //$NON-NLS-1$
+                "path='" + path + '\'' + //$NON-NLS-1$
+                ", oldValue='" + getOldValue() + '\'' + //$NON-NLS-1$
+                ", newValue='" + getNewValue() + '\'' + //$NON-NLS-1$
                 '}';
     }
 

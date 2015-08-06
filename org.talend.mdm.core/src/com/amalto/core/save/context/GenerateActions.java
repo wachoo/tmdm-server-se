@@ -10,7 +10,14 @@
 
 package com.amalto.core.save.context;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -44,7 +51,7 @@ class GenerateActions implements DocumentSaver {
         MutableDocument userDocument = context.getUserDocument();
         MutableDocument databaseDocument = context.getDatabaseDocument();
         if (databaseDocument == null) {
-            throw new IllegalStateException("Database document is expected to be set.");
+            throw new IllegalStateException("Database document is expected to be set."); //$NON-NLS-1$
         }
         // Get source of modification (only if we're in the context of an update report).
         String source = context.getChangeSource();
@@ -110,8 +117,7 @@ class GenerateActions implements DocumentSaver {
             // "Is replace" (similar to creation but without clean up of empty elements).
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();
-            Action replaceAction = new OverrideReplaceAction(date, source, userName, userDocument, type);
-            actions.add(replaceAction);
+            actions.add(new OverrideReplaceAction(date, source, userName, userDocument, type));
             actions.addAll(type.accept(updateActions));
             break;
         case PARTIAL_UPDATE:
@@ -121,6 +127,10 @@ class GenerateActions implements DocumentSaver {
                     context.generateTouchActions(), metadataRepository);
             actions = type.accept(partialUpdateActionCreator);
             break;
+        case PARTIAL_DELETE:
+            actions = new PartialDeleteActionCreator(date, source, userName, context.getPartialUpdatePivot(),
+                    context.getPartialUpdateKey(), userDocument).create();
+            break;
         case LOGICAL_DELETE:
             actions = Collections.<Action> singletonList(new LogicalDeleteAction(date, source, userName, type));
             break;
@@ -128,7 +138,7 @@ class GenerateActions implements DocumentSaver {
             actions = Collections.<Action> singletonList(new PhysicalDeleteAction(date, source, userName, type));
             break;
         default:
-            throw new NotImplementedException("Support for '" + userAction + "'.");
+            throw new NotImplementedException("Support for '" + userAction + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         // Handle generated actions
         if (!context.getActions().isEmpty()) {

@@ -501,6 +501,66 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("http://www.mynewsite.fr", evaluate(committedElement, "/Agency/Information/MoreInfo[1]"));
         assertEquals("", evaluate(committedElement, "/Agency/Information/MoreInfo[2]"));
     }
+    
+    public void testPartialDelete() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("PartialDelete.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        @SuppressWarnings("serial")
+        List<Map<String, String>> testDatas = new ArrayList<Map<String, String>>() {
+
+            {
+                add(new HashMap<String, String>() {//foreign key
+
+                    {
+                        put("pivot", "Person/Houses/House");
+                        put("key", ".");
+                        put("document", "PartialDelete_1.xml");
+                        put("asssertPath", "/Person/Houses/House[1]");
+                        put("asssertValue", "[3]");
+                    }
+                });
+                add(new HashMap<String, String>() {//complex type
+
+                    {
+                        put("pivot", "Person/Kids/Kid");
+                        put("key", "/Name");
+                        put("document", "PartialDelete_2.xml");
+                        put("asssertPath", "/Person/Kids/Kid[1]/Name");
+                        put("asssertValue", "k1");
+                    }
+                });
+                add(new HashMap<String, String>() {//simple type
+
+                    {
+                        put("pivot", "Person/Habits/Habit");
+                        put("key", "");
+                        put("document", "PartialDelete_3.xml");
+                        put("asssertPath", "/Person/Habits/Habit[1]");
+                        put("asssertValue", "Tennis");
+                    }
+                });
+            }
+        };
+
+        for (Map<String, String> data : testDatas) {
+            TestSaverSource source = new TestSaverSource(repository, true, "PartialDelete_original.xml", "PartialDelete.xsd");
+            source.setUserName("admin");
+
+            SaverSession session = SaverSession.newSession(source);
+            InputStream recordXml = DocumentSaveTest.class.getResourceAsStream(data.get("document"));
+            DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", recordXml, true, true, data.get("pivot"), data.get("key"), -1, true, true);
+            DocumentSaver saver = context.createSaver();
+            saver.save(session, context);
+            MockCommitter committer = new MockCommitter();
+            session.end(committer);
+
+            assertTrue(committer.hasSaved());
+            Element committedElement = committer.getCommittedElement();
+            assertEquals(data.get("asssertValue"), evaluate(committedElement, data.get("asssertPath")));
+        }
+    }
 
     public void testUpdate() throws Exception {
         // TODO Test for modification of id (this test modifies id but this is intentional).

@@ -50,18 +50,21 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
                                                 String pivot,
                                                 String key,
                                                 int index,
-                                                boolean overwrite) {
+                                                boolean overwrite,
+                                                boolean delete) {
         if (pivot == null) {
             pivot = StringUtils.EMPTY;
         }
         if (key == null) {
             key = StringUtils.EMPTY;
         }
-        if (pivot.length() > 1) {
+        if (delete) {
+            return new PartialUpdateSaverContext(context, pivot, key, index, overwrite, UserAction.PARTIAL_DELETE);
+        } else if (pivot.length() > 1) {
             return new PartialUpdateSaverContext(context, pivot, key, index, overwrite, UserAction.PARTIAL_UPDATE);
         } else {
             return new PartialUpdateSaverContext(context, pivot, key, index, overwrite, UserAction.UPDATE);
-        }
+        }    
     }
 
     @Override
@@ -183,4 +186,5 @@ public class PartialUpdateSaverContext implements DocumentSaverContext {
     public DocumentSaverContext getDelegate() {
         return delegate;
     }
+
 }

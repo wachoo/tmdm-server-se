@@ -11,9 +11,29 @@
 
 package com.amalto.core.save.context;
 
+import java.io.InputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
-import com.amalto.core.save.*;
+import com.amalto.core.save.AutoCommitSaverContext;
+import com.amalto.core.save.DOMDocument;
+import com.amalto.core.save.DocumentSaverContext;
+import com.amalto.core.save.PartialUpdateSaverContext;
+import com.amalto.core.save.ReportDocumentSaverContext;
+import com.amalto.core.save.SaverSession;
+import com.amalto.core.save.UserAction;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.Server;
@@ -24,30 +44,12 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.webapp.XObjectType;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.InputStream;
-import java.util.Map;
 
 public class SaverContextFactory {
 
     public static final DocumentBuilder DOCUMENT_BUILDER;
 
     public static final Document EMPTY_UPDATE_REPORT;
-
-    private static final Map<String, XSystemObjects> SYSTEM_DATA_CLUSTERS = XSystemObjects.getXSystemObjects(XObjectType.DATA_CLUSTER);
-
-    private static final String SYSTEM_CONTAINER_PREFIX = "amalto";  //$NON-NLS-1$
 
     private static DocumentSaverExtension saverExtension;
 
@@ -58,14 +60,14 @@ public class SaverContextFactory {
                 Class<DocumentSaverExtension> extension = (Class<DocumentSaverExtension>) Class.forName("com.amalto.core.save.DocumentSaverExtensionImpl"); //$NON-NLS-1$
                 saverExtension = extension.newInstance();
             } catch (ClassNotFoundException e) {
-                Logger.getLogger(UserContext.class).warn("No extension found for save.");
+                Logger.getLogger(UserContext.class).warn("No extension found for save."); //$NON-NLS-1$
                 saverExtension = new DocumentSaverExtension() {
                     public DocumentSaver invokeSaverExtension(DocumentSaver saver) {
                         return saver;
                     }
                 };
             } catch (Exception e) {
-                throw new RuntimeException("Unexpected exception occurred during saver extension lookup.");
+                throw new RuntimeException("Unexpected exception occurred during saver extension lookup."); //$NON-NLS-1$
             }
         }
 
@@ -78,15 +80,15 @@ public class SaverContextFactory {
         factory.setIgnoringComments(true);
         factory.setValidating(false);
         try {
-            factory.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", false);
+            factory.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", false); //$NON-NLS-1$
             DOCUMENT_BUILDER = factory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            throw new RuntimeException("Could not acquire a document builder.", e);
+            throw new RuntimeException("Could not acquire a document builder.", e); //$NON-NLS-1$
         }
         try {
             EMPTY_UPDATE_REPORT = DOCUMENT_BUILDER.parse(SaverContextFactory.class.getResourceAsStream("updateReport.xml")); //$NON-NLS-1$
         } catch (Exception e) {
-            throw new RuntimeException("Could not parse update report skeleton document.", e);
+            throw new RuntimeException("Could not parse update report skeleton document.", e); //$NON-NLS-1$
         }
     }
 
@@ -161,7 +163,7 @@ public class SaverContextFactory {
                                        boolean invokeBeforeSaving,
                                        boolean autoCommit) {
         if (invokeBeforeSaving && !updateReport) {
-            throw new IllegalArgumentException("Must generate update report to invoke before saving.");
+            throw new IllegalArgumentException("Must generate update report to invoke before saving."); //$NON-NLS-1$
         }
         Server server = ServerContext.INSTANCE.get();
         // Parsing
@@ -181,18 +183,18 @@ public class SaverContextFactory {
                     // Record to save is a system object!
                     return new DirectWriteContext(dataCluster, Util.nodeToString(userDomDocument));
                 } else {
-                    throw new IllegalArgumentException("Data model '" + dataModelName + "' does not exist.");
+                    throw new IllegalArgumentException("Data model '" + dataModelName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             } else {
                 repository = admin.get(dataModelName);
             }
             ComplexTypeMetadata type = repository.getComplexType(typeName);
             if (type == null) {
-                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data model '" + dataModelName + "'.");
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data model '" + dataModelName + "'."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
             userDocument = new DOMDocument(userDomDocument.getDocumentElement(), type, dataCluster, dataModelName);
         } catch (Exception e) {
-            throw new RuntimeException("Unable to parse document to save.", e);
+            throw new RuntimeException("Unable to parse document to save.", e); //$NON-NLS-1$
         }
        return create(dataCluster, dataModelName, changeSource, userDocument, isReplace, validate, updateReport, invokeBeforeSaving, autoCommit);
     }
@@ -211,6 +213,7 @@ public class SaverContextFactory {
      * @param key            XPath to uniquely identify a element within the many valued element reachable from <code>pivot</code>.
      * @param overwrite      <code>false</code> will preserve all collections values in original document (new values
      *                       will be added at the end of the collection). <code>true</code> will overwrite all previous
+     * @param delete         <code>true</code> will execute partial delete. <code>false</code> will execute normal partial update
      */
     public DocumentSaverContext createPartialUpdate(String dataCluster,
                                                     String dataModelName,
@@ -221,7 +224,8 @@ public class SaverContextFactory {
                                                     String pivot,
                                                     String key,
                                                     int index,
-                                                    boolean overwrite) {
+                                                    boolean overwrite,
+                                                    boolean delete) {
         // TODO Support before saving in case of partial update (set to "true" beforeSaving parameter to support it).
         DocumentSaverContext context = create(dataCluster,
                 dataModelName,
@@ -231,7 +235,21 @@ public class SaverContextFactory {
                 validate,
                 updateReport,
                 false, XSystemObjects.DC_PROVISIONING.getName().equals(dataCluster)); // Before saving is not supported
-        return PartialUpdateSaverContext.decorate(context, pivot, key, index, overwrite);
+        return PartialUpdateSaverContext.decorate(context, pivot, key, index, overwrite, delete);
+    }
+    
+    public DocumentSaverContext createPartialUpdate(String dataCluster, 
+                                                    String dataModelName, 
+                                                    String changeSource,
+                                                    InputStream documentStream, 
+                                                    boolean validate, 
+                                                    boolean updateReport, 
+                                                    String pivot, 
+                                                    String key, 
+                                                    int index,
+                                                    boolean overwrite) {
+        return createPartialUpdate(dataCluster, dataModelName, changeSource, documentStream, validate, updateReport, pivot, key,
+                index, overwrite, false);
     }
 
     /**
@@ -259,7 +277,7 @@ public class SaverContextFactory {
                                            boolean invokeBeforeSaving,
                                            boolean autoCommit) {
         if (invokeBeforeSaving && !updateReport) {
-            throw new IllegalArgumentException("Must generate update report to invoke before saving.");
+            throw new IllegalArgumentException("Must generate update report to invoke before saving."); //$NON-NLS-1$
         }
         Server server = ServerContext.INSTANCE.get();
         // Choose right user action

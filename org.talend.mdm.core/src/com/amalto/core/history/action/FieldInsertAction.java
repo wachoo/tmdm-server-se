@@ -43,7 +43,7 @@ public class FieldInsertAction extends FieldUpdateAction {
     }
 
     public String getDetails() {
-        return "insert field '" + updatedField.getName() + "' of type '" + updatedField.getContainingType().getName() + "'";
+        return "insert field '" + updatedField.getName() + "' of type '" + updatedField.getContainingType().getName() + "'"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override
@@ -53,10 +53,10 @@ public class FieldInsertAction extends FieldUpdateAction {
 
     @Override
     public String toString() {
-        return "FieldInsertAction{" +
-                "path='" + path + '\'' +
-                ", oldValue='" + oldValue + '\'' +
-                ", newValue='" + newValue + '\'' +
+        return "FieldInsertAction{" + //$NON-NLS-1$
+                "path='" + path + '\'' + //$NON-NLS-1$
+                ", oldValue='" + oldValue + '\'' + //$NON-NLS-1$
+                ", newValue='" + newValue + '\'' + //$NON-NLS-1$
                 '}';
     }
 }

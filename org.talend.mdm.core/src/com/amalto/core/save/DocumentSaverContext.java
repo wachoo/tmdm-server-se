@@ -11,7 +11,6 @@
 package com.amalto.core.save;
 
 import java.util.List;
-import java.util.Map;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
