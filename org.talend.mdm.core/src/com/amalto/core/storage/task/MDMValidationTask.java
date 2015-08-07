@@ -250,6 +250,10 @@ public class MDMValidationTask extends MetadataRepositoryTask {
                 }
                 if(isResolve) {
                     session.abort(committer);
+                } else {
+                    // if a batch has 403 records due to FK constraint
+                    // allow other 403 records (failed validation) to be resolved
+                    stagingRecords.add(stagingRecord);
                 }
                 stats.reportError();
             }
