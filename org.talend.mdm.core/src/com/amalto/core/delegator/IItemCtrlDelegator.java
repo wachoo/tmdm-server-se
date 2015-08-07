@@ -33,11 +33,16 @@ import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.core.query.user.metadata.StagingError;
+import com.amalto.core.query.user.metadata.StagingSource;
+import com.amalto.core.query.user.metadata.StagingStatus;
+import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
@@ -216,6 +221,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             Storage storage = storageAdmin.get(dataModelName, storageAdmin.getType(dataModelName), revisionId);
             if (storage != null) {
                 MetadataRepository repository = storage.getMetadataRepository();
+                boolean isStaging = storage.getType() == StorageType.STAGING;
                 // Build query (from 'main' type)
                 ComplexTypeMetadata type = repository.getComplexType(typeName);
                 if (type == null) {
@@ -233,13 +239,15 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                                 + "' is invalid: no path to element.");
                     }
                     ComplexTypeMetadata viewableType = repository.getComplexType(viewableTypeName);
-                    List<TypedExpression> typeExpressions = UserQueryHelper.getFields(viewableType, viewablePath);
-                    for (TypedExpression typeExpression : typeExpressions) {
-                        qb.select(typeExpression);
+                    List<TypedExpression> fields = UserQueryHelper.getFields(viewableType, viewablePath);
+                    for (TypedExpression field : fields) {
+                        if (isNeedToAddExplicitly(isStaging, field)) {
+                            qb.select(field);
+                        }
                     }
                 }
                 qb.select(repository.getComplexType(typeName), "../../taskId"); //$NON-NLS-1$
-                if (dataModelName.endsWith(StorageAdmin.STAGING_SUFFIX)) {
+                if (isStaging) {
                     qb.select(repository.getComplexType(typeName), "$staging_status$"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_error$"); //$NON-NLS-1$
                     qb.select(repository.getComplexType(typeName), "$staging_source$"); //$NON-NLS-1$
@@ -312,6 +320,15 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             LOGGER.error(err, e);
             throw new XtentisException(err, e);
         }
+    }
+    
+    private boolean isNeedToAddExplicitly(boolean isStaging, TypedExpression field) {
+        boolean isNeedToAdd = true;
+        if (field instanceof TaskId
+                || (isStaging && (field instanceof StagingStatus || field instanceof StagingError || field instanceof StagingSource))) {
+            isNeedToAdd = false;
+        }
+        return isNeedToAdd;
     }
 
     private static IWhereItem normalizeConditions(ArrayList<IWhereItem> conditions) {
