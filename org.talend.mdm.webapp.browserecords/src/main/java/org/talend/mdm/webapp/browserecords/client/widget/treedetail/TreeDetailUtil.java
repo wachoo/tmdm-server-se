@@ -404,6 +404,18 @@ public class TreeDetailUtil {
         return false;
     }
 
+    public static String checkInvalidNode(ItemNodeModel model) {
+        if (!model.isValid() && model.getChildCount() == 0 && model.isRendered()) {
+            return model.getLabel();
+        }
+        for (ModelData node : model.getChildren()) {
+            if (!checkInvalidNode((ItemNodeModel) node).isEmpty()) {
+                return checkInvalidNode((ItemNodeModel) node);
+            }
+        }
+        return ""; //$NON-NLS-1$
+    }
+
     private static BrowseRecordsServiceAsync getBrowseRecordsService(boolean isStaging) {
         if (isStaging) {
             return (BrowseStagingRecordsServiceAsync) Registry.get(BrowseRecords.BROWSESTAGINGRECORDS_SERVICE);
