@@ -246,25 +246,32 @@ public class TreeDetailGridFieldCreator {
             @Override
             @SuppressWarnings("rawtypes")
             public void handleEvent(FieldEvent fe) {
-                if (fe.getField() instanceof ComboBoxField) {
-                    node.setObjectValue(((ComboBoxModel) fe.getValue()).getValue());
-                } else if (fe.getField() instanceof CheckBox) {
-                    node.setObjectValue(fe.getValue().toString());
-                } else if (fe.getField() instanceof MultiLanguageField) {
-                    node.setObjectValue(((MultiLanguageField) fe.getField()).getMultiLanguageStringValue());
-                } else {
-                    if (fe.getField() instanceof ComboBox) {
-                        SimpleComboValue value = (SimpleComboValue) fe.getValue();
-                        node.setObjectValue((Serializable) (value == null ? null : value.getValue()));
+                Serializable value;
+                if (fe.getField().isValid()) {
+                    if (fe.getField() instanceof ComboBoxField) {
+                        value = ((ComboBoxModel) fe.getValue()).getValue();
+                    } else if (fe.getField() instanceof CheckBox) {
+                        value = fe.getValue().toString();
+                    } else if (fe.getField() instanceof MultiLanguageField) {
+                        value = ((MultiLanguageField) fe.getField()).getMultiLanguageStringValue();
                     } else {
-                        node.setObjectValue((Serializable) fe.getValue());
+                        if (fe.getField() instanceof ComboBox) {
+                            SimpleComboValue simpleComboValue = (SimpleComboValue) fe.getValue();
+                            value = (Serializable) (simpleComboValue == null ? null : simpleComboValue.getValue());
+                        } else {
+                            value = (Serializable) fe.getValue();
+                            // TMDM-8470 trim pk textfield value
+                            if (node.isKey() && field instanceof TextField<?> && node.getObjectValue() != null) {
+                                value = node.getObjectValue().toString().trim();
+                            }
+                        }
+                    }
+                    if (!node.getObjectValue().toString().equals(value)) {
+                        node.setObjectValue(value);
+                        node.setChangeValue(true);
                     }
                 }
-
-                node.setChangeValue(true);
-
                 validate(fe.getField(), node);
-
                 updateMandatory(field, node, fieldMap);
 
                 TreeDetail treeDetail = getCurrentTreeDetail(field);
@@ -283,6 +290,7 @@ public class TreeDetailGridFieldCreator {
             public void handleEvent(FieldEvent fe) {
                 setErrorIcon(field);
                 validate(field, node);
+                node.setRendered(true);
             }
         });
 
@@ -338,8 +346,8 @@ public class TreeDetailGridFieldCreator {
             }
 
             private native void _setEl(El elem)/*-{
-                                               this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
-                                               }-*/;
+		this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+    }-*/;
         };
         errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
         errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -352,23 +360,23 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static native void _setErrorIcon(Field<?> field, WidgetComponent errorIcon)/*-{
-                                                                                       field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
-                                                                                       }-*/;
+		field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
+    }-*/;
 
     private static native WidgetComponent _getErrorIcon(Field<?> field)/*-{
-                                                                       return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
-                                                                       }-*/;
+		return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
+    }-*/;
 
     public static native String getTemplate() /*-{
-                                              return [
-                                              '<tpl for=".">',
-                                              '<tpl if="text == \'\'">',
-                                              '<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
-                                              '</tpl>',
-                                              '<tpl if="text != \'\'">',
-                                              '<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
-                                              '</tpl>', '</tpl>' ].join("");
-                                              }-*/;
+		return [
+				'<tpl for=".">',
+				'<tpl if="text == \'\'">',
+				'<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
+				'</tpl>',
+				'<tpl if="text != \'\'">',
+				'<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
+				'</tpl>', '</tpl>' ].join("");
+    }-*/;
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
         if (typeModel instanceof SimpleTypeModel) {
