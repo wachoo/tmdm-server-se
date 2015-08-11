@@ -61,11 +61,6 @@ public class Configuration {
             }
             configuration = load();
             storeInSession(configuration);
-        } else {// Handle undeploy model/container from studio during using server
-            if (!exitsCluster(configuration.getCluster()) || !exitsModel(configuration.getModel())) {
-                configuration.setCluster(null);
-                configuration.setModel(null);
-            }
         }
         return configuration;
     }
