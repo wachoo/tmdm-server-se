@@ -107,7 +107,6 @@ public class SystemModels {
                     throw new IllegalStateException("Found multiple data models for '" + modelName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 modelContent = String.valueOf(model.get("schema")); //$NON-NLS-1$
-                return modelContent;
             }
             systemStorage.commit();
             return modelContent;
