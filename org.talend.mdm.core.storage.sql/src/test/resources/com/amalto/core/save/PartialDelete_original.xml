@@ -23,6 +23,12 @@
 				<Kid>
 					<Name>k1</Name>
 					<Age>1</Age>
+					<Habits>
+						<Habit>Basketball</Habit>
+						<Habit>Football</Habit>
+						<Habit>Tennis</Habit>
+						<Habit>Boxing</Habit>
+					</Habits>
 				</Kid>
 				<Kid>
 					<Name>k2</Name>
@@ -39,6 +45,18 @@
 				<Habit>Tennis</Habit>
 				<Habit>Boxing</Habit>
 			</Habits>
+			<Pets>
+				<Pet>Cat</Pet>
+			</Pets>
+			<Pets>
+				<Pet>Dog</Pet>
+			</Pets>
+			<Pets>
+				<Pet>Pig</Pet>
+			</Pets>
+			<Pets>
+				<Pet>Cow</Pet>
+			</Pets>
 		</Person>
 	</p>
 </ii>

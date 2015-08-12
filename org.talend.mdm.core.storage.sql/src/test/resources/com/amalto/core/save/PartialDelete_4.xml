@@ -1,0 +1,11 @@
+<Person>
+	<Id>1</Id>
+	<Kids>
+		<Kid>
+			<Habits>
+				<Habit>Basketball</Habit>
+				<Habit>Football</Habit>
+			</Habits>
+		</Kid>
+	</Kids>
+</Person>

@@ -541,6 +541,26 @@ public class DocumentSaveTest extends TestCase {
                         put("asssertValue", "Tennis");
                     }
                 });
+                add(new HashMap<String, String>() {//simple type
+
+                    {
+                        put("pivot", "Person/Kids/Kid[1]/Habits/Habit");
+                        put("key", "");
+                        put("document", "PartialDelete_4.xml");
+                        put("asssertPath", "/Person/Kids/Kid[1]/Habits/Habit[1]");
+                        put("asssertValue", "Tennis");
+                    }
+                });
+                add(new HashMap<String, String>() {//simple type
+
+                    {
+                        put("pivot", "Person/Pets");
+                        put("key", "/Pet");
+                        put("document", "PartialDelete_5.xml");
+                        put("asssertPath", "/Person/Pets[1]/Pet");
+                        put("asssertValue", "Dog");
+                    }
+                });
             }
         };
 

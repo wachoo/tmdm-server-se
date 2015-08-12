@@ -1,0 +1,9 @@
+<Person>
+	<Id>1</Id>
+	<Pets>
+		<Pet>Cat</Pet>
+	</Pets>
+	<Pets>
+		<Pet>Pig</Pet>
+	</Pets>
+</Person>
