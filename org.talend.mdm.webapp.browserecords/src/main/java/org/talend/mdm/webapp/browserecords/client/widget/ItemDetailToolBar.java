@@ -390,20 +390,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    Widget widget = itemsDetailPanel.getFirstTabWidget();
-                    TreeDetail treeDetail = ((ItemPanel) widget).getTree();
-                    if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
-                        treeDetail.makeWarning(treeDetail.getRoot());
-                    }
-                    ItemNodeModel root = treeDetail.getRootModel();
-                    if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
-                            || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
-                            || TreeDetailUtil.isChangeValue(root)) {
-                        saveItemAndClose(false);
-                    } else {
-                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                .no_change_info(), null);
-                    }
+                    executeSaveAction(false);
                 }
             });
         }
@@ -421,20 +408,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    Widget widget = itemsDetailPanel.getFirstTabWidget();
-                    TreeDetail treeDetail = ((ItemPanel) widget).getTree();
-                    if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
-                        treeDetail.makeWarning(treeDetail.getRoot());
-                    }
-                    ItemNodeModel root = treeDetail.getRootModel();
-                    if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
-                            || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION)
-                            || TreeDetailUtil.isChangeValue(root)) {
-                        saveItemAndClose(true);
-                    } else {
-                        MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
-                                .no_change_info(), null);
-                    }
+                    executeSaveAction(true);
                 }
             });
         }
@@ -1728,5 +1702,26 @@ public class ItemDetailToolBar extends ToolBar {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    private void executeSaveAction(boolean isClose) {
+        Widget widget = itemsDetailPanel.getFirstTabWidget();
+        TreeDetail treeDetail = ((ItemPanel) widget).getTree();
+        if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
+            treeDetail.makeWarning(treeDetail.getRoot());
+        }
+        ItemNodeModel root = treeDetail.getRootModel();
+        String invalidNodeName = TreeDetailUtil.checkInvalidNode(root);
+        if (invalidNodeName.isEmpty()) {
+            if (operation.equalsIgnoreCase(ItemDetailToolBar.CREATE_OPERATION)
+                    || operation.equalsIgnoreCase(ItemDetailToolBar.DUPLICATE_OPERATION) || TreeDetailUtil.isChangeValue(root)) {
+                saveItemAndClose(isClose);
+            } else {
+                MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().no_change_info(), null);
+            }
+        } else {
+            MessageBox.alert(MessagesFactory.getMessages().error_title(),
+                    MessagesFactory.getMessages().validation_error(invalidNodeName), null);
+        }
     }
 }
