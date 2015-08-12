@@ -77,17 +77,6 @@
             <artifactId>dom4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-            <version>1.1.1</version>
-		<exclusions>
-			<exclusion>
-				<groupId>xerces</groupId>
-				<artifactId>xercesImpl</artifactId>
-			</exclusion>
-		</exclusions>
-        </dependency>
-        <dependency>
             <groupId>commons-jxpath</groupId>
             <artifactId>commons-jxpath</artifactId>
         </dependency>
