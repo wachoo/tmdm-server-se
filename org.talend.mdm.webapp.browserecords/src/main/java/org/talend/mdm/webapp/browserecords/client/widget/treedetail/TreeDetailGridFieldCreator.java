@@ -266,9 +266,16 @@ public class TreeDetailGridFieldCreator {
                             }
                         }
                     }
-                    if (!node.getObjectValue().toString().equals(value)) {
-                        node.setObjectValue(value);
-                        node.setChangeValue(true);
+                    if (node.getObjectValue() != null) {
+                        if (!node.getObjectValue().toString().equals(value)) {
+                            node.setObjectValue(value);
+                            node.setChangeValue(true);
+                        }
+                    } else {
+                        if (value != null) {
+                            node.setObjectValue(value);
+                            node.setChangeValue(true);
+                        }
                     }
                 }
                 validate(fe.getField(), node);
