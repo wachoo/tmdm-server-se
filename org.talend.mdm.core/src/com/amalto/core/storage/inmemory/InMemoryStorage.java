@@ -218,6 +218,7 @@ public class InMemoryStorage implements Storage {
         private final Storage storage;
 
         public InMemoryStorageTransaction(Storage storage) {
+            super();
             this.storage = storage;
         }
 

@@ -11,6 +11,8 @@
 
 package com.amalto.core.storage.transaction;
 
+import org.apache.log4j.Logger;
+
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.Storage;
 
@@ -20,6 +22,8 @@ import com.amalto.core.storage.Storage;
  * @see Transaction
  */
 public abstract class StorageTransaction {
+    
+    private static final Logger LOG = Logger.getLogger(StorageTransaction.class);
 
     private final Object[] lockChange = new Object[0];
 
@@ -27,7 +31,14 @@ public abstract class StorageTransaction {
 
     // Keep it private, use getLockStrategy() in sub classes to ensure correct synchronization.
     private Transaction.LockStrategy lockStrategy = Transaction.LockStrategy.NO_LOCK;
+    
+    // Upper level transaction coordinating this storage transaction
+    private Transaction coordinator = null;
 
+    public StorageTransaction(){
+        this.coordinator = ServerContext.INSTANCE.get().getTransactionManager().currentTransaction();
+    }
+    
     /**
      * @return The {@link Storage} managed by this storage transaction.
      */
@@ -49,8 +60,12 @@ public abstract class StorageTransaction {
      */
     public void commit() {
         if (isAutonomous) {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            transactionManager.currentTransaction().exclude(getStorage());
+            if(coordinator != null) {
+                coordinator.exclude(getStorage());
+            }
+            else {
+                LOG.warn("No coordinator found when commiting storage transaction " + this); //$NON-NLS-1$
+            }
         }
     }
 
@@ -62,9 +77,11 @@ public abstract class StorageTransaction {
      */
     public void rollback() {
         if (isAutonomous) {
-            TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-            if (transactionManager.hasTransaction()) {
-                transactionManager.currentTransaction().exclude(getStorage());
+            if(coordinator != null){
+                coordinator.exclude(getStorage());
+            }
+            else {
+                LOG.warn("No coordinator found when rolling back storage transaction " + this); //$NON-NLS-1$
             }
         }
     }
@@ -106,5 +123,12 @@ public abstract class StorageTransaction {
         synchronized (lockChange) {
             return lockStrategy;
         }
+    }
+    
+    /**
+     * @return the application level {@link Transaction} coordinating this storage transaction
+     */
+    public Transaction getCoordinator(){
+        return this.coordinator;
     }
 }
