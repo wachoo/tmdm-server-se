@@ -17,6 +17,9 @@ import com.amalto.core.storage.transaction.*;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 
 public class TransactionFilter implements Filter {
@@ -46,7 +49,7 @@ public class TransactionFilter implements Filter {
     private static TransactionState getState(ServletRequest request) {
         HttpServletRequest httpServlet = (HttpServletRequest) request;
         String transactionId = httpServlet.getHeader(TRANSACTION_ID);
-        if (transactionId == null) {
+        if (StringUtils.isEmpty(transactionId)) {
             return ImplicitTransactionState.INSTANCE;
         } else {
             return new ExplicitTransaction(transactionId);
