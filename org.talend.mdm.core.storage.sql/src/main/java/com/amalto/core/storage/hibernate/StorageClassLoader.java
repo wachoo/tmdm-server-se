@@ -228,12 +228,14 @@ public abstract class StorageClassLoader extends ClassLoader {
         if (thread == null) {
             return;
         }
-        Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
-        if (classLoaders == null) {
-            classLoaders = new Stack<ClassLoader>();
-            previousClassLoaders.put(thread, classLoaders);
+        synchronized(previousClassLoaders){
+            Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
+            if (classLoaders == null) {
+                classLoaders = new Stack<ClassLoader>();
+                previousClassLoaders.put(thread, classLoaders);
+            }
+            classLoaders.push(thread.getContextClassLoader());
         }
-        classLoaders.push(thread.getContextClassLoader());
         thread.setContextClassLoader(this);
     }
 
@@ -248,10 +250,15 @@ public abstract class StorageClassLoader extends ClassLoader {
         if (thread == null) {
             return;
         }
-        Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
-        if (classLoaders != null && !classLoaders.isEmpty()) {
-            ClassLoader previousClassLoader = classLoaders.pop();
-            thread.setContextClassLoader(previousClassLoader);
+        synchronized(previousClassLoaders){
+            Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
+            if (classLoaders != null && !classLoaders.isEmpty()) {
+                ClassLoader previousClassLoader = classLoaders.pop();
+                thread.setContextClassLoader(previousClassLoader);
+            }
+            if(classLoaders != null && classLoaders.isEmpty()){
+                previousClassLoaders.remove(thread);
+            }
         }
     }
 
@@ -266,10 +273,15 @@ public abstract class StorageClassLoader extends ClassLoader {
         if (thread == null) {
             return;
         }
-        Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
-        if (classLoaders != null && !classLoaders.isEmpty()) {
-            thread.setContextClassLoader(classLoaders.firstElement());
-            classLoaders.clear();
+        synchronized(previousClassLoaders){
+            Stack<ClassLoader> classLoaders = previousClassLoaders.get(thread);
+            if (classLoaders != null && !classLoaders.isEmpty()) {
+                thread.setContextClassLoader(classLoaders.firstElement());
+                classLoaders.clear();
+            }
+            if(classLoaders != null && classLoaders.isEmpty()){
+                previousClassLoaders.remove(thread);
+            }
         }
     }
 }

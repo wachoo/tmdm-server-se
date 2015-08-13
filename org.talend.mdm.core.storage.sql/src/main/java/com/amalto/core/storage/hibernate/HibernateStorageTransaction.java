@@ -57,6 +57,7 @@ class HibernateStorageTransaction extends StorageTransaction {
     private boolean hasFailed;
 
     public HibernateStorageTransaction(HibernateStorage storage, Session session) {
+        super();
         this.storage = storage;
         this.session = session;
         this.initiatorThread = Thread.currentThread();
@@ -73,15 +74,21 @@ class HibernateStorageTransaction extends StorageTransaction {
 
     @Override
     public void begin() {
-        if (!session.isOpen()) {
-            throw new IllegalStateException("Could not start transaction: provided session is not ready for use (session is closed).");
+        this.acquireLock();
+        try {
+            if (!session.isOpen()) {
+                throw new IllegalStateException("Could not start transaction: provided session is not ready for use (session is closed).");
+            }
+            Transaction transaction = session.getTransaction();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Transaction begin (session " + session.hashCode() + ")");
+            }
+            if (!transaction.isActive()) {
+                session.beginTransaction();
+            }
         }
-        Transaction transaction = session.getTransaction();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Transaction begin (session " + session.hashCode() + ")");
-        }
-        if (!transaction.isActive()) {
-            session.beginTransaction();
+        finally {
+            this.releaseLock();
         }
     }
     
