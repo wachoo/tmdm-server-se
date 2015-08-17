@@ -60,8 +60,6 @@ import com.amalto.core.util.XtentisException;
 @Component
 @SuppressWarnings("nls")
 public class DefaultRoutingEngine implements RoutingEngine {
-    
-    public static final String EVENTS_DESTINATION = "org.talend.mdm.server.routing.events";
 
     private static final String JMS_PK_PROPERTY = "pk";
 
@@ -229,7 +227,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
             i++;
         }
 
-        jmsTemplate.send(EVENTS_DESTINATION, new MessageCreator() {
+        jmsTemplate.send(new MessageCreator() {
 
             @Override
             public Message createMessage(Session session) throws JMSException {
