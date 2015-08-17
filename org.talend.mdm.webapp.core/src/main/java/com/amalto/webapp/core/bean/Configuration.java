@@ -67,10 +67,10 @@ public class Configuration {
 
     public static synchronized void setConfiguration(String cluster, String model) throws Exception {
         if (cluster == null || cluster.trim().length() == 0) {
-            throw new Exception("Data Container can't be empty!");
+            throw new Exception("Data Container can't be empty!"); //$NON-NLS-1$
         }
         if (model == null || model.trim().length() == 0) {
-            throw new Exception("Data Model can't be empty!");
+            throw new Exception("Data Model can't be empty!"); //$NON-NLS-1$
         }
 
         store(cluster, model);
@@ -133,7 +133,7 @@ public class Configuration {
         }
     }
 
-    private static boolean exitsCluster(String cluster) throws Exception {
+    private static boolean existsCluster(String cluster) throws Exception {
         if (StringUtils.isNotBlank(cluster)) {
             WSExistsDataCluster wsExistsDataCluster = new WSExistsDataCluster();
             wsExistsDataCluster.setWsDataClusterPK(new WSDataClusterPK(cluster));
@@ -144,7 +144,7 @@ public class Configuration {
         }
     }
     
-    private static boolean exitsModel(String model) throws Exception {
+    private static boolean existsModel(String model) throws Exception {
         if (StringUtils.isNotBlank(model)) {
             WSExistsDataModel wsExistsDataModel = new WSExistsDataModel();
             wsExistsDataModel.setWsDataModelPK(new WSDataModelPK(model));
@@ -174,7 +174,7 @@ public class Configuration {
             Node node = nodeList.item(i);
             if ("cluster".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
                 Node fchild = com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild(); //$NON-NLS-1$
-                if (fchild != null && exitsCluster(fchild.getNodeValue())) {
+                if (fchild != null && existsCluster(fchild.getNodeValue())) {
                     configuration.setCluster(fchild.getNodeValue());
                 }
 
@@ -184,7 +184,7 @@ public class Configuration {
             Node node = nodeList.item(i);
             if ("model".equals(com.amalto.core.util.Util.getFirstTextNode(node, "name"))) { //$NON-NLS-1$ //$NON-NLS-2$
                 Node fchild = com.amalto.core.util.Util.getNodeList(node, "value").item(0).getFirstChild(); //$NON-NLS-1$
-                if (fchild != null && exitsModel(fchild.getNodeValue())) {
+                if (fchild != null && existsModel(fchild.getNodeValue())) {
                     configuration.setModel(fchild.getNodeValue());
                 }
 

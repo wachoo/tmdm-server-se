@@ -1112,21 +1112,23 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public List<ItemBaseModel> getViewsList(String language) throws ServiceException {
         try {
-            String model = getCurrentDataModel();
-            MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(model);
             Map<String, String> unsortedViewsMap = new HashMap<String, String>();
-            Set<String> userRoles = LocalUser.getLocalUser().getRoles();
-            // It is faster to retrieve all view then look on them (alternatives imply "search by exception").
-            WSViewPKArray viewPKs = CommonUtil.getPort().getViewPKs(new WSGetViewPKs(".*")); //$NON-NLS-1$
-            for (WSViewPK viewPK : viewPKs.getWsViewPK()) {
-                String typeName = ViewHelper.getConceptFromDefaultViewName(viewPK.getPk());
-                ComplexTypeMetadata type = repository.getComplexType(typeName);
-                if (type != null) {
-                    // Hides the entity if at least one of user's role is in the "hide" roles (i.e. "No Access" roles).
-                    if (type.getHideUsers().isEmpty() || Collections.disjoint(type.getHideUsers(), userRoles)) {
-                        WSView view = CommonUtil.getPort().getView(new WSGetView(viewPK));
-                        String viewLabel = ViewHelper.getViewLabel(language, view);
-                        unsortedViewsMap.put(view.getName(), viewLabel);
+            String model = getCurrentDataModel();
+            if(model != null) {
+                MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(model);              
+                Set<String> userRoles = LocalUser.getLocalUser().getRoles();
+                // It is faster to retrieve all view then look on them (alternatives imply "search by exception").
+                WSViewPKArray viewPKs = CommonUtil.getPort().getViewPKs(new WSGetViewPKs(".*")); //$NON-NLS-1$
+                for (WSViewPK viewPK : viewPKs.getWsViewPK()) {
+                    String typeName = ViewHelper.getConceptFromDefaultViewName(viewPK.getPk());
+                    ComplexTypeMetadata type = repository.getComplexType(typeName);
+                    if (type != null) {
+                        // Hides the entity if at least one of user's role is in the "hide" roles (i.e. "No Access" roles).
+                        if (type.getHideUsers().isEmpty() || Collections.disjoint(type.getHideUsers(), userRoles)) {
+                            WSView view = CommonUtil.getPort().getView(new WSGetView(viewPK));
+                            String viewLabel = ViewHelper.getViewLabel(language, view);
+                            unsortedViewsMap.put(view.getName(), viewLabel);
+                        }
                     }
                 }
             }
