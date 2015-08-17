@@ -41,8 +41,8 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
     <!-- Routing engine -->
     <context:component-scan base-package="com.amalto.core" />
     
-    <!-- Import JMS provider implementation, default value is classpath:activem-provider.xml -->
-    <import resource="${jms.provider.xml:activemq-provider.xml}"/>
+    <!-- Import JMS provider implementation, default value is classpath:activemq-provider.xml -->
+    <import resource="${mdm.jms.provider.xml:activemq-provider.xml}"/>
     
     <!-- Caching connection factory for JMS template performances -->
     <bean id="jmsPooledConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
