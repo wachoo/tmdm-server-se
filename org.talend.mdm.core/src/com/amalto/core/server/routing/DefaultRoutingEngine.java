@@ -12,7 +12,6 @@ package com.amalto.core.server.routing;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -68,6 +67,8 @@ public class DefaultRoutingEngine implements RoutingEngine {
     private static final String JMS_CONTAINER_PROPERTY = "container";
 
     private static final String JMS_RULES_PROPERTY = "rules";
+    
+    private static final char JMS_RULES_PROPERTY_SEPARATOR = '|';
     
     private static final String JMS_SCHEDULED = "timeScheduled";
 
@@ -232,7 +233,7 @@ public class DefaultRoutingEngine implements RoutingEngine {
             @Override
             public Message createMessage(Session session) throws JMSException {
                 Message message = session.createMessage();
-                message.setObjectProperty(JMS_RULES_PROPERTY, Arrays.asList(ruleNames));
+                setRulesList(message, ruleNames);
                 message.setStringProperty(JMS_CONTAINER_PROPERTY, itemPOJOPK.getDataClusterPOJOPK().getUniqueId());
                 message.setStringProperty(JMS_TYPE_PROPERTY, itemPOJOPK.getConceptName());
                 message.setStringProperty(JMS_PK_PROPERTY, Util.joinStrings(itemPOJOPK.getIds(), "."));
@@ -463,14 +464,14 @@ public class DefaultRoutingEngine implements RoutingEngine {
     public void consume(final Message message) {
         try {
             @SuppressWarnings("unchecked")
-            final List<String> rules = (List<String>) message.getObjectProperty(JMS_RULES_PROPERTY);
+            String[] rules = getRulesList(message);
             final String pk = message.getStringProperty(JMS_PK_PROPERTY);
             final String type = message.getStringProperty(JMS_TYPE_PROPERTY);
             final String container = message.getStringProperty(JMS_CONTAINER_PROPERTY);
             final long timeScheduled = message.getLongProperty(JMS_SCHEDULED);
             final String routingOrderId = message.getJMSMessageID();
-            for (int ruleIndex = 0; ruleIndex < rules.size(); ruleIndex++) {
-                String rule = rules.get(ruleIndex);
+            for (int ruleIndex = 0; ruleIndex < rules.length; ruleIndex++) {
+                String rule = rules[ruleIndex];
                 final RoutingRulePOJO routingRule = routingRules.getRoutingRule(new RoutingRulePOJOPK(rule));
                 // Apparently rule is not (yet) deployed onto this system's DB instance, but... that 's
                 // rather unexpected since all nodes in cluster are supposed to share same system DB.
@@ -524,6 +525,14 @@ public class DefaultRoutingEngine implements RoutingEngine {
         } else {
             return isStopped ? RoutingEngine.STOPPED : RoutingEngine.SUSPENDED;
         }
+    }
+    
+    private static void setRulesList(Message message, String[] rules) throws JMSException {
+        message.setStringProperty(JMS_RULES_PROPERTY, StringUtils.join(rules, JMS_RULES_PROPERTY_SEPARATOR));
+    }
+    
+    private static String[] getRulesList(Message message) throws JMSException{
+        return StringUtils.split(message.getStringProperty(JMS_RULES_PROPERTY), JMS_RULES_PROPERTY_SEPARATOR);
     }
     
 }
