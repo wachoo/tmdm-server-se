@@ -230,33 +230,37 @@ public class CommonUtil {
     }
 
     public static String unescapeXml(String value) {
-        StringBuilder result = new StringBuilder(value.length());
-        int i = 0;
-        int n = value.length();
-        while (i < n) {
-            char charAt = value.charAt(i);
-            if (charAt != '&') {
-                result.append(charAt);
-                i++;
-            } else {
-                if (value.startsWith("&amp;", i)) { //$NON-NLS-1$
-                    result.append('&');
-                    i += 5;
-                } else if (value.startsWith("&apos;", i)) { //$NON-NLS-1$
-                    result.append('\'');
-                    i += 6;
-                } else if (value.startsWith("&quot;", i)) { //$NON-NLS-1$
-                    result.append('"');
-                    i += 6;
-                } else if (value.startsWith("&lt;", i)) { //$NON-NLS-1$
-                    result.append('<');
-                    i += 4;
-                } else if (value.startsWith("&gt;", i)) { //$NON-NLS-1$
-                    result.append('>');
-                    i += 4;
+        if (value != null) {
+            StringBuilder result = new StringBuilder(value.length());
+            int i = 0;
+            int n = value.length();
+            while (i < n) {
+                char charAt = value.charAt(i);
+                if (charAt != '&') {
+                    result.append(charAt);
+                    i++;
+                } else {
+                    if (value.startsWith("&amp;", i)) { //$NON-NLS-1$
+                        result.append('&');
+                        i += 5;
+                    } else if (value.startsWith("&apos;", i)) { //$NON-NLS-1$
+                        result.append('\'');
+                        i += 6;
+                    } else if (value.startsWith("&quot;", i)) { //$NON-NLS-1$
+                        result.append('"');
+                        i += 6;
+                    } else if (value.startsWith("&lt;", i)) { //$NON-NLS-1$
+                        result.append('<');
+                        i += 4;
+                    } else if (value.startsWith("&gt;", i)) { //$NON-NLS-1$
+                        result.append('>');
+                        i += 4;
+                    }
                 }
             }
+            return result.toString().replaceAll("\t", "").replaceAll("\n", "").replaceAll("\r", ""); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$//$NON-NLS-6$
+        } else {
+            return null;
         }
-        return result.toString().replaceAll("\t", "").replaceAll("\n", "").replaceAll("\r", ""); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$//$NON-NLS-6$
     }
 }
