@@ -65,7 +65,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Mapping strategy: " + type.getName() + " -> fixed update report mapping.");
             }
-            return new UpdateReportMappingCreator(type, userRepository, mappings);
+            return new UpdateReportMappingCreator(type, userRepository, mappings, strategy.preferClobUse());
         }
         switch (strategy) {
             case AUTO:
@@ -75,7 +75,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Mapping strategy: " + type.getName() + " -> FLAT");
                 }
-                return new FlatTypeMappingCreator(internalRepository, mappings, dialect);
+                return new FlatTypeMappingCreator(internalRepository, mappings, dialect, strategy.preferClobUse());
             case SCATTERED:
             case SCATTERED_CLOB:
                 if (LOGGER.isDebugEnabled()) {

@@ -10,22 +10,21 @@
 
 package com.amalto.core.server;
 
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.storage.SQLWrapper;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageType;
 import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.IXmlServerSLWrapper;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
-import org.apache.commons.lang.StringUtils;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DefaultXmlServer implements XmlServer {
 
@@ -109,7 +108,7 @@ public class DefaultXmlServer implements XmlServer {
     public boolean existCluster(String cluster) throws XtentisException {
         try {
             if (cluster.endsWith(StorageAdmin.STAGING_SUFFIX)) {
-                cluster = StringUtils.substringBeforeLast(cluster, "#");
+                cluster = StringUtils.substringBeforeLast(cluster, "#"); //$NON-NLS-1$
             }
             return server.existCluster(cluster);
         } catch (XmlServerException e) {

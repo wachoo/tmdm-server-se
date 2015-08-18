@@ -30,6 +30,8 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     private final MetadataRepository internalRepository;
 
     private final MappingRepository mappings;
+    
+    private final boolean preferClobUse;
 
     private final MappingCreatorContext context;
 
@@ -37,16 +39,17 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private boolean forceKey = false;
 
-    public FlatTypeMappingCreator(MetadataRepository repository, MappingRepository mappings, RDBMSDataSource.DataSourceDialect dialect) {
+    public FlatTypeMappingCreator(MetadataRepository repository, MappingRepository mappings, RDBMSDataSource.DataSourceDialect dialect, boolean preferClobUse) {
         this.mappings = mappings;
         this.internalRepository = repository;
         this.context = new StatelessContext(prefix, dialect);
+        this.preferClobUse = preferClobUse;
     }
 
     private static boolean isDatabaseMandatory(FieldMetadata field, TypeMetadata declaringType) {
         boolean isDatabaseMandatory = field.isMandatory() && declaringType.isInstantiable();
         if (field.isMandatory() && !isDatabaseMandatory) {
-            LOGGER.warn("Field '" + field.getName() + "' is mandatory but constraint cannot be enforced in database schema.");
+            LOGGER.warn("Field '" + field.getName() + "' is mandatory but constraint cannot be enforced in database schema."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return isDatabaseMandatory;
     }
@@ -112,20 +115,20 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     }
 
     @Override
-    public TypeMapping visit(SimpleTypeFieldMetadata simpleField) {
+    public TypeMapping visit(SimpleTypeFieldMetadata field) {
         SimpleTypeFieldMetadata newFlattenField;
         ComplexTypeMetadata database = typeMapping.getDatabase();
-        TypeMetadata declaringType = simpleField.getDeclaringType();
-        if (simpleField.getContainingType() == declaringType) {
+        TypeMetadata declaringType = field.getDeclaringType();
+        if (field.getContainingType() == declaringType) {
             newFlattenField = new SimpleTypeFieldMetadata(database,
                     false,
-                    simpleField.isMany(),
-                    isDatabaseMandatory(simpleField, declaringType),
-                    context.getFieldColumn(simpleField),
-                    simpleField.getType(),
-                    simpleField.getWriteUsers(),
-                    simpleField.getHideUsers(),
-                    simpleField.getWorkflowAccessRights(),
+                    field.isMany(),
+                    isDatabaseMandatory(field, declaringType),
+                    context.getFieldColumn(field),
+                    field.getType(),
+                    field.getWriteUsers(),
+                    field.getHideUsers(),
+                    field.getWorkflowAccessRights(),
                     StringUtils.EMPTY);
             database.addField(newFlattenField);
         } else {
@@ -137,18 +140,25 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
             }
             newFlattenField = new SimpleTypeFieldMetadata(database,
                     false,
-                    simpleField.isMany(),
-                    isDatabaseMandatory(simpleField, declaringType),
-                    context.getFieldColumn(simpleField),
-                    simpleField.getType(),
-                    simpleField.getWriteUsers(),
-                    simpleField.getHideUsers(),
-                    simpleField.getWorkflowAccessRights(),
+                    field.isMany(),
+                    isDatabaseMandatory(field, declaringType),
+                    context.getFieldColumn(field),
+                    field.getType(),
+                    field.getWriteUsers(),
+                    field.getHideUsers(),
+                    field.getWorkflowAccessRights(),
                     StringUtils.EMPTY);
             newFlattenField.setDeclaringType(internalDeclaringType);
             database.addField(newFlattenField);
         }
-        typeMapping.map(simpleField, newFlattenField);
+        String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
+        if (data != null && preferClobUse) {
+            if (Integer.parseInt(data) > context.getTextLimit()) {
+                newFlattenField.getType().setData(TypeMapping.SQL_TYPE, TypeMapping.SQL_TYPE_CLOB);
+                newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.FALSE);
+            }
+        }
+        typeMapping.map(field, newFlattenField);
         return typeMapping;
     }
 
