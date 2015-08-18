@@ -1,22 +1,39 @@
+/*
+ * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
 package com.amalto.core.storage.hibernate;
 
-import org.talend.mdm.commmon.metadata.*;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
-import org.hibernate.Session;
-
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.sql.Clob;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
-*
-*/
+import org.apache.commons.io.IOUtils;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordXmlWriter;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
+
 class UpdateReportTypeMapping extends TypeMapping {
 
     private static final String MAPPING_NAME = "FIXED UPDATE REPORT MAPPING"; //$NON-NLS-1$
@@ -60,6 +77,7 @@ class UpdateReportTypeMapping extends TypeMapping {
         return databaseUpdateReportType;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setValues(Session session, DataRecord from, Wrapper to) {
         to.set("x_user_name", from.get("UserName")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -84,18 +102,44 @@ class UpdateReportTypeMapping extends TypeMapping {
                 for (DataRecord record : dataRecord) {
                     writer.write(record, new BufferedWriter(stringWriter));
                 }
-                to.set("x_items_xml", stringWriter.toString()); //$NON-NLS-1$
+                to.set("x_items_xml", isUsingClob(to) ? Hibernate.getLobCreator(session).createClob(stringWriter.toString()) : stringWriter.toString()); //$NON-NLS-1$
             }
         } catch (IOException e) {
             throw new RuntimeException("Could not set Items XML value", e);
         }
     }
 
+    private boolean isUsingClob(Wrapper data) {
+        try {
+            return data.getClass().getField("x_items_xml").getType().equals(Clob.class); //$NON-NLS-1$
+        } catch (Exception e) {
+            throw new RuntimeException("Could not check Items XML type", e); //$NON-NLS-1$
+        }
+    }
+    
+    private String getItemsXml(Wrapper data) {
+        String itemsXml = null;
+        Object value = data.get("x_items_xml"); //$NON-NLS-1$
+        if (value != null) {
+            if (isUsingClob(data)) {
+                try {
+                    Reader characterStream = ((Clob) value).getCharacterStream();
+                    itemsXml = new String(IOUtils.toCharArray(characterStream));
+                } catch (Exception e) {
+                    throw new RuntimeException("Unexpected read from clob exception", e); //$NON-NLS-1$
+                }
+            } else {
+                itemsXml = (String) value;
+            }
+        }
+        return itemsXml;
+    }
+    
+    @SuppressWarnings("unchecked")
     @Override
     public DataRecord setValues(Wrapper from, DataRecord to) {
-        String itemXmlContent = (String) from.get("x_items_xml"); //$NON-NLS-1$
         DataRecordReader<String> itemReader = new XmlStringDataRecordReader();
-        DataRecord items = itemReader.read("HEAD", repository, updateReportType, "<Update>" + itemXmlContent + "</Update>");  //$NON-NLS-1$ //$NON-NLS-2$
+        DataRecord items = itemReader.read("HEAD", repository, updateReportType, "<Update>" + getItemsXml(from) + "</Update>");  //$NON-NLS-1$ //$NON-NLS-2$
 
         to.set(updateReportType.getField("UserName"), from.get("x_user_name")); //$NON-NLS-1$ //$NON-NLS-2$
         to.set(updateReportType.getField("Source"), from.get("x_source")); //$NON-NLS-1$ //$NON-NLS-2$

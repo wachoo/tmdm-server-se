@@ -36,8 +36,6 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
 
-    private static final String TEXT_TYPE_NAME = "text"; //$NON-NLS-1$
-
     private final Document document;
 
     private final TableResolver resolver;
@@ -637,7 +635,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         String elementTypeName;
         if (Types.MULTI_LINGUAL.equalsIgnoreCase(fieldType.getName())
                 || Types.BASE64_BINARY.equals(fieldType.getName())) {
-            elementTypeName = TEXT_TYPE_NAME;
+            elementTypeName = TypeMapping.SQL_TYPE_TEXT;
         } else {
             Object sqlType = fieldType.getData(TypeMapping.SQL_TYPE);
             if (sqlType != null) { // SQL Type may enforce use of "CLOB" iso. "LONG VARCHAR"
@@ -654,7 +652,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     String maxLengthValue = String.valueOf(maxLength);
                     int maxLengthInt = Integer.parseInt(maxLengthValue);
                     if (maxLengthInt > limit) {
-                        elementTypeName = TEXT_TYPE_NAME;
+                        elementTypeName = TypeMapping.SQL_TYPE_TEXT;
                     } else {
                         Attr length = document.createAttribute("length"); //$NON-NLS-1$
                         length.setValue(maxLengthValue);
@@ -669,7 +667,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             }
         }
         // TMDM-4975: Oracle doesn't like when there's too much text columns.
-        if (dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && TEXT_TYPE_NAME.equals(elementTypeName)) {
+        if (dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && TypeMapping.SQL_TYPE_TEXT.equals(elementTypeName)) {
             elementTypeName = "string"; //$NON-NLS-1$
             Attr length = document.createAttribute("length"); //$NON-NLS-1$
             length.setValue("4000"); //$NON-NLS-1$

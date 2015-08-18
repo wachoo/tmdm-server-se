@@ -47,6 +47,8 @@ public abstract class TypeMapping {
     public static final String SQL_TYPE = "SQL_TYPE"; //$NON-NLS-1$
 
     public static final String SQL_TYPE_CLOB = "clob"; //$NON-NLS-1$
+    
+    public static final String SQL_TYPE_TEXT = "text"; //$NON-NLS-1$
 
     /**
      * Used to hold how many times a reusable type is reused within data model (may help to decide whether constrains
@@ -129,13 +131,13 @@ public abstract class TypeMapping {
                     zos.close();
                     return new String(characters.toByteArray());
                 } catch (IOException e) {
-                    throw new RuntimeException("Unexpected compression exception", e);
+                    throw new RuntimeException("Unexpected compression exception", e); //$NON-NLS-1$
                 }
             }
             String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
-            if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
+            if (targetSQLType != null && SQL_TYPE_CLOB.equals(targetSQLType)) {
                 if (value != null) {
-                    return Hibernate.createClob(String.valueOf(value), session);
+                    return Hibernate.getLobCreator(session).createClob(String.valueOf(value));
                 } else {
                     return null;
                 }
@@ -165,17 +167,17 @@ public abstract class TypeMapping {
                     }
                     return new String(bos.toByteArray(), "UTF-8"); //$NON-NLS-1$
                 } catch (IOException e) {
-                    throw new RuntimeException("Unexpected deflate exception", e);
+                    throw new RuntimeException("Unexpected deflate exception", e); //$NON-NLS-1$
                 }
             }
             String targetSQLType = sourceField.getType().getData(TypeMapping.SQL_TYPE);
-            if (value != null && targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
+            if (value != null && targetSQLType != null && TypeMapping.SQL_TYPE_CLOB.equals(targetSQLType)) {
                 try {
                     Reader characterStream = ((Clob) value).getCharacterStream();
                     return new String(IOUtils.toCharArray(characterStream)); // No need to close (Hibernate seems to
                                                                              // handle this).
                 } catch (Exception e) {
-                    throw new RuntimeException("Unexpected read from clob exception", e);
+                    throw new RuntimeException("Unexpected read from clob exception", e); //$NON-NLS-1$
                 }
             }
         }
