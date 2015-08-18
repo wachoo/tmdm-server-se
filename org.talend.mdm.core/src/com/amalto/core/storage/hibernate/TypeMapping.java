@@ -41,6 +41,9 @@ import java.util.zip.ZipOutputStream;
 public abstract class TypeMapping {
 
     public static final String SQL_TYPE = "SQL_TYPE"; //$NON-NLS-1$
+    public static final String SQL_TYPE_CLOB = "clob"; //$NON-NLS-1$
+    
+    public static final String SQL_TYPE_TEXT = "text"; //$NON-NLS-1$
 
     /**
      * Used to hold how many times a reusable type is reused within data model (may help to decide whether constrains
@@ -104,39 +107,39 @@ public abstract class TypeMapping {
     }
 
     private static Object _serializeValue(Object value, FieldMetadata sourceField, FieldMetadata targetField, Session session) {
-            if (targetField == null) {
-                return value;
-            }
-            if (!targetField.isMany()) {
-                Boolean targetZipped = targetField.getData(MetadataRepository.DATA_ZIPPED);
-                Boolean sourceZipped = sourceField.getData(MetadataRepository.DATA_ZIPPED);
-                if (sourceZipped == null && Boolean.TRUE.equals(targetZipped)) {
-                    try {
-                        ByteArrayOutputStream characters = new ByteArrayOutputStream();
-                        OutputStream bos = new Base64OutputStream(characters);
-                        ZipOutputStream zos = new ZipOutputStream(bos);
-                        ZipEntry zipEntry = new ZipEntry("content"); //$NON-NLS-1$
-                        zos.putNextEntry(zipEntry);
-                        zos.write(String.valueOf(value).getBytes("UTF-8")); //$NON-NLS-1$
-                        zos.closeEntry();
-                        zos.flush();
-                        zos.close();
-                        return new String(characters.toByteArray());
-                    } catch (IOException e) {
-                        throw new RuntimeException("Unexpected compression exception", e);
-                    }
-                }
-                String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
-                if (targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
-                    if (value != null) {
-                        return Hibernate.createClob(String.valueOf(value), session);
-                    } else {
-                        return null;
-                    }
-                }
-            }
+        if (targetField == null) {
             return value;
         }
+        if (!targetField.isMany()) {
+            Boolean targetZipped = targetField.getData(MetadataRepository.DATA_ZIPPED);
+            Boolean sourceZipped = sourceField.getData(MetadataRepository.DATA_ZIPPED);
+            if (sourceZipped == null && Boolean.TRUE.equals(targetZipped)) {
+                try {
+                    ByteArrayOutputStream characters = new ByteArrayOutputStream();
+                    OutputStream bos = new Base64OutputStream(characters);
+                    ZipOutputStream zos = new ZipOutputStream(bos);
+                    ZipEntry zipEntry = new ZipEntry("content"); //$NON-NLS-1$
+                    zos.putNextEntry(zipEntry);
+                    zos.write(String.valueOf(value).getBytes("UTF-8")); //$NON-NLS-1$
+                    zos.closeEntry();
+                    zos.flush();
+                    zos.close();
+                    return new String(characters.toByteArray());
+                } catch (IOException e) {
+                    throw new RuntimeException("Unexpected compression exception", e); //$NON-NLS-1$
+                }
+            }
+            String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
+            if (targetSQLType != null && SQL_TYPE_CLOB.equals(targetSQLType)) {
+                if (value != null) {
+                    return Hibernate.getLobCreator(session).createClob(String.valueOf(value));
+                } else {
+                    return null;
+                }
+            }
+        }
+        return value;
+    }
 
     private static Object _deserializeValue(Object value, FieldMetadata sourceField, FieldMetadata targetField) {
         if (targetField == null) {
@@ -159,16 +162,16 @@ public abstract class TypeMapping {
                     }
                     return new String(bos.toByteArray(), "UTF-8"); //$NON-NLS-1$
                 } catch (IOException e) {
-                    throw new RuntimeException("Unexpected deflate exception", e);
+                    throw new RuntimeException("Unexpected deflate exception", e); //$NON-NLS-1$
                 }
             }
             String targetSQLType = sourceField.getType().getData(TypeMapping.SQL_TYPE);
-            if (value != null && targetSQLType != null && "clob".equalsIgnoreCase(targetSQLType)) { //$NON-NLS-1$
+            if (value != null && targetSQLType != null && TypeMapping.SQL_TYPE_CLOB.equals(targetSQLType)) {
                 try {
                     Reader characterStream = ((Clob) value).getCharacterStream();
                     return new String(IOUtils.toCharArray(characterStream)); // No need to close (Hibernate seems to handle this).
                 } catch (Exception e) {
-                    throw new RuntimeException("Unexpected read from clob exception", e);
+                    throw new RuntimeException("Unexpected read from clob exception", e); //$NON-NLS-1$
                 }
             }
         }

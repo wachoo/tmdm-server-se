@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
 package com.amalto.core.storage.hibernate;
 
 import org.apache.commons.lang.StringUtils;
@@ -6,9 +17,6 @@ import org.talend.mdm.commmon.metadata.*;
 import javax.xml.XMLConstants;
 import java.util.Collections;
 
-/**
- *
- */
 class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private MappingRepository mappings;
@@ -19,7 +27,7 @@ class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
     private final MetadataRepository repository;
 
-    public UpdateReportMappingCreator(TypeMetadata updateReportType, MetadataRepository repository, MappingRepository mappings) {
+    public UpdateReportMappingCreator(TypeMetadata updateReportType, MetadataRepository repository, MappingRepository mappings, boolean preferClobUse) {
         this.repository = repository;
         if(updateReportType == null) {
             throw new IllegalStateException("Update report type cannot be null.");
@@ -41,7 +49,7 @@ class UpdateReportMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_concept", stringType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY)); //$NON-NLS-1$
         databaseUpdateReportType.addField(new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_key", stringType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY)); //$NON-NLS-1$
         SimpleTypeFieldMetadata items_xml = new SimpleTypeFieldMetadata(databaseUpdateReportType, false, false, false, "x_items_xml", longStringType, Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), StringUtils.EMPTY); //$NON-NLS-1$
-        items_xml.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
+        items_xml.getType().setData(TypeMapping.SQL_TYPE, preferClobUse ? TypeMapping.SQL_TYPE_CLOB: TypeMapping.SQL_TYPE_TEXT); 
         databaseUpdateReportType.addField(items_xml);
         DATABASE_UPDATE_REPORT_TYPE = (ComplexTypeMetadata) databaseUpdateReportType.freeze();
     }

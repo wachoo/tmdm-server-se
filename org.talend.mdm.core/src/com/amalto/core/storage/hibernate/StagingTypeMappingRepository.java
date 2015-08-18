@@ -58,13 +58,13 @@ class StagingTypeMappingRepository extends InternalRepository {
             SimpleTypeFieldMetadata errorField = new SimpleTypeFieldMetadata(database, false, false, false,
                     Storage.METADATA_STAGING_ERROR, stringType, Collections.<String> emptyList(),
                     Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
-            errorField.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
+            errorField.getType().setData(TypeMapping.SQL_TYPE, TypeMapping.SQL_TYPE_TEXT); //$NON-NLS-1$
             database.addField(errorField);
             // Staging previous values field (useful for rematching)
             SimpleTypeFieldMetadata previousValuesField = new SimpleTypeFieldMetadata(database, false, false, false,
                     Storage.METADATA_STAGING_VALUES, stringType, Collections.<String> emptyList(),
                     Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
-            previousValuesField.getType().setData(TypeMapping.SQL_TYPE, "text"); //$NON-NLS-1$
+            previousValuesField.getType().setData(TypeMapping.SQL_TYPE, TypeMapping.SQL_TYPE_TEXT); //$NON-NLS-1$
             database.addField(previousValuesField);
         }
 

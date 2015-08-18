@@ -532,10 +532,8 @@ public class StorageMetadataUtils {
      */
     public static String getJavaType(TypeMetadata metadata) {
         String sqlType = metadata.getData(TypeMapping.SQL_TYPE);
-        if (sqlType != null) {
-            if ("clob".equals(sqlType)) { //$NON-NLS-1$
-                return "java.sql.Clob"; //$NON-NLS-1$
-            }
+        if (sqlType != null && TypeMapping.SQL_TYPE_CLOB.equals(sqlType)) {
+            return "java.sql.Clob"; //$NON-NLS-1$
         }
         String type = org.talend.mdm.commmon.metadata.MetadataUtils.getSuperConcreteType(metadata).getName();
         if (Types.STRING.equals(type) || Types.TOKEN.equals(type)) {

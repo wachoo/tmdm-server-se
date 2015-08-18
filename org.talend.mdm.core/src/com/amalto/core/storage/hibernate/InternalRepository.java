@@ -11,11 +11,24 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import org.talend.mdm.commmon.metadata.*;
-import org.apache.log4j.Logger;
-
 import java.util.Collection;
+
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataVisitor;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 
 public abstract class InternalRepository implements MetadataVisitor<MetadataRepository> {
 
@@ -65,7 +78,9 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Mapping strategy: " + type.getName() + " -> fixed update report mapping.");
             }
-            return new UpdateReportMappingCreator(type, userRepository, mappings);
+            // TMDM-8814 Some customer using Oracle may need to map UpdateReport's x_items_xml as CLOB
+            String preferClobUse = MDMConfiguration.getConfiguration().getProperty("db.oracle.updateReport.preferClobUse", "false");
+            return new UpdateReportMappingCreator(type, userRepository, mappings, dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && Boolean.parseBoolean(preferClobUse));
         }
         switch (strategy) {
             case AUTO:

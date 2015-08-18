@@ -75,7 +75,7 @@ class SystemScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> 
         }
         String data = field.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
         if (data != null && preferClobUse) {
-            newFlattenField.getType().setData(TypeMapping.SQL_TYPE, "clob"); //$NON-NLS-1$
+            newFlattenField.getType().setData(TypeMapping.SQL_TYPE, TypeMapping.SQL_TYPE_CLOB); //$NON-NLS-1$
             newFlattenField.setData(MetadataRepository.DATA_ZIPPED, Boolean.FALSE);
         }
         currentType.peek().addField(newFlattenField);
