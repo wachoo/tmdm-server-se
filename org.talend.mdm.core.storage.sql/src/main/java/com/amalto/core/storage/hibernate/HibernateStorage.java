@@ -681,7 +681,13 @@ public class HibernateStorage implements Storage {
             }
         case MASTER:
         case STAGING:
-            return TypeMappingStrategy.AUTO;
+            switch (dataSource.getDialectName()) {
+            case DB2:
+            case ORACLE_10G: // DB2 and Oracle needs to store long string values to CLOBs.
+                return TypeMappingStrategy.SCATTERED_CLOB;
+            default:
+                return TypeMappingStrategy.AUTO;
+            }
         default:
             throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
         }

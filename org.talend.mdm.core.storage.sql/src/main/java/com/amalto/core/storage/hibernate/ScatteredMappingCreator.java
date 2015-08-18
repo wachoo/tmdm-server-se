@@ -42,12 +42,12 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
     public ScatteredMappingCreator(MetadataRepository repository,
             MappingRepository mappings,
             MappingCreatorContext context,
-            boolean shouldCompressLongStrings,
+            boolean preferClobUse,
             boolean enforceTechnicalFK) {
         this.internalRepository = repository;
         this.mappings = mappings;
         this.context = context;
-        this.preferClobUse = shouldCompressLongStrings;
+        this.preferClobUse = preferClobUse;
         this.enforceTechnicalFK = enforceTechnicalFK;
     }
 

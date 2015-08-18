@@ -33,7 +33,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.amalto.core.metadata.LongString;
 import com.amalto.core.storage.HibernateMetadataUtils;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 
@@ -50,8 +49,6 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     public static final String SQL_DELETE_CASCADE = "SQL_DELETE_CASCADE"; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(MappingGenerator.class);
-
-    private static final String TEXT_TYPE_NAME = "text"; //$NON-NLS-1$
     
     private final Document document;
 
@@ -90,13 +87,13 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     @Override
     public Element visit(MetadataRepository repository) {
         // To disallow wrong usage of this class, disables visiting the whole repository
-        throw new NotImplementedException("Repository visit is disabled in this visitor.");
+        throw new NotImplementedException("Repository visit is disabled in this visitor."); //$NON-NLS-1$
     }
 
     @Override
     public Element visit(ComplexTypeMetadata complexType) {
         if (complexType.getKeyFields().isEmpty()) {
-            throw new IllegalArgumentException("Type '" + complexType.getName() + "' has no key.");
+            throw new IllegalArgumentException("Type '" + complexType.getName() + "' has no key."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (!complexType.getSuperTypes().isEmpty()) {
             return null;
@@ -106,7 +103,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         Element classElement;
         {
             String generatedClassName = ClassCreator.getClassName(complexType.getName());
-            classElement = document.createElement("class");
+            classElement = document.createElement("class"); //$NON-NLS-1$
             Attr className = document.createAttribute("name");  //$NON-NLS-1$
             className.setValue(generatedClassName);
             classElement.getAttributes().setNamedItem(className);
@@ -169,7 +166,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 idParentElement.appendChild(keyField.accept(this));
                 boolean wasRemoved = allFields.remove(keyField);
                 if (!wasRemoved) {
-                    LOGGER.error("Field '" + keyField.getName() + "' was expected to be removed from processed fields.");
+                    LOGGER.error("Field '" + keyField.getName() + "' was expected to be removed from processed fields."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
             }
             compositeId = false;
@@ -196,7 +193,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 for (FieldMetadata currentField : allFields) {
                     Element child = currentField.accept(this);
                     if (child == null) {
-                        throw new IllegalArgumentException("Field type " + currentField.getClass().getName() + " is not supported.");
+                        throw new IllegalArgumentException("Field type " + currentField.getClass().getName() + " is not supported."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     classElement.appendChild(child);
                 }
@@ -270,12 +267,12 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
 
     @Override
     public Element visit(ContainedTypeFieldMetadata containedField) {
-        throw new IllegalArgumentException("Type should have been flatten before calling this method.");
+        throw new IllegalArgumentException("Type should have been flatten before calling this method."); //$NON-NLS-1$
     }
 
     @Override
     public Element visit(ContainedComplexTypeMetadata containedType) {
-        throw new IllegalArgumentException("Type should have been flatten before calling this method.");
+        throw new IllegalArgumentException("Type should have been flatten before calling this method."); //$NON-NLS-1$
     }
 
     @Override
@@ -287,7 +284,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
     @Override
     public Element visit(ReferenceFieldMetadata referenceField) {
         if (referenceField.isKey()) {
-            throw new UnsupportedOperationException("FK field '" + referenceField.getName() + "' cannot be key in type '" + referenceField.getDeclaringType().getName() + "'"); // Don't support FK as key
+            throw new UnsupportedOperationException("FK field '" + referenceField.getName() + "' cannot be key in type '" + referenceField.getDeclaringType().getName() + "'"); // Don't support FK as key //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else {
             boolean enforceDataBaseIntegrity = generateConstrains && (!referenceField.allowFKIntegrityOverride() && referenceField.isFKIntegrity());
             if (!referenceField.isMany()) {
@@ -308,7 +305,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 propertyElement.getAttributes().setNamedItem(lazy);
                 // fetch="select"
                 Attr joinAttribute = document.createAttribute("fetch"); //$NON-NLS-1$
-                joinAttribute.setValue("select"); // Keep it "select" (Hibernate tends to duplicate results when using "fetch")
+                joinAttribute.setValue("select"); // Keep it "select" (Hibernate tends to duplicate results when using "fetch") //$NON-NLS-1$
                 propertyElement.getAttributes().setNamedItem(joinAttribute);
                 // cascade="true"
                 if (Boolean.parseBoolean(referenceField.<String>getData(SQL_DELETE_CASCADE))) {
@@ -482,7 +479,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             }
             if (resolver.isIndexed(field)) { // Create indexes for fields that should be indexed.
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Creating index for field '" + field.getName() + "'.");
+                    LOGGER.debug("Creating index for field '" + field.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
                 setIndexName(field, columnNameValue, indexName);
@@ -529,14 +526,14 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 columnName.setValue(resolver.get(field));
                 if (resolver.isIndexed(field)) { // Create indexes for fields that should be indexed.
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Creating index for field '" + field.getName() + "'.");
+                        LOGGER.debug("Creating index for field '" + field.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     Attr indexName = document.createAttribute("index"); //$NON-NLS-1$
                     setIndexName(field, field.getName(), indexName);
                     propertyElement.getAttributes().setNamedItem(indexName);
                 } else {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("*Not* creating index for field '" + field.getName() + "'.");
+                        LOGGER.debug("*Not* creating index for field '" + field.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
                 // Not null
@@ -594,7 +591,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     listElement.getAttributes().setNamedItem(fetchAttribute);
                     // batch-size="20"
                     Attr batchSize = document.createAttribute("batch-size"); //$NON-NLS-1$
-                    batchSize.setValue("20");
+                    batchSize.setValue("20"); //$NON-NLS-1$
                     listElement.getAttributes().setNamedItem(batchSize);
                 }
                 // cascade="delete"
@@ -619,7 +616,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 addFieldTypeAttribute(field, element, dataSource.getDialectName());
                 // Not null warning
                 if (field.isMandatory()) {
-                    LOGGER.warn("Field '" + field.getName() + "' is mandatory and a collection. Constraint can not be expressed in database schema.");
+                    LOGGER.warn("Field '" + field.getName() + "' is mandatory and a collection. Constraint can not be expressed in database schema."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 // <index column="pos" />
                 Element index = document.createElement("list-index"); //$NON-NLS-1$
@@ -652,7 +649,7 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         String elementTypeName;
         if (Types.MULTI_LINGUAL.equalsIgnoreCase(fieldType.getName())
                 || Types.BASE64_BINARY.equals(fieldType.getName())) {
-            elementTypeName = TEXT_TYPE_NAME;
+            elementTypeName = TypeMapping.SQL_TYPE_TEXT;
         } else {
             Object sqlType = fieldType.getData(TypeMapping.SQL_TYPE);
             if (sqlType != null) { // SQL Type may enforce use of "CLOB" iso. "LONG VARCHAR"
@@ -663,13 +660,12 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     propertyElement.getAttributes().setNamedItem(length);
                 }
             } else if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
-                int limit = dialect.getTextLimit();
                 Object maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
                 if (maxLength != null) {
                     String maxLengthValue = String.valueOf(maxLength);
                     int maxLengthInt = Integer.parseInt(maxLengthValue);
-                    if (maxLengthInt > limit) {
-                        elementTypeName = TEXT_TYPE_NAME;
+                    if (maxLengthInt > dialect.getTextLimit()) {
+                        elementTypeName = TypeMapping.SQL_TYPE_TEXT;
                     } else {
                         Attr length = document.createAttribute("length"); //$NON-NLS-1$
                         length.setValue(maxLengthValue);
@@ -683,12 +679,9 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 elementTypeName = HibernateMetadataUtils.getJavaType(fieldType);
             }
         }
-        // TMDM-4975: Oracle doesn't like when there's too much text columns.
-        if (dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && TEXT_TYPE_NAME.equals(elementTypeName)) {
-            elementTypeName = "string"; //$NON-NLS-1$
-            Attr length = document.createAttribute("length"); //$NON-NLS-1$
-            length.setValue("4000"); //$NON-NLS-1$
-            propertyElement.getAttributes().setNamedItem(length);
+        // TMDM-4975: Oracle doesn't like when there are too many LONG columns.
+        if (dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && TypeMapping.SQL_TYPE_TEXT.equals(elementTypeName)) {
+            elementTypeName = TypeMapping.SQL_TYPE_CLOB;
         }
         elementType.setValue(elementTypeName);
         propertyElement.getAttributes().setNamedItem(elementType);

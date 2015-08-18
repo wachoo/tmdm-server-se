@@ -10,14 +10,12 @@
 
 package com.amalto.core.storage.datasource;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-
 import java.net.URI;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 public class RDBMSDataSource implements DataSource {
 
@@ -29,7 +27,7 @@ public class RDBMSDataSource implements DataSource {
 
     public static enum DataSourceDialect {
         H2(255),
-        ORACLE_10G(255), // Could be set to 4000 too (keep 255 for backward compatibility with older versions of MDM)
+        ORACLE_10G(4000), // Set to 4000 for 6.0+ versions (older versions will still use 255 for backward compatibility)
         MYSQL(255),
         POSTGRES(255),
         SQL_SERVER(4000),
@@ -164,7 +162,7 @@ public class RDBMSDataSource implements DataSource {
         } else if ("DB2".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.DB2;
         } else {
-            throw new IllegalArgumentException("No support for database '" + dialectName + "'.");
+            throw new IllegalArgumentException("No support for database '" + dialectName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         if ("update".equalsIgnoreCase(schemaGeneration)) { //$NON-NLS-1$
             this.schemaGeneration = SchemaGeneration.UPDATE;
@@ -173,7 +171,7 @@ public class RDBMSDataSource implements DataSource {
         } else if ("create".equalsIgnoreCase(schemaGeneration)) { //$NON-NLS-1$
             this.schemaGeneration = SchemaGeneration.CREATE;
         } else {
-            throw new IllegalArgumentException("No support for schema generation '" + schemaGeneration + "'.");
+            throw new IllegalArgumentException("No support for schema generation '" + schemaGeneration + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         this.initPassword = initPassword;
         this.initUserName = initUserName;
@@ -197,7 +195,7 @@ public class RDBMSDataSource implements DataSource {
         // Disable full text index for update reports.
         if (XSystemObjects.DC_UPDATE_PREPORT.getName().equals(name)) {
             if (LOGGER.isDebugEnabled() && supportFullText()) {
-                LOGGER.debug("Disabling full text for update report storage.");
+                LOGGER.debug("Disabling full text for update report storage."); //$NON-NLS-1$
             }
             this.indexDirectory = StringUtils.EMPTY;
         }
@@ -328,7 +326,7 @@ public class RDBMSDataSource implements DataSource {
                     if (uri.getPath().indexOf('-') > 0) {
                         String previousURL = processedConnectionURL;
                         processedConnectionURL = processedConnectionURL.replace(uri.getPath(), uri.getPath().replace('-', '_'));
-                        LOGGER.warn("JDBC URL '" + previousURL + "' contains character(s) not supported by MySQL (replaced with '" + processedConnectionURL + "' by MDM).");
+                        LOGGER.warn("JDBC URL '" + previousURL + "' contains character(s) not supported by MySQL (replaced with '" + processedConnectionURL + "' by MDM)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     }
                 }
                 break;
@@ -350,7 +348,7 @@ public class RDBMSDataSource implements DataSource {
                 break;
             case MYSQL:
                 if (processedDatabaseName.indexOf('-') > 0) {
-                    LOGGER.warn("Database name '" + processedDatabaseName + "' contains character(s) not supported by MySQL.");
+                    LOGGER.warn("Database name '" + processedDatabaseName + "' contains character(s) not supported by MySQL."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 processedDatabaseName = processedDatabaseName.replace('-', '_'); // TMDM-6559: MySQL doesn't like '-' in
                 // database name
@@ -411,42 +409,42 @@ public class RDBMSDataSource implements DataSource {
         switch (getDialectName()) {
         case ORACLE_10G:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Oracle database table name length limit: 30.");
+                LOGGER.debug("Oracle database table name length limit: 30."); //$NON-NLS-1$
             }
             nameMaxLength = 30;
             break;
         case MYSQL:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("MySQL database table name length limit: 64.");
+                LOGGER.debug("MySQL database table name length limit: 64."); //$NON-NLS-1$
             }
             nameMaxLength = 64;
             break;
         case SQL_SERVER:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("SQL Server database table name length limit: 128.");
+                LOGGER.debug("SQL Server database table name length limit: 128."); //$NON-NLS-1$
             }
             nameMaxLength = 128;
             break;
         case POSTGRES:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Postgres database table length limit: 63.");
+                LOGGER.debug("Postgres database table length limit: 63."); //$NON-NLS-1$
             }
             nameMaxLength = 63;
             break;
         case DB2:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("DB2 database table name length limit: 30.");
+                LOGGER.debug("DB2 database table name length limit: 30."); //$NON-NLS-1$
             }
             nameMaxLength = 30;
             break;
         case H2:
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("No limitation for H2 table name length.");
+                LOGGER.debug("No limitation for H2 table name length."); //$NON-NLS-1$
             }
             nameMaxLength = Integer.MAX_VALUE;
             break;
         default:
-            throw new IllegalArgumentException("Not supported: " + getDialectName());
+            throw new IllegalArgumentException("Not supported: " + getDialectName()); //$NON-NLS-1$
         }
     }
 

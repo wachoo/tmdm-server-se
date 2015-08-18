@@ -47,6 +47,8 @@ public abstract class TypeMapping {
     public static final String SQL_TYPE = "SQL_TYPE"; //$NON-NLS-1$
 
     public static final String SQL_TYPE_CLOB = "clob"; //$NON-NLS-1$
+    
+    public static final String SQL_TYPE_TEXT = "text"; //$NON-NLS-1$
 
     /**
      * Used to hold how many times a reusable type is reused within data model (may help to decide whether constrains
@@ -133,7 +135,7 @@ public abstract class TypeMapping {
                 }
             }
             String targetSQLType = targetField.getType().getData(TypeMapping.SQL_TYPE);
-            if (targetSQLType != null && SQL_TYPE_CLOB.equalsIgnoreCase(targetSQLType)) {
+            if (targetSQLType != null && SQL_TYPE_CLOB.equals(targetSQLType)) {
                 if (value != null) {
                     return Hibernate.getLobCreator(session).createClob(String.valueOf(value));
                 } else {
@@ -169,7 +171,7 @@ public abstract class TypeMapping {
                 }
             }
             String targetSQLType = sourceField.getType().getData(TypeMapping.SQL_TYPE);
-            if (value != null && targetSQLType != null && SQL_TYPE_CLOB.equalsIgnoreCase(targetSQLType)) {
+            if (value != null && targetSQLType != null && SQL_TYPE_CLOB.equals(targetSQLType)) {
                 try {
                     Reader characterStream = ((Clob) value).getCharacterStream();
                     return new String(IOUtils.toCharArray(characterStream)); // No need to close (Hibernate seems to
