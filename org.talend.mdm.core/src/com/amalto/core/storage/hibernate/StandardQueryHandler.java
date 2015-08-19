@@ -432,7 +432,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
     private ComplexTypeMetadata getContainingType(FieldMetadata userFieldMetadata) {
         ComplexTypeMetadata containingType = userFieldMetadata.getContainingType();
         if (!containingType.isInstantiable()) {
-            containingType = mainType;
+            if(containingType.getContainer() != null) {
+                return getContainingType(containingType.getContainer());
+            }
+            else {
+                return mainType;
+            }
         }
         return containingType;
     }

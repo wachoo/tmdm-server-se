@@ -239,6 +239,10 @@ class ScatteredMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         if (!processedTypes.contains(containedField.getContainedType())) {
             processedTypes.add(containedField.getContainedType());
             containedField.getContainedType().accept(this);
+            // recreate contained -> container association on mapped types
+            TypeMapping containedTypeMapping = mappings.getMappingFromUser(containedField.getContainedType());
+            ComplexTypeMetadata mappedContainedComplexType = containedTypeMapping.getDatabase();
+            mappedContainedComplexType.setContainer(newFlattenField);
         }
         return null;
     }
