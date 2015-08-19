@@ -342,8 +342,10 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read(repository, hierarchy, "<HierarchySearchItem><HierarchySearchName>test1</HierarchySearchName><Owner>administrator</Owner><Separator>-</Separator><HierarchyRelation>true</HierarchyRelation><HierarchySearchCriterias><Concept>cpo_service</Concept><View>Browse_items_cpo_service</View><LabelXpath>cpo_service/id_service</LabelXpath><FkXpath>cpo_service/id_service_pere</FkXpath></HierarchySearchCriterias><HierarchySearchCriterias><Concept>cpo_service</Concept><View>Browse_items_cpo_service</View><LabelXpath>cpo_service/id_service</LabelXpath></HierarchySearchCriterias></HierarchySearchItem>"));
         
         allRecords.add(factory.read(repository, location, "<Location><LocationId>t1</LocationId><name>t1</name></Location>"));
+        allRecords.add(factory.read(repository, location, "<Location><LocationId>t2</LocationId><name>t2</name><translation><language>en</language><locationTranslation>Trans1</locationTranslation><src>src</src></translation><translation><language>fr</language><locationTranslation>Trans2</locationTranslation><src>src</src></translation></Location>"));
         allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src><location>[t1]</location></locations></Organisation>"));
         allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src></locations></Organisation>"));
+        allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>2</OrganisationId><locations><src>abc</src><location>[t2]</location></locations></Organisation>"));
 
         allRecords.add(factory.read(repository, e_entity, "<E_Entity><E_EntityId>e test data 1</E_EntityId><name>1</name></E_Entity>"));
         allRecords.add(factory.read(repository, t_entity, "<T_Entity><T_EntityId>t test data 1</T_EntityId><columnT><elementT><A-id><element><elementB>[e test data 1]</elementB></element></A-id><A-id2><element><elementB/></element></A-id2></elementT></columnT></T_Entity>"));
@@ -4613,6 +4615,56 @@ public class StorageQueryTest extends StorageTestCase {
         } finally {
             results.close();
         }
+    }
+    
+    public void testTMDM8828() {
+        UserQueryBuilder qb = from(organisation);
+
+        List<String> viewables = new ArrayList<String>();
+        viewables.add("Organisation/OrganisationId");
+        viewables.add("Location/LocationId");
+        viewables.add("Location/translation/locationTranslation");
+        
+        // add order by Id to make the test stable
+        qb.orderBy(organisation.getField("OrganisationId"), Direction.ASC);
+        
+        List<IWhereItem> conditions = new ArrayList<IWhereItem>();
+        conditions.add(new WhereCondition("Organisation/locations/location", "JOINS", "Location/LocationId", "&"));
+        conditions.add(new WhereCondition("Organisation/OrganisationId", "=", "2", "&"));
+
+        IWhereItem fullWhere = new WhereAnd(conditions);
+        qb.where(UserQueryHelper.buildCondition(qb, fullWhere, repository));
+        
+        for (String viewableBusinessElement : viewables) {
+            String viewableTypeName = StringUtils.substringBefore(viewableBusinessElement, "/"); //$NON-NLS-1$
+            String viewablePath = StringUtils.substringAfter(viewableBusinessElement, "/"); //$NON-NLS-1$
+            TypedExpression expression = UserQueryHelper.getFields(repository.getComplexType(viewableTypeName), viewablePath).get(0);
+            qb.select(expression);
+        }
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(2, results.getCount());
+
+        DataRecordWriter writer = new ViewSearchResultsWriter();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        List<String> strings = new ArrayList<String>();
+        for (DataRecord result : results) {
+            try {
+                writer.write(result, output);
+                String document = new String(output.toByteArray(), Charset.forName("UTF-8"));
+                strings.add(document);
+                output.reset();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        assertEquals(2, strings.size());
+        assertEquals(
+                "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<OrganisationId>2</OrganisationId>\n\t<LocationId>t2</LocationId>\n\t<locationTranslation>Trans1</locationTranslation>\n</result>",
+                strings.get(0));
+        assertEquals(
+                "<result xmlns:metadata=\"http://www.talend.com/mdm/metadata\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<OrganisationId>2</OrganisationId>\n\t<LocationId>t2</LocationId>\n\t<locationTranslation>Trans2</locationTranslation>\n</result>",
+                strings.get(1));
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
