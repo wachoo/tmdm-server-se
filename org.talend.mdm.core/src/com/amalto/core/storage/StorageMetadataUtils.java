@@ -251,6 +251,16 @@ public class StorageMetadataUtils {
             } else if (current instanceof ReferenceFieldMetadata) {
                 ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
                 if (!referencedType.isInstantiable()) {
+                    if (processedTypes.contains(referencedType)) {
+                        Collection<FieldMetadata> tempFields = referencedType.getFields();
+                        for (FieldMetadata tempCurrent : tempFields) {
+                            if (tempCurrent.equals(target)) {
+                                currentPath.push(tempCurrent);
+                                foundPaths.add(new ArrayList<FieldMetadata>(currentPath));
+                                currentPath.pop();
+                            }
+                        }
+                    }
                     _paths(referencedType, target, currentPath, foundPaths, processedTypes);
                     for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
                         for (FieldMetadata field : subType.getFields()) {
