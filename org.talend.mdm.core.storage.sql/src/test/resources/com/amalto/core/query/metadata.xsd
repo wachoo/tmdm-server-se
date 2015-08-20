@@ -2206,18 +2206,11 @@
 		</xsd:unique>
 	</xsd:element>
     <xsd:complexType name="T">
-        <xsd:sequence>
-            <xsd:element maxOccurs="1" minOccurs="0" name="elementT" type="A-1">
-                <xsd:annotation>
-                    <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
-                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
-                </xsd:annotation>
-            </xsd:element>
-        </xsd:sequence>
+        <xsd:sequence></xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="A-1">
         <xsd:sequence>
-            <xsd:element maxOccurs="1" minOccurs="0" name="A-id">
+            <xsd:element maxOccurs="1" minOccurs="0" name="A1_Field1">
                 <xsd:annotation>
                     <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
@@ -2232,7 +2225,7 @@
                     </xsd:all>
                 </xsd:complexType>
             </xsd:element>
-            <xsd:element maxOccurs="1" minOccurs="0" name="A-id2">
+            <xsd:element maxOccurs="1" minOccurs="0" name="A1_Field2">
                 <xsd:annotation>
                     <xsd:appinfo source="X_AutoExpand">false</xsd:appinfo>
                     <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
@@ -2295,7 +2288,7 @@
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
                 </xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="0" name="columnT" type="T">
+                <xsd:element maxOccurs="1" minOccurs="0" name="T_Field" type="T">
                     <xsd:annotation>
                         <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                     </xsd:annotation>
@@ -2307,6 +2300,41 @@
             <xsd:field xpath="T_EntityId"/>
         </xsd:unique>
     </xsd:element>
+    <xsd:complexType name="T1">
+        <xsd:complexContent>
+            <xsd:extension base="T">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="T1_Field1" type="A-1">
+                        <xsd:annotation>
+                            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="T2">
+        <xsd:complexContent>
+            <xsd:extension base="T">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="T2_Field1" type="A-2">
+                        <xsd:annotation>
+                            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="A-2">
+        <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="1" name="A2_Field1" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+    </xsd:complexType>
 	<xsd:element name="CheckPointDetails_1" type="CheckPointDetailsType_1">  
 	    <xsd:unique name="CheckPointDetails_1"> 
 	      <xsd:selector xpath="."/>  

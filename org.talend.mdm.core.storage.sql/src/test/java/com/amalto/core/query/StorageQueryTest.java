@@ -347,9 +347,10 @@ public class StorageQueryTest extends StorageTestCase {
         allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>1</OrganisationId><locations><src>abc</src></locations></Organisation>"));
         allRecords.add(factory.read(repository, organisation, "<Organisation><OrganisationId>2</OrganisationId><locations><src>abc</src><location>[t2]</location></locations></Organisation>"));
 
-        allRecords.add(factory.read(repository, e_entity, "<E_Entity><E_EntityId>e test data 1</E_EntityId><name>1</name></E_Entity>"));
-        allRecords.add(factory.read(repository, t_entity, "<T_Entity><T_EntityId>t test data 1</T_EntityId><columnT><elementT><A-id><element><elementB>[e test data 1]</elementB></element></A-id><A-id2><element><elementB/></element></A-id2></elementT></columnT></T_Entity>"));
-        allRecords.add(factory.read(repository, t_entity, "<T_Entity><T_EntityId>t test data 2</T_EntityId><columnT><elementT><A-id><element><elementB/></element></A-id><A-id2><element><elementB>[e test data 1]</elementB></element></A-id2></elementT></columnT></T_Entity>"));
+        allRecords.add(factory.read(repository, e_entity, "<E_Entity><E_EntityId>E_id1</E_EntityId><name>E_name1</name></E_Entity>"));
+        allRecords.add(factory.read(repository, e_entity, "<E_Entity><E_EntityId>E_id2</E_EntityId><name>E_name2</name></E_Entity>"));
+        allRecords.add(factory.read(repository, t_entity, "<T_Entity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><T_EntityId>T_id1</T_EntityId><T_Field xsi:type=\"T1\"><T1_Field1><A1_Field1><element><elementB>[E_id1]</elementB></element></A1_Field1><A1_Field2><element><elementB>[E_id2]</elementB></element></A1_Field2></T1_Field1></T_Field></T_Entity>"));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -4594,11 +4595,10 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testPathContainsMultiChildQuery() throws Exception {
-        UserQueryBuilder qb = from(t_entity)
-                .select(e_entity.getField("E_EntityId"))
-                .where(or(eq(t_entity.getField("columnT/elementT/A-id/element/elementB"), "e test data 1"),
-                        eq(t_entity.getField("columnT/elementT/A-id2/element/elementB"), "e test data 1")))
-                .join(t_entity.getField("columnT/elementT/A-id2/element/elementB"));
+        UserQueryBuilder qb = from(t_entity).select(e_entity.getField("E_EntityId"))
+                .where(or(eq(t_entity.getField("T_Field/T1_Field1/A1_Field1/element/elementB"), "E_id1")
+                        , eq(t_entity.getField("T_Field/T1_Field1/A1_Field2/element/elementB"), "E_id1")))
+                .join(t_entity.getField("T_Field/T1_Field1/A1_Field1/element/elementB"));
 
         assertTrue(qb.getSelect().normalize() instanceof Select);
         Select sel = (Select) qb.getSelect().normalize();
@@ -4608,10 +4608,23 @@ public class StorageQueryTest extends StorageTestCase {
         assertNotNull(blo.getRight());
         assertTrue(blo.getLeft() instanceof Compare);
         assertTrue(blo.getRight() instanceof Compare);
-
+        
         StorageResults results = storage.fetch(sel);
         try {
-            assertNotNull(results);
+            assertEquals(results.getCount(), 1);
+        } finally {
+            results.close();
+        }
+        
+        qb = from(t_entity).select(e_entity.getField("E_EntityId"))
+                .where(or(eq(t_entity.getField("T_Field/T1_Field1/A1_Field1/element/elementB"), "E_id2")
+                        , eq(t_entity.getField("T_Field/T1_Field1/A1_Field2/element/elementB"), "E_id2")))
+                .join(t_entity.getField("T_Field/T1_Field1/A1_Field2/element/elementB"));
+        
+        sel = (Select) qb.getSelect().normalize();
+        results = storage.fetch(sel);
+        try {
+            assertEquals(results.getCount(), 1);
         } finally {
             results.close();
         }

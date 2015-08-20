@@ -29,7 +29,18 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.commmon.metadata.Types;
 
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
@@ -239,6 +250,16 @@ public class StorageMetadataUtils {
             } else if (current instanceof ReferenceFieldMetadata) {
                 ComplexTypeMetadata referencedType = ((ReferenceFieldMetadata) current).getReferencedType();
                 if (!referencedType.isInstantiable()) {
+                    if (processedTypes.contains(referencedType)) {
+                        Collection<FieldMetadata> tempFields = referencedType.getFields();
+                        for (FieldMetadata tempCurrent : tempFields) {
+                            if (tempCurrent.equals(target)) {
+                                currentPath.push(tempCurrent);
+                                foundPaths.add(new ArrayList<FieldMetadata>(currentPath));
+                                currentPath.pop();
+                            }
+                        }
+                    }
                     _paths(referencedType, target, currentPath, foundPaths, processedTypes);
                     for (ComplexTypeMetadata subType : referencedType.getSubTypes()) {
                         for (FieldMetadata field : subType.getFields()) {
