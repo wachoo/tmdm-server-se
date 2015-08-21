@@ -51,6 +51,7 @@ public class DataRecordAccessor implements Accessor {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private static LinkedList<PathElement> getPath(DataRecord dataRecord, String path) {
         LinkedList<PathElement> elements = new LinkedList<PathElement>();
         StringTokenizer tokenizer = new StringTokenizer(path, "/"); //$NON-NLS-1$
@@ -109,6 +110,7 @@ public class DataRecordAccessor implements Accessor {
         return elements;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void set(String value) {
         try {
@@ -147,6 +149,7 @@ public class DataRecordAccessor implements Accessor {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public String get() {
         initPath();
@@ -188,6 +191,7 @@ public class DataRecordAccessor implements Accessor {
         // No need to implement anything for this kind of accessor.
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void create() {
         try {
@@ -258,6 +262,7 @@ public class DataRecordAccessor implements Accessor {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void insert() {
         try {
@@ -300,6 +305,7 @@ public class DataRecordAccessor implements Accessor {
         set(value);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void delete() {
         if (!exist()) {
@@ -347,6 +353,7 @@ public class DataRecordAccessor implements Accessor {
         }
     }
 
+    @SuppressWarnings({ "rawtypes" })
     @Override
     public boolean exist() {
         if (cachedExist != null) {
@@ -420,6 +427,7 @@ public class DataRecordAccessor implements Accessor {
         // No need to implement anything for this kind of accessor.
     }
 
+    @SuppressWarnings({ "rawtypes" })
     @Override
     public int size() {
         if (!exist()) {
@@ -436,6 +444,8 @@ public class DataRecordAccessor implements Accessor {
                     Object o = current.get(pathElement.field);
                     if (o == null) {
                         return 0;
+                    } else if (pathElement == pathElements.getLast()) {
+                        return 1;
                     }
                     current = (DataRecord) o;
                 } else {
@@ -464,6 +474,8 @@ public class DataRecordAccessor implements Accessor {
         return 0;
     }
 
+    
+    @SuppressWarnings("rawtypes")
     @Override
     public String getActualType() {
         initPath();
