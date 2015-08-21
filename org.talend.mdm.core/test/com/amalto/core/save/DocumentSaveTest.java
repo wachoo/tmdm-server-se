@@ -1020,7 +1020,6 @@ public class DocumentSaveTest extends TestCase {
         // test update report
         MutableDocument updateReportDocument2 = context2.getUpdateReportDocument();
         assertNotNull(updateReportDocument2);
-        String updateReportXml2 = updateReportDocument2.exportToString();
         Document doc = updateReportDocument2.asDOM();
         String path = (String) evaluate(doc.getDocumentElement(), "Item[1]/path");
         String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/oldValue");
@@ -1032,43 +1031,43 @@ public class DocumentSaveTest extends TestCase {
         path = (String) evaluate(doc.getDocumentElement(), "Item[2]/path");
         oldValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/oldValue");
         newValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/newValue");
-        assertEquals("detail[1]/features/boolValue", path);
-        assertEquals("true", oldValue);
+        assertEquals("detail[1]/features/vendor", path);
+        assertEquals("[vendor-original]", oldValue);
         assertEquals("null", newValue);
-
+        
         path = (String) evaluate(doc.getDocumentElement(), "Item[3]/path");
         oldValue = (String) evaluate(doc.getDocumentElement(), "Item[3]/oldValue");
         newValue = (String) evaluate(doc.getDocumentElement(), "Item[3]/newValue");
-        assertEquals("detail[1]/ReadOnlyEle", path);
-        assertEquals("[readOnlyEle-original]", oldValue);
+        assertEquals("detail[1]/features/boolValue", path);
+        assertEquals("true", oldValue);
         assertEquals("null", newValue);
 
         path = (String) evaluate(doc.getDocumentElement(), "Item[4]/path");
         oldValue = (String) evaluate(doc.getDocumentElement(), "Item[4]/oldValue");
         newValue = (String) evaluate(doc.getDocumentElement(), "Item[4]/newValue");
-        assertEquals("detail[1]/boolTest", path);
-        assertEquals("true", oldValue);
+        assertEquals("detail[1]/features/actor", path);
+        assertEquals("actor-original", oldValue);
         assertEquals("null", newValue);
-
+        
         path = (String) evaluate(doc.getDocumentElement(), "Item[5]/path");
         oldValue = (String) evaluate(doc.getDocumentElement(), "Item[5]/oldValue");
         newValue = (String) evaluate(doc.getDocumentElement(), "Item[5]/newValue");
-        assertEquals("detail[1]/features/vendor", path);
-        assertEquals("[vendor-original]", oldValue);
+        assertEquals("detail[1]/features", path);
+        assertEquals("", oldValue);
         assertEquals("null", newValue);
 
         path = (String) evaluate(doc.getDocumentElement(), "Item[6]/path");
         oldValue = (String) evaluate(doc.getDocumentElement(), "Item[6]/oldValue");
         newValue = (String) evaluate(doc.getDocumentElement(), "Item[6]/newValue");
-        assertEquals("detail[1]/features/actor", path);
-        assertEquals("actor-original", oldValue);
+        assertEquals("detail[1]/boolTest", path);
+        assertEquals("true", oldValue);
         assertEquals("null", newValue);
 
         path = (String) evaluate(doc.getDocumentElement(), "Item[7]/path");
         oldValue = (String) evaluate(doc.getDocumentElement(), "Item[7]/oldValue");
         newValue = (String) evaluate(doc.getDocumentElement(), "Item[7]/newValue");
-        assertEquals("detail[1]/features", path);
-        assertEquals("", oldValue);
+        assertEquals("detail[1]/ReadOnlyEle", path);
+        assertEquals("[readOnlyEle-original]", oldValue);
         assertEquals("null", newValue);
 
         path = (String) evaluate(doc.getDocumentElement(), "Item[8]/path");
@@ -2815,6 +2814,27 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("[e1]", evaluate(committedElement2, "/EntiteA/format/CodeUniteMesure"));
         String datarecordXml = context2.getDatabaseDocument().exportToString();        
         assertEquals(datarecordXml, "<EntiteA><codeA>a1</codeA><format xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"Format_Entier\"><CodeUniteMesure>[e1]</CodeUniteMesure></format></EntiteA>");
+    }
+    
+    public void test73_extended_type() throws Exception {
+        // TMDM-8780: Extended types issue
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("test73.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("test", repository);
+
+        TestSaverSource source = new TestSaverSource(repository, true, "test73_original.xml", "test73.xsd");
+        source.setUserName("administrator");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("test73.xml");
+        DocumentSaverContext context = session.getContextFactory().create("test", "test", "genericUI", recordXml, false, true,
+                true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
     }
 
     public void testDateTypeInKey() throws Exception {
