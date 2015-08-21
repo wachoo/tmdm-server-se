@@ -28,6 +28,11 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
 		<constructor-arg value="org.talend.mdm.server.index.replication" />
 	</bean>
 	
+	<!-- Staging tasks cancellation topic -->
+	<bean id="stagingTaskCancellationTopic" class="org.apache.activemq.command.ActiveMQTopic" lazy-init="true">
+		<constructor-arg value="org.talend.mdm.server.staging.cancel" />
+	</bean>
+	
 	<!-- Initialize internal ActiveMQ broker -->
 	<amq:broker brokerName="localhost" dataDirectory="${mdm.root}/data/activemq-data/localhost" useShutdownHook="false">
         <amq:managementContext>

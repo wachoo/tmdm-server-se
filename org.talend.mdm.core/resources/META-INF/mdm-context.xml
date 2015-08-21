@@ -80,7 +80,7 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
     	destination-type="topic" destination-resolver="destinationResolver" >
         <jms:listener destination="expiredRoutingEventsTopic" ref="expiredRoutingOrderListener" method="consume" id="expiredEvents"/>
     </jms:listener-container>
-
+    
     <!-- Delegators -->
     <bean id="beanDelegatorContainer" class="com.amalto.core.delegator.BeanDelegatorContainer" factory-method="createInstance">
         <property name="delegatorInstancePool">
@@ -233,4 +233,14 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
         
     <!-- ApplicationContext accessor -->
     <bean class="com.amalto.core.server.MDMContextAccessor"/>
+    
+    <!-- Staging tasks management -->
+    <bean id="stagingTaskRepository" class="com.amalto.core.storage.task.staging.StagingTaskRepositoryImpl"/>
+    
+    <bean id="stagingTaskManagerFactory" class="com.amalto.core.storage.task.staging.StagingTaskManagerFactory">
+    	<property name="repository" ref="stagingTaskRepository"/>
+    </bean>
+    
+    <bean id="stagingTaskManager" factory-bean="stagingTaskManagerFactory" factory-method="createStagingTaskManager"/>
+    
 </beans>

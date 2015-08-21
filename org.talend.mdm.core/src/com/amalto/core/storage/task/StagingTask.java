@@ -1,21 +1,15 @@
 package com.amalto.core.storage.task;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.amalto.core.storage.StagingStorage;
 import org.apache.log4j.Logger;
 import org.springframework.security.core.context.SecurityContext;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 /**
  *
@@ -40,8 +34,6 @@ public class StagingTask implements Task {
 
     private final Object currentTaskMonitor = new Object();
 
-    private final ComplexTypeMetadata executionType;
-
     private final AtomicInteger recordCount = new AtomicInteger();
 
     private final ClosureExecutionStats stats;
@@ -51,15 +43,17 @@ public class StagingTask implements Task {
     private long startTime;
 
     private boolean isFinished;
-
-    public StagingTask(TaskSubmitter taskSubmitter, Storage stagingStorage, MetadataRepository stagingRepository,
-            List<Task> tasks, ClosureExecutionStats stats) {
+    
+    private StagingTaskExecutionListener executionListener;
+    
+    public StagingTask(TaskSubmitter taskSubmitter, Storage stagingStorage, List<Task> tasks, 
+            ClosureExecutionStats stats, StagingTaskExecutionListener executionListener) {
         this.taskSubmitter = taskSubmitter;
         this.stagingStorage = stagingStorage;
         this.stats = stats;
         this.executionId = UUID.randomUUID().toString();
-        this.executionType = stagingRepository.getComplexType(StagingStorage.EXECUTION_LOG_TYPE);
         this.tasks = tasks;
+        this.executionListener = executionListener;
     }
 
     @Override
@@ -165,9 +159,6 @@ public class StagingTask implements Task {
             startLock.notifyAll();
         }
         try {
-            if (executionType == null) {
-                throw new IllegalStateException("Can not find internal type information for execution logging.");
-            }
             // Start recording the execution
             recordExecutionStart();
             for (Task task : tasks) {
@@ -201,39 +192,17 @@ public class StagingTask implements Task {
             }
         }
     }
+    
+    public String getDataContainer(){
+        return this.stagingStorage.getName();
+    }
 
     private void recordExecutionStart() {
-        DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
-        execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
-        startTime = System.currentTimeMillis();
-        execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
-        try {
-            stagingStorage.begin();
-            stagingStorage.update(execution);
-            stagingStorage.commit();
-        } catch (Exception e) {
-            stagingStorage.rollback();
-            throw new RuntimeException(e);
-        }
+        this.startTime = System.currentTimeMillis();
+        this.executionListener.taskStarted(this);
     }
 
     private void recordExecutionEnd(ClosureExecutionStats stats) {
-        DataRecord execution = new DataRecord(executionType, UnsupportedDataRecordMetadata.INSTANCE);
-        execution.set(executionType.getField("id"), executionId); //$NON-NLS-1$
-        execution.set(executionType.getField("start_time"), startTime); //$NON-NLS-1$
-        execution.set(executionType.getField("end_match_time"), stats.getEndMatchTime()); //$NON-NLS-1$
-        execution.set(executionType.getField("end_time"), System.currentTimeMillis()); //$NON-NLS-1$
-        execution.set(executionType.getField("error_count"), new BigDecimal(getErrorCount())); //$NON-NLS-1$
-        execution.set(executionType.getField("record_count"), new BigDecimal(getProcessedRecords())); //$NON-NLS-1$
-        execution.set(executionType.getField("completed"), Boolean.TRUE); //$NON-NLS-1$
-        try {
-            stagingStorage.begin();
-            stagingStorage.update(execution);
-            stagingStorage.commit();
-        } catch (Exception e) {
-            stagingStorage.rollback();
-            throw new RuntimeException(e);
-
-        }
+        this.executionListener.taskCompleted(this, stats);
     }
 }
