@@ -11,29 +11,9 @@
 
 package com.amalto.core.save.context;
 
-import java.io.InputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.webapp.XSystemObjects;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.load.action.LoadAction;
-import com.amalto.core.save.AutoCommitSaverContext;
-import com.amalto.core.save.DOMDocument;
-import com.amalto.core.save.DocumentSaverContext;
-import com.amalto.core.save.PartialUpdateSaverContext;
-import com.amalto.core.save.ReportDocumentSaverContext;
-import com.amalto.core.save.SaverSession;
-import com.amalto.core.save.UserAction;
+import com.amalto.core.save.*;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.Server;
@@ -44,6 +24,18 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.InputStream;
 
 public class SaverContextFactory {
 
@@ -298,7 +290,7 @@ public class SaverContextFactory {
             invokeBeforeSaving = false;
             updateReport = false;
         }
-        context = new StorageSaver(storage, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
+        context = new StorageSaver(storage, dataModelName, userDocument, userAction, invokeBeforeSaving, updateReport, validate);
         // Additional options (update report, auto commit).
         if (updateReport) {
             context = ReportDocumentSaverContext.decorate(context, changeSource);

@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.util.ValidateException;
@@ -33,14 +32,11 @@ class Init implements DocumentSaver {
     public void save(SaverSession session, DocumentSaverContext context) {
         SaverSource saverSource = session.getSaverSource();
         String dataClusterName = context.getDataCluster();
-        String dataModelName = context.getDataModelName();
-        // Get type name
-        ComplexTypeMetadata type = context.getUserDocument().getType();
         // check cluster exist or not
         if (!XSystemObjects.isExist(XObjectType.DATA_CLUSTER, dataClusterName)) {
             // get the universe and revision ID
             if (!saverSource.existCluster(dataClusterName)) {
-                throw new RuntimeException("Data container '" + dataClusterName + "' does not exist.");
+                throw new RuntimeException("Data container '" + dataClusterName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         // Start a transaction on data container
@@ -52,7 +48,7 @@ class Init implements DocumentSaver {
             // TMDM-3638: Don't log error if there's a before saving error.
             if (LOGGER.isDebugEnabled()) {
                 if (getBeforeSavingMessage().isEmpty()) {
-                    LOGGER.debug("Exception occurred during save.", e);
+                    LOGGER.debug("Exception occurred during save.", e); //$NON-NLS-1$
                 }
             }
             if (e instanceof ValidateException) {
@@ -60,10 +56,6 @@ class Init implements DocumentSaver {
                 throw new com.amalto.core.save.SaveException(e);
             }
             throw new com.amalto.core.save.SaveException(getBeforeSavingMessage(), e);
-        }
-        // Reset user cache if save applied to a user.
-        if (XSystemObjects.DC_PROVISIONING.getName().equals(dataModelName)) {
-            saverSource.resetLocalUsers();
         }
     }
 

@@ -29,6 +29,8 @@ public class StorageSaver implements DocumentSaverContext {
 
     private final Storage storage;
     
+    private final String dataModelName;
+    
     private List<Action> actions = new LinkedList<Action>();
 
     private String taskId = StringUtils.EMPTY;
@@ -52,12 +54,14 @@ public class StorageSaver implements DocumentSaverContext {
     private final boolean preserveOldCollectionValues;
 
     public StorageSaver(Storage storage,
+                        String dataModelName,
                         MutableDocument userDocument,
                         UserAction userAction,
                         boolean invokeBeforeSaving,
                         boolean updateReport,
                         boolean validate) {
         this.storage = storage;
+        this.dataModelName = dataModelName;
         this.userDocument = userDocument;
         this.userAction = userAction;
         this.invokeBeforeSaving = invokeBeforeSaving;
@@ -92,7 +96,7 @@ public class StorageSaver implements DocumentSaverContext {
             case SYSTEM:
                 return new Init(new ID(new GenerateActions(new ApplyActions(saver))));
             default:
-                throw new NotImplementedException("No support for storage type '" + storage.getType() + "'.");
+                throw new NotImplementedException("No support for storage type '" + storage.getType() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
@@ -141,13 +145,13 @@ public class StorageSaver implements DocumentSaverContext {
             case STAGING:
                 return storage.getName() + StorageAdmin.STAGING_SUFFIX;
             default:
-                throw new UnsupportedOperationException("No support for type '" + storageType + "'.");
+                throw new UnsupportedOperationException("No support for type '" + storageType + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
     @Override
     public String getDataModelName() {
-        return this.storage.getName();
+        return this.dataModelName;
     }
 
     @Override
