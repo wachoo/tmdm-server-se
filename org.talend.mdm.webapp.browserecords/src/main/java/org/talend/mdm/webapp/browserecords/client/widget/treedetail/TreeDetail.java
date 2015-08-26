@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
@@ -299,7 +300,9 @@ public class TreeDetail extends ContentPanel {
                 final DynamicTreeItem parentItem = item;
                 if (typeModels.size() == 1) {
                     TypeModel fkType = typeModels.get(0);
-                    if (fkType.getForeignkey() != null && fkType.getForeignkey().trim().length() > 0 && !fkType.isNotSeparateFk()) {
+                    // For case TMDM-5439 and TMDM-8801
+                    if (fkType.getForeignkey() != null && fkType.getForeignkey().trim().length() > 0 && !fkType.isNotSeparateFk()
+                            && DataTypeConstants.UNKNOW.getTypeName().equals(typeModel.getType().getTypeName())) {
                         item.getElement().setPropertyBoolean("EmptyFkContainer", true); //$NON-NLS-1$
                     }
                 }
