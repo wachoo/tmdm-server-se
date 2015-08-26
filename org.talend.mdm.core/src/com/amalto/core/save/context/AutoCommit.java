@@ -14,6 +14,7 @@ package com.amalto.core.save.context;
 import com.amalto.core.save.DocumentSaverContext;
 import com.amalto.core.save.SaverSession;
 import org.apache.commons.lang.StringUtils;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 public class AutoCommit implements DocumentSaver {
 
@@ -35,6 +36,10 @@ public class AutoCommit implements DocumentSaver {
             id = context.getId();
             session.end();
             session.begin(context.getDataCluster());
+            // Reset user cache if save applied to a user.
+            if (XSystemObjects.DM_PROVISIONING.getName().equals(context.getDataModelName())) {
+                session.getSaverSource().resetLocalUsers();
+            }
         } catch (Exception e) {
             throw new RuntimeException("Exception occurred during auto commit phase.", e); //$NON-NLS-1$
         }
