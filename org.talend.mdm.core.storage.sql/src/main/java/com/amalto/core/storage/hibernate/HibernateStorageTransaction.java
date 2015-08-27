@@ -77,11 +77,11 @@ class HibernateStorageTransaction extends StorageTransaction {
         this.acquireLock();
         try {
             if (!session.isOpen()) {
-                throw new IllegalStateException("Could not start transaction: provided session is not ready for use (session is closed).");
+                throw new IllegalStateException("Could not start transaction: provided session is not ready for use (session is closed)."); //$NON-NLS-1$
             }
             Transaction transaction = session.getTransaction();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Transaction begin (session " + session.hashCode() + ")");
+                LOGGER.debug("Transaction begin (session " + session.hashCode() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             if (!transaction.isActive()) {
                 session.beginTransaction();
@@ -126,21 +126,21 @@ class HibernateStorageTransaction extends StorageTransaction {
             if (isAutonomous) {
                 Transaction transaction = session.getTransaction();
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit includes "
-                            + session.getStatistics().getEntityCount() + " not-flushed record(s)...");
+                    LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit includes " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                            + session.getStatistics().getEntityCount() + " not-flushed record(s)..."); //$NON-NLS-1$
                 }
                 if (!transaction.isActive()) {
-                    throw new IllegalStateException("Can not commit transaction, no transaction is active.");
+                    throw new IllegalStateException("Can not commit transaction, no transaction is active."); //$NON-NLS-1$
                 }
                 try {
                     if (!transaction.wasCommitted()) {
                         session.flush();
                         transaction.commit();
                         if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done.");
+                            LOGGER.debug("[" + storage + "] Transaction #" + transaction.hashCode() + " -> Commit done."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         }
                     } else {
-                        LOGGER.warn("Transaction was already committed.");
+                        LOGGER.warn("Transaction was already committed."); //$NON-NLS-1$
                     }
                     if (session.isOpen()) {
                         /*
@@ -155,7 +155,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                 } catch (Exception e) {
                     try {
                         if (LOGGER.isInfoEnabled()) {
-                            LOGGER.info("Transaction failed, dumps transaction content for diagnostic.");
+                            LOGGER.info("Transaction failed, dumps transaction content for diagnostic."); //$NON-NLS-1$
                             dumpTransactionContent(session, storage); // Dumps all the faulty session information.
                         }
                         processCommitException(e);
@@ -210,7 +210,7 @@ class HibernateStorageTransaction extends StorageTransaction {
             ResettableStringWriter xmlContent = new ResettableStringWriter();
             for (EntityKey failedKey : failedKeys) {
                 String entityTypeName = StringUtils.substringAfterLast(failedKey.getEntityName(), "."); //$NON-NLS-1$
-                LOGGER.log(currentLevel, "Entity #" + i++ + " (type=" + entityTypeName + ", id=" + failedKey.getIdentifier() + ")");
+                LOGGER.log(currentLevel, "Entity #" + i++ + " (type=" + entityTypeName + ", id=" + failedKey.getIdentifier() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
                 try {
                     storage.getClassLoader().bind(Thread.currentThread());
                     Wrapper o = (Wrapper) ((SessionImpl) session).getPersistenceContext().getEntity(failedKey);
@@ -220,22 +220,22 @@ class HibernateStorageTransaction extends StorageTransaction {
                             if (type != null) {
                                 DataRecord record = reader.read(mappingRepository.getMappingFromDatabase(type), o);
                                 writer.write(record, xmlContent);
-                                LOGGER.log(currentLevel, xmlContent + "\n(taskId='" + o.taskId() + "', timestamp='" + o.timestamp() + "')");
+                                LOGGER.log(currentLevel, xmlContent + "\n(taskId='" + o.taskId() + "', timestamp='" + o.timestamp() + "')"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                             } else {
-                                LOGGER.warn("Could not find data model type for object " + o);
+                                LOGGER.warn("Could not find data model type for object " + o); //$NON-NLS-1$
                             }
                         } else {
-                            LOGGER.warn("Could not find an object for entity " + failedKey);
+                            LOGGER.warn("Could not find an object for entity " + failedKey); //$NON-NLS-1$
                         }
                     }
                 } catch (ObjectNotFoundException missingRefException) {
-                    LOGGER.log(currentLevel, "Can not log entity: contains a unresolved reference to '"
-                            + missingRefException.getEntityName() + "' with id '"
-                            + missingRefException.getIdentifier() + "'");
+                    LOGGER.log(currentLevel, "Can not log entity: contains a unresolved reference to '" //$NON-NLS-1$
+                            + missingRefException.getEntityName() + "' with id '" //$NON-NLS-1$
+                            + missingRefException.getIdentifier() + "'"); //$NON-NLS-1$
                 } catch (Exception serializationException) {
-                    LOGGER.log(currentLevel, "Failed to log entity content for type " + entityTypeName + " (enable DEBUG for exception details).");
+                    LOGGER.log(currentLevel, "Failed to log entity content for type " + entityTypeName + " (enable DEBUG for exception details)."); //$NON-NLS-1$ //$NON-NLS-2$
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Serialization exception occurred.", serializationException);
+                        LOGGER.debug("Serialization exception occurred.", serializationException); //$NON-NLS-1$
                     }
                 } finally {
                     xmlContent.reset();
@@ -245,7 +245,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                     if (!LOGGER.isDebugEnabled()) {
                         int more = failedKeys.size() - i;
                         if (more > 0) {
-                            LOGGER.log(currentLevel, "and " + more + " more... (enable DEBUG for full dump)");
+                            LOGGER.log(currentLevel, "and " + more + " more... (enable DEBUG for full dump)"); //$NON-NLS-1$ //$NON-NLS-2$
                         }
                         return;
                     } else {
@@ -264,7 +264,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                 try {
                     Transaction transaction = session.getTransaction();
                     if (!transaction.isActive()) {
-                        LOGGER.warn("Can not rollback transaction, no transaction is active.");
+                        LOGGER.warn("Can not rollback transaction, no transaction is active."); //$NON-NLS-1$
                         return;
                     } else {
                         boolean dirty;
@@ -272,19 +272,19 @@ class HibernateStorageTransaction extends StorageTransaction {
                             dirty = session.isDirty();
                         } catch (HibernateException e) {
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Is dirty check during rollback threw exception.", e);
+                                LOGGER.debug("Is dirty check during rollback threw exception.", e); //$NON-NLS-1$
                             }
                             dirty = true; // Consider session is dirty (exception might occur when there's an integrity issue).
                         }
                         if (LOGGER.isInfoEnabled() && dirty) {
-                            LOGGER.info("Transaction is being rollbacked. Transaction content:");
+                            LOGGER.info("Transaction is being rollbacked. Transaction content:"); //$NON-NLS-1$
                             dumpTransactionContent(session, storage); // Dumps all content in the current transaction.
                         }
                     }
                     if (!transaction.wasRolledBack()) {
                         transaction.rollback();
                     } else {
-                        LOGGER.warn("Transaction was already rollbacked.");
+                        LOGGER.warn("Transaction was already rollbacked."); //$NON-NLS-1$
                     }
                 } finally {
                     try {
@@ -299,7 +299,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                         hasFailed = false;
                     } catch (HibernateException e) {
                         if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Could not clean up session.", e);
+                            LOGGER.debug("Could not clean up session.", e); //$NON-NLS-1$
                         }
                     } finally {
                         // It is *very* important to ensure super.rollback() gets called (even if session close did not succeed).
@@ -329,16 +329,16 @@ class HibernateStorageTransaction extends StorageTransaction {
             case LOCK_FOR_UPDATE:
                 return new LockUpdateSession(session);
             default:
-                throw new NotImplementedException("No support for lock '" + lockStrategy + "'");
+                throw new NotImplementedException("No support for lock '" + lockStrategy + "'"); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
     @Override
     public String toString() {
-        return "HibernateStorageTransaction {" +
-                "storage=" + storage +
-                ", session=" + session +
-                ", initiatorThread=" + initiatorThread +
+        return "HibernateStorageTransaction {" + //$NON-NLS-1$
+                "storage=" + storage + //$NON-NLS-1$
+                ", session=" + session + //$NON-NLS-1$
+                ", initiatorThread=" + initiatorThread + //$NON-NLS-1$
                 '}';
     }
 }
