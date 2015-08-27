@@ -261,8 +261,8 @@ public class TreeDetailGridFieldCreator {
                         } else {
                             value = (Serializable) fe.getValue();
                             // TMDM-8470 trim pk textfield value
-                            if (node.isKey() && field instanceof TextField<?> && node.getObjectValue() != null) {
-                                value = node.getObjectValue().toString().trim();
+                            if (node.isKey() && field instanceof TextField<?> && value != null) {
+                                value = value.toString().trim();
                             }
                         }
                     }
