@@ -648,8 +648,9 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
         TypeMetadata fieldType = field.getType();
         String elementTypeName;
-        if (Types.MULTI_LINGUAL.equalsIgnoreCase(fieldType.getName())
-                || Types.BASE64_BINARY.equals(fieldType.getName())) {
+        boolean isMultiLingualOrBase64Binary = Types.MULTI_LINGUAL.equalsIgnoreCase(fieldType.getName())
+                || Types.BASE64_BINARY.equalsIgnoreCase(fieldType.getName());
+        if (isMultiLingualOrBase64Binary) {
             elementTypeName = TypeMapping.SQL_TYPE_TEXT;
         } else {
             Object sqlType = fieldType.getData(TypeMapping.SQL_TYPE);
@@ -682,9 +683,10 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         }
         // TMDM-4975: Oracle doesn't like when there are too many LONG columns.
         if (dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && TypeMapping.SQL_TYPE_TEXT.equals(elementTypeName)) {
-            if (field.getType().getData(LongString.PREFER_LONGVARCHAR) == null) {
+            if (field.getType().getData(LongString.PREFER_LONGVARCHAR) == null && isMultiLingualOrBase64Binary == false) {
                 elementTypeName = TypeMapping.SQL_TYPE_CLOB;
-            } else {// DATA_CLUSTER_POJO.X_VOCABULARY still need to use VARCHAR2(4000 CHAR)
+            } else {// DATA_CLUSTER_POJO.X_VOCABULARY, X_TALEND_STAGING_ERROR, X_TALEND_STAGING_VALUES, and
+                    // Types.MULTI_LINGUAL, Types.BASE64_BINARY still use VARCHAR2(4000 CHAR)
                 elementTypeName = "string"; //$NON-NLS-1$
                 Attr length = document.createAttribute("length"); //$NON-NLS-1$
                 length.setValue("4000"); //$NON-NLS-1$
