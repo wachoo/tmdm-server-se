@@ -26,7 +26,9 @@ import com.amalto.core.storage.StagingStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 
-
+/**
+ * Utility class for {@link StagingTaskManager}
+ */
 public class StagingTasksUtil {
     
     // SimpleDateFormat is not thread-safe

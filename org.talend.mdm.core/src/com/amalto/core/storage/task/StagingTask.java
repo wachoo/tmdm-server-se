@@ -54,6 +54,8 @@ public class StagingTask implements Task {
         this.executionId = UUID.randomUUID().toString();
         this.tasks = tasks;
         this.executionListener = executionListener;
+        // Start recording the execution
+        recordExecutionStart();
     }
 
     @Override
@@ -85,8 +87,13 @@ public class StagingTask implements Task {
     public void cancel() {
         synchronized (currentTaskMonitor) {
             isCancelled = true;
+            // we are still in the main execution loop, it will record stats by itself 
             if (currentTask != null) {
                 currentTask.cancel();
+            }
+            else {
+                // Ensure cancel execution stats are stored to database.
+                recordExecutionEnd(stats);
             }
             synchronized (startLock) {
                 startLock.notifyAll();
@@ -94,8 +101,6 @@ public class StagingTask implements Task {
             synchronized (executionLock) {
                 executionLock.notifyAll();
             }
-            // Ensure cancel execution stats are stored to database.
-            recordExecutionEnd(stats);
         }
     }
 
@@ -120,7 +125,7 @@ public class StagingTask implements Task {
 
     @Override
     public boolean hasFinished() {
-        return isCancelled || isFinished;
+        return isFinished;
     }
 
     @Override
@@ -159,8 +164,6 @@ public class StagingTask implements Task {
             startLock.notifyAll();
         }
         try {
-            // Start recording the execution
-            recordExecutionStart();
             for (Task task : tasks) {
                 synchronized (currentTaskMonitor) {
                     if (isCancelled) {

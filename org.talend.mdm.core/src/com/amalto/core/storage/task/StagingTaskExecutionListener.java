@@ -12,11 +12,22 @@
 // ============================================================================
 package com.amalto.core.storage.task;
 
-
+/**
+ * {@link StagingTask} events listener
+ */
 public interface StagingTaskExecutionListener {
     
+    /**
+     * Called when the task is ready to start or just started
+     * @param task
+     */
     public void taskStarted(StagingTask task);
     
+    /**
+     * Called when the task is finished
+     * @param task
+     * @param stats
+     */
     public void taskCompleted(StagingTask task, ClosureExecutionStats stats);
 
 }

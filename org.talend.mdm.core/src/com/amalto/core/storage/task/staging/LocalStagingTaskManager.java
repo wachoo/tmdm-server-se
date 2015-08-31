@@ -20,7 +20,9 @@ import com.amalto.core.storage.task.ClosureExecutionStats;
 import com.amalto.core.storage.task.StagingTask;
 import com.amalto.core.storage.task.Task;
 
-
+/**
+ * Simple implementation of {@link StagingTaskManager} where tasks are all running in the same node.
+ */
 public class LocalStagingTaskManager extends AbstractStagingTaskManager {
     
     private final Map<String, Task> runningTasks = new HashMap<String, Task>();

@@ -29,6 +29,7 @@ import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.DefaultCommitter;
 import com.amalto.core.save.context.DefaultSaverSource;
+import com.amalto.core.server.MDMContextAccessor;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -51,6 +52,10 @@ import com.amalto.core.util.XtentisException;
 public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
     
     private StagingTaskManager stagingTaskManager;
+    
+    public DefaultStagingTaskService(){
+        this.stagingTaskManager = MDMContextAccessor.getApplicationContext().getBean(StagingTaskManager.class);
+    }
     
     public StagingContainerSummary getContainerSummary() {
         String dataContainer;

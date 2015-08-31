@@ -34,7 +34,12 @@ import org.apache.log4j.Logger;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
-
+/**
+ * Clustered ready implementation of {@link StagingTaskManager} that supports situations where
+ * a task is run in a different node that the current one: it queries the underlying storage 
+ * to get current running task if there is no task running locally. Also sends a JMS message on a topic
+ * for tasks's cancellation with this task is not running in the local node.
+ */
 public class ClusteredStagingTaskManager extends LocalStagingTaskManager implements MessageListener {
     
     private static final Logger LOGGER = Logger.getLogger(ClusteredStagingTaskManager.class);
@@ -124,6 +129,9 @@ public class ClusteredStagingTaskManager extends LocalStagingTaskManager impleme
         this.jmsTemplate = jmsTemplate;
     }
     
+    /**
+     * Internal message sent on the JMS topic for cancellation.  
+     */
     @XmlRootElement(name="stagingJobCancellationMessage")
     @XmlAccessorType(XmlAccessType.FIELD)
     static class StagingJobCancellationMessage {
