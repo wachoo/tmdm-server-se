@@ -11,6 +11,7 @@
 
 package com.amalto.core.storage.hibernate;
 
+import com.amalto.core.metadata.LongString;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.*;
@@ -59,12 +60,14 @@ class StagingTypeMappingRepository extends InternalRepository {
                     Storage.METADATA_STAGING_ERROR, stringType, Collections.<String> emptyList(),
                     Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
             errorField.getType().setData(TypeMapping.SQL_TYPE, TypeMapping.SQL_TYPE_TEXT); 
+            errorField.getType().setData(LongString.PREFER_LONGVARCHAR, true); // ORACLE will use VARCHAR2(4000 CHAR)
             database.addField(errorField);
             // Staging previous values field (useful for rematching)
             SimpleTypeFieldMetadata previousValuesField = new SimpleTypeFieldMetadata(database, false, false, false,
                     Storage.METADATA_STAGING_VALUES, stringType, Collections.<String> emptyList(),
                     Collections.<String> emptyList(), Collections.<String> emptyList(), StringUtils.EMPTY);
             previousValuesField.getType().setData(TypeMapping.SQL_TYPE, TypeMapping.SQL_TYPE_TEXT); 
+            previousValuesField.getType().setData(LongString.PREFER_LONGVARCHAR, true); // ORACLE will use VARCHAR2(4000 CHAR)
             database.addField(previousValuesField);
         }
 
