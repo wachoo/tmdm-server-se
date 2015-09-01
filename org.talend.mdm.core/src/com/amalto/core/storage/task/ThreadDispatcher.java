@@ -46,6 +46,7 @@ class ThreadDispatcher implements Closure {
         for (int i = 0; i < threadNumber; i++) {
             childClosures.add(new ConsumerRunnable(queue, closure.copy(), stats, context));
         }
+        executor.allowCoreThreadTimeOut(true);
     }
 
     private ExecutorService getManager() {

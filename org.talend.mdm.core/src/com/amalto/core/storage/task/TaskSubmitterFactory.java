@@ -11,14 +11,30 @@
 
 package com.amalto.core.storage.task;
 
+import org.springframework.context.ApplicationContext;
+
+import com.amalto.core.server.MDMContextAccessor;
+
+
 public class TaskSubmitterFactory {
 
-    private final static TaskSubmitter submitter = new DefaultTaskSubmitter();
+    private static TaskSubmitter submitter;
 
     private TaskSubmitterFactory() {
     }
 
     public static TaskSubmitter getSubmitter() {
+        synchronized(TaskSubmitterFactory.class){
+            if(submitter == null){
+                ApplicationContext context = MDMContextAccessor.getApplicationContext();
+                if(context != null){
+                    submitter = context.getBean(TaskSubmitter.class);
+                }
+                else {
+                    submitter = new DefaultTaskSubmitter();
+                }
+            }
+        }
         return submitter;
     }
 }

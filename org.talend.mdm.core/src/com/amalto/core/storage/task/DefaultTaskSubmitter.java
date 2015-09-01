@@ -13,7 +13,9 @@ package com.amalto.core.storage.task;
 
 import java.util.concurrent.*;
 
-public class DefaultTaskSubmitter implements TaskSubmitter {
+import org.springframework.beans.factory.DisposableBean;
+
+public class DefaultTaskSubmitter implements TaskSubmitter, DisposableBean {
     /*
      * Executor service with the following features:
      * - 1 thread minimum
@@ -36,6 +38,13 @@ public class DefaultTaskSubmitter implements TaskSubmitter {
             task.waitForCompletion();
         } catch (InterruptedException e) {
             throw new RuntimeException("Task did not successfully completed.", e);
+        }
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        if(service != null){
+            service.shutdown();
         }
     }
 }

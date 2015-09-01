@@ -243,4 +243,6 @@ http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/ac
     
     <bean id="stagingTaskManager" factory-bean="stagingTaskManagerFactory" factory-method="createStagingTaskManager"/>
     
+    <bean id="taskSubmitter" class="com.amalto.core.storage.task.DefaultTaskSubmitter"/>
+    
 </beans>
