@@ -65,7 +65,11 @@ class Save implements DocumentSaver {
                 throw new RuntimeException("Unexpected state: update report does not have value for key '" + keyFieldName + "'.");
             }
             if ("TimeInMillis".equals(keyFieldName)) { //$NON-NLS-1$
-                updateReportTime = Long.parseLong(keyAccessor.get());
+                if (StringUtils.EMPTY.equals(keyAccessor.get())) { // No update report need to save.
+                    return;
+                } else {
+                    updateReportTime = Long.parseLong(keyAccessor.get());
+                }
             }
         }
         if (updateReportTime < 1) { // This is unexpected (would mean update report "TimeInMillis" is not present).
