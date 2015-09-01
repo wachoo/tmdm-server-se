@@ -12,6 +12,8 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.datasource.RDBMSDataSource;
+import com.amalto.core.storage.datasource.RDBMSDataSource.DataSourceDialect;
+
 import org.talend.mdm.commmon.metadata.*;
 import org.apache.log4j.Logger;
 
@@ -65,7 +67,7 @@ public abstract class InternalRepository implements MetadataVisitor<MetadataRepo
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Mapping strategy: " + type.getName() + " -> fixed update report mapping.");
             }
-            return new UpdateReportMappingCreator(type, userRepository, mappings, strategy.preferClobUse());
+            return new UpdateReportMappingCreator(type, userRepository, mappings, strategy.preferClobUse() && dialect != DataSourceDialect.DB2);
         }
         switch (strategy) {
             case AUTO:
