@@ -31,7 +31,7 @@ class Save implements DocumentSaver {
         String typeName = context.getUserDocument().getType().getName();
         savedId = context.getId();
         if (savedId.length == 0) {
-            throw new IllegalStateException("No ID information to save instance of '" + typeName + "'");
+            throw new IllegalStateException("No ID information to save instance of '" + typeName + "'"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         MutableDocument databaseDocument = context.getDatabaseDocument();
         if (!StringUtils.EMPTY.equals(context.getTaskId())) {
@@ -53,7 +53,7 @@ class Save implements DocumentSaver {
         MetadataRepository metadataRepository = saverSource.getMetadataRepository(UpdateReport.UPDATE_REPORT_DATA_MODEL);
         ComplexTypeMetadata updateReportType = metadataRepository.getComplexType(UpdateReport.UPDATE_REPORT_TYPE);
         if (updateReportType == null) {
-            throw new IllegalStateException("Could not find UpdateReport type.");
+            throw new IllegalStateException("Could not find UpdateReport type."); //$NON-NLS-1$
         }
 
         Collection<FieldMetadata> keyFields = updateReportType.getKeyFields();
@@ -62,14 +62,18 @@ class Save implements DocumentSaver {
             String keyFieldName = keyField.getName();
             Accessor keyAccessor = updateReportDocument.createAccessor(keyFieldName);
             if (!keyAccessor.exist()) {
-                throw new RuntimeException("Unexpected state: update report does not have value for key '" + keyFieldName + "'.");
+                throw new RuntimeException("Unexpected state: update report does not have value for key '" + keyFieldName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             if ("TimeInMillis".equals(keyFieldName)) { //$NON-NLS-1$
-                updateReportTime = Long.parseLong(keyAccessor.get());
+                if (StringUtils.EMPTY.equals(keyAccessor.get())) { // No update report need to save.
+                    return;
+                } else {
+                    updateReportTime = Long.parseLong(keyAccessor.get());
+                }
             }
         }
         if (updateReportTime < 1) { // This is unexpected (would mean update report "TimeInMillis" is not present).
-            throw new IllegalStateException("Missing update report time value.");
+            throw new IllegalStateException("Missing update report time value."); //$NON-NLS-1$
         }
         // Call session's save to save all items in correct order (one transaction per data cluster for the XML db).
         session.save(UpdateReport.UPDATE_REPORT_DATA_MODEL, updateReportDocument);
