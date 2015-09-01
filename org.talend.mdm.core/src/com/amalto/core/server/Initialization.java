@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -42,7 +44,7 @@ import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.Version;
 
-public class Initialization implements ApplicationListener<ContextRefreshedEvent>, InitializingBean, DisposableBean {
+public class Initialization implements ApplicationListener<ContextRefreshedEvent>, InitializingBean, DisposableBean, ApplicationEventPublisherAware {
 
     @Autowired(required = true)
     private ServerLifecycle serverLifecycle;
@@ -50,6 +52,8 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
     private static final Logger LOGGER = Logger.getLogger(Initialization.class);
     
     private Properties previousSystemProperties;
+    
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -151,6 +155,10 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
         });
 
         LOGGER.info("Talend MDM " + version + " started."); //$NON-NLS-1$ //$NON-NLS-2$
+        if(this.applicationEventPublisher != null){
+            this.applicationEventPublisher.publishEvent(new MDMInitializationCompletedEvent(this));
+        }
+        
     }
 
     private void initContainers(Server server, StorageAdmin storageAdmin, Set<String> containerNames) {
@@ -173,5 +181,10 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
             }
             i++;
         }
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 }

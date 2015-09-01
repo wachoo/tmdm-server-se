@@ -15,11 +15,15 @@ package com.amalto.core.storage.task.staging;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationListener;
 
+import com.amalto.core.server.MDMInitializationCompletedEvent;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.task.ClosureExecutionStats;
 import com.amalto.core.storage.task.StagingTask;
 
-public abstract class AbstractStagingTaskManager implements StagingTaskManager {
+public abstract class AbstractStagingTaskManager implements StagingTaskManager, ApplicationListener<MDMInitializationCompletedEvent> {
     
     private static final Logger LOGGER = Logger.getLogger(AbstractStagingTaskManager.class);
     
@@ -55,5 +59,19 @@ public abstract class AbstractStagingTaskManager implements StagingTaskManager {
     
     public void setRepository(StagingTaskRepository repository) {
         this.repository = repository;
+    }
+
+    @Override
+    public void onApplicationEvent(MDMInitializationCompletedEvent event) {
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        for(String storage : storageAdmin.getAll()){
+            if(storageAdmin.supportStaging(storage)){
+                String taskId = this.repository.getCurrentTaskId(storage);
+                if(taskId != null){
+                    LOGGER.info(String.format("Removing a pending validation task (id=%s) from storage %s", taskId, storage)); 
+                    this.repository.saveTaskAsCancelled(storage, taskId);
+                }
+            }
+        }
     }
 }

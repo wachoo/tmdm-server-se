@@ -65,6 +65,7 @@ public class StagingTaskRepositoryImpl implements StagingTaskRepository {
             if(resultsIterator.hasNext()){
                 DataRecord record = resultsIterator.next();
                 record.set(executionType.getField("completed"), Boolean.TRUE);
+                record.set(executionType.getField("end_time"), System.currentTimeMillis());
                 staging.update(record);
             }
             staging.commit();
