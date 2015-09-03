@@ -150,7 +150,7 @@ public class RoutingChart extends ChartPortlet {
     
     @Override
     protected String[] getSeriesDataKeys(){
-        String[] keys = { ROUTING_STATUS_FAILED, ROUTING_STATUS_COMPLETED };
+        String[] keys = { ROUTING_STATUS_COMPLETED, ROUTING_STATUS_FAILED };
         return keys;
     }
 }
