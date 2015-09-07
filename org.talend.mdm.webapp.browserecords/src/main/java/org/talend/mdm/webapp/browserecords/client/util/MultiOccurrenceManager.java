@@ -42,14 +42,11 @@ public class MultiOccurrenceManager {
 
     Map<String, TypeModel> metaDataTypes;
 
-    boolean isStaging;
-
     private List<List<DynamicTreeItem>> brothersGroups = new ArrayList<List<DynamicTreeItem>>();
 
-    public MultiOccurrenceManager(Map<String, TypeModel> metaDataTypes, TreeDetail treeDetail, boolean isStaging) {
+    public MultiOccurrenceManager(Map<String, TypeModel> metaDataTypes, TreeDetail treeDetail) {
         this.metaDataTypes = metaDataTypes;
         this.treeDetail = treeDetail;
-        this.isStaging = isStaging;
     }
 
     private List<DynamicTreeItem> getBrothersGroup(String xpathWithoutLastIndex) {
@@ -395,7 +392,7 @@ public class MultiOccurrenceManager {
                         if (parentModel.getChildCount() > 0) {
                             ItemNodeModel child = (ItemNodeModel) parentModel.getChild(0);
                             Field<?> field = fieldMap.get(child.getId().toString());
-                            if (field != null && !isStaging) {
+                            if (field != null) {
                                 TreeDetailGridFieldCreator.updateMandatory(field, child, fieldMap);
                             }
                         }
