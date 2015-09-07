@@ -204,9 +204,7 @@ public class TreeDetailGridFieldCreator {
 
         // facet set
         if (field instanceof TextField<?> && !(dataType instanceof ComplexTypeModel)) {
-            if (!itemsDetailPanel.isStaging()) {
-                buildFacets(dataType, field);
-            }
+            buildFacets(dataType, field);
 
             String errorMsg = dataType.getFacetErrorMsgs().get(language);
             field.setData("facetErrorMsgs", errorMsg);//$NON-NLS-1$        
@@ -222,10 +220,8 @@ public class TreeDetailGridFieldCreator {
 
         }
         fieldMap.put(node.getId().toString(), field);
-        if (!itemsDetailPanel.isStaging()) {
-            updateMandatory(field, node, fieldMap);
-        }
-        addFieldListener(dataType, field, node, fieldMap, itemsDetailPanel.isStaging());
+        updateMandatory(field, node, fieldMap);
+        addFieldListener(dataType, field, node, fieldMap);
         return field;
     }
 
@@ -243,7 +239,7 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static void addFieldListener(final TypeModel typeModel, final Field<?> field, final ItemNodeModel node,
-            final Map<String, Field<?>> fieldMap, final boolean isStaging) {
+            final Map<String, Field<?>> fieldMap) {
         field.setFireChangeEventOnSetValue(true);
         field.addListener(Events.Change, new Listener<FieldEvent>() {
 
@@ -283,9 +279,7 @@ public class TreeDetailGridFieldCreator {
                     }
                 }
                 validate(fe.getField(), node);
-                if (!isStaging) {
-                    updateMandatory(field, node, fieldMap);
-                }
+                updateMandatory(field, node, fieldMap);
 
                 TreeDetail treeDetail = getCurrentTreeDetail(field);
                 if (treeDetail != null) {
