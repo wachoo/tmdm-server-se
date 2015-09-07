@@ -51,7 +51,7 @@ public class MultiOccurrenceManagerGWTTest extends GWTTestCase {
         DynamicTreeItem parentItem = new DynamicTreeItem();
         parentItem.addItem(item);
 
-        MultiOccurrenceManager manager = new MultiOccurrenceManager(metaDataTypes, treeDetail, false);
+        MultiOccurrenceManager manager = new MultiOccurrenceManager(metaDataTypes, treeDetail);
         manager.addMultiOccurrenceNode(item);
 
         multiNodes = _getMultiOccurrence(manager, "optionalDetails/optionalUbounded3"); //$NON-NLS-1$
