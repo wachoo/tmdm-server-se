@@ -2153,7 +2153,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 if (attrNodeList != null && attrNodeList.getLength() > 0) {
                     searchPrefix = "/results/item/attr/"; //$NON-NLS-1$
                 } else {
-                    searchPrefix = ""; //$NON-NLS-1$
+                    searchPrefix = "/results/"; //$NON-NLS-1$
                 }
 
                 for (String xpath : lookupFieldsForWSItemDoc) {
