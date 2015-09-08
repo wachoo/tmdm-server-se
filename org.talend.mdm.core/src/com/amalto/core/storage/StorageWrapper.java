@@ -449,9 +449,9 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             }
         }
         UserQueryBuilder qb = from(query);
-        storage.begin();
-        ArrayList<String> resultsAsString;
-        {
+        ArrayList<String> resultsAsString = new ArrayList<String>();
+        try {
+            storage.begin();            
             StorageResults results = storage.fetch(qb.getExpression());
             resultsAsString = new ArrayList<String>(results.getSize() + 1);
             ResettableStringWriter writer = new ResettableStringWriter();
@@ -465,8 +465,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             } catch (IOException e) {
                 throw new RuntimeException("Could not create query results", e);
             }
+            storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new XmlServerException(e);
         }
-        storage.commit();
         return resultsAsString;
     }
 
@@ -512,8 +515,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 }
             }
             itemPKResults.add(0, "<totalCount>" + totalCount + "</totalCount>"); //$NON-NLS-1$ //$NON-NLS-2$
-        } finally {
             storage.commit();
+        } catch (Exception e) {
+            storage.rollback();
+            throw new XmlServerException(e);
         }
         return itemPKResults;
     }
