@@ -22,6 +22,7 @@ import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
+import com.amalto.core.save.generator.AutoIncrementGenerator;
 
 public class SaverSession {
 
@@ -214,6 +215,13 @@ public class SaverSession {
             }
             // Save current state of autoincrement when save is completed.
             if (hasMetAutoIncrement) {
+                //  Make sure autoincrement counter is initialized before saving it
+                //  FIXME caller should not take care of AutoIncrementGenerator's internal state
+                //  This is temporary mesure to avoid nested transaction issue when initialize inside 
+                //  AutoIncrementGenerator.saveState()
+                if(!AutoIncrementGenerator.get().isInitialized()) {
+                    AutoIncrementGenerator.get().init();
+                }
                 // TMDM-3964 : Auto-Increment Id can not be saved immediately to DB
                 String dataCluster = XSystemObjects.DC_CONF.getName();
                 committer.begin(dataCluster);
