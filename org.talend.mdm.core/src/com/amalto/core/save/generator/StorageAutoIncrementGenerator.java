@@ -168,6 +168,11 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
     }
 
     @Override
+    public boolean isInitialized() {
+        return true;
+    }
+    
+    @Override
     public void init() {
         // Nothing to do.
     }
