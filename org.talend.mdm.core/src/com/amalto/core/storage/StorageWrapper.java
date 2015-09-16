@@ -11,6 +11,7 @@
 package com.amalto.core.storage;
 
 import com.amalto.core.load.io.ResettableStringWriter;
+import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.*;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.server.ServerContext;
@@ -39,6 +40,8 @@ import static com.amalto.core.query.user.UserQueryBuilder.*;
 public class StorageWrapper implements IXmlServerSLWrapper {
 
     private static final Logger LOGGER = Logger.getLogger(StorageWrapper.class);
+    
+    protected static final String PROVISIONING_PREFIX_INFO = "PROVISIONING.User."; //$NON-NLS-1$
 
     private final DataRecordReader<String> xmlStringReader = new XmlStringDataRecordReader();
 
@@ -47,32 +50,26 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public StorageWrapper() {
     }
 
-    private static Select getSelectTypeById(ComplexTypeMetadata type, String[] splitUniqueId, String uniqueID) {
+    private Select getSelectTypeById(ComplexTypeMetadata type, String uniqueID) {
         ComplexTypeMetadata typeForSelect = type;
         while (typeForSelect.getSuperTypes() != null && !typeForSelect.getSuperTypes().isEmpty()
                 && typeForSelect.getSuperTypes().size() > 0) {
             typeForSelect = (ComplexTypeMetadata) typeForSelect.getSuperTypes().iterator().next();
         }
+        String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
         UserQueryBuilder qb = UserQueryBuilder.from(typeForSelect);
         Collection<FieldMetadata> keyFields = type.getKeyFields();
-
-        if (splitUniqueId.length < (2 + keyFields.size())) {
-            StringBuilder builder = new StringBuilder();
-            for (String currentId : splitUniqueId) {
-                builder.append(currentId).append('.');
-            }
-            throw new IllegalArgumentException("Id '" + builder.toString()
-                    + "' does not contain all required values for key of type '" + type.getName() + "'.");
-        } else if (keyFields.size() == 1) {
-            // Split unique id > keyField: if # of key elements is 1, consider all remaining value as a single value
-            // (with '.' separators).
-            String uniqueIdPrefix = splitUniqueId[0] + '.' + splitUniqueId[1] + '.';
-            String key = StringUtils.removeStart(uniqueID, uniqueIdPrefix);
+        if (splitUniqueID.length < (2 + keyFields.size())) {
+            throw new IllegalArgumentException("ID '" + uniqueID + "' does not contain all required values for key of type '" + type.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+        } 
+        if (keyFields.size() == 1) {
+            String uniqueIDPrefix = splitUniqueID[0] + '.' + splitUniqueID[1] + '.';
+            String key = StringUtils.removeStart(uniqueID, uniqueIDPrefix);
             qb.where(eq(keyFields.iterator().next(), key));
         } else {
             int currentIndex = 2;
             for (FieldMetadata keyField : keyFields) {
-                qb.where(eq(keyField, splitUniqueId[currentIndex++]));
+                qb.where(eq(keyField, splitUniqueID[currentIndex++]));
             }
         }
         return qb.getSelect();
@@ -80,25 +77,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     protected static String getTypeName(String uniqueID) {
         if (uniqueID == null) {
-            throw new IllegalArgumentException("Unique id can not be null.");
+            throw new IllegalArgumentException("Unique id can not be null."); //$NON-NLS-1$
         }
-        char[] chars = uniqueID.toCharArray();
-        StringBuilder typeName = new StringBuilder();
-        boolean isType = false;
-        for (char currentChar : chars) {
-            if ('.' == currentChar) {
-                if (isType) {
-                    break;
-                } else {
-                    isType = true;
-                }
-            } else {
-                if (isType) {
-                    typeName.append(currentChar);
-                }
-            }
+        String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
+        if(splitUniqueID.length < 3) {
+            throw new IllegalArgumentException("Unique id is not valid."); //$NON-NLS-1$
         }
-        return typeName.toString();
+        return splitUniqueID[1];
     }
 
     public boolean isUpAndRunning() {
@@ -143,16 +128,16 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName) throws XmlServerException {
-
+    
         return putDocumentFromFile(fileName, uniqueID, clusterName, IXmlServerSLWrapper.TYPE_DOCUMENT);
     }
 
     public long putDocumentFromFile(String fileName, String uniqueID, String clusterName, String documentType) throws XmlServerException {
-
+    
         long startTime = System.currentTimeMillis();
         File file = new File(fileName);
         if (!file.canRead()) {
-            throw new XmlServerException("Can not read file '" + fileName + "'."); //$NON-NLS-1$
+            throw new XmlServerException("Can not read file '" + fileName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         String content;
         try {
@@ -169,12 +154,12 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public long putDocumentFromString(String xmlString, String uniqueID, String clusterName) throws XmlServerException {
-
+    
         return putDocumentFromString(xmlString, uniqueID, clusterName, null);
     }
 
     public long putDocumentFromString(String xmlString, String uniqueID, String clusterName, String documentType) throws XmlServerException {
-
+    
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
@@ -191,7 +176,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public long putDocumentFromDOM(Element root, String uniqueID, String clusterName) throws XmlServerException {
-
+    
         String typeName = getTypeName(uniqueID);
         long start = System.currentTimeMillis();
         {
@@ -205,13 +190,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public long putDocumentFromSAX(String dataClusterName, XMLReader docReader, InputSource input) throws XmlServerException {
-
+    
         String typeName = getTypeName(input.getPublicId());
         long start = System.currentTimeMillis();
         {
             Storage storage = getStorage(dataClusterName);
             if (storage == null) {
-                throw new XmlServerException("Data cluster '" + dataClusterName + "' does not exist.");
+                throw new XmlServerException("Data cluster '" + dataClusterName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             DataRecordReader<XmlSAXDataRecordReader.Input> reader = new XmlSAXDataRecordReader();
             XmlSAXDataRecordReader.Input readerInput = new XmlSAXDataRecordReader.Input(docReader, input);
@@ -223,64 +208,40 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException {
-        // TODO Web UI sends incomplete ids (in case of save of instance with auto increment). Fix caller code in
-        // IXtentisRMIPort.
-        if (uniqueID.split("\\.").length < 3) { //$NON-NLS-1$
-            return null;
-        }
         return getDocumentAsString(clusterName, uniqueID, "UTF-8"); //$NON-NLS-1$
     }
 
     public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException {
-
+        // TODO Web UI sends incomplete ids (in case of save of instance with auto increment). Fix caller code in IXtentisRMIPort.
+        String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
+        if (splitUniqueID.length < 3) {
+            return null;
+        }
         if (encoding == null) {
             encoding = "UTF-8"; //$NON-NLS-1$
         }
-        String[] splitUniqueId = uniqueID.split("\\."); //$NON-NLS-1$
         Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
-        String typeName = splitUniqueId[1];
-        ComplexTypeMetadata type = repository.getComplexType(typeName);
-        Select select = getSelectTypeById(type, splitUniqueId, uniqueID);
-        StorageResults records = null;
+        ComplexTypeMetadata type = repository.getComplexType(splitUniqueID[1]);
+        Select select = getSelectTypeById(type, uniqueID);
+        StorageResults results = null;
         try {
             storage.begin();
-            records = storage.fetch(select);
-            ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
-            Iterator<DataRecord> iterator = records.iterator();
-            // Enforce root element name in case query returned instance of a subtype.
-            DataRecordXmlWriter dataRecordXmlWriter = new DataRecordXmlWriter(type);
-            String xmlString = null;
-            if (iterator.hasNext()) {
-                DataRecord result = iterator.next();
-                long timestamp = result.getRecordMetadata().getLastModificationTime();
-                String taskId = result.getRecordMetadata().getTaskId();
-                String modelName = StringUtils.substringBeforeLast(clusterName, StorageAdmin.STAGING_SUFFIX);
-                byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + modelName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + StringEscapeUtils.escapeXml(splitUniqueId[2]) + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-                output.write(start);
-                dataRecordXmlWriter.write(result, output);
-                if (iterator.hasNext()) {
-                    throw new IllegalStateException("Expected only 1 result.");
-                }
-                byte[] end = ("</p></ii>").getBytes(); //$NON-NLS-1$
-                output.write(end);
-                output.flush();
-                xmlString = new String(output.toByteArray(), encoding);
-            }
+            results = storage.fetch(select);
+            String xmlString = getXmlString(clusterName, type, results.iterator(), uniqueID, encoding, true);
             storage.commit();
             return xmlString;
         } catch (IOException e) {
             storage.rollback();
             throw new XmlServerException(e);
         } finally {
-            if (records != null) {
-                records.close();
+            if (results != null) {
+                results.close();
             }
         }
     }
 
     public byte[] getDocumentBytes(String clusterName, String uniqueID, String documentType) throws XmlServerException {
-
         try {
             return getDocumentAsString(clusterName, uniqueID).getBytes("UTF-8"); //$NON-NLS-1$
         } catch (UnsupportedEncodingException e) {
@@ -289,41 +250,40 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public String[] getAllDocumentsUniqueID(String clusterName) throws XmlServerException {
-        List<String> uniqueIds = new LinkedList<String>();
-        Storage storage = getStorage(clusterName);
+        return getAllDocumentsUniqueID(clusterName, true);
+    }
+
+    protected String[] getAllDocumentsUniqueID(String clusterName, boolean includeClusterAndTypeName) throws XmlServerException {
+        String pureClusterName = getPureClusterName(clusterName);
+        Storage storage = getStorage(pureClusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         Collection<ComplexTypeMetadata> typeToQuery;
         if (clusterName.contains("/")) { //$NON-NLS-1$
             String typeName = StringUtils.substringAfter(clusterName, "/"); //$NON-NLS-1$
             ComplexTypeMetadata complexType = repository.getComplexType(typeName);
             if (complexType == null) {
-                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in container '" + storage.getName()
-                        + "'");
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in container '" + pureClusterName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
             typeToQuery = Collections.singletonList(complexType);
         } else {
             typeToQuery = getClusterTypes(clusterName);
         }
         try {
-            storage.begin();
+            List<String> uniqueIDs = new LinkedList<String>();
+            storage.begin();            
             for (ComplexTypeMetadata currentType : typeToQuery) {
                 UserQueryBuilder qb = from(currentType).selectId(currentType);
                 StorageResults results = storage.fetch(qb.getSelect());
-                for (DataRecord result : results) {
-                    Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(clusterName).append('.').append(currentType.getName()).append('.');
-                    while (setFields.hasNext()) {
-                        builder.append(String.valueOf(result.get(setFields.next())));
-                        if (setFields.hasNext()) {
-                            builder.append('.');
-                        }
+                try {
+                    for (DataRecord result : results) {
+                        uniqueIDs.add(getUniqueID(pureClusterName, currentType, result, includeClusterAndTypeName));
                     }
-                    uniqueIds.add(builder.toString());
+                } finally {
+                    results.close();
                 }
             }
             storage.commit();
-            return uniqueIds.toArray(new String[uniqueIds.size()]);
+            return uniqueIDs.toArray(new String[uniqueIDs.size()]);
         } catch (Exception e) {
             storage.rollback();
             throw new XmlServerException(e);
@@ -331,14 +291,13 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     }
 
     public long deleteDocument(String clusterName, final String uniqueID, String documentType) throws XmlServerException {
-
+    
         long start = System.currentTimeMillis();
         {
             String typeName = getTypeName(uniqueID);
-            String[] splitUniqueID = uniqueID.split("\\."); //$NON-NLS-1$
             Storage storage = getStorage(clusterName);
             ComplexTypeMetadata type = storage.getMetadataRepository().getComplexType(typeName);
-            Select select = getSelectTypeById(type, splitUniqueID, uniqueID);
+            Select select = getSelectTypeById(type, uniqueID);
             try {
                 storage.begin();
                 storage.delete(select);
@@ -355,28 +314,28 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     public int deleteItems(String clusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
         if (conceptName == null) {
-            throw new IllegalArgumentException("Concept name can not be null.");
+            throw new IllegalArgumentException("Concept name can not be null."); //$NON-NLS-1$
         }
         if (clusterName == null) {
-            throw new IllegalArgumentException("Could not find cluster name for concept '" + conceptName + "'.");
+            throw new IllegalArgumentException("Could not find cluster name for concept '" + conceptName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
         ComplexTypeMetadata type = repository.getComplexType(conceptName);
         if (type == null) {
-            throw new IllegalArgumentException("Type '" + conceptName + "' does not exist in cluster '" + storage.getName()
-                    + "'.");
+            throw new IllegalArgumentException("Type '" + conceptName + "' does not exist in cluster '" + storage.getName() //$NON-NLS-1$ //$NON-NLS-2$
+                    + "'."); //$NON-NLS-1$
         }
         UserQueryBuilder qb = from(type);
         qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
         try {
-            storage.begin();
-            StorageResults records = storage.fetch(qb.getSelect());
             int count;
+            storage.begin();
+            StorageResults results = storage.fetch(qb.getSelect());
             try {
-                count = records.getCount();
+                count = results.getCount();
             } finally {
-                records.close();
+                results.close();
             }
             storage.delete(qb.getSelect());
             storage.commit();
@@ -384,8 +343,6 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         } catch (Exception e) {
             storage.rollback();
             throw new XmlServerException(e);
-        } finally {
-            storage.end();
         }
     }
 
@@ -395,10 +352,10 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     public long countItems(String clusterName, String conceptName, IWhereItem whereItem) throws XmlServerException {
         if (conceptName == null) {
-            throw new IllegalArgumentException("Concept name can not be null.");
+            throw new IllegalArgumentException("Concept name can not be null."); //$NON-NLS-1$
         }
         if (clusterName == null) {
-            throw new IllegalArgumentException("Could not find cluster name for concept '" + conceptName + "'.");
+            throw new IllegalArgumentException("Could not find cluster name for concept '" + conceptName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         Storage storage = getStorage(clusterName);
         MetadataRepository repository = storage.getMetadataRepository();
@@ -408,31 +365,29 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         } else {
             ComplexTypeMetadata type = repository.getComplexType(conceptName);
             if (type == null) {
-                throw new IllegalArgumentException("Type '" + conceptName + "' does not exist.");
+                throw new IllegalArgumentException("Type '" + conceptName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             types = Collections.singletonList(type);
         }
-        int count = 0;
         try {
+            int count = 0;
             storage.begin();
             for (ComplexTypeMetadata type : types) {
                 UserQueryBuilder qb = from(type);
                 qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-
                 StorageResults results = storage.fetch(qb.getSelect());
                 try {
                     count += results.getCount();
                 } finally {
                     results.close();
                 }
-
             }
             storage.commit();
+            return count;
         } catch (Exception e) {
             storage.rollback();
             throw new XmlServerException(e);
         }
-        return count;
     }
 
     public ArrayList<String> runQuery(String clusterName, String query, String[] parameters) throws XmlServerException {
@@ -447,30 +402,29 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 String param = parameters[i];
                 query = query.replaceAll("([^\\\\])%" + i + "([^\\d]*)", "$1" + param + "$2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
             }
-        }
-        UserQueryBuilder qb = from(query);
-        ArrayList<String> resultsAsString = new ArrayList<String>();
+        }   
+        StorageResults results = null;
         try {
-            storage.begin();            
-            StorageResults results = storage.fetch(qb.getExpression());
-            resultsAsString = new ArrayList<String>(results.getSize() + 1);
+            storage.begin();
+            results = storage.fetch(from(query).getExpression());
             ResettableStringWriter writer = new ResettableStringWriter();
-            DataRecordWriter xmlWriter = new DataRecordXmlWriter("result"); //$NON-NLS-1$
-            try {
-                for (DataRecord result : results) {
-                    xmlWriter.write(result, writer);
-                    resultsAsString.add(writer.toString());
-                    writer.reset();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Could not create query results", e);
+            DataRecordWriter xmlWriter = new DataRecordXmlWriter("result"); //$NON-NLS-1$  
+            ArrayList<String> resultsAsString = new ArrayList<String>(results.getCount());
+            for (DataRecord result : results) {
+                xmlWriter.write(result, writer);
+                resultsAsString.add(writer.toString());
+                writer.reset();
             }
             storage.commit();
-        } catch (Exception e) {
+            return resultsAsString;
+        } catch (IOException e) {
             storage.rollback();
-            throw new XmlServerException(e);
-        }
-        return resultsAsString;
+            throw new RuntimeException("Could not create query results", e); //$NON-NLS-1$
+        } finally {
+            if(results != null) {
+                results.close();
+            }
+        }        
     }
 
     public List<String> getItemPKsByCriteria(ItemPKCriteria criteria) throws XmlServerException {
@@ -547,15 +501,18 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         List<String> list = new LinkedList<String>();
         StorageResults results = storage.fetch(buildQueryBuilder(qb, criteria, type).getSelect());
         DataRecordWriter writer = new ItemPKCriteriaResultsWriter(resultElementName, type);
-        ResettableStringWriter stringWriter = new ResettableStringWriter();
-        for (DataRecord result : results) {
-            try {
+        ResettableStringWriter stringWriter = new ResettableStringWriter();       
+        try {
+            for (DataRecord result : results) {
                 writer.write(result, stringWriter);
-            } catch (IOException e) {
-                throw new XmlServerException(e);
+                list.add(stringWriter.toString());
+                stringWriter.reset();
             }
-            list.add(stringWriter.toString());
-            stringWriter.reset();
+        } catch (IOException e) {
+            storage.rollback();
+            throw new XmlServerException(e);
+        } finally {
+            results.close();
         }
         return list;
     }
@@ -661,11 +618,11 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
         return qb;
     }
-
+    
     @Override
     public void clearCache() {
     }
-
+    
     public boolean supportTransaction() {
         return true;
     }
@@ -677,12 +634,12 @@ public class StorageWrapper implements IXmlServerSLWrapper {
         return storageAdmin;
     }
 
-    protected Storage getStorage(String dataClusterName) {
+    protected Storage getStorage(String clusterName) {
         StorageAdmin admin = getStorageAdmin();
-        if (!admin.exist(dataClusterName, admin.getType(dataClusterName))) {
-            throw new IllegalStateException("Data container '" + dataClusterName + "'.");
+        if (!admin.exist(clusterName, admin.getType(clusterName))) {
+            throw new IllegalStateException("Data container '" + clusterName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
         }
-        return admin.get(dataClusterName, admin.getType(dataClusterName));
+        return admin.get(clusterName, admin.getType(clusterName));
     }
 
     public void start(String dataClusterName) throws XmlServerException {
@@ -708,7 +665,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
     public void close() throws XmlServerException {
         getStorageAdmin().close();
     }
-
+    
     public List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XmlServerException {
         Storage storage = getStorage(dataCluster);
         MetadataRepository repository = storage.getMetadataRepository();
@@ -719,7 +676,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                 ComplexTypeMetadata next = types.next();
                 if (next.getKeyFields().size() > 1) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignoring type '" + next.getName() + "' (compound key).");
+                        LOGGER.debug("Ignoring type '" + next.getName() + "' (compound key)."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
                 mainType = next;
@@ -731,20 +688,19 @@ public class StorageWrapper implements IXmlServerSLWrapper {
                     qb.and(additionalType);
                 } else {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignoring type '" + additionalType.getName() + "' (compound key).");
+                        LOGGER.debug("Ignoring type '" + additionalType.getName() + "' (compound key)."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
             }
             qb.where(fullText(keyword));
             qb.start(start);
             qb.limit(end);
-            List<String> resultsAsXmlStrings = new LinkedList<String>();
-            storage.begin();
             StorageResults results = null;
             try {
-                results = Split.fetchAndMerge(storage, qb.getSelect()); // TMDM-7290: Split main query into smaller
-                                                                        // queries.
+                storage.begin();
+                results = Split.fetchAndMerge(storage, qb.getSelect()); // TMDM-7290: Split main query into smaller queries.
                 DataRecordWriter writer = new FullTextResultsWriter(keyword);
+                List<String> resultsAsXmlStrings = new ArrayList<String>(results.getCount() + 1);
                 resultsAsXmlStrings.add(String.valueOf(results.getCount()));
                 for (DataRecord result : results) {
                     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -769,9 +725,7 @@ public class StorageWrapper implements IXmlServerSLWrapper {
 
     public void exportDocuments(String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
         // No support for bulk export when using SQL storages (this could be in HibernateStorage but would require to define new API).
-
-
-        throw new NotImplementedException("No support for bulk export.");
+        throw new NotImplementedException("No support for bulk export."); //$NON-NLS-1$
     }
 
     private void buildKeyCondition(UserQueryBuilder qb, ComplexTypeMetadata type, String clusterName, String keysString) {
@@ -801,5 +755,86 @@ public class StorageWrapper implements IXmlServerSLWrapper {
             String uniqueKeyFieldName = keyFields.iterator().next().getName();
             qb.where(eq(type.getField(uniqueKeyFieldName), keysString));
         }
+    }
+
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs) throws XmlServerException {
+        return getDocumentsAsString(clusterName, uniqueIDs, "UTF-8"); //$NON-NLS-1$
+    }
+
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs, String encoding) throws XmlServerException {
+        if (uniqueIDs == null || uniqueIDs.length == 0) {
+            return new String[0];
+        }
+        List<String> xmlStrings = new ArrayList<String>(uniqueIDs.length);
+        for (String uniqueID : uniqueIDs) { 
+            xmlStrings.add(getDocumentAsString(clusterName, uniqueID, encoding));
+        }
+        return xmlStrings.toArray(new String[xmlStrings.size()]);
+    }
+
+    public static String getPureClusterName(String clusterName){
+        return clusterName.contains("/") ? StringUtils.substringBefore(clusterName, "/") : clusterName;//$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    protected String getXmlString(String clusterName, ComplexTypeMetadata type, Iterator<DataRecord> iterator, String uniqueID, String encoding, boolean isUserFormat) throws IOException {
+        String xmlString = null;
+        if (iterator.hasNext()) {
+            DataRecord result = iterator.next();
+            if (iterator.hasNext()) {
+                iterateUnexceptedRecords(LOGGER, uniqueID, iterator);
+            }
+            ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
+            // Enforce root element name in case query returned instance of a subtype.
+            DataRecordWriter dataRecordXmlWriter = isUserFormat ? new DataRecordXmlWriter(type) : new SystemDataRecordXmlWriter(
+                    (ClassRepository) getStorage(clusterName).getMetadataRepository(), type);           
+            if (isUserFormat) {
+                String key = uniqueID.startsWith(PROVISIONING_PREFIX_INFO) ? StringUtils.substringAfter(uniqueID,
+                        PROVISIONING_PREFIX_INFO) : uniqueID.split("\\.")[2]; //$NON-NLS-1$
+                long timestamp = result.getRecordMetadata().getLastModificationTime();
+                String taskId = result.getRecordMetadata().getTaskId();
+                String modelName = StringUtils.substringBeforeLast(clusterName, StorageAdmin.STAGING_SUFFIX);
+                byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + modelName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + StringEscapeUtils.escapeXml(key) + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+                output.write(start);
+            }
+            dataRecordXmlWriter.write(result, output);
+            if (isUserFormat) {
+                byte[] end = ("</p></ii>").getBytes(); //$NON-NLS-1$
+                output.write(end);
+            }
+            output.flush();
+            xmlString = new String(output.toByteArray(), encoding);
+        }
+        return xmlString;
+    }
+
+    protected static String getUniqueID(String clusterName, ComplexTypeMetadata type, DataRecord record, boolean includeClusterAndTypeName) {
+        StringBuilder builder = new StringBuilder();
+        if (includeClusterAndTypeName) {
+            builder.append(clusterName).append('.').append(type.getName()).append('.');
+        }
+        Iterator<FieldMetadata> iterator = type.getKeyFields().iterator();
+        while (iterator.hasNext()) {
+            builder.append(String.valueOf(record.get(iterator.next())));
+            if (iterator.hasNext()) {
+                builder.append('.');
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Iterate unexcepted records to make sure Session can be truely closed, and log WARN message <br />
+     * See TMDM-6712: Consumes all results in iterator
+     */
+    protected static void iterateUnexceptedRecords(Logger logger, String uniqueID, Iterator<DataRecord> iterator) {
+        int recordsLeft = 1;
+        while (iterator.hasNext()) { // TMDM-6712: Consumes all results in iterator
+            iterator.next();
+            if (recordsLeft % 10 == 0) {
+                logger.warn("Processing query with id '"+ uniqueID +"' lead to unexpected number of results (" + recordsLeft + " so far)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+            }
+            recordsLeft++;
+        }
+        throw new IllegalStateException("Expected only 1 result with id '"+ uniqueID +"'."); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

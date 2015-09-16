@@ -253,4 +253,20 @@ public class DefaultXmlServer implements XmlServer {
         Server server = ServerContext.INSTANCE.get();
         return server.getStorageAdmin().supportStaging(dataCluster);
     }
+
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs) throws XtentisException {
+        try {
+            return server.getDocumentsAsString(clusterName, uniqueIDs);
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
+
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs, String encoding) throws XtentisException {
+        try {
+            return server.getDocumentsAsString(clusterName, uniqueIDs, encoding);
+        } catch (XmlServerException e) {
+            throw new XtentisException(e);
+        }
+    }
 }

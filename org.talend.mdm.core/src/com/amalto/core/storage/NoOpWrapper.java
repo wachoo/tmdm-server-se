@@ -28,7 +28,7 @@ class NoOpWrapper implements IXmlServerSLWrapper{
     private static final Logger LOGGER = Logger.getLogger(NoOpWrapper.class);
 
     static {
-        LOGGER.warn("--- Using No op wrapper! ---");
+        LOGGER.warn("--- Using No op wrapper! ---"); //$NON-NLS-1$
     }
 
     public boolean isUpAndRunning() {
@@ -80,13 +80,13 @@ class NoOpWrapper implements IXmlServerSLWrapper{
     }
 
     public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException {
-        return "";
+        return ""; //$NON-NLS-1$
     }
 
     public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException {
-        return "";
+        return ""; //$NON-NLS-1$
     }
-
+    
     public byte[] getDocumentBytes(String clusterName, String uniqueID, String documentType) throws XmlServerException {
         return new byte[0];
     }
@@ -157,5 +157,13 @@ class NoOpWrapper implements IXmlServerSLWrapper{
 
     public void exportDocuments(String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XmlServerException {
         
+    }
+
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs) throws XmlServerException {
+        return new String[0];
+    }
+
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs, String encoding) throws XmlServerException {
+        return new String[0];
     }
 }
