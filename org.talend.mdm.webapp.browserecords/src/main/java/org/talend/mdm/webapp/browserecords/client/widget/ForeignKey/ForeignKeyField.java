@@ -27,6 +27,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SuggestCombo
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -60,6 +61,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
     protected boolean showInput;
 
     protected boolean showSelectButton;
+
+    private Boolean editable = true;
 
     public ForeignKeyField(String foreignKeyPath, List<String> foreignKeyInfo, String currentPath) {
         this.foreignKeyPath = foreignKeyPath;
@@ -115,6 +118,9 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
     @Override
     public void setReadOnly(boolean readOnly) {
         super.setReadOnly(readOnly);
+        if (suggestBox != null) {
+            suggestBox.setReadOnly(readOnly);
+        }
         selectButton.setVisible(!readOnly);
     }
 
@@ -230,6 +236,17 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
     @Override
     public void setEnabled(boolean enabled) {
         selectButton.setVisible(enabled);
+        if (enabled) {
+            enable();
+            if (suggestBox != null) {
+                suggestBox.enable();
+            }
+        } else {
+            disable();
+            if (suggestBox != null) {
+                suggestBox.disable();
+            }
+        }
     }
 
     protected void addButtonListener() {
@@ -246,11 +263,33 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
         });
     }
 
+    @Override
+    protected void onKeyDown(FieldEvent fe) {
+        if (fe.getKeyCode() == 13 && !isEditable()) {
+            fe.stopEvent();
+            return;
+        }
+        super.onKeyDown(fe);
+    }
+
+    @Override
+    public void onDisable() {
+        addStyleName(disabledStyle);
+    }
+
     public void setShowInput(boolean showInput) {
         this.showInput = showInput;
     }
 
     public void setShowSelectButton(boolean showSelectButton) {
         this.showSelectButton = showSelectButton;
+    }
+
+    public Boolean isEditable() {
+        return this.editable;
+    }
+
+    public void setEditable(Boolean editable) {
+        this.editable = editable;
     }
 }
