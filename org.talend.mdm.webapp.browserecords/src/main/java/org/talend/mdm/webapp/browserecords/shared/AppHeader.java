@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.shared;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class AppHeader implements IsSerializable {
@@ -33,6 +36,8 @@ public class AppHeader implements IsSerializable {
     private boolean isUseRelations = true;
 
     private boolean isEnterprise = false;
+    
+    private HashMap<String,String> userProperties;
 
     public AppHeader() {
 
@@ -113,5 +118,13 @@ public class AppHeader implements IsSerializable {
 
     public void setEnterprise(boolean isEnterprise) {
         this.isEnterprise = isEnterprise;
+    }
+
+    public HashMap<String, String> getUserProperties() {
+        return this.userProperties;
+    }
+
+    public void setUserProperties(Map<String, String> map) {
+        this.userProperties = (HashMap<String, String>) map;
     }
 }

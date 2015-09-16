@@ -22,6 +22,7 @@ import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ForeignKeyField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.MultipleField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SimpleComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.BooleanConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.DateConverter;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.converter.DateTimeConverter;
@@ -57,7 +58,7 @@ public class FieldCreator {
                     dataType.getXpath());
             field = foreignKeyField;
         } else if (dataType.hasEnumeration()) {
-            SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
+            SimpleComboBoxField<String> comboBox = new SimpleComboBoxField<String>();
             comboBox.setFireChangeEventOnSetValue(true);
             comboBox.setDisplayField("text"); //$NON-NLS-1$
             if (dataType.getMinOccurs() > 0) {
