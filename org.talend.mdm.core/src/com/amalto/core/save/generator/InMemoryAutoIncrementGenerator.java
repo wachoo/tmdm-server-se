@@ -66,6 +66,11 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
     }
 
     @Override
+    public synchronized boolean isInitialized() {
+        return wasInitCalled;
+    }
+    
+    @Override
     public synchronized void init() {
         // first try Current path
         CONFIGURATION = new Properties();

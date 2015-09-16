@@ -124,4 +124,25 @@
             </rdbms-configuration>
         </system>
     </datasource>
+    
+    <datasource name="RDBMS-1">
+        <master>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>H2</dialect>
+                <connection-driver-class>org.h2.Driver</connection-driver-class>
+                <connection-url>jdbc:h2:${project.build.directory}/data/rdbms_1</connection-url>
+                <schema-generation>create</schema-generation>
+            </rdbms-configuration>
+        </master>
+        <system>
+            <type>RDBMS</type>
+            <rdbms-configuration>
+                <dialect>H2</dialect>
+                <connection-driver-class>org.h2.Driver</connection-driver-class>
+                <connection-url>jdbc:h2:${project.build.directory}/data/rdbms_1</connection-url>
+                <schema-generation>create</schema-generation>
+            </rdbms-configuration>
+        </system>
+    </datasource>
 </datasources>

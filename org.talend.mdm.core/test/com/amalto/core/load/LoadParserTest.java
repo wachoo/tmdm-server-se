@@ -924,6 +924,11 @@ public class LoadParserTest extends TestCase {
         @Override
         public void init() {
         }
+        
+        @Override
+        public boolean isInitialized() {
+            return true;
+        }
 
         public boolean isStateSaved() {
             return savedState;
