@@ -43,4 +43,10 @@ public interface AutoIdGenerator {
      * @see #generateId(String, String, String)
      */
     void init();
+    
+    /**
+     * Check if the generator is already initialized 
+     * @see #init()
+     */
+    boolean isInitialized();
 }

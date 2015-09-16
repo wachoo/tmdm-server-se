@@ -17,6 +17,7 @@ import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.save.context.StorageDocument;
+import com.amalto.core.save.generator.AutoIncrementGenerator;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import com.amalto.core.schema.validation.Validator;
 import com.amalto.core.schema.validation.XmlSchemaValidator;
@@ -1402,6 +1403,28 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("0", evaluate(committedElement, "/ProductFamily/Id"));
+    }
+    
+    public void testUpdateAutoIncrementRecord() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+        TestSaverSource source = new TestSaverSource(repository, false, "", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("autoIncrementPK.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, true, true, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);        
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+        
+        assertTrue(AutoIncrementGenerator.get().isInited());
+        assertTrue(source.hasSavedAutoIncrement());
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("Product Family #1", evaluate(committedElement, "/ProductFamily/Name"));
     }
 
     public void testCreatePerformance() throws Exception {
