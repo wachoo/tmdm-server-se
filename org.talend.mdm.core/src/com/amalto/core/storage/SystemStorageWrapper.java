@@ -10,15 +10,15 @@
 
 package com.amalto.core.storage;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -47,9 +47,6 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
 import com.amalto.core.storage.record.XmlDOMDataRecordReader;
 import com.amalto.core.storage.record.XmlSAXDataRecordReader;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
@@ -71,8 +68,6 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     private static final String SYNCHRONIZATION_OBJECT_TYPE = "synchronization-object-pOJO"; //$NON-NLS-1$
 
-    private static final String PROVISIONING_PREFIX_INFO = "PROVISIONING.User."; //$NON-NLS-1$
-
     private static final Logger LOGGER = Logger.getLogger(SystemStorageWrapper.class);
 
     public SystemStorageWrapper() {
@@ -85,9 +80,9 @@ public class SystemStorageWrapper extends StorageWrapper {
         }
     }
 
-    private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueId) {
+    private ComplexTypeMetadata getType(String clusterName, Storage storage, String uniqueID) {
         MetadataRepository repository = storage.getMetadataRepository();
-        if (uniqueId != null && uniqueId.startsWith("amalto_local_service_")) { //$NON-NLS-1$
+        if (uniqueID != null && uniqueID.startsWith("amalto_local_service_")) { //$NON-NLS-1$
             return repository.getComplexType("service-bMP"); //$NON-NLS-1$
         }
         if (clusterName.startsWith(SYSTEM_PREFIX) || clusterName.startsWith("amalto")) { //$NON-NLS-1$
@@ -100,7 +95,7 @@ public class SystemStorageWrapper extends StorageWrapper {
         if (XSystemObjects.DC_MDMITEMSTRASH.getName().equals(clusterName)) {
             return repository.getComplexType(DROPPED_ITEM_TYPE);
         } else if (XSystemObjects.DC_PROVISIONING.getName().equals(clusterName)) {
-            String typeName = getTypeName(uniqueId);
+            String typeName = getTypeName(uniqueID);
             if ("Role".equals(typeName)) { //$NON-NLS-1$
                 return repository.getComplexType("role-pOJO"); //$NON-NLS-1$
             }
@@ -109,11 +104,11 @@ public class SystemStorageWrapper extends StorageWrapper {
             return null; // Documents for these clusters don't have a predefined structure.
         }
         // No id, so no type to be read.
-        if (uniqueId == null) {
+        if (uniqueID == null) {
             return null;
         }
         // MIGRATION.completed.record
-        return repository.getComplexType(getTypeName(uniqueId));
+        return repository.getComplexType(getTypeName(uniqueID));
     }
 
     @Override
@@ -279,35 +274,9 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     @Override
     public String[] getAllDocumentsUniqueID(String clusterName) throws XmlServerException {
-        Collection<ComplexTypeMetadata> typeToQuery = getClusterTypes(clusterName);
-        List<String> uniqueIds = new LinkedList<>();
-        Storage storage = getStorage(clusterName);
-        try {
-            storage.begin();
-            for (ComplexTypeMetadata currentType : typeToQuery) {
-                UserQueryBuilder qb = from(currentType).selectId(currentType);
-                StorageResults results = storage.fetch(qb.getSelect());
-                for (DataRecord result : results) {
-                    Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
-                    StringBuilder builder = new StringBuilder();
-                    if (typeToQuery.size() > 1) {
-                        builder.append(clusterName).append('.').append(currentType.getName()).append('.');
-                    }
-                    while (setFields.hasNext()) {
-                        builder.append(String.valueOf(result.get(setFields.next())));
-                        if (setFields.hasNext()) {
-                            builder.append('.');
-                        }
-                    }
-                    uniqueIds.add(builder.toString());
-                }
-            }
-            storage.commit();
-            return uniqueIds.toArray(new String[uniqueIds.size()]);
-        } catch (Exception e) {
-            storage.rollback();
-            throw new XmlServerException(e);
-        }
+        String pureClusterName = getPureClusterName(clusterName);
+        boolean includeClusterAndTypeName = getClusterTypes(pureClusterName).size() > 1;
+        return getAllDocumentsUniqueID(clusterName, includeClusterAndTypeName);
     }
 
     @Override
@@ -328,7 +297,7 @@ public class SystemStorageWrapper extends StorageWrapper {
             DataRecord record = reader.read(repository, type, root);
             for (FieldMetadata keyField : type.getKeyFields()) {
                 if (record.get(keyField) == null) {
-                    LOGGER.warn("Ignoring update for record '" + uniqueID + "' (does not provide key information).");
+                    LOGGER.warn("Ignoring update for record '" + uniqueID + "' (does not provide key information)."); //$NON-NLS-1$ //$NON-NLS-2$
                     return 0;
                 }
             }
@@ -373,9 +342,9 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     @Override
     public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException {
-        return getDocumentAsString(clusterName, uniqueID, "UTF-8");
+        return getDocumentAsString(clusterName, uniqueID, "UTF-8"); //$NON-NLS-1$
     }
-
+    
     @Override
     public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException {
         if (encoding == null) {
@@ -387,85 +356,45 @@ public class SystemStorageWrapper extends StorageWrapper {
             return null; // TODO
         }
         UserQueryBuilder qb;
-        boolean isUserFormat;
+        boolean isUserFormat = false;
+        String documentUniqueID;
         if (DROPPED_ITEM_TYPE.equals(type.getName())) {
-            isUserFormat = false;
             // head.Product.Product.0- (but DM1.Bird.bid3)
             if (uniqueID.endsWith("-")) { //$NON-NLS-1$
                 uniqueID = uniqueID.substring(0, uniqueID.length() - 1);
             }
             // TODO Code may not correctly handle composite id (but no system objects use this)
-            String documentUniqueId;
+            documentUniqueID = uniqueID;
             if (StringUtils.countMatches(uniqueID, ".") >= 3) { //$NON-NLS-1$
-                documentUniqueId = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
-            } else {
-                documentUniqueId = uniqueID;
-            }
-            qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueId));
+                documentUniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
+            }         
         } else if (COMPLETED_ROUTING_ORDER.equals(type.getName()) || FAILED_ROUTING_ORDER.equals(type.getName())) {
-            isUserFormat = false;
-            qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
+            documentUniqueID = uniqueID;
         } else {
             // TMDM-5513 custom form layout pk contains double dot .. to split, but it's a system definition object
             // like this Product..Product..product_layout
             isUserFormat = !uniqueID.contains("..") && uniqueID.indexOf('.') > 0; //$NON-NLS-1$
-            String documentUniqueId = uniqueID;
+            documentUniqueID = uniqueID;
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
-                documentUniqueId = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
+                documentUniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
             } else if (isUserFormat) {
-                documentUniqueId = StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
+                documentUniqueID = StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
             }
-            qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueId));
         }
-        StorageResults records = null;
+        qb = from(type).where(eq(type.getKeyFields().iterator().next(), documentUniqueID));
+        StorageResults results = null;
         try {
             storage.begin();
-            records = storage.fetch(qb.getSelect());
-            ByteArrayOutputStream output = new ByteArrayOutputStream(1024);
-            Iterator<DataRecord> iterator = records.iterator();
-            // Enforce root element name in case query returned instance of a subtype.
-            DataRecordWriter dataRecordXmlWriter = isUserFormat ? new DataRecordXmlWriter(type) : new SystemDataRecordXmlWriter(
-                    (ClassRepository) storage.getMetadataRepository(), type);
-            if (iterator.hasNext()) {
-                DataRecord result = iterator.next();
-                if (isUserFormat) {
-                    String identifier = uniqueID.startsWith(PROVISIONING_PREFIX_INFO) ? StringUtils.substringAfter(uniqueID,
-                            PROVISIONING_PREFIX_INFO) : uniqueID.split("\\.")[2]; //$NON-NLS-1$
-                    long timestamp = result.getRecordMetadata().getLastModificationTime();
-                    String taskId = result.getRecordMetadata().getTaskId();
-                    byte[] start = ("<ii><c>" + clusterName + "</c><dmn>" + clusterName + "</dmn><dmr/><sp/><t>" + timestamp + "</t><taskId>" + taskId + "</taskId><i>" + identifier + "</i><p>").getBytes(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-                    output.write(start);
-                }
-                dataRecordXmlWriter.write(result, output);
-                if (iterator.hasNext()) {
-                    int recordsLeft = 1;
-                    while (iterator.hasNext()) { // TMDM-6712: Consumes all results in iterator
-                        iterator.next();
-                        if (recordsLeft % 10 == 0) {
-                            LOGGER.warn("Processing system query lead to unexpected number of results (" + recordsLeft
-                                    + " so far).");
-                        }
-                        recordsLeft++;
-                    }
-                    throw new IllegalStateException("Expected only 1 result.");
-                }
-                if (isUserFormat) {
-                    byte[] end = ("</p></ii>").getBytes(); //$NON-NLS-1$
-                    output.write(end);
-                }
-                output.flush();
-                storage.commit(); // TODO Duplicated code
-                return new String(output.toByteArray(), encoding);
-            } else {
-                storage.commit(); // TODO Duplicated code
-                return null;
-            }
+            results = storage.fetch(qb.getSelect());
+            String xmlString = getXmlString(clusterName, type, results.iterator(), uniqueID, encoding, isUserFormat);
+            storage.commit();
+            return xmlString;
         } catch (IOException e) {
             storage.rollback();
             throw new XmlServerException(e);
         } finally {
-            if (records != null) {
-                records.close();
+            if (results != null) {
+                results.close();
             }
         }
     }
@@ -492,10 +421,11 @@ public class SystemStorageWrapper extends StorageWrapper {
         long start = System.currentTimeMillis();
         {
             UserQueryBuilder qb = from(type).where(eq(type.getKeyFields().iterator().next(), uniqueID));
+            StorageResults results = null;
             try {
                 storage.begin();
                 Select select = qb.getSelect();
-                StorageResults results = storage.fetch(select);
+                results = storage.fetch(select);
                 if (results.getCount() == 0) {
                     throw new IllegalArgumentException("Could not find document to delete."); //$NON-NLS-1$
                 }
@@ -505,9 +435,28 @@ public class SystemStorageWrapper extends StorageWrapper {
                 storage.rollback();
                 throw new XmlServerException(e);
             } finally {
-                storage.end();
+                if(results != null) {
+                    results.close();
+                }
             }
         }
         return System.currentTimeMillis() - start;
+    }
+
+    @Override
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs) throws XmlServerException {
+        return getDocumentsAsString(clusterName, uniqueIDs, "UTF-8"); //$NON-NLS-1$
+    }
+    
+    @Override
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs, String encoding) throws XmlServerException {
+        if (uniqueIDs == null || uniqueIDs.length == 0) {
+            return new String[0];
+        }
+        List<String> xmlStrings = new ArrayList<String>(uniqueIDs.length);
+        for (String uniqueID : uniqueIDs) { 
+            xmlStrings.add(getDocumentAsString(clusterName, uniqueID, encoding));
+        }
+        return xmlStrings.toArray(new String[xmlStrings.size()]);
     }
 }

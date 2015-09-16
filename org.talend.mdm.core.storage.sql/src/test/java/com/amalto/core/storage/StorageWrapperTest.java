@@ -12,13 +12,14 @@
 // ============================================================================
 package com.amalto.core.storage;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,46 +60,50 @@ public class StorageWrapperTest extends TestCase {
         ServerContext.INSTANCE.get(new MockServerLifecycle());
     }
 
-    public void testGetDocumentAsString() throws Exception {
-        final MetadataRepository repository = prepareMetadata("Product.xsd"); //$NON-NLS-1$
-        final Storage storage = prepareStorage(repository);
+    public void testIsMDMInternal(){
+        String internal_1 = "SearchTemplate"; //$NON-NLS-1$
+        String internal_2 = "SearchTemplate/HierarchySearchItem"; //$NON-NLS-1$
+        String user_1 = "Product"; //$NON-NLS-1$
+        String user_2 = "Product/Product"; //$NON-NLS-1$
+        assertTrue(DispatchWrapper.isMDMInternal(internal_1));
+        assertTrue(DispatchWrapper.isMDMInternal(internal_2));
+        assertFalse(DispatchWrapper.isMDMInternal(user_1));
+        assertFalse(DispatchWrapper.isMDMInternal(user_2));
+        
+    }
+    
+    public void testGetAllDocumentsUniqueID() throws Exception {
+        StorageWrapper wrapper = prepareWrapper();
+        List<String> uniqueIDs = Arrays.asList(new String[]{"Product.Product.333", "Product.Product.33&44", "Product.Product.\"555<666>444\"", "Product.ProductFamily.1", "Product.Store.1"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        List<String> uniqueIDs_1 = Arrays.asList(wrapper.getAllDocumentsUniqueID("Product")); //$NON-NLS-1$
+        assertTrue(uniqueIDs.containsAll(uniqueIDs_1));
+        List<String> uniqueIDs_2 = Arrays.asList(wrapper.getAllDocumentsUniqueID("Product/Product")); //$NON-NLS-1$
+        assertTrue(uniqueIDs.containsAll(uniqueIDs_2));
+    }
 
-        StorageWrapper wrapper = new StorageWrapper() {
-
-            @Override
-            protected Storage getStorage(String dataClusterName) {
-                return storage;
-            }
-        };
-        String xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>333</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>333</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.start("Product"); //$NON-NLS-1$
-        {
-            wrapper.putDocumentFromString(xml, "Product.Product.333", "Product"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        wrapper.commit("Product"); //$NON-NLS-1$
-        String item = wrapper.getDocumentAsString("Product", "Product.Product.333"); //$NON-NLS-1$ //$NON-NLS-2$
+    public void testGetDocumentAsString() throws Exception {    
+        StorageWrapper wrapper = prepareWrapper();
+        String item = wrapper.getDocumentAsString("Product", "Product.Product.333", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         assertNotNull(item);
         assertTrue(item.contains("<i>333</i>")); //$NON-NLS-1$
-
-        xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>33&amp;44</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>33&amp;44</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.start("Product"); //$NON-NLS-1$
-        {
-            wrapper.putDocumentFromString(xml, "Product.Product.33&44", "Product"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        wrapper.commit("Product"); //$NON-NLS-1$
-        item = wrapper.getDocumentAsString("Product", "Product.Product.33&44"); //$NON-NLS-1$ //$NON-NLS-2$
+        item = wrapper.getDocumentAsString("Product", "Product.Product.33&44", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         assertNotNull(item);
         assertTrue(item.contains("<i>33&amp;44</i>")); //$NON-NLS-1$
-
-        xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>&quot;555&lt;666&gt;444&quot;</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>&quot;555&lt;666&gt;444&quot;</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.start("Product"); //$NON-NLS-1$
-        {
-            wrapper.putDocumentFromString(xml, "Product.Product.\"555<666>444\"", "Product"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        wrapper.commit("Product"); //$NON-NLS-1$
-        item = wrapper.getDocumentAsString("Product", "Product.Product.\"555<666>444\""); //$NON-NLS-1$ //$NON-NLS-2$
+        item = wrapper.getDocumentAsString("Product", "Product.Product.\"555<666>444\"", "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         assertNotNull(item);
-        assertTrue(item.contains("<i>&quot;555&lt;666&gt;444&quot;</i>")); //$NON-NLS-1$
+        assertTrue(item.contains("<i>&quot;555&lt;666&gt;444&quot;</i>")); //$NON-NLS-1$      
+    }
+    
+    public void testGetDocumentsAsString() throws Exception {    
+        StorageWrapper wrapper = prepareWrapper();
+        String[] uniqueIDs = {"Product.Product.333", "Product.ProductFamily.1", "Product.Store.1"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        String[] xmls = wrapper.getDocumentsAsString("Product", uniqueIDs, "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+        assertNotNull(xmls[0]);
+        assertTrue(xmls[0].contains("<i>333</i>")); //$NON-NLS-1$
+        assertNotNull(xmls[1]);
+        assertTrue(xmls[1].contains("<ProductFamily><Id>1</Id>")); //$NON-NLS-1$
+        assertNotNull(xmls[2]);
+        assertTrue(xmls[2].contains("<Store><Id>1</Id>")); //$NON-NLS-1$
     }
 
     public void testMultipleOccurrenceComplex() throws IOException {
@@ -107,7 +112,7 @@ public class StorageWrapperTest extends TestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
         String recordXml = "<C><subelement>1</subelement><A xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"B\"><a>7</a><B>6</B></A><A xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"A\"><a>5</a></A><A xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"B\"><a>4</a><B>3</B></A><Aa xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"B\"><a>2</a><B>1</B></Aa></C>"; //$NON-NLS-1$
         List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read(repository, repository.getComplexType("C"), recordXml)); //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(factory.read(repository, repository.getComplexType("C"), recordXml)); //$NON-NLS-1$
         storage.begin();
         storage.update(records);
         storage.commit();
@@ -132,7 +137,7 @@ public class StorageWrapperTest extends TestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read(repository, repository.getComplexType("Employee"), //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(factory.read(repository, repository.getComplexType("Employee"), //$NON-NLS-1$
                 "<Employee><Id>22</Id><Holiday>2014-04-17T12:00:00</Holiday><birthday>2014-04-16T12:00:00</birthday></Employee>")); //$NON-NLS-1$
         storage.begin();
         storage.update(records);
@@ -195,7 +200,7 @@ public class StorageWrapperTest extends TestCase {
         factory = new XmlStringDataRecordReader();
 
         records.clear();
-        records.add(factory.read(repository2, repository2.getComplexType("CustomDate"), //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(factory.read(repository2, repository2.getComplexType("CustomDate"), //$NON-NLS-1$
                 "<CustomDate><Id>22</Id><MyDate>2014-04-17</MyDate></CustomDate>")); //$NON-NLS-1$
         storage2.begin();
         storage2.update(records);
@@ -243,5 +248,35 @@ public class StorageWrapperTest extends TestCase {
         storage.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-Default", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
         storage.prepare(repository, true);
         return storage;
+    }
+    
+    private StorageWrapper prepareWrapper() throws XmlServerException{
+        final MetadataRepository repository = prepareMetadata("Product.xsd"); //$NON-NLS-1$
+        final Storage storage = prepareStorage(repository);
+
+        StorageWrapper wrapper = new StorageWrapper() {
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        
+        String[] xmls = {"<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>333</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>333</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>", //$NON-NLS-1$
+                         "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>33&amp;44</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>33&amp;44</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>", //$NON-NLS-1$
+                         "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>&quot;555&lt;666&gt;444&quot;</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>&quot;555&lt;666&gt;444&quot;</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>", //$NON-NLS-1$
+                         "<ii><c>Product</c><dmn>Product</dmn><dmr/><sp/><t>1442298182088</t><taskId>null</taskId><i>1</i><p><ProductFamily><Id>1</Id><Name>1</Name><ChangeStatus>Approved</ChangeStatus></ProductFamily></p></ii>", //$NON-NLS-1$
+                         "<ii><c>Product</c><dmn>Product</dmn><dmr/><sp/><t>1442298185640</t><taskId>null</taskId><i>1</i><p><Store><Id>1</Id><Address>1</Address><Lat>1.0</Lat><Long>1.0</Long></Store></p></ii>" //$NON-NLS-1$
+                        };
+        String[] ids = {"Product.Product.333", "Product.Product.33&44", "Product.Product.\"555<666>444\"", "Product.ProductFamily.1", "Product.Store.1"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        
+        wrapper.start("Product"); //$NON-NLS-1$
+        {
+            for (int i = 0; i < xmls.length; i++) {
+                wrapper.putDocumentFromString(xmls[i], ids[i], "Product", null); //$NON-NLS-1$
+            }
+        }
+        wrapper.commit("Product"); //$NON-NLS-1$
+        return wrapper;
     }
 }

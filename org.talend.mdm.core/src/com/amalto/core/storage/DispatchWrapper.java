@@ -30,12 +30,12 @@ import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.XmlServerException;
 
 public class DispatchWrapper implements IXmlServerSLWrapper {
-
+    
+    private static final Logger LOGGER = Logger.getLogger(DispatchWrapper.class);
+    
     private static IXmlServerSLWrapper mdmInternalWrapper;
 
     private static IXmlServerSLWrapper userStorageWrapper;
-
-    private final static Logger LOGGER = Logger.getLogger(DispatchWrapper.class);
 
     private boolean userWrapperUp;
 
@@ -51,7 +51,7 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
             IXmlServerSLWrapper user = (IXmlServerSLWrapper) Class.forName(userWrapperClass).newInstance();
             init(internal, user);
         } catch (Throwable e) {
-            LOGGER.error("Initialization error", e);
+            LOGGER.error("Initialization error", e); //$NON-NLS-1$
             throw new RuntimeException(e);
         }
     }
@@ -63,13 +63,13 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     private static void init(IXmlServerSLWrapper internal, IXmlServerSLWrapper user) {
         if (mdmInternalWrapper == null || userStorageWrapper == null) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("--- Using dispatch wrapper ---");
+                LOGGER.debug("--- Using dispatch wrapper ---"); //$NON-NLS-1$
             }
             mdmInternalWrapper = internal;
             userStorageWrapper = user;
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("MDM internal storage: " + internal.getClass().getName());
-                LOGGER.debug("User data storage: " + user.getClass().getName());
+                LOGGER.debug("MDM internal storage: " + internal.getClass().getName()); //$NON-NLS-1$
+                LOGGER.debug("User data storage: " + user.getClass().getName()); //$NON-NLS-1$
             }
         }
     }
@@ -92,8 +92,9 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     }
 
     public static boolean isMDMInternal(String clusterName) {
+        String pureClusterName = StorageWrapper.getPureClusterName(clusterName);
         for (String internalClusterName : getInternalClusterNames()) {
-            if (StringUtils.equalsIgnoreCase(internalClusterName, clusterName)) {
+            if (StringUtils.equalsIgnoreCase(internalClusterName, pureClusterName)) {
                 return true;
             }
         }
@@ -289,12 +290,12 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     public long moveDocumentById(String sourceClusterName, String uniqueID, String targetClusterName) throws XmlServerException {
         if (isMDMInternal(sourceClusterName)) {
             if (!isMDMInternal(targetClusterName)) {
-                throw new IllegalArgumentException("Cannot copy to user data cluster '" + targetClusterName + "'");
+                throw new IllegalArgumentException("Cannot copy to user data cluster '" + targetClusterName + "'"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             return mdmInternalWrapper.moveDocumentById(sourceClusterName, uniqueID, targetClusterName);
         } else {
             if (isMDMInternal(targetClusterName)) {
-                throw new IllegalArgumentException("Cannot copy to internal data cluster '" + targetClusterName + "'");
+                throw new IllegalArgumentException("Cannot copy to internal data cluster '" + targetClusterName + "'"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             return userStorageWrapper.moveDocumentById(sourceClusterName, uniqueID, targetClusterName);
         }
@@ -407,6 +408,22 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
             mdmInternalWrapper.exportDocuments(clusterName, start, end, includeMetadata, outputStream);
         } else {
             userStorageWrapper.exportDocuments(clusterName, start, end, includeMetadata, outputStream);
+        }
+    }
+
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs) throws XmlServerException {
+        if (isMDMInternal(clusterName)) {
+            return mdmInternalWrapper.getDocumentsAsString(clusterName, uniqueIDs);
+        } else {
+            return userStorageWrapper.getDocumentsAsString(clusterName, uniqueIDs);
+        }
+    }
+
+    public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs, String encoding) throws XmlServerException {
+        if (isMDMInternal(clusterName)) {
+            return mdmInternalWrapper.getDocumentsAsString(clusterName, uniqueIDs, encoding);
+        } else {
+            return userStorageWrapper.getDocumentsAsString(clusterName, uniqueIDs, encoding);
         }
     }
 }

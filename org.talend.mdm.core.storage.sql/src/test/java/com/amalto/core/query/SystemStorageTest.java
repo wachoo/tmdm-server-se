@@ -15,8 +15,6 @@ import static com.amalto.core.query.user.UserQueryBuilder.eq;
 import static com.amalto.core.query.user.UserQueryBuilder.from;
 import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,9 +27,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -84,9 +84,9 @@ public class SystemStorageTest extends TestCase {
     private static Logger LOG = Logger.getLogger(StorageTestCase.class);
 
     private static Collection<String> getConfigFiles() throws Exception {
-        URL data = InitDBUtil.class.getResource("data");
+        URL data = InitDBUtil.class.getResource("data"); //$NON-NLS-1$
         List<String> result = new ArrayList<String>();
-        if("jar".equals(data.getProtocol())){
+        if("jar".equals(data.getProtocol())){ //$NON-NLS-1$
             JarURLConnection connection = (JarURLConnection)data.openConnection();
             JarEntry entry = connection.getJarEntry();
             JarFile file = connection.getJarFile();
@@ -114,12 +114,12 @@ public class SystemStorageTest extends TestCase {
 
                 @Override
                 public boolean accept(File file) {
-                    return !".svn".equals(file.getName());
+                    return !".svn".equals(file.getName()); //$NON-NLS-1$
                 }
 
                 @Override
                 public boolean accept(File file, String s) {
-                    return !".svn".equals(file.getName());
+                    return !".svn".equals(file.getName()); //$NON-NLS-1$
                 }
             });
             for(File f : files){
@@ -129,14 +129,62 @@ public class SystemStorageTest extends TestCase {
         return result;
     }
     
+    @SuppressWarnings("unused")
     private InputStream prepareInputStream(InputStream stream) throws Exception {
         String content = IOUtils.toString(stream);
         ByteArrayInputStream bais = new ByteArrayInputStream(content.getBytes());
         return bais;
     }
+    
+    private Map<String, Object> prepareRepositoryStorageWrapper(){
+        LOG.info("Setting up MDM server environment..."); //$NON-NLS-1$
+        ServerContext.INSTANCE.get(new MockServerLifecycle());
+        LOG.info("MDM server environment set."); //$NON-NLS-1$
+        // Build a system storage
+        ClassRepository repository = buildRepository();
+        // Additional setup to get User type in repository
+        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
+        };
+        for (String model : models) {
+            InputStream builtInStream = this.getClass().getResourceAsStream(model);
+            if (builtInStream == null) {
+                throw new RuntimeException("Built in model '" + model + "' cannot be found."); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            try {
+                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
+                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
+            } catch (Exception e) {
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+            } finally {
+                try {
+                    builtInStream.close();
+                } catch (IOException e) {
+                    // Ignored
+                }
+            }
+        }
+        LOG.info("Preparing storage for tests..."); //$NON-NLS-1$
+        final Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED); //$NON-NLS-1$
+        storage.init(getDatasource("H2-Default")); //$NON-NLS-1$
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
+        LOG.info("Storage prepared."); //$NON-NLS-1$
+        // Wraps it to test wrapper methods
+        SystemStorageWrapper wrapper = new SystemStorageWrapper() {
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+        };
+        
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("repository", repository); //$NON-NLS-1$
+        map.put("storage", storage); //$NON-NLS-1$
+        map.put("wrapper", wrapper); //$NON-NLS-1$
+        return map;
+    }
 
     protected static DataSourceDefinition getDatasource(String dataSourceName) {
-        return ServerContext.INSTANCE.get().getDefinition(dataSourceName, "MDM");
+        return ServerContext.INSTANCE.get().getDefinition(dataSourceName, "MDM"); //$NON-NLS-1$
     }
 
     public void testSystemRepository() throws Exception {
@@ -145,8 +193,8 @@ public class SystemStorageTest extends TestCase {
     }
 
     public void testInternalClusterNames() throws Exception {
-        String[] expectedInternalClusters = new String[] { "", "SearchTemplate", "MDMDomainObjects",
-                "MDMItemsTrash", "MDMItemImages", "PROVISIONING", "CONF", "amaltoOBJECTSTransformerV2", //$NON-NLS-1$
+        String[] expectedInternalClusters = new String[] { "", "SearchTemplate", "MDMDomainObjects", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                "MDMItemsTrash", "MDMItemImages", "PROVISIONING", "CONF", "amaltoOBJECTSTransformerV2", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
                 "amaltoOBJECTSFailedRoutingOrderV2", //$NON-NLS-1$
                 "amaltoOBJECTSCompletedRoutingOrderV2", //$NON-NLS-1$
                 "amaltoOBJECTSCustomForm", //$NON-NLS-1$
@@ -177,10 +225,11 @@ public class SystemStorageTest extends TestCase {
         };
         Set<String> internalClusterNames = DispatchWrapper.getInternalClusterNames();
         for (String expectedInternalCluster : expectedInternalClusters) {
-            assertTrue("Expected " + expectedInternalCluster, internalClusterNames.contains(expectedInternalCluster));
+            assertTrue("Expected " + expectedInternalCluster, internalClusterNames.contains(expectedInternalCluster)); //$NON-NLS-1$
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private ClassRepository buildRepository() {
         ClassRepository repository = new ClassRepository();
         Class[] objectsToParse = new Class[ObjectPOJO.OBJECT_TYPES.length];
@@ -192,74 +241,70 @@ public class SystemStorageTest extends TestCase {
         return repository;
     }
 
-    public void testGetAllDocumentUniqueId() throws Exception {
-        LOG.info("Setting up MDM server environment...");
-        ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
-        // Build a system storage
-        ClassRepository repository = buildRepository();
-        // Additional setup to get User type in repository
-        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
-        };
-        for (String model : models) {
-            InputStream builtInStream = this.getClass().getResourceAsStream(model);
-            if (builtInStream == null) {
-                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
-            }
-            try {
-                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
-                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
-            } catch (Exception e) {
-                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
-            } finally {
-                try {
-                    builtInStream.close();
-                } catch (IOException e) {
-                    // Ignored
-                }
-            }
-        }
-        LOG.info("Preparing storage for tests...");
-        final Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED);
-        storage.init(getDatasource("H2-Default"));
-        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
-        LOG.info("Storage prepared.");
-        // Wraps it to test wrapper methods
-        SystemStorageWrapper wrapper = new SystemStorageWrapper() {
-            @Override
-            protected Storage getStorage(String dataClusterName) {
-                return storage;
-            }
-        };
+    public void testGetAllDocumentsUniqueID() throws Exception {
+        Map<String, Object> preparedItems = prepareRepositoryStorageWrapper();
+        ClassRepository repository = (ClassRepository) preparedItems.get("repository"); //$NON-NLS-1$
+        SecuredStorage storage = (SecuredStorage) preparedItems.get("storage"); //$NON-NLS-1$
+        SystemStorageWrapper wrapper = (SystemStorageWrapper) preparedItems.get("wrapper"); //$NON-NLS-1$
         // Test method
-        final String[] emptyIds = wrapper.getAllDocumentsUniqueID("PROVISIONING");
+        final String[] emptyIds = wrapper.getAllDocumentsUniqueID("PROVISIONING"); //$NON-NLS-1$
         assertEquals(0, emptyIds.length);
         // Add a user (parse a user XML from a 5.0 install)
         XmlDOMDataRecordReader reader = new XmlDOMDataRecordReader();
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_1.xml"));
-        Element element = (Element) document.getElementsByTagName("User").item(0);
-        final DataRecord user = reader.read(repository, repository.getComplexType("User"), element);
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_1.xml")); //$NON-NLS-1$
+        Element element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
+        final DataRecord user = reader.read(repository, repository.getComplexType("User"), element); //$NON-NLS-1$
         storage.begin();
         storage.update(user);
         storage.commit();
         // Test method again (should be one user now)
-        final String[] ids = wrapper.getAllDocumentsUniqueID("PROVISIONING");
-        assertEquals(1, ids.length);
-        assertEquals("PROVISIONING.User.a", ids[0]);
+        final String[] ids_1 = wrapper.getAllDocumentsUniqueID("PROVISIONING"); //$NON-NLS-1$
+        assertEquals(1, ids_1.length);
+        assertEquals("PROVISIONING.User.a", ids_1[0]); //$NON-NLS-1$
+        final String[] ids_2 = wrapper.getAllDocumentsUniqueID("PROVISIONING/User"); //$NON-NLS-1$
+        assertEquals(1, ids_2.length);
+        assertEquals("PROVISIONING.User.a", ids_2[0]); //$NON-NLS-1$
+    }
+    
+    public void testGetDocumentsAsString() throws Exception {
+        Map<String, Object> preparedItems = prepareRepositoryStorageWrapper();
+        ClassRepository repository = (ClassRepository) preparedItems.get("repository"); //$NON-NLS-1$
+        SecuredStorage storage = (SecuredStorage) preparedItems.get("storage"); //$NON-NLS-1$
+        SystemStorageWrapper wrapper = (SystemStorageWrapper) preparedItems.get("wrapper"); //$NON-NLS-1$
+        String[] uniqueIDs = { "PROVISIONING.User.administrator", "PROVISIONING.User.user" }; //$NON-NLS-1$ //$NON-NLS-2$
+        // Test method
+        final String[] emptyXmls = wrapper.getDocumentsAsString("PROVISIONING", uniqueIDs, "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+        assertNull(emptyXmls[0]);
+        assertNull(emptyXmls[1]);
+        // Add a user (parse a user XML from a 5.0 install)
+        XmlDOMDataRecordReader reader = new XmlDOMDataRecordReader();
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        String[] datas = { "SystemStorageTest_2.xml", "SystemStorageTest_3.xml" }; //$NON-NLS-1$ //$NON-NLS-2$ 
+        storage.begin();
+        for (String data : datas) {
+            Document document = builder.parse(SystemStorageTest.class.getResourceAsStream(data));
+            Element element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
+            final DataRecord user = reader.read(repository, repository.getComplexType("User"), element); //$NON-NLS-1$
+            storage.update(user);
+        }
+        storage.commit();
+        final String[] xmls = wrapper.getDocumentsAsString("PROVISIONING", uniqueIDs, "UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+        assertNotNull(xmls[0]);
+        assertNotNull(xmls[1]);
     }
 
     public void testStorageInit() throws Exception {
-        LOG.info("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment..."); //$NON-NLS-1$
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
+        LOG.info("MDM server environment set."); //$NON-NLS-1$
 
-        LOG.info("Preparing storage for tests...");
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED);
+        LOG.info("Preparing storage for tests..."); //$NON-NLS-1$
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED); //$NON-NLS-1$
         ClassRepository repository = buildRepository();
-        storage.init(getDatasource("H2-Default"));
+        storage.init(getDatasource("H2-Default")); //$NON-NLS-1$
         storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
-        LOG.info("Storage prepared.");
+        LOG.info("Storage prepared."); //$NON-NLS-1$
     }
 
     public void testDOMParsing() throws Exception {
@@ -352,12 +397,12 @@ public class SystemStorageTest extends TestCase {
     }
 
     public void testClobQuery() throws Exception {
-        LOG.info("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment..."); //$NON-NLS-1$
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
+        LOG.info("MDM server environment set."); //$NON-NLS-1$
 
-        LOG.info("Preparing storage for tests...");
-        HibernateStorage hibernateStorage = new HibernateStorage("MDM", StorageType.SYSTEM) {
+        LOG.info("Preparing storage for tests..."); //$NON-NLS-1$
+        HibernateStorage hibernateStorage = new HibernateStorage("MDM", StorageType.SYSTEM) { //$NON-NLS-1$
 
             @Override
             protected TypeMappingStrategy getMappingStrategy() {
@@ -370,12 +415,12 @@ public class SystemStorageTest extends TestCase {
         };
         Storage storage = new SecuredStorage(hibernateStorage, SecuredStorage.UNSECURED);
         ClassRepository repository = buildRepository();
-        storage.init(getDatasource("RDBMS-1-NO-FT"));
+        storage.init(getDatasource("RDBMS-1-NO-FT")); //$NON-NLS-1$
         storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
-        LOG.info("Storage prepared.");
+        LOG.info("Storage prepared."); //$NON-NLS-1$
         // Test CONTAINS
-        ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO");
-        UserQueryBuilder qb = from(type).where(contains(type.getField("message"), "test"));
+        ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO"); //$NON-NLS-1$
+        UserQueryBuilder qb = from(type).where(contains(type.getField("message"), "test")); //$NON-NLS-1$ //$NON-NLS-2$
         storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -385,7 +430,7 @@ public class SystemStorageTest extends TestCase {
             storage.commit();
         }
         // Test EQUALS
-        qb = from(type).where(eq(type.getField("message"), "test"));
+        qb = from(type).where(eq(type.getField("message"), "test")); //$NON-NLS-1$ //$NON-NLS-2$
         storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
@@ -395,7 +440,7 @@ public class SystemStorageTest extends TestCase {
             storage.commit();
         }
         // Test STARTS_WITH
-        qb = from(type).where(startsWith(type.getField("message"), "test"));
+        qb = from(type).where(startsWith(type.getField("message"), "test")); //$NON-NLS-1$ //$NON-NLS-2$
         storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
@@ -407,12 +452,12 @@ public class SystemStorageTest extends TestCase {
     }
 
     public void testClobQueryWithFT() throws Exception {
-        LOG.info("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment..."); //$NON-NLS-1$
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
+        LOG.info("MDM server environment set."); //$NON-NLS-1$
 
-        LOG.info("Preparing storage for tests...");
-        HibernateStorage hibernateStorage = new HibernateStorage("MDM", StorageType.SYSTEM) {
+        LOG.info("Preparing storage for tests..."); //$NON-NLS-1$
+        HibernateStorage hibernateStorage = new HibernateStorage("MDM", StorageType.SYSTEM) { //$NON-NLS-1$
 
             @Override
             protected TypeMappingStrategy getMappingStrategy() {
@@ -425,12 +470,12 @@ public class SystemStorageTest extends TestCase {
         };
         Storage storage = new SecuredStorage(hibernateStorage, SecuredStorage.UNSECURED);
         ClassRepository repository = buildRepository();
-        storage.init(getDatasource("H2-Default"));
+        storage.init(getDatasource("H2-Default")); //$NON-NLS-1$
         storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
-        LOG.info("Storage prepared.");
+        LOG.info("Storage prepared."); //$NON-NLS-1$
         // Test CONTAINS
-        ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO");
-        UserQueryBuilder qb = from(type).where(contains(type.getField("message"), "test"));
+        ComplexTypeMetadata type = repository.getComplexType("failed-routing-order-v2-pOJO"); //$NON-NLS-1$
+        UserQueryBuilder qb = from(type).where(contains(type.getField("message"), "test")); //$NON-NLS-1$ //$NON-NLS-2$
         storage.begin();
         StorageResults results = storage.fetch(qb.getSelect());
         try {
@@ -440,7 +485,7 @@ public class SystemStorageTest extends TestCase {
             storage.commit();
         }
         // Test EQUALS
-        qb = from(type).where(eq(type.getField("message"), "test"));
+        qb = from(type).where(eq(type.getField("message"), "test")); //$NON-NLS-1$ //$NON-NLS-2$
         storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
@@ -450,7 +495,7 @@ public class SystemStorageTest extends TestCase {
             storage.commit();
         }
         // Test STARTS_WITH
-        qb = from(type).where(startsWith(type.getField("message"), "test"));
+        qb = from(type).where(startsWith(type.getField("message"), "test")); //$NON-NLS-1$ //$NON-NLS-2$
         storage.begin();
         results = storage.fetch(qb.getSelect());
         try {
@@ -462,16 +507,16 @@ public class SystemStorageTest extends TestCase {
     }
 
     public void testStorageInitPopulate() throws Exception {
-        LOG.info("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment..."); //$NON-NLS-1$
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
+        LOG.info("MDM server environment set."); //$NON-NLS-1$
 
-        LOG.info("Preparing storage for tests...");
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED);
+        LOG.info("Preparing storage for tests..."); //$NON-NLS-1$
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED); //$NON-NLS-1$
         ClassRepository repository = buildRepository();
-        storage.init(getDatasource("H2-Default"));
+        storage.init(getDatasource("H2-Default")); //$NON-NLS-1$
         storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
-        LOG.info("Storage prepared.");
+        LOG.info("Storage prepared."); //$NON-NLS-1$
 
         Collection<String> files = getConfigFiles();
 
@@ -520,7 +565,7 @@ public class SystemStorageTest extends TestCase {
                             (ClassRepository) storage.getMetadataRepository(), presentType);
                     for (DataRecord result : results) {
                         StringWriter stringWriter = new StringWriter();
-                        if ("menu-pOJO".equals(presentType.getName())) {
+                        if ("menu-pOJO".equals(presentType.getName())) { //$NON-NLS-1$
                             writer.write(result, stringWriter);
                             MenuPOJO menuPOJO = ObjectPOJO.unmarshal(MenuPOJO.class, stringWriter.toString());
                             assertNotNull(menuPOJO);
@@ -529,7 +574,7 @@ public class SystemStorageTest extends TestCase {
                                 assertTrue(!menuEntry.getDescriptions().isEmpty());
                             }
                         }
-                        if ("data-model-pOJO".equals(presentType.getName())) {
+                        if ("data-model-pOJO".equals(presentType.getName())) { //$NON-NLS-1$
                             writer.write(result, stringWriter);
                             DataModelPOJO dataModelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, stringWriter.toString());
                             assertNotNull(dataModelPOJO.getSchema());
@@ -553,13 +598,13 @@ public class SystemStorageTest extends TestCase {
         for (String model : models) {
             InputStream builtInStream = this.getClass().getResourceAsStream(model);
             if (builtInStream == null) {
-                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
+                throw new RuntimeException("Built in model '" + model + "' cannot be found."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             try {
                 DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
                 repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
             } catch (Exception e) {
-                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
             } finally {
                 try {
                     builtInStream.close();
@@ -571,17 +616,18 @@ public class SystemStorageTest extends TestCase {
         // Parse a user XML from a 5.0 install
         XmlDOMDataRecordReader reader = new XmlDOMDataRecordReader();
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_1.xml"));
-        Element element = (Element) document.getElementsByTagName("User").item(0);
-        reader.read(repository, repository.getComplexType("User"), element);
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_1.xml")); //$NON-NLS-1$
+        Element element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
+        reader.read(repository, repository.getComplexType("User"), element); //$NON-NLS-1$
     }
 
+    @SuppressWarnings("rawtypes")
     public void testUserInformationWithRoles() throws Exception {
-        LOG.info("Setting up MDM server environment...");
+        LOG.info("Setting up MDM server environment..."); //$NON-NLS-1$
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set.");
-        LOG.info("Preparing storage for tests...");
-        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED);
+        LOG.info("MDM server environment set."); //$NON-NLS-1$
+        LOG.info("Preparing storage for tests..."); //$NON-NLS-1$
+        Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED); //$NON-NLS-1$
         ClassRepository repository = buildRepository();
         // Additional setup to get User type in repository
         String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
@@ -589,13 +635,13 @@ public class SystemStorageTest extends TestCase {
         for (String model : models) {
             InputStream builtInStream = this.getClass().getResourceAsStream(model);
             if (builtInStream == null) {
-                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
+                throw new RuntimeException("Built in model '" + model + "' cannot be found."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             try {
                 DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
                 repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
             } catch (Exception e) {
-                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
             } finally {
                 try {
                     builtInStream.close();
@@ -604,9 +650,9 @@ public class SystemStorageTest extends TestCase {
                 }
             }
         }
-        storage.init(getDatasource("H2-Default"));
+        storage.init(getDatasource("H2-Default")); //$NON-NLS-1$
         storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
-        LOG.info("Storage prepared.");
+        LOG.info("Storage prepared."); //$NON-NLS-1$
         // Create users
         DataRecordReader<Element> dataRecordReader = new XmlDOMDataRecordReader();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -615,10 +661,10 @@ public class SystemStorageTest extends TestCase {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_2.xml")); //$NON-NLS-1$
         Element element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
-        records.add(dataRecordReader.read(repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(dataRecordReader.read(repository, repository.getComplexType("User"), element)); //$NON-NLS-1$
         document = builder.parse(SystemStorageTest.class.getResourceAsStream("SystemStorageTest_3.xml")); //$NON-NLS-1$
         element = (Element) document.getElementsByTagName("User").item(0); //$NON-NLS-1$
-        records.add(dataRecordReader.read(repository, repository.getComplexType("User"), element)); //$NON-NLS-1$ //$NON-NLS-2$
+        records.add(dataRecordReader.read(repository, repository.getComplexType("User"), element)); //$NON-NLS-1$
         // Commit users
         storage.begin();
         storage.update(records);
@@ -636,7 +682,7 @@ public class SystemStorageTest extends TestCase {
                 while (it.hasNext()) {
                     count++;
                     DataRecord next = it.next();
-                    Object list = next.get("roles/role");
+                    Object list = next.get("roles/role"); //$NON-NLS-1$
                     assertTrue(list instanceof List);
                     assertEquals(2, ((List) list).size());
                 }

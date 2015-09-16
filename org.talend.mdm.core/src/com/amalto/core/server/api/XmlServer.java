@@ -20,9 +20,6 @@ import org.xml.sax.XMLReader;
 import java.io.OutputStream;
 import java.util.*;
 
-/**
- *
- */
 public interface XmlServer {
 
     /**
@@ -229,8 +226,34 @@ public interface XmlServer {
     void close() throws XtentisException;
 
     void exportDocuments(String clusterName, int start, int end, boolean includeMetadata, OutputStream outputStream) throws XtentisException;
-
+    
     List<String> globalSearch(String dataCluster, String keyword, int start, int end) throws XtentisException;
 
     boolean supportStaging(String dataCluster) throws XtentisException;
+
+    /**
+     * Gets many XML documents from the DB<br>
+     * The XML instruction will have an encoding specified as UTF-16
+     *
+     * @param revisionID  The ID of the revision, <code>null</code> for the head
+     * @param clusterName The unique ID of the cluster
+     * @param uniqueIDs    The unique IDs of the document
+     * @return the document as A string
+     */
+    String[] getDocumentsAsString(String clusterName, String[] uniqueIDs) throws XtentisException;
+
+    /**
+     * Gets many XML documents from the DB<br>
+     * The XML instruction will have the encoding specified in the encoding parameter<br>
+     * If encoding is null, the document will not have an XML instruction
+     *
+     * @param revisionID  The ID of the revision, <code>null</code> for the head
+     * @param clusterName The unique ID of the cluster
+     * @param uniqueIDs    The unique IDs of the document
+     * @param encoding    The encoding of the XML instruction (e.g. UTF-16, UTF-8, etc...).
+     * @return the document as A string
+     */
+    String[] getDocumentsAsString(String clusterName, String[] uniqueIDs, String encoding)
+            throws XtentisException;
 }
+  
