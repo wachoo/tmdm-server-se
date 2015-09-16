@@ -28,4 +28,9 @@ public class UUIDIdGenerator implements AutoIdGenerator {
     public void init() {
         // Nothing to do.
     }
+    
+    @Override
+    public boolean isInitialized() {
+        return true;
+    }
 }
