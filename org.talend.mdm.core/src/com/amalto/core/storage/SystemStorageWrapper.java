@@ -276,9 +276,22 @@ public class SystemStorageWrapper extends StorageWrapper {
 
     @Override
     public String[] getAllDocumentsUniqueID(String revisionID, String clusterName) throws XmlServerException {
-        Collection<ComplexTypeMetadata> typeToQuery = getClusterTypes(clusterName, revisionID);
-        List<String> uniqueIds = new LinkedList<String>();
-        Storage storage = getStorage(clusterName, revisionID);
+        List<String> uniqueIDs = new LinkedList<String>();
+        String pureClusterName = getPureClusterName(clusterName);
+        Storage storage = getStorage(pureClusterName);
+        MetadataRepository repository = storage.getMetadataRepository();
+        boolean includeClusterAndTypeName = getClusterTypes(pureClusterName, revisionID).size() > 1;
+        Collection<ComplexTypeMetadata> typeToQuery;
+        if (clusterName.contains("/")) { //$NON-NLS-1$
+            String typeName = StringUtils.substringAfter(clusterName, "/"); //$NON-NLS-1$
+            ComplexTypeMetadata complexType = repository.getComplexType(typeName);
+            if (complexType == null) {
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in container '" + pureClusterName + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            }
+            typeToQuery = Collections.singletonList(complexType);
+        } else {
+            typeToQuery = getClusterTypes(clusterName, revisionID);
+        }
         try {
             storage.begin();
             for (ComplexTypeMetadata currentType : typeToQuery) {
@@ -287,8 +300,8 @@ public class SystemStorageWrapper extends StorageWrapper {
                 for (DataRecord result : results) {
                     Iterator<FieldMetadata> setFields = result.getSetFields().iterator();
                     StringBuilder builder = new StringBuilder();
-                    if (typeToQuery.size() > 1) {
-                        builder.append(clusterName).append('.').append(currentType.getName()).append('.');
+                    if (includeClusterAndTypeName) {
+                        builder.append(pureClusterName).append('.').append(currentType.getName()).append('.');
                     }
                     while (setFields.hasNext()) {
                         builder.append(String.valueOf(result.get(setFields.next())));
@@ -296,11 +309,11 @@ public class SystemStorageWrapper extends StorageWrapper {
                             builder.append('.');
                         }
                     }
-                    uniqueIds.add(builder.toString());
+                    uniqueIDs.add(builder.toString());
                 }
             }
             storage.commit();
-            return uniqueIds.toArray(new String[uniqueIds.size()]);
+            return uniqueIDs.toArray(new String[uniqueIDs.size()]);
         } catch (Exception e) {
             storage.rollback();
             throw new XmlServerException(e);

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,49 +59,36 @@ public class StorageWrapperTest extends TestCase {
     public StorageWrapperTest() {
         ServerContext.INSTANCE.get(new MockServerLifecycle());
     }
+    
+    public void testIsMDMInternal(){
+        String internal_1 = "SearchTemplate";
+        String internal_2 = "SearchTemplate/HierarchySearchItem";
+        String user_1 = "Product";
+        String user_2 = "Product/Product";
+        assertTrue(DispatchWrapper.isMDMInternal(internal_1));
+        assertTrue(DispatchWrapper.isMDMInternal(internal_2));
+        assertFalse(DispatchWrapper.isMDMInternal(user_1));
+        assertFalse(DispatchWrapper.isMDMInternal(user_2));
+        
+    }
+    
+    public void testGetAllDocumentsUniqueID() throws Exception {
+        StorageWrapper wrapper = prepareWrapper();
+        List<String> uniqueIDs = Arrays.asList(new String[]{"Product.Product.333", "Product.Product.33&44", "Product.Product.\"555<666>444\"", "Product.ProductFamily.1", "Product.Store.1"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        List<String> uniqueIDs_1 = Arrays.asList(wrapper.getAllDocumentsUniqueID(null, "Product")); //$NON-NLS-1$
+        assertTrue(uniqueIDs.containsAll(uniqueIDs_1));
+        List<String> uniqueIDs_2 = Arrays.asList(wrapper.getAllDocumentsUniqueID(null, "Product/Product")); //$NON-NLS-1$
+        assertTrue(uniqueIDs.containsAll(uniqueIDs_2));
+    }
 
-    public void testGetDocumentAsString() throws Exception {
-        final MetadataRepository repository = prepareMetadata("Product.xsd"); //$NON-NLS-1$
-        final Storage storage = prepareStorage(repository);
-
-        StorageWrapper wrapper = new StorageWrapper() {
-
-            @Override
-            protected Storage getStorage(String dataClusterName) {
-                return storage;
-            }
-
-            @Override
-            protected Storage getStorage(String dataClusterName, String revisionId) {
-                return storage;
-            }
-        };
-        String xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>333</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>333</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.start("Product"); //$NON-NLS-1$
-        {
-            wrapper.putDocumentFromString(xml, "Product.Product.333", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        wrapper.commit("Product"); //$NON-NLS-1$
+    public void testGetDocumentAsString() throws Exception {    
+        StorageWrapper wrapper = prepareWrapper();
         String item = wrapper.getDocumentAsString(null, "Product", "Product.Product.333"); //$NON-NLS-1$ //$NON-NLS-2$
         assertNotNull(item);
         assertTrue(item.contains("<i>333</i>")); //$NON-NLS-1$
-
-        xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>33&amp;44</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>33&amp;44</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.start("Product"); //$NON-NLS-1$
-        {
-            wrapper.putDocumentFromString(xml, "Product.Product.33&44", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        wrapper.commit("Product"); //$NON-NLS-1$
         item = wrapper.getDocumentAsString(null, "Product", "Product.Product.33&44"); //$NON-NLS-1$ //$NON-NLS-2$
         assertNotNull(item);
         assertTrue(item.contains("<i>33&amp;44</i>")); //$NON-NLS-1$
-
-        xml = "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>&quot;555&lt;666&gt;444&quot;</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>&quot;555&lt;666&gt;444&quot;</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>"; //$NON-NLS-1$
-        wrapper.start("Product"); //$NON-NLS-1$
-        {
-            wrapper.putDocumentFromString(xml, "Product.Product.\"555<666>444\"", "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-        wrapper.commit("Product"); //$NON-NLS-1$
         item = wrapper.getDocumentAsString(null, "Product", "Product.Product.\"555<666>444\""); //$NON-NLS-1$ //$NON-NLS-2$
         assertNotNull(item);
         assertTrue(item.contains("<i>&quot;555&lt;666&gt;444&quot;</i>")); //$NON-NLS-1$
@@ -248,5 +236,39 @@ public class StorageWrapperTest extends TestCase {
         storage.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-Default", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
         storage.prepare(repository, true);
         return storage;
+    }
+    
+    private StorageWrapper prepareWrapper() throws XmlServerException{
+        final MetadataRepository repository = prepareMetadata("Product.xsd"); //$NON-NLS-1$
+        final Storage storage = prepareStorage(repository);
+
+        StorageWrapper wrapper = new StorageWrapper() {
+
+            @Override
+            protected Storage getStorage(String dataClusterName) {
+                return storage;
+            }
+
+            @Override
+            protected Storage getStorage(String dataClusterName, String revisionId) {
+                return storage;
+            }
+        };
+        String[] xmls = {"<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>333</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>333</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>", //$NON-NLS-1$
+                "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>33&amp;44</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>33&amp;44</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>", //$NON-NLS-1$
+                "<ii><c>Product</c><n>Product</n><dmn>Product</dmn><i>&quot;555&lt;666&gt;444&quot;</i><t>1372654669313</t><taskId></taskId><p> <Product><Id>&quot;555&lt;666&gt;444&quot;</Id><Name>333</Name><Description>333</Description><Price>333</Price></Product></p></ii>", //$NON-NLS-1$
+                "<ii><c>Product</c><dmn>Product</dmn><dmr/><sp/><t>1442298182088</t><taskId>null</taskId><i>1</i><p><ProductFamily><Id>1</Id><Name>1</Name><ChangeStatus>Approved</ChangeStatus></ProductFamily></p></ii>", //$NON-NLS-1$
+                "<ii><c>Product</c><dmn>Product</dmn><dmr/><sp/><t>1442298185640</t><taskId>null</taskId><i>1</i><p><Store><Id>1</Id><Address>1</Address><Lat>1.0</Lat><Long>1.0</Long></Store></p></ii>" //$NON-NLS-1$
+               };
+        String[] ids = {"Product.Product.333", "Product.Product.33&44", "Product.Product.\"555<666>444\"", "Product.ProductFamily.1", "Product.Store.1"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+        
+        wrapper.start("Product"); //$NON-NLS-1$
+        {
+            for (int i = 0; i < xmls.length; i++) {
+                wrapper.putDocumentFromString(xmls[i], ids[i], "Product", null); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        }
+        wrapper.commit("Product"); //$NON-NLS-1$
+        return wrapper;
     }
 }

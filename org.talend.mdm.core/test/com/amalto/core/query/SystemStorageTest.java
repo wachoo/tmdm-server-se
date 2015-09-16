@@ -209,9 +209,12 @@ public class SystemStorageTest extends TestCase {
         storage.update(user);
         storage.commit();
         // Test method again (should be one user now)
-        final String[] ids = wrapper.getAllDocumentsUniqueID(null, "PROVISIONING");
-        assertEquals(1, ids.length);
-        assertEquals("a", ids[0]);
+        final String[] ids_1 = wrapper.getAllDocumentsUniqueID(null, "PROVISIONING");
+        assertEquals(1, ids_1.length);
+        assertEquals("PROVISIONING.User.a", ids_1[0]);
+        final String[] ids_2 = wrapper.getAllDocumentsUniqueID(null, "PROVISIONING/User");
+        assertEquals(1, ids_2.length);
+        assertEquals("PROVISIONING.User.a", ids_2[0]);
     }
 
     public void testStorageInit() throws Exception {
