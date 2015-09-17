@@ -14,7 +14,6 @@
 package org.talend.mdm.webapp.base.client.widget;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -57,7 +56,6 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
@@ -206,8 +204,6 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
 
     }
 
-    public static final String KEY_MDM_READ_ONLY_FIELD_STYLE = "MDM_READ_ONLY_FIELD_STYLE"; //$NON-NLS-1$
-
     protected boolean autoComplete = false;
 
     protected boolean delayedCheck;
@@ -275,10 +271,6 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
     private boolean useQueryCache = true;
 
     private String valueField;
-
-    private Element textFieldDisable;
-
-    private HashMap<String, String> userProperties;
 
     public void setMode(String mode) {
         this.mode = mode;
@@ -847,6 +839,17 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         this.queryDelay = queryDelay;
     }
 
+    @Override
+    public void setRawValue(String text) {
+        if (rendered) {
+            if (text == null) {
+                String msg = getMessages().getValueNoutFoundText();
+                text = msg != null ? msg : ""; //$NON-NLS-1$
+            }
+            getInputEl().setValue(text);
+        }
+    }
+
     /**
      * Sets the CSS style name to apply to the selected item in the dropdown list (defaults to 'x-combo-selected').
      * 
@@ -1292,11 +1295,6 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
 
     @Override
     protected void onKeyDown(FieldEvent fe) {
-        if (fe.getKeyCode() == 13 && !isEditable()) {
-            fe.stopEvent();
-            return;
-        }
-
         if (fe.getKeyCode() == KeyCodes.KEY_TAB) {
             if (expanded) {
                 onViewClick(fe, false);
@@ -1344,70 +1342,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
     }
 
     protected void onRender(Element parent, int index) {
-        focusEventPreview = new BaseEventPreview() {
-
-            protected boolean onAutoHide(final PreviewEvent ce) {
-                if (ce.getEventTypeInt() == Event.ONMOUSEDOWN) {
-                    mimicBlur(ce, ce.getTarget());
-                }
-                return false;
-            }
-        };
-
-        if (el() != null) {
-            super.onRender(parent, index);
-            return;
-        }
-
-        setElement(DOM.createDiv(), parent, index);
-
-        if (!isPassword()) {
-            if (isEditable()) {
-                input = new El(DOM.createInputText());
-            } else {
-                textFieldDisable = DOM.createDiv();
-                DOM.setElementAttribute(textFieldDisable, "type", "text"); //$NON-NLS-1$//$NON-NLS-2$
-                DOM.setElementAttribute(textFieldDisable, "contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
-                String elementStyle = "overflow: hidden; whiteSpace: nowrap;"; //$NON-NLS-1$
-                if (GXT.isIE) {
-                    elementStyle = "overflow: hidden; whiteSpace: nowrap; float: left;"; //$NON-NLS-1$
-                }
-                if (getUserProperties() != null && getUserProperties().size() > 0) {
-                    if (getUserProperties().containsKey(KEY_MDM_READ_ONLY_FIELD_STYLE)) {
-                        elementStyle = elementStyle + getUserProperties().get(KEY_MDM_READ_ONLY_FIELD_STYLE);
-                    }
-                }
-                DOM.setElementAttribute(textFieldDisable, "style", elementStyle); //$NON-NLS-1$
-                input = new El(textFieldDisable);
-            }
-        } else {
-            input = new El(DOM.createInputPassword());
-        }
-
-        addStyleName("x-form-field-wrap"); //$NON-NLS-1$
-
-        input.addStyleName(fieldStyle);
-
-        trigger = new El(GXT.isHighContrastMode ? DOM.createDiv() : DOM.createImg());
-        trigger.dom.setClassName("x-form-trigger " + triggerStyle); //$NON-NLS-1$
-        trigger.dom.setPropertyString("src", GXT.BLANK_IMAGE_URL); //$NON-NLS-1$
-        if (GXT.isAriaEnabled()) {
-            trigger.dom.setPropertyString("alt", "Dropdown"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-
-        el().appendChild(input.dom);
-        el().appendChild(trigger.dom);
-
-        if (isHideTrigger()) {
-            trigger.setVisible(false);
-        }
-
         super.onRender(parent, index);
-
-        if (!isEditable()) {
-            setEditable(false);
-        }
-
         initList();
 
         if (!autoComplete) {
@@ -1677,43 +1612,8 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         }
     }
 
-    @Override
-    public void setRawValue(String text) {
-        if (rendered) {
-            if (text == null) {
-                String msg = getMessages().getValueNoutFoundText();
-                text = msg != null ? msg : ""; //$NON-NLS-1$
-            }
-
-            if (isEditable()) {
-                getInputEl().setValue(text);
-            } else {
-                getInputEl().dom.setInnerText(text);
-            }
-        }
-    }
-
-    @Override
-    public String getRawValue() {
-        String v = rendered ? getInputEl().getValue() : ""; //$NON-NLS-1$
-        if (!isEditable()) {
-            v = rendered ? getInputEl().dom.getInnerText() : ""; //$NON-NLS-1$
-        }
-        if (v == null || v.equals(emptyText)) {
-            return ""; //$NON-NLS-1$
-        }
-        return v;
-    }
-
     protected Element getAlignElement() {
         return getElement();
     }
 
-    public HashMap<String, String> getUserProperties() {
-        return this.userProperties;
-    }
-
-    public void setUserProperties(HashMap<String, String> userProperties) {
-        this.userProperties = userProperties;
-    }
 }

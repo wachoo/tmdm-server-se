@@ -13,6 +13,7 @@
 package com.amalto.core.delegator;
 
 import com.amalto.core.objects.ItemPOJO;
+import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -22,9 +23,8 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordWriter;
 import com.amalto.core.storage.record.DataRecordXmlWriter;
-import com.amalto.core.util.User;
+import com.amalto.core.storage.record.SystemDataRecordXmlWriter;
 import com.amalto.core.util.XtentisException;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,7 +44,6 @@ public abstract class ILocalUser implements IBeanDelegator {
         return null;
     }
 
-    @SuppressWarnings("unused")
     public HashSet<String> getRoles() {
         HashSet<String> set = new HashSet<String>();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -73,7 +72,7 @@ public abstract class ILocalUser implements IBeanDelegator {
             systemStorage.commit();
         } catch (IOException e) {
             systemStorage.rollback();
-            throw new RuntimeException("Could not access user record.", e); //$NON-NLS-1$
+            throw new RuntimeException("Could not access user record.", e);
         }
         return userXml.toString();
     }
@@ -88,19 +87,6 @@ public abstract class ILocalUser implements IBeanDelegator {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object credentials = authentication.getCredentials();
         return (String)credentials;
-    }
-    
-    public User getUser() {
-        User user = new User();
-        String xml = getUserXML();
-        try {
-            if (xml != null) {
-                User.parse(xml, user);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Could not parse user xml.", e); //$NON-NLS-1$
-        }
-        return user;
     }
 
     public boolean isAdmin(Class<?> objectTypeClass) throws XtentisException {

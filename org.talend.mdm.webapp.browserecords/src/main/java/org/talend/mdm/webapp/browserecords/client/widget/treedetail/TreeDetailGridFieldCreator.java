@@ -42,7 +42,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxFiel
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
-import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SimpleComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
 import org.talend.mdm.webapp.browserecords.client.widget.typefield.TypeFieldCreateContext;
@@ -77,7 +76,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class TreeDetailGridFieldCreator {
 
-    @SuppressWarnings({ "rawtypes", "unchecked", "unused" })
     public static Field<?> createField(ItemNodeModel node, final TypeModel dataType, String language,
             Map<String, Field<?>> fieldMap, String operation, final ItemsDetailPanel itemsDetailPanel) {
         // Field
@@ -96,11 +94,9 @@ public class TreeDetailGridFieldCreator {
                     fkField.setPropertyEditor(new FKPropertyEditor());
                 }
             }
-            fkField.setEnabled(!dataType.isReadOnly());
-            fkField.setReadOnly(dataType.isReadOnly());
             field = fkField;
         } else if (dataType.hasEnumeration()) {
-            SimpleComboBoxField comboBox = new SimpleComboBoxField();
+            SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
             comboBox.setFireChangeEventOnSetValue(true);
             comboBox.setDisplayField("text"); //$NON-NLS-1$
             if (dataType.getMinOccurs() == 1 && dataType.getMaxOccurs() == 1) {
@@ -361,8 +357,8 @@ public class TreeDetailGridFieldCreator {
             }
 
             private native void _setEl(El elem)/*-{
-		this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
-    }-*/;
+                                               this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+                                               }-*/;
         };
         errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
         errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -375,23 +371,23 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static native void _setErrorIcon(Field<?> field, WidgetComponent errorIcon)/*-{
-		field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
-    }-*/;
+                                                                                       field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
+                                                                                       }-*/;
 
     private static native WidgetComponent _getErrorIcon(Field<?> field)/*-{
-		return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
-    }-*/;
+                                                                       return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
+                                                                       }-*/;
 
     public static native String getTemplate() /*-{
-		return [
-				'<tpl for=".">',
-				'<tpl if="text == \'\'">',
-				'<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
-				'</tpl>',
-				'<tpl if="text != \'\'">',
-				'<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
-				'</tpl>', '</tpl>' ].join("");
-    }-*/;
+                                              return [
+                                              '<tpl for=".">',
+                                              '<tpl if="text == \'\'">',
+                                              '<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
+                                              '</tpl>',
+                                              '<tpl if="text != \'\'">',
+                                              '<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
+                                              '</tpl>', '</tpl>' ].join("");
+                                              }-*/;
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
         if (typeModel instanceof SimpleTypeModel) {

@@ -65,14 +65,12 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
 
     public SuggestComboBoxField() {
         super();
-        setUserProperties(BrowseRecords.getSession().getAppHeader().getUserProperties());
         init();
     }
 
     public SuggestComboBoxField(ForeignKeyField foreignKeyField) {
         super();
         this.foreignKeyField = foreignKeyField;
-        setUserProperties(BrowseRecords.getSession().getAppHeader().getUserProperties());
         init();
     }
 
@@ -137,9 +135,7 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
     @Override
     protected void afterRender() {
         super.afterRender();
-        if (this.isEnabled()) {
-            getInputEl().dom.setAttribute("style", "width:83%"); //$NON-NLS-1$//$NON-NLS-2$
-        }
+        getInputEl().dom.setAttribute("style", "width:83%"); //$NON-NLS-1$//$NON-NLS-2$ 
     }
 
     protected void setListener() {
@@ -181,8 +177,8 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         }
 
         public native BoxComponent getBoxComponent() /*-{
-                                                     return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
-                                                     }-*/;
+			return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
+        }-*/;
 
     }
 
@@ -193,24 +189,10 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
 
     @Override
     public void disable() {
-        if (!foreignKeyField.isEnabled()) {
+        if (foreignKeyField != null) {
             super.disable();
-            setEditable(false);
-            if (input != null) {
-                input.dom.setAttribute("contenteditable", "false"); //$NON-NLS-1$//$NON-NLS-2$
-                input.dom.removeAttribute("tabIndex"); //$NON-NLS-1$
-            }
+            disabled = true;
             fireEvent(Events.Disable);
-        }
-    }
-
-    @Override
-    public void enable() {
-        super.enable();
-        setEditable(true);
-        if (input != null) {
-            input.dom.setAttribute("contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
-            input.dom.removeAttribute("tabIndex"); //$NON-NLS-1$
         }
     }
 

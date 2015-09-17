@@ -25,7 +25,6 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtilTestData;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ForeignKeySelector;
-import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 
 import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.core.client.GWT;
@@ -39,7 +38,6 @@ public class ForeignKeySelectorGWTTest extends GWTTestCase {
         super.gwtSetUp();
         UserSession session = new UserSession();
         session.put(UserSession.CURRENT_ENTITY_MODEL, getCurrentEntityModel());
-        session.put(UserSession.APP_HEADER, new AppHeader());
         Registry.register(BrowseRecords.USER_SESSION, session);
         ServiceDefTarget browseRecordService = GWT.create(BrowseRecordsService.class);
         ServiceEnhancer.customizeService(browseRecordService);

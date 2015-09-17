@@ -1,7 +1,6 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
 import org.talend.mdm.webapp.base.client.widget.ComboBoxEx;
-import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ResizeEvent;
@@ -14,10 +13,6 @@ import com.google.gwt.user.client.Element;
 
 public class ComboBoxField<D extends ModelData> extends ComboBoxEx<D> {
 
-    public ComboBoxField() {
-        setUserProperties(BrowseRecords.getSession().getAppHeader().getUserProperties());
-    }
-
     class Resize extends Resizable {
 
         public Resize(BoxComponent resize) {
@@ -25,7 +20,7 @@ public class ComboBoxField<D extends ModelData> extends ComboBoxEx<D> {
         }
 
         public native BoxComponent getBoxComponent() /*-{
-			return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
+            return this.@com.extjs.gxt.ui.client.fx.Resizable::resize;
         }-*/;
 
     }
@@ -43,30 +38,5 @@ public class ComboBoxField<D extends ModelData> extends ComboBoxEx<D> {
                 setMinListWidth(resizable.getBoxComponent().getWidth());
             }
         });
-    }
-
-    @Override
-    public void disable() {
-        super.disable();
-        setEditable(false);
-        if (input != null) {
-            input.dom.setAttribute("contenteditable", "false"); //$NON-NLS-1$//$NON-NLS-2$
-            input.dom.removeAttribute("tabIndex"); //$NON-NLS-1$
-        }
-    }
-
-    @Override
-    public void enable() {
-        super.enable();
-        setEditable(true);
-        if (input != null) {
-            input.dom.setAttribute("contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
-            input.dom.removeAttribute("tabIndex"); //$NON-NLS-1$
-        }
-    }
-
-    @Override
-    public void onDisable() {
-        addStyleName(disabledStyle);
     }
 }
