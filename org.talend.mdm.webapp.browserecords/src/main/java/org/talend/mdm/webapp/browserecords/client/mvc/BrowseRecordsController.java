@@ -71,6 +71,7 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.UpdatePolymorphism);
         registerEventTypes(BrowseRecordsEvents.ExecuteVisibleRule);
         registerEventTypes(BrowseRecordsEvents.ViewLineageItem);
+        registerEventTypes(BrowseRecordsEvents.DefaultView);
     }
 
     @Override
@@ -115,6 +116,9 @@ public class BrowseRecordsController extends Controller {
             break;
         case BrowseRecordsEvents.ViewLineageItemCode:
             onViewLineageItem(event);
+            break;
+        case BrowseRecordsEvents.DefaultViewCode:
+            forwardToView(view, event);
             break;
         default:
             break;

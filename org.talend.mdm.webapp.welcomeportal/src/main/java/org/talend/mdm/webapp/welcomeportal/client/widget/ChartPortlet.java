@@ -227,6 +227,7 @@ public abstract class ChartPortlet extends BasePortlet {
     protected void initAndShow() {
         initPlot();
         addPlotHovering();
+        addPlotClick();
         fieldSet.removeAll();
         fieldSet.add(plot);
         fieldSet.layout(true);
@@ -384,6 +385,10 @@ public abstract class ChartPortlet extends BasePortlet {
             }
 
         }, false);
+    }
+    
+    protected void addPlotClick(){
+                 
     }
 
     protected String getHoveringText(PlotItem item) {

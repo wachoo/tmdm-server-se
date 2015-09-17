@@ -128,6 +128,9 @@ public class BrowseRecordsView extends View {
         case BrowseRecordsEvents.ViewLineageItemCode:
             onViewLineageItem(event);
             break;
+        case BrowseRecordsEvents.DefaultViewCode:
+            setDefaultView(event);
+            break;
         default:
             break;
         }
@@ -492,5 +495,9 @@ public class BrowseRecordsView extends View {
         LineagePanel.getInstance().updateDetailPanel(lineageDetailPanel);
         CommonUtil.setCurrentCachedEntity(LINEAGE_ITEMVIEW + item.getConcept() + item.getIds() + lineageDetailPanel.isOutMost(),
                 itemPanel);
+    }
+    
+    protected void setDefaultView(final AppEvent event) {      
+        ItemsToolBar.getInstance().updateEntityCombo();     
     }
 }

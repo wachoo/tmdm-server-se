@@ -19,11 +19,14 @@ import java.util.Map;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.MainFramePanel;
+import org.talend.mdm.webapp.welcomeportal.client.WelcomePortal;
 import org.talend.mdm.webapp.welcomeportal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.welcomeportal.client.rest.StatisticsRestServiceHandler;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -31,6 +34,7 @@ import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -59,6 +63,8 @@ public class DataChart extends ChartPortlet {
     public static final String PERCENTAGE_NAME = "percentage"; //$NON-NLS-1$
 
     private String hoveringTXT;
+    
+    private String entityName;
 
     private int cursorX;
 
@@ -95,7 +101,7 @@ public class DataChart extends ChartPortlet {
                                 @Override
                                 public void onSuccess(JSONArray jsonArray) {
                                     chartData = parseJSONData(jsonArray);
-                                    initAndShow();
+                                    initAndShow();                                  
                                 }
                             });
                 } else {
@@ -130,7 +136,7 @@ public class DataChart extends ChartPortlet {
                                 Map<String, Object> newData = parseJSONData(jsonArray);
                                 if (plot == null) {
                                     chartData = newData;
-                                    initAndShow();
+                                    initAndShow();                                   
                                 } else {
                                     doRefreshWith(newData);
                                 }
@@ -186,6 +192,7 @@ public class DataChart extends ChartPortlet {
             @Override
             public void onMouseOut(MouseOutEvent event) {
                 hoveringTXT = ""; //$NON-NLS-1$
+                entityName = ""; //$NON-NLS-1$
             }
         }, MouseOutEvent.getType());
 
@@ -311,11 +318,29 @@ public class DataChart extends ChartPortlet {
                     hoverLabel.setStyleName("welcomePieChartHover"); //$NON-NLS-1$
                     popup.setPopupPosition(cursorX, cursorY);
                     popup.show();
+                    entityName = entityNamesSorted.get(item.getSeriesIndex());
+                    
                 } else {
                     popup.hide();
                 }
             }
-        }, false);
+        }, false);           
+    }
+    
+    @Override
+    protected void addPlotClick() {   
+        
+        plot.addDomHandler(new ClickHandler(){
+        
+            @Override
+            public void onClick(ClickEvent event) {               
+                if (entityName!=null && !entityName.equals("") && Cookies.isCookieEnabled()) { //$NON-NLS-1$
+                    Cookies.setCookie("org.talend.mdm.browseRecords.entity", //$NON-NLS-1$
+                            entityName); 
+                    portal.itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
+                }                                        
+            }            
+        }, ClickEvent.getType());                
     }
     
     @Override

@@ -290,6 +290,7 @@ public class BrowseRecords implements EntryPoint {
 			@org.talend.mdm.webapp.browserecords.client.BrowseRecords::stagingArea = null;
 			$wnd.amalto.core.getTabPanel().updateCurrentTabText(defaultTitle);
 		}
+		@org.talend.mdm.webapp.browserecords.client.widget.GenerateContainer::setDefaultView()();
     }-*/;
 
     native JavaScriptObject createPanel()/*-{
@@ -355,8 +356,8 @@ public class BrowseRecords implements EntryPoint {
         }
     }
 
-    public void initUI(JavaScriptObject stagingarea) {
-        _initUI(stagingarea);
+    public void initUI(JavaScriptObject stagingarea) {       
+        _initUI(stagingarea);               
     }
 
     private void onModuleRender() {
