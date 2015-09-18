@@ -1500,7 +1500,7 @@ public class DocumentSaveTest extends TestCase {
         MockCommitter committer = new MockCommitter();
         session.end(committer);
         
-        assertTrue(AutoIncrementGenerator.get().isInited());
+        assertTrue(AutoIncrementGenerator.get().isInitialized());
         assertTrue(source.hasSavedAutoIncrement());
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
