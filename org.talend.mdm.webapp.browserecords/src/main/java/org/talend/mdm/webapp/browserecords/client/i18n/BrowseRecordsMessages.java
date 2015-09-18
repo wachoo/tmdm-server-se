@@ -538,4 +538,6 @@ public interface BrowseRecordsMessages extends Messages {
     String matchdetail_title();
 
     String foreignkey_filter_warning();
+    
+    String find_default_view_error(String entity);
 }

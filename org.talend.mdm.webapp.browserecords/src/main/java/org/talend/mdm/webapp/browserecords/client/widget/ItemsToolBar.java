@@ -106,7 +106,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Image;
@@ -581,12 +580,19 @@ public class ItemsToolBar extends ToolBar {
                 public void onSuccess(List<ItemBaseModel> result) {    
                     
                     if(!GenerateContainer.getDefaultViewPk().equals("")){ //$NON-NLS-1$
+                        boolean isExist = false;
                         String pk = ViewHelper.DEFAULT_VIEW_PREFIX + "_" + GenerateContainer.getDefaultViewPk(); //$NON-NLS-1$   
                         for(ItemBaseModel bm : result){
                             if(bm.get("value").equals(pk)){ //$NON-NLS-1$                               
-                                  entityCombo.setValue(bm);                                                                   
+                                  entityCombo.setValue(bm);
+                                  isExist = true;
                             }
-                        }            
+                        }
+                        if(!isExist){
+                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), 
+                                    MessagesFactory.getMessages().find_default_view_error(GenerateContainer.getDefaultViewPk()),
+                                    null);
+                        }                       
                     }                                 
                 }
             });
