@@ -934,7 +934,7 @@ public class LoadParserTest extends TestCase {
         }
         
         @Override
-        public boolean isInited() {
+        public boolean isInitialized() {
             return true;
         }
 
