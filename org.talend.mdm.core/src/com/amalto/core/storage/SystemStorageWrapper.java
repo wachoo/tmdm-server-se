@@ -67,6 +67,8 @@ public class SystemStorageWrapper extends StorageWrapper {
     private static final String FAILED_ROUTING_ORDER = "failed-routing-order-v2-pOJO"; //$NON-NLS-1$
 
     private static final String SYNCHRONIZATION_OBJECT_TYPE = "synchronization-object-pOJO"; //$NON-NLS-1$
+    
+    private static final String BROWSEITEM_PREFIX_INFO = "SearchTemplate.BrowseItem."; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(SystemStorageWrapper.class);
 
@@ -377,7 +379,9 @@ public class SystemStorageWrapper extends StorageWrapper {
             documentUniqueID = uniqueID;
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 documentUniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
-            } else if (isUserFormat) {
+            } else if(uniqueID.startsWith(BROWSEITEM_PREFIX_INFO)) {
+                documentUniqueID = StringUtils.substringAfter(uniqueID, BROWSEITEM_PREFIX_INFO); //$NON-NLS-1$
+            }else if (isUserFormat) {
                 documentUniqueID = StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
             }
         }
@@ -414,7 +418,9 @@ public class SystemStorageWrapper extends StorageWrapper {
                 && !CUSTOM_FORM_TYPE.equals(type.getName()) && !SYNCHRONIZATION_OBJECT_TYPE.equals(type.getName())) {
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 uniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
-            } else if (uniqueID.contains(".")) { //$NON-NLS-1$
+            }else if(uniqueID.startsWith(BROWSEITEM_PREFIX_INFO)) {
+                uniqueID = StringUtils.substringAfter(uniqueID, BROWSEITEM_PREFIX_INFO); //$NON-NLS-1$
+            }else if (uniqueID.contains(".")) { //$NON-NLS-1$
                 uniqueID = StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
             }
         }

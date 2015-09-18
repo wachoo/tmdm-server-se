@@ -1133,6 +1133,10 @@ public class ItemsToolBar extends ToolBar {
                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                             .bookmark_nameNotBlank(), null);
                     return;
+                }else if(bookmarkfield.getValue().contains("&")){
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                            .bookmark_invalid(), null);
+                    return;
                 }
                 service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(), //$NON-NLS-1$
                         new SessionAwareAsyncCallback<Boolean>() {
