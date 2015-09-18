@@ -150,9 +150,7 @@ public class ItemsToolBar extends ToolBar {
 
     private String bookmarkName = null;
 
-    private ItemBaseModel currentModel = null;
-    
-    public static final String PARAMETER_ENTITY = "org.talend.mdm.browseRecords.entity"; //$NON-NLS-1$
+    private ItemBaseModel currentModel = null;    
 
     /*************************************/
 
