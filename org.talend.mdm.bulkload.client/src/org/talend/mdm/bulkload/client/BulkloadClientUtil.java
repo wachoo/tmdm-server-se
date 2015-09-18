@@ -105,7 +105,6 @@ public class BulkloadClientUtil {
                 startedBulkloadCount);
         Thread loadThread = new Thread(loadRunnable);
         loadThread.start();
-        merger.setConsumerThread(loadThread); // Allow merger to wait for loadThread completion.
         return merger;
     }
 

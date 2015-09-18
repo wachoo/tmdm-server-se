@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.lang.ArrayUtils;
 
 /**
@@ -208,9 +209,9 @@ public class InputStreamMergerTest extends TestCase {
         String testString = "test";
 
         // Create a reader for the stream
-        Runnable reader = new ReaderWithErrorsRunnable(bis);
+        ReaderWithErrorsRunnable reader = new ReaderWithErrorsRunnable(bis, 4);
         // Create a "pusher", a thread that will put a new stream
-        Runnable pusher = new PusherRunnable(bis, testString, 1);
+        Runnable pusher = new PusherRunnable(bis, testString, 20);
 
         // Start the test (but now the pusher starts first)
         Thread readerThread = new Thread(reader);
@@ -238,6 +239,7 @@ public class InputStreamMergerTest extends TestCase {
         } catch (IOException e) {
             assertEquals("Expected exception text", e.getCause().getCause().getMessage());
         }
+        assertEquals("testtesttesttest", reader.getRebuiltString());
     }
 
     public void testManyReadReaderFirst() {
@@ -247,6 +249,43 @@ public class InputStreamMergerTest extends TestCase {
 
         // Create a reader for the stream
         ReaderRunnable reader = new ReaderRunnable(bis);
+        // Create a "pusher", a thread that will put a new stream
+        Runnable pusher = new PusherRunnable(bis, testString, times);
+
+        // Start the test (start reader first)
+        Thread readerThread = new Thread(reader);
+        Thread pusherThread = new Thread(pusher);
+        readerThread.start();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        pusherThread.start();
+
+        // Wait for test end
+        try {
+            pusherThread.join();
+            readerThread.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        String expectedOutput = "";
+        for (int i = 0; i < times; i++) {
+            expectedOutput += testString;
+        }
+        assertEquals(expectedOutput, reader.getRebuiltString());
+    }
+    
+    
+    public void testSlowConsumer() {
+        int times = 50;
+        InputStreamMerger bis = new InputStreamMerger();
+        String testString = "test";
+
+        // Create a reader for the stream
+        SlowReaderRunnable reader = new SlowReaderRunnable(bis, 100, 8);
         // Create a "pusher", a thread that will put a new stream
         Runnable pusher = new PusherRunnable(bis, testString, times);
 
@@ -336,24 +375,68 @@ public class InputStreamMergerTest extends TestCase {
             }
         }
     }
-
-    private static class ReaderWithErrorsRunnable implements Runnable {
+    
+    
+    private static class SlowReaderRunnable implements Runnable {
         private final InputStreamMerger bis;
         private final Object runLock = new Object();
+        private final long waitBetweenReads;
+        private final int bufferSize;
         private String rebuiltString = "";
 
-        public ReaderWithErrorsRunnable(InputStreamMerger bis) {
+        public SlowReaderRunnable(InputStreamMerger bis, long waitBetweenReads, int bufferSize) {
             this.bis = bis;
+            this.waitBetweenReads = waitBetweenReads;
+            this.bufferSize = bufferSize;
         }
 
         public void run() {
             synchronized (runLock) {
                 try {
-                    int c;
-                    while ((c = bis.read()) > 0) {
-                        rebuiltString += c;
-                        if (!rebuiltString.isEmpty()) {
+                    int readBytes;
+                    byte[] buffer = new byte[bufferSize];
+                    while ((readBytes = bis.read(buffer)) > 0) {
+                        Thread.sleep(waitBetweenReads);
+                        rebuiltString += new String(ArrayUtils.subarray(buffer, 0, readBytes));
+                    }
+                } catch (IOException ioe) {
+                    throw new RuntimeException(ioe);
+                } catch (InterruptedException ie) {
+                    throw new RuntimeException(ie);
+                }
+            }
+        }
+
+        public String getRebuiltString() {
+            synchronized (runLock) {
+                return rebuiltString;
+            }
+        }
+    }
+
+    private static class ReaderWithErrorsRunnable implements Runnable {
+        private final InputStreamMerger bis;
+        private final Object runLock = new Object();
+        private String rebuiltString = "";
+        private final int nbReadsBeforeError;
+
+        public ReaderWithErrorsRunnable(InputStreamMerger bis, int nbReadsBeforeError) {
+            this.bis = bis;
+            this.nbReadsBeforeError = nbReadsBeforeError;
+        }
+
+        public void run() {
+            synchronized (runLock) {
+                try {
+                    int readBytes=0;
+                    byte[] buffer = new byte[8];
+                    int times=0;
+                    while ((readBytes = bis.read(buffer)) > 0) {
+                        rebuiltString += new String(ArrayUtils.subarray(buffer, 0, readBytes));
+                        times++;
+                        if(times == nbReadsBeforeError){
                             bis.reportFailure(new RuntimeException("Expected exception text"));
+                            break;
                         }
                     }
                 } catch (IOException e) {
@@ -361,6 +444,12 @@ public class InputStreamMergerTest extends TestCase {
                 }
             }
         }
+        
+        public String getRebuiltString() {
+            synchronized (runLock) {
+                return rebuiltString;
+            }
+        } 
     }
 
 
