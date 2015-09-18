@@ -14,11 +14,6 @@
     <description>Client library for tMDMBulkload component</description>
     <packaging>jar</packaging>
 
-    <properties>
-        <!-- Tests sometimes freeze on build server, so do not run them by default -->
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
-
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>

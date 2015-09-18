@@ -85,7 +85,6 @@ public class BulkloadClientUtil {
                 password, transactionId, universe, tokenKey, tokenValue, startedBulkloadCount);
         Thread loadThread = new Thread(loadRunnable);
         loadThread.start();
-        merger.setConsumerThread(loadThread); // Allow merger to wait for loadThread completion.
         return merger;
     }
 
