@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -64,13 +64,7 @@ public class InClauseOptimization extends StandardQueryHandler {
 
     @Override
     public StorageResults visit(Select select) {
-        // Standard criteria
-        Criteria criteria = createCriteria(select);
-        // Create in clause for the id
-        ComplexTypeMetadata mainType = select.getTypes().get(0);
-        Paging paging = select.getPaging();
-        int start = paging.getStart();
-        int limit = paging.getLimit();
+        StorageResults results = null;
         switch (mode) {
         case SUB_QUERY:
             throw new NotImplementedException("Not supported in this MDM version");
@@ -82,6 +76,11 @@ public class InClauseOptimization extends StandardQueryHandler {
             // String tableName = typeMetadata.getName();
             // criteria.add(new IdInSubQueryClause(idColumnName, tableName, start, limit));
         case CONSTANT:
+            // Create in clause for the id
+            ComplexTypeMetadata mainType = select.getTypes().get(0);
+            Paging paging = select.getPaging();
+            int start = paging.getStart();
+            int limit = paging.getLimit();
             UserQueryBuilder qb = from(mainType).selectId(mainType).start(start).limit(limit);
             if (select.getCondition() != null) {
                 qb.where(select.getCondition());
@@ -100,28 +99,29 @@ public class InClauseOptimization extends StandardQueryHandler {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Too many ids in 'IN()' clause, abort this optimization. Total ids = " + records.getCount());
                 }
-                return super.visit(select);
-            }
-            for (DataRecord record : records) {
-                Set<FieldMetadata> setFields = record.getSetFields();
-                String[] constant = new String[setFields.size()];
-                int i = 0;
-                for (FieldMetadata setField : setFields) {
-                    Object o = record.get(setField);
-                    constant[i++] = String.valueOf(o);
-                }
-                constants.add(constant);
-            }
-            if (!constants.isEmpty()) {
-                criteria.add(new IdInConstantClause(mainType.getKeyFields(), constants));
+                results = super.visit(select);
             } else {
-                return new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
+                for (DataRecord record : records) {
+                    Set<FieldMetadata> setFields = record.getSetFields();
+                    String[] constant = new String[setFields.size()];
+                    int i = 0;
+                    for (FieldMetadata setField : setFields) {
+                        Object o = record.get(setField);
+                        constant[i++] = String.valueOf(o);
+                    }
+                    constants.add(constant);
+                }
+                if (!constants.isEmpty()) {
+                    // Standard criteria
+                    Criteria criteria = createCriteria(select);
+                    criteria.add(new IdInConstantClause(mainType.getKeyFields(), constants));
+                    results = createResults(criteria.list(), select.isProjection());
+                } else {
+                    results = new HibernateStorageResults(storage, select, EmptyIterator.INSTANCE);
+                }
             }
-            break;
         }
-        // Create results
-        List list = criteria.list();
-        return createResults(list, select.isProjection());
+      return results;
     }
 
     private static class IdInConstantClause implements Criterion {
