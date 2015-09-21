@@ -201,7 +201,7 @@ public interface BrowseRecordsMessages extends Messages {
 
     String bookmark_saveSuccess();
     
-    String bookmark_invalid();
+    String bookmark_invalid(String character);
 
     String check_totalDigits();
 

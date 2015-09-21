@@ -1133,9 +1133,9 @@ public class ItemsToolBar extends ToolBar {
                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                             .bookmark_nameNotBlank(), null);
                     return;
-                }else if(bookmarkfield.getValue().contains("&")){
+                }else if(bookmarkfield.getValue().contains("&")){ //$NON-NLS-1$
                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                            .bookmark_invalid(), null);
+                            .bookmark_invalid("&"), null); //$NON-NLS-1$
                     return;
                 }
                 service.isExistCriteria(entityCombo.getValue().get("value").toString(), bookmarkfield.getValue(), //$NON-NLS-1$
