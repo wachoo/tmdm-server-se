@@ -27,7 +27,14 @@
          _PASSWORD_ = "Пароль";
          _UNIVERSE_ = "Версия";
          _LOGIN_= "Войти";
-         _ERROR_ = "Неверное имя пользователя или пароль";       
+         _ERROR_ = "Неверное имя пользователя или пароль";
+    }
+    else if ("sk".equals(language)) {
+         _USERNAME_ = "Prihlasovacie meno";
+         _PASSWORD_ = "Heslo";
+         _UNIVERSE_ = "Verzia";
+         _LOGIN_= "Prihlasovacie meno";
+         _ERROR_ = "Prihlásenie zlyhalo. Prosím, skontrolujte si Vaše meno a heslo";    
     } else { 
          language="en"; //default language
          _USERNAME_ = "Login";
