@@ -539,5 +539,5 @@ public interface BrowseRecordsMessages extends Messages {
 
     String foreignkey_filter_warning();
     
-    String find_default_view_error(String entity);
+    String find_view_warning(String entity);
 }

@@ -584,13 +584,23 @@ public class ItemsToolBar extends ToolBar {
                             if(bm.get("value").equals(pk)){ //$NON-NLS-1$                               
                                   entityCombo.setValue(bm);
                                   isExist = true;
+                                  break;
                             }
                         }
                         if(!isExist){
+                            for(ItemBaseModel bm : result){
+                                if(bm.get("value").toString().startsWith(pk+"#")){ //$NON-NLS-1$                               
+                                      entityCombo.setValue(bm);
+                                      isExist = true;
+                                      break;
+                                }
+                            }                           
+                        }  
+                        if(!isExist){
                             MessageBox.alert(MessagesFactory.getMessages().warning_title(), 
-                                    MessagesFactory.getMessages().find_default_view_error(GenerateContainer.getDefaultViewPk()),
+                                    MessagesFactory.getMessages().find_view_warning(GenerateContainer.getDefaultViewPk()),
                                     null);
-                        }                       
+                        }
                     }                                 
                 }
             });
