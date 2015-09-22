@@ -18,16 +18,13 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.ArrayUtils;
 
-/**
- *
- */
 public class InputStreamMergerTest extends TestCase {
 
     public void testArguments() {
         try {
             InputStreamMerger bis = new InputStreamMerger();
             bis.push(null);
-            fail("Null input streams are not supported as argument of push()");
+            fail("Null input streams are not supported as argument of push()"); //$NON-NLS-1$
         } catch (Exception e) {
             // Expected
         }
@@ -45,7 +42,7 @@ public class InputStreamMergerTest extends TestCase {
 
     public void testSimpleReadReaderFirst() {
         InputStreamMerger bis = new InputStreamMerger();
-        String testString = "test";
+        String testString = "test"; //$NON-NLS-1$
 
         // Create a reader for the stream
         ReaderRunnable reader = new ReaderRunnable(bis);
@@ -76,7 +73,7 @@ public class InputStreamMergerTest extends TestCase {
 
     public void testSimpleReadPusherFirst() {
         InputStreamMerger bis = new InputStreamMerger();
-        String testString = "test";
+        String testString = "test"; //$NON-NLS-1$
 
         // Create a reader for the stream
         ReaderRunnable reader = new ReaderRunnable(bis);
@@ -108,13 +105,13 @@ public class InputStreamMergerTest extends TestCase {
     public void testSimpleReadPusherFirstWithInvalidCapacity() {
         try {
             _testSimpleReadPusherFirstWithLimitedCapacity(-1, 50);
-            fail("Capacity -1 is invalid");
+            fail("Capacity -1 is invalid"); //$NON-NLS-1$
         } catch (Exception e) {
             // Expected (capacity must be greater or equals to 1).
         }
         try {
             _testSimpleReadPusherFirstWithLimitedCapacity(0, 50);
-            fail("Capacity 0 is invalid");
+            fail("Capacity 0 is invalid"); //$NON-NLS-1$
         } catch (Exception e) {
             // Expected (capacity must be greater or equals to 1).
         }
@@ -130,7 +127,7 @@ public class InputStreamMergerTest extends TestCase {
 
     private void _testSimpleReadPusherFirstWithLimitedCapacity(int capacity, int count) {
         InputStreamMerger bis = new InputStreamMerger(capacity);
-        String testString = "test";
+        String testString = "test"; //$NON-NLS-1$
 
         // Create a reader for the stream
         ReaderRunnable reader = new ReaderRunnable(bis);
@@ -138,8 +135,8 @@ public class InputStreamMergerTest extends TestCase {
         Runnable pusher = new PusherRunnable(bis, testString, count);
 
         // Start the test (but now the pusher starts first)
-        Thread readerThread = new Thread(reader, "Consumer");
-        Thread pusherThread = new Thread(pusher, "Producer");
+        Thread readerThread = new Thread(reader, "Consumer"); //$NON-NLS-1$
+        Thread pusherThread = new Thread(pusher, "Producer"); //$NON-NLS-1$
         pusherThread.start();
         try {
             Thread.sleep(1000);
@@ -171,7 +168,7 @@ public class InputStreamMergerTest extends TestCase {
 
     private void _testSimpleReadPusherFirstWithLimitedCapacityAndWarmUp(int capacity, int count, final int warmUp) {
         InputStreamMerger bis = new InputStreamMerger(capacity, new InputStreamMerger.ThresholdWarmUpStrategy(warmUp));
-        String testString = "test";
+        String testString = "test"; //$NON-NLS-1$
 
         // Create a reader for the stream
         ReaderRunnable reader = new ReaderRunnable(bis);
@@ -206,7 +203,7 @@ public class InputStreamMergerTest extends TestCase {
 
     public void testSimpleReadPusherFirstWithError() {
         InputStreamMerger bis = new InputStreamMerger();
-        String testString = "test";
+        String testString = "test"; //$NON-NLS-1$
 
         // Create a reader for the stream
         ReaderWithErrorsRunnable reader = new ReaderWithErrorsRunnable(bis, 4);
@@ -232,20 +229,20 @@ public class InputStreamMergerTest extends TestCase {
             throw new RuntimeException(e);
         }
         assertNotNull(bis.getLastReportedFailure());
-        assertEquals("Expected exception text", bis.getLastReportedFailure().getCause().getMessage());
+        assertEquals("Expected exception text", bis.getLastReportedFailure().getCause().getMessage()); //$NON-NLS-1$
         try {
             bis.close();
-            fail("Expected an exception on close.");
+            fail("Expected an exception on close."); //$NON-NLS-1$
         } catch (IOException e) {
-            assertEquals("Expected exception text", e.getCause().getCause().getMessage());
+            assertEquals("Expected exception text", e.getCause().getCause().getMessage()); //$NON-NLS-1$
         }
-        assertEquals("testtesttesttest", reader.getRebuiltString());
+        assertEquals("testtesttesttest", reader.getRebuiltString()); //$NON-NLS-1$
     }
 
     public void testManyReadReaderFirst() {
         int times = 10;
         InputStreamMerger bis = new InputStreamMerger();
-        String testString = "test";
+        String testString = "test"; //$NON-NLS-1$
 
         // Create a reader for the stream
         ReaderRunnable reader = new ReaderRunnable(bis);
@@ -271,7 +268,7 @@ public class InputStreamMergerTest extends TestCase {
             throw new RuntimeException(e);
         }
 
-        String expectedOutput = "";
+        String expectedOutput = ""; //$NON-NLS-1$
         for (int i = 0; i < times; i++) {
             expectedOutput += testString;
         }
@@ -282,7 +279,7 @@ public class InputStreamMergerTest extends TestCase {
     public void testSlowConsumer() {
         int times = 50;
         InputStreamMerger bis = new InputStreamMerger();
-        String testString = "test";
+        String testString = "test"; //$NON-NLS-1$
 
         // Create a reader for the stream
         SlowReaderRunnable reader = new SlowReaderRunnable(bis, 100, 8);
@@ -308,7 +305,7 @@ public class InputStreamMergerTest extends TestCase {
             throw new RuntimeException(e);
         }
 
-        String expectedOutput = "";
+        String expectedOutput = ""; //$NON-NLS-1$
         for (int i = 0; i < times; i++) {
             expectedOutput += testString;
         }
@@ -316,7 +313,7 @@ public class InputStreamMergerTest extends TestCase {
     }
 
     public void testBulkload() throws InterruptedException, IOException {
-        String testString = "<Product><Id>99</Id><Name>BaxLlvBgKJ6NuJsdOiAAGSGbWX7F3b</Name><ShortDescription></ShortDescription><LongDescription></LongDescription><Features><Sizes><Size></Size></Sizes><Colors><Color></Color></Colors></Features><Availability></Availability><Price></Price><Family></Family><Supplier></Supplier><CreationDate></CreationDate><RemovalDate></RemovalDate><Status></Status></Product>";
+        String testString = "<Product><Id>99</Id><Name>BaxLlvBgKJ6NuJsdOiAAGSGbWX7F3b</Name><ShortDescription></ShortDescription><LongDescription></LongDescription><Features><Sizes><Size></Size></Sizes><Colors><Color></Color></Colors></Features><Availability></Availability><Price></Price><Family></Family><Supplier></Supplier><CreationDate></CreationDate><RemovalDate></RemovalDate><Status></Status></Product>"; //$NON-NLS-1$
         int batchSize = 10;
         int inputSize = 15000;
 
@@ -349,7 +346,7 @@ public class InputStreamMergerTest extends TestCase {
     private static class ReaderRunnable implements Runnable {
         private final InputStreamMerger bis;
         private final Object runLock = new Object();
-        private String rebuiltString = "";
+        private String rebuiltString = ""; //$NON-NLS-1$
 
         public ReaderRunnable(InputStreamMerger bis) {
             this.bis = bis;
@@ -382,7 +379,7 @@ public class InputStreamMergerTest extends TestCase {
         private final Object runLock = new Object();
         private final long waitBetweenReads;
         private final int bufferSize;
-        private String rebuiltString = "";
+        private String rebuiltString = ""; //$NON-NLS-1$
 
         public SlowReaderRunnable(InputStreamMerger bis, long waitBetweenReads, int bufferSize) {
             this.bis = bis;
@@ -415,7 +412,7 @@ public class InputStreamMergerTest extends TestCase {
     private static class ReaderWithErrorsRunnable implements Runnable {
         private final InputStreamMerger bis;
         private final Object runLock = new Object();
-        private String rebuiltString = "";
+        private String rebuiltString = ""; //$NON-NLS-1$
         private final int nbReadsBeforeError;
 
         public ReaderWithErrorsRunnable(InputStreamMerger bis, int nbReadsBeforeError) {
@@ -433,7 +430,7 @@ public class InputStreamMergerTest extends TestCase {
                         rebuiltString += new String(ArrayUtils.subarray(buffer, 0, readBytes));
                         times++;
                         if(times == nbReadsBeforeError){
-                            bis.reportFailure(new RuntimeException("Expected exception text"));
+                            bis.reportFailure(new RuntimeException("Expected exception text")); //$NON-NLS-1$
                             break;
                         }
                     }

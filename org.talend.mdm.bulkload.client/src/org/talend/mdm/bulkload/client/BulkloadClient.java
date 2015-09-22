@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
 package org.talend.mdm.bulkload.client;
 
 import java.io.ByteArrayInputStream;
@@ -148,7 +159,7 @@ public class BulkloadClient {
      * @throws Exception Thrown in case of bulk load error.
      */
     public void load(String xmlString) throws Exception {
-        load(new ByteArrayInputStream(xmlString.getBytes("UTF-8")));
+        load(new ByteArrayInputStream(xmlString.getBytes("UTF-8"))); //$NON-NLS-1$
     }
 
     /**
