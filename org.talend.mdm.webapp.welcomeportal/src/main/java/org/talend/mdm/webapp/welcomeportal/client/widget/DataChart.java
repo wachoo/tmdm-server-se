@@ -63,7 +63,7 @@ public class DataChart extends ChartPortlet {
     public static final String PERCENTAGE_NAME = "percentage"; //$NON-NLS-1$
 
     private String hoveringTXT;
-    
+
     private String entityName;
 
     private int cursorX;
@@ -77,7 +77,7 @@ public class DataChart extends ChartPortlet {
     public DataChart(MainFramePanel portal) {
         super(PortletConstants.DATA_CHART_NAME, portal, MessagesFactory.getMessages().chart_data_title(), true);
     }
-    
+
     @Override
     protected void initChart() {
         String noDCAlertPrefix = "<span id=\"licenseAlert\" style=\"padding-right:8px;cursor: pointer;\" class=\"labelStyle\" title=\"" //$NON-NLS-1$
@@ -101,7 +101,7 @@ public class DataChart extends ChartPortlet {
                                 @Override
                                 public void onSuccess(JSONArray jsonArray) {
                                     chartData = parseJSONData(jsonArray);
-                                    initAndShow();                                  
+                                    initAndShow();
                                 }
                             });
                 } else {
@@ -136,7 +136,7 @@ public class DataChart extends ChartPortlet {
                                 Map<String, Object> newData = parseJSONData(jsonArray);
                                 if (plot == null) {
                                     chartData = newData;
-                                    initAndShow();                                   
+                                    initAndShow();
                                 } else {
                                     doRefreshWith(newData);
                                 }
@@ -150,7 +150,7 @@ public class DataChart extends ChartPortlet {
     @Override
     protected void furtherInitPlot() {
         PlotModel model = plot.getModel();
-        PlotOptions plotOptions = plot.getOptions();        
+        PlotOptions plotOptions = plot.getOptions();
 
         plotOptions.setGlobalSeriesOptions(GlobalSeriesOptions.create().setPieSeriesOptions(
                 PieSeriesOptions
@@ -180,7 +180,7 @@ public class DataChart extends ChartPortlet {
         colors.push(SERIES_3_COLOR);
         colors.push(SERIES_4_COLOR);
         plotOptions.setDefaultColorTheme(colors);
-        
+
         // create series and add data
         for (String entityName : entityNamesSorted) {
             SeriesHandler seriesEntity = model.addSeries(Series.of(entityName));
@@ -213,9 +213,10 @@ public class DataChart extends ChartPortlet {
                 // Flot has limitations on the pie labels
                 // If it cannot be drawn it creates a div of class error with message
                 // "Could not draw pie with labels contained inside canvas"
-                // Workaround the issue by redrawing but without the labels             
-                boolean errorOccurred = plot.getParent().getElement().getInnerHTML().contains("Could not draw pie with labels contained inside canvas"); //$NON-NLS-1$
-                if (errorOccurred) {// don't show labels if error occurred  
+                // Workaround the issue by redrawing but without the labels
+                boolean errorOccurred = plot.getParent().getElement().getInnerHTML()
+                        .contains("Could not draw pie with labels contained inside canvas"); //$NON-NLS-1$
+                if (errorOccurred) {// don't show labels if error occurred
                     plot.getOptions().getGlobalSeriesOptions().getPieSeriesOptions().getLabel().setShow(false);
                     plot.redraw();
                 } else {// reset to true for next creation
@@ -319,30 +320,30 @@ public class DataChart extends ChartPortlet {
                     popup.setPopupPosition(cursorX, cursorY);
                     popup.show();
                     entityName = entityNamesSorted.get(item.getSeriesIndex());
-                    
+
                 } else {
                     popup.hide();
                 }
             }
-        }, false);           
+        }, false);
     }
-    
+
     @Override
-    protected void addPlotClick() {   
-        
-        plot.addDomHandler(new ClickHandler(){
-        
+    protected void addPlotClick() {
+
+        plot.addDomHandler(new ClickHandler() {
+
             @Override
-            public void onClick(ClickEvent event) {               
-                if (entityName!=null && !entityName.equals("") && Cookies.isCookieEnabled()) { //$NON-NLS-1$
+            public void onClick(ClickEvent event) {
+                if (entityName != null && !entityName.equals("") && Cookies.isCookieEnabled()) { //$NON-NLS-1$
                     Cookies.setCookie("org.talend.mdm.browseRecords.entity", //$NON-NLS-1$
-                            entityName); 
+                            entityName);
                     portal.itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
-                }                                        
-            }            
-        }, ClickEvent.getType());                
+                }
+            }
+        }, ClickEvent.getType());
     }
-    
+
     @Override
     protected boolean isResetXAxesOptions() {
         return false;

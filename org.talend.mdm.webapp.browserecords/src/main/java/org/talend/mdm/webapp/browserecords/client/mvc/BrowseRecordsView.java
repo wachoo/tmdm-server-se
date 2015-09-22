@@ -496,8 +496,8 @@ public class BrowseRecordsView extends View {
         CommonUtil.setCurrentCachedEntity(LINEAGE_ITEMVIEW + item.getConcept() + item.getIds() + lineageDetailPanel.isOutMost(),
                 itemPanel);
     }
-    
-    protected void setDefaultView(final AppEvent event) {      
-        ItemsToolBar.getInstance().updateEntityCombo();     
+
+    protected void setDefaultView(final AppEvent event) {
+        ItemsToolBar.getInstance().updateEntityCombo();
     }
 }

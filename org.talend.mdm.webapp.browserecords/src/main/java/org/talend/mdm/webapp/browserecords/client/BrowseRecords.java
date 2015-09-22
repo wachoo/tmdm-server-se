@@ -356,7 +356,7 @@ public class BrowseRecords implements EntryPoint {
         }
     }
 
-    public void initUI(JavaScriptObject stagingarea) {       
+    public void initUI(JavaScriptObject stagingarea) {
         _initUI(stagingarea);               
     }
 

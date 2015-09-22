@@ -54,6 +54,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAct
 import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -150,7 +151,7 @@ public class ItemsToolBar extends ToolBar {
 
     private String bookmarkName = null;
 
-    private ItemBaseModel currentModel = null;    
+    private ItemBaseModel currentModel = null;
 
     /*************************************/
 
@@ -307,7 +308,7 @@ public class ItemsToolBar extends ToolBar {
         }
         addImportAndExportButton();
         add(new FillToolItem());
-        addEntityCombo();     
+        addEntityCombo();
         updateEntityCombo();
         addSearchPanel();
         addSearchButton();
@@ -316,7 +317,7 @@ public class ItemsToolBar extends ToolBar {
         add(new SeparatorToolItem());
         addManageBookButton();
         addBookMarkButton();
-        initAdvancedPanel();           
+        initAdvancedPanel();
     }
 
     protected void addCreateButton() {
@@ -553,7 +554,7 @@ public class ItemsToolBar extends ToolBar {
         entityCombo.setTriggerAction(TriggerAction.ALL);
         entityCombo.setId("BrowseRecords_EntityComboBox");//$NON-NLS-1$
         entityCombo.setStyleAttribute("padding-right", "17px"); //$NON-NLS-1$ //$NON-NLS-2$
-                                 
+
         entityCombo.addSelectionChangedListener(new SelectionChangedListener<ItemBaseModel>() {
 
             @Override
@@ -562,51 +563,50 @@ public class ItemsToolBar extends ToolBar {
                 Dispatcher.forwardEvent(BrowseRecordsEvents.GetView, viewPk);
             }
         });
-        add(entityCombo);                             
+        add(entityCombo);
     }
-    
-    public void updateEntityCombo(){
-        if(entityCombo != null){
+
+    public void updateEntityCombo() {
+        if (entityCombo != null) {
             service.getViewsList(Locale.getLanguage(), new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
                 @Override
                 protected void doOnFailure(Throwable caught) {
-                    super.doOnFailure(caught);              
+                    super.doOnFailure(caught);
                 }
 
                 @Override
-                public void onSuccess(List<ItemBaseModel> result) {    
-                    
-                    if(!GenerateContainer.getDefaultViewPk().equals("")){ //$NON-NLS-1$
+                public void onSuccess(List<ItemBaseModel> result) {
+
+                    if (!GenerateContainer.getDefaultViewPk().equals("")) { //$NON-NLS-1$
                         boolean isExist = false;
                         String pk = ViewHelper.DEFAULT_VIEW_PREFIX + "_" + GenerateContainer.getDefaultViewPk(); //$NON-NLS-1$   
-                        for(ItemBaseModel bm : result){
-                            if(bm.get("value").equals(pk)){ //$NON-NLS-1$                               
-                                  entityCombo.setValue(bm);
-                                  isExist = true;
-                                  break;
+                        for (ItemBaseModel bm : result) {
+                            if (bm.get("value").equals(pk)) { //$NON-NLS-1$                               
+                                entityCombo.setValue(bm);
+                                isExist = true;
+                                break;
                             }
                         }
-                        if(!isExist){
-                            for(ItemBaseModel bm : result){
-                                if(bm.get("value").toString().startsWith(pk+"#")){ //$NON-NLS-1$                               
-                                      entityCombo.setValue(bm);
-                                      isExist = true;
-                                      break;
+                        if (!isExist) {
+                            for (ItemBaseModel bm : result) {
+                                if (bm.get("value").toString().startsWith(pk + "#")) { //$NON-NLS-1$ //$NON-NLS-2$                               
+                                    entityCombo.setValue(bm);
+                                    isExist = true;
+                                    break;
                                 }
-                            }                           
-                        }  
-                        if(!isExist){
-                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), 
-                                    MessagesFactory.getMessages().find_view_warning(GenerateContainer.getDefaultViewPk()),
-                                    null);
+                            }
                         }
-                    }                                 
+                        if (!isExist) {
+                            MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                    .find_view_warning(GenerateContainer.getDefaultViewPk()), null);
+                        }
+                    }
                 }
             });
         }
     }
-    
+
     protected void addSearchPanel() {
         simplePanel = new SimpleCriterionPanel(null, null, searchButton, isStaging());
         add(simplePanel);

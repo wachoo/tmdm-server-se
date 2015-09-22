@@ -24,9 +24,9 @@ import com.google.gwt.user.client.Window;
 public class GenerateContainer {
 
     private static ContentPanel instance;
-    
+
     private static String defaultViewPk = ""; //$NON-NLS-1$
-    
+
     public static final String PARAMETER_ENTITY = "org.talend.mdm.browseRecords.entity"; //$NON-NLS-1$
 
     public static void generateContentPanel(String panelId, String heading) {
@@ -51,16 +51,16 @@ public class GenerateContainer {
         instance.setHeading(heading);
     }
 
-    public static void setDefaultView(){
+    public static void setDefaultView() {
         String parameter = Cookies.getCookie(PARAMETER_ENTITY);
         Cookies.removeCookie(PARAMETER_ENTITY);
-        if(parameter!=null){ 
+        if (parameter != null) {
             GenerateContainer.setDefaultViewPk(parameter == null ? "" : parameter); //$NON-NLS-1$
             Dispatcher dispatcher = Dispatcher.get();
             dispatcher.dispatch(BrowseRecordsEvents.DefaultView);
         }
     }
-    
+
     public static ContentPanel getContentPanel() {
         return instance;
     }
@@ -68,12 +68,11 @@ public class GenerateContainer {
     public static String defaultTitle() {
         return MessagesFactory.getMessages().browse_record_title();
     }
-    
+
     public static String getDefaultViewPk() {
         return defaultViewPk;
     }
 
-    
     public static void setDefaultViewPk(String defaultViewPk) {
         GenerateContainer.defaultViewPk = defaultViewPk;
     }

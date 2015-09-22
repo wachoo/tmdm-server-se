@@ -472,7 +472,7 @@ public interface BrowseRecordsMessages extends Messages {
     String stagingRecords_tip();
 
     String staging_data_viewer_title();
-    
+
     String staging_hint();
 
     String source();
@@ -538,6 +538,6 @@ public interface BrowseRecordsMessages extends Messages {
     String matchdetail_title();
 
     String foreignkey_filter_warning();
-    
+
     String find_view_warning(String entity);
 }

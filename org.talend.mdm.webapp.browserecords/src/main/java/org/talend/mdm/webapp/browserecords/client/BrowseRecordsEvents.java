@@ -70,8 +70,8 @@ public class BrowseRecordsEvents {
     public static final int ViewLineageItemCode = 30012;
 
     public static final EventType ViewLineageItem = new EventType(ViewLineageItemCode);
-    
+
     public static final int DefaultViewCode = 30013;
-    
+
     public static final EventType DefaultView = new EventType(DefaultViewCode);
 }
