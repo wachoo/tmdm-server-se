@@ -1133,7 +1133,7 @@ public class ItemsToolBar extends ToolBar {
                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                             .bookmark_nameNotBlank(), null);
                     return;
-                }else if(bookmarkfield.getValue().contains("&")){ //$NON-NLS-1$
+                } else if (bookmarkfield.getValue().contains("&")) { //$NON-NLS-1$
                     MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                             .bookmark_invalid("&"), null); //$NON-NLS-1$
                     return;

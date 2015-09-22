@@ -67,7 +67,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     private static final String FAILED_ROUTING_ORDER = "failed-routing-order-v2-pOJO"; //$NON-NLS-1$
 
     private static final String SYNCHRONIZATION_OBJECT_TYPE = "synchronization-object-pOJO"; //$NON-NLS-1$
-    
+
     private static final String BROWSEITEM_PREFIX_INFO = "SearchTemplate.BrowseItem."; //$NON-NLS-1$
 
     private static final Logger LOGGER = Logger.getLogger(SystemStorageWrapper.class);
@@ -346,7 +346,7 @@ public class SystemStorageWrapper extends StorageWrapper {
     public String getDocumentAsString(String clusterName, String uniqueID) throws XmlServerException {
         return getDocumentAsString(clusterName, uniqueID, "UTF-8"); //$NON-NLS-1$
     }
-    
+
     @Override
     public String getDocumentAsString(String clusterName, String uniqueID, String encoding) throws XmlServerException {
         if (encoding == null) {
@@ -369,7 +369,7 @@ public class SystemStorageWrapper extends StorageWrapper {
             documentUniqueID = uniqueID;
             if (StringUtils.countMatches(uniqueID, ".") >= 3) { //$NON-NLS-1$
                 documentUniqueID = StringUtils.substringAfter(uniqueID, "."); //$NON-NLS-1$
-            }         
+            }
         } else if (COMPLETED_ROUTING_ORDER.equals(type.getName()) || FAILED_ROUTING_ORDER.equals(type.getName())) {
             documentUniqueID = uniqueID;
         } else {
@@ -379,9 +379,9 @@ public class SystemStorageWrapper extends StorageWrapper {
             documentUniqueID = uniqueID;
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 documentUniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
-            } else if(uniqueID.startsWith(BROWSEITEM_PREFIX_INFO)) {
+            } else if (uniqueID.startsWith(BROWSEITEM_PREFIX_INFO)) {
                 documentUniqueID = StringUtils.substringAfter(uniqueID, BROWSEITEM_PREFIX_INFO); //$NON-NLS-1$
-            }else if (isUserFormat) {
+            } else if (isUserFormat) {
                 documentUniqueID = StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
             }
         }
@@ -418,9 +418,9 @@ public class SystemStorageWrapper extends StorageWrapper {
                 && !CUSTOM_FORM_TYPE.equals(type.getName()) && !SYNCHRONIZATION_OBJECT_TYPE.equals(type.getName())) {
             if (uniqueID.startsWith(PROVISIONING_PREFIX_INFO)) {
                 uniqueID = StringUtils.substringAfter(uniqueID, PROVISIONING_PREFIX_INFO);
-            }else if(uniqueID.startsWith(BROWSEITEM_PREFIX_INFO)) {
+            } else if (uniqueID.startsWith(BROWSEITEM_PREFIX_INFO)) {
                 uniqueID = StringUtils.substringAfter(uniqueID, BROWSEITEM_PREFIX_INFO); //$NON-NLS-1$
-            }else if (uniqueID.contains(".")) { //$NON-NLS-1$
+            } else if (uniqueID.contains(".")) { //$NON-NLS-1$
                 uniqueID = StringUtils.substringAfterLast(uniqueID, "."); //$NON-NLS-1$
             }
         }
@@ -441,7 +441,7 @@ public class SystemStorageWrapper extends StorageWrapper {
                 storage.rollback();
                 throw new XmlServerException(e);
             } finally {
-                if(results != null) {
+                if (results != null) {
                     results.close();
                 }
             }
@@ -453,14 +453,14 @@ public class SystemStorageWrapper extends StorageWrapper {
     public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs) throws XmlServerException {
         return getDocumentsAsString(clusterName, uniqueIDs, "UTF-8"); //$NON-NLS-1$
     }
-    
+
     @Override
     public String[] getDocumentsAsString(String clusterName, String[] uniqueIDs, String encoding) throws XmlServerException {
         if (uniqueIDs == null || uniqueIDs.length == 0) {
             return new String[0];
         }
         List<String> xmlStrings = new ArrayList<String>(uniqueIDs.length);
-        for (String uniqueID : uniqueIDs) { 
+        for (String uniqueID : uniqueIDs) {
             xmlStrings.add(getDocumentAsString(clusterName, uniqueID, encoding));
         }
         return xmlStrings.toArray(new String[xmlStrings.size()]);
