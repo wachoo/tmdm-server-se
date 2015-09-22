@@ -92,10 +92,12 @@ public class DispatchWrapper implements IXmlServerSLWrapper {
     }
 
     public static boolean isMDMInternal(String clusterName) {
-        String pureClusterName = StorageWrapper.getPureClusterName(clusterName);
-        for (String internalClusterName : getInternalClusterNames()) {
-            if (StringUtils.equalsIgnoreCase(internalClusterName, pureClusterName)) {
-                return true;
+        if(clusterName != null) {
+            String pureClusterName = StorageWrapper.getPureClusterName(clusterName);
+            for (String internalClusterName : getInternalClusterNames()) {
+                if (StringUtils.equalsIgnoreCase(internalClusterName, pureClusterName)) {
+                    return true;
+                }
             }
         }
         return false;
