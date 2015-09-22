@@ -59,18 +59,6 @@ public class StorageWrapperTest extends TestCase {
     public StorageWrapperTest() {
         ServerContext.INSTANCE.get(new MockServerLifecycle());
     }
-
-    public void testIsMDMInternal(){
-        String internal_1 = "SearchTemplate"; //$NON-NLS-1$
-        String internal_2 = "SearchTemplate/HierarchySearchItem"; //$NON-NLS-1$
-        String user_1 = "Product"; //$NON-NLS-1$
-        String user_2 = "Product/Product"; //$NON-NLS-1$
-        assertTrue(DispatchWrapper.isMDMInternal(internal_1));
-        assertTrue(DispatchWrapper.isMDMInternal(internal_2));
-        assertFalse(DispatchWrapper.isMDMInternal(user_1));
-        assertFalse(DispatchWrapper.isMDMInternal(user_2));
-        
-    }
     
     public void testGetAllDocumentsUniqueID() throws Exception {
         StorageWrapper wrapper = prepareWrapper();
