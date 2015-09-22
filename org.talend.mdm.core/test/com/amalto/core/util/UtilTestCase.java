@@ -236,7 +236,10 @@ public class UtilTestCase extends TestCase {
         assertFalse(DispatchWrapper.isMDMInternal(null));
         assertTrue(DispatchWrapper.isMDMInternal("PROVISIONING"));
         assertTrue(DispatchWrapper.isMDMInternal("MDMDomainObjects"));
+        assertTrue(DispatchWrapper.isMDMInternal("SearchTemplate"));
+        assertTrue(DispatchWrapper.isMDMInternal("SearchTemplate/HierarchySearchItem"));
         assertFalse(DispatchWrapper.isMDMInternal("Product"));
+        assertFalse(DispatchWrapper.isMDMInternal("Product/Product"));
     }
 
     @SuppressWarnings("cast")
