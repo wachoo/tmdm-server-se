@@ -27,12 +27,16 @@
 						<Habit>Basketball</Habit>
 						<Habit>Football</Habit>
 						<Habit>Tennis</Habit>
-						<Habit>Boxing</Habit>
 					</Habits>
 				</Kid>
 				<Kid>
 					<Name>k2</Name>
 					<Age>2</Age>
+					<Habits>
+						<Habit>Basketball</Habit>
+						<Habit>Football</Habit>
+						<Habit>Boxing</Habit>
+					</Habits>
 				</Kid>
 				<Kid>
 					<Name>k3</Name>

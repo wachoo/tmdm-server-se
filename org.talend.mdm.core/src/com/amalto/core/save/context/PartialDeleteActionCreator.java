@@ -12,6 +12,7 @@ package com.amalto.core.save.context;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -54,9 +55,10 @@ public class PartialDeleteActionCreator {
 
     public List<Action> create() {
         List<Action> actions = new LinkedList<Action>();
-        Accessor pivotAccessor = toDeleteDocument.createAccessor(toDeletePivot);
+        String pivotForToDeleteDocument = getPivotForToDeleteDocument();
+        Accessor pivotAccessor = toDeleteDocument.createAccessor(pivotForToDeleteDocument);
         for (int i = 1; i <= pivotAccessor.size(); i++) {
-            String path = toDeletePivot + '[' + i + ']';
+            String path = pivotForToDeleteDocument + '[' + i + ']';
             Accessor keyAccessor = toDeleteDocument.createAccessor(path + toDeleteKey);
             String keyValue = keyAccessor.get();
             if (keyValue != null) {
@@ -64,5 +66,28 @@ public class PartialDeleteActionCreator {
             }
         }
         return actions;
+    }
+    
+    /**
+     * "Source document" and "toDeleteDocument" may not be be able to share "toDeletePiovt". <br>
+     * Like <b>"Kids/Kid[2]/Habits/Habit"</b> means to delete source document's <b>SECOND</b> kid's habits,<br> 
+     * but "toDeleteDocument" should use <b>"Kids/Kid[1]/Habits/Habit"</b> to get the data to delete.
+     * @return
+     */
+    private String getPivotForToDeleteDocument(){
+        if(toDeletePivot.contains("[") && toDeletePivot.contains("]")) { //$NON-NLS-1$ //$NON-NLS-2$
+            StringBuilder pivot = new StringBuilder();
+            StringTokenizer tokenizer = new StringTokenizer(toDeletePivot, "/"); //$NON-NLS-1$
+            while (tokenizer.hasMoreElements()) {
+                String element = (String) tokenizer.nextElement();
+                pivot.append("/").append(StringUtils.substringBefore(element, "[")); //$NON-NLS-1$ //$NON-NLS-2$
+                if (element.contains("[") && element.contains("]")) { //$NON-NLS-1$ //$NON-NLS-2$
+                    pivot.append("[1]").append(StringUtils.substringAfter(element, "]")); //$NON-NLS-1$ //$NON-NLS-2$ 
+                }
+            }
+            return pivot.toString().substring(1);
+        } else {
+            return toDeletePivot;
+        }
     }
 }

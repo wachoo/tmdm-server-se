@@ -555,6 +555,16 @@ public class DocumentSaveTest extends TestCase {
                 add(new HashMap<String, String>() {//simple type
 
                     {
+                        put("pivot", "Person/Kids/Kid[2]/Habits/Habit");
+                        put("key", "");
+                        put("document", "PartialDelete_4.xml");
+                        put("asssertPath", "/Person/Kids/Kid[2]/Habits/Habit[1]");
+                        put("asssertValue", "Boxing");
+                    }
+                });             
+                add(new HashMap<String, String>() {//simple type
+
+                    {
                         put("pivot", "Person/Pets");
                         put("key", "/Pet");
                         put("document", "PartialDelete_5.xml");
