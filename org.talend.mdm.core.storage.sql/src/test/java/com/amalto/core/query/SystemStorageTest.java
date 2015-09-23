@@ -79,6 +79,7 @@ import com.amalto.core.storage.record.XmlDOMDataRecordReader;
 import com.amalto.core.storage.record.XmlSAXDataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
+@SuppressWarnings("nls")
 public class SystemStorageTest extends TestCase {
 
     private static Logger LOG = Logger.getLogger(StorageTestCase.class);
@@ -86,19 +87,18 @@ public class SystemStorageTest extends TestCase {
     private static Collection<String> getConfigFiles() throws Exception {
         URL data = InitDBUtil.class.getResource("data"); //$NON-NLS-1$
         List<String> result = new ArrayList<String>();
-        if("jar".equals(data.getProtocol())){ //$NON-NLS-1$
-            JarURLConnection connection = (JarURLConnection)data.openConnection();
+        if ("jar".equals(data.getProtocol())) { //$NON-NLS-1$
+            JarURLConnection connection = (JarURLConnection) data.openConnection();
             JarEntry entry = connection.getJarEntry();
             JarFile file = connection.getJarFile();
             Enumeration<JarEntry> entries = file.entries();
-            while(entries.hasMoreElements()){
+            while (entries.hasMoreElements()) {
                 JarEntry e = entries.nextElement();
-                if(e.getName().startsWith(entry.getName()) && !e.isDirectory()){
+                if (e.getName().startsWith(entry.getName()) && !e.isDirectory()) {
                     result.add(IOUtils.toString(file.getInputStream(e)));
                 }
             }
-        }
-        else {
+        } else {
             Collection<File> files = FileUtils.listFiles(new File(data.toURI()), new IOFileFilter() {
 
                 @Override
@@ -122,39 +122,39 @@ public class SystemStorageTest extends TestCase {
                     return !".svn".equals(file.getName()); //$NON-NLS-1$
                 }
             });
-            for(File f : files){
+            for (File f : files) {
                 result.add(IOUtils.toString(new FileInputStream(f)));
             }
         }
         return result;
     }
-    
+
     @SuppressWarnings("unused")
     private InputStream prepareInputStream(InputStream stream) throws Exception {
         String content = IOUtils.toString(stream);
         ByteArrayInputStream bais = new ByteArrayInputStream(content.getBytes());
         return bais;
     }
-    
-    private Map<String, Object> prepareRepositoryStorageWrapper(){
-        LOG.info("Setting up MDM server environment..."); //$NON-NLS-1$
+
+    private Map<String, Object> prepareRepositoryStorageWrapper() {
+        LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
-        LOG.info("MDM server environment set."); //$NON-NLS-1$
+        LOG.info("MDM server environment set.");
         // Build a system storage
         ClassRepository repository = buildRepository();
         // Additional setup to get User type in repository
-        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING" //$NON-NLS-1$
-        };
+        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING",
+                "/com/amalto/core/initdb/data/datamodel/SearchTemplate" };
         for (String model : models) {
             InputStream builtInStream = this.getClass().getResourceAsStream(model);
             if (builtInStream == null) {
-                throw new RuntimeException("Built in model '" + model + "' cannot be found."); //$NON-NLS-1$ //$NON-NLS-2$
+                throw new RuntimeException("Built in model '" + model + "' cannot be found.");
             }
             try {
-                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8")); //$NON-NLS-1$
-                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8"))); //$NON-NLS-1$
+                DataModelPOJO modelPOJO = ObjectPOJO.unmarshal(DataModelPOJO.class, IOUtils.toString(builtInStream, "UTF-8"));
+                repository.load(new ByteArrayInputStream(modelPOJO.getSchema().getBytes("UTF-8")));
             } catch (Exception e) {
-                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+                throw new RuntimeException("Could not parse builtin data model '" + model + "'.", e);
             } finally {
                 try {
                     builtInStream.close();
@@ -163,23 +163,25 @@ public class SystemStorageTest extends TestCase {
                 }
             }
         }
-        LOG.info("Preparing storage for tests..."); //$NON-NLS-1$
-        final Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED); //$NON-NLS-1$
-        storage.init(getDatasource("H2-Default")); //$NON-NLS-1$
+        LOG.info("Preparing storage for tests...");
+        final Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED);
+        storage.init(getDatasource("RDBMS-1-NO-FT")); // SystemStorageWrapper will initialize system storage as well,
+                                                      // use a different datasource
         storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
-        LOG.info("Storage prepared."); //$NON-NLS-1$
+        LOG.info("Storage prepared.");
         // Wraps it to test wrapper methods
         SystemStorageWrapper wrapper = new SystemStorageWrapper() {
+
             @Override
             protected Storage getStorage(String dataClusterName) {
                 return storage;
             }
         };
-        
+
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("repository", repository); //$NON-NLS-1$
-        map.put("storage", storage); //$NON-NLS-1$
-        map.put("wrapper", wrapper); //$NON-NLS-1$
+        map.put("repository", repository);
+        map.put("storage", storage);
+        map.put("wrapper", wrapper);
         return map;
     }
 
@@ -266,7 +268,7 @@ public class SystemStorageTest extends TestCase {
         assertEquals(1, ids_2.length);
         assertEquals("PROVISIONING.User.a", ids_2[0]); //$NON-NLS-1$
     }
-    
+
     public void testGetDocumentsAsString() throws Exception {
         Map<String, Object> preparedItems = prepareRepositoryStorageWrapper();
         ClassRepository repository = (ClassRepository) preparedItems.get("repository"); //$NON-NLS-1$
@@ -294,6 +296,42 @@ public class SystemStorageTest extends TestCase {
         assertNotNull(xmls[1]);
     }
 
+    public void testIdContainsDot() throws Exception {
+        Map<String, Object> preparedItems = prepareRepositoryStorageWrapper();
+        ClassRepository repository = (ClassRepository) preparedItems.get("repository");
+        SecuredStorage storage = (SecuredStorage) preparedItems.get("storage");
+        SystemStorageWrapper wrapper = (SystemStorageWrapper) preparedItems.get("wrapper");
+        String[] uniqueIDs = { "PROVISIONING.User.talend.administrator", "SearchTemplate.BrowseItem.bookmark.1" };
+        // Test method
+        String emptyXmls = wrapper.getDocumentAsString("PROVISIONING", uniqueIDs[0], "UTF-8");
+        assertNull(emptyXmls);
+        emptyXmls = wrapper.getDocumentAsString("SearchTemplate", uniqueIDs[1], "UTF-8");
+        assertNull(emptyXmls);
+        // prepare storage data
+        XmlDOMDataRecordReader reader = new XmlDOMDataRecordReader();
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        String[] datas = { "SystemStorageTest_4.xml", "SystemStorageTest_5.xml" };
+        storage.begin();
+
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream(datas[0]));
+        Element element = (Element) document.getElementsByTagName("User").item(0);
+        final DataRecord user = reader.read(repository, repository.getComplexType("User"), element);
+        storage.update(user);
+
+        document = builder.parse(SystemStorageTest.class.getResourceAsStream(datas[1]));
+        element = (Element) document.getElementsByTagName("BrowseItem").item(0);
+        DataRecord bookmark = reader.read(repository, repository.getComplexType("BrowseItem"), element);
+        storage.update(bookmark);
+        storage.commit();
+
+        String xmls = wrapper.getDocumentAsString("PROVISIONING", uniqueIDs[0], "UTF-8");
+        assertNotNull(xmls);
+        assertTrue(xmls.contains("talend.administrator"));
+        xmls = wrapper.getDocumentAsString("SearchTemplate", uniqueIDs[1], "UTF-8");
+        assertNotNull(xmls);
+        assertTrue(xmls.contains("bookmark.1"));
+    }
+
     public void testStorageInit() throws Exception {
         LOG.info("Setting up MDM server environment..."); //$NON-NLS-1$
         ServerContext.INSTANCE.get(new MockServerLifecycle());
@@ -317,7 +355,7 @@ public class SystemStorageTest extends TestCase {
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
         int error = 0;
         for (String fis1 : files) {
-            //FileInputStream fis1 = new FileInputStream(file);
+            // FileInputStream fis1 = new FileInputStream(file);
             String typeName;
             Document document;
             try {
@@ -328,7 +366,7 @@ public class SystemStorageTest extends TestCase {
             }
             ComplexTypeMetadata complexType = repository.getComplexType(typeName);
             if (complexType == null) {
-                //System.out.println("Ignore: " + file);
+                // System.out.println("Ignore: " + file);
                 continue;
             }
             try {
@@ -350,7 +388,7 @@ public class SystemStorageTest extends TestCase {
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
         XMLReader reader = XMLReaderFactory.createXMLReader();
         int error = 0;
-        for (String fis1: files) {
+        for (String fis1 : files) {
             try {
                 String typeName;
                 Document document;
@@ -360,7 +398,8 @@ public class SystemStorageTest extends TestCase {
                 if (complexType == null) {
                     continue;
                 }
-                dataRecordReader.read(repository, complexType, new XmlSAXDataRecordReader.Input(reader, new InputSource(new ByteArrayInputStream(fis1.getBytes()))));
+                dataRecordReader.read(repository, complexType, new XmlSAXDataRecordReader.Input(reader, new InputSource(
+                        new ByteArrayInputStream(fis1.getBytes()))));
             } catch (Exception e) {
                 error++;
             }
@@ -515,7 +554,7 @@ public class SystemStorageTest extends TestCase {
         Storage storage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), SecuredStorage.UNSECURED); //$NON-NLS-1$
         ClassRepository repository = buildRepository();
         storage.init(getDatasource("H2-Default")); //$NON-NLS-1$
-        storage.prepare(repository, Collections.<Expression>emptySet(), true, true);
+        storage.prepare(repository, Collections.<Expression> emptySet(), true, true);
         LOG.info("Storage prepared."); //$NON-NLS-1$
 
         Collection<String> files = getConfigFiles();
@@ -529,7 +568,7 @@ public class SystemStorageTest extends TestCase {
         List<DataRecord> records = new LinkedList<DataRecord>();
         Set<ComplexTypeMetadata> presentTypes = new HashSet<ComplexTypeMetadata>();
         for (String fis1 : files) {
-            //FileInputStream fis1 = new FileInputStream(file);
+            // FileInputStream fis1 = new FileInputStream(file);
             String typeName;
             Document document;
             try {
