@@ -317,14 +317,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, String foreignKeyPath,
-            List<String> foreignKeyInfo, String foreignKeyFilter, String filterValue, TypeModel model, String dataClusterPK,
-            String language) throws ServiceException {
+    public ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+            String dataClusterPK, String language) throws ServiceException {
         try {
-            String foreignKeyConcept = foreignKeyPath.split("/")[0]; //$NON-NLS-1$
-            return ForeignKeyHelper.getForeignKeyList(config, foreignKeyPath, foreignKeyInfo,
-                    org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(foreignKeyFilter), filterValue, model,
-                    getEntityModel(foreignKeyConcept, language), dataClusterPK);
+            String foreignKeyConcept = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
+            return ForeignKeyHelper.getForeignKeyList(config, model, getEntityModel(foreignKeyConcept, language), dataClusterPK);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());
@@ -340,7 +337,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         model.setForeignkey(foreignKey);
         model.setForeignKeyInfo(foreignKeyInfo);
         model.setRetrieveFKinfos(true);
-        model.setFkFilter(org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(foreignKeyFilter));
+        model.setForeignKeyFilter(org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(foreignKeyFilter));
         EntityModel foreignKeyEntityModel = getEntityModel(model.getForeignkey().split("/")[0], language); //$NON-NLS-1$
         try {
             return ForeignKeyHelper.getForeignKeyBean(model, foreignKeyEntityModel, currentDataCluster, ids, xml, currentXpath,
@@ -2371,32 +2368,33 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public List<ForeignKeyBean> getForeignKeySuggestion(BasePagingLoadConfigImpl config, String foregnKey,
-            List<String> foregnKeyInfo, String foreignKeyFilter, String dataClusterPK, String input, String language)
-            throws ServiceException {
+    public List<ForeignKeyBean> getForeignKeySuggestion(BasePagingLoadConfigImpl config, TypeModel model, String dataClusterPK,
+            String language) throws ServiceException {
         try {
-            String keyWords = input;
+            String keyWords = model.getFilterValue();
             String pattern = "[^a-zA-Z0-9\\s\\@\\.\\-\\_\\'\"]"; //$NON-NLS-1$
-            String foregnKeyConcept = foregnKey.split("/")[0]; //$NON-NLS-1$
+            String foregnKeyConcept = model.getForeignkey().split("/")[0]; //$NON-NLS-1$
             EntityModel entityModel = getEntityModel(foregnKeyConcept, language);
-            TypeModel typeModel = entityModel.getTypeModel(foregnKeyConcept);
 
-            if (input.contains(":") && input.indexOf(":") > 0) { //$NON-NLS-1$ //$NON-NLS-2$
-                String entityName = input.split(":")[0]; //$NON-NLS-1$
+            if (keyWords != null && keyWords.contains(":") && keyWords.indexOf(":") > 0) { //$NON-NLS-1$ //$NON-NLS-2$
+                String entityName = keyWords.split(":")[0]; //$NON-NLS-1$
 
-                entityModel = getForeignKeyEntityModel(foregnKey, entityName, language);
+                entityModel = getForeignKeyEntityModel(model.getForeignkey(), entityName, language);
                 if (entityModel != null) {
-                    if (input.indexOf(":") < input.length() - 1) { //$NON-NLS-1$
-                        keyWords = input.split(":")[1]; //$NON-NLS-1$
+                    if (keyWords.indexOf(":") < keyWords.length() - 1) { //$NON-NLS-1$
+                        keyWords = keyWords.split(":")[1]; //$NON-NLS-1$
                     }
-                    typeModel = replaceForeignKeyTypeModel(typeModel, entityName);
+                    replaceForeignKeyTypeModel(model, entityName);
                 }
             }
 
-            keyWords = keyWords.replaceAll(pattern, ""); //$NON-NLS-1$
-            ItemBasePageLoadResult<ForeignKeyBean> loadResult = ForeignKeyHelper.getForeignKeyList(config, foregnKey,
-                    foregnKeyInfo, org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(foreignKeyFilter), keyWords,
-                    typeModel, entityModel, dataClusterPK);
+            if (keyWords != null && keyWords.length() > 0) {
+                keyWords = keyWords.replaceAll(pattern, ""); //$NON-NLS-1$
+            }
+            model.setForeignKeyFilter(org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(model.getForeignKeyFilter()));
+            model.setFilterValue(keyWords);
+            ItemBasePageLoadResult<ForeignKeyBean> loadResult = ForeignKeyHelper.getForeignKeyList(config, model, entityModel,
+                    dataClusterPK);
             return loadResult.getData();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -2415,16 +2413,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         return null;
     }
 
-    private TypeModel replaceForeignKeyTypeModel(TypeModel typeModel, String entityName) throws ServiceException {
-        TypeModel newTypeModel = typeModel;
+    private void replaceForeignKeyTypeModel(TypeModel typeModel, String entityName) throws ServiceException {
         List<String> newFKInfoList = new ArrayList<String>();
         String foregnKeyConcept = typeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
-        newTypeModel.setForeignkey(typeModel.getForeignkey().replace(foregnKeyConcept, entityName));
+        typeModel.setForeignkey(typeModel.getForeignkey().replace(foregnKeyConcept, entityName));
         for (String foreignKeyInfo : typeModel.getForeignKeyInfo()) {
             newFKInfoList.add(foreignKeyInfo.replace(foregnKeyConcept, entityName));
         }
-        newTypeModel.setForeignKeyInfo(newFKInfoList);
-
-        return newTypeModel;
+        typeModel.setForeignKeyInfo(newFKInfoList);
     }
 }

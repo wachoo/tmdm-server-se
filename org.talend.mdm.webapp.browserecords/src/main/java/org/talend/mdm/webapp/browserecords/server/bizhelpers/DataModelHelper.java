@@ -12,34 +12,50 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.bizhelpers;
 
-import com.amalto.core.util.Util;
-import com.amalto.core.webservice.WSConceptKey;
-import com.amalto.core.webservice.WSDataModelPK;
-import com.amalto.core.webservice.WSGetBusinessConceptKey;
-import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
-import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-import com.amalto.webapp.core.util.XtentisWebappException;
-import com.sun.xml.xsom.*;
-import com.sun.xml.xsom.parser.XSOMParser;
-import com.sun.xml.xsom.util.DomAnnotationParserFactory;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
-import org.talend.mdm.webapp.base.shared.*;
+import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.FacetModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.TypePath;
 import org.talend.mdm.webapp.browserecords.client.creator.DataTypeCreator;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.io.StringReader;
-import java.rmi.RemoteException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.amalto.core.util.Util;
+import com.amalto.core.webservice.WSConceptKey;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetBusinessConceptKey;
+import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
+import com.amalto.webapp.core.dmagent.SchemaWebAgent;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSFacet;
+import com.sun.xml.xsom.XSModelGroup;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSRestrictionSimpleType;
+import com.sun.xml.xsom.XSSchema;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.XSType;
+import com.sun.xml.xsom.parser.XSOMParser;
+import com.sun.xml.xsom.util.DomAnnotationParserFactory;
 
 public class DataModelHelper {
 
@@ -367,7 +383,8 @@ public class DataModelHelper {
             }
         } else if (xsParticle.getTerm().asElementDecl() != null) {
             XSElementDecl subElement = xsParticle.getTerm().asElementDecl();
-            travelXSElement(subElement,
+            travelXSElement(
+                    subElement,
                     currentXPath + "/" + subElement.getName(), entityModel, parentTypeModel, roles, xsParticle.getMinOccurs().intValue(), xsParticle.getMaxOccurs().intValue()); //$NON-NLS-1$
         }
     }
@@ -411,8 +428,10 @@ public class DataModelHelper {
                             typeModel.setRetrieveFKinfos("true".equals(appinfoSourceValue));//$NON-NLS-1$
                         } else if ("X_ForeignKeyInfo".equals(appinfoSource)) {//$NON-NLS-1$
                             fkInfoList.add(appinfoSourceValue);
+                        } else if ("X_ForeignKeyInfoFormat".equals(appinfoSource)) {//$NON-NLS-1$
+                            typeModel.setForeignKeyInfoFormat(appinfoSourceValue);
                         } else if ("X_ForeignKey_Filter".equals(appinfoSource)) {//$NON-NLS-1$
-                            typeModel.setFkFilter(appinfoSourceValue);
+                            typeModel.setForeignKeyFilter(appinfoSourceValue);
                         } else if ("X_PrimaryKeyInfo".equals(appinfoSource)) {//$NON-NLS-1$
                             pkInfoList.add(appinfoSourceValue);
                         } else if (appinfoSource.indexOf("X_Facet_") != -1) {//$NON-NLS-1$

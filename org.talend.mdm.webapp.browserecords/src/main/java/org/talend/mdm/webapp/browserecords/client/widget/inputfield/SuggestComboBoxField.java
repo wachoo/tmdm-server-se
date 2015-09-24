@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.widget.ComboBoxEx;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
@@ -48,10 +49,6 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
     private ListStore<ForeignKeyBean> foreignKeyStore = new ListStore<ForeignKeyBean>();
 
     private ForeignKeyBean selectedBean;
-
-    private String foreignKey;
-
-    private List<String> foreignKeyInfo;
 
     private String displayFieldName = "displayInfo"; //$NON-NLS-1$
 
@@ -104,17 +101,17 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         public void handleEvent(BaseEvent be) {
             String inputValue = getInputValue();
             if (inputValue != null && inputValue.length() > 0) {
-                String foreignKeyFilter = foreignKeyField.parseForeignKeyFilter();
                 BasePagingLoadConfigImpl config = new BasePagingLoadConfigImpl();
                 config.setLimit(listLimitCount);
                 config.set("currentXpath", foreignKeyField.getCurrentPath()); //$NON-NLS-1$
                 config.set("language", Locale.getLanguage()); //$NON-NLS-1$
 
+                final TypeModel fieldTypeModel = foreignKeyField.getDataType();
+                fieldTypeModel.setForeignKeyFilter(foreignKeyField.parseForeignKeyFilter());
+                fieldTypeModel.setFilterValue(inputValue);
                 String dataCluster = foreignKeyField.getDataCluster();
-                foreignKey = foreignKeyField.getForeignKeyPath();
-                foreignKeyInfo = foreignKeyField.getForeignKeyInfo();
-                service.getForeignKeySuggestion(config, foreignKey, foreignKeyInfo, foreignKeyFilter, dataCluster, inputValue,
-                        Locale.getLanguage(), new SessionAwareAsyncCallback<List<ForeignKeyBean>>() {
+                service.getForeignKeySuggestion(config, fieldTypeModel, dataCluster, Locale.getLanguage(),
+                        new SessionAwareAsyncCallback<List<ForeignKeyBean>>() {
 
                             @Override
                             public void onSuccess(List<ForeignKeyBean> result) {

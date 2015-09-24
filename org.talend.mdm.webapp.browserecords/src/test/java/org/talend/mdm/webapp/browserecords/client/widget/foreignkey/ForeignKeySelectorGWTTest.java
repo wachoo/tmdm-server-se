@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import org.talend.mdm.webapp.base.client.ServiceEnhancer;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -80,24 +81,28 @@ public class ForeignKeySelectorGWTTest extends GWTTestCase {
         family.setObjectValue(foreignKeyBean);
         family.setParent(product);
         product.add(family);
-        ForeignKeySelector foreignKeySelector = new ForeignKeySelector("ProductFamily/Id", new ArrayList<String>(), //$NON-NLS-1$
-                "Product/Family", "ProductFamily/Name$$=$$Product/Name$$#", itemsDetailPanel, family); //$NON-NLS-1$//$NON-NLS-2$
+        SimpleTypeModel subelementType = new SimpleTypeModel();
+        subelementType.setForeignkey("ProductFamily/Id"); //$NON-NLS-1$
+        subelementType.setForeignKeyInfo(new ArrayList<String>()); //$NON-NLS-1$
+        subelementType.setXpath("Product/Family"); //$NON-NLS-1$
+        subelementType.setForeignKeyFilter("ProductFamily/Name$$=$$Product/Name$$#"); //$NON-NLS-1$
+        ForeignKeySelector foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, family);
         assertEquals("ProductFamily/Name$$=$$talend$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        foreignKeySelector = new ForeignKeySelector("ProductFamily/Id", new ArrayList<String>(), "Product/Family", //$NON-NLS-1$ //$NON-NLS-2$
-                "ProductFamily/Name$$=$$../Name$$#", itemsDetailPanel, family); //$NON-NLS-1$
+        subelementType.setForeignKeyFilter("ProductFamily/Name$$=$$../Name$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, family);
         assertEquals("ProductFamily/Name$$=$$../Name$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        foreignKeySelector = new ForeignKeySelector("ProductFamily/Id", new ArrayList<String>(), "Product/Family", //$NON-NLS-1$ //$NON-NLS-2$
-                "ProductFamily/Name$$=$$ProductFamily/Id$$#", itemsDetailPanel, family); //$NON-NLS-1$
+        subelementType.setForeignKeyFilter("ProductFamily/Name$$=$$ProductFamily/Id$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, family);
         assertEquals("ProductFamily/Name$$=$$ProductFamily/Id$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        foreignKeySelector = new ForeignKeySelector("ProductFamily/Id", new ArrayList<String>(), "Product/Family", //$NON-NLS-1$ //$NON-NLS-2$
-                "ProductFamily/Name$$=$$\"talend\"$$#", itemsDetailPanel, family); //$NON-NLS-1$
+        subelementType.setForeignKeyFilter("ProductFamily/Name$$=$$\"talend\"$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, family);
         assertEquals("ProductFamily/Name$$=$$talend$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        foreignKeySelector = new ForeignKeySelector("ProductFamily/Id", new ArrayList<String>(), "Product/Family", //$NON-NLS-1$ //$NON-NLS-2$
-                "ProductFamily/Name$$=$$\'talend\'$$#", itemsDetailPanel, family); //$NON-NLS-1$
+        subelementType.setForeignKeyFilter("ProductFamily/Name$$=$$\'talend\'$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, family);
         assertEquals("ProductFamily/Name$$=$$talend$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
         // test Person datamodel
@@ -144,16 +149,20 @@ public class ForeignKeySelectorGWTTest extends GWTTestCase {
         abc.setObjectValue("abc"); //$NON-NLS-1$
         abc.setParent(addrs);
         addrs.add(abc);
-        foreignKeySelector = new ForeignKeySelector("Person/addrs/add_code", new ArrayList<String>(), "Person/addrs/abc", //$NON-NLS-1$ //$NON-NLS-2$
-                "Addr/AddrId$$=$$Person/addrs/add_code$$#", itemsDetailPanel, abc); //$NON-NLS-1$
+        subelementType = new SimpleTypeModel();
+        subelementType.setForeignkey("Person/addrs/add_code"); //$NON-NLS-1$
+        subelementType.setForeignKeyInfo(new ArrayList<String>());
+        subelementType.setXpath("Person/addrs/abc"); //$NON-NLS-1$
+        subelementType.setForeignKeyFilter("Addr/AddrId$$=$$Person/addrs/add_code$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, abc);
         assertEquals("Addr/AddrId$$=$$123$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        foreignKeySelector = new ForeignKeySelector("Person/addrs/add_code", new ArrayList<String>(), "Person/addrs/abc", //$NON-NLS-1$ //$NON-NLS-2$
-                "Addr/AddrId$$=$$\"123\"$$#", itemsDetailPanel, abc); //$NON-NLS-1$
+        subelementType.setForeignKeyFilter("Addr/AddrId$$=$$\"123\"$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, abc);
         assertEquals("Addr/AddrId$$=$$123$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        foreignKeySelector = new ForeignKeySelector("Person/addrs/add_code", new ArrayList<String>(), "Person/addrs/abc", //$NON-NLS-1$ //$NON-NLS-2$
-                "Addr/AddrId$$=$$\'123\'$$#", itemsDetailPanel, abc); //$NON-NLS-1$
+        subelementType.setForeignKeyFilter("Addr/AddrId$$=$$\'123\'$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, abc);
         assertEquals("Addr/AddrId$$=$$123$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
     }
 

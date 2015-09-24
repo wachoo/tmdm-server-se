@@ -86,8 +86,7 @@ public class TreeDetailGridFieldCreator {
         Field<?> field;
         boolean hasValue = value != null && !"".equals(value); //$NON-NLS-1$
         if (dataType.getForeignkey() != null) {
-            ForeignKeySelector fkField = new ForeignKeySelector(dataType.getForeignkey(), dataType.getForeignKeyInfo(),
-                    dataType.getXpath(), dataType.getFkFilter(), itemsDetailPanel, node);
+            ForeignKeySelector fkField = new ForeignKeySelector(dataType, itemsDetailPanel, node);
             if (value instanceof ForeignKeyBean) {
                 ForeignKeyBean fkBean = (ForeignKeyBean) value;
                 if (fkBean != null) {

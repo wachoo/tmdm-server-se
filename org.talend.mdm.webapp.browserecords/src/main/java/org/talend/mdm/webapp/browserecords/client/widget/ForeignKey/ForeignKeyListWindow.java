@@ -148,7 +148,7 @@ public class ForeignKeyListWindow extends Window {
     protected void onRender(Element parent, int pos) {
         super.onRender(parent, pos);
         final PagingLoadConfig config = new BasePagingLoadConfig();
-        final TypeModel typeModel = entityModel.getTypeModel(entityModel.getConceptName());
+        final TypeModel typeModel = sourceField.getDataType();
 
         RpcProxy<PagingLoadResult<ForeignKeyBean>> proxy = new RpcProxy<PagingLoadResult<ForeignKeyBean>>() {
 
@@ -160,8 +160,9 @@ public class ForeignKeyListWindow extends Window {
 
                 baseConfig.set("language", Locale.getLanguage()); //$NON-NLS-1$
 
-                service.getForeignKeyList(baseConfig, foreignKeyPath, foreignKeyInfo, foreignKeyFilter, currentFilterText,
-                        typeModel, dataCluster, Locale.getLanguage(),
+                typeModel.setForeignkey(foreignKeyPath);
+                typeModel.setFilterValue(currentFilterText);
+                service.getForeignKeyList(baseConfig, typeModel, dataCluster, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>>() {
 
                             @Override
@@ -405,7 +406,11 @@ public class ForeignKeyListWindow extends Window {
                                 MultiLanguageModel multiLanguageModel = new MultiLanguageModel(fkBean.get(property).toString());
                                 result = multiLanguageModel.getValueByLanguage(Locale.getLanguage().toUpperCase()) + "-"; //$NON-NLS-1$
                             } else {
-                                result = fkBean.get(property) + "-"; //$NON-NLS-1$
+                                if (fkBean.getDisplayInfo() != null && fkBean.getDisplayInfo().length() > 0) {
+                                    result = fkBean.getDisplayInfo() + "-"; //$NON-NLS-1$
+                                } else {
+                                    result = fkBean.get(property) + "-"; //$NON-NLS-1$
+                                }
                             }
                         }
                         return result = result + fkBean.getId();

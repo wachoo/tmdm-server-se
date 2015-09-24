@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
 import org.talend.mdm.webapp.browserecords.client.handler.ItemTreeHandler;
@@ -46,6 +47,8 @@ import com.google.gwt.user.client.ui.Image;
 
 public class ForeignKeySelector extends ForeignKeyField implements ReturnCriteriaFK {
 
+    private TypeModel dataType;
+
     private String foreignKeyFilter;
 
     private ItemNodeModel itemNode;
@@ -70,10 +73,10 @@ public class ForeignKeySelector extends ForeignKeyField implements ReturnCriteri
 
     private boolean validateFlag;
 
-    public ForeignKeySelector(String foreignKeyPath, List<String> foreignKeyInfo, String currentPath, String foreignKeyFilter,
-            ItemsDetailPanel itemsDetailPanel, ItemNodeModel itemNode) {
-        super(foreignKeyPath, foreignKeyInfo, currentPath);
-        this.foreignKeyFilter = foreignKeyFilter;
+    public ForeignKeySelector(TypeModel dataType, ItemsDetailPanel itemsDetailPanel, ItemNodeModel itemNode) {
+        super(dataType);
+        this.dataType = dataType;
+        this.foreignKeyFilter = dataType.getForeignKeyFilter();
         this.itemsDetailPanel = itemsDetailPanel;
         this.itemNode = itemNode;
         this.isStaging = itemsDetailPanel.isStaging();
@@ -85,9 +88,9 @@ public class ForeignKeySelector extends ForeignKeyField implements ReturnCriteri
         showRelationButton = true;
     }
 
-    public ForeignKeySelector(String foreignKeyPath, List<String> foreignKeyInfo, String currentPath, String foreignKeyFilter,
-            ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel, ItemNodeModel itemNode) {
-        this(foreignKeyPath, foreignKeyInfo, currentPath, foreignKeyFilter, itemsDetailPanel, itemNode);
+    public ForeignKeySelector(TypeModel dataType, ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel,
+            ItemNodeModel itemNode) {
+        this(dataType, itemsDetailPanel, itemNode);
         this.fkFieldList = fkFieldList;
         this.isFkFieldList = true;
     }

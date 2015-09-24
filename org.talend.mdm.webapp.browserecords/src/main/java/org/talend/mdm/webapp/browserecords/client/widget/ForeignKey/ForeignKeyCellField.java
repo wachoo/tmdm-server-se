@@ -27,7 +27,7 @@ public class ForeignKeyCellField extends ForeignKeyField {
     private Map<Integer, Field<?>> targetFields;
 
     public ForeignKeyCellField(ForeignKeyField foreignKeyField, String foreignKeyFilter) {
-        super(foreignKeyField.getForeignKeyPath(), foreignKeyField.getForeignKeyInfo(), foreignKeyField.getCurrentPath());
+        super(foreignKeyField.getDataType());
         this.foreignKeyFilter = foreignKeyFilter;
     }
 

@@ -148,6 +148,7 @@
             <xsd:appinfo source="X_Label_EN">Family</xsd:appinfo>  
             <xsd:appinfo source="X_Label_FR">Famille</xsd:appinfo>  
             <xsd:appinfo source="X_ForeignKeyInfo">ProductFamily/Name</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfoFormat">"Id: '" + ProductFamily/Id +"' Name: '"+ ProductFamily/Name + "'"</xsd:appinfo>
             <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>  
             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>  
             <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>  

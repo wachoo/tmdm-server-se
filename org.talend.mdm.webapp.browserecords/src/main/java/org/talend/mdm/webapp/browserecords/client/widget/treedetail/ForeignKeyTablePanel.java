@@ -201,8 +201,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         final CheckBoxSelectionModel<ItemNodeModel> sm = new CheckBoxSelectionModel<ItemNodeModel>();
         columnConfigs.add(sm.getColumn());
 
-        final ForeignKeySelector foreignKeySelector = new ForeignKeySelector(fkTypeModel.getForeignkey(),
-                fkTypeModel.getForeignKeyInfo(), fkTypeModel.getXpath(), fkTypeModel.getFkFilter(), itemsDetailPanel, parent);
+        final ForeignKeySelector foreignKeySelector = new ForeignKeySelector(fkTypeModel, itemsDetailPanel, parent);
         foreignKeySelector.setUsageField("ForeignKeyTablePanel"); //$NON-NLS-1$
         foreignKeySelector.setStaging(staging);
         foreignKeySelector.setShowSelectButton(false);
@@ -529,8 +528,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         @Override
         public Object render(final ItemNodeModel model, String property, ColumnData config, final int rowIndex, int colIndex,
                 final ListStore<ItemNodeModel> store, Grid<ItemNodeModel> grid) {
-            ForeignKeySelector foreignKeySelector = new ForeignKeySelector(fkTypeModel.getForeignkey(),
-                    fkTypeModel.getForeignKeyInfo(), fkTypeModel.getXpath(), fkTypeModel.getFkFilter(), itemsDetailPanel, model);
+            ForeignKeySelector foreignKeySelector = new ForeignKeySelector(fkTypeModel, itemsDetailPanel, model);
             foreignKeySelector.setStaging(staging);
             foreignKeySelector.setShowInput(false);
             foreignKeySelector.setShowAddButton(false);
@@ -586,7 +584,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 .getService(staging)
                 .getForeignKeyBean(
                         fkTypeModel.getForeignkey().split("/")[0], foreignKeyIds, xml, fkTypeModel.getXpath(), fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo(), //$NON-NLS-1$
-                        fkTypeModel.getFkFilter(), staging, Locale.getLanguage(),
+                        fkTypeModel.getForeignKeyFilter(), staging, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ForeignKeyBean>() {
 
                             @Override

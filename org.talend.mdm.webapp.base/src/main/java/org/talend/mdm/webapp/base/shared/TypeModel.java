@@ -13,7 +13,11 @@
 package org.talend.mdm.webapp.base.shared;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.DataType;
 import org.talend.mdm.webapp.base.client.model.SubTypeBean;
@@ -58,7 +62,11 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private List<String> foreignKeyInfo;
 
-    private String fkFilter;
+    private String foreignKeyInfoFormat;
+
+    private String foreignKeyFilter;
+
+    private String filterValue;
 
     private List<String> primaryKeyInfo;
 
@@ -259,12 +267,28 @@ public abstract class TypeModel implements Serializable, IsSerializable {
         this.foreignKeyInfo = foreignKeyInfo;
     }
 
-    public String getFkFilter() {
-        return fkFilter;
+    public String getForeignKeyInfoFormat() {
+        return this.foreignKeyInfoFormat;
     }
 
-    public void setFkFilter(String fkFilter) {
-        this.fkFilter = fkFilter;
+    public void setForeignKeyInfoFormat(String foreignKeyInfoFormat) {
+        this.foreignKeyInfoFormat = foreignKeyInfoFormat;
+    }
+
+    public String getForeignKeyFilter() {
+        return foreignKeyFilter;
+    }
+
+    public void setForeignKeyFilter(String foreignKeyFilter) {
+        this.foreignKeyFilter = foreignKeyFilter;
+    }
+
+    public String getFilterValue() {
+        return this.filterValue;
+    }
+
+    public void setFilterValue(String filterValue) {
+        this.filterValue = filterValue;
     }
 
     public List<String> getPrimaryKeyInfo() {
@@ -449,7 +473,9 @@ public abstract class TypeModel implements Serializable, IsSerializable {
                 .append(nullSafe(retrieveFKinfos))
                 .append(", foreignkey=").append(nullSafe(foreignkey)) //$NON-NLS-1$
                 .append(", notSeparateFk=").append(nullSafe(notSeparateFk)).append(", foreignKeyInfo=") //$NON-NLS-1$//$NON-NLS-2$
-                .append(nullSafe(foreignKeyInfo)).append(", fkFilter=").append(nullSafe(fkFilter)).append(", isAbstract=") //$NON-NLS-1$//$NON-NLS-2$
+                .append(nullSafe(foreignKeyInfo))
+                .append(", foreignKeyInfoFormat=").append(nullSafe(foreignKeyInfoFormat)) //$NON-NLS-1$
+                .append(", foreignKeyFilter=").append(nullSafe(foreignKeyFilter)).append(", isAbstract=") //$NON-NLS-1$//$NON-NLS-2$
                 .append(nullSafe(isAbstract)).append(", polymorphism=").append(nullSafe(polymorphism)).append(", defaultValue=") //$NON-NLS-1$//$NON-NLS-2$
                 .append(nullSafe(defaultValue))
                 .append(", defaultValueExpression=").append(nullSafe(defaultValueExpression)) //$NON-NLS-1$

@@ -407,9 +407,9 @@ public class BrowseRecordsView extends View {
                 Field<?> field = FieldCreator.createField((SimpleTypeModel) typeModel, null, false, Locale.getLanguage());
                 if (field instanceof ForeignKeyField) {
                     ForeignKeyCellField foreignKeyCellField = new ForeignKeyCellField((ForeignKeyField) field,
-                            typeModel.getFkFilter());
+                            typeModel.getForeignKeyFilter());
                     foreignKeyCellField.setStaging(isStaging);
-                    if (typeModel.getFkFilter() != null && !typeModel.getFkFilter().isEmpty()) {
+                    if (typeModel.getForeignKeyFilter() != null && !typeModel.getForeignKeyFilter().isEmpty()) {
                         fkFieldwithFilterMap.put(xpath, foreignKeyCellField);
                     }
                     field = foreignKeyCellField;
@@ -436,7 +436,7 @@ public class BrowseRecordsView extends View {
             ForeignKeyCellField foreignKeyCellField = fkFieldwithFilterMap.get(xpath);
             Map<Integer, Field<?>> targetFieldMap = new HashMap<Integer, Field<?>>();
             String[] criterias = org.talend.mdm.webapp.base.shared.util.CommonUtil.getCriteriasByForeignKeyFilter(dataTypes.get(
-                    xpath).getFkFilter());
+                    xpath).getForeignKeyFilter());
             for (int i = 0; i < criterias.length; i++) {
                 Map<String, String> conditionMap = org.talend.mdm.webapp.base.shared.util.CommonUtil
                         .buildConditionByCriteria(criterias[i]);

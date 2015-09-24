@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.base.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -70,7 +71,8 @@ public class ForeignKeyHelper {
     public static ForeignKeyBean getForeignKeyBean(TypeModel model, EntityModel entityModel, String dataClusterPK, String ids,
             String xml, String currentXpath, String language) throws Exception {
         ForeignKeyBean foreignKeyBean = null;
-        boolean hasForeignKeyFilter = model.getFkFilter() != null && model.getFkFilter().trim().length() > 0 ? true : false;
+        boolean hasForeignKeyFilter = model.getForeignKeyFilter() != null && model.getForeignKeyFilter().trim().length() > 0 ? true
+                : false;
         boolean hasCompositeKey = false;
         if (entityModel.getKeys() != null && entityModel.getKeys().length > 1) {
             hasCompositeKey = true;
@@ -78,10 +80,13 @@ public class ForeignKeyHelper {
         ForeignKeyHolder holder;
         String foreignKeyFilter = getForeignKeyFilter(hasForeignKeyFilter, currentXpath.split("/")[0], xml, currentXpath, model); //$NON-NLS-1$
         if (hasCompositeKey && ids.contains(".")) { //$NON-NLS-1$
-            holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter,
-                    ids.split("[.]")[0]); //$NON-NLS-1$ 
+            model.setForeignKeyFilter(foreignKeyFilter);
+            model.setFilterValue(ids.split("[.]")[0]); //$NON-NLS-1$
+            holder = getForeignKeyHolder(model);
         } else {
-            holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter, ids);
+            model.setForeignKeyFilter(foreignKeyFilter);
+            model.setFilterValue(ids);
+            holder = getForeignKeyHolder(model);
         }
         String[] results = null;
         if (holder != null) {
@@ -109,8 +114,8 @@ public class ForeignKeyHelper {
             }
         }
         if (results != null) {
-            List<ForeignKeyBean> foreignKeyBeanList = convertForeignKeyBeanList(results, entityModel, model.getForeignkey(),
-                    model.getForeignKeyInfo(), dataClusterPK, 0, language);
+            List<ForeignKeyBean> foreignKeyBeanList = convertForeignKeyBeanList(results, model, entityModel, dataClusterPK, 0,
+                    language);
             if (foreignKeyBeanList != null && foreignKeyBeanList.size() > 0) {
                 if (foreignKeyBeanList.size() > 1) {
                     for (ForeignKeyBean bean : foreignKeyBeanList) {
@@ -133,7 +138,7 @@ public class ForeignKeyHelper {
             TypeModel model) throws Exception {
         String fkFilter;
         if (ifFKFilter) {
-            fkFilter = model.getFkFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
+            fkFilter = model.getForeignKeyFilter().replaceAll("&quot;", "\""); //$NON-NLS-1$ //$NON-NLS-2$
             fkFilter = parseForeignKeyFilter(xml, dataObject, fkFilter, currentXpath);
         } else {
             fkFilter = ""; //$NON-NLS-1$
@@ -141,25 +146,16 @@ public class ForeignKeyHelper {
         return fkFilter;
     }
 
-    public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config,
-            String foreignKeyPath, List<String> foreignKeyInfo, String foreignKeyFilter, String filterValue, TypeModel model,
-            EntityModel entityModel, String dataClusterPK) throws Exception {
-        ForeignKeyHolder holder = getForeignKeyHolder(model, foreignKeyPath, foreignKeyInfo, foreignKeyFilter, filterValue);
-        return _getForeignKeyList(config, foreignKeyPath, foreignKeyInfo, entityModel, dataClusterPK, holder);
-    }
-
     public static ItemBasePageLoadResult<ForeignKeyBean> getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
-            EntityModel entityModel, String dataClusterPK, boolean ifFKFilter, String filterValue) throws Exception {
-        String foreignKeyFilter = getForeignKeyFilter(ifFKFilter,
-                (String) config.get("dataObject"), (String) config.get("xml"), (String) config.get("currentXpath"), model); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        ForeignKeyHolder holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter,
-                filterValue);
-        return _getForeignKeyList(config, model.getForeignkey(), model.getForeignKeyInfo(), entityModel, dataClusterPK, holder);
+            EntityModel entityModel, String dataClusterPK) throws Exception {
+        ForeignKeyHolder holder = getForeignKeyHolder(model);
+        return _getForeignKeyList(config, model, entityModel, dataClusterPK, holder);
     }
 
-    public static ItemBasePageLoadResult<ForeignKeyBean> _getForeignKeyList(BasePagingLoadConfigImpl config,
-            String foreignKeyPath, List<String> foreignKeyInfo, EntityModel entityModel, String dataClusterPK,
-            ForeignKeyHolder holder) throws Exception {
+    public static ItemBasePageLoadResult<ForeignKeyBean> _getForeignKeyList(BasePagingLoadConfigImpl config, TypeModel model,
+            EntityModel entityModel, String dataClusterPK, ForeignKeyHolder holder) throws Exception {
+        String foreignKeyPath = model.getForeignkey();
+        List<String> foreignKeyInfo = model.getForeignKeyInfo();
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;
@@ -218,17 +214,18 @@ public class ForeignKeyHelper {
                 throw new IllegalArgumentException("Total count '" + results[0] + "' does not match expected format"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             boolean isPagingAccurate = CommonUtil.getPort().isPagingAccurate(new WSInt(Integer.valueOf(count))).is_true();
-            return new ItemBasePageLoadResult<ForeignKeyBean>(convertForeignKeyBeanList(results, entityModel, foreignKeyPath,
-                    foreignKeyInfo, dataClusterPK, config.getOffset(), (String) config.get("language")), config.getOffset(), //$NON-NLS-1$
+            return new ItemBasePageLoadResult<ForeignKeyBean>(convertForeignKeyBeanList(results, model, entityModel,
+                    dataClusterPK, config.getOffset(), (String) config.get("language")), config.getOffset(), //$NON-NLS-1$
                     Integer.valueOf(count), isPagingAccurate);
         } else {
             return new ItemBasePageLoadResult<ForeignKeyBean>(new ArrayList<ForeignKeyBean>(), config.getOffset(), 0);
         }
     }
 
-    private static List<ForeignKeyBean> convertForeignKeyBeanList(String[] results, EntityModel entityModel,
-            String foreignKeyPath, List<String> foreignKeyInfo, String dataClusterPK, int offset, String language)
-            throws Exception {
+    private static List<ForeignKeyBean> convertForeignKeyBeanList(String[] results, TypeModel model, EntityModel entityModel,
+            String dataClusterPK, int offset, String language) throws Exception {
+        String foreignKeyPath = model.getForeignkey();
+        List<String> foreignKeyInfo = model.getForeignKeyInfo();
         List<ForeignKeyBean> fkBeans = new ArrayList<ForeignKeyBean>();
         if (LOG.isDebugEnabled()) {
             for (String result : results) {
@@ -278,7 +275,7 @@ public class ForeignKeyHelper {
             if (resultAsDOM.getNodeName().equals("result")) { //$NON-NLS-1$
                 initFKBean(dataClusterPK, entityModel, resultAsDOM, bean, fk, foreignKeyInfo,
                         businessConcept != null ? businessConcept.getXpathDerivedSimpleTypeMap() : null, language);
-                convertFKInfo2DisplayInfo(bean, foreignKeyInfo);
+                convertFKInfo2DisplayInfo(bean, model);
             } else {
                 bean.set(resultAsDOM.getNodeName(), resultAsDOM.getTextContent().trim());
             }
@@ -301,8 +298,11 @@ public class ForeignKeyHelper {
         String fkFilter;
     }
 
-    protected static ForeignKeyHolder getForeignKeyHolder(TypeModel model, String foreignKeyPath, List<String> foreignKeyInfo,
-            String foreignKeyFilter, String filterValue) throws Exception {
+    protected static ForeignKeyHolder getForeignKeyHolder(TypeModel model) throws Exception {
+        String foreignKeyPath = model.getForeignkey();
+        List<String> foreignKeyInfo = model.getForeignKeyInfo();
+        String foreignKeyFilter = model.getForeignKeyFilter();
+        String filterValue = model.getFilterValue();
         // to verify
         String xpathInfoForeignKey;
         if (foreignKeyInfo != null && foreignKeyInfo.size() > 0) {
@@ -527,22 +527,58 @@ public class ForeignKeyHelper {
         }
     }
 
-    public static void convertFKInfo2DisplayInfo(ForeignKeyBean bean, List<String> foreignKeyInfos) {
-        if (foreignKeyInfos.size() != 0) {
-            StringBuilder displayInfo = new StringBuilder();
-            Map<String, String> foreignKeyInfoMap = bean.getForeignKeyInfo();
-            for (String info : foreignKeyInfos) {
-                if (!info.isEmpty() && foreignKeyInfoMap.get(info) != null) {
-                    if (displayInfo.length() == 0) {
-                        displayInfo.append(foreignKeyInfoMap.get(info));
-                    } else {
-                        displayInfo.append("-"); //$NON-NLS-1$
-                        displayInfo.append(foreignKeyInfoMap.get(info));
+    public static void convertFKInfo2DisplayInfo(ForeignKeyBean bean, TypeModel model) {
+        String ForeignKeyInfoFormat = model.getForeignKeyInfoFormat();
+        if (ForeignKeyInfoFormat != null && ForeignKeyInfoFormat.length() > 0) {
+            bean.setDisplayInfo(convertFKInfo2DisplayInfoByFormatDefinition(bean.getForeignKeyInfo(), ForeignKeyInfoFormat));
+        } else {
+            List<String> foreignKeyInfos = model.getForeignKeyInfo();
+            if (foreignKeyInfos.size() != 0) {
+                StringBuilder displayInfo = new StringBuilder();
+                Map<String, String> foreignKeyInfoMap = bean.getForeignKeyInfo();
+                for (String info : foreignKeyInfos) {
+                    if (!info.isEmpty() && foreignKeyInfoMap.get(info) != null) {
+                        if (displayInfo.length() == 0) {
+                            displayInfo.append(foreignKeyInfoMap.get(info));
+                        } else {
+                            displayInfo.append("-"); //$NON-NLS-1$
+                            displayInfo.append(foreignKeyInfoMap.get(info));
+                        }
                     }
                 }
+                bean.setDisplayInfo(displayInfo.toString());
             }
-            bean.setDisplayInfo(displayInfo.toString());
         }
+    }
+
+    @SuppressWarnings("unused")
+    public static String convertFKInfo2DisplayInfoByFormatDefinition(Map<String, String> keyInfoMap, String foreignKeyFormat) {
+        String fkFormat = foreignKeyFormat;
+        Map<String, String> tagValues = new HashMap<String, String>();
+        Pattern TAG_REGEX = Pattern.compile("\"(.+?)\""); //$NON-NLS-1$
+        Matcher matcher = TAG_REGEX.matcher(fkFormat);
+        int index = 0;
+        while (matcher.find()) {
+            String key = "$index" + index; //$NON-NLS-1$
+            tagValues.put(key, matcher.group(1));
+            fkFormat = fkFormat.replace("\"" + matcher.group(1) + "\"", key); //$NON-NLS-1$ //$NON-NLS-2$
+            index++;
+        }
+
+        String[] tmpSplit = fkFormat.split("\\+"); //$NON-NLS-1$
+        StringBuffer sb = new StringBuffer();
+        for (String s : tmpSplit) {
+            if (s.contains("/")) { //$NON-NLS-1$
+                if (keyInfoMap.containsKey(s.trim())) {
+                    sb.append(keyInfoMap.get(s.trim()));
+                }
+            } else {
+                if (tagValues.containsKey(s.trim())) {
+                    sb.append(tagValues.get(s.trim()));
+                }
+            }
+        }
+        return sb.toString();
     }
 
     private static String parseForeignKeyFilter(String xml, String dataObject, String fkFilter, String currentXpath)

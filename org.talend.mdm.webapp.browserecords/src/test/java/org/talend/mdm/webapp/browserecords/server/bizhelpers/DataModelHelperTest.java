@@ -449,7 +449,9 @@ public class DataModelHelperTest extends TestCase {
         assertNotNull(metaDataTypes.get("Product/Family").getForeignKeyInfo());
         assertEquals(1, metaDataTypes.get("Product/Family").getForeignKeyInfo().size());
         assertEquals("ProductFamily/Name", metaDataTypes.get("Product/Family").getForeignKeyInfo().get(0));
-        assertNull(metaDataTypes.get("Product/Family").getFkFilter());
+        assertEquals("\"Id: '\" + ProductFamily/Id +\"' Name: '\"+ ProductFamily/Name + \"'\"",
+                metaDataTypes.get("Product/Family").getForeignKeyInfoFormat());
+        assertNull(metaDataTypes.get("Product/Family").getForeignKeyFilter());
 
         assertEquals(true, keySet.contains("Product/OnlineStore"));
         assertEquals("URL", metaDataTypes.get("Product/OnlineStore").getType().getTypeName());
@@ -469,7 +471,7 @@ public class DataModelHelperTest extends TestCase {
         assertNotNull(metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo());
         assertEquals(1, metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo().size());
         assertEquals("Store/Address", metaDataTypes.get("Product/Stores/Store").getForeignKeyInfo().get(0));
-        assertNull(metaDataTypes.get("Product/Stores/Store").getFkFilter());
+        assertNull(metaDataTypes.get("Product/Stores/Store").getForeignKeyFilter());
 
         concept = "ProductFamily";
         entityModel = new EntityModel();

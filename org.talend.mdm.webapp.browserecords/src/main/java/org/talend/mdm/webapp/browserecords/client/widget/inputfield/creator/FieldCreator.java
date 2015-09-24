@@ -54,8 +54,7 @@ public class FieldCreator {
             MultipleField multipleField = new MultipleField(dataType, language);
             field = multipleField;
         } else if (dataType.getForeignkey() != null) {
-            ForeignKeyField foreignKeyField = new ForeignKeyField(dataType.getForeignkey(), dataType.getForeignKeyInfo(),
-                    dataType.getXpath());
+            ForeignKeyField foreignKeyField = new ForeignKeyField(dataType);
             field = foreignKeyField;
         } else if (dataType.hasEnumeration()) {
             SimpleComboBoxField<String> comboBox = new SimpleComboBoxField<String>();

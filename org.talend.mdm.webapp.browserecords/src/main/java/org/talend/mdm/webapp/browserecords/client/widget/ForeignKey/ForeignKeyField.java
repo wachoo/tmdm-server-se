@@ -17,6 +17,7 @@ import java.util.List;
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
@@ -39,6 +40,8 @@ import com.google.gwt.user.client.ui.Image;
 public class ForeignKeyField extends TextField<ForeignKeyBean> {
 
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
+
+    protected TypeModel dataType;
 
     protected List<String> foreignKeyInfo;
 
@@ -64,10 +67,11 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
 
     private Boolean editable = true;
 
-    public ForeignKeyField(String foreignKeyPath, List<String> foreignKeyInfo, String currentPath) {
-        this.foreignKeyPath = foreignKeyPath;
-        this.foreignKeyInfo = foreignKeyInfo;
-        this.currentPath = currentPath;
+    public ForeignKeyField(TypeModel dataType) {
+        this.dataType = dataType;
+        this.foreignKeyPath = dataType.getForeignkey();
+        this.foreignKeyInfo = dataType.getForeignKeyInfo();
+        this.currentPath = dataType.getXpath();
         selectButton = new Image(Icons.INSTANCE.link());
         generateForeignKeyListWindow();
         suggestBox = new SuggestComboBoxField(this);
@@ -173,6 +177,14 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
 
     protected void showForeignKeyListWindow() {
         foreignKeyListWindow.show();
+    }
+
+    public TypeModel getDataType() {
+        return this.dataType;
+    }
+
+    public void setDataType(TypeModel dataType) {
+        this.dataType = dataType;
     }
 
     public void setUsageField(String usageField) {
