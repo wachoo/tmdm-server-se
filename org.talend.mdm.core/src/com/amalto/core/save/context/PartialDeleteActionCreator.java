@@ -82,7 +82,7 @@ public class PartialDeleteActionCreator {
                 String element = (String) tokenizer.nextElement();
                 pivot.append("/").append(StringUtils.substringBefore(element, "[")); //$NON-NLS-1$ //$NON-NLS-2$
                 if (element.contains("[") && element.contains("]")) { //$NON-NLS-1$ //$NON-NLS-2$
-                    pivot.append("[1]").append(StringUtils.substringAfter(element, "]")); //$NON-NLS-1$ //$NON-NLS-2$ 
+                    pivot.append("[1]"); //$NON-NLS-1$
                 }
             }
             return pivot.toString().substring(1);
