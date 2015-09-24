@@ -1247,4 +1247,9 @@ public class ItemsToolBar extends ToolBar {
     protected boolean isStaging() {
         return false;
     }
+
+    public ComboBoxField<ItemBaseModel> getEntityCombo() {
+        return entityCombo;
+    }
+
 }

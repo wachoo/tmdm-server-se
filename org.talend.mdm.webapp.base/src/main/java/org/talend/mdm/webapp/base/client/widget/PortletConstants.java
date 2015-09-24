@@ -31,4 +31,6 @@ public class PortletConstants {
     public static final String JOURNAL_CHART_NAME = "chart_journal"; //$NON-NLS-1$
 
     public static final String MATCHING_CHART_NAME = "chart_matching"; //$NON-NLS-1$
+
+    public static final String PARAMETER_ENTITY = "org.talend.mdm.browseRecords.entity"; //$NON-NLS-1$
 }

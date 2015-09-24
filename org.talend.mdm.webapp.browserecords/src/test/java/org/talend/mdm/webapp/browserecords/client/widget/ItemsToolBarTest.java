@@ -1,37 +1,107 @@
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.ItemResult;
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
+import org.talend.mdm.webapp.base.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
+import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyModel;
+import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
+import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
+import org.talend.mdm.webapp.browserecords.client.model.Restriction;
+import org.talend.mdm.webapp.browserecords.client.model.UpdateItemModel;
+import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
+import org.talend.mdm.webapp.browserecords.shared.AppHeader;
+import org.talend.mdm.webapp.browserecords.shared.FKIntegrityResult;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
+import com.extjs.gxt.ui.client.Registry;
+import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 @PrepareForTest(ItemsToolBar.class)
-@SuppressStaticInitializationFor({
-    "org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar",
-    "org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCriterionPanel",
-    "org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel",
-    "org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField",
-    "org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel",
-    "org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel",
-    "org.talend.mdm.webapp.browserecords.client.util.ViewUtil",
-    "org.talend.mdm.webapp.base.client.widget.ComboBoxEx",
-    "com.extjs.gxt.ui.client.widget.form.FormPanel",
-    "com.extjs.gxt.ui.client.widget.ContentPanel",
-    "com.extjs.gxt.ui.client.widget.form.TriggerField",
-    "com.extjs.gxt.ui.client.widget.form.TextField",
-    "com.extjs.gxt.ui.client.widget.form.Field",
-    "com.extjs.gxt.ui.client.widget.toolbar.ToolBar",
-    "com.extjs.gxt.ui.client.widget.Container",
-    "com.extjs.gxt.ui.client.widget.BoxComponent",
-    "com.extjs.gxt.ui.client.widget.Component",
-    "com.extjs.gxt.ui.client.event.Observable",
-    "com.google.gwt.user.client.ui.Widget",
-    "com.google.gwt.user.client.ui.UIObject"
-    })
-public class ItemsToolBarTest extends TestCase {
-    
+@SuppressStaticInitializationFor({ "org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar",
+        "org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.SimpleCriterionPanel",
+        "org.talend.mdm.webapp.browserecords.client.widget.SearchPanel.AdvancedSearchPanel",
+        "org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField",
+        "org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel",
+        "org.talend.mdm.webapp.browserecords.client.widget.ItemsMainTabPanel",
+        "org.talend.mdm.webapp.browserecords.client.util.ViewUtil", "org.talend.mdm.webapp.base.client.widget.ComboBoxEx",
+        "com.extjs.gxt.ui.client.widget.form.FormPanel", "com.extjs.gxt.ui.client.widget.ContentPanel",
+        "com.extjs.gxt.ui.client.widget.form.TriggerField", "com.extjs.gxt.ui.client.widget.form.TextField",
+        "com.extjs.gxt.ui.client.widget.form.Field", "com.extjs.gxt.ui.client.widget.toolbar.ToolBar",
+        "com.extjs.gxt.ui.client.widget.Container", "com.extjs.gxt.ui.client.widget.BoxComponent",
+        "com.extjs.gxt.ui.client.widget.Component", "com.extjs.gxt.ui.client.event.Observable",
+        "com.google.gwt.user.client.ui.Widget", "com.google.gwt.user.client.ui.UIObject" })
+@SuppressWarnings("nls")
+public class ItemsToolBarTest extends GWTTestCase {
+
+    @Override
+    public String getModuleName() {
+        return "org.talend.mdm.webapp.browserecords.TestBrowseRecords";
+    }
+
+    public void testSetDefaultView() throws ServiceException {
+        MockBrowseRecordsServiceAsync mockService = new MockBrowseRecordsServiceAsync();
+        Registry.register(BrowseRecords.BROWSERECORDS_SERVICE, mockService);
+        Registry.register(BrowseRecords.USER_SESSION, new UserSession());
+        AppHeader appHeader = new AppHeader();
+        appHeader.setUseRelations(false);
+        BrowseRecords.getSession().put(UserSession.APP_HEADER, appHeader);
+
+        // Select default view
+        Cookies.setCookie(PortletConstants.PARAMETER_ENTITY, "Product");
+        GenerateContainer.setDefaultView();
+        assertEquals(GenerateContainer.getDefaultViewPk(), "Product");
+
+        String pk = ViewHelper.DEFAULT_VIEW_PREFIX + "_" + GenerateContainer.getDefaultViewPk();
+        ItemsToolBar bar = new ItemsToolBar();
+        assertEquals(bar.getEntityCombo().getValue().get("value"), pk);
+
+        // No default view, select next available view
+        Cookies.setCookie(PortletConstants.PARAMETER_ENTITY, "Store");
+        GenerateContainer.setDefaultView();
+        assertEquals(GenerateContainer.getDefaultViewPk(), "Store");
+
+        String pk1 = ViewHelper.DEFAULT_VIEW_PREFIX + "_" + GenerateContainer.getDefaultViewPk();
+        ItemsToolBar bar1 = new ItemsToolBar();
+        assertTrue(bar1.getEntityCombo().getValue().get("value").toString().startsWith(pk1));
+
+        // No available view
+        Cookies.setCookie(PortletConstants.PARAMETER_ENTITY, "ProductFamily");
+        GenerateContainer.setDefaultView();
+        assertEquals(GenerateContainer.getDefaultViewPk(), "ProductFamily");
+
+        ItemsToolBar bar2 = new ItemsToolBar();
+        assertNull(bar2.getEntityCombo().getValue());
+
+        // No cookie
+        GenerateContainer.setDefaultView();
+        assertEquals(GenerateContainer.getDefaultViewPk(), "");
+
+        ItemsToolBar bar3 = new ItemsToolBar();
+        assertNull(bar3.getEntityCombo().getValue());
+    }
+
     /*
     public static TestSuite suite() throws Exception {
         return new PowerMockSuite(ItemsToolBarTest.class);
@@ -147,5 +217,258 @@ public class ItemsToolBarTest extends TestCase {
 
     public void testname() throws Exception {
         assertTrue(true);
+    }
+
+    class MockBrowseRecordsServiceAsync implements BrowseRecordsServiceAsync {
+
+        @Override
+        public void saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, String language,
+                AsyncCallback<ItemResult> callback) {
+        }
+
+        @Override
+        public void getForeignKeyPolymTypeList(String xpathForeignKey, String language, AsyncCallback<List<Restriction>> callback) {
+        }
+
+        @Override
+        public void switchForeignKeyType(String targetEntityType, String xpathForeignKey, String xpathInfoForeignKey,
+                String fkFilter, AsyncCallback<ForeignKeyDrawer> callback) {
+        }
+
+        @Override
+        public void queryItemBeans(QueryModel config, String language, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback) {
+        }
+
+        @Override
+        public void saveItemBean(ItemBean item, String language, AsyncCallback<String> callback) {
+        }
+
+        @Override
+        public void getItem(ItemBean itemBean, String viewPK, EntityModel entityModel, boolean isStaging, String language,
+                AsyncCallback<ItemBean> callback) {
+        }
+
+        @Override
+        public void getView(String viewPk, String language, AsyncCallback<ViewBean> callback) {
+        }
+
+        @Override
+        public void deleteItemBeans(List<ItemBean> items, boolean override, String language,
+                AsyncCallback<List<ItemResult>> callback) {
+        }
+
+        @Override
+        public void checkFKIntegrity(List<ItemBean> selectedItems, AsyncCallback<Map<ItemBean, FKIntegrityResult>> asyncCallback) {
+        }
+
+        @Override
+        public void logicalDeleteItem(ItemBean item, String path, boolean override, AsyncCallback<Void> callback) {
+
+        }
+
+        @Override
+        public void logicalDeleteItems(List<ItemBean> items, String path, boolean override, AsyncCallback<Void> callback) {
+        }
+
+        @Override
+        public void getViewsList(String language, AsyncCallback<List<ItemBaseModel>> callback) {
+            List<ItemBaseModel> list = new ArrayList<ItemBaseModel>();
+            ItemBaseModel bm1 = new ItemBaseModel();
+            bm1.set("name", "Product");
+            bm1.set("value", ViewHelper.DEFAULT_VIEW_PREFIX + "_" + "Product");
+            list.add(bm1);
+
+            ItemBaseModel bm2 = new ItemBaseModel();
+            bm1.set("name", "Store and Product");
+            bm2.set("value", ViewHelper.DEFAULT_VIEW_PREFIX + "_" + "Store#Product");
+            list.add(bm2);
+            callback.onSuccess(list);
+        }
+
+        @Override
+        public void getCriteriaByBookmark(String bookmark, AsyncCallback<String> callback) {
+        }
+
+        @Override
+        public void getUserCriterias(String view, AsyncCallback<List<ItemBaseModel>> callback) {
+        }
+
+        @Override
+        public void getAppHeader(AsyncCallback<AppHeader> callback) {
+        }
+
+        @Override
+        public void getCurrentDataModel(AsyncCallback<String> callback) {
+        }
+
+        @Override
+        public void getCurrentDataCluster(AsyncCallback<String> callback) {
+        }
+
+        @Override
+        public void querySearchTemplates(String view, boolean isShared, BasePagingLoadConfigImpl load,
+                AsyncCallback<ItemBasePageLoadResult<ItemBaseModel>> callback) {
+        }
+
+        @Override
+        public void deleteSearchTemplate(String id, AsyncCallback<Void> callback) {
+        }
+
+        @Override
+        public void isExistCriteria(String dataObjectLabel, String id, AsyncCallback<Boolean> callback) {
+        }
+
+        @Override
+        public void saveCriteria(String viewPK, String templateName, boolean isShared, String criteriaString,
+                AsyncCallback<Void> callback) {
+        }
+
+        @Override
+        public void getMandatoryFieldList(String tableName, AsyncCallback<List<String>> callback) {
+        }
+
+        @Override
+        public void saveItem(String concept, String ids, String xml, boolean isCreate, String language,
+                AsyncCallback<ItemResult> callback) {
+        }
+
+        @Override
+        public void getColumnTreeLayout(String concept, AsyncCallback<ColumnTreeLayoutModel> callback) {
+        }
+
+        @Override
+        public void getRunnableProcessList(String concept, String language, AsyncCallback<List<ItemBaseModel>> callback) {
+        }
+
+        @Override
+        public void processItem(String concept, String[] ids, String transformerPK, AsyncCallback<String> callback) {
+        }
+
+        @Override
+        public void getLineageEntity(String concept, AsyncCallback<List<String>> callback) {
+        }
+
+        @Override
+        public void getSmartViewList(String regex, AsyncCallback<List<ItemBaseModel>> callback) {
+        }
+
+        @Override
+        public void getItemBeanById(String concept, String[] ids, String language, AsyncCallback<ItemBean> callback) {
+
+        }
+
+        @Override
+        public void executeVisibleRule(ViewBean viewBean, String xml, AsyncCallback<List<VisibleRuleResult>> asyncCallback) {
+
+        }
+
+        @Override
+        public void isItemModifiedByOthers(ItemBean itemBean, AsyncCallback<Boolean> callback) {
+
+        }
+
+        @Override
+        public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel,
+                String language, AsyncCallback<ItemResult> callback) {
+
+        }
+
+        @Override
+        public void updateItems(List<UpdateItemModel> updateItems, String language, AsyncCallback<List<ItemResult>> callback) {
+
+        }
+
+        @Override
+        public void formatValue(FormatModel model, AsyncCallback<String> callback) {
+
+        }
+
+        @Override
+        public void getEntityModel(String concept, String language, AsyncCallback<EntityModel> callback) {
+
+        }
+
+        @Override
+        public void createDefaultItemNodeModel(ViewBean viewBean, Map<String, List<String>> initDataMap, String language,
+                AsyncCallback<ItemNodeModel> callback) {
+
+        }
+
+        @Override
+        public void getForeignKeyValues(String concept, String[] ids, String language,
+                AsyncCallback<Map<ViewBean, Map<String, List<String>>>> callback) {
+
+        }
+
+        @Override
+        public void isExistId(String concept, String[] ids, String language, AsyncCallback<Boolean> callback) {
+
+        }
+
+        @Override
+        public void queryItemBeanById(String dataClusterPK, ViewBean viewBean, EntityModel entityModel, String id,
+                String language, AsyncCallback<ItemBean> callback) {
+        }
+
+        @Override
+        public void getGoldenRecordIdByGroupId(String dataClusterPK, String viewPK, String concept, String[] keys,
+                String groupId, AsyncCallback<String> callback) {
+        }
+
+        @Override
+        public void getRecords(String concept, List<String> idsList, AsyncCallback<List<ItemBean>> callback) {
+
+        }
+
+        @Override
+        public void getCurrentDataCluster(boolean isStaging, AsyncCallback<String> callback) {
+
+        }
+
+        @Override
+        public void getItemNodeModel(ItemBean item, EntityModel entity, boolean isStaging, String language,
+                AsyncCallback<ItemNodeModel> callback) {
+
+        }
+
+        @Override
+        public void getForeignKeyModel(String concept, String ids, boolean isStaging, String language,
+                AsyncCallback<ForeignKeyModel> callback) {
+
+        }
+
+        @Override
+        public void createSubItemNodeModel(ViewBean viewBean, String xml, String typePath, String contextPath, String realType,
+                boolean isStaging, String language, AsyncCallback<ItemNodeModel> callback) {
+        }
+
+        @Override
+        public void checkTask(String dataClusterPK, String concept, String groupId, AsyncCallback<Integer> callback) {
+
+        }
+
+        @Override
+        public void getForeignKeyBean(String concept, String ids, String xml, String currentXpath, String foreignKey,
+                List<String> foreignKeyInfo, String foreignKeyFilter, boolean staging, String language,
+                AsyncCallback<ForeignKeyBean> callback) {
+        }
+
+        @Override
+        public void getItemBeanById(String concept, String ids, String language, AsyncCallback<ItemBean> callback) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void getForeignKeyList(BasePagingLoadConfigImpl config, String foreignKeyPath, List<String> foreignKeyInfo,
+                String foreignKeyFilter, String filterValue, TypeModel model, String dataClusterPK, String language,
+                AsyncCallback<ItemBasePageLoadResult<ForeignKeyBean>> callback) {
+        }
+
+        @Override
+        public void getForeignKeySuggestion(BasePagingLoadConfigImpl config, String foregnKey, List<String> foregnKeyInfo,
+                String foreignKeyFilter, String dataClusterPK, String input, String language,
+                AsyncCallback<List<ForeignKeyBean>> callback) {
+        }
     }
 }

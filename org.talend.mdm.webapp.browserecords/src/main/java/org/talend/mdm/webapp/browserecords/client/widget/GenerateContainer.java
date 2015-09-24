@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
+import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 
@@ -26,8 +27,6 @@ public class GenerateContainer {
     private static ContentPanel instance;
 
     private static String defaultViewPk = ""; //$NON-NLS-1$
-
-    public static final String PARAMETER_ENTITY = "org.talend.mdm.browseRecords.entity"; //$NON-NLS-1$
 
     public static void generateContentPanel(String panelId, String heading) {
         if (instance != null) {
@@ -52,10 +51,10 @@ public class GenerateContainer {
     }
 
     public static void setDefaultView() {
-        String parameter = Cookies.getCookie(PARAMETER_ENTITY);
-        Cookies.removeCookie(PARAMETER_ENTITY);
+        String parameter = Cookies.getCookie(PortletConstants.PARAMETER_ENTITY);
+        Cookies.removeCookie(PortletConstants.PARAMETER_ENTITY);
+        setDefaultViewPk(parameter == null ? "" : parameter); //$NON-NLS-1$
         if (parameter != null) {
-            GenerateContainer.setDefaultViewPk(parameter == null ? "" : parameter); //$NON-NLS-1$
             Dispatcher dispatcher = Dispatcher.get();
             dispatcher.dispatch(BrowseRecordsEvents.DefaultView);
         }

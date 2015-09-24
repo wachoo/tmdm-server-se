@@ -336,8 +336,7 @@ public class DataChart extends ChartPortlet {
             @Override
             public void onClick(ClickEvent event) {
                 if (entityName != null && !entityName.equals("") && Cookies.isCookieEnabled()) { //$NON-NLS-1$
-                    Cookies.setCookie("org.talend.mdm.browseRecords.entity", //$NON-NLS-1$
-                            entityName);
+                    Cookies.setCookie(PortletConstants.PARAMETER_ENTITY, entityName);
                     portal.itemClick(WelcomePortal.BROWSECONTEXT, WelcomePortal.BROWSEAPP);
                 }
             }
