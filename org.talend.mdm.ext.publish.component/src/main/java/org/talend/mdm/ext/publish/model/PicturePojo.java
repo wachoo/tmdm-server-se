@@ -13,9 +13,6 @@ import java.io.Serializable;
 
 public class PicturePojo implements Serializable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 7280227322541249838L;
 
     private String name;
