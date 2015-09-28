@@ -42,7 +42,7 @@ public class PicturesResource extends BaseResource {
 
     private PicturesDAO picturesDAO = null;
 
-    private List<PicturePojo> PicturePojos = null;
+    private List<PicturePojo> picturePojos = null;
 
     public PicturesResource(Context context, Request request, Response response) {
 
@@ -51,17 +51,17 @@ public class PicturesResource extends BaseResource {
         picturesDAO = DAOFactory.getUniqueInstance().getPicturesDAO(picturesLocation);
 
         // get resource
-        PicturePojos = new ArrayList<PicturePojo>();
+        picturePojos = new ArrayList<PicturePojo>();
         try {
             String[] pks = picturesDAO.getAllPKs();
             if (pks != null && pks.length > 0) {
                 for (String pk : pks) {
                     String[] parsedPK = parsePK(pk);
-                    String fileName = parsedPK[0];
-                    String catalog = parsedPK[1];
+                    String fileName = parsedPK[1];
+                    String catalog = parsedPK[0];
                     String uri = parsedPK[2];
 
-                    PicturePojos.add(new PicturePojo(pk, fileName, catalog, uri));
+                    picturePojos.add(new PicturePojo(pk, fileName, catalog, uri));
                 }
             }
         } catch (Exception e1) {
@@ -81,17 +81,17 @@ public class PicturesResource extends BaseResource {
         }
 
         String catalog = pk.substring(0, index);
-        String file = pk.substring(index+1, pk.length());
-        String requestLocatePath = ImageServerInfo.getInstance().getLocateBaseUrl();
+        String fileName = pk.substring(index + 1, pk.length());
+        String uri = ImageServerInfo.getInstance().getLocateBaseUrl();
         if (!catalog.equals("") && !catalog.equals("/") && !catalog.equals("//")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            requestLocatePath = requestLocatePath + ImagePathUtil.encodeURL("/" + catalog); //$NON-NLS-1$
+            uri = uri + ImagePathUtil.encodeURL("/" + catalog); //$NON-NLS-1$
         }
-        requestLocatePath = requestLocatePath + ImagePathUtil.encodeURL("/" + file); //$NON-NLS-1$
+        uri = uri + ImagePathUtil.encodeURL("/" + fileName); //$NON-NLS-1$
 
         String[] parsedPK = new String[3];
         parsedPK[0] = catalog;
-        parsedPK[1] = file;
-        parsedPK[2] = requestLocatePath;
+        parsedPK[1] = fileName;
+        parsedPK[2] = uri;
         return parsedPK;
     }
 
@@ -100,7 +100,7 @@ public class PicturesResource extends BaseResource {
 
         // Generate the right representation according to its media type.
         if (MediaType.TEXT_XML.equals(variant.getMediaType())) {
-            return generateListRepresentation4Pictures(PicturePojos);
+            return generateListRepresentation4Pictures(picturePojos);
         }
         return null;
     }
