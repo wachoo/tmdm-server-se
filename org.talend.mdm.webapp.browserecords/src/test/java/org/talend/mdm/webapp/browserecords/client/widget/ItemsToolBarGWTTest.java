@@ -53,7 +53,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
         "com.extjs.gxt.ui.client.widget.Component", "com.extjs.gxt.ui.client.event.Observable",
         "com.google.gwt.user.client.ui.Widget", "com.google.gwt.user.client.ui.UIObject" })
 @SuppressWarnings("nls")
-public class ItemsToolBarTest extends GWTTestCase {
+public class ItemsToolBarGWTTest extends GWTTestCase {
 
     @Override
     public String getModuleName() {
