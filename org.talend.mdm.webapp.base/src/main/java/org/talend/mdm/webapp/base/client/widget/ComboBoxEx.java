@@ -297,6 +297,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         initComponent();
     }
 
+    @Override
     public void addSelectionChangedListener(SelectionChangedListener<D> listener) {
         addListener(Events.SelectionChange, listener);
     }
@@ -547,6 +548,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         return selectedStyle;
     }
 
+    @Override
     public List<D> getSelection() {
         List<D> sel = new ArrayList<D>();
         D v = getValue();
@@ -659,6 +661,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         return useQueryCache;
     }
 
+    @Override
     public void removeSelectionListener(SelectionChangedListener<D> listener) {
         removeListener(Events.SelectionChange, listener);
     }
@@ -856,6 +859,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         this.selectedStyle = selectedStyle;
     }
 
+    @Override
     public void setSelection(List<D> selection) {
         if (selection.size() > 0) {
             setValue(selection.get(0));
@@ -940,6 +944,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
             if (typeAhead && taTask == null) {
                 taTask = new DelayedTask(new Listener<BaseEvent>() {
 
+                    @Override
                     public void handleEvent(BaseEvent be) {
                         onTypeAhead();
                     }
@@ -1043,8 +1048,9 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
     }
 
     protected D findModel(String property, String value) {
-        if (value == null)
+        if (value == null) {
             return null;
+        }
         for (D model : store.getModels()) {
             if (value.equals(getPropertyEditor().getStringValue(model))) {
                 return model;
@@ -1053,6 +1059,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         return null;
     }
 
+    @Override
     protected void fireKey(FieldEvent fe) {
         if (fe.isNavKeyPress() && !isExpanded() && !delayedCheck) {
             fireEvent(Events.SpecialKey, fe);
@@ -1174,6 +1181,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         };
     }
 
+    @Override
     protected void setAriaState(String stateName, String stateValue) {
         Accessibility.setState(getElement(), stateName, stateValue);
     }
@@ -1194,6 +1202,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         listView.setLoadingText(getMessages().getLoadingText());
         listView.getSelectionModel().addListener(Events.SelectionChange, new Listener<SelectionChangedEvent<D>>() {
 
+            @Override
             public void handleEvent(SelectionChangedEvent<D> se) {
                 selectedItem = listView.getSelectionModel().getSelectedItem();
                 if (GXT.isAriaEnabled()) {
@@ -1205,6 +1214,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
 
         listView.addListener(Events.Select, new Listener<ListViewEvent<D>>() {
 
+            @Override
             public void handleEvent(ListViewEvent<D> le) {
                 onViewClick(le, true);
             }
@@ -1343,9 +1353,11 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         }
     }
 
+    @Override
     protected void onRender(Element parent, int index) {
         focusEventPreview = new BaseEventPreview() {
 
+            @Override
             protected boolean onAutoHide(final PreviewEvent ce) {
                 if (ce.getEventTypeInt() == Event.ONMOUSEDOWN) {
                     mimicBlur(ce, ce.getTarget());
@@ -1366,6 +1378,9 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
                 input = new El(DOM.createInputText());
             } else {
                 textFieldDisable = DOM.createDiv();
+                if (name != null && name.length() > 0) {
+                    DOM.setElementAttribute(textFieldDisable, "key", name); //$NON-NLS-1$
+                }
                 DOM.setElementAttribute(textFieldDisable, "type", "text"); //$NON-NLS-1$//$NON-NLS-2$
                 DOM.setElementAttribute(textFieldDisable, "contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
                 String elementStyle = "overflow: hidden; whiteSpace: nowrap;"; //$NON-NLS-1$
@@ -1420,6 +1435,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
 
         dqTask = new DelayedTask(new Listener<BaseEvent>() {
 
+            @Override
             public void handleEvent(BaseEvent be) {
                 initQuery();
             }
@@ -1434,6 +1450,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         if (typeAhead) {
             taTask = new DelayedTask(new Listener<BaseEvent>() {
 
+                @Override
                 public void handleEvent(BaseEvent be) {
                     onTypeAhead();
                 }
@@ -1454,6 +1471,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         }
     }
 
+    @Override
     protected void onTriggerClick(ComponentEvent ce) {
         super.onTriggerClick(ce);
         if (expanded) {
@@ -1513,6 +1531,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         if (focus) {
             DeferredCommand.addCommand(new Command() {
 
+                @Override
                 public void execute() {
                     focus();
                 }
@@ -1520,9 +1539,11 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
         }
     }
 
+    @Override
     protected void onWindowResize(int width, int height) {
-        if (!GXT.isIE8 || (GXT.isIE8 && firstClick))
+        if (!GXT.isIE8 || (GXT.isIE8 && firstClick)) {
             collapse();
+        }
         firstClick = false;
     }
 
@@ -1546,6 +1567,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
     protected void unsetDelayCheck() {
         DeferredCommand.addCommand(new Command() {
 
+            @Override
             public void execute() {
                 delayedCheck = false;
             }
@@ -1671,7 +1693,7 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
             String v = ""; //$NON-NLS-1$
             D val = getValue();
             if (val != null && val.get(valueField) != null) {
-                v = ((Object) val.get(valueField)).toString();
+                v = val.get(valueField).toString();
             }
             hiddenInput.setValue(v);
         }

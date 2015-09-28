@@ -79,16 +79,19 @@ public class FormatDateField extends DateField {
         return ""; //$NON-NLS-1$
     }
 
+    @Override
     public void setValue(Date value) {
         super.setValue(value);
         setFormatedValue(new FormatValueCallback() {
 
+            @Override
             public void formatValue(String value) {
                 setRawValue(value);
             }
         });
     }
 
+    @Override
     public String getRawValue() {
         String rawValue = rendered ? getInputEl().getValue() : ""; //$NON-NLS-1$
         if (!isEditable()) {
@@ -110,6 +113,7 @@ public class FormatDateField extends DateField {
         }
     }
 
+    @Override
     public void setRawValue(String value) {
         String rawValue = value;
         if (formatPattern != null && formatPattern.trim().length() > 0) {
@@ -127,6 +131,7 @@ public class FormatDateField extends DateField {
         }
     }
 
+    @Override
     protected void onFocus(ComponentEvent ce) {
         if (formatPattern != null && formatPattern.trim().length() > 0) {
             setRawValue(value == null ? "" : propertyEditor.getStringValue(value)); //$NON-NLS-1$);
@@ -134,10 +139,12 @@ public class FormatDateField extends DateField {
         super.onFocus(ce);
     }
 
+    @Override
     protected void onBlur(ComponentEvent ce) {
         if (formatPattern != null && formatPattern.trim().length() > 0) {
             setFormatedValue(new FormatValueCallback() {
 
+                @Override
                 public void formatValue(String value) {
                     setRawValue(value);
                 }
@@ -151,6 +158,7 @@ public class FormatDateField extends DateField {
                 final FormatModel model = new FormatModel(formatPattern, value, Locale.getLanguage());
                 service.formatValue(model, new SessionAwareAsyncCallback<String>() {
 
+                    @Override
                     public void onSuccess(String result) {
                         if (callback != null) {
                             callback.formatValue(result);
@@ -165,9 +173,11 @@ public class FormatDateField extends DateField {
         }
     }
 
+    @Override
     public boolean validateValue(String value) {
-        if (!validateFlag)
+        if (!validateFlag) {
             return true;
+        }
         return super.validateValue(value);
     }
 
@@ -180,6 +190,7 @@ public class FormatDateField extends DateField {
 
         focusEventPreview = new BaseEventPreview() {
 
+            @Override
             protected boolean onAutoHide(final PreviewEvent ce) {
                 if (ce.getEventTypeInt() == Event.ONMOUSEDOWN) {
                     mimicBlur(ce, ce.getTarget());
@@ -200,6 +211,9 @@ public class FormatDateField extends DateField {
                 input = new El(DOM.createInputText());
             } else {
                 textFieldDisable = DOM.createDiv();
+                if (name != null && name.length() > 0) {
+                    DOM.setElementAttribute(textFieldDisable, "key", name); //$NON-NLS-1$
+                }
                 DOM.setElementAttribute(textFieldDisable, "type", "text"); //$NON-NLS-1$//$NON-NLS-2$
                 DOM.setElementAttribute(textFieldDisable, "contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
                 String elementStyle = "overflow: hidden; whiteSpace: nowrap;"; //$NON-NLS-1$
@@ -278,12 +292,14 @@ public class FormatDateField extends DateField {
      * 
      * @return the date picker
      */
+    @Override
     public DatePicker getDatePicker() {
         if (menu == null) {
             menu = new DateMenu();
 
             menu.getDatePicker().addListener(Events.Select, new Listener<ComponentEvent>() {
 
+                @Override
                 public void handleEvent(ComponentEvent ce) {
                     focusValue = getValue();
                     setValue(menu.getDate());
@@ -292,6 +308,7 @@ public class FormatDateField extends DateField {
             });
             menu.addListener(Events.Hide, new Listener<ComponentEvent>() {
 
+                @Override
                 public void handleEvent(ComponentEvent be) {
                     focus();
                 }
@@ -300,6 +317,7 @@ public class FormatDateField extends DateField {
         return menu.getDatePicker();
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     protected void expand() {
         DatePicker picker = getDatePicker();
@@ -319,6 +337,7 @@ public class FormatDateField extends DateField {
         // handle case when down arrow is opening menu
         DeferredCommand.addCommand(new Command() {
 
+            @Override
             public void execute() {
                 menu.show(el().dom, "tl-bl?"); //$NON-NLS-1$
                 menu.getDatePicker().focus();

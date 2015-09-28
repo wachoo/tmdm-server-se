@@ -188,6 +188,9 @@ public class FormatNumberField extends NumberField {
                 el().removeChildren();
                 getElement().setAttribute("role", "presentation"); //$NON-NLS-1$//$NON-NLS-2$
                 input.dom = DOM.createDiv();
+                if (name != null && name.length() > 0) {
+                    DOM.setElementAttribute(input.dom, "key", name); //$NON-NLS-1$
+                }
                 DOM.setElementAttribute(input.dom, "type", "text"); //$NON-NLS-1$//$NON-NLS-2$
                 DOM.setElementAttribute(input.dom, "contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
                 String elementStyle = "overflow: hidden; whiteSpace: nowrap;"; //$NON-NLS-1$

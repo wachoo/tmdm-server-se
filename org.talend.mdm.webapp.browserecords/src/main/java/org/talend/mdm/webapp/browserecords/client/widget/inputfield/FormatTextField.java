@@ -74,8 +74,9 @@ public class FormatTextField extends TextField<String> {
             this.fireEvent(Events.Change);
             return true;
         } else {
-            if (!validateFlag)
+            if (!validateFlag) {
                 return true;
+            }
             boolean result = super.validateValue(value);
             if (!result) {
                 return false;
@@ -132,6 +133,7 @@ public class FormatTextField extends TextField<String> {
                 FormatModel model = new FormatModel(formatPattern, value, Locale.getLanguage());
                 service.formatValue(model, new SessionAwareAsyncCallback<String>() {
 
+                    @Override
                     public void onSuccess(String result) {
                         setDiplayValue(result);
                         setRawValue(result);
@@ -180,6 +182,9 @@ public class FormatTextField extends TextField<String> {
                 getElement().setAttribute("role", "presentation"); //$NON-NLS-1$//$NON-NLS-2$
 
                 textFieldDisable = DOM.createDiv();
+                if (name != null && name.length() > 0) {
+                    DOM.setElementAttribute(textFieldDisable, "key", name); //$NON-NLS-1$
+                }
                 DOM.setElementAttribute(textFieldDisable, "type", "text"); //$NON-NLS-1$//$NON-NLS-2$
                 DOM.setElementAttribute(textFieldDisable, "contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
                 String elementStyle = "overflow: hidden; whiteSpace: nowrap;"; //$NON-NLS-1$

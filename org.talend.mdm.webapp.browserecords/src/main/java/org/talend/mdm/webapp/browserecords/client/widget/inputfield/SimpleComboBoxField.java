@@ -39,6 +39,7 @@ public class SimpleComboBoxField<T> extends SimpleComboBox<String> {
         setUserProperties(BrowseRecords.getSession().getAppHeader().getUserProperties());
     }
 
+    @Override
     public String getRawValue() {
         String v = rendered ? getInputEl().getValue() : ""; //$NON-NLS-1$
         if (!isEditable()) {
@@ -50,6 +51,7 @@ public class SimpleComboBoxField<T> extends SimpleComboBox<String> {
         return v;
     }
 
+    @Override
     public void setRawValue(String text) {
         String rawValue = text;
         if (rendered) {
@@ -69,6 +71,7 @@ public class SimpleComboBoxField<T> extends SimpleComboBox<String> {
     protected void onRender(Element target, int index) {
         focusEventPreview = new BaseEventPreview() {
 
+            @Override
             protected boolean onAutoHide(final PreviewEvent ce) {
                 if (ce.getEventTypeInt() == Event.ONMOUSEDOWN) {
                     mimicBlur(ce, ce.getTarget());
@@ -89,6 +92,9 @@ public class SimpleComboBoxField<T> extends SimpleComboBox<String> {
                 input = new El(DOM.createInputText());
             } else {
                 textFieldDisable = DOM.createDiv();
+                if (name != null && name.length() > 0) {
+                    DOM.setElementAttribute(textFieldDisable, "key", name); //$NON-NLS-1$
+                }
                 DOM.setElementAttribute(textFieldDisable, "type", "text"); //$NON-NLS-1$//$NON-NLS-2$
                 DOM.setElementAttribute(textFieldDisable, "contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
                 String elementStyle = "overflow: hidden; whiteSpace: nowrap;"; //$NON-NLS-1$
