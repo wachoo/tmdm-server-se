@@ -2120,20 +2120,20 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         }
 
     }
-
+    
     @Override
     public WSAutoIncrement getAutoIncrement(WSAutoIncrement request) throws RemoteException {
         try {
             XmlServer xmlServerCtrlLocal = Util.getXmlServerCtrlLocal();
             if (request == null) {
-                String xml = xmlServerCtrlLocal.getDocumentAsString(XSystemObjects.DC_CONF.getName(), "Auto_Increment");//$NON-NLS-1$
+                String xml = xmlServerCtrlLocal.getDocumentAsString(XSystemObjects.DC_CONF.getName(), "CONF.AutoIncrement.AutoIncrement");//$NON-NLS-1$
                 if (xml != null) {
                     return new WSAutoIncrement(xml);
                 }
                 return null;
-            } else {
+            } else { // FIXME: get method should not alter internal state
                 xmlServerCtrlLocal.start(XSystemObjects.DC_CONF.getName());
-                xmlServerCtrlLocal.putDocumentFromString(request.getAutoincrement(), "Auto_Increment",//$NON-NLS-1$
+                xmlServerCtrlLocal.putDocumentFromString(request.getAutoincrement(), "CONF.AutoIncrement.AutoIncrement",//$NON-NLS-1$
                         XSystemObjects.DC_CONF.getName());
                 xmlServerCtrlLocal.commit(XSystemObjects.DC_CONF.getName());
                 return request;

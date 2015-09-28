@@ -144,6 +144,7 @@ public class SystemStorageTest extends TestCase {
         ClassRepository repository = buildRepository();
         // Additional setup to get User type in repository
         String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/PROVISIONING",
+                "/com/amalto/core/initdb/data/datamodel/CONF",
                 "/com/amalto/core/initdb/data/datamodel/SearchTemplate" };
         for (String model : models) {
             InputStream builtInStream = this.getClass().getResourceAsStream(model);
@@ -330,6 +331,33 @@ public class SystemStorageTest extends TestCase {
         xmls = wrapper.getDocumentAsString("SearchTemplate", uniqueIDs[1], "UTF-8");
         assertNotNull(xmls);
         assertTrue(xmls.contains("bookmark.1"));
+    }
+    
+    public void testGetAutoIncrement() throws Exception {
+        Map<String, Object> preparedItems = prepareRepositoryStorageWrapper();
+        ClassRepository repository = (ClassRepository) preparedItems.get("repository");
+        SecuredStorage storage = (SecuredStorage) preparedItems.get("storage");
+        SystemStorageWrapper wrapper = (SystemStorageWrapper) preparedItems.get("wrapper");
+        String[] uniqueIDs = { "CONF.AutoIncrement.AutoIncrement" };
+        // Test method
+        String emptyXmls = wrapper.getDocumentAsString("CONF", uniqueIDs[0], "UTF-8");
+        assertNull(emptyXmls);
+        // prepare storage data
+        XmlDOMDataRecordReader reader = new XmlDOMDataRecordReader();
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        String[] datas = { "SystemStorageTest_6.xml"};
+        storage.begin();
+
+        Document document = builder.parse(SystemStorageTest.class.getResourceAsStream(datas[0]));
+        Element element = (Element) document.getElementsByTagName("AutoIncrement").item(0);
+        final DataRecord user = reader.read(repository, repository.getComplexType("AutoIncrement"), element);
+        storage.update(user);
+        
+        storage.commit();
+
+        String xmls = wrapper.getDocumentAsString("CONF", uniqueIDs[0], "UTF-8");
+        assertNotNull(xmls);
+        assertTrue(xmls.contains("Product.ProductFamily.Id"));        
     }
 
     public void testStorageInit() throws Exception {

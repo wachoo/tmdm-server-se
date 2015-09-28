@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!--
+  ~ Copyright (C) 2006-2014 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  -->
+
+<ii>
+    <c>CONF</c>
+    <n>AutoIncrement</n>
+    <dmn>CONF</dmn>
+    <dmr/>
+    <sp/>
+    <i>AutoIncrement</i>
+    <t>1257918109062</t>
+    <p>
+        <AutoIncrement>
+		  <id>AutoIncrement</id>
+		  <entry>
+		    <key>Product.ProductFamily.Id</key>
+		    <value>9</value>
+		  </entry>
+		</AutoIncrement>
+    </p>
+</ii>
