@@ -18,12 +18,17 @@ import static com.amalto.core.query.user.UserStagingQueryBuilder.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.query.user.BinaryLogicOperator;
@@ -36,6 +41,7 @@ import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.storage.FullTextResultsWriter;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
@@ -73,8 +79,8 @@ public class StorageFullTextTest extends StorageTestCase {
         allRecords.add(factory.read("1", repository, product, "<Product>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Renault car</Name>\n" + "    <ShortDescription>A car</ShortDescription>\n"
                 + "    <LongDescription>Long description 2</LongDescription>\n" + "    <Price>10</Price>\n" + "    <Features>\n"
-                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        <Size>Large</Size></Sizes>\n" + "        <Colors>\n"
-                + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
+                + "        <Sizes>\n" + "            <Size>Large</Size>\n" + "        <Size>Large</Size></Sizes>\n"
+                + "        <Colors>\n" + "            <Color>Blue 2</Color>\n" + "            <Color>Blue 1</Color>\n"
                 + "            <Color>Klein blue2</Color>\n" + "        </Colors>\n" + "    </Features>\n"
                 + "    <Family>[1]</Family>\n" + "    <Status>Pending</Status>\n" + "    <Supplier>[2]</Supplier>\n"
                 + "    <Supplier>[1]</Supplier>\n" + "</Product>"));
@@ -208,11 +214,11 @@ public class StorageFullTextTest extends StorageTestCase {
             records.close();
         }
     }
-    
+
     public void testSimpleSearchOrderByWithContainsCondition() throws Exception {
         // Order by "Id" field
-        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "Product"))
-                .orderBy(productFamily.getField("Id"), OrderBy.Direction.DESC);
+        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "Product")).orderBy(
+                productFamily.getField("Id"), OrderBy.Direction.DESC);
 
         StorageResults records = storage.fetch(qb.getSelect());
         try {
@@ -222,8 +228,8 @@ public class StorageFullTextTest extends StorageTestCase {
                 Integer id = Integer.parseInt((String) record.get("Id"));
                 assertTrue(id < currentId);
                 currentId = id;
-            }            
-        }  finally {
+            }
+        } finally {
             records.close();
         }
         // Order by "Name" field
@@ -239,7 +245,7 @@ public class StorageFullTextTest extends StorageTestCase {
                 assertTrue(id < currentId);
                 currentId = id;
             }
-        }  finally {
+        } finally {
             records.close();
         }
     }
@@ -809,12 +815,61 @@ public class StorageFullTextTest extends StorageTestCase {
 
     public void testTimeStampProjectionNoAlias() throws Exception {
         // TMDM-7737: Test metadata field projection *with* paging in query.
-        UserQueryBuilder qb = from(product).select(timestamp()).where(fullText(product.getField("Features"), "klein")).start(0).limit(20);
+        UserQueryBuilder qb = from(product).select(timestamp()).where(fullText(product.getField("Features"), "klein")).start(0)
+                .limit(20);
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
         } finally {
             results.close();
         }
+    }
+
+    public void testGenerateIdFetchSize() throws Exception {
+        // Test "stream resultset"
+        RDBMSDataSource dataSource = new RDBMSDataSource("TestDataSource", "MySQL", "", "", "", 0, 0, "", "", false, "update",
+                false, new HashMap(), "", "", null, "", "", "");
+        Configuration configuration = new Configuration();
+        configuration.setProperty(Environment.STATEMENT_FETCH_SIZE, "1000");
+        HibernateStorage storage = new HibernateStorage("HibernateStorage");
+        storage.init(getDatasource("RDBMS-1-NO-FT"));
+        storage.prepare(repository, Collections.<Expression> emptySet(), false, false);
+
+        Class storageClass = storage.getClass();
+        Field dataSourceField = storageClass.getDeclaredField("dataSource");
+        dataSourceField.setAccessible(true);
+        dataSourceField.set(storage, dataSource);
+
+        Field configurationField = storageClass.getDeclaredField("configuration");
+        configurationField.setAccessible(true);
+        configurationField.set(storage, configuration);
+
+        Method generateIdFetchSizeMethod = storageClass.getDeclaredMethod("generateIdFetchSize", null);
+        generateIdFetchSizeMethod.setAccessible(true);
+        assertEquals(Integer.MIN_VALUE, generateIdFetchSizeMethod.invoke(storage, null));
+
+        // Test config batch size
+        dataSource = new RDBMSDataSource("TestDataSource", "H2", "", "", "", 0, 0, "", "", false, "update", false, new HashMap(),
+                "", "", null, "", "", "");
+        storage = new HibernateStorage("HibernateStorage");
+        storage.init(getDatasource("RDBMS-1-NO-FT"));
+        storage.prepare(repository, Collections.<Expression> emptySet(), false, false);
+        storageClass = storage.getClass();
+
+        dataSourceField = storageClass.getDeclaredField("dataSource");
+        dataSourceField.setAccessible(true);
+        dataSourceField.set(storage, dataSource);
+
+        configurationField = storageClass.getDeclaredField("configuration");
+        configurationField.setAccessible(true);
+        configurationField.set(storage, configuration);
+        assertEquals(1000, generateIdFetchSizeMethod.invoke(storage, null));
+
+        // Test default batch size
+        configuration = new Configuration();
+        configurationField = storageClass.getDeclaredField("configuration");
+        configurationField.setAccessible(true);
+        configurationField.set(storage, configuration);
+        assertEquals(500, generateIdFetchSizeMethod.invoke(storage, null));
     }
 }

@@ -10,9 +10,7 @@
 
 package com.amalto.core.storage.hibernate;
 
-import static com.amalto.core.query.user.UserQueryBuilder.and;
-import static com.amalto.core.query.user.UserQueryBuilder.eq;
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -159,6 +157,8 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 
 public class HibernateStorage implements Storage {
+
+    private final int DEFAULT_FETCH_SIZE = 500;
 
     public static final HibernateStorage.LocalEntityResolver ENTITY_RESOLVER = new HibernateStorage.LocalEntityResolver();
 
@@ -471,42 +471,43 @@ public class HibernateStorage implements Storage {
                         }
                         // Database specific behaviors
                         switch (dataSource.getDialectName()) {
-                            case ORACLE_10G:
-                                // TMDM-7701: Skip index on Oracle when field part of inheritance tree
-                                ComplexTypeMetadata indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
-                                if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
-                                    LOGGER.warn("Skip index field '" + indexedField.getPath() + "' of type '" + indexedField.getEntityTypeName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        case ORACLE_10G:
+                            // TMDM-7701: Skip index on Oracle when field part of inheritance tree
+                            ComplexTypeMetadata indexEntityType = repository.getComplexType(indexedField.getEntityTypeName());
+                            if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
+                                LOGGER.warn("Skip index field '" + indexedField.getPath() + "' of type '" + indexedField.getEntityTypeName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                                continue;
+                            }
+                            break;
+                        case SQL_SERVER:
+                            // TMDM-8144: Don't index field name on SQL Server when size > 900
+                            String maxLengthStr = indexedField.getType().getData(MetadataRepository.DATA_MAX_LENGTH);
+                            if (maxLengthStr == null) { // go up the type inheritance tree to find max length annotation
+                                TypeMetadata type = indexedField.getType();
+                                while (!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace())
+                                        && !type.getSuperTypes().isEmpty()) {
+                                    type = type.getSuperTypes().iterator().next();
+                                    maxLengthStr = type.getData(MetadataRepository.DATA_MAX_LENGTH);
+                                    if (maxLengthStr != null) {
+                                        break;
+                                    }
+                                }
+                            }
+                            if (maxLengthStr != null) {
+                                Integer maxLength = Integer.parseInt(maxLengthStr);
+                                if (maxLength > 900) {
+                                    LOGGER.warn("Skip index on field '" + indexedField.getPath() + "' (too long value).");
                                     continue;
                                 }
-                                break;
-                            case SQL_SERVER:
-                                // TMDM-8144: Don't index field name on SQL Server when size > 900
-                                String maxLengthStr = indexedField.getType().getData(MetadataRepository.DATA_MAX_LENGTH);                                 
-                                if(maxLengthStr == null) {  // go up the type inheritance tree to find max length annotation
-                                    TypeMetadata type = indexedField.getType();
-                                    while (!XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(type.getNamespace()) && !type.getSuperTypes().isEmpty()) {
-                                        type = type.getSuperTypes().iterator().next();
-                                        maxLengthStr = type.getData(MetadataRepository.DATA_MAX_LENGTH);
-                                        if(maxLengthStr != null){
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (maxLengthStr != null) {
-                                    Integer maxLength = Integer.parseInt(maxLengthStr);
-                                    if (maxLength > 900) {
-                                        LOGGER.warn("Skip index on field '" + indexedField.getPath() + "' (too long value).");
-                                        continue;
-                                    }
-                                }
-                                break;
-                            case H2:
-                            case MYSQL:
-                            case POSTGRES:
-                            case DB2:
-                            default:
-                                // Nothing to do for these databases
-                                break;
+                            }
+                            break;
+                        case H2:
+                        case MYSQL:
+                        case POSTGRES:
+                        case DB2:
+                        default:
+                            // Nothing to do for these databases
+                            break;
                         }
                         databaseIndexedFields.add(databaseField);
                         if (!databaseField.getContainingType().isInstantiable()) {
@@ -534,21 +535,21 @@ public class HibernateStorage implements Storage {
                 for (TypeMapping typeMapping : mappingRepository.getAllTypeMappings()) {
                     ComplexTypeMetadata database = typeMapping.getDatabase();
                     switch (dataSource.getDialectName()) {
-                        case ORACLE_10G:
-                            ComplexTypeMetadata indexEntityType = typeMapping.getUser();
-                            if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
-                                LOGGER.warn("Skip index on type '" + indexEntityType.getName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$
-                                continue;
-                            }
-                            break;
-                        case SQL_SERVER:
-                        case H2:
-                        case MYSQL:
-                        case POSTGRES:
-                        case DB2:
-                        default:
-                            // Nothing to do for these databases
-                            break;
+                    case ORACLE_10G:
+                        ComplexTypeMetadata indexEntityType = typeMapping.getUser();
+                        if (!indexEntityType.getSuperTypes().isEmpty() || !indexEntityType.getSubTypes().isEmpty()) {
+                            LOGGER.warn("Skip index on type '" + indexEntityType.getName() + "' (part of an inheritance tree)."); //$NON-NLS-1$ //$NON-NLS-2$
+                            continue;
+                        }
+                        break;
+                    case SQL_SERVER:
+                    case H2:
+                    case MYSQL:
+                    case POSTGRES:
+                    case DB2:
+                    default:
+                        // Nothing to do for these databases
+                        break;
                     }
                     if (database.hasField(METADATA_STAGING_STATUS)) {
                         databaseIndexedFields.add(database.getField(METADATA_STAGING_STATUS));
@@ -701,7 +702,8 @@ public class HibernateStorage implements Storage {
                 final Properties configuration = MDMConfiguration.getConfiguration();
                 if (Boolean.parseBoolean(configuration.getProperty(Server.SYSTEM_CLUSTER, Boolean.FALSE.toString()))) {
                     try {
-                        final Class<Interceptor> interceptor = (Class<Interceptor>) Class.forName("com.amalto.core.storage.hibernate.SearchInterceptor"); //$NON-NLS-1$
+                        final Class<Interceptor> interceptor = (Class<Interceptor>) Class
+                                .forName("com.amalto.core.storage.hibernate.SearchInterceptor"); //$NON-NLS-1$
                         this.configuration.setInterceptor(interceptor.newInstance());
                     } catch (ClassNotFoundException e) {
                         if (LOGGER.isDebugEnabled()) {
@@ -948,16 +950,12 @@ public class HibernateStorage implements Storage {
         LOGGER.info("Re-indexing full-text for " + storageName + "...");
         Session session = this.getCurrentSession();        
         try {
-            SearchFactoryImplementor searchFactory = ContextHelper.getSearchFactory( session );
-            MDMMassIndexerImpl indexer = new MDMMassIndexerImpl( searchFactory, factory, Object.class);
+            SearchFactoryImplementor searchFactory = ContextHelper.getSearchFactory(session);
+            MDMMassIndexerImpl indexer = new MDMMassIndexerImpl(searchFactory, factory, Object.class);
             indexer.optimizeOnFinish(true);
             indexer.optimizeAfterPurge(true);
-            indexer
-                .idFetchSize(Integer.MIN_VALUE)
-                .threadsToLoadObjects(1)
-                .threadsForSubsequentFetching(1)
-                .batchSizeToLoadObjects(batchSize)
-                .startAndWait();
+            indexer.idFetchSize(generateIdFetchSize()).threadsToLoadObjects(1).threadsForSubsequentFetching(1)
+                    .batchSizeToLoadObjects(batchSize).startAndWait();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
@@ -1563,27 +1561,39 @@ public class HibernateStorage implements Storage {
     public StorageClassLoader getClassLoader() {
         return storageClassLoader;
     }
-    
-    
-    private Session getCurrentSession(){
+
+    private Session getCurrentSession() {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         com.amalto.core.storage.transaction.Transaction currentTransaction = transactionManager.currentTransaction();
-        HibernateStorageTransaction storageTransaction = (HibernateStorageTransaction)currentTransaction.include(this);
+        HibernateStorageTransaction storageTransaction = (HibernateStorageTransaction) currentTransaction.include(this);
         storageTransaction.acquireLock();
         return storageTransaction.getSession();
-        
+
     }
-    
-    private void releaseSession(){
+
+    private void releaseSession() {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         com.amalto.core.storage.transaction.Transaction currentTransaction = transactionManager.currentTransaction();
-        HibernateStorageTransaction storageTransaction = (HibernateStorageTransaction)currentTransaction.include(this);
+        HibernateStorageTransaction storageTransaction = (HibernateStorageTransaction) currentTransaction.include(this);
         storageTransaction.releaseLock();
     }
 
     @Override
     public String toString() {
         return storageName + '(' + storageType + ')';
+    }
+
+    private int generateIdFetchSize() {
+        int fetchSize = DEFAULT_FETCH_SIZE;
+        if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.MYSQL) {
+            // for using "stream resultset" to resolve OOM
+            fetchSize = Integer.MIN_VALUE;
+        } else {
+            if (configuration.getProperty(Environment.STATEMENT_FETCH_SIZE) != null) {
+                fetchSize = Integer.parseInt(configuration.getProperty(Environment.STATEMENT_FETCH_SIZE));
+            }
+        }
+        return fetchSize;
     }
 
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
