@@ -1,5 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
+import java.util.HashMap;
+
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
@@ -11,8 +13,12 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 
 public class FormatNumberField extends NumberField {
+
+    public static final String KEY_MDM_READ_ONLY_FIELD_STYLE = "MDM_READ_ONLY_FIELD_STYLE"; //$NON-NLS-1$
 
     BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
@@ -23,12 +29,15 @@ public class FormatNumberField extends NumberField {
     private String diplayValue;
 
     private boolean validateFlag = true;
-    
+
+    private HashMap<String, String> userProperties;
+
     public FormatNumberField() {
         super();
         validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
-    }    
-    
+        setUserProperties(BrowseRecords.getSession().getAppHeader().getUserProperties());
+    }
+
     public String getFormatPattern() {
         return formatPattern;
     }
@@ -58,8 +67,9 @@ public class FormatNumberField extends NumberField {
         if (value.equals(this.getDiplayValue())) {
             return true;
         } else {
-            if(!validateFlag)
+            if (!validateFlag) {
                 return true;
+            }
             // validator should run after super rules
             Validator tv = validator;
             validator = null;
@@ -130,6 +140,7 @@ public class FormatNumberField extends NumberField {
                 FormatModel model = new FormatModel(formatPattern, d, Locale.getLanguage());
                 service.formatValue(model, new SessionAwareAsyncCallback<String>() {
 
+                    @Override
                     public void onSuccess(String result) {
                         setDiplayValue(result);
                         setRawValue(result);
@@ -146,4 +157,79 @@ public class FormatNumberField extends NumberField {
         this.validateFlag = validateFlag;
     }
 
+    @Override
+    public void setRawValue(String value) {
+        if (rendered) {
+            if (isEditable()) {
+                getInputEl().setValue(value == null ? "" : value); //$NON-NLS-1$
+            } else {
+                getInputEl().dom.setInnerText(value == null ? "" : value); //$NON-NLS-1$
+            }
+        }
+    }
+
+    @Override
+    public String getRawValue() {
+        String v = rendered ? getInputEl().getValue() : ""; //$NON-NLS-1$
+        if (!isEditable()) {
+            v = rendered ? getInputEl().dom.getInnerText() : ""; //$NON-NLS-1$
+        }
+        if (v == null || v.equals(emptyText)) {
+            return ""; //$NON-NLS-1$
+        }
+        return v;
+    }
+
+    @Override
+    protected void onRender(Element target, int index) {
+        super.onRender(target, index);
+        if (!isEditable()) {
+            if (el() != null) {
+                el().removeChildren();
+                getElement().setAttribute("role", "presentation"); //$NON-NLS-1$//$NON-NLS-2$
+                input.dom = DOM.createDiv();
+                DOM.setElementAttribute(input.dom, "type", "text"); //$NON-NLS-1$//$NON-NLS-2$
+                DOM.setElementAttribute(input.dom, "contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
+                String elementStyle = "overflow: hidden; whiteSpace: nowrap;"; //$NON-NLS-1$
+                if (getUserProperties() != null && getUserProperties().size() > 0) {
+                    if (getUserProperties().containsKey(KEY_MDM_READ_ONLY_FIELD_STYLE)) {
+                        elementStyle = elementStyle + getUserProperties().get(KEY_MDM_READ_ONLY_FIELD_STYLE);
+                    }
+                }
+                DOM.setElementAttribute(input.dom, "style", elementStyle); //$NON-NLS-1$
+                input.addStyleName(fieldStyle);
+                input.addStyleName("x-form-text"); //$NON-NLS-1$
+                el().appendChild(input.dom);
+            }
+            if (!isEditable()) {
+                setEditable(false);
+            }
+        }
+    }
+
+    @Override
+    public void disable() {
+        super.disable();
+        setEditable(false);
+        if (input != null) {
+            input.dom.setAttribute("contenteditable", "false"); //$NON-NLS-1$//$NON-NLS-2$
+        }
+    }
+
+    @Override
+    public void enable() {
+        super.enable();
+        setEditable(true);
+        if (input != null) {
+            input.dom.setAttribute("contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
+        }
+    }
+
+    public HashMap<String, String> getUserProperties() {
+        return this.userProperties;
+    }
+
+    public void setUserProperties(HashMap<String, String> userProperties) {
+        this.userProperties = userProperties;
+    }
 }

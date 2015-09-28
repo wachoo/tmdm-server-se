@@ -15,11 +15,11 @@ package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 public class CustomTypeFieldFactory extends TypeFieldFactory {
 
@@ -40,14 +40,15 @@ public class CustomTypeFieldFactory extends TypeFieldFactory {
     public Field<?> createField() {
         Field<?> field = null;
         if (context.getDataType().getType().equals(DataTypeConstants.UUID)) {
-            TextField<String> uuidField = new TextField<String>();
+            FormatTextField uuidField = new FormatTextField();
             uuidField.setEnabled(false);
             uuidField.setReadOnly(true);
-            if (context.isWithValue() && hasValue())
+            if (context.isWithValue() && hasValue()) {
                 uuidField.setValue(getValue().toString());
+            }
             field = uuidField;
         } else if (context.getDataType().getType().equals(DataTypeConstants.AUTO_INCREMENT)) {
-            TextField<String> autoIncrementField = new TextField<String>();
+            FormatTextField autoIncrementField = new FormatTextField();
             autoIncrementField.setEnabled(false);
             autoIncrementField.setReadOnly(true);
             if (context.isWithValue() && hasValue()) {
@@ -58,20 +59,23 @@ public class CustomTypeFieldFactory extends TypeFieldFactory {
             field = autoIncrementField;
         } else if (context.getDataType().getType().equals(DataTypeConstants.PICTURE)) {
             PictureField pictureField = new PictureField(context.isMandatory());
-            if (context.isWithValue())
+            if (context.isWithValue()) {
                 pictureField.setValue(hasValue() ? getValue().toString() : ""); //$NON-NLS-1$
+            }
             field = pictureField;
         } else if (context.getDataType().getType().equals(DataTypeConstants.URL)) {
             UrlField urlField = new UrlField();
             urlField.setFieldLabel(context.getDataType().getLabel(context.getLanguage()));
-            if (context.isWithValue())
+            if (context.isWithValue()) {
                 urlField.setValue(hasValue() ? getValue().toString() : ""); //$NON-NLS-1$
+            }
             field = urlField;
         } else if (context.getDataType().getType().equals(DataTypeConstants.MLS)) {
             boolean isFormInput = this.source != null && this.source.getName().equals(TypeFieldSource.FORM_INPUT);
             MultiLanguageField mlsField = new MultiLanguageField(isFormInput ? true : false);
-            if (context.isWithValue())
+            if (context.isWithValue()) {
                 mlsField.setMultiLanguageStringValue(hasValue() ? getValue().toString() : ""); //$NON-NLS-1$
+            }
             field = mlsField;
         }
         return field;
