@@ -1332,6 +1332,22 @@ public class DocumentSaveTest extends TestCase {
         expectedUserXmlBuilder.append(lineSeparator);
         expectedUserXmlBuilder.append("<Name>beforeSaving_Agency</Name>");
         expectedUserXmlBuilder.append(lineSeparator);
+        expectedUserXmlBuilder.append("<City>Chicago</City>");
+        expectedUserXmlBuilder.append(lineSeparator);
+        expectedUserXmlBuilder.append("<State/>");
+        expectedUserXmlBuilder.append(lineSeparator);
+        expectedUserXmlBuilder.append("<Zip>04102</Zip>");
+        expectedUserXmlBuilder.append(lineSeparator);
+        expectedUserXmlBuilder.append("<Region>EAST</Region>");
+        expectedUserXmlBuilder.append(lineSeparator);        
+        expectedUserXmlBuilder.append("<Information>");
+        expectedUserXmlBuilder.append(lineSeparator);
+        expectedUserXmlBuilder.append("<MoreInfo>http://www.newSite.org</MoreInfo>");
+        expectedUserXmlBuilder.append(lineSeparator);
+        expectedUserXmlBuilder.append("<MoreInfo>http://www.newSite2.org</MoreInfo>");
+        expectedUserXmlBuilder.append(lineSeparator);
+        expectedUserXmlBuilder.append("</Information>");
+        expectedUserXmlBuilder.append(lineSeparator);
         expectedUserXmlBuilder.append("</Agency>");
         expectedUserXmlBuilder.append(lineSeparator);
         String expectedUserXml = expectedUserXmlBuilder.toString();
@@ -1368,13 +1384,6 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("", oldValue);
         assertEquals("http://www.newSite.org", newValue);
         
-        path = (String) evaluate(doc.getDocumentElement(), "Item[5]/path");
-        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[5]/oldValue");
-        newValue = (String) evaluate(doc.getDocumentElement(), "Item[5]/newValue");
-        assertEquals("Name", path);
-        assertEquals("Portland", oldValue);
-        assertEquals("beforeSaving_Agency", newValue);
-        
         MockCommitter committer = new MockCommitter();
         session.end(committer);
         assertTrue(committer.hasSaved());
@@ -1403,6 +1412,8 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("0", evaluate(committedElement, "/ProductFamily/Id"));
+        assertEquals("0", context.getId()[0]);
+        assertEquals("testAutoIncrementPK", evaluate(committedElement, "/ProductFamily/Name"));
     }
     
     public void testUpdateAutoIncrementRecord() throws Exception {
@@ -3141,7 +3152,10 @@ public class DocumentSaveTest extends TestCase {
 
             if (newOutput) {
                 item = "<exchange><item>"
-                        + "<Agency><Id>5258f292-5670-473b-bc01-8b63434682f3</Id><Name>beforeSaving_Agency</Name></Agency></item></exchange>";
+                        + "<Agency><Id>5258f292-5670-473b-bc01-8b63434682f3</Id><Name>beforeSaving_Agency</Name>" +
+                        "<City>Chicago</City><State/><Zip>04102</Zip><Region>EAST</Region><Information>" +
+                        "<MoreInfo>http://www.newSite.org</MoreInfo><MoreInfo>http://www.newSite2.org</MoreInfo>" +
+                        "</Information></Agency></item></exchange>";
                 report.setItem(item);
             }
             return report;
@@ -3171,7 +3185,7 @@ public class DocumentSaveTest extends TestCase {
             OutputReport report = new OutputReport(message, item);
 
             if (newOutput) {
-                item = "<exchange><item>" + "<ProductFamily><Name>testAutoIncrementPK</Name></ProductFamily></item></exchange>";
+                item = "<exchange><item>" + "<ProductFamily><Id>0</Id><Name>testAutoIncrementPK</Name></ProductFamily></item></exchange>";
                 report.setItem(item);
             }
             return report;

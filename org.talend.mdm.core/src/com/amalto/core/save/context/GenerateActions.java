@@ -78,29 +78,35 @@ class GenerateActions implements DocumentSaver {
             // Builds action list (be sure to include actual creation as first action).
             actions = new LinkedList<Action>();
             actions.add(createAction);
-            actions.addAll(type.accept(createActions));
+            if (context.getId().length <= 0) {
+                actions.addAll(type.accept(createActions));
+            }
             actions.addAll(type.accept(updateActions));
-            // Get all actions on the id for the type
-            Collection<FieldMetadata> keys = type.getKeyFields();
-            List<String> idValues = new ArrayList<String>(keys.size());
-            for (FieldMetadata key : keys) {
-                if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(key.getType().getName())
-                        || EUUIDCustomType.UUID.getName().equalsIgnoreCase(key.getType().getName())) {
-                    for (Action action : actions) {
-                        if (action instanceof FieldUpdateAction) {
-                            FieldUpdateAction fieldUpdateAction = (FieldUpdateAction) action;
-                            if (key.equals(fieldUpdateAction.getField())) {
-                                idValues.add(fieldUpdateAction.getNewValue());
-                                break; // Found the action on the key... no need to iterate over all of them.
+
+            // in case of beforesaving, don't re-generate id as it might have been used for reference
+            if (context.getId().length <= 0) { // reuse id from context, assumption: id should not be altered externally
+                // Get all actions on the id for the type
+                Collection<FieldMetadata> keys = type.getKeyFields();
+                List<String> idValues = new ArrayList<String>(keys.size());
+                for (FieldMetadata key : keys) {
+                    if (EUUIDCustomType.AUTO_INCREMENT.getName().equalsIgnoreCase(key.getType().getName())
+                            || EUUIDCustomType.UUID.getName().equalsIgnoreCase(key.getType().getName())) {
+                        for (Action action : actions) {
+                            if (action instanceof FieldUpdateAction) {
+                                FieldUpdateAction fieldUpdateAction = (FieldUpdateAction) action;
+                                if (key.equals(fieldUpdateAction.getField())) {
+                                    idValues.add(fieldUpdateAction.getNewValue());
+                                    break; // Found the action on the key... no need to iterate over all of them.
+                                }
                             }
                         }
+                    } else {
+                        idValues.add(context.getUserDocument().createAccessor(key.getPath()).get());
                     }
-                } else {
-                    idValues.add(context.getUserDocument().createAccessor(key.getPath()).get());
                 }
+                // Join ids read from XML document and generated ID values.
+                context.setId(idValues.toArray(new String[idValues.size()]));
             }
-            // Join ids read from XML document and generated ID values.
-            context.setId(idValues.toArray(new String[idValues.size()]));
             break;
         case UPDATE:
             // get updated paths
@@ -132,7 +138,8 @@ class GenerateActions implements DocumentSaver {
         }
         // Handle generated actions
         if (!context.getActions().isEmpty()) {
-            // Actions were previously generated, now check if there was previously generated ones (keep everything on id then).
+            // Actions were previously generated, now check if there was previously generated ones (keep everything on
+            // id then).
             List<Action> mergedActions = new LinkedList<Action>();
             // Get all actions on id fields
             Map<FieldMetadata, Action> keyActions = new HashMap<FieldMetadata, Action>();
@@ -166,27 +173,28 @@ class GenerateActions implements DocumentSaver {
         }
         // Ignore rest of save chain if there's no change to perform.
         boolean hasModificationActions = hasModificationActions(actions);
-        if (hasModificationActions || isInvokeBeforeSaving(context)) { // Ignore rest of save chain if there's no change to perform.
+        if (hasModificationActions || isInvokeBeforeSaving(context)) { // Ignore rest of save chain if there's no change
+                                                                       // to perform.
             next.save(session, context);
         }
     }
 
     private boolean hasModificationActions(List<Action> actions) {
         for (Action action : actions) {
-            if(!action.isTransient()) {
+            if (!action.isTransient()) {
                 return true;
             }
         }
         return false;
     }
-    
+
     private boolean isInvokeBeforeSaving(DocumentSaverContext context) {
         if (context instanceof ReportDocumentSaverContext) {
-            if(((ReportDocumentSaverContext)context).getDelegate() instanceof StorageSaver){
-                StorageSaver saver = (StorageSaver) ((ReportDocumentSaverContext)context).getDelegate();
+            if (((ReportDocumentSaverContext) context).getDelegate() instanceof StorageSaver) {
+                StorageSaver saver = (StorageSaver) ((ReportDocumentSaverContext) context).getDelegate();
                 return saver.isInvokeBeforeSaving();
-            } else if (((ReportDocumentSaverContext)context).getDelegate() instanceof UserContext){
-                UserContext saver = (UserContext) ((ReportDocumentSaverContext)context).getDelegate();
+            } else if (((ReportDocumentSaverContext) context).getDelegate() instanceof UserContext) {
+                UserContext saver = (UserContext) ((ReportDocumentSaverContext) context).getDelegate();
                 return saver.isInvokeBeforeSaving();
             }
         }
