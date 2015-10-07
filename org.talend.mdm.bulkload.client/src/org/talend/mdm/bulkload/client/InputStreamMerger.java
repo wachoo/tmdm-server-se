@@ -118,6 +118,20 @@ public class InputStreamMerger extends InputStream {
         }
         debug("[P] Close completed."); //$NON-NLS-1$
     }
+    
+    /**
+     * 
+     */
+    public void clean(){
+        while(!producerToConsumer.isEmpty()){
+            producerToConsumer.poll();
+        }
+        try {
+            producerToConsumer.put(InternalMessage.newCloseMessage());
+        } catch(InterruptedException e){
+            throw new RuntimeException("clean was interrupted", e); //$NON-NLS-1$
+        }
+    }
 
     // consumer side
     public void reportFailure(Throwable e) {

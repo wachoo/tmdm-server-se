@@ -20,13 +20,16 @@ import org.apache.commons.lang.ArrayUtils;
 
 public class InputStreamMergerTest extends TestCase {
 
-    public void testArguments() {
+    public void testArguments() throws IOException {
+        InputStreamMerger bis = new InputStreamMerger();
         try {
-            InputStreamMerger bis = new InputStreamMerger();
             bis.push(null);
             fail("Null input streams are not supported as argument of push()"); //$NON-NLS-1$
         } catch (Exception e) {
             // Expected
+        }
+        finally {
+            bis.close();
         }
     }
 
@@ -34,6 +37,7 @@ public class InputStreamMergerTest extends TestCase {
         InputStreamMerger bis = new InputStreamMerger();
         try {
             bis.close();
+            bis.clean();
             assertEquals(-1, bis.read());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -201,7 +205,7 @@ public class InputStreamMergerTest extends TestCase {
         assertEquals(builder.toString(), reader.getRebuiltString());
     }
 
-    public void testSimpleReadPusherFirstWithError() {
+    public void testSimpleReadPusherFirstWithError() throws Exception {
         InputStreamMerger bis = new InputStreamMerger();
         String testString = "test"; //$NON-NLS-1$
 
@@ -214,20 +218,12 @@ public class InputStreamMergerTest extends TestCase {
         Thread readerThread = new Thread(reader);
         Thread pusherThread = new Thread(pusher);
         pusherThread.start();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        Thread.sleep(1000);
         readerThread.start();
 
         // Wait for test end
-        try {
-            readerThread.join();
-            pusherThread.join();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        readerThread.join();
+        pusherThread.join();
         assertNotNull(bis.getLastReportedFailure());
         assertEquals("Expected exception text", bis.getLastReportedFailure().getCause().getMessage()); //$NON-NLS-1$
         try {
@@ -237,6 +233,31 @@ public class InputStreamMergerTest extends TestCase {
             assertEquals("Expected exception text", e.getCause().getCause().getMessage()); //$NON-NLS-1$
         }
         assertEquals("testtesttesttest", reader.getRebuiltString()); //$NON-NLS-1$
+    }
+    
+    /**
+     * This test reproduces the case of a job with an error while using
+     * tMDMBulkLoad
+     */
+    public void testReadErrorWhilePushing() throws Exception {
+        InputStreamMerger bis = new InputStreamMerger();
+        String testString = "test"; //$NON-NLS-1$
+
+        // Create a reader for the stream
+        ReaderRunnable reader = new ReaderRunnable(bis);
+        // Create a "pusher", a thread that will put a new stream
+        Runnable pusher = new PusherRunnableWithError(bis, testString, 20);
+
+        // Start the test (but now the pusher starts first)
+        Thread readerThread = new Thread(reader);
+        Thread pusherThread = new Thread(pusher);
+        pusherThread.start();
+        Thread.sleep(1000);
+        readerThread.start();
+
+        // Wait for test end
+        readerThread.join();
+        pusherThread.join();
     }
 
     public void testManyReadReaderFirst() {
@@ -469,8 +490,37 @@ public class InputStreamMergerTest extends TestCase {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+                finally {
+                    bis.clean();
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+        }
+    }
+    
+    private static class PusherRunnableWithError implements Runnable {
+        private final InputStreamMerger bis;
+        private final String testString;
+        private final int count;
+
+        public PusherRunnableWithError(InputStreamMerger bis, String testString, int count) {
+            this.bis = bis;
+            this.testString = testString;
+            this.count = count;
+        }
+
+        public void run() {
+            try {
+                for (int i = 0; i < count; i++) {
+                    bis.push(new ByteArrayInputStream(testString.getBytes()));
+                }
+                throw new RuntimeException("Pusher exception");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            finally {
+                bis.clean();
             }
         }
     }
