@@ -66,11 +66,11 @@ class FilterDialog extends Window {
 
     private final ContentPanel container = new ContentPanel();
 
-    private final EntitySet    entitySet;
+    private final EntitySet entitySet;
 
-    private final StatusSet    statusSet = new StatusSet();
+    private final StatusSet statusSet = new StatusSet();
 
-    private final TimeSet      timeSet   = new TimeSet();
+    private final TimeSet timeSet = new TimeSet();
 
     public static void showFilter(ConceptRelationshipModel relation, FilterListener listener) {
         FilterDialog dialog = new FilterDialog(relation, listener);
@@ -142,17 +142,17 @@ class FilterDialog extends Window {
 
     class EntitySet extends FieldSet {
 
-        final AbsolutePanel            wrapPanel           = new AbsolutePanel();
+        final AbsolutePanel wrapPanel = new AbsolutePanel();
 
         final ConceptRelationshipModel relationModel;
 
-        final Grid                     header              = new Grid(1, 2);
+        final Grid header = new Grid(1, 2);
 
-        final ScrollPanel              conceptSetContainer = new ScrollPanel();
+        final ScrollPanel conceptSetContainer = new ScrollPanel();
 
-        final FlexTable                flextable           = new FlexTable();
+        final FlexTable flextable = new FlexTable();
 
-        final List<CheckBox>           boxes               = new ArrayList<CheckBox>();
+        final List<CheckBox> boxes = new ArrayList<CheckBox>();
 
         public EntitySet(ConceptRelationshipModel relationModel) {
             this.relationModel = relationModel;
@@ -164,16 +164,16 @@ class FilterDialog extends Window {
 
         final ValueChangeHandler<Boolean> selectedTogetherHandler = new ValueChangeHandler<Boolean>() {
 
-                                                                      @Override
-                                                                      public void onValueChange(ValueChangeEvent<Boolean> event) {
-                                                                          CheckBox sourceBox = (CheckBox) event.getSource();
-                                                                          for (CheckBox box : boxes) {
-                                                                              if (sourceBox.getText().equals(box.getText())) {
-                                                                                  box.setValue(sourceBox.getValue(), true);
-                                                                              }
-                                                                          }
-                                                                      }
-                                                                  };
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                CheckBox sourceBox = (CheckBox) event.getSource();
+                for (CheckBox box : boxes) {
+                    if (sourceBox.getText().equals(box.getText())) {
+                        box.setValue(sourceBox.getValue(), true);
+                    }
+                }
+            }
+        };
 
         private void initLayout() {
 
@@ -292,7 +292,7 @@ class FilterDialog extends Window {
 
             final SimplePanel sp = new SimplePanel();
 
-            final CheckBox    box;
+            final CheckBox box;
 
             public CheckBoxWrap(CheckBox box) {
                 sp.setWidget(box);
@@ -321,21 +321,21 @@ class FilterDialog extends Window {
 
     class StatusSet extends FieldSet {
 
-        final Label           defaultLb        = new Label(MessagesFactory.getMessages().default_option());
+        final Label defaultLb = new Label(MessagesFactory.getMessages().default_option());
 
-        final Label           selectedStatuses = new Label(MessagesFactory.getMessages().selected_statuses());
+        final Label selectedStatuses = new Label(MessagesFactory.getMessages().selected_statuses());
 
-        boolean               isDefault;
+        boolean isDefault;
 
-        final HorizontalPanel statusLine       = new HorizontalPanel();
+        final HorizontalPanel statusLine = new HorizontalPanel();
 
-        final CheckBox        status000        = new CheckBox("000");                                         //$NON-NLS-1$
+        final CheckBox status000 = new CheckBox("000"); //$NON-NLS-1$
 
-        final CheckBox        status204        = new CheckBox("204");                                         //$NON-NLS-1$
+        final CheckBox status204 = new CheckBox("204"); //$NON-NLS-1$
 
-        final CheckBox        status404        = new CheckBox("404");                                         //$NON-NLS-1$
+        final CheckBox status404 = new CheckBox("404"); //$NON-NLS-1$
 
-        final FlexTable       table            = new FlexTable();
+        final FlexTable table = new FlexTable();
 
         public StatusSet() {
             initEvent();
@@ -441,90 +441,96 @@ class FilterDialog extends Window {
 
     class TimeSet extends FieldSet {
 
-        final Label           all           = new Label(MessagesFactory.getMessages().all());
+        final Label all = new Label(MessagesFactory.getMessages().all());
 
-        final Label           today         = new Label(MessagesFactory.getMessages().today());
+        final Label today = new Label(MessagesFactory.getMessages().today());
 
-        final Label           yesterday     = new Label(MessagesFactory.getMessages().yesterday());
+        final Label yesterday = new Label(MessagesFactory.getMessages().yesterday());
 
-        final Label           lastWeek      = new Label(MessagesFactory.getMessages().last_week());
+        final Label lastWeek = new Label(MessagesFactory.getMessages().last_week());
 
-        final Label           lastMonth     = new Label(MessagesFactory.getMessages().last_month());
+        final Label lastMonth = new Label(MessagesFactory.getMessages().last_month());
 
-        final Label           custom        = new Label(MessagesFactory.getMessages().customizing());
+        final Label custom = new Label(MessagesFactory.getMessages().customizing());
 
-        Label                 selectedLabel = all;
+        Label selectedLabel = all;
 
-        final DateField       startDate     = new DateField();
+        final DateField startDate = new DateField();
 
-        final DateField       endDate       = new DateField();
+        final DateField endDate = new DateField();
 
-        final HorizontalPanel termPanel     = new HorizontalPanel();
+        final HorizontalPanel termPanel = new HorizontalPanel();
 
-        final FlexTable       table         = new FlexTable();
+        final FlexTable table = new FlexTable();
 
-        final VerticalPanel   vp            = new VerticalPanel();
+        final VerticalPanel vp = new VerticalPanel();
 
-        static final long     DAY           = 1000 * 60 * 60 * 24;
+        static final long DAY = 1000 * 60 * 60 * 24;
 
-        final Date            now           = new Date();
+        final Date now = new Date();
 
-        final ClickHandler    labelHandler  = new ClickHandler() {
+        final ClickHandler labelHandler = new ClickHandler() {
 
-                                                @Override
-                                                public void onClick(ClickEvent event) {
-                                                    Label timeLabel = (Label) event.getSource();
-                                                    if (timeLabel != selectedLabel) {
+            @Override
+            public void onClick(ClickEvent event) {
+                Label timeLabel = (Label) event.getSource();
+                if (timeLabel != selectedLabel) {
 
-                                                        selectedLabel.getElement().getStyle().setCursor(Cursor.POINTER);
-                                                        selectedLabel.getElement().getStyle().setColor("blue"); //$NON-NLS-1$
-                                                        selectedLabel.getElement().getStyle().setFontWeight(FontWeight.NORMAL);
+                    selectedLabel.getElement().getStyle().setCursor(Cursor.POINTER);
+                    selectedLabel.getElement().getStyle().setColor("blue"); //$NON-NLS-1$
+                    selectedLabel.getElement().getStyle().setFontWeight(FontWeight.NORMAL);
 
-                                                        timeLabel.getElement().getStyle().setCursor(Cursor.TEXT);
-                                                        timeLabel.getElement().getStyle().setColor("black"); //$NON-NLS-1$
-                                                        timeLabel.getElement().getStyle().setFontWeight(FontWeight.BOLD);
+                    timeLabel.getElement().getStyle().setCursor(Cursor.TEXT);
+                    timeLabel.getElement().getStyle().setColor("black"); //$NON-NLS-1$
+                    timeLabel.getElement().getStyle().setFontWeight(FontWeight.BOLD);
 
-                                                        DateTimePropertyEditor editor = new DateTimePropertyEditor(
-                                                                "yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
-                                                        startDate.setPropertyEditor(editor);
-                                                        endDate.setPropertyEditor(editor);
+                    DateTimePropertyEditor editor = new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss"); //$NON-NLS-1$
+                    startDate.setPropertyEditor(editor);
+                    endDate.setPropertyEditor(editor);
 
-                                                        if (timeLabel == all) {
-                                                            startDate.setValue(null);
-                                                            endDate.setValue(null);
-                                                        } else if (timeLabel == today) {
-                                                            startDate.setValue(new Date(now.getTime()));
-                                                            endDate.setValue(getEndOfDay());
-                                                        } else if (timeLabel == yesterday) {
-                                                            startDate.setValue(new Date(now.getTime() - DAY));
-                                                            endDate.setValue(getEndOfDay());
-                                                        } else if (timeLabel == lastWeek) {
-                                                            startDate.setValue(new Date(now.getTime() - (7 * DAY)));
-                                                            endDate.setValue(getEndOfDay());
-                                                        } else if (timeLabel == lastMonth) {
-                                                            startDate.setValue(new Date(now.getTime() - (30 * DAY)));
-                                                            endDate.setValue(getEndOfDay());
-                                                        }
+                    if (timeLabel == all) {
+                        startDate.setValue(null);
+                        endDate.setValue(null);
+                    } else if (timeLabel == today) {
+                        startDate.setValue(getStartOfDay(new Date(now.getTime())));
+                        endDate.setValue(getEndOfDay());
+                    } else if (timeLabel == yesterday) {
+                        startDate.setValue(getStartOfDay(new Date(now.getTime() - DAY)));
+                        endDate.setValue(getEndOfDay());
+                    } else if (timeLabel == lastWeek) {
+                        startDate.setValue(getStartOfDay(new Date(now.getTime() - (7 * DAY))));
+                        endDate.setValue(getEndOfDay());
+                    } else if (timeLabel == lastMonth) {
+                        startDate.setValue(getStartOfDay(new Date(now.getTime() - (30 * DAY))));
+                        endDate.setValue(getEndOfDay());
+                    }
 
-                                                        if (timeLabel == custom) {
-                                                            termPanel.setVisible(true);
-                                                        } else {
-                                                            termPanel.setVisible(false);
-                                                        }
+                    if (timeLabel == custom) {
+                        termPanel.setVisible(true);
+                    } else {
+                        termPanel.setVisible(false);
+                    }
 
-                                                        selectedLabel = timeLabel;
-                                                    }
-                                                }
+                    selectedLabel = timeLabel;
+                }
+            }
 
-                                                private Date getEndOfDay() {
-                                                    // Use of deprecated methods but Calendar can't be used in GWT
-                                                    Date date = new Date(System.currentTimeMillis());
-                                                    date.setHours(23);
-                                                    date.setMinutes(59);
-                                                    date.setSeconds(59);
-                                                    return date;
-                                                }
-                                            };
+            private Date getStartOfDay(Date date) {
+                date.setHours(0);
+                date.setMinutes(0);
+                date.setSeconds(0);
+                return date;
+            }
+
+            private Date getEndOfDay() {
+                // Use of deprecated methods but Calendar can't be used in GWT
+                Date date = new Date(System.currentTimeMillis());
+                date.setHours(23);
+                date.setMinutes(59);
+                date.setSeconds(59);
+                return date;
+            }
+        };
 
         public TimeSet() {
             all.getElement().getStyle().setCursor(Cursor.TEXT);
