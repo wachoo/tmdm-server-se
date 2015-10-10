@@ -193,6 +193,7 @@ public class DataChart extends ChartPortlet {
             public void onMouseOut(MouseOutEvent event) {
                 hoveringTXT = ""; //$NON-NLS-1$
                 entityName = ""; //$NON-NLS-1$
+                portal.setStyleAttribute("cursor", "default"); //$NON-NLS-1$//$NON-NLS-2$
             }
         }, MouseOutEvent.getType());
 
@@ -320,9 +321,11 @@ public class DataChart extends ChartPortlet {
                     popup.setPopupPosition(cursorX, cursorY);
                     popup.show();
                     entityName = entityNamesSorted.get(item.getSeriesIndex());
-
+                    portal.setStyleAttribute("cursor", "pointer"); //$NON-NLS-1$ //$NON-NLS-2$ 
                 } else {
                     popup.hide();
+                    entityName = ""; //$NON-NLS-1$
+                    portal.setStyleAttribute("cursor", "default"); //$NON-NLS-1$//$NON-NLS-2$
                 }
             }
         }, false);
