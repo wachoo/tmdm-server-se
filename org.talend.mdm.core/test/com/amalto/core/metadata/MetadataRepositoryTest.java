@@ -316,11 +316,9 @@ public class MetadataRepositoryTest extends TestCase {
         MetadataRepository repository = new MetadataRepository();
         InputStream stream = getClass().getResourceAsStream("schema26.xsd");
         repository.load(stream);
-        List<ComplexTypeMetadata> sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+        List<ComplexTypeMetadata> sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.STRICT);
         boolean hasMetHexavia = false;
         boolean hasMetAdresse = false;
-        System.out.println(sortTypes.indexOf(repository.getComplexType("Hexavia")));
-        System.out.println(sortTypes.indexOf(repository.getComplexType("Adresse")));
         
         for (ComplexTypeMetadata sortType : sortTypes) {
             if ("Hexavia".equals(sortType.getName())) {
