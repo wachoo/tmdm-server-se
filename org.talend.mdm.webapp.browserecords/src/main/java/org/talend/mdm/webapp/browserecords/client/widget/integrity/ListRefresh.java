@@ -44,12 +44,18 @@ public class ListRefresh implements PostDeleteAction {
         // TMDM-3556, it didn't need to reload when delete FK in separate tab
         if (bar == null || (!bar.isHierarchyCall() && (ItemsListPanel.getInstance().getCurrentQueryModel() != null) && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
                 .equals(bar.getItemBean().getConcept()))) {
-            // Reload
-            ItemsListPanel.getInstance().reload(new ReLoadData() {
-                public void onReLoadData() {
-                    next.doAction();
-                }
-            });
+            // Click "Open master record" from staging browser, then delete the master record, it shoudn't reload staging browser.
+            if (ItemsListPanel.getInstance().getCurrentQueryModel().getDataClusterPK().contains("#STAGING") && !bar.isStaging()) { //$NON-NLS-1$
+
+            } else {
+                // Reload
+                ItemsListPanel.getInstance().reload(new ReLoadData() {
+
+                    public void onReLoadData() {
+                        next.doAction();
+                    }
+                });
+            }
         } else if(bar.isHierarchyCall()){
             next.doAction();
         }

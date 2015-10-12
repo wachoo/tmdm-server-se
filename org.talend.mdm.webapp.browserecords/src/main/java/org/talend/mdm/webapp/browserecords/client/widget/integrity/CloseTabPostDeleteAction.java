@@ -40,7 +40,11 @@ public class CloseTabPostDeleteAction implements PostDeleteAction {
     public void doAction() {
         if (bar.isOutMost()) {
             bar.closeOutTabPanel();
-            selectBrowseRecord();
+            if (bar.isStaging()) {
+                selectStagingRecord();
+            } else {
+                selectBrowseRecord();
+            }
             doSearch4SearchEntityPanel();
         } else if (bar.isFkToolBar()) {
             bar.closeCurrentTabPanel();// TMDM-3556, it need to close current tab when delete FK
@@ -51,6 +55,14 @@ public class CloseTabPostDeleteAction implements PostDeleteAction {
     private native void selectBrowseRecord()/*-{
         var tabPanel = $wnd.amalto.core.getTabPanel();
         var panel = tabPanel.getItem("Browse Records");         
+        if (panel != undefined){
+            tabPanel.setSelection(panel.getItemId());
+        }
+    }-*/;
+    
+    private native void selectStagingRecord()/*-{
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var panel = tabPanel.getItem("BrowseRecordsInStaging");         
         if (panel != undefined){
             tabPanel.setSelection(panel.getItemId());
         }

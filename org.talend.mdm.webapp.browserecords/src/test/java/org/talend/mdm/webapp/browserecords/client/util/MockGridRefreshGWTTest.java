@@ -81,12 +81,14 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
     private String sortField;
 
+    String dataClusterPK = ""; // ItemsListPanel.getInstance().getCurrentQueryModel().getDataClusterPK()
+
     MockBrowseRecordsServiceAsync service = new MockBrowseRecordsServiceAsync();
 
     public void testGridRefresh() {
 
         AppEvent event = new AppEvent(BrowseRecordsEvents.SaveItem);
-        ItemDetailToolBar detailToolBar = new ItemDetailToolBar(null);
+        ItemDetailToolBar detailToolBar = new ItemDetailToolBar(true, null);
         event.setData("itemDetailToolBar", detailToolBar);
 
         // 1. fkToolBar = false, isOutMost = false, isHierarchyCall = false
@@ -147,7 +149,7 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         detailToolBar.setFkToolBar(true);
         detailToolBar.setOutMost(true);
         detailToolBar.setHierarchyCall(false);
-        onDeleteItemBeans();
+        onDeleteItemBeans(detailToolBar);
         assertEquals(true, isGridRefresh);
     }
 
@@ -292,6 +294,14 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         assertEquals(0, pagingBar.getTotalPages());
     }
 
+    public void testGridRefreshAfterDelete() {
+        isGridRefresh = false;
+        ItemDetailToolBar detailToolBar = new ItemDetailToolBar(false, null);
+        dataClusterPK = "VNC#STAGING";
+        onDeleteItemBeans(detailToolBar);
+        assertEquals(false, isGridRefresh);
+    }
+
     private void onSaveItem(final AppEvent event) {
 
         final ItemDetailToolBar detailToolBar = event.getData("itemDetailToolBar");
@@ -368,13 +378,18 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
     }
 
-    private void onDeleteItemBeans() {
+    private void onDeleteItemBeans(final ItemDetailToolBar bar) {
         service.deleteItemBeans(null, true, "en", new SessionAwareAsyncCallback<List<ItemResult>>() {
 
             @Override
             public void onSuccess(List<ItemResult> result) {
                 assertNotNull(result);
-                gridRefresh();
+                    // Click "Open master record" from staging browser, then delete the master record, it shoudn't reload staging browser.
+                if (dataClusterPK.contains("#STAGING") && !bar.isStaging()) {
+
+                } else {
+                        gridRefresh();
+                }
             }
         });
     }
