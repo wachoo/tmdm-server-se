@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">  
+  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>  
+  <xsd:simpleType name="bdt_CodeType"> 
+    <xsd:annotation> 
+      <xsd:documentation>Точное значение, метод, или описание свойства в краткой или независимой от естественного языка форме, которая является частью конечного списка допустимых значений</xsd:documentation> 
+    </xsd:annotation>  
+    <xsd:restriction base="eec_token"/> 
+  </xsd:simpleType>  
+  <xsd:simpleType name="csdo_CountryCodeType"> 
+    <xsd:annotation> 
+      <xsd:documentation>Кодовое обозначение страны в виде двух букв латинского алфивита в соответствии с классификатором, утвержденным Комиссией</xsd:documentation> 
+    </xsd:annotation>  
+    <xsd:restriction base="bdt_CodeType"> 
+      <xsd:pattern value="[A-Z]{2}"/> 
+    </xsd:restriction> 
+  </xsd:simpleType>  
+  <xsd:complexType name="opnsi_CountryType"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="Code" type="csdo_CountryCodeType"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Label_RU">Код</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:sequence> 
+  </xsd:complexType>  
+  <xsd:element name="TMDM_8792_Country" type="opnsi_CountryType"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Label_RU">Классификатор стран мира</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="TMDM_8792_Country"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="Code"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:simpleType name="eec_token"> 
+    <xsd:restriction base="xsd:string"> 
+      <xsd:pattern value="([^ ]+[ ]{1})*[^ ]+|^\s*$"/> 
+    </xsd:restriction> 
+  </xsd:simpleType>  
+  <xsd:element name="TMDM_8792_Entity" type="TestType2"> 
+    <xsd:unique name="TMDM_8792_Entity"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="Id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="TestBase"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="Base_id" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="Base_field1" type="csdo_CountryCodeType"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_ForeignKey">TMDM_8792_Country/Code</xsd:appinfo>  
+          <xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:sequence> 
+  </xsd:complexType>  
+  <xsd:complexType name="TestType1"> 
+    <xsd:complexContent> 
+      <xsd:extension base="TestBase"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="Type1_field1" type="xsd:string"/> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>  
+  <xsd:complexType name="TestType2"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="Type2_field1" type="TestType1"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="Type2_field2" type="TestType1"/> 
+    </xsd:sequence> 
+  </xsd:complexType> 
+</xsd:schema>

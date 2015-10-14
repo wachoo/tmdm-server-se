@@ -1,22 +1,29 @@
 /*
  * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
- *
+ * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- *
- * You should have received a copy of the agreement
- * along with this program; if not, write to Talend SA
- * 9 rue Pages 92150 Suresnes, France
+ * 
+ * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
+ * 92150 Suresnes, France
  */
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.storage.datasource.RDBMSDataSource;
-import org.talend.mdm.commmon.metadata.*;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+
+import com.amalto.core.storage.datasource.RDBMSDataSource;
 
 public class StatefulContext implements MappingCreatorContext {
 
@@ -30,6 +37,7 @@ public class StatefulContext implements MappingCreatorContext {
         this.dialect = dialect;
     }
 
+    @Override
     public String getFieldColumn(FieldMetadata field) {
         if (!field.getContainingType().getSuperTypes().isEmpty() && !field.getContainingType().isInstantiable()) {
             boolean isUnique = isUniqueWithinTypeHierarchy(field.getContainingType(), field.getName());
@@ -56,7 +64,7 @@ public class StatefulContext implements MappingCreatorContext {
     /**
      * Controls whether a field name is unique within type hierarchy accessible from <code>type</code> (i.e. go to the
      * top level type and recursively checks for field with name <code>name</code>).
-     *
+     * 
      * @param type A type part of an inheritance hierarchy
      * @param name A field name.
      * @return <code>true</code> if there's no other field named <code>name</code> in the type hierarchy accessible from
@@ -106,7 +114,9 @@ public class StatefulContext implements MappingCreatorContext {
 
             @Override
             public Integer visit(ComplexTypeMetadata complexType) {
-                super.visit(complexType);
+                if (complexType.getSubTypes().size() < 1) {
+                    super.visit(complexType);
+                }
                 for (ComplexTypeMetadata subType : complexType.getSubTypes()) {
                     subType.accept(this);
                 }
@@ -116,6 +126,7 @@ public class StatefulContext implements MappingCreatorContext {
         return occurrenceCount <= 1;
     }
 
+    @Override
     public String getFieldColumn(String name) {
         return "x_" + name.replace('-', '_').toLowerCase(); //$NON-NLS-1$
     }
