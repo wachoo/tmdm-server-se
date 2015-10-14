@@ -230,6 +230,9 @@ public class CommonUtil {
     }
 
     public static String unescapeXml(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
         StringBuilder result = new StringBuilder(value.length());
         int i = 0;
         int n = value.length();
