@@ -4577,7 +4577,7 @@ public class StorageQueryTest extends StorageTestCase {
         assertNull(ex_1);
         
         FieldMetadata field_2 = checkPointDetails_2.getField("PointAddressDetails/AddressDetails/TerritoryCode");
-        UserQueryBuilder qb_2 = from(checkPointDetails_1).where(eq(field_2, "2"));
+        UserQueryBuilder qb_2 = from(checkPointDetails_2).where(eq(field_2, "2"));
         StorageResults results_2 = null;
         Exception ex_2 = null;
         try {
