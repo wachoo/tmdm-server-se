@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
 
 import com.amalto.core.query.user.BinaryLogicOperator;
@@ -96,11 +97,13 @@ public class InheritanceTest extends StorageTestCase {
     }
 
     public void testTypeOrdering() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(InheritanceTest.class.getResourceAsStream("TypeOrdering.xsd"));
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
         String[] expectedOrder = { "A", "Store", "Update", "B", "D", "E", "C",
                 "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "Group", "ContainedEntityC", "SS", "ContainedEntityB",
                 "E2", "ContainedEntityA", "ff", "E1", "a1", "EntityB", "a2", "EntityA", "Company", "PointToSelfEntity","Customer", "Product",
-                "Employee1", "Country", "Manager1", "Concurrent", "Persons", "Employee", "Manager", "Supplier", "ProductFamily",
+                "Employee1", "Country", "Manager1", "Concurrent", "City", "Persons", "Employee", "Manager", "Supplier", "ProductFamily",
                 "Address", "TypeA", "Person" };
         int i = 0;
         for (ComplexTypeMetadata sortedType : sortedList) {
