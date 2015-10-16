@@ -389,11 +389,13 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     @Override
     public Void visit(ReferenceFieldMetadata referenceField) {
         try {
-            CtClass currentClass = classCreationStack.peek();
-            referenceField.getReferencedType().accept(this); // Visit referenced type in case it hasn't been created.
-            CtClass fieldType = classPool.get(getClassName(referenceField.getReferencedType().getName()));
-            addNewField(referenceField.getName(), referenceField.isMany(), fieldType, currentClass);
-            return super.visit(referenceField);
+            if (!existsInSuperTypes(referenceField)) {
+                CtClass currentClass = classCreationStack.peek();
+                referenceField.getReferencedType().accept(this); // Visit referenced type in case it hasn't been created.
+                CtClass fieldType = classPool.get(getClassName(referenceField.getReferencedType().getName()));
+                addNewField(referenceField.getName(), referenceField.isMany(), fieldType, currentClass);
+            }
+            return null;
         } catch (Exception e) {
             throw new RuntimeException("Error during processing of reference field '" + referenceField.getName() + "' of type '"
                     + referenceField.getContainingType().getName() + "'", e);
@@ -437,47 +439,49 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
 
     private Void handleFieldMetadata(FieldMetadata metadata) {
         try {
-            CtClass currentClass = classCreationStack.peek();
-            ClassFile currentClassFile = currentClass.getClassFile();
-            CtClass fieldType = classPool.get(HibernateMetadataUtils.getJavaType(metadata.getType()));
-            CtField field = addNewField(metadata.getName(), metadata.isMany(), fieldType, currentClass);
-            if (!currentClass.getName().endsWith("_ID")) { //$NON-NLS-1$
-                ConstPool cp = currentClassFile.getConstPool();
-                AnnotationsAttribute annotations = (AnnotationsAttribute) field.getFieldInfo().getAttribute(
-                        AnnotationsAttribute.visibleTag);
-                if (annotations == null) {
-                    annotations = new AnnotationsAttribute(cp, AnnotationsAttribute.visibleTag);
-                    field.getFieldInfo().addAttribute(annotations);
-                }
-                // Adds "DocumentId" annotation for Hibernate search
-                if (metadata.getContainingType().getSuperTypes().isEmpty()) { // Do this if key field is declared in
-                                                                              // containing type (DocumentId annotation
-                                                                              // is inherited).
-                    if (metadata.getContainingType().getKeyFields().size() == 1) {
-                        if (metadata.isKey()) {
-                            Annotation docIdAnnotation = new Annotation(DocumentId.class.getName(), cp);
-                            annotations.addAnnotation(docIdAnnotation);
-                            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
-                            fieldBridge.addMemberValue("impl", new ClassMemberValue(ToLowerCaseFieldBridge.class.getName(), cp)); //$NON-NLS-1$
-                            annotations.addAnnotation(fieldBridge);
-                        }
-                    } else {
-                        if (!classIndexed.contains(currentClass)) {
-                            // @ProvidedId(bridge = @FieldBridge(impl = CompositeIdBridge.class))
-                            Annotation providedId = new Annotation(ProvidedId.class.getName(), cp);
-                            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
-                            fieldBridge.addMemberValue("impl", new ClassMemberValue(CompositeIdBridge.class.getName(), cp)); //$NON-NLS-1$
-                            providedId.addMemberValue("bridge", new AnnotationMemberValue(fieldBridge, cp)); //$NON-NLS-1$
-                            AnnotationsAttribute attribute = (AnnotationsAttribute) currentClassFile
-                                    .getAttribute(AnnotationsAttribute.visibleTag);
-                            attribute.addAnnotation(providedId);
-                            classIndexed.add(currentClass);
+            if (!existsInSuperTypes(metadata)) {
+                CtClass currentClass = classCreationStack.peek();
+                ClassFile currentClassFile = currentClass.getClassFile();
+                CtClass fieldType = classPool.get(HibernateMetadataUtils.getJavaType(metadata.getType()));
+                CtField field = addNewField(metadata.getName(), metadata.isMany(), fieldType, currentClass);
+                if (!currentClass.getName().endsWith("_ID")) { //$NON-NLS-1$
+                    ConstPool cp = currentClassFile.getConstPool();
+                    AnnotationsAttribute annotations = (AnnotationsAttribute) field.getFieldInfo().getAttribute(
+                            AnnotationsAttribute.visibleTag);
+                    if (annotations == null) {
+                        annotations = new AnnotationsAttribute(cp, AnnotationsAttribute.visibleTag);
+                        field.getFieldInfo().addAttribute(annotations);
+                    }
+                    // Adds "DocumentId" annotation for Hibernate search
+                    if (metadata.getContainingType().getSuperTypes().isEmpty()) { // Do this if key field is declared in
+                                                                                  // containing type (DocumentId annotation
+                                                                                  // is inherited).
+                        if (metadata.getContainingType().getKeyFields().size() == 1) {
+                            if (metadata.isKey()) {
+                                Annotation docIdAnnotation = new Annotation(DocumentId.class.getName(), cp);
+                                annotations.addAnnotation(docIdAnnotation);
+                                Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
+                                fieldBridge.addMemberValue("impl", new ClassMemberValue(ToLowerCaseFieldBridge.class.getName(), cp)); //$NON-NLS-1$
+                                annotations.addAnnotation(fieldBridge);
+                            }
+                        } else {
+                            if (!classIndexed.contains(currentClass)) {
+                                // @ProvidedId(bridge = @FieldBridge(impl = CompositeIdBridge.class))
+                                Annotation providedId = new Annotation(ProvidedId.class.getName(), cp);
+                                Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
+                                fieldBridge.addMemberValue("impl", new ClassMemberValue(CompositeIdBridge.class.getName(), cp)); //$NON-NLS-1$
+                                providedId.addMemberValue("bridge", new AnnotationMemberValue(fieldBridge, cp)); //$NON-NLS-1$
+                                AnnotationsAttribute attribute = (AnnotationsAttribute) currentClassFile
+                                        .getAttribute(AnnotationsAttribute.visibleTag);
+                                attribute.addAnnotation(providedId);
+                                classIndexed.add(currentClass);
+                            }
                         }
                     }
-                }
-                if (!metadata.isKey()) {
-                    SearchIndexHandler handler = getHandler(metadata);
-                    handler.handle(annotations, cp);
+                    if (!metadata.isKey()) {
+                        SearchIndexHandler handler = getHandler(metadata);
+                        handler.handle(annotations, cp);
+                    }
                 }
             }
             return null;
@@ -512,6 +516,22 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
         } else { // metadata.isMany() returned true
             return new ListFieldIndexHandler();
         }
+    }
+    
+    private boolean existsInSuperTypes(FieldMetadata metadata) {
+        Iterator<TypeMetadata> superTypes = metadata.getContainingType().getSuperTypes().iterator();
+        if (superTypes.hasNext()) {
+            TypeMetadata superType = superTypes.next();
+            if (superType instanceof ComplexTypeMetadata) {
+                Collection<FieldMetadata> superTypeFields = ((ComplexTypeMetadata) superType).getFields();
+                for (FieldMetadata field : superTypeFields) {
+                    if (field.getName().equals(metadata.getName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private interface SearchIndexHandler {
