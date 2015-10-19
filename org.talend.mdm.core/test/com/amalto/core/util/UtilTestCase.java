@@ -84,9 +84,10 @@ public class UtilTestCase extends TestCase {
             throw new SAXException(e);
         }
 
-        // non mandontory field contains empty mandontory child fields is OK
-        String xml1 = "<Product><Picture>htt:aa</Picture><Id>id1</Id><Name>name2</Name><Description>des1</Description>"
-                + "<Features><Sizes><Size/></Sizes><Colors><Color/></Colors></Features>"
+        // non mandontory field without nillable="true" should not contain empty child fields
+        // mandontory filed with nillable="true" could contain empty child fields with xsi:nil="1"
+        String xml1 = "<Product xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Picture>htt:aa</Picture><Id>id1</Id><Name>name2</Name><Description>des1</Description>"
+                + "<Features><Sizes></Sizes><Colors><Color xsi:nil=\"1\"/></Colors></Features>"
                 + "<Availability>false</Availability><Price>0.0</Price><Family></Family><OnlineStore>gg2@d</OnlineStore></Product>";
         element = Util.parse(xml1).getDocumentElement();
         try {
