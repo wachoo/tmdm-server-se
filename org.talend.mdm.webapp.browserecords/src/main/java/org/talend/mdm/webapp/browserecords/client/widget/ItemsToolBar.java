@@ -567,7 +567,7 @@ public class ItemsToolBar extends ToolBar {
     }
 
     public void updateEntityCombo() {
-        if (entityCombo != null) {
+        if (entityCombo != null && !GenerateContainer.getDefaultViewPk().equals("")) { //$NON-NLS-1$
             service.getViewsList(Locale.getLanguage(), new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
                 @Override
@@ -601,6 +601,7 @@ public class ItemsToolBar extends ToolBar {
                             MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                                     .find_view_warning(GenerateContainer.getDefaultViewPk()), null);
                         }
+                        GenerateContainer.setDefaultViewPk(""); //$NON-NLS-1$
                     }
                 }
             });
