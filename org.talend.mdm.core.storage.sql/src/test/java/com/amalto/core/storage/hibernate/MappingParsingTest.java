@@ -25,6 +25,7 @@ import com.amalto.core.storage.StorageType;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -63,7 +64,7 @@ public class MappingParsingTest extends TestCase {
     public void testInheritanceIndexLength() throws Exception {
         // Loads data model
         MetadataRepository repository = new MetadataRepository();
-        InputStream dataModel = MappingParsingTest.class.getResourceAsStream("MappingParsingTest_1.xsd");
+        InputStream dataModel = MappingParsingTest.class.getResourceAsStream("MappingParsingTest_1.xsd");//$NON-NLS-1$
         assertNotNull(dataModel);
         repository.load(dataModel);
         // Creates storage (and overrides SQL name max length)
@@ -85,7 +86,12 @@ public class MappingParsingTest extends TestCase {
         String filename = tmpDir + File.separator + "MappingParsingTest_STAGING_H2.ddl"; //$NON-NLS-1$
         InputStream resultDataInputStream = new FileInputStream(new File(filename));
         assertNotNull(resultDataInputStream);
-        assertEquals(IOUtils.toString(expectedDataInputStream), IOUtils.toString(resultDataInputStream));
+        String[] extectedSQLs = IOUtils.toString(expectedDataInputStream).split("\n"); //$NON-NLS-1$
+        String[] resultSQLs = IOUtils.toString(resultDataInputStream).split("\n"); //$NON-NLS-1$
+        assertEquals(extectedSQLs.length, resultSQLs.length);
+        for (int i = 0; i < extectedSQLs.length; i++) {
+            assertEquals(StringUtils.replace(extectedSQLs[i], "\r", ""), resultSQLs[i]); //$NON-NLS-1$//$NON-NLS-2$
+        }
     }
 
 }
