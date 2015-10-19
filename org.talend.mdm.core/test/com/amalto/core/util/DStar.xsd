@@ -224,7 +224,7 @@
 </xsd:annotation>  
                                 <xsd:complexType> 
                                     <xsd:sequence> 
-                                        <xsd:element maxOccurs="unbounded" name="Size" type="Size"> 
+                                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="Size" type="Size"> 
                                             <xsd:annotation> 
                                                 <xsd:appinfo source="X_Label_EN">Size</xsd:appinfo>  
                                                 <xsd:appinfo source="X_Label_FR">Taille</xsd:appinfo>  
@@ -246,7 +246,7 @@
 </xsd:annotation>  
                                 <xsd:complexType> 
                                     <xsd:sequence> 
-                                        <xsd:element maxOccurs="unbounded" name="Color" type="Color"> 
+                                        <xsd:element maxOccurs="unbounded" minOccurs="1" nillable="true" name="Color" type="Color"> 
                                             <xsd:annotation> 
                                                 <xsd:appinfo source="X_Label_EN">Color</xsd:appinfo>  
                                                 <xsd:appinfo source="X_Label_FR">Couleur</xsd:appinfo>  
