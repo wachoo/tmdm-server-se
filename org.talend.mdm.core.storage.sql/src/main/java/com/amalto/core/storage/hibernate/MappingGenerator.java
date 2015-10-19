@@ -473,11 +473,15 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             String columnNameValue = resolver.get(field, compositeKeyPrefix);
             columnName.setValue(columnNameValue); 
             column.getAttributes().setNamedItem(columnName);
-            if (generateConstrains) {
-                Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
-                notNull.setValue(String.valueOf(isColumnMandatory));
-                column.getAttributes().setNamedItem(notNull);
+            // TMDM-9003: should add not-null="false" explicitly if not-null isn't "true" for many-to-many scenario 
+            Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
+            if (generateConstrains && isColumnMandatory) {
+                notNull.setValue(Boolean.TRUE.toString());
+            } else {
+                notNull.setValue(Boolean.FALSE.toString());
             }
+            column.getAttributes().setNamedItem(notNull);
+            
             if (resolver.isIndexed(field)) { // Create indexes for fields that should be indexed.
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Creating index for field '" + field.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -538,21 +542,14 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     }
                 }
                 // Not null
-                if (generateConstrains) {
-                    if (field.isMandatory()) {
-                        Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
-                        notNull.setValue("true"); //$NON-NLS-1$
-                        propertyElement.getAttributes().setNamedItem(notNull);
-                    } else {
-                        Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
-                        notNull.setValue("false"); //$NON-NLS-1$
-                        propertyElement.getAttributes().setNamedItem(notNull);
-                    }
+                Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
+                if (generateConstrains && field.isMandatory()) {
+                    notNull.setValue(Boolean.TRUE.toString());
                 } else {
-                    Attr notNull = document.createAttribute("not-null"); //$NON-NLS-1$
-                    notNull.setValue("false"); //$NON-NLS-1$
-                    propertyElement.getAttributes().setNamedItem(notNull);
+                    notNull.setValue(Boolean.FALSE.toString());
                 }
+                propertyElement.getAttributes().setNamedItem(notNull);
+                
                 addFieldTypeAttribute(field, propertyElement, dataSource.getDialectName());
                 propertyElement.getAttributes().setNamedItem(propertyName);
                 propertyElement.getAttributes().setNamedItem(columnName);
