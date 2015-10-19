@@ -1165,6 +1165,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         @Override
         public int compare(String viewName1, String viewName2) {
+        	//for some reason the first value to be inserted is compared to itself
+            //so we need to add this so we don't go into the duplicate label every time
+            //anyway the put method will always replace the value if the key already exist
+            if (viewName1.equals(viewName2)) {
+                return 0;
+            }
             String viewLabel1 = unsortedViewsMap.get(viewName1);
             int comparison = viewLabel1.compareTo(unsortedViewsMap.get(viewName2));
             if (comparison > 0) {
