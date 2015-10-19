@@ -81,7 +81,11 @@ public class DataModelHelper {
         parseSchema(model, concept, null, null, entityModel, roles);
     }
 
-    public static void parseSchema(String model, String concept, XSElementDecl elDecl, String[] ids, EntityModel entityModel,
+    /**
+     * This method shared eleDecl and made the thread unsafe, so it should be synchronized.
+     */
+    public static synchronized void parseSchema(String model, String concept, XSElementDecl elDecl, String[] ids,
+            EntityModel entityModel,
             Collection<String> roles) {
 
         entityModel.setConceptName(concept);
@@ -397,8 +401,8 @@ public class DataModelHelper {
             Element annotations = (Element) e.getAnnotation().getAnnotation();
             NodeList annotList = annotations.getChildNodes();
             for (int k = 0; k < annotList.getLength(); k++) {
-                if ("appinfo".equals(annotList.item(k).getLocalName())) {//$NON-NLS-1$
-                    Node source = annotList.item(k).getAttributes().getNamedItem("source");//$NON-NLS-1$
+                if ("appinfo".equals(annotList.item(k).getLocalName())) {//$NON-NLS-1$                   
+                    Node source = annotList.item(k).getAttributes().getNamedItem("source");//$NON-NLS-1$                                                    
                     if (source == null) {
                         continue;
                     }

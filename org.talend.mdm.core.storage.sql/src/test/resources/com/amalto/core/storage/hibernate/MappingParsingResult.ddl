@@ -55,7 +55,7 @@ create table X_ANONYMOUS0 (x_talend_id varchar(255) not null, primary key (x_tal
 create table X_ANONYMOUS0_x__954682972 (x_talend_id varchar(255) not null, x_externalrefer_373841693 varchar(255), pos integer not null, primary key (x_talend_id, pos));
 create table X_Login (x_idpartyidentification varchar(255) not null, x_partyidentificationtype varchar(255), x_username varchar(255), x_password varchar(255), x_passwordquestion varchar(255), x_passwordquestionresponce varchar(255), x_md5 varchar(255), x_talend_timestamp bigint, x_talend_task_id varchar(36), x_talend_staging_status integer, x_talend_staging_source varchar(36), x_talend_staging_blockkey varchar(36), x_talend_staging_error longvarchar, x_talend_staging_values longvarchar, primary key (x_idpartyidentification));
 create table X_Name (x_idname varchar(255) not null, x_academictitle varchar(255), x_firstname varchar(255), x_middlename varchar(255), x_lastname varchar(255), x_nobilitytitle varchar(255), x_furthertitle varchar(255), x_salutation varchar(255), x_personfk_x_idparty varchar(255), x_talend_timestamp bigint, x_talend_task_id varchar(36), x_talend_staging_status integer, x_talend_staging_source varchar(36), x_talend_staging_blockkey varchar(36), x_talend_staging_error longvarchar, x_talend_staging_values longvarchar, primary key (x_idname));
-create table X_XRef_ExternalRefType (x_talend_id varchar(255) not null, x_systemname varchar(255) not null, x_systemkey varchar(255) not null, x_systemmain boolean, x_firstloadtime timestamp, x_lastloadtime timestamp, x_deletedtime timestamp, primary key (x_talend_id));
+create table X_XRef_ExternalRefType (x_talend_id varchar(255) not null, x_systemname varchar(255), x_systemkey varchar(255), x_systemmain boolean, x_firstloadtime timestamp, x_lastloadtime timestamp, x_deletedtime timestamp, primary key (x_talend_id));
 create index AccountManagerP_162328477 on AccountManager (x_talend_task_id);
 create index AccountManagerP985554384 on AccountManager (x_talend_staging_status);
 create index AccountManagerP617063773 on AccountManager (x_talend_staging_blockkey);
@@ -221,5 +221,4 @@ create index X_Login_x_talen_1142433852 on X_Login (x_talend_staging_blockkey);
 create index X_Name_x_talend_task_id_index on X_Name (x_talend_task_id);
 create index X_Name_x_talend_269286744 on X_Name (x_talend_staging_status);
 create index X_Name_x_talend1263274152 on X_Name (x_talend_staging_blockkey);
-alter table X_ANONYMOUS0_x__954682972 add constraint FK_eonqyakldp50e5gfox7h4k7ow foreign key (x_externalrefer_373841693) references X_XRef_ExternalRefType;
 alter table X_ANONYMOUS0_x__954682972 add constraint FK_82128i9rdd6x66nnnrljcf2ts foreign key (x_talend_id) references X_ANONYMOUS0;
