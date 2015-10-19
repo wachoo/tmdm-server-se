@@ -108,7 +108,6 @@ import com.amalto.core.util.FieldNotFoundException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
-import com.amalto.core.util.User;
 import com.amalto.core.webservice.WSBoolean;
 import com.amalto.core.webservice.WSByteArray;
 import com.amalto.core.webservice.WSConceptKey;

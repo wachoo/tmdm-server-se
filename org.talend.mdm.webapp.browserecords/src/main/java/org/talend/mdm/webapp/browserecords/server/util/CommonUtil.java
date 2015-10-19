@@ -23,7 +23,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.amalto.core.util.LocalUser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -53,6 +52,7 @@ import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.util.EntityNotFoundException;
+import com.amalto.core.util.LocalUser;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.Util;
 
@@ -345,7 +345,12 @@ public class CommonUtil {
                         }
                     }
 
-                    bean.setDisplayInfo(formattedId);
+                    if (model.getForeignKeyInfoFormat() != null && model.getForeignKeyInfoFormat().length() > 0) {
+                        ForeignKeyHelper.convertFKInfo2DisplayInfo(bean, model);
+                    } else {
+                        bean.setDisplayInfo(formattedId);
+                    }
+
                     return bean;
                 } else {
                     return null;
