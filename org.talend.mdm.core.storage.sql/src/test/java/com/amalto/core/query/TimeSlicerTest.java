@@ -45,12 +45,12 @@ public class TimeSlicerTest extends StorageTestCase {
                             country,
                             "<Country><id>" + i + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
             storage.commit();
-            Thread.sleep(200);
+            Thread.sleep(400);
         }
         UserQueryBuilder qb = UserQueryBuilder.from(country);
-        // Periods of 200 ms
+        // Periods of 400 ms
         storage.begin();
-        Iterator<TimeSlicer.Slice> slice = TimeSlicer.slice(qb.getSelect(), storage, 200, TimeUnit.MILLISECONDS);
+        Iterator<TimeSlicer.Slice> slice = TimeSlicer.slice(qb.getSelect(), storage, 400, TimeUnit.MILLISECONDS);
         int count = 0;
         while(slice.hasNext()) {
             slice.next();
@@ -58,9 +58,9 @@ public class TimeSlicerTest extends StorageTestCase {
         }
         storage.commit();
         assertTrue(count - 6 <= 1); // Time based assertions aren't really precise, consider deviation of > 1 as problem
-        // Periods of 400 ms
+        // Periods of 800 ms
         storage.begin();
-        slice = TimeSlicer.slice(qb.getSelect(), storage, 400, TimeUnit.MILLISECONDS);
+        slice = TimeSlicer.slice(qb.getSelect(), storage, 800, TimeUnit.MILLISECONDS);
         count = 0;
         while(slice.hasNext()) {
             slice.next();
@@ -68,9 +68,9 @@ public class TimeSlicerTest extends StorageTestCase {
         }
         storage.commit();
         assertTrue(count - 3 <= 1); // Time based assertions aren't really precise, consider deviation of > 1 as problem
-        // Periods of 1200 ms
+        // Periods of 2400 ms
         storage.begin();
-        slice = TimeSlicer.slice(qb.getSelect(), storage, 1200, TimeUnit.MILLISECONDS);
+        slice = TimeSlicer.slice(qb.getSelect(), storage, 2400, TimeUnit.MILLISECONDS);
         count = 0;
         while(slice.hasNext()) {
             slice.next();
@@ -158,12 +158,14 @@ public class TimeSlicerTest extends StorageTestCase {
                             country,
                             "<Country><id>" + i + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
             storage.commit();
-            Thread.sleep(200);
+            if(i < 5) {
+                Thread.sleep(1000);
+            }
         }
-        UserQueryBuilder qb = UserQueryBuilder.from(country).where(gte(timestamp(), String.valueOf(testStart + 800)));
+        UserQueryBuilder qb = UserQueryBuilder.from(country).where(gte(timestamp(), String.valueOf(testStart + 1000)));
         // Periods of 200 ms
         storage.begin();
-        Iterator<TimeSlicer.Slice> slice = TimeSlicer.slice(qb.getSelect(), storage, 200, TimeUnit.MILLISECONDS);
+        Iterator<TimeSlicer.Slice> slice = TimeSlicer.slice(qb.getSelect(), storage, 1000, TimeUnit.MILLISECONDS);
         int count = 0;
         while(slice.hasNext()) {
             slice.next();
@@ -183,13 +185,15 @@ public class TimeSlicerTest extends StorageTestCase {
                             country,
                             "<Country><id>" + i + "</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
             storage.commit();
-            Thread.sleep(200);
+            if(i < 5) {
+                Thread.sleep(1000);
+            }
         }
         long testEnd = System.currentTimeMillis();
-        UserQueryBuilder qb = UserQueryBuilder.from(country).where(lte(timestamp(), String.valueOf(testEnd - 800)));
+        UserQueryBuilder qb = UserQueryBuilder.from(country).where(lte(timestamp(), String.valueOf(testEnd - 1000)));
         // Periods of 200 ms
         storage.begin();
-        Iterator<TimeSlicer.Slice> slice = TimeSlicer.slice(qb.getSelect(), storage, 200, TimeUnit.MILLISECONDS);
+        Iterator<TimeSlicer.Slice> slice = TimeSlicer.slice(qb.getSelect(), storage, 1000, TimeUnit.MILLISECONDS);
         int count = 0;
         while(slice.hasNext()) {
             slice.next();
