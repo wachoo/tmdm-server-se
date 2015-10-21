@@ -34,10 +34,13 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
+import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.MockMetadataRepositoryAdmin;
 import com.amalto.core.server.MockServerLifecycle;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.*;
+import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
@@ -1623,6 +1626,12 @@ public class DocumentSaveTest extends TestCase {
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
         SaverSource source = new TestSaverSource(repository, true, "test1_original.xml", "metadata1.xsd");
         MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        Server server = ServerContext.INSTANCE.get();
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        assertNotNull(storageAdmin);
+        // create & register storage
+        storageAdmin.create("MDM", "MDM", StorageType.MASTER, "H2-Default"); //$NON-NLS-1$//$NON-NLS-2$
 
         Set<UpdateRunnable> updateRunnables = new HashSet<UpdateRunnable>();
         for (int i = 0; i < 10; i++) {
