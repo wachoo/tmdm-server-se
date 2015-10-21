@@ -19,10 +19,12 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.CompoundFieldMetadata;
 import org.talend.mdm.commmon.metadata.ConsoleDumpMetadataVisitor;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 
 /**
@@ -453,8 +455,21 @@ public class MetadataRepositoryTest extends TestCase {
         Assert.assertNotNull(type2 + " does not exist", m2);
         Assert.assertFalse(type2 + " not part of list", types.indexOf(m2) == -1);
         Assert.assertTrue(type1 + " is not before " + type2, types.indexOf(m1) < types.indexOf(m2));
-        
-        
-        
+    }
+
+    public void testCompoundForeignKey() {
+        MetadataRepository repository = new MetadataRepository();
+
+        InputStream stream = getClass().getResourceAsStream("Sort_CompoundForeignKey.xsd");
+        repository.load(stream);
+        ComplexTypeMetadata tt = repository.getComplexType("TT");
+        ComplexTypeMetadata rr = repository.getComplexType("RR");
+        assertEquals(2, rr.getKeyFields().size());
+
+        FieldMetadata e3 = tt.getField("E3");
+        FieldMetadata reference = ((ReferenceFieldMetadata) e3).getReferencedField();
+        int foreignKeyFields = ((CompoundFieldMetadata) reference).getFields().length;
+
+        assertEquals(2, foreignKeyFields);
     }
 }
