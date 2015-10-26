@@ -25,6 +25,10 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit3.PowerMockSuite;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.core.EDBType;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
@@ -49,10 +53,6 @@ import com.amalto.webapp.core.util.Util;
 public class ForeignKeyHelperTest extends TestCase {
 
     private MetadataRepository repository;
-
-    static {
-        MDMConfiguration.createConfiguration("", true);
-    }
 
     @Override
     protected void setUp() throws Exception {

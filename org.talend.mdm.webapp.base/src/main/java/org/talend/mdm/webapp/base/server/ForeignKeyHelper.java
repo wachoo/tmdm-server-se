@@ -67,7 +67,6 @@ import com.amalto.webapp.core.dmagent.SchemaAbstractWebAgent;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.XmlUtil;
-import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.extjs.gxt.ui.client.Style.SortDir;
 
 public class ForeignKeyHelper {
@@ -417,7 +416,7 @@ public class ForeignKeyHelper {
             xpathInfos[0] = initxpathForeignKey;
         }
 
-        String fkWhere = initxpathForeignKey + "/../* " + WhereCondition.CONTAINS + " " + keyValue; //$NON-NLS-1$ //$NON-NLS-2$
+        String fkWhere = initxpathForeignKey + "/../* CONTAINS " + keyValue; //$NON-NLS-1$
         if (xpathInfoForeignKey.trim().length() > 0) {
             StringBuffer ids = new StringBuffer();
             String realXpathForeignKey = null; // In studio, ForeignKey = ConceptName, but not ConceptName/Id
@@ -426,7 +425,7 @@ public class ForeignKeyHelper {
                 if (fks != null && fks.length > 0) {
                     realXpathForeignKey = fks[0];
                     for (int i = 0; i < fks.length; i++) {
-                        ids.append(fks[i] + " " + WhereCondition.CONTAINS + " " + keyValue); //$NON-NLS-1$ //$NON-NLS-2$
+                        ids.append(fks[i] + " CONTAINS " + keyValue); //$NON-NLS-1$ //$NON-NLS-2$
                         if (i != fks.length - 1) {
                             ids.append(" OR "); //$NON-NLS-1$
                         }
@@ -452,7 +451,7 @@ public class ForeignKeyHelper {
             if (realXpathForeignKey != null) {
                 sb.append(ids.toString());
             } else {
-                sb.append(xpathForeignKey + " " + WhereCondition.CONTAINS + " " + keyValue); //$NON-NLS-1$ //$NON-NLS-2$
+                sb.append(xpathForeignKey + " CONTAINS " + keyValue); //$NON-NLS-1$ //$NON-NLS-2$
             }
             fkWhere = sb.toString();
         }
@@ -703,7 +702,7 @@ public class ForeignKeyHelper {
         public String visit(ComplexTypeMetadata complexType) {
             if (fieldPath.length >= level) {
                 if (complexType.getName().equals(fieldPath[level])) {
-                    return WhereCondition.FULLTEXTSEARCH;
+                    return "FULLTEXTSEARCH"; //$NON-NLS-1$
                 } else {
                     Collection<FieldMetadata> fields = complexType.getFields();
                     for (FieldMetadata field : fields) {
