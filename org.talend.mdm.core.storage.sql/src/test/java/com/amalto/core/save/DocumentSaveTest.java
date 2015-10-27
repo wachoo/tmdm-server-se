@@ -506,6 +506,161 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("", evaluate(committedElement, "/Agency/Information/MoreInfo[2]"));
     }
     
+    public void testUpdateReportPartialDelete() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("PartialDelete.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+        
+        @SuppressWarnings("serial")
+        List<Map<String, String>> testDatas = new ArrayList<Map<String, String>>() {
+
+            {
+                add(new HashMap<String, String>() {//foreign key
+
+                    {
+                        put("pivot", "Person/Houses/House");
+                        put("key", ".");
+                        put("document", "PartialDelete_1.xml");
+                        put("report", "report1");
+                    }
+                });
+                add(new HashMap<String, String>() {//complex type
+
+                    {
+                        put("pivot", "Person/Kids/Kid");
+                        put("key", "/Name");
+                        put("document", "PartialDelete_2.xml");
+                        put("report", "report2");
+                    }
+                });
+                add(new HashMap<String, String>() {//simple type
+
+                    {
+                        put("pivot", "Person/Habits/Habit");
+                        put("key", "");
+                        put("document", "PartialDelete_3.xml");
+                        put("report", "report3");
+                    }
+                });
+                add(new HashMap<String, String>() {//simple type
+
+                    {
+                        put("pivot", "Person/Kids/Kid[1]/Habits/Habit");
+                        put("key", "");
+                        put("document", "PartialDelete_4.xml");
+                        put("report", "report4");
+                    }
+                });
+                add(new HashMap<String, String>() {//simple type
+
+                    {
+                        put("pivot", "Person/Kids/Kid[2]/Habits/Habit");
+                        put("key", "");
+                        put("document", "PartialDelete_4.xml");
+                        put("report", "report5");
+                    }
+                });             
+                add(new HashMap<String, String>() {//simple type
+
+                    {
+                        put("pivot", "Person/Pets");
+                        put("key", "/Pet");
+                        put("document", "PartialDelete_5.xml");
+                        put("report", "report6");
+                    }
+                });
+            }
+        };
+        
+        @SuppressWarnings("serial")
+        Map<String, List<String[]>> reportDatas = new HashMap<String, List<String[]>>() {
+
+            {
+                put("report1", new ArrayList<String[]>() {
+
+                    {
+                        add(new String[] { "Houses/House[3]", "[3]", "null" });
+                        add(new String[] { "Houses/House[2]", "[2]", "null" });
+                        add(new String[] { "Houses/House[1]", "[1]", "[3]" });
+                    }
+                });
+                put("report2", new ArrayList<String[]>() {
+
+                    {
+                        add(new String[] { "Kids/Kid[3]/Name", "k3", "null" });
+                        add(new String[] { "Kids/Kid[3]/Age", "3", "null" });
+                        add(new String[] { "Kids/Kid[2]/Name", "k2", "null" });
+                        add(new String[] { "Kids/Kid[2]/Age", "2", "null" });
+                        add(new String[] { "Kids/Kid[2]/Habits/Habit[3]", "Boxing", "null" });
+                        add(new String[] { "Kids/Kid[2]/Habits/Habit[2]", "Football", "null" });
+                        add(new String[] { "Kids/Kid[2]/Habits/Habit[1]", "Basketball", "null" });
+                    }
+                });
+                put("report3", new ArrayList<String[]>() {
+
+                    {
+                        add(new String[] { "Habits/Habit[4]", "Boxing", "null" });
+                        add(new String[] { "Habits/Habit[3]", "Tennis", "null" });
+                        add(new String[] { "Habits/Habit[2]", "Football", "null" });
+                        add(new String[] { "Habits/Habit[1]", "Basketball", "Tennis" });
+                    }
+                });
+                put("report4", new ArrayList<String[]>() {
+
+                    {
+                        add(new String[] { "Kids/Kid[1]/Habits/Habit[3]", "Tennis", "null" });
+                        add(new String[] { "Kids/Kid[1]/Habits/Habit[2]", "Football", "null" });
+                        add(new String[] { "Kids/Kid[1]/Habits/Habit[1]", "Basketball", "Tennis" });
+                    }
+                });
+                put("report5", new ArrayList<String[]>() {
+
+                    {
+                        add(new String[] { "Kids/Kid[2]/Habits/Habit[3]", "Boxing", "null" });
+                        add(new String[] { "Kids/Kid[2]/Habits/Habit[2]", "Football", "null" });
+                        add(new String[] { "Kids/Kid[2]/Habits/Habit[1]", "Basketball", "Boxing" });
+                    }
+                });
+                put("report6", new ArrayList<String[]>() {
+
+                    {
+                        add(new String[] { "Pets[4]/Pet", "Cow", "null" });
+                        add(new String[] { "Pets[3]/Pet", "Pig", "null" });
+                        add(new String[] { "Pets[2]/Pet", "Dog", "Cow" });
+                        add(new String[] { "Pets[1]/Pet", "Cat", "Dog" });
+                    }
+                });
+            }
+        };
+       
+        for (Map<String, String> data : testDatas) {
+            TestSaverSource source = new TestSaverSource(repository, true, "PartialDelete_original.xml", "PartialDelete.xsd");
+            source.setUserName("admin");
+
+            SaverSession session = SaverSession.newSession(source);
+            InputStream recordXml = DocumentSaveTest.class.getResourceAsStream(data.get("document"));
+            DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", recordXml, true, true, data.get("pivot"), data.get("key"), -1, true, true);
+            DocumentSaver saver = context.createSaver();
+            saver.save(session, context);
+            MockCommitter committer = new MockCommitter();
+            session.end(committer);
+            
+            MutableDocument updateReportDocument = context.getUpdateReportDocument();
+            assertNotNull(updateReportDocument);
+            Document doc = updateReportDocument.asDOM();
+            List<String[]> reportData = reportDatas.get(data.get("report"));
+            for (int i = 0; i < reportData.size(); i++) {
+                String[] value = reportData.get(i);
+                String path = (String) evaluate(doc.getDocumentElement(), "Item[" + (i + 1) + "]/path");
+                String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[" + (i + 1) + "]/oldValue");
+                String newValue = (String) evaluate(doc.getDocumentElement(), "Item[" + (i + 1) + "]/newValue");
+                assertEquals(value[0], path);
+                assertEquals(value[1], oldValue);
+                assertEquals(value[2], newValue);
+            }
+        }
+    }
+    
     public void testPartialDelete() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("PartialDelete.xsd"));

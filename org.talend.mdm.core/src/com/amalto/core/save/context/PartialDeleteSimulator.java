@@ -9,37 +9,29 @@
  */
 package com.amalto.core.save.context;
 
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.history.action.PartialDeleteAction;
+import com.amalto.core.save.DOMDocument;
 
-public class PartialDeleteActionCreator {
-
-    private final Date date;
-
-    private final String source;
-
-    private final String userName;
-
+public class PartialDeleteSimulator {
+    
+    private final MutableDocument originalDocument;
+    
+    private final MutableDocument toDeleteDocument;
+    
     private final String toDeletePivot;
 
     private final String toDeleteKey;
 
-    private final MutableDocument toDeleteDocument;
-
-    public PartialDeleteActionCreator(Date date, String source, String userName, String pivot, String key,
-            MutableDocument document) {
-        this.date = date;
-        this.source = source;
-        this.userName = userName;
+    public PartialDeleteSimulator(MutableDocument originalDocument, MutableDocument toDeleteDocument, String pivot, String key) {
+        this.originalDocument = originalDocument;
+        this.toDeleteDocument = toDeleteDocument;
         if (pivot.endsWith("/")) { //$NON-NLS-1$
             this.toDeletePivot = pivot.substring(0, pivot.length() - 1);
         } else {
@@ -50,11 +42,35 @@ public class PartialDeleteActionCreator {
         } else {
             this.toDeleteKey = StringUtils.EMPTY;
         }
-        this.toDeleteDocument = document;
     }
 
-    public List<Action> create() {
-        List<Action> actions = new LinkedList<Action>();
+    /**
+     * Simulate partial delete and return final document
+     * @return
+     */
+    public DOMDocument simulateDelete() {
+        List<String> toDeleteKeyValues = getToDeleteKeyValues();
+        DOMDocument copyDocument = new DOMDocument(originalDocument.asDOM(), originalDocument.getType(),
+                originalDocument.getDataCluster(), originalDocument.getDataModel());
+        Accessor pivotAccessor = copyDocument.createAccessor(toDeletePivot);
+        for (int i = pivotAccessor.size(); i >= 1; i--) {
+            String path = toDeletePivot + '[' + i + ']';
+            Accessor keyAccessor = copyDocument.createAccessor(path + toDeleteKey);
+            String keyValue = keyAccessor.get();
+            if (toDeleteKeyValues.contains(keyValue)) {
+                if (StringUtils.isEmpty(toDeleteKey)) {
+                    keyAccessor.delete();
+                } else {
+                    copyDocument.createAccessor(path).delete();
+                }
+            }
+        }
+        copyDocument.clean();
+        return copyDocument;
+    }
+    
+    private List<String> getToDeleteKeyValues() {
+        List<String> keyValues = new ArrayList<String>();
         String pivotForToDeleteDocument = getPivotForToDeleteDocument();
         Accessor pivotAccessor = toDeleteDocument.createAccessor(pivotForToDeleteDocument);
         for (int i = 1; i <= pivotAccessor.size(); i++) {
@@ -62,12 +78,12 @@ public class PartialDeleteActionCreator {
             Accessor keyAccessor = toDeleteDocument.createAccessor(path + toDeleteKey);
             String keyValue = keyAccessor.get();
             if (keyValue != null) {
-                actions.add(new PartialDeleteAction(date, source, userName, toDeletePivot, toDeleteKey, keyValue));
+                keyValues.add(keyValue);
             }
         }
-        return actions;
+        return keyValues;
     }
-    
+
     /**
      * "Source document" and "toDeleteDocument" may not be be able to share "toDeletePiovt". <br>
      * Like <b>"Kids/Kid[2]/Habits/Habit"</b> means to delete source document's <b>SECOND</b> kid's habits,<br> 
