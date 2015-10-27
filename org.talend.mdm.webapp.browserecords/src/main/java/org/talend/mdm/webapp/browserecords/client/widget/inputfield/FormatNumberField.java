@@ -10,6 +10,8 @@ import org.talend.mdm.webapp.browserecords.client.util.Locale;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.core.El;
+import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
@@ -187,12 +189,13 @@ public class FormatNumberField extends NumberField {
             if (el() != null) {
                 el().removeChildren();
                 getElement().setAttribute("role", "presentation"); //$NON-NLS-1$//$NON-NLS-2$
-                input.dom = DOM.createDiv();
+                input = new El(DOM.createDiv());
+                input.dom.setId(XDOM.getUniqueId());
                 if (name != null && name.length() > 0) {
                     DOM.setElementAttribute(input.dom, "key", name); //$NON-NLS-1$
                 }
                 DOM.setElementAttribute(input.dom, "type", "text"); //$NON-NLS-1$//$NON-NLS-2$
-                DOM.setElementAttribute(input.dom, "contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
+                DOM.setElementAttribute(input.dom, "contenteditable", "false"); //$NON-NLS-1$//$NON-NLS-2$
                 String elementStyle = "overflow: hidden; whiteSpace: nowrap;"; //$NON-NLS-1$
                 if (getUserProperties() != null && getUserProperties().size() > 0) {
                     if (getUserProperties().containsKey(KEY_MDM_READ_ONLY_FIELD_STYLE)) {
@@ -204,15 +207,16 @@ public class FormatNumberField extends NumberField {
                 input.addStyleName("x-form-text"); //$NON-NLS-1$
                 el().appendChild(input.dom);
             }
-            if (!isEditable()) {
-                setEditable(false);
-            }
         }
     }
 
     @Override
     public void disable() {
-        super.disable();
+        if (GXT.isIE) {
+            addStyleName(disabledStyle);
+        } else {
+            super.disable();
+        }
         setEditable(false);
         if (input != null) {
             input.dom.setAttribute("contenteditable", "false"); //$NON-NLS-1$//$NON-NLS-2$
@@ -221,7 +225,11 @@ public class FormatNumberField extends NumberField {
 
     @Override
     public void enable() {
-        super.enable();
+        if (GXT.isIE) {
+            removeStyleName(disabledStyle);
+        } else {
+            super.enable();
+        }
         setEditable(true);
         if (input != null) {
             input.dom.setAttribute("contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
