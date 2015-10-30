@@ -39,6 +39,7 @@ import javassist.bytecode.annotation.AnnotationMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.EnumMemberValue;
 
+import org.apache.log4j.Logger;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
@@ -77,6 +78,8 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
     private final ClassPool classPool;
 
     private final CtClass listType;
+    
+    private static final Logger LOGGER = Logger.getLogger(ClassCreator.class);
 
     public ClassCreator(StorageClassLoader storageClassLoader) {
         this.storageClassLoader = storageClassLoader;
@@ -462,6 +465,27 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                                 annotations.addAnnotation(docIdAnnotation);
                                 Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), cp);
                                 fieldBridge.addMemberValue("impl", new ClassMemberValue(ToLowerCaseFieldBridge.class.getName(), cp)); //$NON-NLS-1$
+
+                                TypeMetadata type = metadata.getType();
+                                //checking if the type is an integer, Long or Short
+                                //if that's the case assigning a specific field bridge
+                                type = MetadataUtils.getSuperConcreteType(type);
+                                if (!metadata.isMany()) {
+                                    if (Types.INTEGERS.contains(type.getName())) {
+                                        fieldBridge.addMemberValue("impl", new ClassMemberValue(IntegerIdFieldBridge.class.getName(), cp)); //$NON-NLS-1$
+                                    }
+                                    else if (Types.LONGS.contains(type.getName())) {
+                                        fieldBridge.addMemberValue("impl", new ClassMemberValue(LongIdFieldBridge.class.getName(), cp)); //$NON-NLS-1$
+                                    }
+                                    else if (Types.SHORTS.contains(type.getName())) {
+                                        fieldBridge.addMemberValue("impl", new ClassMemberValue(ShortIdFieldBridge.class.getName(), cp)); //$NON-NLS-1$
+                                    }
+                                    else {
+                                        if (!Types.STRING.equals(type.getName())) {
+                                            LOGGER.error("Unexpected error : the id type doesn't match any compatible type"); //$NON-NLS-1$
+                                        }
+                                    }
+                                } 
                                 annotations.addAnnotation(fieldBridge);
                             }
                         } else {
