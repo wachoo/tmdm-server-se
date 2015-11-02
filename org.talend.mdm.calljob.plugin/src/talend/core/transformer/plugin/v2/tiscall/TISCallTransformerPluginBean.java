@@ -259,20 +259,7 @@ public class TISCallTransformerPluginBean extends Plugin {
 
             // parse concept parameters
             ConceptMappingParam conceptMappingParam = compiledParameters.getConceptMappingParam();
-            boolean hasConcept = false;
-            String conceptName = "";
-            boolean hasFields = false;
-            JSONObject fieldsObject = null;
-            if (conceptMappingParam != null) {
-                if (conceptMappingParam.getConcept().length() > 0) {
-                    hasConcept = true;
-                    conceptName = conceptMappingParam.getConcept();
-                }
-                if (conceptMappingParam.getFields().length() > 0) {
-                    hasFields = true;
-                    fieldsObject = new JSONObject(conceptMappingParam.getFields());
-                }
-            }
+
             // Build call parameters
             List<String[]> list = new ArrayList<String[]>();
 
@@ -289,45 +276,8 @@ public class TISCallTransformerPluginBean extends Plugin {
                 // recover the port
                 throw new NotImplementedException(); // TODO (rewrite -> HTTP call heavily depended on JBoss classes).
             }
-            // FIXME use a better way ?
-            StringBuilder sb = new StringBuilder();
-            if (list.size() > 0) {
-                sb = sb.append("<results>\n");
-                for (String[] aList : list) {
-                    if (hasConcept) {
-                        sb = sb.append("<").append(conceptName).append(">\n");
-                    } else {
-                        sb = sb.append("<item>\n");
-                    }
-                    for (int j = 0; j < aList.length; j++) {
-                        String str = aList[j];
-                        if (str != null) {
-                            // remove xml header
-                            str = str.replaceFirst("<\\?xml .*\\?>", "");
-                            if (hasFields) {
-                                if (fieldsObject.has("p" + j)) {
-                                    String columnName = (String) fieldsObject.get("p" + j);
-                                    sb = sb.append("<").append(columnName).append(">").append(str).append("</")
-                                            .append(columnName).append(">" + "\n");
-                                } else {
-                                    // do nothing
-                                }
-                            } else {
-                                sb = sb.append("<attr>").append(str).append("</attr>" + "\n");
-                            }
-                        }
-                    }
-                    if (hasConcept) {
-                        sb = sb.append("</").append(conceptName).append(">\n");
-                    } else {
-                        sb = sb.append("</item>\n");
-                    }
-                }
-                sb = sb.append("</results>" + "\n");
-            } else {
-                // TODO exception
-            }
-            String result = sb.toString();
+
+            String result = buildParameters(list, conceptMappingParam);
             LOGGER.debug("execute() TIS CALL  result \n" + result);
             // save result to context
             if (result != null) {
@@ -351,6 +301,80 @@ public class TISCallTransformerPluginBean extends Plugin {
             LOGGER.error(err, e);
             throw new XtentisException(e);
         }
+    }
+
+    @SuppressWarnings("nls")
+    public String buildParameters(List<String[]> list, ConceptMappingParam conceptMappingParam) throws XtentisException {
+        boolean hasConcept = false;
+        String conceptName = "";
+        boolean hasFields = false;
+        JSONObject fieldsObject = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            if (conceptMappingParam != null) {
+                if (conceptMappingParam.getConcept().length() > 0) {
+                    hasConcept = true;
+                    conceptName = conceptMappingParam.getConcept();
+                }
+                if (conceptMappingParam.getFields().length() > 0) {
+                    hasFields = true;
+                    fieldsObject = new JSONObject(conceptMappingParam.getFields());
+
+                }
+            }
+            // FIXME use a better way ?
+            if (list.size() > 0) {
+                sb = sb.append("<results>\n");
+                for (String[] aList : list) {
+                    if (hasConcept) {
+                        sb = sb.append("<").append(conceptName).append(">\n");
+                    } else {
+                        sb = sb.append("<item>\n");
+                    }
+                    for (int j = 0; j < aList.length; j++) {
+                        String str = aList[j];
+                        if (str != null) {
+                            // remove xml header
+                            str = str.replaceFirst("<\\?xml .*\\?>", "");
+                            if (hasFields) {
+                                if (fieldsObject.has("p" + j)) {
+                                    String columnName = (String) fieldsObject.get("p" + j);
+                                    if (columnName != null && columnName.contains("/")) {
+                                        String[] columns = columnName.split("/");
+                                        for (int i = 0; i < columns.length; i++) {
+                                            sb.append("<").append(columns[i]).append(">" + "\n");
+                                        }
+                                        sb.append(str + "\n");
+                                        for (int k = columns.length - 1; k >= 0; k--) {
+                                            sb.append("</").append(columns[k]).append(">" + "\n");
+                                        }
+                                    } else {
+                                        sb = sb.append("<").append(columnName).append(">").append(str).append("</")
+                                                .append(columnName).append(">" + "\n");
+                                    }
+                                } else {
+                                    // do nothing
+                                }
+                            } else {
+                                sb = sb.append("<attr>").append(str).append("</attr>" + "\n");
+                            }
+                        }
+                    }
+                    if (hasConcept) {
+                        sb = sb.append("</").append(conceptName).append(">\n");
+                    } else {
+                        sb = sb.append("</item>\n");
+                    }
+                }
+                sb = sb.append("</results>" + "\n");
+            } else {
+                // TODO exception
+            }
+        } catch (Exception e) {
+            LOGGER.error("Build Parameters Error: Could not execute the tisCall transformer plugin", e);
+            throw new XtentisException(e);
+        }
+        return sb.toString();
     }
 
     /**
