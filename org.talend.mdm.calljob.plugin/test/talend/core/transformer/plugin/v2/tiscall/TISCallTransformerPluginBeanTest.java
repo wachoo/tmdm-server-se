@@ -12,10 +12,13 @@
 // ============================================================================
 package talend.core.transformer.plugin.v2.tiscall;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,6 +31,7 @@ import org.springframework.mock.env.MockEnvironment;
 
 import com.amalto.core.objects.Plugin;
 import com.amalto.core.util.PluginRegistry;
+import com.amalto.core.util.XtentisException;
 
 @SuppressWarnings("nls")
 public class TISCallTransformerPluginBeanTest {
@@ -74,5 +78,17 @@ public class TISCallTransformerPluginBeanTest {
         } catch (NoSuchBeanDefinitionException e) {
 
         }
+    }
+
+    @Test
+    public void testBuildParameters() throws XtentisException {
+        String expetedResult = "<results><Agency><Region>Lausanne</Region><Etablissement><Adresse>Paris</Adresse></Etablissement></Agency></results>";
+        List<String[]> list = new ArrayList<String[]>();
+        String[] values = { "Lausanne", "Paris" };
+        list.add(values);
+        ConceptMappingParam conceptMappingParam = new ConceptMappingParam("Agency", "{p0:Region,p1:\"Etablissement/Adresse\"}");
+        TISCallTransformerPluginBean bean = new TISCallTransformerPluginBean();
+        String parameter = bean.buildParameters(list, conceptMappingParam);
+        assertEquals(expetedResult, parameter.replace("\n", ""));
     }
 }
