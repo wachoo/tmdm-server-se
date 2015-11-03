@@ -62,8 +62,9 @@ public class ItemTreeHandler implements IsSerializable {
         super();
         this.nodeModel = nodeModel;
         this.status = status;
-        if (viewBean != null)
+        if (viewBean != null) {
             this.entityModel = viewBean.getBindingEntityModel();
+        }
 
         initConfig();
     }
@@ -120,18 +121,21 @@ public class ItemTreeHandler implements IsSerializable {
 
     public String serializeItem(boolean sort) {
 
-        if (nodeModel == null)
+        if (nodeModel == null) {
             return null;
+        }
 
         // If do not sort, then it should rely on the input order
-        if (sort)
+        if (sort) {
             nodeModel.sort(entityModel);
+        }
 
         Document doc = XMLParser.createDocument();
         Element root = buildXML(doc, nodeModel);
 
-        if (nodeModel.get(XMLNS_TMDM) != null)
+        if (nodeModel.get(XMLNS_TMDM) != null) {
             root.setAttribute(XMLNS_TMDM, XMLNS_TMDM_VALUE);
+        }
         root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
         doc.appendChild(root);
 
@@ -158,7 +162,9 @@ public class ItemTreeHandler implements IsSerializable {
                     }
                     if (currentTypeModel.isReadOnly()) {
                         if (simpleTypeOnly) {
-                            if (currentTypeModel.isSimpleType()) {
+                            if (currentTypeModel.isSimpleType()
+                                    && (currentTypeModel.getDefaultValueExpression() == null || currentTypeModel
+                                            .getDefaultValueExpression().length() == 0)) {
                                 return null;
                             }
                         } else {
@@ -221,15 +227,17 @@ public class ItemTreeHandler implements IsSerializable {
                                                 break;
                                             }
                                         }
-                                        if (!alreadyHasBrother)
+                                        if (!alreadyHasBrother) {
                                             root.appendChild(el);
+                                        }
                                 	}                                   
                                 }
                             } else {
                                 if (childrenEls != null && childrenEls.size() > 0) {
                                     for (Element myChildEl : childrenEls) {
-                                        if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl))
+                                        if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl)) {
                                             root.removeChild(myChildEl);// clean up empty node
+                                        }
                                     }
                                 }
                                 // append non-empty el
@@ -251,8 +259,9 @@ public class ItemTreeHandler implements IsSerializable {
 
     private boolean isRepeatingEl(ItemNodeModel nodeModel) {
         TypeModel typeModel = entityModel.getMetaDataTypes().get(nodeModel.getTypePath());
-        if (typeModel.getMaxOccurs() > 1 || typeModel.getMaxOccurs() == -1)
+        if (typeModel.getMaxOccurs() > 1 || typeModel.getMaxOccurs() == -1) {
             return true;
+        }
         return false;
     }
 

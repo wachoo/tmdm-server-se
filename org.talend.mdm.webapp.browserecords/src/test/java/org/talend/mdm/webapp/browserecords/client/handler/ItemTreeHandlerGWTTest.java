@@ -57,10 +57,11 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
 
         for (ModelData eachNodeModel : nodeModel.getChildren()) {
             ItemNodeModel myNodeModel = (ItemNodeModel) eachNodeModel;
-            if (myNodeModel.getTypePath().equals("Product/Price"))
+            if (myNodeModel.getTypePath().equals("Product/Price")) {
                 myNodeModel.setObjectValue("150");// update
-            else if (myNodeModel.getTypePath().equals("Product/Picture"))
+            } else if (myNodeModel.getTypePath().equals("Product/Picture")) {
                 myNodeModel.setObjectValue(null);// delete
+            }
         }
 
         // add
@@ -132,8 +133,9 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
 
         for (ModelData eachNodeModel : nodeModel.getChildren()) {
             ItemNodeModel myNodeModel = (ItemNodeModel) eachNodeModel;
-            if (myNodeModel.getTypePath().equals("Product/OnlineStore"))
+            if (myNodeModel.getTypePath().equals("Product/OnlineStore")) {
                 myNodeModel.setObjectValue(null);// reset OnlineStore value
+            }
         }
 
         itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.ToSave);
@@ -269,4 +271,15 @@ public class ItemTreeHandlerGWTTest extends GWTTestCase {
         assertEquals(expectedXml, actualXml);
     }
 
+    public void testSerializeItemWhenSaveForModelContainsDefaultValueExpression() {
+        ViewBean viewBean = new ViewBean();
+        EntityModel entity = CommonUtilTestData.getEntityModel(ClientResourceData.getModelProductFamily());
+        viewBean.setBindingEntityModel(entity);
+
+        ItemNodeModel nodeModel = CommonUtilTestData.getItemNodeModel(ClientResourceData.getRecordProductFamily(), entity);
+        ItemTreeHandler itemHandler = new ItemTreeHandler(nodeModel, viewBean, ItemTreeHandlingStatus.ToSave);
+        String expectedXml = "<ProductFamily xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name>name</Name></ProductFamily>";
+        String actualXml = itemHandler.serializeItem();
+        assertEquals(expectedXml, actualXml);
+    }
 }

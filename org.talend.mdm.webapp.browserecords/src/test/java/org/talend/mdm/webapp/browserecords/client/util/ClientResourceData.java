@@ -378,8 +378,17 @@ public class ClientResourceData {
         model.append("<models concept=\"ProductFamily\">");
         model.append("  <model isSimple=\"false\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" typePath=\"ProductFamily\"/>");
         model.append("  <model isSimple=\"true\" isKey=\"true\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Id\" name=\"Id\" dataType=\"string\"/>");
-        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"false\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Name\" name=\"Name\" dataType=\"string\"/>");
+        model.append("  <model isSimple=\"true\" isKey=\"false\" isFk=\"false\" isReadOnly=\"true\" isVisible=\"true\" minOccurs=\"1\"  maxOccurs=\"1\" typePath=\"ProductFamily/Name\" name=\"Name\" dataType=\"string\" defaultValueExpression=\"name\"/>");
         model.append("</models>");
+        return model.toString();
+    }
+
+    public static String getRecordProductFamily() {
+        StringBuffer model = new StringBuffer();
+        model.append("<ProductFamily>");
+        model.append("<Id></Id>");
+        model.append("<Name>name</Name>");
+        model.append("</ProductFamily>");
         return model.toString();
     }
 

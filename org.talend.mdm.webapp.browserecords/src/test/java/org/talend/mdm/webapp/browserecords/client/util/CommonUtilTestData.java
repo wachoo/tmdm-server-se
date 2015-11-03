@@ -48,6 +48,7 @@ public class CommonUtilTestData {
                     String typePath = childEl.getAttribute("typePath");
                     String dataType = childEl.getAttribute("dataType");
                     String name = childEl.getAttribute("name");
+                    String defaultValueExpression = childEl.getAttribute("defaultValueExpression");
                     TypeModel tm = null;
 
                     if (isSimple) {
@@ -69,6 +70,9 @@ public class CommonUtilTestData {
                     tm.setTypePath(typePath);
                     tm.setMinOccurs(minOccurs);
                     tm.setMaxOccurs(maxOccurs);
+                    if (defaultValueExpression != null && defaultValueExpression.length() > 0) {
+                        tm.setDefaultValueExpression(defaultValueExpression);
+                    }
                     entity.getMetaDataTypes().put(typePath, tm);
                 }
             }
