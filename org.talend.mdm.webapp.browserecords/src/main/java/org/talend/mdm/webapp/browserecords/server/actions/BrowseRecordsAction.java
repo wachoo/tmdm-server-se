@@ -2104,7 +2104,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (null != firstValue && firstValue.length() != 0) {
                         NodeList list = Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
                         if (list != null && list.getLength() > 0) {
-                            list.item(0).setTextContent(firstValue);
+                            for (int i = 0; i < list.getLength(); i++) {
+                                list.item(i).setTextContent(firstValue);
+                            }
                         }
                     }
                 }
