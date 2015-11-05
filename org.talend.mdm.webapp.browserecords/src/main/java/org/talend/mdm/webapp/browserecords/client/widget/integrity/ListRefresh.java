@@ -45,7 +45,7 @@ public class ListRefresh implements PostDeleteAction {
         if (bar == null || (!bar.isHierarchyCall() && (ItemsListPanel.getInstance().getCurrentQueryModel() != null) && ItemsListPanel.getInstance().getCurrentQueryModel().getModel().getConceptName()
                 .equals(bar.getItemBean().getConcept()))) {
             // Click "Open master record" from staging browser, then delete the master record, it shoudn't reload staging browser.
-            if (ItemsListPanel.getInstance().getCurrentQueryModel().getDataClusterPK().contains("#STAGING") && !bar.isStaging()) { //$NON-NLS-1$
+            if (ItemsListPanel.getInstance().getCurrentQueryModel().getDataClusterPK().contains("#STAGING") && bar != null && !bar.isStaging()) { //$NON-NLS-1$
 
             } else {
                 // Reload
