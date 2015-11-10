@@ -184,68 +184,68 @@
             <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
           </xsd:annotation> 
         </xsd:element>  
-                <xsd:element maxOccurs="1" minOccurs="0" name="B_SubNoise1">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-<xsd:complexType>
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="someId" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="someName" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-                            <xsd:element maxOccurs="1" minOccurs="0" name="subSubNoise">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-                                <xsd:complexType>
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="subSomeId" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="subSomeName" type="xsd:string"/>
-</xsd:all>
-</xsd:complexType>
-                            </xsd:element>
-                        </xsd:all>
-</xsd:complexType>
-</xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="0" name="B_SubNoise2">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-<xsd:complexType>
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="someId" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="someName" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="subSubNoise" type="SubSubNoiseType">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-</xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="0" name="B_SubNoise3" type="SubNoiseType1">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="0" name="B_SubNoise4" type="SubNoiseType2">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-                <xsd:element maxOccurs="1" minOccurs="0" name="B_SubInfo" type="BSubInfo"> 
+        <xsd:element maxOccurs="1" minOccurs="0" name="B_SubNoise1"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:complexType> 
+            <xsd:all> 
+              <xsd:element maxOccurs="1" minOccurs="1" name="someId" type="xsd:string"/>  
+              <xsd:element maxOccurs="1" minOccurs="0" name="someName" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element>  
+              <xsd:element maxOccurs="1" minOccurs="0" name="subSubNoise"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                </xsd:annotation>  
+                <xsd:complexType> 
+                  <xsd:all> 
+                    <xsd:element maxOccurs="1" minOccurs="1" name="subSomeId" type="xsd:string"/>  
+                    <xsd:element maxOccurs="1" minOccurs="0" name="subSomeName" type="xsd:string"/> 
+                  </xsd:all> 
+                </xsd:complexType> 
+              </xsd:element> 
+            </xsd:all> 
+          </xsd:complexType> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="B_SubNoise2"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:complexType> 
+            <xsd:all> 
+              <xsd:element maxOccurs="1" minOccurs="1" name="someId" type="xsd:string"/>  
+              <xsd:element maxOccurs="1" minOccurs="0" name="someName" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element>  
+              <xsd:element maxOccurs="1" minOccurs="0" name="subSubNoise" type="SubSubNoiseType"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element> 
+            </xsd:all> 
+          </xsd:complexType> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="B_SubNoise3" type="SubNoiseType1"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="B_SubNoise4" type="SubNoiseType2"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="B_SubInfo" type="BSubInfo"> 
           <xsd:annotation> 
             <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
           </xsd:annotation> 
         </xsd:element> 
-            </xsd:sequence> 
+      </xsd:sequence> 
     </xsd:complexType>  
     <xsd:unique name="B"> 
       <xsd:selector xpath="."/>  
@@ -278,17 +278,17 @@
           <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
         </xsd:annotation> 
       </xsd:element>  
-            <xsd:element maxOccurs="1" minOccurs="0" name="C_SubNoise" type="SubNoiseType2">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-            <xsd:element maxOccurs="1" minOccurs="0" name="C_SubInfo" type="CSubInfo"> 
+      <xsd:element maxOccurs="1" minOccurs="0" name="C_SubNoise" type="SubNoiseType2"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="C_SubInfo" type="CSubInfo"> 
         <xsd:annotation> 
           <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
         </xsd:annotation> 
       </xsd:element> 
-        </xsd:sequence> 
+    </xsd:sequence> 
   </xsd:complexType>  
   <xsd:complexType name="D2Type"> 
     <xsd:all> 
@@ -508,157 +508,178 @@
       <xsd:selector xpath="."/>  
       <xsd:field xpath="E_Id"/> 
     </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="SubNoiseType2"> 
+    <xsd:all> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="SubNoiseId" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="SubNoiseName" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="SubSubNoise" type="SubSubNoiseType"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:all> 
+  </xsd:complexType>  
+  <xsd:complexType name="SubSubNoiseType"> 
+    <xsd:all> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="someId" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="someName" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:all> 
+  </xsd:complexType>  
+  <xsd:complexType name="SubNoiseType1"> 
+    <xsd:all> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="SubNoiseId" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="SubNoiseName" type="xsd:string"/>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="SubSubNoise"> 
+        <xsd:complexType> 
+          <xsd:all> 
+            <xsd:element maxOccurs="1" minOccurs="1" name="SubSubNoiseId" type="xsd:string"/>  
+            <xsd:element maxOccurs="1" minOccurs="0" name="SubSubNoiseName" type="xsd:string"/> 
+          </xsd:all> 
+        </xsd:complexType> 
+      </xsd:element> 
+    </xsd:all> 
+  </xsd:complexType>  
+  <xsd:element name="F"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="F_Id" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="F_Name" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="F_Title" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="F_SubInfo"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation>  
+          <xsd:complexType> 
+            <xsd:all> 
+              <xsd:element maxOccurs="1" minOccurs="1" name="F_SubInfo_Id" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element>  
+              <xsd:element maxOccurs="1" minOccurs="0" name="F_Sub_Name" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element>  
+              <xsd:element maxOccurs="1" minOccurs="0" name="F_Sub_Title" type="xsd:string"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                </xsd:annotation> 
+              </xsd:element>  
+              <xsd:element maxOccurs="1" minOccurs="0" name="F_SubSubInfo"> 
+                <xsd:annotation> 
+                  <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                </xsd:annotation>  
+                <xsd:complexType> 
+                  <xsd:all> 
+                    <xsd:element maxOccurs="1" minOccurs="1" name="F_SubSubInfo_Id" type="xsd:string"> 
+                      <xsd:annotation> 
+                        <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                      </xsd:annotation> 
+                    </xsd:element>  
+                    <xsd:element maxOccurs="1" minOccurs="0" name="F_Sub_Sub_Name" type="xsd:string"> 
+                      <xsd:annotation> 
+                        <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                      </xsd:annotation> 
+                    </xsd:element>  
+                    <xsd:element maxOccurs="1" minOccurs="0" name="F_Sub_Sub_Title" type="xsd:string"> 
+                      <xsd:annotation> 
+                        <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+                      </xsd:annotation> 
+                    </xsd:element> 
+                  </xsd:all> 
+                </xsd:complexType> 
+              </xsd:element> 
+            </xsd:all> 
+          </xsd:complexType> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="F"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="F_Id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="G"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="G_Id" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="G_Name" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="FK_to_F" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_ForeignKey">F/F_Id</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">F/F_Name</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">F/F_Title</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">F/F_SubInfo/F_Sub_Name</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">F/F_SubInfo/F_Sub_Title</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">F/F_SubInfo/F_SubSubInfo/F_Sub_Sub_Name</xsd:appinfo>  
+            <xsd:appinfo source="X_ForeignKeyInfo">F/F_SubInfo/F_SubSubInfo/F_Sub_Sub_Title</xsd:appinfo>  
+            <xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="G"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="G_Id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:element name="H"> 
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="H_Id" type="xsd:string"/>  
+        <xsd:element maxOccurs="1" minOccurs="0" name="FK_to_F" type="xsd:string">
+			<xsd:annotation>
+				<xsd:appinfo source="X_ForeignKey">F/F_Id</xsd:appinfo>
+				<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+				<xsd:appinfo source="X_ForeignKeyInfo">F/F_Id</xsd:appinfo>
+				<xsd:appinfo source="X_ForeignKeyInfo">F/F_Name</xsd:appinfo>
+				<xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
+				<xsd:appinfo source="X_ForeignKeyInfoFormat">"ID:"+F/F_Id+" Name:"+F/F_Name</xsd:appinfo>
+			</xsd:annotation>
+		</xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="H"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="H_Id"/> 
+    </xsd:unique> 
   </xsd:element> 
-    <xsd:complexType name="SubNoiseType2">
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="SubNoiseId" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="SubNoiseName" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-            <xsd:element maxOccurs="1" minOccurs="0" name="SubSubNoise" type="SubSubNoiseType">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-        </xsd:all>
-</xsd:complexType>
-    <xsd:complexType name="SubSubNoiseType">
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="someId" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="someName" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-    <xsd:complexType name="SubNoiseType1">
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="SubNoiseId" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="SubNoiseName" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="SubSubNoise">
-<xsd:complexType>
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="SubSubNoiseId" type="xsd:string"/>
-<xsd:element maxOccurs="1" minOccurs="0" name="SubSubNoiseName" type="xsd:string"/>
-</xsd:all>
-</xsd:complexType>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-    <xsd:element name="F">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-<xsd:complexType>
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="F_Id" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="F_Name" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="F_Title" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="F_SubInfo">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-<xsd:complexType>
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="F_SubInfo_Id" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="F_Sub_Name" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="F_Sub_Title" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="F_SubSubInfo">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-<xsd:complexType>
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="F_SubSubInfo_Id" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="F_Sub_Sub_Name" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="F_Sub_Sub_Title" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-<xsd:unique name="F">
-<xsd:selector xpath="."/>
-<xsd:field xpath="F_Id"/>
-</xsd:unique>
-</xsd:element>
-    <xsd:element name="G">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-<xsd:complexType>
-<xsd:all>
-<xsd:element maxOccurs="1" minOccurs="1" name="G_Id" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="G_Name" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-<xsd:element maxOccurs="1" minOccurs="0" name="FK_to_F" type="xsd:string">
-<xsd:annotation>
-<xsd:appinfo source="X_ForeignKey">F/F_Id</xsd:appinfo>
-<xsd:appinfo source="X_ForeignKey_NotSep">true</xsd:appinfo>
-<xsd:appinfo source="X_ForeignKeyInfo">F/F_Name</xsd:appinfo>
-<xsd:appinfo source="X_ForeignKeyInfo">F/F_Title</xsd:appinfo>
-<xsd:appinfo source="X_ForeignKeyInfo">F/F_SubInfo/F_Sub_Name</xsd:appinfo>
-<xsd:appinfo source="X_ForeignKeyInfo">F/F_SubInfo/F_Sub_Title</xsd:appinfo>
-<xsd:appinfo source="X_ForeignKeyInfo">F/F_SubInfo/F_SubSubInfo/F_Sub_Sub_Name</xsd:appinfo>
-<xsd:appinfo source="X_ForeignKeyInfo">F/F_SubInfo/F_SubSubInfo/F_Sub_Sub_Title</xsd:appinfo>
-<xsd:appinfo source="X_Retrieve_FKinfos">true</xsd:appinfo>
-<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
-</xsd:annotation>
-</xsd:element>
-</xsd:all>
-</xsd:complexType>
-<xsd:unique name="G">
-<xsd:selector xpath="."/>
-<xsd:field xpath="G_Id"/>
-</xsd:unique>
-</xsd:element>
 </xsd:schema>

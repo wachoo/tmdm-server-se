@@ -25,6 +25,7 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
+import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -107,15 +108,18 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
         return false;
     }
 
+    @SuppressWarnings("unused")
     private String resolveForeignKeyValue(ReferenceFieldMetadata foreignKeyField, String foreignKeyValue) {
         String referencedTypeName = foreignKeyField.getReferencedType().getName();
+        String returnForeignKeyValue = foreignKeyValue;
+        Map<String, String> foreignKeyInfoMap = new HashMap<String, String>();
         ItemPOJO item;
         try {
             ItemPOJOPK pk = new ItemPOJOPK();
             pk.setConceptName(referencedTypeName);
             pk.setDataClusterPOJOPK(new DataClusterPOJOPK(dataClusterName));
             // For composite keys, format is "[id0][id1]...[idN]"
-            String[] allKeys = foreignKeyValue.split("]"); //$NON-NLS-1$
+            String[] allKeys = returnForeignKeyValue.split("]"); //$NON-NLS-1$
             String[] key = new String[allKeys.length];
             int i = 0;
             for (String currentKey : allKeys) {
@@ -128,8 +132,8 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
             LOG.warn("Unable to access referenced entity in field '" //$NON-NLS-1$
                     + foreignKeyField.getName() + "' in type '" //$NON-NLS-1$
                     + foreignKeyField.getContainingType().getName() + "' (foreign key value: '" //$NON-NLS-1$
-                    + foreignKeyValue + "')"); //$NON-NLS-1$
-            return foreignKeyValue;
+                    + returnForeignKeyValue + "')"); //$NON-NLS-1$
+            return returnForeignKeyValue;
         }
 
         try {
@@ -149,13 +153,19 @@ public class ForeignKeyInfoTransformer implements DocumentTransformer {
                         foreignKeyInfo.append("-"); //$NON-NLS-1$
                     }
                     foreignKeyInfo.append(nodeList.item(0).getTextContent());
+                    if(xpathToForeignKeyInfoField != null && xpathToForeignKeyInfoField.length() > 1){
+                        foreignKeyInfoMap.put(xpathToForeignKeyInfoField.substring(1), nodeList.item(0).getTextContent());
+                    }
                 }
             }
             if (foreignKeyField.getForeignKeyInfoFields().size() > 0) {
-                return foreignKeyInfo.toString();
-            } else {
-                return foreignKeyValue;
-            }
+                if(foreignKeyField.getForeignKeyInfoFormat() != null && foreignKeyField.getForeignKeyInfoFormat().length() > 0){
+                    returnForeignKeyValue = ForeignKeyHelper.convertFKInfo2DisplayInfoByFormatDefinition(foreignKeyInfoMap, foreignKeyField.getForeignKeyInfoFormat());
+                } else {
+                    returnForeignKeyValue = foreignKeyInfo.toString();
+                }
+            }            
+            return returnForeignKeyValue;
         } catch (XtentisException e) {
             throw new RuntimeException(e);
         }

@@ -72,6 +72,7 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
                     referencedType,
                     referencedField,
                     Collections.<FieldMetadata>emptyList(),
+                    referenceField.getForeignKeyInfoFormat(), 
                     referenceField.isFKIntegrity(),
                     referenceField.allowFKIntegrityOverride(),
                     new SimpleTypeMetadata(XMLConstants.W3C_XML_SCHEMA_NS_URI, Types.STRING),

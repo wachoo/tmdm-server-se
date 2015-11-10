@@ -238,6 +238,7 @@ public class ClassRepository extends MetadataRepository {
                                     fieldType,
                                     fieldType.getField("unique-id"), //$NON-NLS-1$
                                     Collections.<FieldMetadata>emptyList(),
+                                    StringUtils.EMPTY,
                                     true,
                                     false,
                                     STRING,

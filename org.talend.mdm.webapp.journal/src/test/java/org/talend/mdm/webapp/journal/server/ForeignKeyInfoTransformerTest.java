@@ -208,6 +208,23 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         String conceptName = "G";
         executeTestFor(recordId, conceptName);
     }
+    
+    public void testCase12_FK_defined_fKInfoFormat() {
+        String recordId = "h1";
+        String conceptName = "H";
+        
+        typeMetadata = (ComplexTypeMetadata) metadataRepository.getType(conceptName);
+        document = new DOMDocument(getDocument(recordId), typeMetadata, clusterName, modelName);
+
+        transformer = new ForeignKeyInfoTransformer(typeMetadata, clusterName);
+        ((ForeignKeyInfoTransformer) transformer).setMetadataRepository(metadataRepository);
+
+        transformedDocument = document.transform(transformer);
+
+        String path = fkPaths.get(recordId);
+        List<String> actualFKInfo = extractFKInfo(((DOMDocument) transformedDocument).asDOM(), path);
+        assertEquals(actualFKInfo.get(0), "ID:f1 Name:fname1");
+    }
 
     private void executeTestFor(String id, String concept) {
         typeMetadata = (ComplexTypeMetadata) metadataRepository.getType(concept);
@@ -324,6 +341,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         fkPaths.put("a11", "//A[A_Id='a11']/FK_to_B/text()");
         fkPaths.put("a12", "//A[A_Id='a12']/FK_to_B/text()");
         fkPaths.put("g1", "//G[G_Id='g1']/FK_to_F/text()");
+        fkPaths.put("h1", "//H[H_Id='h1']/FK_to_F/text()");
 
         // entity data to be referenced by other entity data
         xmlDomRecordInputs.put("e1", "<E><E_Id>e1</E_Id><E_Name>ename1</E_Name><E_Title>etitle1</E_Title></E>");
@@ -384,5 +402,7 @@ public class ForeignKeyInfoTransformerTest extends TestCase {
         xmlDomRecordInputs.put("a10", "<A><A_Id>a10</A_Id><A_Name>aname1</A_Name><E2><FK_to_C>[c1]</FK_to_C></E2></A>");
         // case 11:
         xmlDomRecordInputs.put("g1", "<G><G_Id>g1</G_Id><G_Name>gName1</G_Name><FK_to_F>[f1]</FK_to_F></G>");
+        // case 12:
+        xmlDomRecordInputs.put("h1", "<H><H_Id>h1</H_Id><H_Name>hName1</H_Name><FK_to_F>[f1]</FK_to_F></H>");
     }
 }
