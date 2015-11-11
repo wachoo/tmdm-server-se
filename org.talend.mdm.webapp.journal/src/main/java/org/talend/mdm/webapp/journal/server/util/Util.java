@@ -14,18 +14,28 @@ package org.talend.mdm.webapp.journal.server.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
+import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.journal.server.service.WebService;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
 import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSGetConceptsInDataCluster;
 import com.amalto.core.webservice.WSGetItems;
 import com.amalto.core.webservice.WSGetItemsSort;
+import com.amalto.core.webservice.WSRegexDataModelPKs;
 import com.amalto.core.webservice.WSStringPredicate;
 import com.amalto.core.webservice.WSWhereAnd;
 import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOperator;
+import com.amalto.core.webservice.WSWhereOr;
+import com.amalto.core.webservice.XtentisPort;
 
 
 /**
@@ -37,9 +47,11 @@ public class Util {
 
     public static final int TIME_OF_ONE_SECOND = 1000;
 
-    public static final String concept = "Update"; //$NON-NLS-1$
-    
-    public static List<WSWhereItem> buildWhereItems(JournalSearchCriteria criteria) {         
+    public static final String concept = "Update"; //$NON-NLS-1$    
+
+    private static final Logger LOG = Logger.getLogger(Util.class);
+
+    public static List<WSWhereItem> buildWhereItems(JournalSearchCriteria criteria, WebService webService) throws Exception {
         
         List<WSWhereItem> whereItemList = new ArrayList<WSWhereItem>();
         if (criteria.getEntity() != null) {
@@ -82,6 +94,46 @@ public class Util {
                     "TimeInMillis", WSWhereOperator.LOWER_THAN, (criteria.getEndDate().getTime() + TIME_OF_ONE_SECOND) + "", WSStringPredicate.NONE, false); //$NON-NLS-1$ //$NON-NLS-2$
             WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
             whereItemList.add(wsWhereItem);
+        }
+
+        if (webService.isEnterpriseVersion()) {
+            try {
+                List<String> accessModels = new ArrayList<>();
+                XtentisPort port = com.amalto.webapp.core.util.Util.getPort();
+                // port.getDataModelPKs() can only get the models user has access
+                WSDataModelPK[] wsDataModelsPKs = port.getDataModelPKs(new WSRegexDataModelPKs("*")).getWsDataModelPKs(); //$NON-NLS-1$
+                Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
+                List<WSWhereItem> modelConditions = new ArrayList<WSWhereItem>();
+                for (WSDataModelPK wsDataModelsPK : wsDataModelsPKs) {
+                    if (!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPK.getPk())) {
+                        accessModels.add(wsDataModelsPK.getPk());
+                        WSWhereCondition wc = new WSWhereCondition(
+                                "DataModel", WSWhereOperator.EQUALS, (wsDataModelsPK.getPk()), WSStringPredicate.NONE, false); //$NON-NLS-1$ 
+                        modelConditions.add(new WSWhereItem(wc, null, null));
+                    }
+                }
+                WSWhereOr or = new WSWhereOr(modelConditions.toArray(new WSWhereItem[modelConditions.size()]));
+                WSWhereItem modelItem = new WSWhereItem(null, null, or);
+                whereItemList.add(modelItem);
+
+                for (String model : accessModels) {
+                    String[] entities = port.getConceptsInDataCluster(new WSGetConceptsInDataCluster(new WSDataClusterPK(model)))
+                            .getStrings();
+                    for (String entity : entities) {
+                        boolean canReadEntity = webService.checkReadAccess(model, entity);
+                        if (!canReadEntity) {
+                            WSWhereCondition wc = new WSWhereCondition(
+                                    "Concept", WSWhereOperator.NOT_EQUALS, entity, WSStringPredicate.NONE, false); //$NON-NLS-1$
+                            WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
+                            whereItemList.add(wsWhereItem);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+                throw new ServiceException("Error occurs during checking access : " //$NON-NLS-1$
+                        + e.getLocalizedMessage());
+            }
         }
         return whereItemList;
     }
