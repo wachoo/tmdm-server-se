@@ -383,7 +383,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 for (FieldMetadata keyField : keyFields) {
                     compositeKeyValues.add(record.get(keyField));
                 }
-                return compositeKeyValues;
+                return compositeKeyValues.toArray(new Object[keyFields.size()]);
             }
         } else {
             return StringUtils.EMPTY;
