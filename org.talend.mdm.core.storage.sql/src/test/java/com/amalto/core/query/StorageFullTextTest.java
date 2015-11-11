@@ -913,4 +913,37 @@ public class StorageFullTextTest extends StorageTestCase {
         configurationField.set(storage, configuration);
         assertEquals(500, generateIdFetchSizeMethod.invoke(storage, null));
     }
+    
+    public void testFieldQueryWhenHavingCompositeFK() throws Exception {
+        ComplexTypeMetadata a2 = repository.getComplexType("a2");
+        ComplexTypeMetadata a3 = repository.getComplexType("a3");
+
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords.add(factory.read(repository, a2,
+                "<a2><subelement>1</subelement><subelement1>2</subelement1><b3>String b3</b3><b4>String b4</b4></a2>"));
+        allRecords.add(factory.read(repository, a3,
+                "<a3><id>3</id><name>hamdi</name><a2>[1][2]</a2></a3>"));
+
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        
+        UserQueryBuilder qb = from(a3).select(a3.getField("id")).select(a3.getField("a2")).where(fullText(a3.getField("name"),"hamdi")).limit(20);
+        StorageResults results = storage.fetch(qb.getSelect());
+        Exception exception = null;
+        try {
+            assertEquals(1, results.getCount());
+            DataRecord result = results.iterator().next();
+            Object b2 = result.get(a3.getField("a2"));
+            assertTrue(b2 instanceof Object[]);
+            assertEquals("1", ((Object[]) b2)[0]);
+            assertEquals("2", ((Object[]) b2)[1]);
+        } catch (Exception e) {
+            exception = e;
+        } finally{
+            results.close();
+        }
+        assertNull(exception);
+    }
 }
