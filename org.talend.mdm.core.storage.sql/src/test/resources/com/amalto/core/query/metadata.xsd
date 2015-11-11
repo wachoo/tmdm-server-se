@@ -1201,6 +1201,37 @@
 			<xsd:field xpath="subelement1" />
 		</xsd:unique>
 	</xsd:element>
+	<xsd:element name="a3">
+		<xsd:annotation>
+			<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element name="id" type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="name" type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element maxOccurs="1" minOccurs="0" name="a2"
+					type="xsd:string">
+					<xsd:annotation>
+						<xsd:appinfo source="X_ForeignKey">a2</xsd:appinfo>
+						<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+						<xsd:appinfo source="X_Write">Demo_Manager</xsd:appinfo>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:all>
+		</xsd:complexType>
+		<xsd:unique name="a3">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="id" />
+		</xsd:unique>
+	</xsd:element>
 	<xsd:element name="E1">
 		<xsd:annotation>
 			<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
