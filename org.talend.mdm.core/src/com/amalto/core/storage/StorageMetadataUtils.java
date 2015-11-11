@@ -365,6 +365,20 @@ public class StorageMetadataUtils {
             return false;
         }
     }
+    
+    /**
+     * Checks whether <code>value</code> is valid for full text search.
+     * 
+     * @param value The value to check.
+     * @param field The field to receive the value.
+     * @return <code>true</code> if the field can be searched by lucene, <code>false</code> otherwise.
+     */
+    public static boolean isValueSearchable(final String value, FieldMetadata field) {
+        // As we decided to index all user defined field with value String.valueOf(fieldValue)
+        // All values should be searchable.
+        // TODO: improve non-text field indexing by using the correct FieldBridge
+        return true;
+    }
 
     /**
      * Creates a value from <code>dataAsString</code>. Type and/or format of the returned value depends on
