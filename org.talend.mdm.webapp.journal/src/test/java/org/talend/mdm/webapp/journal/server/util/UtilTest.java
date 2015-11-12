@@ -18,84 +18,149 @@ import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit3.PowerMockSuite;
 import org.talend.mdm.webapp.base.server.util.Constants;
+import org.talend.mdm.webapp.journal.server.service.WebServiceMock;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 
 import com.amalto.core.objects.UpdateReportPOJO;
+import com.amalto.core.webservice.WSDataModelPK;
+import com.amalto.core.webservice.WSDataModelPKArray;
+import com.amalto.core.webservice.WSGetConceptsInDataCluster;
 import com.amalto.core.webservice.WSGetItems;
 import com.amalto.core.webservice.WSGetItemsSort;
+import com.amalto.core.webservice.WSRegexDataModelPKs;
+import com.amalto.core.webservice.WSStringArray;
 import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOperator;
+import com.amalto.core.webservice.XtentisPort;
 import com.extjs.gxt.ui.client.Style.SortDir;
+
+import static org.mockito.Mockito.when;
 
 /**
  * created by talend2 on 2013-1-29 Detailled comment
  * 
  */
+@PrepareForTest({ XtentisPort.class, WSDataModelPKArray.class, WSRegexDataModelPKs.class, com.amalto.webapp.core.util.Util.class })
 @SuppressWarnings("nls")
 public class UtilTest extends TestCase {
     
     private JournalSearchCriteria criteria;   
 
+    private WebServiceMock mock = new WebServiceMock();
+
+    @SuppressWarnings("unchecked")
+    public static TestSuite suite() throws Exception {
+        return new PowerMockSuite("Unit tests for " + UtilTest.class.getSimpleName(), UtilTest.class);
+    }
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         criteria = new JournalSearchCriteria();
-        criteria.setEntity("TestModel"); //$NON-NLS-1$
-        criteria.setStartDate(new Date()); //$NON-NLS-1$
-        criteria.setKey("1"); //$NON-NLS-1$
+        criteria.setEntity("TestModel");
+        criteria.setStartDate(new Date());
+        criteria.setKey("1");
         criteria.setOperationType(UpdateReportPOJO.OPERATION_TYPE_CREATE);
-        criteria.setSource("genericUI"); //$NON-NLS-1$
+        criteria.setSource("genericUI");
         criteria.setStrict(true);
-    }
 
+        PowerMockito.mockStatic(com.amalto.webapp.core.util.Util.class);
+        XtentisPort port = PowerMockito.mock(XtentisPort.class);
+        Mockito.when(com.amalto.webapp.core.util.Util.getPort()).thenReturn(port);
+        com.amalto.core.webservice.WSDataModelPK[] wsDataModelsPKs = { new WSDataModelPK("Product") };
+        WSDataModelPKArray array = PowerMockito.mock(WSDataModelPKArray.class);
+        when(port.getDataModelPKs(Mockito.any(WSRegexDataModelPKs.class))).thenReturn(array);
+        when(array.getWsDataModelPKs()).thenReturn(wsDataModelsPKs);
+        String[] entities = { "Store", "TestModel" };
+        WSStringArray entityArray = new WSStringArray(entities);
+        when(port.getConceptsInDataCluster(Mockito.any(WSGetConceptsInDataCluster.class))).thenReturn(entityArray);
+    }
 
     public void testBuildWhereItems() throws Exception {
+        Boolean conceptFlag = false;
+        Boolean modelFlag = false;
+        mock.setForbiddenconceptName("Store");
+        mock.setEnterpriseVersion(true);
 
-        List<WSWhereItem> conditions = Util.buildWhereItems(criteria);
+        List<WSWhereItem> conditions = Util.buildWhereItems(criteria, mock);
         for (WSWhereItem whereItem : conditions) {
             WSWhereCondition condition = whereItem.getWhereCondition();
-            if ("Concept".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(WSWhereOperator.EQUALS,condition.getOperator()); //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), "TestModel"); //$NON-NLS-1$
-            } else if ("Key".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(WSWhereOperator.EQUALS,condition.getOperator()); //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), "1"); //$NON-NLS-1$
-            } else if ("Source".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(WSWhereOperator.EQUALS,condition.getOperator()); //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), "genericUI"); //$NON-NLS-1$
-            } else if ("OperationType".equals(condition.getLeftPath())) { //$NON-NLS-1$
+            if (condition == null) {
+                condition = whereItem.getWhereOr().getWhereItems()[0].getWhereCondition();
+            }
+            if ("Concept".equals(condition.getLeftPath())) {
+                if (condition.getRightValueOrPath().equals("TestModel")) {
+                    assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
+                } else if (condition.getRightValueOrPath().equals("Store")) {
+                    conceptFlag = true;
+                    assertEquals(WSWhereOperator.NOT_EQUALS, condition.getOperator());
+                }
+            } else if ("Key".equals(condition.getLeftPath())) {
+                assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
+                assertEquals(condition.getRightValueOrPath(), "1");
+            } else if ("Source".equals(condition.getLeftPath())) {
+                assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
+                assertEquals(condition.getRightValueOrPath(), "genericUI");
+            } else if ("OperationType".equals(condition.getLeftPath())) {
                 assertEquals(condition.getRightValueOrPath(), UpdateReportPOJO.OPERATION_TYPE_CREATE);
-            } else if ("TimeInMillis".equals(condition.getLeftPath())) { //$NON-NLS-1$
+            } else if ("TimeInMillis".equals(condition.getLeftPath())) {
                 assertEquals(WSWhereOperator.GREATER_THAN_OR_EQUAL, condition.getOperator());
+            } else if ("DataModel".equals(condition.getLeftPath())) {
+                assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
+                assertEquals(condition.getRightValueOrPath(), "Product");
+                modelFlag = true;
             }
         }
+        assertTrue(conceptFlag);
+        assertTrue(modelFlag);
         
+        conceptFlag = false;
+        modelFlag = false;
+        mock.setEnterpriseVersion(false);
         criteria.setStrict(false);
-        conditions = Util.buildWhereItems(criteria);
+        conditions = Util.buildWhereItems(criteria, mock);
         for (WSWhereItem whereItem : conditions) {
             WSWhereCondition condition = whereItem.getWhereCondition();
-            if ("Concept".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(WSWhereOperator.CONTAINS,condition.getOperator()); //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), "TestModel"); //$NON-NLS-1$
-            } else if ("Key".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(WSWhereOperator.CONTAINS,condition.getOperator()); //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), "1"); //$NON-NLS-1$
-            } else if ("Source".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(WSWhereOperator.CONTAINS,condition.getOperator()); //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), "genericUI"); //$NON-NLS-1$
-            } else if ("OperationType".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(condition.getRightValueOrPath(), UpdateReportPOJO.OPERATION_TYPE_CREATE);
-            } else if ("TimeInMillis".equals(condition.getLeftPath())) { //$NON-NLS-1$
-                assertEquals(WSWhereOperator.GREATER_THAN_OR_EQUAL, condition.getOperator());
+            if (condition == null) {
+                condition = whereItem.getWhereOr().getWhereItems()[0].getWhereCondition();
             }
-        }        
+            if ("Concept".equals(condition.getLeftPath())) {
+                if (condition.getRightValueOrPath().equals("TestModel")) {
+                    assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
+                } else if (condition.getRightValueOrPath().equals("Store")) {
+                    assertEquals(WSWhereOperator.NOT_EQUALS, condition.getOperator());
+                    conceptFlag = true;
+                }
+            } else if ("Key".equals(condition.getLeftPath())) {
+                assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
+                assertEquals(condition.getRightValueOrPath(), "1");
+            } else if ("Source".equals(condition.getLeftPath())) {
+                assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
+                assertEquals(condition.getRightValueOrPath(), "genericUI");
+            } else if ("OperationType".equals(condition.getLeftPath())) {
+                assertEquals(condition.getRightValueOrPath(), UpdateReportPOJO.OPERATION_TYPE_CREATE);
+            } else if ("TimeInMillis".equals(condition.getLeftPath())) {
+                assertEquals(WSWhereOperator.GREATER_THAN_OR_EQUAL, condition.getOperator());
+            } else if ("DataModel".equals(condition.getLeftPath())) {
+                assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
+                assertEquals(condition.getRightValueOrPath(), "Product");
+                modelFlag = true;
+            }
+        }
+        assertFalse(conceptFlag);
+        assertFalse(modelFlag);
     }
     
-    public void testBuildGetItem() {
-        List<WSWhereItem> conditions = Util.buildWhereItems(criteria);
+    public void testBuildGetItem() throws Exception {
+        List<WSWhereItem> conditions = Util.buildWhereItems(criteria, mock);
         WSGetItems item = Util.buildGetItem(conditions, 0, 20);
         assertEquals("Update", item.getConceptName());
         assertNotNull(item.getWhereItem());
@@ -104,8 +169,8 @@ public class UtilTest extends TestCase {
         assertEquals(20, item.getMaxItems());
     }
     
-    public void testBuildGetItemsSort() {
-        List<WSWhereItem> conditions = Util.buildWhereItems(criteria);
+    public void testBuildGetItemsSort() throws Exception {
+        List<WSWhereItem> conditions = Util.buildWhereItems(criteria, mock);
         String sort = "ASC";
         if (SortDir.ASC.equals(SortDir.findDir(sort))) {
             sort = Constants.SEARCH_DIRECTION_ASC;
@@ -123,31 +188,31 @@ public class UtilTest extends TestCase {
     }
     
     public void testGetOrderXPath() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        Method method = Util.class.getDeclaredMethod("getOrderXPath", String.class); //$NON-NLS-1$
+        Method method = Util.class.getDeclaredMethod("getOrderXPath", String.class);
         method.setAccessible(true);
-        Object returnValue = method.invoke(null, new Object[] { "dataContainer" }); //$NON-NLS-1$ 
-        assertEquals("Update/DataCluster", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "dataModel" }); //$NON-NLS-1$ 
-        assertEquals("Update/DataModel", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "entity" }); //$NON-NLS-1$ 
-        assertEquals("Update/Concept", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "key" }); //$NON-NLS-1$ 
-        assertEquals("Update/Key", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "operationType" }); //$NON-NLS-1$ 
-        assertEquals("Update/OperationType", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "operationTime" }); //$NON-NLS-1$ 
-        assertEquals("Update/TimeInMillis", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "source" }); //$NON-NLS-1$ 
-        assertEquals("Update/Source", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "userName" }); //$NON-NLS-1$ 
-        assertEquals("Update/UserName", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "otherField1" }); //$NON-NLS-1$ 
-        assertEquals("Update/otherField1", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "otherField2" }); //$NON-NLS-1$ 
-        assertEquals("Update/otherField2", returnValue); //$NON-NLS-1$
-        returnValue = method.invoke(null, new Object[] { "" }); //$NON-NLS-1$
+        Object returnValue = method.invoke(null, new Object[] { "dataContainer" });
+        assertEquals("Update/DataCluster", returnValue);
+        returnValue = method.invoke(null, new Object[] { "dataModel" });
+        assertEquals("Update/DataModel", returnValue);
+        returnValue = method.invoke(null, new Object[] { "entity" });
+        assertEquals("Update/Concept", returnValue);
+        returnValue = method.invoke(null, new Object[] { "key" });
+        assertEquals("Update/Key", returnValue);
+        returnValue = method.invoke(null, new Object[] { "operationType" });
+        assertEquals("Update/OperationType", returnValue);
+        returnValue = method.invoke(null, new Object[] { "operationTime" });
+        assertEquals("Update/TimeInMillis", returnValue);
+        returnValue = method.invoke(null, new Object[] { "source" });
+        assertEquals("Update/Source", returnValue);
+        returnValue = method.invoke(null, new Object[] { "userName" });
+        assertEquals("Update/UserName", returnValue);
+        returnValue = method.invoke(null, new Object[] { "otherField1" });
+        assertEquals("Update/otherField1", returnValue);
+        returnValue = method.invoke(null, new Object[] { "otherField2" });
+        assertEquals("Update/otherField2", returnValue);
+        returnValue = method.invoke(null, new Object[] { "" });
         assertNull(returnValue);
-        returnValue = method.invoke(null, new Object[] { null }); //$NON-NLS-1$
+        returnValue = method.invoke(null, new Object[] { null });
         assertNull(returnValue);
     }
     
