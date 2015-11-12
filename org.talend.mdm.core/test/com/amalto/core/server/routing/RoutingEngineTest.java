@@ -204,6 +204,7 @@ public class RoutingEngineTest {
         NoOpService.setPauseTime(200);
         previous = routingEngine.getConsumeCallCount();
         routes = routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
+        Thread.sleep(1000); // Give some time to process messages
         assertEquals(1, routes.length);
         routingEngine.route(new ItemPOJOPK(container, "Person", new String[] { "1", "2" }));
         Thread.sleep(1000); // Give some time to process messages
