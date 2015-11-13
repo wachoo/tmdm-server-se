@@ -65,6 +65,7 @@ public class TimelineUtil {
         
     public static void loadTimeline(String type) {
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
+        String dataModel = criteria.getDataModel() == null ? "" : criteria.getDataModel(); //$NON-NLS-1$
         String entity = criteria.getEntity() == null ? "" : criteria.getEntity(); //$NON-NLS-1$
         String key = criteria.getKey() == null ? "" : criteria.getKey(); //$NON-NLS-1$
         String source = criteria.getSource() == null ? "" : criteria.getSource(); //$NON-NLS-1$
@@ -72,20 +73,20 @@ public class TimelineUtil {
         String startDate = criteria.getStartDate() == null ? "" : String.valueOf(criteria.getStartDate().getTime()); //$NON-NLS-1$
         String endDate = criteria.getEndDate() == null ? "" : String.valueOf(criteria.getEndDate().getTime()); //$NON-NLS-1$
         if (type.equalsIgnoreCase(TimelineUtil.TIMELIME_INIT))
-            loadTimelineInit(entity, key, source, operationType, startDate, endDate, criteria.isStrict());
+            loadTimelineInit(dataModel, entity, key, source, operationType, startDate, endDate, criteria.isStrict());
         else if (type.equalsIgnoreCase(TimelineUtil.TIMELIME_LOAD))
-            loadTimelineLoad(entity, key, source, operationType, startDate, endDate, criteria.isStrict());
+            loadTimelineLoad(dataModel, entity, key, source, operationType, startDate, endDate, criteria.isStrict());
     }
     
-    public native static void loadTimelineInit(String entity, String key, String source, String operationType,
+    public native static void loadTimelineInit(String dataModel, String entity, String key, String source, String operationType,
             String startDate, String endDate, boolean isStrict)/*-{
-        $wnd.JournalInterface.getReportString($wnd.startIndex + $wnd.configStr, entity, key, source, operationType,
+        $wnd.JournalInterface.getReportString($wnd.startIndex + $wnd.configStr, dataModel, entity, key, source, operationType,
                 startDate, endDate, isStrict, $wnd.journalCallback);
     }-*/;
     
-    public native static void loadTimelineLoad(String entity, String key, String source, String operationType,
+    public native static void loadTimelineLoad(String dataModel, String entity, String key, String source, String operationType,
             String startDate, String endDate, boolean isStrict)/*-{
-        $wnd.JournalInterface.getReportString($wnd.startIndex + $wnd.configStr, entity, key, source, operationType,
+        $wnd.JournalInterface.getReportString($wnd.startIndex + $wnd.configStr, dataModel, entity, key, source, operationType,
                 startDate, endDate, isStrict, $wnd.journalLoadDateCallback);
     }-*/;
 

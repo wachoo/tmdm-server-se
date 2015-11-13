@@ -45,6 +45,8 @@ public class JournalTimelinePanel extends ContentPanel {
 
     private int timeLinePanelHeight;
 
+    private String dataModel;
+
     private String entity;
 
     private String key;
@@ -85,6 +87,7 @@ public class JournalTimelinePanel extends ContentPanel {
         isInit = true;
         initJsEnv();
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
+        dataModel = criteria.getDataModel() == null ? "" : criteria.getDataModel(); //$NON-NLS-1$
         entity = criteria.getEntity() == null ? "" : criteria.getEntity(); //$NON-NLS-1$
         key = criteria.getKey() == null ? "" : criteria.getKey(); //$NON-NLS-1$
         source = criteria.getSource() == null ? "" : criteria.getSource(); //$NON-NLS-1$
@@ -103,7 +106,9 @@ public class JournalTimelinePanel extends ContentPanel {
 
     private void loadTimeline(int startIndex) {
         start = startIndex;
-        service.getReportString(startIndex, limit, sort, field, language, entity, key, source, operationType, startDate, endDate,isStrict, new SessionAwareAsyncCallback<String>() {                
+        service.getReportString(startIndex, limit, sort, field, language, dataModel, entity, key, source, operationType,
+                startDate, endDate, isStrict, new SessionAwareAsyncCallback<String>() {
+
             public void onSuccess(String result) {
                 parseResult(result);
             }

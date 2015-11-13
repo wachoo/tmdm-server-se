@@ -12,8 +12,11 @@
 // ============================================================================
 package org.talend.mdm.webapp.journal.client;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
@@ -42,8 +45,8 @@ public interface JournalService extends RemoteService {
 
     boolean checkDCAndDM(String dataContainer, String dataModel);
 
-    String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
-            String source, String operationType, String startDate, String endDate, boolean isStrict)
+    String getReportString(int start, int limit, String sort, String field, String language, String dataModel, String entity,
+            String key, String source, String operationType, String startDate, String endDate, boolean isStrict)
             throws ServiceException;
 
     boolean isAdmin();
@@ -51,4 +54,6 @@ public interface JournalService extends RemoteService {
     boolean isJournalHistoryExist(JournalParameters parameter) throws ServiceException;    
     
     boolean checkConflict(String itemPk, String conceptName, String id) throws ServiceException;
+
+    List<ItemBaseModel> getDataModels() throws Exception;
 }

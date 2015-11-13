@@ -17,11 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.util.PostDataUtil;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.journal.client.Journal;
 import org.talend.mdm.webapp.journal.client.JournalEvents;
+import org.talend.mdm.webapp.journal.client.JournalServiceAsync;
 import org.talend.mdm.webapp.journal.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.journal.client.util.KeyUtil;
 import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
@@ -29,6 +32,10 @@ import org.talend.mdm.webapp.journal.shared.JournalSearchCriteria;
 import com.amalto.core.objects.UpdateReportPOJO;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.data.BaseListLoader;
+import com.extjs.gxt.ui.client.data.ListLoadResult;
+import com.extjs.gxt.ui.client.data.ListLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -52,6 +59,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * DOC Administrator  class global comment. Detailled comment
@@ -59,6 +67,10 @@ import com.google.gwt.event.dom.client.KeyCodes;
 public class JournalSearchPanel extends FormPanel {
 
     private static JournalSearchPanel formPanel;
+    
+    private JournalServiceAsync service = Registry.get(Journal.JOURNAL_SERVICE);
+
+    private ComboBox<ItemBaseModel> dataModelCombo;
         
     private TextField<String> entityField;
     
@@ -79,7 +91,7 @@ public class JournalSearchPanel extends FormPanel {
     private Button searchButton;
     
     private Button exportButton;
-    
+
     public static JournalSearchPanel getInstance() {
         if (formPanel == null) {
             formPanel = new JournalSearchPanel();
@@ -105,6 +117,52 @@ public class JournalSearchPanel extends FormPanel {
         layout.setLabelAlign(LabelAlign.LEFT);
         left.setWidth(350);
         left.setLayout(layout);
+        
+        RpcProxy<List<ItemBaseModel>> modelproxy = new RpcProxy<List<ItemBaseModel>>() {
+
+            @Override
+            public void load(Object loadConfig, final AsyncCallback<List<ItemBaseModel>> callback) {
+                service.getDataModels(new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
+
+                    @Override
+                    protected void doOnFailure(Throwable caught) {
+                        super.doOnFailure(caught);
+                        callback.onFailure(caught);
+                    }
+
+                    @Override
+                    public void onSuccess(List<ItemBaseModel> result) {
+                        callback.onSuccess(result);
+                    }
+                });
+            }
+        };
+
+        ListLoader<ListLoadResult<ItemBaseModel>> modelloader = new BaseListLoader<ListLoadResult<ItemBaseModel>>(modelproxy);
+
+        // HorizontalPanel entityPanel = new HorizontalPanel();
+        final ListStore<ItemBaseModel> dataModelList = new ListStore<ItemBaseModel>(modelloader);
+        dataModelCombo = new ComboBox<ItemBaseModel>();
+        dataModelCombo.setId("dataModel");//$NON-NLS-1$
+        dataModelCombo.setName("dataModel");//$NON-NLS-1$
+        dataModelCombo.setFieldLabel(MessagesFactory.getMessages().data_model_label());
+        dataModelCombo.setDisplayField("label"); //$NON-NLS-1$
+        dataModelCombo.setValueField("key"); //$NON-NLS-1$
+        dataModelCombo.setStore(dataModelList);
+        dataModelCombo.setTriggerAction(TriggerAction.ALL);
+        dataModelCombo.addListener(Events.KeyDown, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
+                    if (searchButton != null) {
+                        searchButton.fireEvent(Events.Select);
+                    }
+                }
+            }
+        });
+        left.add(dataModelCombo, formData);
+        setCurrentDataModel();
 
         entityField = new TextField<String>();
         entityField.setFieldLabel(MessagesFactory.getMessages().entity_label());
@@ -120,34 +178,7 @@ public class JournalSearchPanel extends FormPanel {
             }
         });
         left.add(entityField, formData);
-
-        List<String> list = new ArrayList<String>();
-        list.add(UpdateReportPOJO.GENERIC_UI_SOURCE); 
-        list.add("adminWorkbench"); //$NON-NLS-1$
-        list.add("dataSynchronization"); //$NON-NLS-1$
-        list.add("workflow"); //$NON-NLS-1$
-
-        sourceCombo = new ComboBox<ItemBaseModel>();
-        sourceCombo.setId("source");//$NON-NLS-1$
-        sourceCombo.setName("source");//$NON-NLS-1$
-        sourceCombo.setFieldLabel(MessagesFactory.getMessages().source_label());
-        sourceCombo.setDisplayField("label"); //$NON-NLS-1$
-        sourceCombo.setValueField("key"); //$NON-NLS-1$
-        sourceCombo.setStore(this.getListStore(list));
-        sourceCombo.setTriggerAction(TriggerAction.ALL);
-        sourceCombo.addListener(Events.KeyDown, new Listener<FieldEvent>() {
-
-            @Override
-            public void handleEvent(FieldEvent be) {
-                if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
-                    if (searchButton != null) {
-                        searchButton.fireEvent(Events.Select);
-                    }
-                }
-            }
-        });
-        left.add(sourceCombo, formData);
-
+        
         startDateField = new DateField();
         startDateField.setFieldLabel(MessagesFactory.getMessages().start_date_label());
         startDateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss")); //$NON-NLS-1$
@@ -163,6 +194,22 @@ public class JournalSearchPanel extends FormPanel {
             }
         });
         left.add(startDateField, formData);
+        
+        endDateField = new DateField();
+        endDateField.setFieldLabel(MessagesFactory.getMessages().end_date_label());
+        endDateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss")); //$NON-NLS-1$
+        endDateField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
+
+            @Override
+            public void handleEvent(FieldEvent be) {
+                if (be.getKeyCode() == KeyCodes.KEY_ENTER) {
+                    if (searchButton != null) {
+                        searchButton.fireEvent(Events.Select);
+                    }
+                }
+            }
+        });
+        left.add(endDateField, formData);
 
         LayoutContainer right = new LayoutContainer();
         right.setStyleAttribute("paddingLeft", "10px"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -187,7 +234,7 @@ public class JournalSearchPanel extends FormPanel {
         });
         right.add(keyField, formData);
 
-        list.clear();
+        List<String> list = new ArrayList<String>();
         list.add("ALL"); //$NON-NLS-1$
         list.add(UpdateReportPOJO.OPERATION_TYPE_CREATE);
         list.add(UpdateReportPOJO.OPERATION_TYPE_UPDATE);
@@ -220,10 +267,21 @@ public class JournalSearchPanel extends FormPanel {
         });
         right.add(operationTypeCombo, formData);
 
-        endDateField = new DateField();
-        endDateField.setFieldLabel(MessagesFactory.getMessages().end_date_label());
-        endDateField.setPropertyEditor(new DateTimePropertyEditor("yyyy-MM-dd HH:mm:ss")); //$NON-NLS-1$
-        endDateField.addListener(Events.KeyDown, new Listener<FieldEvent>() {
+        list.clear();
+        list.add(UpdateReportPOJO.GENERIC_UI_SOURCE);
+        list.add("adminWorkbench"); //$NON-NLS-1$
+        list.add("dataSynchronization"); //$NON-NLS-1$
+        list.add("workflow"); //$NON-NLS-1$
+
+        sourceCombo = new ComboBox<ItemBaseModel>();
+        sourceCombo.setId("source");//$NON-NLS-1$
+        sourceCombo.setName("source");//$NON-NLS-1$
+        sourceCombo.setFieldLabel(MessagesFactory.getMessages().source_label());
+        sourceCombo.setDisplayField("label"); //$NON-NLS-1$
+        sourceCombo.setValueField("key"); //$NON-NLS-1$
+        sourceCombo.setStore(this.getListStore(list));
+        sourceCombo.setTriggerAction(TriggerAction.ALL);
+        sourceCombo.addListener(Events.KeyDown, new Listener<FieldEvent>() {
 
             @Override
             public void handleEvent(FieldEvent be) {
@@ -234,7 +292,7 @@ public class JournalSearchPanel extends FormPanel {
                 }
             }
         });
-        right.add(endDateField, formData);
+        right.add(sourceCombo, formData);
 
         main.add(left, new ColumnData(.5));
         main.add(right, new ColumnData(.5));
@@ -269,6 +327,7 @@ public class JournalSearchPanel extends FormPanel {
 
             @Override
             public void componentSelected(ButtonEvent ce) {
+                setCurrentDataModel();
                 entityField.clear();
                 keyField.clear();
                 sourceCombo.clear();
@@ -306,6 +365,11 @@ public class JournalSearchPanel extends FormPanel {
     
     private void bundleCriteria() {
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
+        if (dataModelCombo.getValue() != null && !"ALL".equals(dataModelCombo.getValue().get("key").toString())) { //$NON-NLS-1$//$NON-NLS-2$
+            criteria.setDataModel(dataModelCombo.getValue().get("key").toString()); //$NON-NLS-1$
+        } else {
+            criteria.setDataModel(null);
+        }
         criteria.setEntity(entityField.getValue());
         criteria.setKey(keyField.getValue());
         if (sourceCombo.getValue() != null) {
@@ -316,7 +380,7 @@ public class JournalSearchPanel extends FormPanel {
             criteria.setSource(null);
         }
 
-        if (operationTypeCombo.getValue() != null && !"ALL".equals(operationTypeCombo.getValue().get("key").toString())) {
+        if (operationTypeCombo.getValue() != null && !"ALL".equals(operationTypeCombo.getValue().get("key").toString())) { //$NON-NLS-1$//$NON-NLS-2$
             criteria.setOperationType(operationTypeCombo.getValue().get("key").toString()); //$NON-NLS-1$
         } else {
             criteria.setOperationType(null);
@@ -329,28 +393,25 @@ public class JournalSearchPanel extends FormPanel {
 
     private Map<String, String> getCriteriaMap() {
         Map<String, String> map = new HashMap<String, String>();
-        if (entityField.getValue() != null)
-         {
+        if (dataModelCombo.getValue() != null && !dataModelCombo.getValue().get("key").equals("ALL")) { //$NON-NLS-1$//$NON-NLS-2$
+            map.put("dataModel", dataModelCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        if (entityField.getValue() != null) {
             map.put("entity", entityField.getValue()); //$NON-NLS-1$
         }
-        if (keyField.getValue() != null)
-         {
+        if (keyField.getValue() != null) {
             map.put("key", keyField.getValue()); //$NON-NLS-1$
         }
-        if (sourceCombo.getValue() != null)
-         {
+        if (sourceCombo.getValue() != null) {
             map.put("source", sourceCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         }
-        if (operationTypeCombo.getValue() != null && ! operationTypeCombo.getValue().get("key").equals("ALL"))
-         {
+        if (operationTypeCombo.getValue() != null && !operationTypeCombo.getValue().get("key").equals("ALL")) { //$NON-NLS-1$//$NON-NLS-2$
             map.put("operationType", operationTypeCombo.getValue().get("key").toString()); //$NON-NLS-1$ //$NON-NLS-2$
         }
-        if (startDateField.getValue() != null)
-         {
+        if (startDateField.getValue() != null) {
             map.put("startDate", String.valueOf(startDateField.getValue().getTime())); //$NON-NLS-1$
         }
-        if (endDateField.getValue() != null)
-         {
+        if (endDateField.getValue() != null) {
             map.put("endDate", String.valueOf(endDateField.getValue().getTime())); //$NON-NLS-1$
         }
         map.put("isStrict", String.valueOf(strictCheckBox.getValue())); //$NON-NLS-1$
@@ -369,5 +430,14 @@ public class JournalSearchPanel extends FormPanel {
     
     public void setKeyFieldValue(String value) {
         this.keyField.setValue(value);
+    }
+
+    public void setCurrentDataModel() {
+        ItemBaseModel currentModel = new ItemBaseModel();
+        if (UserContextUtil.getDataModel() != null) {
+            currentModel.set("key", UserContextUtil.getDataModel()); //$NON-NLS-1$
+            currentModel.set("label", UserContextUtil.getDataModel()); //$NON-NLS-1$      
+            this.dataModelCombo.setValue(currentModel);
+        }
     }
 }

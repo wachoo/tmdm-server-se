@@ -14,15 +14,20 @@ package org.talend.mdm.webapp.journal.server;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.core.ICoreConstants;
+import org.talend.mdm.commmon.util.webapp.XObjectType;
+import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.client.JournalService;
 import org.talend.mdm.webapp.journal.server.service.JournalDBService;
@@ -40,9 +45,18 @@ import com.amalto.core.util.MessagesFactory;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
 import com.amalto.webapp.core.util.Webapp;
+import com.amalto.webapp.core.util.XtentisWebappException;
 import com.amalto.core.webservice.WSDataClusterPK;
+import com.amalto.core.webservice.WSDataModelPK;
 import com.amalto.core.webservice.WSExistsItem;
+import com.amalto.core.webservice.WSGetConceptsInDataCluster;
 import com.amalto.core.webservice.WSItemPK;
+import com.amalto.core.webservice.WSRegexDataModelPKs;
+import com.amalto.core.webservice.WSStringPredicate;
+import com.amalto.core.webservice.WSWhereCondition;
+import com.amalto.core.webservice.WSWhereItem;
+import com.amalto.core.webservice.WSWhereOperator;
+import com.amalto.core.webservice.XtentisPort;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -158,11 +172,13 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
     }
 
     @Override
-    public String getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
-            String source, String operationType, String startDate, String endDate, boolean isStrict) throws ServiceException {
+    public String getReportString(int start, int limit, String sort, String field, String language, String dataModel,
+            String entity, String key, String source, String operationType, String startDate, String endDate, boolean isStrict)
+            throws ServiceException {
 
         try {
-            JournalSearchCriteria criteria = this.buildCriteria(entity, key, source, operationType, startDate, endDate, isStrict);
+            JournalSearchCriteria criteria = this.buildCriteria(dataModel, entity, key, source, operationType, startDate,
+                    endDate, isStrict);
             Object[] result = service.getResultListByCriteria(criteria, start, limit, sort, field);
             @SuppressWarnings("unchecked")
             List<JournalGridModel> resultList = (List<JournalGridModel>) result[1];
@@ -209,9 +225,35 @@ public class JournalAction extends RemoteServiceServlet implements JournalServic
         }
     }   
     
-    private JournalSearchCriteria buildCriteria(String entity, String key, String source, String operationType, String startDate,
+    @Override
+    public List<ItemBaseModel> getDataModels() throws Exception {
+        List<ItemBaseModel> dataModels = new ArrayList<ItemBaseModel>();
+        ItemBaseModel all = new ItemBaseModel();
+        all.set("label", "ALL"); //$NON-NLS-1$ //$NON-NLS-2$
+        all.set("key", "ALL"); //$NON-NLS-1$ //$NON-NLS-2$
+        dataModels.add(all);
+        XtentisPort port = com.amalto.webapp.core.util.Util.getPort();
+        // port.getDataModelPKs() can only get the models user has access
+        WSDataModelPK[] wsDataModelsPKs = port.getDataModelPKs(new WSRegexDataModelPKs("*")).getWsDataModelPKs(); //$NON-NLS-1$
+        Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
+        for (WSDataModelPK wsDataModelsPK : wsDataModelsPKs) {
+            if (!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPK.getPk())) {
+                ItemBaseModel bm = new ItemBaseModel();
+                bm.set("label", wsDataModelsPK.getPk()); //$NON-NLS-1$
+                bm.set("key", wsDataModelsPK.getPk()); //$NON-NLS-1$
+                dataModels.add(bm);
+            }
+        }
+        return dataModels;
+    }
+
+    private JournalSearchCriteria buildCriteria(String dataModel, String entity, String key, String source, String operationType,
+            String startDate,
             String endDate, boolean isStrict) {
         JournalSearchCriteria criteria = new JournalSearchCriteria();
+        if (!dataModel.equalsIgnoreCase("")) { //$NON-NLS-1$
+            criteria.setDataModel(dataModel);
+        }
         if (!entity.equalsIgnoreCase("")) { //$NON-NLS-1$
             criteria.setEntity(entity);
         }

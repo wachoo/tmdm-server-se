@@ -13,9 +13,9 @@
 package org.talend.mdm.webapp.journal.client;
 
 import java.util.List;
-import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.model.BasePagingLoadConfigImpl;
+import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
 import org.talend.mdm.webapp.journal.shared.JournalGridModel;
 import org.talend.mdm.webapp.journal.shared.JournalParameters;
@@ -42,8 +42,8 @@ public interface JournalServiceAsync {
 
     void checkDCAndDM(String dataContainer, String dataModel, AsyncCallback<Boolean> callback);
 
-    void getReportString(int start, int limit, String sort, String field, String language, String entity, String key,
-            String source, String operationType, String startDate, String endDate, boolean isStrict,
+    void getReportString(int start, int limit, String sort, String field, String language, String dataModel, String entity,
+            String key, String source, String operationType, String startDate, String endDate, boolean isStrict,
             AsyncCallback<String> callback);
 
     void isAdmin(AsyncCallback<Boolean> callback);
@@ -51,4 +51,6 @@ public interface JournalServiceAsync {
     void isJournalHistoryExist(JournalParameters parameter,AsyncCallback<Boolean> callback);
     
     void checkConflict(String itemPk, String conceptName, String id,AsyncCallback<Boolean> callback);
+
+    void getDataModels(AsyncCallback<List<ItemBaseModel>> callback);
 }

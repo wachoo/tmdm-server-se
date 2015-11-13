@@ -21,6 +21,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class JournalSearchCriteria implements IsSerializable {
     
+    private String dataModel;
+
     private String entity;
 
     private String key;
@@ -37,6 +39,14 @@ public class JournalSearchCriteria implements IsSerializable {
 
     public JournalSearchCriteria() {
 
+    }
+
+    public String getDataModel() {
+        return dataModel;
+    }
+
+    public void setDataModel(String dataModel) {
+        this.dataModel = dataModel;
     }
 
     public String getEntity() {

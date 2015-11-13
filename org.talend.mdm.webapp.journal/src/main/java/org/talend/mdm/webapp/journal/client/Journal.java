@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.journal.client;
 
 import org.talend.mdm.webapp.base.client.ServiceEnhancer;
+import org.talend.mdm.webapp.base.client.util.UserContextUtil;
 import org.talend.mdm.webapp.journal.client.mvc.JournalController;
 import org.talend.mdm.webapp.journal.client.util.TimelineUtil;
 import org.talend.mdm.webapp.journal.client.widget.JournalSearchPanel;
@@ -44,12 +45,12 @@ public class Journal implements EntryPoint {
     public static final String SEARCH_CRITERIA = "SearchCriteria"; //$NON-NLS-1$
 
     private native void registerJournalService()/*-{
-        var instance = this;
-        $wnd.amalto.journal.Journal.browseJournalWithCriteria = function(ids,
-                concept, isItemsBroswer) {
-            instance.@org.talend.mdm.webapp.journal.client.Journal::initJournalfromBrowseRecord(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
-            instance.@org.talend.mdm.webapp.journal.client.Journal::initUI()();
-        }
+		var instance = this;
+		$wnd.amalto.journal.Journal.browseJournalWithCriteria = function(ids,
+				concept, isItemsBroswer) {
+			instance.@org.talend.mdm.webapp.journal.client.Journal::initJournalfromBrowseRecord(Ljava/lang/String;Ljava/lang/String;)(ids, concept);
+			instance.@org.talend.mdm.webapp.journal.client.Journal::initUI()();
+		}
     }-*/;
 
     @Override
@@ -71,67 +72,67 @@ public class Journal implements EntryPoint {
     }
 
     private native void registerPubService()/*-{
-        var instance = this;
-        $wnd.amalto.journal = {};
-        $wnd.amalto.journal.Journal = function() {
+		var instance = this;
+		$wnd.amalto.journal = {};
+		$wnd.amalto.journal.Journal = function() {
 
-            function initUI() {
-                instance.@org.talend.mdm.webapp.journal.client.Journal::resetSearchCondition()();
-                instance.@org.talend.mdm.webapp.journal.client.Journal::initUI()();
-            }
+			function initUI() {
+				instance.@org.talend.mdm.webapp.journal.client.Journal::resetSearchCondition()();
+				instance.@org.talend.mdm.webapp.journal.client.Journal::initUI()();
+			}
 
-            return {
-                init : function() {
-                    initUI();
-                }
-            }
-        }();
+			return {
+				init : function() {
+					initUI();
+				}
+			}
+		}();
     }-*/;
 
     private native void _initUI()/*-{
-        var tabPanel = $wnd.amalto.core.getTabPanel();
-        var panel = tabPanel.getItem("Journal");
-        if (panel == undefined) {
-            @org.talend.mdm.webapp.journal.client.GenerateContainer::generateContentPanel()();
-            panel = this.@org.talend.mdm.webapp.journal.client.Journal::createPanel()();
-            tabPanel.add(panel);
-        } else {
-            this.@org.talend.mdm.webapp.journal.client.Journal::onSearchWithCriteria()();
-        }
-        tabPanel.setSelection(panel.getItemId());
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = tabPanel.getItem("Journal");
+		if (panel == undefined) {
+			@org.talend.mdm.webapp.journal.client.GenerateContainer::generateContentPanel()();
+			panel = this.@org.talend.mdm.webapp.journal.client.Journal::createPanel()();
+			tabPanel.add(panel);
+		} else {
+			this.@org.talend.mdm.webapp.journal.client.Journal::onSearchWithCriteria()();
+		}
+		tabPanel.setSelection(panel.getItemId());
     }-*/;
 
     native JavaScriptObject createPanel()/*-{
-        var instance = this;
-        var panel = {
-            render : function(el) {
-                instance.@org.talend.mdm.webapp.journal.client.Journal::renderContent(Ljava/lang/String;)(el.id);
-            },
-            setSize : function(width, height) {
-                var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
-                cp.@com.extjs.gxt.ui.client.widget.ContentPanel::setSize(II)(width, height);
-            },
-            getItemId : function() {
-                var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
-                return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getItemId()();
-            },
-            getEl : function() {
-                var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
-                var el = cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getElement()();
-                return {
-                    dom : el
-                };
-            },
-            doLayout : function() {
-                var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
-                return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
-            },
-            title : function() {
-                var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
-                return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
-            }
-        };
-        return panel;
+		var instance = this;
+		var panel = {
+			render : function(el) {
+				instance.@org.talend.mdm.webapp.journal.client.Journal::renderContent(Ljava/lang/String;)(el.id);
+			},
+			setSize : function(width, height) {
+				var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
+				cp.@com.extjs.gxt.ui.client.widget.ContentPanel::setSize(II)(width, height);
+			},
+			getItemId : function() {
+				var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
+				return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getItemId()();
+			},
+			getEl : function() {
+				var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
+				var el = cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getElement()();
+				return {
+					dom : el
+				};
+			},
+			doLayout : function() {
+				var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
+				return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
+			},
+			title : function() {
+				var cp = @org.talend.mdm.webapp.journal.client.GenerateContainer::getContentPanel()();
+				return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
+			}
+		};
+		return panel;
     }-*/;
 
     public void renderContent(final String contentId) {
@@ -174,6 +175,7 @@ public class Journal implements EntryPoint {
         JournalSearchPanel.getInstance().setKeyFieldValue(ids);
         criteria.setEntity(concept);
         JournalSearchPanel.getInstance().setEntityFieldValue(concept);
+        JournalSearchPanel.getInstance().setCurrentDataModel();
     }
 
     private void onSearchWithCriteria() {
@@ -185,6 +187,7 @@ public class Journal implements EntryPoint {
         JournalSearchPanel.getInstance().reset();
         JournalSearchCriteria criteria = Registry.get(Journal.SEARCH_CRITERIA);
         criteria.setStrict(true);
+        criteria.setDataModel(UserContextUtil.getDataModel());
         criteria.setEntity(null);
         criteria.setKey(null);
         criteria.setOperationType(null);

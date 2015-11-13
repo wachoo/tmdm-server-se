@@ -89,6 +89,7 @@ public class JournalExportServlet extends HttpServlet {
     }
 
     private JournalSearchCriteria getCriteriaFromRequest(HttpServletRequest request) {
+        String dataModel = request.getParameter("dataModel"); //$NON-NLS-1$
         String entity = request.getParameter("entity"); //$NON-NLS-1$
         String key = request.getParameter("key"); //$NON-NLS-1$
         String source = request.getParameter("source"); //$NON-NLS-1$
@@ -98,6 +99,7 @@ public class JournalExportServlet extends HttpServlet {
         String isStrict = request.getParameter("isStrict"); //$NON-NLS-1$
 
         JournalSearchCriteria criteria = new JournalSearchCriteria();
+        criteria.setDataModel(dataModel);
         criteria.setEntity(entity);
         criteria.setKey(key);
         criteria.setSource(source);

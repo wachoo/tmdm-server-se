@@ -65,7 +65,7 @@ public class UtilTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         criteria = new JournalSearchCriteria();
-        criteria.setEntity("TestModel");
+        criteria.setEntity("TestEntity");
         criteria.setStartDate(new Date());
         criteria.setKey("1");
         criteria.setOperationType(UpdateReportPOJO.OPERATION_TYPE_CREATE);
@@ -75,11 +75,11 @@ public class UtilTest extends TestCase {
         PowerMockito.mockStatic(com.amalto.webapp.core.util.Util.class);
         XtentisPort port = PowerMockito.mock(XtentisPort.class);
         Mockito.when(com.amalto.webapp.core.util.Util.getPort()).thenReturn(port);
-        com.amalto.core.webservice.WSDataModelPK[] wsDataModelsPKs = { new WSDataModelPK("Product") };
+        com.amalto.core.webservice.WSDataModelPK[] wsDataModelsPKs = { new WSDataModelPK("Product"), new WSDataModelPK("Test") };
         WSDataModelPKArray array = PowerMockito.mock(WSDataModelPKArray.class);
         when(port.getDataModelPKs(Mockito.any(WSRegexDataModelPKs.class))).thenReturn(array);
         when(array.getWsDataModelPKs()).thenReturn(wsDataModelsPKs);
-        String[] entities = { "Store", "TestModel" };
+        String[] entities = { "Store", "TestEntity" };
         WSStringArray entityArray = new WSStringArray(entities);
         when(port.getConceptsInDataCluster(Mockito.any(WSGetConceptsInDataCluster.class))).thenReturn(entityArray);
     }
@@ -95,9 +95,15 @@ public class UtilTest extends TestCase {
             WSWhereCondition condition = whereItem.getWhereCondition();
             if (condition == null) {
                 condition = whereItem.getWhereOr().getWhereItems()[0].getWhereCondition();
+                assertEquals(condition.getLeftPath(), "DataModel");
+                assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
+                assertEquals(condition.getRightValueOrPath(), "Product");
+                condition = whereItem.getWhereOr().getWhereItems()[1].getWhereCondition();
+                assertEquals(condition.getRightValueOrPath(), "Test");
+                modelFlag = true;
             }
             if ("Concept".equals(condition.getLeftPath())) {
-                if (condition.getRightValueOrPath().equals("TestModel")) {
+                if (condition.getRightValueOrPath().equals("TestEntity")) {
                     assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
                 } else if (condition.getRightValueOrPath().equals("Store")) {
                     conceptFlag = true;
@@ -113,25 +119,19 @@ public class UtilTest extends TestCase {
                 assertEquals(condition.getRightValueOrPath(), UpdateReportPOJO.OPERATION_TYPE_CREATE);
             } else if ("TimeInMillis".equals(condition.getLeftPath())) {
                 assertEquals(WSWhereOperator.GREATER_THAN_OR_EQUAL, condition.getOperator());
-            } else if ("DataModel".equals(condition.getLeftPath())) {
-                assertEquals(WSWhereOperator.EQUALS, condition.getOperator());
-                assertEquals(condition.getRightValueOrPath(), "Product");
-                modelFlag = true;
             }
         }
         assertTrue(conceptFlag);
         assertTrue(modelFlag);
-        
+
         conceptFlag = false;
         modelFlag = false;
+        criteria.setDataModel("Product");
         mock.setEnterpriseVersion(false);
         criteria.setStrict(false);
         conditions = Util.buildWhereItems(criteria, mock);
         for (WSWhereItem whereItem : conditions) {
             WSWhereCondition condition = whereItem.getWhereCondition();
-            if (condition == null) {
-                condition = whereItem.getWhereOr().getWhereItems()[0].getWhereCondition();
-            }
             if ("Concept".equals(condition.getLeftPath())) {
                 if (condition.getRightValueOrPath().equals("TestModel")) {
                     assertEquals(WSWhereOperator.CONTAINS, condition.getOperator());
@@ -156,7 +156,7 @@ public class UtilTest extends TestCase {
             }
         }
         assertFalse(conceptFlag);
-        assertFalse(modelFlag);
+        assertTrue(modelFlag);
     }
     
     public void testBuildGetItem() throws Exception {

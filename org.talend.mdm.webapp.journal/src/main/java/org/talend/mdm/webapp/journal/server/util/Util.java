@@ -47,13 +47,15 @@ public class Util {
 
     public static final int TIME_OF_ONE_SECOND = 1000;
 
-    public static final String concept = "Update"; //$NON-NLS-1$    
+    public static final String concept = "Update"; //$NON-NLS-1$   
 
     private static final Logger LOG = Logger.getLogger(Util.class);
 
-    public static List<WSWhereItem> buildWhereItems(JournalSearchCriteria criteria, WebService webService) throws Exception {
+    public static List<WSWhereItem> buildWhereItems(JournalSearchCriteria criteria, WebService webService)
+            throws ServiceException {
         
-        List<WSWhereItem> whereItemList = new ArrayList<WSWhereItem>();
+        List<WSWhereItem> whereItemList = new ArrayList<WSWhereItem>();        
+
         if (criteria.getEntity() != null) {
             WSWhereCondition wc = new WSWhereCondition(
                     "Concept", criteria.isStrict() ? WSWhereOperator.EQUALS : WSWhereOperator.CONTAINS, criteria.getEntity().trim(), WSStringPredicate.NONE, false); //$NON-NLS-1$
@@ -96,26 +98,42 @@ public class Util {
             whereItemList.add(wsWhereItem);
         }
 
-        if (webService.isEnterpriseVersion()) {
-            try {
-                List<String> accessModels = new ArrayList<>();
-                XtentisPort port = com.amalto.webapp.core.util.Util.getPort();
-                // port.getDataModelPKs() can only get the models user has access
-                WSDataModelPK[] wsDataModelsPKs = port.getDataModelPKs(new WSRegexDataModelPKs("*")).getWsDataModelPKs(); //$NON-NLS-1$
-                Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
-                List<WSWhereItem> modelConditions = new ArrayList<WSWhereItem>();
-                for (WSDataModelPK wsDataModelsPK : wsDataModelsPKs) {
-                    if (!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPK.getPk())) {
-                        accessModels.add(wsDataModelsPK.getPk());
+        try {
+            List<String> accessModels = new ArrayList<>();
+            XtentisPort port = com.amalto.webapp.core.util.Util.getPort();
+            if (criteria.getDataModel() != null) {
+                WSWhereCondition wc = new WSWhereCondition(
+                        "DataModel", WSWhereOperator.EQUALS, criteria.getDataModel(), WSStringPredicate.NONE, false); //$NON-NLS-1$
+                WSWhereItem wsWhereItem = new WSWhereItem(wc, null, null);
+                whereItemList.add(wsWhereItem);
+                accessModels.add(criteria.getDataModel());
+            } else {
+                if (webService.isEnterpriseVersion()) {
+                    // port.getDataModelPKs() can only get the models user has access
+                    WSDataModelPK[] wsDataModelsPKs = port.getDataModelPKs(new WSRegexDataModelPKs("*")).getWsDataModelPKs(); //$NON-NLS-1$
+                    Map<String, XSystemObjects> xDataModelsMap = XSystemObjects.getXSystemObjects(XObjectType.DATA_MODEL);
+                    List<WSWhereItem> modelConditions = new ArrayList<WSWhereItem>();
+                    for (WSDataModelPK wsDataModelsPK : wsDataModelsPKs) {
+                        if (!XSystemObjects.isXSystemObject(xDataModelsMap, wsDataModelsPK.getPk())) {
+                            accessModels.add(wsDataModelsPK.getPk());
+                            WSWhereCondition wc = new WSWhereCondition(
+                                    "DataModel", WSWhereOperator.EQUALS, (wsDataModelsPK.getPk()), WSStringPredicate.NONE, false); //$NON-NLS-1$ 
+                            modelConditions.add(new WSWhereItem(wc, null, null));
+                        }
+                    }
+                    if (modelConditions.size() == 0) {
                         WSWhereCondition wc = new WSWhereCondition(
-                                "DataModel", WSWhereOperator.EQUALS, (wsDataModelsPK.getPk()), WSStringPredicate.NONE, false); //$NON-NLS-1$ 
-                        modelConditions.add(new WSWhereItem(wc, null, null));
+                                "DataModel", WSWhereOperator.EQUALS, (""), WSStringPredicate.NONE, false); //$NON-NLS-1$ 
+                        WSWhereItem modelItem = new WSWhereItem(wc, null, null);
+                        whereItemList.add(modelItem);
+                    } else {
+                        WSWhereOr or = new WSWhereOr(modelConditions.toArray(new WSWhereItem[modelConditions.size()]));
+                        WSWhereItem modelItem = new WSWhereItem(null, null, or);
+                        whereItemList.add(modelItem);
                     }
                 }
-                WSWhereOr or = new WSWhereOr(modelConditions.toArray(new WSWhereItem[modelConditions.size()]));
-                WSWhereItem modelItem = new WSWhereItem(null, null, or);
-                whereItemList.add(modelItem);
-
+            }
+            if (webService.isEnterpriseVersion()) {
                 for (String model : accessModels) {
                     String[] entities = port.getConceptsInDataCluster(new WSGetConceptsInDataCluster(new WSDataClusterPK(model)))
                             .getStrings();
@@ -129,12 +147,12 @@ public class Util {
                         }
                     }
                 }
-            } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
-                throw new ServiceException("Error occurs during checking access : " //$NON-NLS-1$
-                        + e.getLocalizedMessage());
             }
-        }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new ServiceException("Error occurs during checking access to data model and entities: " //$NON-NLS-1$
+                    + e.getLocalizedMessage());
+        }        
         return whereItemList;
     }
     
