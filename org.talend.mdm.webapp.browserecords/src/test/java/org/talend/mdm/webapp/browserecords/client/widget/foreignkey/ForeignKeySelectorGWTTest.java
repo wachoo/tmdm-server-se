@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import org.talend.mdm.webapp.base.client.ServiceEnhancer;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
@@ -33,6 +34,8 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 public class ForeignKeySelectorGWTTest extends GWTTestCase {
 
+    private ForeignKeySelectorForTest foreignKeySelectorForTest;
+
     @Override
     protected void gwtSetUp() throws Exception {
         super.gwtSetUp();
@@ -42,6 +45,13 @@ public class ForeignKeySelectorGWTTest extends GWTTestCase {
         ServiceDefTarget browseRecordService = GWT.create(BrowseRecordsService.class);
         ServiceEnhancer.customizeService(browseRecordService);
         Registry.register(BrowseRecords.BROWSERECORDS_SERVICE, browseRecordService);
+
+        TypeModel typeModel = new SimpleTypeModel();
+        typeModel.setForeignkey("TypeValeur_Lkp/IdTypeValeur"); //$NON-NLS-1$
+        typeModel.setTypePath("Caracteristique/Format_Caracteristique:Caracteristique_Liste/IdTypeValeur"); //$NON-NLS-1$
+        ItemsDetailPanel itemsDetailPanel = ItemsDetailPanel.newInstance();
+        itemsDetailPanel.setStaging(false);
+        foreignKeySelectorForTest = new ForeignKeySelectorForTest(typeModel, itemsDetailPanel, null);
     }
 
     public void testParseForeignKeyFilter() {
@@ -155,6 +165,37 @@ public class ForeignKeySelectorGWTTest extends GWTTestCase {
         assertEquals("Addr/AddrId$$=$$123$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
     }
 
+    public void testFindTarget() {
+        String targetPath = "Caracteristique/Format_Caracteristique/IdTypeValeur"; //$NON-NLS-1$
+        ItemNodeModel itemNodeModel = new ItemNodeModel();
+        itemNodeModel.setLabel("Format_Caracteristique"); //$NON-NLS-1$
+        itemNodeModel.setRealType("Caracteristique"); //$NON-NLS-1$
+        itemNodeModel.setTypePath("Caracteristique/Format_Caracteristique"); //$NON-NLS-1$
+
+        ItemNodeModel itemNodeModel1 = new ItemNodeModel();
+        itemNodeModel1.setLabel("IdTypeValeur"); //$NON-NLS-1$
+        itemNodeModel1.setTypePath("Caracteristique/Format_Caracteristique:Caracteristique_Liste/IdTypeValeur"); //$NON-NLS-1$
+        ItemNodeModel itemNodeModel2 = new ItemNodeModel();
+        itemNodeModel2.setLabel("Multiple"); //$NON-NLS-1$
+        itemNodeModel2.setTypePath("Caracteristique/Format_Caracteristique:Caracteristique_Liste/Multiple"); //$NON-NLS-1$
+        ItemNodeModel itemNodeModel3 = new ItemNodeModel();
+        itemNodeModel3.setLabel("ValeursCaracteristique"); //$NON-NLS-1$
+        itemNodeModel3.setTypePath("Caracteristique/Format_Caracteristique:Caracteristique_Liste/ValeursCaracteristique"); //$NON-NLS-1$
+        itemNodeModel.getChildren().add(itemNodeModel1);
+        itemNodeModel.getChildren().add(itemNodeModel2);
+        itemNodeModel.getChildren().add(itemNodeModel3);
+
+        ItemNodeModel targetNodeModel = foreignKeySelectorForTest.findTarget(targetPath, itemNodeModel);
+        assertNotNull(targetNodeModel);
+        assertEquals("IdTypeValeur", targetNodeModel.getLabel()); //$NON-NLS-1$
+        assertEquals("Caracteristique/Format_Caracteristique:Caracteristique_Liste/IdTypeValeur", targetNodeModel.getTypePath()); //$NON-NLS-1$
+    }
+
+    public void testTransformPath() {
+        String[] pathArray = { "Caracteristique", "Format_Caracteristique", "IdTypeValeur" }; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+        assertEquals("Caracteristique/Format_Caracteristique/IdTypeValeur", foreignKeySelectorForTest.transformPath(pathArray)); //$NON-NLS-1$
+    }
+
     private EntityModel getCurrentEntityModel() {
         EntityModel productEntityModel = CommonUtilTestData.getEntityModel(ClientResourceData.getModelProduct());
         return productEntityModel;
@@ -165,4 +206,20 @@ public class ForeignKeySelectorGWTTest extends GWTTestCase {
         return "org.talend.mdm.webapp.browserecords.TestBrowseRecords"; //$NON-NLS-1$
     }
 
+    public class ForeignKeySelectorForTest extends ForeignKeySelector {
+
+        public ForeignKeySelectorForTest(TypeModel dataType, ItemsDetailPanel itemsDetailPanel, ItemNodeModel itemNode) {
+            super(dataType, itemsDetailPanel, itemNode);
+        }
+
+        @Override
+        public ItemNodeModel findTarget(String targetPath, ItemNodeModel node) {
+            return super.findTarget(targetPath, node);
+        }
+
+        @Override
+        public String transformPath(String[] pathArray) {
+            return super.transformPath(pathArray);
+        }
+    }
 }

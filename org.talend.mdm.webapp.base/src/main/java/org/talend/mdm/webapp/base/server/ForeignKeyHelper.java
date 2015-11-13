@@ -82,8 +82,8 @@ public class ForeignKeyHelper {
         schemaManager = _schemaManager;
     }
 
-    public static ForeignKeyBean getForeignKeyBean(TypeModel model, EntityModel entityModel, String dataClusterPK, String ids,
-            String xml, String currentXpath, String language) throws Exception {
+    public static ForeignKeyBean getForeignKeyBean(TypeModel model, EntityModel entityModel, String foreignKeyFilterValue,
+            String dataClusterPK, String ids, String xml, String currentXpath, String language) throws Exception {
         ForeignKeyBean foreignKeyBean = null;
         boolean hasForeignKeyFilter = model.getFkFilter() != null && model.getFkFilter().trim().length() > 0 ? true : false;
         boolean hasCompositeKey = false;
@@ -91,13 +91,13 @@ public class ForeignKeyHelper {
             hasCompositeKey = true;
         }
         ForeignKeyHolder holder;
-        String foreignKeyFilter = getForeignKeyFilter(hasForeignKeyFilter, currentXpath.split("/")[0], xml, currentXpath, model); //$NON-NLS-1$
         if (hasCompositeKey && ids.contains(".")) { //$NON-NLS-1$
             holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter,
                     ids.split("[.]")[0]); //$NON-NLS-1$ 
         } else {
             holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter, ids);
         }
+        holder = getForeignKeyHolder(model, foreignKeyFilterValue);
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;

@@ -339,11 +339,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         model.setForeignkey(foreignKey);
         model.setForeignKeyInfo(foreignKeyInfo);
         model.setRetrieveFKinfos(true);
-        model.setFkFilter(org.talend.mdm.webapp.base.shared.util.CommonUtil.unescapeXml(foreignKeyFilter));
         EntityModel foreignKeyEntityModel = getEntityModel(model.getForeignkey().split("/")[0], language); //$NON-NLS-1$
         try {
-            return ForeignKeyHelper.getForeignKeyBean(model, foreignKeyEntityModel, currentDataCluster, ids, xml, currentXpath,
-                    language);
+            return ForeignKeyHelper.getForeignKeyBean(model, foreignKeyEntityModel, foreignKeyFilter, currentDataCluster, ids,
+                    xml, currentXpath, language);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new ServiceException(e.getLocalizedMessage());

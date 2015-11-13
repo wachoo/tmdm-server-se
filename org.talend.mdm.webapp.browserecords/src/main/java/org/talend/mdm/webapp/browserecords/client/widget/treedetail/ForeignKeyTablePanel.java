@@ -134,6 +134,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     private FKKeyCellEditor keyCellEditor;
 
+    private ForeignKeySelector foreignKeySelector;
+
     public ForeignKeyTablePanel(String panelName, boolean staging) {
         super();
         this.setHeaderVisible(false);
@@ -201,7 +203,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         final CheckBoxSelectionModel<ItemNodeModel> sm = new CheckBoxSelectionModel<ItemNodeModel>();
         columnConfigs.add(sm.getColumn());
 
-        final ForeignKeySelector foreignKeySelector = new ForeignKeySelector(fkTypeModel.getForeignkey(),
+        foreignKeySelector = new ForeignKeySelector(fkTypeModel.getForeignkey(),
                 fkTypeModel.getForeignKeyInfo(), fkTypeModel.getXpath(), fkTypeModel.getFkFilter(), itemsDetailPanel, parent);
         foreignKeySelector.setUsageField("ForeignKeyTablePanel"); //$NON-NLS-1$
         foreignKeySelector.setStaging(staging);
@@ -586,7 +588,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 .getService(staging)
                 .getForeignKeyBean(
                         fkTypeModel.getForeignkey().split("/")[0], foreignKeyIds, xml, fkTypeModel.getXpath(), fkTypeModel.getForeignkey(), fkTypeModel.getForeignKeyInfo(), //$NON-NLS-1$
-                        fkTypeModel.getFkFilter(), staging, Locale.getLanguage(),
+                        foreignKeySelector.parseForeignKeyFilter(), staging, Locale.getLanguage(),
                         new SessionAwareAsyncCallback<ForeignKeyBean>() {
 
                             @Override
