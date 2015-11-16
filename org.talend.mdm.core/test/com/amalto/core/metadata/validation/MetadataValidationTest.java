@@ -659,6 +659,22 @@ public class MetadataValidationTest extends TestCase {
         assertTrue(handler.getLineNumbers().contains(359));
         assertFalse(handler.getLineNumbers().contains(null));
     }
+    
+    public void testTypeNameConstraint() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("TypeNaming.xsd");
+        TestValidationHandler handler = new TestValidationHandler();
+        try {
+            repository.load(resourceAsStream, handler);
+        } catch (Exception e) {
+            // Expected
+        }
+        assertEquals(2, handler.getErrorCount());
+        assertTrue(handler.getMessages().contains(ValidationError.TYPE_INVALID_NAME));
+        assertTrue(handler.getLineNumbers().contains(3));
+        assertTrue(handler.getLineNumbers().contains(27));
+        
+    }
 
     private static class TestValidationHandler implements ValidationHandler {
 
