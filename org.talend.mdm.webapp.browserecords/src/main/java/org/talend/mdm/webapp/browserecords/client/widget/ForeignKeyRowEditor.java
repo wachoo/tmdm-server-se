@@ -132,17 +132,6 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
                                     }
                                 });
             } else {
-                Record record;
-                Store<ItemNodeModel> store = grid.getStore();
-                if (store != null) {
-                    record = store.getRecord(grid.getSelectionModel().getSelectedItem());
-                } else {
-                    record = null;
-                }
-
-                if (record != null) {
-                    record.reject(false);
-                }
                 MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().no_change_info(), null);
             }
         }
