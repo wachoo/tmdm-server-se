@@ -669,7 +669,7 @@ public class MetadataValidationTest extends TestCase {
         } catch (Exception e) {
             // Expected
         }
-        assertEquals(2, handler.getErrorCount());
+        assertEquals(2, handler.getWarningCount());
         assertTrue(handler.getMessages().contains(ValidationError.TYPE_INVALID_NAME));
         assertTrue(handler.getLineNumbers().contains(3));
         assertTrue(handler.getLineNumbers().contains(27));
