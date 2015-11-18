@@ -92,12 +92,11 @@ public class ForeignKeyHelper {
         }
         ForeignKeyHolder holder;
         if (hasCompositeKey && ids.contains(".")) { //$NON-NLS-1$
-            holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter,
+            holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilterValue,
                     ids.split("[.]")[0]); //$NON-NLS-1$ 
         } else {
-            holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilter, ids);
+            holder = getForeignKeyHolder(model, model.getForeignkey(), model.getForeignKeyInfo(), foreignKeyFilterValue, ids);
         }
-        holder = getForeignKeyHolder(model, foreignKeyFilterValue);
         String[] results = null;
         if (holder != null) {
             String conceptName = holder.conceptName;
