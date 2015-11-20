@@ -1,0 +1,38 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">  
+  <xsd:complexType name="InheritType1"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="id" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="1" name="field1" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+    </xsd:sequence> 
+  </xsd:complexType>  
+  <xsd:element name="InheritEntity" type="InheritType2"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:unique name="InheritEntity2"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="id"/> 
+    </xsd:unique> 
+  </xsd:element>  
+  <xsd:complexType name="InheritType2"> 
+    <xsd:complexContent> 
+      <xsd:extension base="InheritType1"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="field2" type="xsd:string">
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType> 
+</xsd:schema>
