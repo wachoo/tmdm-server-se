@@ -2144,7 +2144,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (null != firstValue && firstValue.length() != 0) {
                         NodeList list = Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
                         if (list != null && list.getLength() > 0) {
-                            list.item(0).setTextContent(firstValue);
+                            for (int i = 0; i < list.getLength(); i++) {
+                                list.item(i).setTextContent(firstValue);
+                            }
                         }
                     }
                 }
@@ -2183,8 +2185,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
-            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
-
+            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());         
+            extractUsingTransformerThroughView("Browse_items_" + concept, DataModelHelper.getEleDecl(), wsItem);
+            itemBean.setItemXml(wsItem.getContent());
             dynamicAssemble(itemBean, entityModel, language);
 
             return itemBean;
