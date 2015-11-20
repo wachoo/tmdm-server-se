@@ -115,6 +115,7 @@ public class JournalSearchPanel extends FormPanel {
         left.setStyleAttribute("paddingTop", "1px"); //$NON-NLS-1$ //$NON-NLS-2$
         FormLayout layout = new FormLayout();
         layout.setLabelAlign(LabelAlign.LEFT);
+        layout.setLabelWidth(110);
         left.setWidth(350);
         left.setLayout(layout);
         
