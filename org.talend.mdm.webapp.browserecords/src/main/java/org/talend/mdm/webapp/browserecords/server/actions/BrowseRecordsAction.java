@@ -2167,7 +2167,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (null != firstValue && firstValue.length() != 0) {
                         NodeList list = com.amalto.core.util.Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
                         if (list != null && list.getLength() > 0) {
-                            list.item(0).setTextContent(firstValue);
+                            for (int i = 0; i < list.getLength(); i++) {
+                                list.item(i).setTextContent(firstValue);
+                            }
                         }
                     }
                 }
@@ -2190,8 +2192,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public ItemBean getItemBeanById(String concept, String[] ids, String language) throws ServiceException {
         try {
+            String dataCluster = getCurrentDataCluster();
             WSItem wsItem = CommonUtil.getPort().getItem(
-                    new WSGetItem(new WSItemPK(new WSDataClusterPK(this.getCurrentDataCluster()), concept, ids)));
+                    new WSGetItem(new WSItemPK(new WSDataClusterPK(dataCluster), concept, ids)));
             String[] idsArr = wsItem.getIds();
             StringBuilder sb = new StringBuilder();
             for (String str : idsArr) {
@@ -2207,7 +2210,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, LocalUser.getLocalUser().getRoles());
-
+            extractUsingTransformerThroughView(concept, "Browse_items_" + concept, ids, model, dataCluster,
+                    DataModelHelper.getEleDecl(), wsItem);
+            itemBean.setItemXml(wsItem.getContent());
             dynamicAssemble(itemBean, entityModel, language);
 
             return itemBean;
