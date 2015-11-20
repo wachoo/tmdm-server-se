@@ -380,20 +380,6 @@ public class MetadataRepositoryTest extends TestCase {
             assertEquals(names[j], copyNames[j]);
         }
     }
-
-    public void test30() throws Exception {
-        String[] keyNames = { "NumeroBdd", "BddSource", "NomApplication", "IdMDM" };
-        MetadataRepository repository = new MetadataRepository();
-        InputStream stream = getClass().getResourceAsStream("schema30.xsd");
-        repository.load(stream);
-        ComplexTypeMetadata entityType = repository.getComplexType("XrefAgence");
-        assertNotNull(entityType);
-        assertEquals(4, entityType.getKeyFields().size());
-        int i = 0;
-        for (FieldMetadata keyField : entityType.getKeyFields()) {
-            assertEquals(keyNames[i++], keyField.getName());
-        }
-    }
     
     public void testLenientSortSimpleTest() throws Exception {
         MetadataRepository repository = new MetadataRepository();
