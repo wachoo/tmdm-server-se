@@ -184,6 +184,7 @@ public class BrowseRecordsController extends Controller {
                             msgBox = MessageBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages()
                                     .save_success(), null);
                         }
+                        msgBox.show();
                         setTimeout(msgBox, 1000);
 
                         if (!detailToolBar.isOutMost() && (isClose || isCreate)) {
