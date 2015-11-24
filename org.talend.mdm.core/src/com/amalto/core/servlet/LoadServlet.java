@@ -13,6 +13,7 @@ import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
@@ -110,6 +111,7 @@ public class LoadServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException(e);
         }
+        DataRecord.CheckExistence.set(false);
         SaverSession session = SaverSession.newSession();
         SaverContextFactory contextFactory = session.getContextFactory();
         DocumentSaverContext context = contextFactory.createBulkLoad(dataClusterName, dataModelName, keyMetadata, request.getInputStream(), loadAction, server);
@@ -127,7 +129,10 @@ public class LoadServlet extends HttpServlet {
                 log.error("Ignoring rollback exception", rollbackException);
             }
             throw new ServletException(e);
+        } finally {
+            DataRecord.CheckExistence.remove();
         }
+        
         writer.write("</body></html>"); //$NON-NLS-1$
     }
 
