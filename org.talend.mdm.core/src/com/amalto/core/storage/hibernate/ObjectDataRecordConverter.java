@@ -51,7 +51,7 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             // Try to load existing instance (if any).
             Wrapper mainInstance = null;
             Serializable id = null;
-            if(DataRecord.CheckExistence.get()) {
+            if(DataRecord.CheckExistence.get() || "AutoIncrement".equals(dataRecord.getType().getName())) {
                 try {
                     Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
                     if (keyFields.size() == 0) {
