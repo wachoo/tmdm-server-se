@@ -394,12 +394,11 @@ amalto.itemsbrowser.SearchEntity.bundle.onReady(function(){
 			check = function(r){ 
 				return r.test(ua); 
 			};
-			var isChrome = check(/chrome/);
-			
-			if(isChrome){
-			    var chromeDatePickerCSS = ".x-date-picker {width: 175px;}";
-			    Ext.util.CSS.createStyleSheet(chromeDatePickerCSS,'chromeDatePickerStyle');
-			}
+
+			if(check(/chrome/) || check(/safari/)){
+			    var datePickerCSS = ".x-date-picker {width: 175px;}";
+			    Ext.util.CSS.createStyleSheet(datePickerCSS,'datePickerStyle');
+			};
 		}
 	}
 	); 
