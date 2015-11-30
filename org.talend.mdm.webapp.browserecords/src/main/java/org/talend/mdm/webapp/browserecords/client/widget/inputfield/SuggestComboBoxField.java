@@ -26,6 +26,7 @@ import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ForeignKeyField;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -208,6 +209,14 @@ public class SuggestComboBoxField extends ComboBoxEx<ForeignKeyBean> {
         if (input != null) {
             input.dom.setAttribute("contenteditable", "true"); //$NON-NLS-1$//$NON-NLS-2$
             input.dom.removeAttribute("tabIndex"); //$NON-NLS-1$
+        }
+    }
+
+    @Override
+    public void onAttach() {
+        super.onAttach();
+        if (GXT.isIE && input != null) {
+            input.dom.removeAttribute("disabled"); //$NON-NLS-1$
         }
     }
 

@@ -1460,6 +1460,10 @@ public class ComboBoxEx<D extends ModelData> extends TriggerField<D> implements 
 
         Accessibility.setState(getElement(), "aria-owns", listView.getId()); //$NON-NLS-1$
         Accessibility.setRole(getElement(), "combobox"); //$NON-NLS-1$
+
+        if (!isEditable()) {
+            setEditable(false);
+        }
     }
 
     protected void onSelect(D model, int index) {
