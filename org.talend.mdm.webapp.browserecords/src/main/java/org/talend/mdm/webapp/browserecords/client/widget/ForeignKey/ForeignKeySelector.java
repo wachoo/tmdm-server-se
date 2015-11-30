@@ -48,8 +48,6 @@ import com.google.gwt.user.client.ui.Image;
 
 public class ForeignKeySelector extends ForeignKeyField implements ReturnCriteriaFK {
 
-    private TypeModel dataType;
-
     private String foreignKeyFilter;
 
     private ItemNodeModel itemNode;
@@ -76,17 +74,16 @@ public class ForeignKeySelector extends ForeignKeyField implements ReturnCriteri
 
     public ForeignKeySelector(TypeModel dataType, ItemsDetailPanel itemsDetailPanel, ItemNodeModel itemNode) {
         super(dataType);
-        this.dataType = dataType;
         this.foreignKeyFilter = dataType.getForeignKeyFilter();
         this.itemsDetailPanel = itemsDetailPanel;
         this.itemNode = itemNode;
         this.isStaging = itemsDetailPanel.isStaging();
-        addButton = new Image(Icons.INSTANCE.link_add());
-        cleanButton = new Image(Icons.INSTANCE.link_delete());
-        relationButton = new Image(Icons.INSTANCE.link_go());
-        showAddButton = true;
-        showCleanButton = true;
-        showRelationButton = true;
+        this.addButton = new Image(Icons.INSTANCE.link_add());
+        this.cleanButton = new Image(Icons.INSTANCE.link_delete());
+        this.relationButton = new Image(Icons.INSTANCE.link_go());
+        this.showAddButton = !dataType.isReadOnly();
+        this.showCleanButton = !dataType.isReadOnly();
+        this.showRelationButton = true;
     }
 
     public ForeignKeySelector(TypeModel dataType, ForeignKeyFieldList fkFieldList, ItemsDetailPanel itemsDetailPanel,
@@ -206,7 +203,6 @@ public class ForeignKeySelector extends ForeignKeyField implements ReturnCriteri
     @Override
     public void setReadOnly(boolean readOnly) {
         super.setReadOnly(readOnly);
-        selectButton.setVisible(!readOnly);
         addButton.setVisible(!readOnly);
         cleanButton.setVisible(!readOnly);
         relationButton.setVisible(true);

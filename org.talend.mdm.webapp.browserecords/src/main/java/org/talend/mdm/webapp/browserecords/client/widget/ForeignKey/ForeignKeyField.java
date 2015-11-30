@@ -72,12 +72,12 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
         this.foreignKeyPath = dataType.getForeignkey();
         this.foreignKeyInfo = dataType.getForeignKeyInfo();
         this.currentPath = dataType.getXpath();
-        selectButton = new Image(Icons.INSTANCE.link());
-        generateForeignKeyListWindow();
-        suggestBox = new SuggestComboBoxField(this);
-        showInput = true;
-        showSelectButton = true;
-        setFireChangeEventOnSetValue(true);
+        this.suggestBox = new SuggestComboBoxField(this);
+        this.selectButton = new Image(Icons.INSTANCE.link());
+        this.showInput = true;
+        this.showSelectButton = !dataType.isReadOnly();
+        this.generateForeignKeyListWindow();
+        this.setFireChangeEventOnSetValue(true);
     }
 
     @Override

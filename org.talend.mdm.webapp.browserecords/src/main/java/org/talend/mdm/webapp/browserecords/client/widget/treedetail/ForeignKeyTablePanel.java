@@ -205,11 +205,6 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
         foreignKeySelector = new ForeignKeySelector(fkTypeModel, itemsDetailPanel, parent);
         foreignKeySelector.setUsageField("ForeignKeyTablePanel"); //$NON-NLS-1$
-        foreignKeySelector.setStaging(staging);
-        foreignKeySelector.setShowSelectButton(false);
-        foreignKeySelector.setShowAddButton(false);
-        foreignKeySelector.setShowCleanButton(false);
-        foreignKeySelector.setShowRelationButton(false);
 
         final ColumnConfig keyColumn = new ColumnConfig("objectValue", convertKeys(entityModel.getKeys()), COLUMN_WIDTH); //$NON-NLS-1$
 
