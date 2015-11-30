@@ -30,7 +30,7 @@ import org.apache.commons.httpclient.params.HttpClientParams;
  */
 public class BulkloadClientUtil {
 
-    public static void bulkload(String url, String cluster, String concept, String datamodel, boolean validate, boolean smartpk,
+    public static void bulkload(String url, String cluster, String concept, String datamodel, boolean validate, boolean smartpk, boolean insertonly,
             InputStream itemdata, String username, String password, String transactionId, String universe, String tokenKey,
             String tokenValue) throws Exception {
         HostConfiguration config = new HostConfiguration();
@@ -42,7 +42,8 @@ public class BulkloadClientUtil {
                 new NameValuePair("datamodel", datamodel), //$NON-NLS-1$
                 new NameValuePair("validate", String.valueOf(validate)), //$NON-NLS-1$
                 new NameValuePair("action", "load"), //$NON-NLS-1$ //$NON-NLS-2$
-                new NameValuePair("smartpk", String.valueOf(smartpk)) }; //$NON-NLS-1$
+                new NameValuePair("smartpk", String.valueOf(smartpk)),//$NON-NLS-1$
+                new NameValuePair("insertonly", String.valueOf(insertonly))}; //$NON-NLS-1$
 
         HttpClient client = new HttpClient();
         String user = universe == null || universe.trim().length() == 0 ? username : universe + "/" + username; //$NON-NLS-1$
@@ -88,10 +89,10 @@ public class BulkloadClientUtil {
     }
 
     public static InputStreamMerger bulkload(String url, String cluster, String concept, String dataModel, boolean validate,
-            boolean smartPK, String username, String password, String transactionId, String universe, String tokenKey,
+            boolean smartPK, boolean insertOnly, String username, String password, String transactionId, String universe, String tokenKey,
             String tokenValue, AtomicInteger startedBulkloadCount) {
         InputStreamMerger merger = new InputStreamMerger();
-        Runnable loadRunnable = new AsyncLoadRunnable(url, cluster, concept, dataModel, validate, smartPK, merger, username,
+        Runnable loadRunnable = new AsyncLoadRunnable(url, cluster, concept, dataModel, validate, smartPK, insertOnly, merger, username,
                 password, transactionId, universe, tokenKey, tokenValue, startedBulkloadCount);
         Thread loadThread = new Thread(loadRunnable);
         loadThread.start();
@@ -111,6 +112,8 @@ public class BulkloadClientUtil {
         private final boolean validate;
 
         private final boolean smartPK;
+        
+        private final boolean insertOnly;
 
         private final InputStreamMerger inputStream;
 
@@ -128,7 +131,7 @@ public class BulkloadClientUtil {
 
         private final AtomicInteger startedBulkloadCount;
 
-        public AsyncLoadRunnable(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK,
+        public AsyncLoadRunnable(String url, String cluster, String concept, String dataModel, boolean validate, boolean smartPK, boolean insertOnly,
                 InputStreamMerger inputStream, String userName, String password, String transactionId, String universe,
                 String tokenKey, String tokenValue, AtomicInteger startedBulkloadCount) {
             this.url = url;
@@ -137,6 +140,7 @@ public class BulkloadClientUtil {
             this.dataModel = dataModel;
             this.validate = validate;
             this.smartPK = smartPK;
+            this.insertOnly = insertOnly;
             this.inputStream = inputStream;
             this.userName = userName;
             this.password = password;
@@ -151,8 +155,8 @@ public class BulkloadClientUtil {
         public void run() {
             try {
                 startedBulkloadCount.incrementAndGet();
-                bulkload(url, cluster, concept, dataModel, validate, smartPK, inputStream, userName, password, transactionId,
-                        universe, tokenKey, tokenValue);
+                bulkload(url, cluster, concept, dataModel, validate, smartPK, insertOnly, inputStream, userName, password,
+                        transactionId, universe, tokenKey, tokenValue);
             } catch (Throwable e) {
                 inputStream.reportFailure(e);
             } finally {
