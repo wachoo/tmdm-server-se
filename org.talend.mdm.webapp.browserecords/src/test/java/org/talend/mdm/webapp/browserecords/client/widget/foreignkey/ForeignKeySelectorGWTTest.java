@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import org.talend.mdm.webapp.base.client.ServiceEnhancer;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.EntityModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
@@ -108,17 +109,23 @@ public class ForeignKeySelectorGWTTest extends GWTTestCase {
                 "ProductFamily/Name$$=$$\'talend\'$$#", itemsDetailPanel, family); //$NON-NLS-1$
         assertEquals("ProductFamily/Name$$=$$talend$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        subelementType.setForeignKeyFilter("ProductFamily/ChangeStatus$$Is Empty Or Null$$$$#"); //$NON-NLS-1$
-        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, family);
+        SimpleTypeModel subelementType = new SimpleTypeModel();
+        subelementType.setForeignkey("ProductFamily/Id"); //$NON-NLS-1$
+        subelementType.setForeignKeyInfo(new ArrayList<String>());
+        subelementType.setXpath("Product/Family"); //$NON-NLS-1$
+        subelementType.setFkFilter("ProductFamily/ChangeStatus$$Is Empty Or Null$$$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType.getForeignkey(), subelementType.getForeignKeyInfo(),
+                subelementType.getXpath(), subelementType.getFkFilter(), itemsDetailPanel, family);
         assertEquals("ProductFamily/ChangeStatus$$Is Empty Or Null$$$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        subelementType.setForeignKeyFilter("ProductFamily/ChangeStatus$$Is Empty Or Null$$123456$$#"); //$NON-NLS-1$
-        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, family);
+        subelementType.setFkFilter("ProductFamily/ChangeStatus$$Is Empty Or Null$$123456$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType.getForeignkey(), subelementType.getForeignKeyInfo(),
+                subelementType.getXpath(), subelementType.getFkFilter(), itemsDetailPanel, family);
         assertEquals("ProductFamily/ChangeStatus$$Is Empty Or Null$$123456$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
-        subelementType
-                .setForeignKeyFilter("ProductFamily/ChangeStatus$$Is Empty Or Null$$ProductFamily/Name$$=$$Product/Name$$#"); //$NON-NLS-1$
-        foreignKeySelector = new ForeignKeySelector(subelementType, itemsDetailPanel, family);
+        subelementType.setFkFilter("ProductFamily/ChangeStatus$$Is Empty Or Null$$ProductFamily/Name$$=$$Product/Name$$#"); //$NON-NLS-1$
+        foreignKeySelector = new ForeignKeySelector(subelementType.getForeignkey(), subelementType.getForeignKeyInfo(),
+                subelementType.getXpath(), subelementType.getFkFilter(), itemsDetailPanel, family);
         assertEquals(
                 "ProductFamily/ChangeStatus$$Is Empty Or Null$$ProductFamily/Name$$=$$Product/Name$$#", foreignKeySelector.parseForeignKeyFilter()); //$NON-NLS-1$
 
@@ -223,7 +230,8 @@ public class ForeignKeySelectorGWTTest extends GWTTestCase {
     public class ForeignKeySelectorForTest extends ForeignKeySelector {
 
         public ForeignKeySelectorForTest(TypeModel dataType, ItemsDetailPanel itemsDetailPanel, ItemNodeModel itemNode) {
-            super(dataType, itemsDetailPanel, itemNode);
+            super(dataType.getForeignkey(), dataType.getForeignKeyInfo(), dataType.getXpath(), dataType.getFkFilter(),
+                    itemsDetailPanel, itemNode);
         }
 
         @Override
