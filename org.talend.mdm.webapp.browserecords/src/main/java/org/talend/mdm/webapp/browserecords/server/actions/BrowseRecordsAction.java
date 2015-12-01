@@ -2210,9 +2210,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
             DataModelHelper.parseSchema(model, concept, entityModel, LocalUser.getLocalUser().getRoles());
-            extractUsingTransformerThroughView(concept, "Browse_items_" + concept, ids, model, dataCluster,
-                    DataModelHelper.getEleDecl(), wsItem);
-            itemBean.setItemXml(wsItem.getContent());
             dynamicAssemble(itemBean, entityModel, language);
 
             return itemBean;
