@@ -162,12 +162,6 @@ import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.sun.xml.xsom.XSAnnotation;
-import com.sun.xml.xsom.XSComplexType;
-import com.sun.xml.xsom.XSElementDecl;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSSchemaSet;
-import com.sun.xml.xsom.parser.XSOMParser;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -1165,9 +1159,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
         @Override
         public int compare(String viewName1, String viewName2) {
-        	//for some reason the first value to be inserted is compared to itself
-            //so we need to add this so we don't go into the duplicate label every time
-            //anyway the put method will always replace the value if the key already exist
+            // for some reason the first value to be inserted is compared to itself
+            // for some reason the first value to be inserted is compared to itself
+            // so we need to add this so we don't go into the duplicate label every time
             if (viewName1.equals(viewName2)) {
                 return 0;
             }
@@ -2185,9 +2179,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             String model = getCurrentDataModel();
             EntityModel entityModel = new EntityModel();
-            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());         
-            extractUsingTransformerThroughView("Browse_items_" + concept, DataModelHelper.getEleDecl(), wsItem);
-            itemBean.setItemXml(wsItem.getContent());
+            DataModelHelper.parseSchema(model, concept, entityModel, RoleHelper.getUserRoles());
+
             dynamicAssemble(itemBean, entityModel, language);
 
             return itemBean;
