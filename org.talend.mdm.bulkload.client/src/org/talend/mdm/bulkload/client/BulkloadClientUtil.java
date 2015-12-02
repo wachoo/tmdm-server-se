@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
 package org.talend.mdm.bulkload.client;
 
 import java.io.InputStream;
@@ -26,6 +37,7 @@ public class BulkloadClientUtil {
                                 String datamodel,
                                 boolean validate,
                                 boolean smartpk,
+                                boolean insertonly,
                                 InputStream itemdata,
                                 String username,
                                 String password,
@@ -40,7 +52,8 @@ public class BulkloadClientUtil {
                 new NameValuePair("datamodel", datamodel),   //$NON-NLS-1$
                 new NameValuePair("validate", String.valueOf(validate)), //$NON-NLS-1$
                 new NameValuePair("action", "load"), //$NON-NLS-1$ //$NON-NLS-2$
-                new NameValuePair("smartpk", String.valueOf(smartpk))}; //$NON-NLS-1$
+                new NameValuePair("smartpk", String.valueOf(smartpk)),
+                new NameValuePair("insertonly", String.valueOf(insertonly))}; //$NON-NLS-1$
 
         HttpClient client = new HttpClient();
         String user = universe == null || universe.trim().length() == 0 ? username : universe + "/" + username; //$NON-NLS-1$
@@ -86,6 +99,7 @@ public class BulkloadClientUtil {
                                              String dataModel,
                                              boolean validate,
                                              boolean smartPK,
+                                             boolean insertOnly, 
                                              String username,
                                              String password,
                                              String transactionId,
@@ -99,6 +113,7 @@ public class BulkloadClientUtil {
                 dataModel,
                 validate,
                 smartPK,
+                insertOnly, 
                 merger,
                 username,
                 password,
@@ -123,6 +138,8 @@ public class BulkloadClientUtil {
         private final boolean validate;
 
         private final boolean smartPK;
+        
+        private final boolean insertOnly;
 
         private final InputStreamMerger inputStream;
 
@@ -142,6 +159,7 @@ public class BulkloadClientUtil {
                                  String dataModel,
                                  boolean validate,
                                  boolean smartPK,
+                                 boolean insertOnly,
                                  InputStreamMerger inputStream,
                                  String userName,
                                  String password,
@@ -154,6 +172,7 @@ public class BulkloadClientUtil {
             this.dataModel = dataModel;
             this.validate = validate;
             this.smartPK = smartPK;
+            this.insertOnly = insertOnly;
             this.inputStream = inputStream;
             this.userName = userName;
             this.password = password;
@@ -171,6 +190,7 @@ public class BulkloadClientUtil {
                         dataModel,
                         validate,
                         smartPK,
+                        insertOnly,
                         inputStream,
                         userName,
                         password,

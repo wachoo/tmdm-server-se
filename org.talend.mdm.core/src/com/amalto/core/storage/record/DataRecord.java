@@ -376,4 +376,34 @@ public class DataRecord {
         }
         return "Record {" + "type=" + type.getName() + ",key=" + keyValue.toString() + '}';
     }
+    
+    /**
+     * Used to control if check existence from DB when update a record (like: bulkload won't check to avoid executing too many SELECT
+     * statements)
+     * 
+     */
+    public static class CheckExistence {
+
+        private static ThreadLocal<Boolean> threadLocal = new ThreadLocal<Boolean>() {
+
+            public Boolean initialValue() {
+                return Boolean.TRUE;
+            }
+        };
+
+        private CheckExistence() {
+        }
+
+        public static void set(boolean value) {
+            threadLocal.set(value);
+        }
+
+        public static boolean get() {
+            return threadLocal.get();
+        }
+
+        public static void remove() {
+            threadLocal.remove();
+        }
+    }
 }

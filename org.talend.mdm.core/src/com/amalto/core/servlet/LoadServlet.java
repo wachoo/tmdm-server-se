@@ -13,6 +13,7 @@ import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XSDKey;
 import org.apache.log4j.Logger;
@@ -50,6 +51,8 @@ public class LoadServlet extends HttpServlet {
     private static final String PARAMETER_VALIDATE = "validate"; //$NON-NLS-1$
 
     private static final String PARAMETER_SMARTPK = "smartpk"; //$NON-NLS-1$
+    
+    private static final String PARAMETER_INSERTONLY = "insertonly"; //$NON-NLS-1$
 
     private static final Logger log = Logger.getLogger(LoadServlet.class);
 
@@ -83,6 +86,7 @@ public class LoadServlet extends HttpServlet {
         String dataModelName = request.getParameter(PARAMETER_DATAMODEL);
         boolean needValidate = Boolean.valueOf(request.getParameter(PARAMETER_VALIDATE));
         boolean needAutoGenPK = Boolean.valueOf(request.getParameter(PARAMETER_SMARTPK));
+        boolean insertOnly = Boolean.valueOf(request.getParameter(PARAMETER_INSERTONLY));
         String action = request.getParameter(PARAMETER_ACTION);
         if (action == null || action.length() == 0) {
             action = getServletConfig().getInitParameter(PARAMETER_ACTION);
@@ -104,6 +108,7 @@ public class LoadServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException(e);
         }
+        DataRecord.CheckExistence.set(!insertOnly);
         SaverSession session = SaverSession.newSession();
         SaverContextFactory contextFactory = session.getContextFactory();
         DocumentSaverContext context = contextFactory.createBulkLoad(dataClusterName, dataModelName, keyMetadata, request.getInputStream(), loadAction, server);
@@ -121,6 +126,8 @@ public class LoadServlet extends HttpServlet {
                 log.error("Ignoring rollback exception", rollbackException);
             }
             throw new ServletException(e);
+        } finally {
+            DataRecord.CheckExistence.remove();
         }
         writer.write("</body></html>"); //$NON-NLS-1$
     }
