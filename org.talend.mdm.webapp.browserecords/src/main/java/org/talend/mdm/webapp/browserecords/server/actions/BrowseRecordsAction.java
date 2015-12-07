@@ -162,6 +162,12 @@ import com.amalto.webapp.core.util.WebCoreException;
 import com.amalto.webapp.core.util.Webapp;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.extjs.gxt.ui.client.Style.SortDir;
+import com.sun.xml.xsom.XSAnnotation;
+import com.sun.xml.xsom.XSComplexType;
+import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSSchemaSet;
+import com.sun.xml.xsom.parser.XSOMParser;
 
 /**
  * DOC Administrator class global comment. Detailled comment
