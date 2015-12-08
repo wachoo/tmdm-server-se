@@ -168,6 +168,8 @@ import com.amalto.core.storage.transaction.TransactionManager;
 
 public class HibernateStorage implements Storage {
 
+    private int DEFAULT_FETCH_SIZE = 500;
+    
     public static final HibernateStorage.LocalEntityResolver ENTITY_RESOLVER = new HibernateStorage.LocalEntityResolver();
 
     private static final String CLASS_LOADER = "com.amalto.core.storage.hibernate.DefaultStorageClassLoader"; //$NON-NLS-1$
@@ -879,13 +881,13 @@ public class HibernateStorage implements Storage {
         }
         LOGGER.info("Re-indexing full-text for " + storageName + "...");
         Session session = factory.getCurrentSession();
-        SearchFactoryImplementor searchFactory = ContextHelper.getSearchFactory( session );
-        MDMMassIndexerImpl indexer = new MDMMassIndexerImpl( searchFactory, factory, Object.class);
-        indexer.optimizeOnFinish(true);
-        indexer.optimizeAfterPurge(true);
         try {
+            SearchFactoryImplementor searchFactory = ContextHelper.getSearchFactory( session );
+            MDMMassIndexerImpl indexer = new MDMMassIndexerImpl( searchFactory, factory, Object.class);
+            indexer.optimizeOnFinish(true);
+            indexer.optimizeAfterPurge(true);
             indexer
-                .idFetchSize(Integer.MIN_VALUE)
+                .idFetchSize(generateIdFetchSize())
                 .threadsToLoadObjects(1)
                 .threadsForSubsequentFetching(1)
                 .batchSizeToLoadObjects(batchSize)
@@ -1513,6 +1515,19 @@ public class HibernateStorage implements Storage {
     @Override
     public String toString() {
         return storageName + '(' + storageType + ')';
+    }
+    
+    private int generateIdFetchSize() {
+        int fetchSize = DEFAULT_FETCH_SIZE;
+        if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.MYSQL) {
+            // for using "stream resultset" to resolve OOM
+            fetchSize = Integer.MIN_VALUE;
+        } else {
+            if (configuration.getProperty(Environment.STATEMENT_FETCH_SIZE) != null) {
+                fetchSize = Integer.parseInt(configuration.getProperty(Environment.STATEMENT_FETCH_SIZE));
+            }
+        }
+        return fetchSize;
     }
 
     private static class MetadataChecker extends DefaultMetadataVisitor<Object> {
