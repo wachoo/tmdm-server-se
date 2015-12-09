@@ -10,7 +10,9 @@
 
 package com.amalto.core.storage.hibernate;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.and;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +43,7 @@ import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
@@ -80,7 +84,9 @@ import org.hibernate.mapping.SimpleValue;
 import org.hibernate.mapping.SingleTableSubclass;
 import org.hibernate.mapping.Subclass;
 import org.hibernate.mapping.Table;
+import org.hibernate.mapping.ToOne;
 import org.hibernate.mapping.UnionSubclass;
+import org.hibernate.mapping.Value;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
@@ -97,6 +103,7 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.InboundReferences;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.MetadataUtils.SortType;
 import org.talend.mdm.commmon.metadata.MetadataVisitable;
 import org.talend.mdm.commmon.metadata.MetadataVisitor;
 import org.talend.mdm.commmon.metadata.NoSupportTypes;
@@ -266,22 +273,23 @@ public class HibernateStorage implements Storage {
         DataSource dataSource = dataSourceDefinition.get(storageType);
         // Stateless components
         if (dataSource == null) {
-            throw new IllegalArgumentException("Data source does not declare a section for type '" + storageType + "'.");
+            throw new IllegalArgumentException("Data source does not declare a section for type '" + storageType + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         if (!(dataSource instanceof RDBMSDataSource)) {
-            throw new IllegalArgumentException("Data source is expected to be a RDBMS data source.");
+            throw new IllegalArgumentException("Data source is expected to be a RDBMS data source."); //$NON-NLS-1$
         }
         if (dataSource.isShared()) {
-            LOGGER.warn("Datasource '" + dataSource.getName() + "' (for storage type: " + storageType + ") is shared "
-                    + "with at least another one other storage type, please review datasource configuration.");
+            LOGGER.warn("Datasource '" + dataSource.getName() + "' (for storage type: " + storageType + ") is shared " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    + "with at least another one other storage type, please review datasource configuration."); //$NON-NLS-1$
         }
         this.dataSource = (RDBMSDataSource) dataSource;
         internalInit();
     }
 
+    @SuppressWarnings("serial")
     protected void internalInit() {
         if (!dataSource.supportFullText()) {
-            LOGGER.warn("Storage '" + storageName + "' (" + storageType + ") is not configured to support full text queries.");
+            LOGGER.warn("Storage '" + storageName + "' (" + storageType + ") is not configured to support full text queries."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
         configuration = new Configuration() {
 
@@ -301,10 +309,11 @@ public class HibernateStorage implements Storage {
                     String key = subSelect == null ? Table.qualify(catalog, schema, name) : subSelect;
                     if (tables.containsKey(key)) {
                         throw new DuplicateMappingException(
-                                "Table " + key + " is duplicated.", DuplicateMappingException.Type.TABLE, name); //$NON-NLS-1$
+                                "Table " + key + " is duplicated.", DuplicateMappingException.Type.TABLE, name); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                     Table table = new DenormalizedTable(includedTable) {
 
+                        @SuppressWarnings({ "rawtypes", "unchecked" })
                         @Override
                         public Iterator getIndexIterator() {
                             List<Index> indexes = new ArrayList<Index>();
@@ -335,6 +344,7 @@ public class HibernateStorage implements Storage {
         configuration.setEntityResolver(ENTITY_RESOLVER);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public synchronized void prepare(MetadataRepository repository, Set<Expression> optimizedExpressions, boolean force,
             boolean dropExistingData) {
@@ -346,7 +356,7 @@ public class HibernateStorage implements Storage {
             internalInit();
         }
         if (dataSource == null) {
-            throw new IllegalArgumentException("Datasource is not set.");
+            throw new IllegalArgumentException("Datasource is not set."); //$NON-NLS-1$
         }
         // No support for data models including inheritance AND for g* XSD simple types AND fields that start with
         // X_TALEND_
@@ -354,7 +364,7 @@ public class HibernateStorage implements Storage {
             repository.accept(METADATA_CHECKER);
             userMetadataRepository = repository;
         } catch (Exception e) {
-            throw new RuntimeException("Exception occurred during unsupported features check.", e);
+            throw new RuntimeException("Exception occurred during unsupported features check.", e); //$NON-NLS-1$
         }
         // Loads additional types for staging area.
         if (storageType == StorageType.STAGING) {
@@ -377,29 +387,29 @@ public class HibernateStorage implements Storage {
             storageClassLoader.setDataSourceConfiguration(dataSource);
             storageClassLoader.generateHibernateConfig(); // Checks if configuration can be generated.
         } catch (Exception e) {
-            throw new RuntimeException("Could not create storage class loader", e);
+            throw new RuntimeException("Could not create storage class loader", e); //$NON-NLS-1$
         }
         if (dropExistingData) {
-            LOGGER.info("Cleaning existing database content.");
+            LOGGER.info("Cleaning existing database content."); //$NON-NLS-1$
             StorageCleaner cleaner = new JDBCStorageCleaner(new FullTextIndexCleaner());
             cleaner.clean(this);
         } else {
-            LOGGER.info("*NOT* cleaning existing database content.");
+            LOGGER.info("*NOT* cleaning existing database content."); //$NON-NLS-1$
         }
         if (autoPrepare) {
-            LOGGER.info("Preparing database before schema generation.");
+            LOGGER.info("Preparing database before schema generation."); //$NON-NLS-1$
             StorageInitializer initializer = new JDBCStorageInitializer();
             if (initializer.supportInitialization(this)) {
                 if (!initializer.isInitialized(this)) {
                     initializer.initialize(this);
                 } else {
-                    LOGGER.info("Database is already prepared.");
+                    LOGGER.info("Database is already prepared."); //$NON-NLS-1$
                 }
             } else {
-                LOGGER.info("Datasource is not configured for automatic initialization.");
+                LOGGER.info("Datasource is not configured for automatic initialization."); //$NON-NLS-1$
             }
         } else {
-            LOGGER.info("*NOT* preparing database before schema generation.");
+            LOGGER.info("*NOT* preparing database before schema generation."); //$NON-NLS-1$
         }
         try {
             Thread.currentThread().setContextClassLoader(storageClassLoader);
@@ -410,7 +420,7 @@ public class HibernateStorage implements Storage {
                 internalRepository = userMetadataRepository.accept(typeEnhancer);
                 mappingRepository = typeEnhancer.getMappings();
             } catch (Exception e) {
-                throw new RuntimeException("Exception occurred during type mapping creation.", e);
+                throw new RuntimeException("Exception occurred during type mapping creation.", e); //$NON-NLS-1$
             }
             // Set fields to be indexed in database.
             Set<FieldMetadata> databaseIndexedFields = new HashSet<FieldMetadata>();
@@ -428,8 +438,8 @@ public class HibernateStorage implements Storage {
                         TypeMetadata indexedFieldType = indexedField.getType();
                         if (!isIndexable(indexedFieldType)) {
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Ignore index on field '" + indexedField.getName()
-                                        + "' because value is stored in TEXT.");
+                                LOGGER.debug("Ignore index on field '" + indexedField.getName() //$NON-NLS-1$
+                                        + "' because value is stored in TEXT."); //$NON-NLS-1$
                             }
                             continue;
                         }
@@ -438,13 +448,13 @@ public class HibernateStorage implements Storage {
                         TypeMapping mapping = mappingRepository.getMappingFromUser(containingType);
                         FieldMetadata databaseField = mapping.getDatabase(indexedField);
                         if (databaseField == null) {
-                            LOGGER.error("Could not index field '" + indexedField + "' (" + indexedField.getPath()
-                                    + "), ignoring index.");
+                            LOGGER.error("Could not index field '" + indexedField + "' (" + indexedField.getPath() //$NON-NLS-1$ //$NON-NLS-2$
+                                    + "), ignoring index."); //$NON-NLS-1$
                             continue;
                         } else if (!isIndexable(databaseField.getType())) {
                             if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Ignore index on field '" + indexedField.getName()
-                                        + "' because value (in database mapping) is stored in TEXT.");
+                                LOGGER.debug("Ignore index on field '" + indexedField.getName() //$NON-NLS-1$
+                                        + "' because value (in database mapping) is stored in TEXT."); //$NON-NLS-1$
                             }
                             continue; // Don't take into indexed fields long text fields
                         }
@@ -467,7 +477,7 @@ public class HibernateStorage implements Storage {
                             if (maxLengthStr != null) {
                                 Integer maxLength = Integer.parseInt(maxLengthStr);
                                 if (maxLength > 900) {
-                                    LOGGER.warn("Skip index on field '" + indexedField.getPath() + "' (too long value).");
+                                    LOGGER.warn("Skip index on field '" + indexedField.getPath() + "' (too long value)."); //$NON-NLS-1$ //$NON-NLS-2$
                                     continue;
                                 }
                             }
@@ -490,7 +500,7 @@ public class HibernateStorage implements Storage {
                                 if (path.size() > 1) {
                                     databaseIndexedFields.addAll(path.subList(0, path.size() - 1));
                                 } else {
-                                    LOGGER.warn("Failed to properly index field '" + databaseField + "'.");
+                                    LOGGER.warn("Failed to properly index field '" + databaseField + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                                 }
                             }
                         }
@@ -500,7 +510,7 @@ public class HibernateStorage implements Storage {
             case STAGING:
                 if (!optimizedExpressions.isEmpty()) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Ignoring " + optimizedExpressions.size() + " to optimize (disabled on staging area).");
+                        LOGGER.debug("Ignoring " + optimizedExpressions.size() + " to optimize (disabled on staging area)."); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
                 // Adds "staging status" / "staging block key" / "staging task id" as indexed fields
@@ -550,7 +560,7 @@ public class HibernateStorage implements Storage {
             try {
                 internalRepository.accept(hibernateClassCreator);
             } catch (Exception e) {
-                throw new RuntimeException("Exception occurred during dynamic classes creation.", e);
+                throw new RuntimeException("Exception occurred during dynamic classes creation.", e); //$NON-NLS-1$
             }
             // Last step: configuration of Hibernate
             try {
@@ -580,7 +590,7 @@ public class HibernateStorage implements Storage {
                     // Exception may happen during recreation (hibernate may perform statements on tables that does
                     // not exist): these exceptions are supposed to be harmless (but log them to DEBUG just in case).
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Exception(s) occurred during schema creation:");
+                        LOGGER.debug("Exception(s) occurred during schema creation:"); //$NON-NLS-1$
                         for (Object exceptionObject : schemaExport.getExceptions()) {
                             LOGGER.debug(((Exception) exceptionObject).getMessage());
                         }
@@ -599,7 +609,7 @@ public class HibernateStorage implements Storage {
                 // Throw an exception if schema update met issue(s).
                 if (!exceptions.isEmpty()) {
                     StringBuilder sb = new StringBuilder();
-                    sb.append("Could not prepare database schema: ");
+                    sb.append("Could not prepare database schema: "); //$NON-NLS-1$
                     Iterator iterator = exceptions.iterator();
                     while (iterator.hasNext()) {
                         Exception exception = (Exception) iterator.next();
@@ -626,21 +636,21 @@ public class HibernateStorage implements Storage {
                 factory = configuration.buildSessionFactory(serviceRegistry);
                 MDMTransactionSessionContext.declareStorage(this, factory);
             } catch (Exception e) {
-                throw new RuntimeException("Exception occurred during Hibernate initialization.", e);
+                throw new RuntimeException("Exception occurred during Hibernate initialization.", e); //$NON-NLS-1$
             }
             // All set: set prepared flag to true.
             isPrepared = true;
-            LOGGER.info("Storage '" + storageName + "' (" + storageType + ") is ready.");
+            LOGGER.info("Storage '" + storageName + "' (" + storageType + ") is ready."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } catch (Throwable t) {
             try {
                 // This prevent PermGen OOME in case of multiple failures to start.
                 close();
             } catch (Exception e) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Error occurred during clean up following failed prepare", e);
+                    LOGGER.debug("Error occurred during clean up following failed prepare", e); //$NON-NLS-1$
                 }
             }
-            throw new RuntimeException("Could not prepare '" + storageName + "'.", t);
+            throw new RuntimeException("Could not prepare '" + storageName + "'.", t); //$NON-NLS-1$ //$NON-NLS-2$
         } finally {
             Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
@@ -649,7 +659,7 @@ public class HibernateStorage implements Storage {
     private void traceDDL() {
         try {
             if (configuration == null) {
-                throw new IllegalStateException("Expect a Hibernate configuration to be set.");
+                throw new IllegalStateException("Expect a Hibernate configuration to be set."); //$NON-NLS-1$
             }
             String jbossServerTempDir = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
             RDBMSDataSource.DataSourceDialect dialectType = dataSource.getDialectName();
@@ -665,7 +675,7 @@ public class HibernateStorage implements Storage {
                             (Exception) export.getExceptions().get(i));
                 }
             }
-            LOGGER.info("DDL exported to file '" + filename + "'.");
+            LOGGER.info("DDL exported to file '" + filename + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         } catch (Exception e) {
             LOGGER.error("Error occurred while producing ddl.", e); //$NON-NLS-1$
         }
@@ -691,7 +701,7 @@ public class HibernateStorage implements Storage {
                 return TypeMappingStrategy.AUTO;
             }
         default:
-            throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
+            throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported."); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
@@ -712,10 +722,10 @@ public class HibernateStorage implements Storage {
                 typeMappingRepository = new StagingTypeMappingRepository(mappingStrategy, dialect);
                 break;
             default:
-                throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported.");
+                throw new IllegalArgumentException("Storage type '" + storageType + "' is not supported."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Selected type mapping strategy: " + mappingStrategy);
+                LOGGER.debug("Selected type mapping strategy: " + mappingStrategy); //$NON-NLS-1$
             }
         }
         return typeMappingRepository;
@@ -731,7 +741,7 @@ public class HibernateStorage implements Storage {
     @Override
     public MetadataRepository getMetadataRepository() {
         if (!isPrepared) {
-            throw new IllegalStateException("Storage '" + storageName + "' has not been prepared.");
+            throw new IllegalStateException("Storage '" + storageName + "' has not been prepared."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return userMetadataRepository;
     }
@@ -743,7 +753,7 @@ public class HibernateStorage implements Storage {
         try {
             storageClassLoader.bind(Thread.currentThread());
             if (!ServerContext.INSTANCE.get().getTransactionManager().hasTransaction()) {
-                throw new IllegalStateException("Transaction must be active during fetch operation.");
+                throw new IllegalStateException("Transaction must be active during fetch operation."); //$NON-NLS-1$
             }
             // Call back closes session once calling code has consumed all results.
             Set<ResultsCallback> callbacks = Collections.<ResultsCallback> singleton(new ResultsCallback() {
@@ -760,7 +770,7 @@ public class HibernateStorage implements Storage {
             });
             return internalFetch(session, userQuery, callbacks);
         } catch (Exception e) {
-            throw new RuntimeException("Exception occurred during fetch operation", e);
+            throw new RuntimeException("Exception occurred during fetch operation", e); //$NON-NLS-1$
         } finally {
             this.releaseSession();
             storageClassLoader.unbind(Thread.currentThread());
@@ -804,9 +814,9 @@ public class HibernateStorage implements Storage {
                             o.set(key, convertedValue);
                         }
                     } else {
-                        throw new IllegalArgumentException("Can not store value '" + key
-                                + "' because there is no database field '" + key + "' in type '" + mapping.getName()
-                                + "' (storage is '" + toString() + "')");
+                        throw new IllegalArgumentException("Can not store value '" + key //$NON-NLS-1$
+                                + "' because there is no database field '" + key + "' in type '" + mapping.getName() //$NON-NLS-1$ //$NON-NLS-2$
+                                + "' (storage is '" + toString() + "')"); //$NON-NLS-1$ //$NON-NLS-2$
                     }
                 }
                 session.saveOrUpdate(o);
@@ -818,11 +828,11 @@ public class HibernateStorage implements Storage {
         } catch (ConstraintViolationException e) {
             throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
         } catch (PropertyValueException e) {
-            throw new RuntimeException("Invalid value in record to update.", e);
+            throw new RuntimeException("Invalid value in record to update.", e); //$NON-NLS-1$
         } catch (NonUniqueObjectException e) {
-            throw new RuntimeException("Attempted to update multiple times same record within same transaction.", e);
+            throw new RuntimeException("Attempted to update multiple times same record within same transaction.", e); //$NON-NLS-1$
         } catch (Exception e) {
-            throw new RuntimeException("Exception occurred during update.", e);
+            throw new RuntimeException("Exception occurred during update.", e); //$NON-NLS-1$
         } finally {
             this.releaseSession();
             storageClassLoader.unbind(Thread.currentThread());
@@ -868,11 +878,11 @@ public class HibernateStorage implements Storage {
     @Override
     public void reindex() {
         if (!dataSource.supportFullText()) {
-            LOGGER.error("Can not reindex storage '" + storageName + "': datasource '" + dataSource.getName()
-                    + "' does not support full text.");
+            LOGGER.error("Can not reindex storage '" + storageName + "': datasource '" + dataSource.getName() //$NON-NLS-1$ //$NON-NLS-2$
+                    + "' does not support full text."); //$NON-NLS-1$
             return;
         }
-        LOGGER.info("Re-indexing full-text for " + storageName + "...");
+        LOGGER.info("Re-indexing full-text for " + storageName + "..."); //$NON-NLS-1$ //$NON-NLS-2$
         Session session = this.getCurrentSession();
         try {
             MassIndexer indexer = Search.getFullTextSession(session).createIndexer();
@@ -884,7 +894,7 @@ public class HibernateStorage implements Storage {
             throw new RuntimeException(e);
         } finally {
             this.releaseSession();
-            LOGGER.info("Re-indexing done.");
+            LOGGER.info("Re-indexing done."); //$NON-NLS-1$
         }
     }
 
@@ -928,7 +938,7 @@ public class HibernateStorage implements Storage {
          * reader.close(); } catch (IOException e) {
          * LOGGER.error("Exception occurred during full text suggestion searches.", e); } }
          */
-        throw new UnsupportedOperationException("No support due to version of Lucene in use.");
+        throw new UnsupportedOperationException("No support due to version of Lucene in use."); //$NON-NLS-1$
     }
 
     @Override
@@ -965,61 +975,41 @@ public class HibernateStorage implements Storage {
         }
     }
 
-    // TODO Refactor method (too big)
-    @Override
-    public void adapt(MetadataRepository newRepository, boolean force) {
-        if (newRepository == null) {
-            throw new IllegalArgumentException("New data model can not be null.");
+    private void analyzeChanges(Set<ComplexTypeMetadata> typesToDrop, List<Change> changes) {
+        for (Change change : changes) {
+            MetadataVisitable element = change.getElement();
+            if (element instanceof FieldMetadata) {
+                typesToDrop.add(((FieldMetadata) element).getContainingType().getEntity());
+            } else if (element instanceof ComplexTypeMetadata) {
+                typesToDrop.add((ComplexTypeMetadata) element);
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault()) + "' requires a database schema update.");  //$NON-NLS-1$ //$NON-NLS-2$
+            }
         }
-        // Compute diff between current data model and new one.
+    }
+
+    private Set<ComplexTypeMetadata> findTypesToDelete(boolean force, Compare.DiffResults diffResults) {
         ImpactAnalyzer analyzer = getImpactAnalyzer();
-        MetadataRepository previousRepository = getMetadataRepository();
-        Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
-        if (diffResults.getActions().isEmpty()) {
-            LOGGER.info("No change detected, no database schema update to perform.");
-            return;
-        }
-        // Analyze impact to find types to delete
         Map<ImpactAnalyzer.Impact, List<Change>> impacts = analyzer.analyzeImpacts(diffResults);
         Set<ComplexTypeMetadata> typesToDrop = new HashSet<ComplexTypeMetadata>();
         for (Map.Entry<ImpactAnalyzer.Impact, List<Change>> impactCategory : impacts.entrySet()) {
             ImpactAnalyzer.Impact category = impactCategory.getKey();
+            List<Change> changes = impactCategory.getValue();
             switch (category) {
             case HIGH:
-                if (!impactCategory.getValue().isEmpty()) {
+                if (!changes.isEmpty()) {
                     if (force) {
-                        for (Change change : impactCategory.getValue()) {
-                            MetadataVisitable element = change.getElement();
-                            if (element instanceof FieldMetadata) {
-                                typesToDrop.add(((FieldMetadata) element).getContainingType().getEntity());
-                            } else if (element instanceof ComplexTypeMetadata) {
-                                typesToDrop.add((ComplexTypeMetadata) element);
-                            }
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault())
-                                        + "' requires a database schema update.");
-                            }
-                        }
+                        analyzeChanges(typesToDrop, changes);
                     } else {
                         // High changes without force=true is an error
-                        throw new IllegalArgumentException("Some changes require force parameter.");
+                        throw new IllegalArgumentException("Some changes require force parameter."); //$NON-NLS-1$
                     }
                 }
             case MEDIUM:
                 if (!impactCategory.getValue().isEmpty()) {
                     if (force) {
-                        for (Change change : impactCategory.getValue()) {
-                            MetadataVisitable element = change.getElement();
-                            if (element instanceof FieldMetadata) {
-                                typesToDrop.add(((FieldMetadata) element).getContainingType().getEntity());
-                            } else if (element instanceof ComplexTypeMetadata) {
-                                typesToDrop.add((ComplexTypeMetadata) element);
-                            }
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Change '" + change.getMessage(Locale.getDefault())
-                                        + "' requires a database schema update.");
-                            }
-                        }
+                        analyzeChanges(typesToDrop, changes);
                     }
                     // Change from high change: no exception if force=false (no schema update).
                 }
@@ -1027,164 +1017,216 @@ public class HibernateStorage implements Storage {
             case LOW:
                 if (LOGGER.isTraceEnabled()) {
                     for (Change change : impactCategory.getValue()) {
-                        LOGGER.trace("Change '" + change.getMessage(Locale.getDefault())
-                                + "' does NOT require a database schema update.");
+                        LOGGER.trace("Change '" + change.getMessage(Locale.getDefault()) //$NON-NLS-1$
+                                + "' does NOT require a database schema update."); //$NON-NLS-1$
                     }
                     break;
                 }
             }
         }
-        if (!typesToDrop.isEmpty()) { // If types to drop, drop them
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(typesToDrop.size() + " type(s) scheduled for deletion: " + Arrays.toString(typesToDrop.toArray())
-                        + ".");
-            }
-            // Find dependent types to delete
-            Set<ComplexTypeMetadata> additionalTypes = new HashSet<ComplexTypeMetadata>();
-            for (ComplexTypeMetadata typeToDrop : typesToDrop) {
-                Set<ReferenceFieldMetadata> inboundReferences = previousRepository.accept(new InboundReferences(typeToDrop));
+        return typesToDrop;
+    }
+    
+    private Set<ComplexTypeMetadata> findDependentTypesToDelete(MetadataRepository previousRepository, Set<ComplexTypeMetadata> typesToDrop) {
+        Set<ComplexTypeMetadata> additionalTypes = new HashSet<ComplexTypeMetadata>();
+        for (ComplexTypeMetadata typeToDrop : typesToDrop) {
+            Set<ReferenceFieldMetadata> inboundReferences = previousRepository.accept(new InboundReferences(typeToDrop));
+            if (!inboundReferences.isEmpty()) {
                 for (ReferenceFieldMetadata inboundReference : inboundReferences) {
                     additionalTypes.add(inboundReference.getContainingType().getEntity());
                 }
+                additionalTypes.addAll(findDependentTypesToDelete(previousRepository, additionalTypes));
             }
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(additionalTypes.size() + " additional type(s) scheduled for deletion (inbound references): "
-                        + Arrays.toString(additionalTypes.toArray()) + ".");
-            }
-            typesToDrop.addAll(additionalTypes);
-            // Sort in dependency order
-            ArrayList<ComplexTypeMetadata> types = new ArrayList<ComplexTypeMetadata>(typesToDrop);
-            List<ComplexTypeMetadata> sortedTypesToDrop = MetadataUtils.sortTypes(previousRepository, types);
-            // Get table names to drop
-            List<String> tablesToDrop = new LinkedList<String>();
-            TableClosureVisitor visitor = new TableClosureVisitor();
-            for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
-                PersistentClass metadata = configuration.getClassMapping(ClassCreator.getClassName(typeMetadata.getName()));
-                if (metadata != null) {
-                    tablesToDrop.addAll((Collection<String>) metadata.accept(visitor));
-                } else {
-                    LOGGER.warn("Could not find table names for type '" + typeMetadata.getName() + "'.");
-                }
-            }
-            if (LOGGER.isTraceEnabled()) {
-                StringBuilder aggregatedTableNames = new StringBuilder();
-                for (String table : tablesToDrop) {
-                    aggregatedTableNames.append(table).append(' ');
-                }
-                LOGGER.trace("Table(s) scheduled for drop: " + aggregatedTableNames);
-            }
-            // Full text index clean up
-            if (dataSource.supportFullText()) {
-                try {
-                    for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
-                        try {
-                            Class<?> clazz = storageClassLoader.loadClass(ClassCreator.getClassName(typeMetadata.getName()));
-                            File directoryFile = new File(dataSource.getIndexDirectory() + '/' + getName() + '/'
-                                    + clazz.getName());
-                            if (directoryFile.exists()) {
-                                final Directory directory = FSDirectory.open(directoryFile);
-                                final String lockName = "delete." + typeMetadata.getName(); //$NON-NLS-1$
-                                // Default 5 sec timeout for lock
-                                Lock.With lock = new Lock.With(directory.makeLock(lockName), 5000) {
-
-                                    @Override
-                                    protected Object doBody() throws IOException {
-                                        String[] files = directory.listAll();
-                                        for (String file : files) {
-                                            if (!file.endsWith(lockName)) { // Don't delete our own lock
-                                                directory.deleteFile(file);
-                                            }
-                                        }
-                                        return null;
-                                    }
-                                };
-                                lock.run();
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("Removed full text directory for entity '" + typeMetadata.getName() + "' at '"
-                                            + directoryFile.getAbsolutePath() + "'");
-                                }
-                            } else {
-                                LOGGER.warn("Full text index directory for entity '" + typeMetadata.getName()
-                                        + "' no longer exists. No need to delete it.");
-                            }
-                        } catch (Exception e) {
-                            LOGGER.warn("Could not remove full text directory for '" + typeMetadata.getName() + "'.", e);
-                        }
-                    }
-                } catch (Exception e) {
-                    LOGGER.warn("Could not correctly clean full text directory.", e);
-                }
-            }
-            // Clean update reports
-            StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
-            Storage storage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(additionalTypes.size() + " additional type(s) scheduled for deletion (inbound references): " //$NON-NLS-1$
+                    + Arrays.toString(additionalTypes.toArray()) + "."); //$NON-NLS-1$
+        }
+        return additionalTypes;
+    }
+    
+    private void cleanFullTextIndex(List<ComplexTypeMetadata> sortedTypesToDrop) {
+        if (dataSource.supportFullText()) {
             try {
-                if (storage == null) {
-                    LOGGER.warn("No update report storage available.");
-                } else {
-                    ComplexTypeMetadata update = storage.getMetadataRepository().getComplexType("Update"); //$NON-NLS-1$
-                    storage.begin();
-                    for (ComplexTypeMetadata type : sortedTypesToDrop) {
-                        try {
-                            UserQueryBuilder qb = from(update)
-                                    .where(and(
-                                            eq(update.getField("Concept"), type.getName()), eq(update.getField("DataCluster"), getName()))); //$NON-NLS-1$ //$NON-NLS-2$
-                            storage.delete(qb.getExpression());
-                        } catch (Exception e) {
-                            LOGGER.warn("Could not remove update reports for '" + type.getName() + "'.", e);
+                for (ComplexTypeMetadata typeMetadata : sortedTypesToDrop) {
+                    try {
+                        Class<?> clazz = storageClassLoader.loadClass(ClassCreator.getClassName(typeMetadata.getName()));
+                        File directoryFile = new File(dataSource.getIndexDirectory() + '/' + getName() + '/' + clazz.getName());
+                        if (directoryFile.exists()) {
+                            final Directory directory = FSDirectory.open(directoryFile);
+                            final String lockName = "delete." + typeMetadata.getName(); //$NON-NLS-1$
+                            // Default 5 sec timeout for lock
+                            Lock.With lock = new Lock.With(directory.makeLock(lockName), 5000) {
+
+                                @Override
+                                protected Object doBody() throws IOException {
+                                    String[] files = directory.listAll();
+                                    for (String file : files) {
+                                        if (!file.endsWith(lockName)) { // Don't delete our own lock
+                                            directory.deleteFile(file);
+                                        }
+                                    }
+                                    return null;
+                                }
+                            };
+                            lock.run();
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Removed full text directory for entity '" + typeMetadata.getName() + "' at '" //$NON-NLS-1$ //$NON-NLS-2$
+                                        + directoryFile.getAbsolutePath() + "'"); //$NON-NLS-1$
+                            }
+                        } else {
+                            LOGGER.warn("Full text index directory for entity '" + typeMetadata.getName() //$NON-NLS-1$
+                                    + "' no longer exists. No need to delete it."); //$NON-NLS-1$
                         }
+                    } catch (Exception e) {
+                        LOGGER.warn("Could not remove full text directory for '" + typeMetadata.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
                     }
-                    storage.commit();
                 }
             } catch (Exception e) {
-                if (storage != null) {
-                    storage.rollback();
-                }
-                LOGGER.warn("Could not correctly clean update reports", e);
+                LOGGER.warn("Could not correctly clean full text directory.", e); //$NON-NLS-1$
             }
-            // Execute drop table
-            Connection connection = null;
-            try {
-                connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(),
-                        dataSource.getPassword());
-                int successCount = 0;
+        }
+    }
+    
+    private void cleanUpdateReports(List<ComplexTypeMetadata> sortedTypesToDrop) {
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        Storage storage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
+        try {
+            if (storage == null) {
+                LOGGER.warn("No update report storage available."); //$NON-NLS-1$
+            } else {
+                ComplexTypeMetadata update = storage.getMetadataRepository().getComplexType("Update"); //$NON-NLS-1$
+                storage.begin();
+                for (ComplexTypeMetadata type : sortedTypesToDrop) {
+                    try {
+                        UserQueryBuilder qb = from(update)
+                                .where(and(
+                                        eq(update.getField("Concept"), type.getName()), eq(update.getField("DataCluster"), getName()))); //$NON-NLS-1$ //$NON-NLS-2$
+                        storage.delete(qb.getExpression());
+                    } catch (Exception e) {
+                        LOGGER.warn("Could not remove update reports for '" + type.getName() + "'.", e); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                }
+                storage.commit();
+            }
+        } catch (Exception e) {
+            if (storage != null) {
+                storage.rollback();
+            }
+            LOGGER.warn("Could not correctly clean update reports", e); //$NON-NLS-1$
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Set<String> findTablesToDrop(List<ComplexTypeMetadata> sortedTypesToDrop) {
+        Set<String> tablesToDrop = new LinkedHashSet<String>();
+        TableClosureVisitor visitor = new TableClosureVisitor();
+        // Drop table order should be reversed
+        for (int i = sortedTypesToDrop.size() - 1; i >= 0; i--) {
+            ComplexTypeMetadata typeMetadata = sortedTypesToDrop.get(i);
+            PersistentClass metadata = configuration.getClassMapping(ClassCreator.getClassName(typeMetadata.getName()));
+            if (metadata != null) {
+                tablesToDrop.addAll((Collection<String>) metadata.accept(visitor));
+            } else {
+                LOGGER.warn("Could not find table names for type '" + typeMetadata.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+        }
+        if (LOGGER.isTraceEnabled()) {
+            StringBuilder aggregatedTableNames = new StringBuilder();
+            for (String table : tablesToDrop) {
+                aggregatedTableNames.append(table).append(' ');
+            }
+            LOGGER.trace("Table(s) scheduled for drop: " + aggregatedTableNames); //$NON-NLS-1$
+        }
+        return tablesToDrop;
+    }
+    
+    private void cleanImpactedTables(List<ComplexTypeMetadata> sortedTypesToDrop) {
+        Set<String> tablesToDrop = findTablesToDrop(sortedTypesToDrop);
+        int totalCount = tablesToDrop.size();
+        int totalRound = 0;
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(),
+                    dataSource.getPassword());
+            int successCount = 0;
+            while(successCount < totalCount && totalRound++ < totalCount) {
+                Set<String> dropedTables = new HashSet<String>();
                 for (String table : tablesToDrop) {
                     Statement statement = connection.createStatement();
                     try {
                         statement.executeUpdate("DROP TABLE " + table); //$NON-NLS-1$
+                        dropedTables.add(table);
                         successCount++;
                     } catch (SQLException e) {
-                        LOGGER.warn("Could not delete '" + table + "'.");
+                        LOGGER.warn("Could not delete '" + table + "' in round "+ totalRound + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                     } finally {
                         statement.close();
                     }
                 }
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Successfully deleted " + successCount + " tables (out of " + tablesToDrop.size() + " tables).");
+                tablesToDrop.removeAll(dropedTables);
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Successfully deleted " + successCount + " tables (out of " + totalCount + " tables) in "+ totalRound +" rounds."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not acquire connection to database.", e); //$NON-NLS-1$
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
                 }
             } catch (SQLException e) {
-                throw new RuntimeException("Could not acquire connection to database.", e);
-            } finally {
-                try {
-                    if (connection != null) {
-                        connection.close();
-                    }
-                } catch (SQLException e) {
-                    LOGGER.error("Unexpected error on connection close.", e);
-                }
+                LOGGER.error("Unexpected error on connection close.", e); //$NON-NLS-1$
             }
+        }
+    }
+    
+    @Override
+    public void adapt(MetadataRepository newRepository, boolean force) {
+        if (newRepository == null) {
+            throw new IllegalArgumentException("New data model can not be null."); //$NON-NLS-1$
+        }
+        // Compute diff between current data model and new one.
+        MetadataRepository previousRepository = getMetadataRepository();
+        Compare.DiffResults diffResults = Compare.compare(previousRepository, newRepository);
+        if (diffResults.getActions().isEmpty()) {
+            LOGGER.info("No change detected, no database schema update to perform."); //$NON-NLS-1$
+            return;
+        }
+        // Analyze impact to find types to delete
+        Set<ComplexTypeMetadata> typesToDrop = findTypesToDelete(force, diffResults);
+        if (!typesToDrop.isEmpty()) { // If types to drop, drop them
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(typesToDrop.size() + " type(s) scheduled for deletion: " + Arrays.toString(typesToDrop.toArray()) //$NON-NLS-1$
+                        + "."); //$NON-NLS-1$
+            }
+            // Find dependent types to delete
+            Set<ComplexTypeMetadata> dependentTypesToDrop = findDependentTypesToDelete(previousRepository, typesToDrop);
+            typesToDrop.addAll(dependentTypesToDrop);
+            // Sort in dependency order
+            List<ComplexTypeMetadata> sortedTypesToDrop = new ArrayList<ComplexTypeMetadata>(typesToDrop);
+            if(sortedTypesToDrop.size() > 1) {
+                sortedTypesToDrop = MetadataUtils.sortTypes(previousRepository, sortedTypesToDrop, SortType.LENIENT);
+            }
+            // Clean full text index
+            cleanFullTextIndex(sortedTypesToDrop);
+            // Clean update reports
+            cleanUpdateReports(sortedTypesToDrop);
+            // Clean impacted tables
+            cleanImpactedTables(sortedTypesToDrop);
         } else {
-            LOGGER.info("Schema changes do no require to drop any database schema element.");
+            LOGGER.info("Schema changes do no require to drop any database schema element."); //$NON-NLS-1$
         }
         // Reinitialize Hibernate
-        LOGGER.info("Completing database schema update...");
+        LOGGER.info("Completing database schema update..."); //$NON-NLS-1$
         try {
             close(false);
             internalInit();
             prepare(newRepository, false);
-            LOGGER.info("Database schema update complete.");
+            LOGGER.info("Database schema update complete."); //$NON-NLS-1$
         } catch (Exception e) {
-            throw new RuntimeException("Unable to complete database schema update.", e);
+            throw new RuntimeException("Unable to complete database schema update.", e); //$NON-NLS-1$
         }
     }
 
@@ -1277,7 +1319,7 @@ public class HibernateStorage implements Storage {
                                 if (indexedTypes.contains(entityType)) {
                                     fullTextSession.purgeAll(entityType);
                                 } else {
-                                    LOGGER.warn("Unable to delete full text indexes for '" + entityType + "' (not indexed).");
+                                    LOGGER.warn("Unable to delete full text indexes for '" + entityType + "' (not indexed)."); //$NON-NLS-1$ //$NON-NLS-2$
                                 }
                             }
                         }
@@ -1296,7 +1338,7 @@ public class HibernateStorage implements Storage {
                 ComplexTypeMetadata currentType = currentDataRecord.getType();
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
                 if (mapping == null) {
-                    throw new IllegalArgumentException("Type '" + currentType.getName() + "' does not have a database mapping.");
+                    throw new IllegalArgumentException("Type '" + currentType.getName() + "' does not have a database mapping."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 Class<?> clazz = storageClassLoader.getClassFromType(mapping.getDatabase());
 
@@ -1316,8 +1358,8 @@ public class HibernateStorage implements Storage {
                 if (object != null) {
                     session.delete(object);
                 } else {
-                    LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
-                            + "' has already been deleted within same transaction.");
+                    LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString() //$NON-NLS-1$ //$NON-NLS-2$
+                            + "' has already been deleted within same transaction."); //$NON-NLS-1$
                 }
             }
         } catch (ConstraintViolationException e) {
@@ -1339,7 +1381,7 @@ public class HibernateStorage implements Storage {
             ComplexTypeMetadata currentType = record.getType();
             TypeMapping mapping = mappingRepository.getMappingFromUser(currentType);
             if (mapping == null) {
-                throw new IllegalArgumentException("Type '" + currentType.getName() + "' does not have a database mapping.");
+                throw new IllegalArgumentException("Type '" + currentType.getName() + "' does not have a database mapping."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             Class<?> clazz = storageClassLoader.getClassFromType(mapping.getDatabase());
 
@@ -1359,8 +1401,8 @@ public class HibernateStorage implements Storage {
             if (object != null) {
                 session.delete(object);
             } else {
-                LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString()
-                        + "' has already been deleted within same transaction.");
+                LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString() //$NON-NLS-1$ //$NON-NLS-2$
+                        + "' has already been deleted within same transaction."); //$NON-NLS-1$
             }
         } catch (ConstraintViolationException e) {
             throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
@@ -1374,7 +1416,7 @@ public class HibernateStorage implements Storage {
 
     @Override
     public synchronized void close() {
-        LOGGER.info("Closing storage '" + storageName + "' (" + storageType + ").");
+        LOGGER.info("Closing storage '" + storageName + "' (" + storageType + ")."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         MDMTransactionSessionContext.forgetStorage(factory);
         try {
             if (storageClassLoader != null) {
@@ -1407,7 +1449,7 @@ public class HibernateStorage implements Storage {
         // Reset caches
         ListIterator.resetTypeReaders();
         ScrollableIterator.resetTypeReaders();
-        LOGGER.info("Storage '" + storageName + "' (" + storageType + ") closed.");
+        LOGGER.info("Storage '" + storageName + "' (" + storageType + ") closed."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override
@@ -1415,10 +1457,10 @@ public class HibernateStorage implements Storage {
         // Close hibernate so all connections get released before drop schema.
         close();
         if (dropExistingData) { // Drop schema if asked for...
-            LOGGER.info("Deleting data and schema of storage '" + storageName + "' (" + storageType + ").");
+            LOGGER.info("Deleting data and schema of storage '" + storageName + "' (" + storageType + ")."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             JDBCStorageCleaner cleaner = new JDBCStorageCleaner(new FullTextIndexCleaner());
             cleaner.clean(this);
-            LOGGER.info("Data and schema of storage '" + storageName + "' (" + storageType + ") deleted.");
+            LOGGER.info("Data and schema of storage '" + storageName + "' (" + storageType + ") deleted."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }
     }
 
@@ -1440,7 +1482,7 @@ public class HibernateStorage implements Storage {
         }
         expression = userQuery.normalize();
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Query after optimizations:");
+            LOGGER.debug("Query after optimizations:"); //$NON-NLS-1$
             userQuery.accept(new UserQueryDumpConsole(LOGGER));
         }
         // Analyze query
@@ -1464,7 +1506,7 @@ public class HibernateStorage implements Storage {
                 internalExpression = expression.accept(transformer).normalize();
             }
             if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Internal query after mappings:");
+                LOGGER.trace("Internal query after mappings:"); //$NON-NLS-1$
                 userQuery.accept(new UserQueryDumpConsole(LOGGER, Level.TRACE));
             }
         }
@@ -1482,10 +1524,10 @@ public class HibernateStorage implements Storage {
 
     private void assertPrepared() {
         if (!isPrepared) {
-            throw new IllegalStateException("Storage has not been prepared.");
+            throw new IllegalStateException("Storage has not been prepared."); //$NON-NLS-1$
         }
         if (storageClassLoader == null || storageClassLoader.isClosed()) {
-            throw new IllegalStateException("Storage has been closed.");
+            throw new IllegalStateException("Storage has been closed."); //$NON-NLS-1$
         }
     }
 
@@ -1520,8 +1562,8 @@ public class HibernateStorage implements Storage {
 
         private static void assertField(FieldMetadata field) {
             if (field.getName().toLowerCase().startsWith(FORBIDDEN_PREFIX)) {
-                throw new IllegalArgumentException("Field '" + field.getName() + "' of type '"
-                        + field.getContainingType().getName() + "' is not allowed to start with " + FORBIDDEN_PREFIX);
+                throw new IllegalArgumentException("Field '" + field.getName() + "' of type '" //$NON-NLS-1$ //$NON-NLS-2$
+                        + field.getContainingType().getName() + "' is not allowed to start with " + FORBIDDEN_PREFIX); //$NON-NLS-1$
             }
         }
 
@@ -1529,8 +1571,8 @@ public class HibernateStorage implements Storage {
         public Object visit(SimpleTypeFieldMetadata simpleField) {
             String simpleFieldTypeName = simpleField.getType().getName();
             if (NoSupportTypes.getType(simpleFieldTypeName) != null) {
-                throw new IllegalArgumentException("No support for field type '" + simpleFieldTypeName + "' (field '"
-                        + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "').");
+                throw new IllegalArgumentException("No support for field type '" + simpleFieldTypeName + "' (field '" //$NON-NLS-1$ //$NON-NLS-2$
+                        + simpleField.getName() + "' of type '" + simpleField.getContainingType().getName() + "')."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             assertField(simpleField);
             return super.visit(simpleField);
@@ -1567,13 +1609,13 @@ public class HibernateStorage implements Storage {
             if (StorageClassLoader.CONFIGURATION_PUBLIC_ID.equals(publicId)) {
                 InputStream resourceAsStream = HibernateStorage.class.getResourceAsStream("hibernate.cfg.dtd"); //$NON-NLS-1$
                 if (resourceAsStream == null) {
-                    throw new IllegalStateException("Expected class path to contain Hibernate configuration DTD.");
+                    throw new IllegalStateException("Expected class path to contain Hibernate configuration DTD."); //$NON-NLS-1$
                 }
                 return new InputSource(resourceAsStream);
             } else if (StorageClassLoader.MAPPING_PUBLIC_ID.equals(publicId)) {
                 InputStream resourceAsStream = HibernateStorage.class.getResourceAsStream("hibernate.hbm.dtd"); //$NON-NLS-1$
                 if (resourceAsStream == null) {
-                    throw new IllegalStateException("Expected class path to contain Hibernate mapping DTD.");
+                    throw new IllegalStateException("Expected class path to contain Hibernate mapping DTD."); //$NON-NLS-1$
                 }
                 return new InputSource(resourceAsStream);
             }
@@ -1618,26 +1660,38 @@ public class HibernateStorage implements Storage {
 
     private class TableClosureVisitor implements PersistentClassVisitor {
 
+        @SuppressWarnings("rawtypes")
         private List<String> getTableNames(PersistentClass persistentClass) {
-            List<String> orderedTableNames = new LinkedList<String>();
-            // Get table names for properties
-            Set<String> tableNames = new HashSet<String>();
-            Iterator propertyClosureIterator = persistentClass.getPropertyClosureIterator();
-            ValueVisitor visitor = new ValueVisitor();
-            while (propertyClosureIterator.hasNext()) {
-                Property property = (Property) propertyClosureIterator.next();
-                tableNames.add((String) property.getValue().accept(visitor));
-            }
-            orderedTableNames.addAll(tableNames);
-            // Adds main table
-            Iterator tableClosureIterator = persistentClass.getTableClosureIterator();
-            while (tableClosureIterator.hasNext()) {
-                Table table = (Table) tableClosureIterator.next();
-                if (tableNames.contains(table.getName())) {
-                    orderedTableNames.remove(table.getName());
-                    orderedTableNames.add(table.getName());
-                }
-            }
+			List<String> orderedTableNames = new LinkedList<String>();
+			// Add main table
+			orderedTableNames.add(persistentClass.getTable().getName());
+			// Add field's table
+			Iterator propertyClosureIterator = persistentClass.getPropertyClosureIterator();
+			ValueVisitor visitor = new ValueVisitor();
+			while (propertyClosureIterator.hasNext()) {
+				Property property = (Property) propertyClosureIterator.next();
+				String tableName = (String) property.getValue().accept(visitor);
+				if (!orderedTableNames.contains(tableName)) {
+					Value value = property.getValue();
+					// to-many, mapping(middle) table should before main table
+					if (value instanceof org.hibernate.mapping.Collection) {
+						orderedTableNames.add(0, tableName);
+					}
+					if (value instanceof ToOne) { // to-one
+						PersistentClass referencedEntityClass = configuration.getClassMapping(((ToOne) value).getReferencedEntityName());
+						String entityName = StringUtils.substringAfterLast(referencedEntityClass.getEntityName(), ".");
+						// only deal with nested types, not including entities
+						if (userMetadataRepository.getComplexType(entityName) == null) {
+							List<String> referencedEntityTables = getTableNames(referencedEntityClass);
+							for (String table : referencedEntityTables) {
+								if (!orderedTableNames.contains(table)) {
+									orderedTableNames.add(table);
+								}
+							}
+						}
+					}
+				}
+			}
             return orderedTableNames;
         }
 
