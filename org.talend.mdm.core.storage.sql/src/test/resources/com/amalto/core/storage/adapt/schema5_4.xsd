@@ -1,0 +1,172 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:complexType name="TestType1_Reference">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="id"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="mandatory11"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="testEntity2"
+				type="xsd:string">
+				<xsd:annotation>
+				    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey">TestEntity2_Reference/id</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="testEntity3"
+				type="xsd:string">
+				<xsd:annotation>
+				    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey">TestEntity3_Reference/id</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TestType2_Reference">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="id"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="mandatory21"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="testEntity4"
+				type="xsd:string">
+				<xsd:annotation>
+				    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey">TestEntity4_Reference/id</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="0" name="testEntity5"
+				type="xsd:string">
+				<xsd:annotation>
+				    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey">TestEntity5_Reference/id</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TestType3_Reference">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="id"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="mandatory31"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="testEntity4"
+				type="xsd:string">
+				<xsd:annotation>
+				    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey">TestEntity4_Reference/id</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="testEntity5"
+				type="xsd:string">
+				<xsd:annotation>
+				    <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey">TestEntity5_Reference/id</xsd:appinfo>
+					<xsd:appinfo source="X_ForeignKey_NotSep">false</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TestType4_Reference">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="id"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="mandatory41"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="mandatory42"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="TestType5_Reference">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="id"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="mandatory51"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element maxOccurs="1" minOccurs="1" name="mandatory52"
+				type="xsd:string">
+				<xsd:annotation>
+					<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="TestEntity1_Reference" type="TestType1_Reference">
+		<xsd:unique name="TestEntity1_Reference">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="id" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="TestEntity2_Reference" type="TestType2_Reference">
+		<xsd:unique name="TestEntity2_Reference">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="id" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="TestEntity3_Reference" type="TestType3_Reference">
+		<xsd:unique name="TestEntity3_Reference">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="id" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="TestEntity4_Reference" type="TestType4_Reference">
+		<xsd:unique name="TestEntity4_Reference">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="id" />
+		</xsd:unique>
+	</xsd:element>
+	<xsd:element name="TestEntity5_Reference" type="TestType5_Reference">
+		<xsd:unique name="TestEntity5_Reference">
+			<xsd:selector xpath="." />
+			<xsd:field xpath="id" />
+		</xsd:unique>
+	</xsd:element>
+</xsd:schema>
