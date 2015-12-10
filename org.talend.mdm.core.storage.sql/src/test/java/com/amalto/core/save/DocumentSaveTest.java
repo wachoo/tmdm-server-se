@@ -3155,6 +3155,35 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("Description", evaluate(committedElement, "/Product/Description"));
         assertEquals("", evaluate(committedElement, "/Product/OnlineStore"));
     }
+    
+    /**
+     * TMDM-8876: TalendMDMContextConnector doesn't work in workflow (don't need to parse time or save update record if there is no change)
+     */
+    public void testUpdateReportWithNoChange() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+        
+        // Test updateReport
+        boolean isOK = true;
+        boolean newOutput = true;
+        SaverSource source = new NoChangeTestSaverSource(repository, true, "test1_original.xml", isOK, newOutput);
+        String xmlString = "<Agency>"+
+                                "<Id>5258f292-5670-473b-bc01-8b63434682f3</Id>"+
+                                "<Name>Portland</Name>"+
+                                "<City>Portland</City>"+
+                                "<State>ME</State>"+
+                                "<Zip>04102</Zip>"+
+                                "<Region>EAST</Region>"+
+                            "</Agency>";
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true,
+                true, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        assertEquals("no change update successfully!", saver.getBeforeSavingMessage());
+    }
 
     private static class MockCommitter implements SaverSession.Committer {
 
@@ -3524,6 +3553,45 @@ public class DocumentSaveTest extends TestCase {
         @Override
         public boolean hide(ComplexTypeMetadata type) {
             return isActive && type.getHideUsers().contains("System_Users");
+        }
+    }
+    
+    private static class NoChangeTestSaverSource extends DocumentSaveTest.TestSaverSource {
+
+        private final boolean OK;
+
+        private final boolean newOutput;
+
+        public NoChangeTestSaverSource(MetadataRepository repository, boolean exist, String fileName, boolean OK,
+                boolean newOutput) {
+            super(repository, exist, fileName, "metadata1.xsd");
+            this.OK = OK;
+            this.newOutput = newOutput;
+        }
+
+        @Override
+        public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
+            String message = "<report><message type=\"info\">no change update successfully!</message></report>";
+            if (!OK) {
+                message = "<report><message type=\"error\">no change update failed!</message></report>";
+            }
+            String item = null;
+            OutputReport report = new OutputReport(message, item);
+
+            if (newOutput) {
+                item = "<exchange><item>"+
+                        "<Agency>"+
+                            "<Id>5258f292-5670-473b-bc01-8b63434682f3</Id>"+
+                            "<Name>Portland</Name>"+
+                            "<City>Portland</City>"+
+                            "<State>ME</State>"+
+                            "<Zip>04102</Zip>"+
+                            "<Region>EAST</Region>"+
+                        "</Agency>" +
+                    "</item></exchange>";
+                report.setItem(item);
+            }
+            return report;
         }
     }
 }
