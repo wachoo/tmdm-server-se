@@ -880,7 +880,7 @@ public class HibernateStorage implements Storage {
             return;
         }
         LOGGER.info("Re-indexing full-text for " + storageName + "...");
-        Session session = factory.getCurrentSession();
+        Session session = this.getCurrentSession();
         try {
             SearchFactoryImplementor searchFactory = ContextHelper.getSearchFactory( session );
             MDMMassIndexerImpl indexer = new MDMMassIndexerImpl( searchFactory, factory, Object.class);
