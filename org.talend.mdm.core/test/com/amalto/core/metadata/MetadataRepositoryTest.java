@@ -458,4 +458,17 @@ public class MetadataRepositoryTest extends TestCase {
 
         assertEquals(2, foreignKeyFields);
     }
+    
+    // TMDM-8085
+	public void testEntityUsesAbstractType() {
+		MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("EntityUsesAbstractType.xsd");
+		try {
+			repository.load(stream);
+			fail("Runtime Exception should occur if Entity uses an abstract type.");
+		} catch (RuntimeException e) {
+			assertTrue(e.getMessage().contains("Entity 'Pet' is using an abstract reusable type. (line: 19 / column: 2)"));
+		}
+	}
+    
 }
