@@ -82,13 +82,13 @@ public class TISCallTransformerPluginBeanTest {
 
     @Test
     public void testBuildParameters() throws XtentisException {
-        String expetedResult = "<results><Agency><Region>Lausanne</Region><Etablissement><Adresse>Paris</Adresse></Etablissement></Agency></results>";
+        String expetedResult = "<results>\n<Agency>\n<Region>Lausanne</Region>\n<Etablissement><Adresse>Paris</Adresse></Etablissement>\n</Agency>\n</results>\n";
         List<String[]> list = new ArrayList<String[]>();
         String[] values = { "Lausanne", "Paris" };
         list.add(values);
         ConceptMappingParam conceptMappingParam = new ConceptMappingParam("Agency", "{p0:Region,p1:\"Etablissement/Adresse\"}");
         TISCallTransformerPluginBean bean = new TISCallTransformerPluginBean();
         String parameter = bean.buildParameters(list, conceptMappingParam);
-        assertEquals(expetedResult, parameter.replace("\n", ""));
+        assertEquals(expetedResult, parameter);
     }
 }
