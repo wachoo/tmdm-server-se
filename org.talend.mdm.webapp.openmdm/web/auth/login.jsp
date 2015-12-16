@@ -33,8 +33,8 @@
          _USERNAME_ = "Prihlasovacie meno";
          _PASSWORD_ = "Heslo";
          _UNIVERSE_ = "Verzia";
-         _LOGIN_= "Prihlasovacie meno";
-         _ERROR_ = "Prihlásenie zlyhalo. Prosím, skontrolujte si Vaše meno a heslo";    
+         _LOGIN_= "Prihlásenie";
+         _ERROR_ = "Prihlásenie zlyhalo. Prosím, skontrolujte si Vaše meno a heslo";
     } else { 
          language="en"; //default language
          _USERNAME_ = "Login";
