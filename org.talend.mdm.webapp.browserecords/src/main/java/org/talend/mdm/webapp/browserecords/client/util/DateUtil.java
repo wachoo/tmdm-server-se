@@ -33,7 +33,7 @@ public class DateUtil {
     public static final Date convertStringToDate(String aMask, String strDate) {
         if (strDate != null && strDate.trim().length() != 0) {
             DateTimeFormat df = DateTimeFormat.getFormat(aMask);
-            return df.parse(strDate);
+            return df.parse(strDate.trim());
         }
         return null;
     }

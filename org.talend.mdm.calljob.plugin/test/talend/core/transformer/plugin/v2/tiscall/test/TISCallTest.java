@@ -13,7 +13,7 @@ public class TISCallTest {
 
 	@Test
     public void testBuildParameters() throws Exception {
-        String expetedResult = "<results><Agency><Region>Lausanne</Region><Etablissement><Adresse>Paris</Adresse></Etablissement></Agency></results>";
+        String expetedResult = "<results>\n<Agency>\n<Region>Lausanne</Region>\n<Etablissement><Adresse>Paris</Adresse></Etablissement>\n</Agency>\n</results>\n";
         List<ArrayOfXsdString> list = new ArrayList<ArrayOfXsdString>();
 
         ArrayOfXsdString arrayOfXsdString = new ArrayOfXsdString();
@@ -24,7 +24,7 @@ public class TISCallTest {
         ConceptMappingParam conceptMappingParam = new ConceptMappingParam("Agency", "{p0:Region,p1:\"Etablissement/Adresse\"}");
         TISCallTransformerPluginBean bean = new TISCallTransformerPluginBean();
         String parameter = bean.buildParameters(list, conceptMappingParam);
-        assertEquals(expetedResult, parameter.replace("\n", ""));
+        assertEquals(expetedResult, parameter);
     }
 	
 }
