@@ -342,12 +342,13 @@ public class TISCallTransformerPluginBean extends Plugin {
                                     if (columnName != null && columnName.contains("/")) {
                                         String[] columns = columnName.split("/");
                                         for (int i = 0; i < columns.length; i++) {
-                                            sb.append("<").append(columns[i]).append(">" + "\n");
+                                            sb.append("<").append(columns[i]).append(">");
                                         }
-                                        sb.append(str + "\n");
+                                        sb.append(str);
                                         for (int k = columns.length - 1; k >= 0; k--) {
-                                            sb.append("</").append(columns[k]).append(">" + "\n");
+                                            sb.append("</").append(columns[k]).append(">");
                                         }
+                                        sb.append("\n");
                                     } else {
                                         sb = sb.append("<").append(columnName).append(">").append(str).append("</")
                                                 .append(columnName).append(">" + "\n");
