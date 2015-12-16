@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <languages>
-	<language value="en" dateTime="MM/dd/yyyy HH:mm:ss">English</language>
-	<language value="fr" dateTime="MM/dd/yyyy HH:mm:ss">Français</language>
+    <language value="en" dateTime="MM/dd/yyyy HH:mm:ss">English</language>
+    <language value="fr" dateTime="MM/dd/yyyy HH:mm:ss">Français</language>
     <language value="ar">العربية</language>
     <language value="bn">বাঙ্গালী</language>
     <language value="zh" dateTime="yyyy/MM/dd HH:mm:ss">中文</language>
