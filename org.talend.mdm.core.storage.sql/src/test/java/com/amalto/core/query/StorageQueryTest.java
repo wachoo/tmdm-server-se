@@ -4405,32 +4405,76 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
-    public void testSetValueToFKPointToSelfEntity() throws Exception {
+    @SuppressWarnings("rawtypes")
+	public void testSetValueToFKPointToSelfEntity() throws Exception {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        FieldMetadata fieldID = PointToSelfEntity.getField("Id");
+        FieldMetadata fieldFK = PointToSelfEntity.getField("FirstFK");
         List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        // Add a record that FK point to self
+        // Add 3 records without setting FK
         allRecords
                 .add(factory
                         .read(repository,
                                 PointToSelfEntity,
-                                "<PointToSelfEntity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>id1</Id><Name>name1</Name><FirstFK>[id1]</FirstFK></PointToSelfEntity>"));
-        storage.begin();
+                                "<PointToSelfEntity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>id1</Id><Name>name1</Name></PointToSelfEntity>"));
+        allRecords
+		        .add(factory
+		                .read(repository,
+		                        PointToSelfEntity,
+		                        "<PointToSelfEntity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>id2</Id><Name>name2</Name></PointToSelfEntity>"));
+		allRecords
+		        .add(factory
+		                .read(repository,
+		                        PointToSelfEntity,
+		                        "<PointToSelfEntity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>id3</Id><Name>name3</Name></PointToSelfEntity>"));
+		storage.begin();
         storage.update(allRecords);
         storage.commit();
 
-        // Read record's value
+        // Update their FK
+        allRecords = new LinkedList<DataRecord>();
+        allRecords
+		        .add(factory
+		                .read(repository,
+		                        PointToSelfEntity,
+		                        "<PointToSelfEntity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>id1</Id><Name>name1</Name><FirstFK>[id1]</FirstFK></PointToSelfEntity>"));
+        allRecords
+		        .add(factory
+		                .read(repository,
+		                        PointToSelfEntity,
+		                        "<PointToSelfEntity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>id2</Id><Name>name2</Name><FirstFK>[id3]</FirstFK></PointToSelfEntity>"));
+		allRecords
+		        .add(factory
+		                .read(repository,
+		                        PointToSelfEntity,
+		                        "<PointToSelfEntity xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id>id3</Id><Name>name3</Name><FirstFK>[id2]</FirstFK></PointToSelfEntity>"));
+		storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+        
         storage.begin();
         UserQueryBuilder qb = from(PointToSelfEntity);
         StorageResults records = storage.fetch(qb.getSelect());
-
-        try {
-            for (DataRecord result : records) {
-                assertEquals("id1", result.get(PointToSelfEntity.getField("Id")));
-            }
-            assertEquals(1, records.getCount());
-        } finally {
-            storage.commit();
-        }
+		try {
+			assertEquals(3, records.getCount());
+			boolean valid1 = false;
+		    boolean valid2 = false;
+		    boolean valid3 = false;
+			for (DataRecord result : records) {
+				String id = (String)result.get(fieldID);
+				DataRecord recordFK = (DataRecord) ((List) result.get(fieldFK)).get(0);
+				if ("id1".equals(id)) {
+					valid1 = "id1".equals(recordFK.get(fieldID));
+				} else if ("id2".equals(id)) {
+					valid2 = "id3".equals(recordFK.get(fieldID));
+				} else {
+					valid3 = "id2".equals(recordFK.get(fieldID));
+				}
+			}
+			assertTrue(valid1 && valid2 && valid3);
+		} finally {
+			storage.commit();
+		}
     }
 
     public void testRepeatableElementsCount() throws Exception {

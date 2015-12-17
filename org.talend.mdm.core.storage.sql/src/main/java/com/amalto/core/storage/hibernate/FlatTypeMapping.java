@@ -11,20 +11,32 @@
 
 package com.amalto.core.storage.hibernate;
 
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.talend.mdm.commmon.metadata.*;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.EnumerationFieldMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.TypeMetadata;
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.util.*;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 class FlatTypeMapping extends TypeMapping {
 
@@ -141,8 +153,8 @@ class FlatTypeMapping extends TypeMapping {
                 } else if (field instanceof ReferenceFieldMetadata) {
                     StorageClassLoader storageClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
                     if (!field.isMany()) {
-                        DataRecord dataRecordValue = (DataRecord) value;
-                        if (dataRecordValue != null) {
+                        if (value != null) {
+                            DataRecord dataRecordValue = (DataRecord) value;
                             TypeMetadata referencedType = dataRecordValue.getType();
                             Class<?> referencedClass = storageClassLoader.findClass(referencedType.getName());
                             Object referencedObject = createReferencedObject(session, (ComplexTypeMetadata) referencedType, referencedClass, dataRecordValue);
@@ -236,29 +248,14 @@ class FlatTypeMapping extends TypeMapping {
                     throw new IllegalArgumentException("This mapping does not support contained types."); //$NON-NLS-1$
                 } else if (userField instanceof ReferenceFieldMetadata) {
                     if (!userField.isMany()) {
-                        Wrapper wrapper = (Wrapper) value;
-                        if (wrapper != null) {
-                            TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
-                            DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                            for (FieldMetadata fkField : mapping.getDatabase().getFields()) {
-                                if (mapping.getUser(fkField) != null) {
-                                    referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
-                                }
-                            }
-                            to.set(userField, referencedRecord);
+                        if (value != null) {
+                            to.set(userField, getDataRecordFromWrapper(contextClassLoader, (Wrapper) value, new HashMap<Object, DataRecord>()));
                         }
                     } else {
                         List<Wrapper> wrapperList = getFullList((List<Wrapper>) value);
                         if (wrapperList != null) {
                             for (Wrapper wrapper : wrapperList) {
-                                TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
-                                DataRecord referencedRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
-                                for (FieldMetadata fkField : mapping.getDatabase().getFields()) {
-                                    if (mapping.getUser(fkField) != null) {
-                                        referencedRecord.set(mapping.getUser(fkField), wrapper.get(fkField.getName()));
-                                    }
-                                }
-                                to.set(userField, referencedRecord);
+                                to.set(userField, getDataRecordFromWrapper(contextClassLoader, wrapper, new HashMap<Object, DataRecord>()));
                             }
                         }
                     }
@@ -270,7 +267,6 @@ class FlatTypeMapping extends TypeMapping {
                         else {
                             value = new ArrayList<>(getFullList((List) value));
                         }
-                        
                     }
                     to.set(userField, value);
                 }
@@ -284,6 +280,38 @@ class FlatTypeMapping extends TypeMapping {
             }
         }
         return to;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private DataRecord getDataRecordFromWrapper(StorageClassLoader contextClassLoader, Wrapper wrapper, Map<Object, DataRecord> proceedWrappers) {
+    	DataRecord dataRecord = proceedWrappers.get(wrapper);
+    	if(dataRecord == null) {
+	        TypeMapping mapping = mappings.getMappingFromUser(contextClassLoader.getTypeFromClass(wrapper.getClass()));
+	        dataRecord = new DataRecord(mapping.getUser(), UnsupportedDataRecordMetadata.INSTANCE);
+	        proceedWrappers.put(wrapper, dataRecord);
+	        for (FieldMetadata field : mapping.getDatabase().getFields()) {
+	            FieldMetadata fieldMetadata = mapping.getUser(field);
+	            if (fieldMetadata != null) {
+	                Object valueObject = wrapper.get(field.getName());
+	                if (valueObject != null) {
+	                    List<Object> valueList = new ArrayList<Object>();
+	                    if(fieldMetadata.isMany()){
+	                        valueList.addAll((List<Object>) valueObject);
+	                    } else {
+	                        valueList.add(valueObject);
+	                    }
+						for (Object value : valueList) {
+	                        if (fieldMetadata instanceof ReferenceFieldMetadata) {
+								dataRecord.set(fieldMetadata, getDataRecordFromWrapper(contextClassLoader, (Wrapper) value, proceedWrappers));
+	                        } else {
+	                            dataRecord.set(fieldMetadata, value);
+	                        }
+	                    }
+	                }
+	            }
+	        }
+        }
+        return dataRecord;
     }
 
     @Override
