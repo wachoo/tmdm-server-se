@@ -91,6 +91,10 @@ class UpdateReportDocument extends DOMDocument {
         isRecordingFieldChange = false;
     }
     
+    public boolean isCreated() {
+        return isCreated;
+    }
+
     public void setOperationType(String operationType) {
         Element item = null;
         NodeList operationTypeNodeList = updateReportDocument.getElementsByTagName("OperationType"); //$NON-NLS-1$
