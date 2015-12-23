@@ -237,6 +237,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void compare(FieldMetadata comparedField) {
         if (comparedField.isKey()) {
             // Can't update a key: don't even try to compare the field (but update lastMatchPath in case next compared
@@ -296,7 +297,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
             } else { // new accessor exist
                 String newValue = newAccessor.get();
-                if (newAccessor.get() != null && !(comparedField instanceof ContainedTypeFieldMetadata)) {
+                if (newValue != null && !(comparedField instanceof ContainedTypeFieldMetadata)) {
                     if (comparedField.isMany() && preserveCollectionOldValues) {
                         // Append at the end of the collection
                         if (!originalFieldToLastIndex.containsKey(comparedField)) {
@@ -326,7 +327,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 }
                             }
                         }
-                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newValue.isEmpty() ? null : newValue, comparedField));
                     } else if (oldValue != null && oldValue.equals(newValue)) {
                         generateNoOp(path);
                     }
