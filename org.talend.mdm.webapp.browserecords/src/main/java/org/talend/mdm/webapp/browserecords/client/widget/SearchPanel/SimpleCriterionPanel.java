@@ -276,7 +276,7 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
             } else if (field instanceof SimpleComboBox) {
                 return ((SimpleComboBox) field).getValue().get("value"); //$NON-NLS-1$
             } else if (field instanceof MultiLanguageField) {
-                return ((MultiLanguageField) field).getValueWithLanguage(getOperator());
+                return ((MultiLanguageField) field).getMultiLanguageKeywordsValue(getOperator());
             }
             return field.getValue().toString();
         }

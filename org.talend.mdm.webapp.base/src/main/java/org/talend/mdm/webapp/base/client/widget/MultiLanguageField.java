@@ -25,7 +25,6 @@ import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.client.resources.icon.Icons;
 import org.talend.mdm.webapp.base.client.util.FormatUtil;
 import org.talend.mdm.webapp.base.client.util.LanguageUtil;
-import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.OperatorValueConstants;
 
@@ -104,6 +103,7 @@ public class MultiLanguageField extends TextField<String> {
         this.isAdding = isAdding;
     }
 
+    @Override
     protected void onRender(Element target, int index) {
         if (isFormInput) {
             El wrap = new El(DOM.createTable());
@@ -150,11 +150,13 @@ public class MultiLanguageField extends TextField<String> {
         super.onRender(target, index);
     }
 
+    @Override
     public int getWidth() {
         // when isChrome, it need to add buttonDiv's width
         return GXT.isChrome ? getOffsetWidth() + 75 : getOffsetWidth();
     }
 
+    @Override
     public void setReadOnly(boolean readOnly) {
         super.setReadOnly(readOnly);
         updateCtrlButton();
@@ -168,10 +170,12 @@ public class MultiLanguageField extends TextField<String> {
         displayMultiLanguageBtn.setTitle(BaseMessagesFactory.getMessages().open_mls_title());
         displayMultiLanguageBtn.addClickHandler(new ClickHandler() {
 
+            @Override
             public void onClick(ClickEvent arg0) {
                 if (LanguageUtil.getInstance().getLanguages().isEmpty()) {
                     service.getLanguageModels(new SessionAwareAsyncCallback<List<ItemBaseModel>>() {
 
+                        @Override
                         public void onSuccess(List<ItemBaseModel> result) {
                             LinkedHashMap<String, ItemBaseModel> temp_languageColumnMap = new LinkedHashMap<String, ItemBaseModel>();
                             for (ItemBaseModel model : result) {
@@ -196,25 +200,31 @@ public class MultiLanguageField extends TextField<String> {
         });
     }
 
+    @Override
     protected void doAttachChildren() {
         super.doAttachChildren();
         ComponentHelper.doAttach(displayMultiLanguageBtn);
     }
 
+    @Override
     protected void doDetachChildren() {
         super.doDetachChildren();
         ComponentHelper.doDetach(displayMultiLanguageBtn);
     }
 
+    @Override
     public void setValue(String value) {
-        if (multiLanguageModel != null)
+        if (multiLanguageModel != null) {
             multiLanguageModel.setValueByLanguage(currentLanguage, value);
+        }
         super.setValue(value);
     }
 
+    @Override
     public void clear() {
-        if (this.multiLanguageModel != null)
+        if (this.multiLanguageModel != null) {
             this.multiLanguageModel.clear();
+        }
         super.clear();
     }
 
@@ -236,29 +246,24 @@ public class MultiLanguageField extends TextField<String> {
         this.multiLanguageModel = _multiLanguageModel;
     }
 
-    public String getValueWithLanguage(String operator) {
+    public String getMultiLanguageKeywordsValue(String operator) {
         String v = FormatUtil.languageValueEncode(value);
         if("*".equals(v)){ //$NON-NLS-1$
             return v;
         }        
         if (OperatorValueConstants.CONTAINS.equals(operator)) {
-            return "*[" + this.currentLanguage + ":*" + v + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+            return "*" + v + "*"; //$NON-NLS-1$ //$NON-NLS-2$
         } else if (OperatorValueConstants.STARTSWITH.equals(operator)) {
-            return "*[" + this.currentLanguage + ":" + v + "*]*"; //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-        } else if (OperatorValueConstants.STRICTCONTAINS.equals(operator)) {
-            return "*[" + this.currentLanguage + ":*" + v + "*]*"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+            return "%:" + v; //$NON-NLS-1$
         }
         return v;
     }
     
     public String getInputValue(String operator, String value) {
-        String formatValue = MultilanguageMessageParser.getValueByLanguage(value, this.currentLanguage);
         if (OperatorValueConstants.CONTAINS.equals(operator)) {
-            return formatValue.substring(1, formatValue.length() - 1);
+            return value.substring(1, value.length() - 1);
         } else if (OperatorValueConstants.STARTSWITH.equals(operator)) {
-            return formatValue.substring(0, formatValue.length() - 1);
-        } else if (OperatorValueConstants.STRICTCONTAINS.equals(operator)) {
-            return formatValue.substring(1, formatValue.length() - 1);
+            return value.substring(2, value.length());
         }
         return value;
     }
@@ -291,10 +296,11 @@ public class MultiLanguageField extends TextField<String> {
                 if (value == null) {
                     return value;
                 }
-                if (Boolean.parseBoolean(store.getAt(re.getSelectedRowIndex()).get("isNewNode").toString())) //$NON-NLS-1$
+                if (Boolean.parseBoolean(store.getAt(re.getSelectedRowIndex()).get("isNewNode").toString())) {
                     this.getField().setEnabled(true);
-                else
+                } else {
                     this.getField().setEnabled(false);
+                }
                 return languageColumnMap.get(value);
             }
 
@@ -309,6 +315,7 @@ public class MultiLanguageField extends TextField<String> {
         ColumnConfig languageColumn = new ColumnConfig("language", BaseMessagesFactory.getMessages().language_title(), 200); //$NON-NLS-1$
         languageColumn.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
+            @Override
             public Object render(ItemBaseModel model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                 return languageColumnMap.get(model.get("language")).get("language"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -320,6 +327,7 @@ public class MultiLanguageField extends TextField<String> {
         ColumnConfig valueColumn = new ColumnConfig("value", BaseMessagesFactory.getMessages().value_title(), 200); //$NON-NLS-1$
         valueColumn.setRenderer(new GridCellRenderer<ItemBaseModel>() {
 
+            @Override
             public Object render(ItemBaseModel model, String property, ColumnData config, int rowIndex, int colIndex,
                     ListStore<ItemBaseModel> store, Grid<ItemBaseModel> grid) {
                 return model.get("value"); //$NON-NLS-1$

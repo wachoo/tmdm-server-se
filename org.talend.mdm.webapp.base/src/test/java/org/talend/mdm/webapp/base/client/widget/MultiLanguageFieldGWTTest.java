@@ -34,66 +34,66 @@ public class MultiLanguageFieldGWTTest extends GWTTestCase {
         super.gwtSetUp();
     }
 
-    public void testGetValueWithLanguage() {
+    public void testGetMultiLanguageKeywordsValue() {
         // 1. operator = CONTAINS
         operator = OperatorValueConstants.CONTAINS;
-        String formatValue = field.getValueWithLanguage(operator);
-        assertEquals("*[EN:*Talend*]*", formatValue);
-        // 2. operator = STRICTWITH
+        String formatValue = field.getMultiLanguageKeywordsValue(operator);
+        assertEquals("*Talend*", formatValue);
+        // 2. operator = STARTSWITH
         operator = OperatorValueConstants.STARTSWITH;
-        formatValue = field.getValueWithLanguage(operator);
-        assertEquals("*[EN:Talend*]*", formatValue);
+        formatValue = field.getMultiLanguageKeywordsValue(operator);
+        assertEquals("%:Talend", formatValue);
         // 3. operator = STRICTCONTAINS
         operator = OperatorValueConstants.STRICTCONTAINS;
-        formatValue = field.getValueWithLanguage(operator);
-        assertEquals("*[EN:*Talend*]*", formatValue);
+        formatValue = field.getMultiLanguageKeywordsValue(operator);
+        assertEquals("Talend", formatValue);
         // 4. value = Talend[] operator = CONTAINS
         value = "Talend[]";
         field.setValue(value);
         operator = OperatorValueConstants.CONTAINS;
-        formatValue = field.getValueWithLanguage(operator);
-        assertEquals("*[EN:*Talend&amp;#91;&amp;#93;*]*", formatValue);
+        formatValue = field.getMultiLanguageKeywordsValue(operator);
+        assertEquals("*Talend&amp;#91;&amp;#93;*", formatValue);
         // 5. value = Talend\\
         value = "Talend\\";
         field.setValue(value);
-        formatValue = field.getValueWithLanguage(operator);
-        assertEquals("*[EN:*Talend&amp;#92;*]*", formatValue);
+        formatValue = field.getMultiLanguageKeywordsValue(operator);
+        assertEquals("*Talend&amp;#92;*", formatValue);
         // 6. value = Talend\\China[]
         value = "Talend\\China[]";
         field.setValue(value);
-        formatValue = field.getValueWithLanguage(operator);
-        assertEquals("*[EN:*Talend&amp;#92;China&amp;#91;&amp;#93;*]*", formatValue);
+        formatValue = field.getMultiLanguageKeywordsValue(operator);
+        assertEquals("*Talend&amp;#92;China&amp;#91;&amp;#93;*", formatValue);
     }
 
     public void testGetInputValue() {
         // 1. operator = CONTAINS
         operator = OperatorValueConstants.CONTAINS;
-        String formatValue = "*[EN:*Talend*]*";
+        String formatValue = "*Talend*";
         String inputValue = field.getInputValue(operator, formatValue);
         assertEquals("Talend", inputValue);
-        // 2. operator = STRICTWITH
+        // 2. operator = STARTSWITH
         operator = OperatorValueConstants.STARTSWITH;
-        formatValue = "*[EN:Talend*]*";
+        formatValue = "%:Talend";
         inputValue = field.getInputValue(operator, formatValue);
         assertEquals("Talend", inputValue);
         // 3. operator = STRICTCONTAINS
         operator = OperatorValueConstants.STRICTCONTAINS;
-        formatValue = "*[EN:*Talend*]*";
+        formatValue = "Talend";
         inputValue = field.getInputValue(operator, formatValue);
         assertEquals("Talend", inputValue);
         // 4. operator = CONTAINS
-        formatValue = "*[EN:*Talend&amp;#91;&amp;#93;*]*";
+        formatValue = "*Talend&amp;#91;&amp;#93;*";
         operator = OperatorValueConstants.CONTAINS;
         inputValue = field.getInputValue(operator, formatValue);
-        assertEquals("Talend[]", inputValue);
+        assertEquals("Talend&amp;#91;&amp;#93;", inputValue);
         // 5. formatValue = *[EN:*Talend&#92;*]*
-        formatValue = "*[EN:*Talend&amp;#92;*]*";
+        formatValue = "*Talend&amp;#92;*";
         inputValue = field.getInputValue(operator, formatValue);
-        assertEquals("Talend\\", inputValue);
+        assertEquals("Talend&amp;#92;", inputValue);
         // 6. formatValue = *[EN:*Talend&#92;China&#91;&#93;*]*
-        formatValue = "*[EN:*Talend&amp;#92;China&amp;#91;&amp;#93;*]*";
+        formatValue = "*Talend&amp;#92;China&amp;#91;&amp;#93;*";
         inputValue = field.getInputValue(operator, formatValue);
-        assertEquals("Talend\\China[]", inputValue);
+        assertEquals("Talend&amp;#92;China&amp;#91;&amp;#93;", inputValue);
     }
 
     public void testClear() {
