@@ -61,7 +61,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 public class DefaultItem implements Item {
 
@@ -453,13 +453,15 @@ public class DefaultItem implements Item {
                 storage.begin();
                 for (ComplexTypeMetadata type : types) {
                     if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
-                        UserQueryBuilder qb = from(type);
+                        UserQueryBuilder qb = from(type).select(UserQueryBuilder.count());
                         qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-                        StorageResults result = storage.fetch(qb.getSelect());
+                        StorageResults results = storage.fetch(qb.getSelect());
                         try {
-                            count += result.getCount();
+                            for (DataRecord result : results) {
+                                count += (Long)result.get("count");
+                            }
                         } finally {
-                            result.close();
+                            results.close();
                         }
                     }
                 }
