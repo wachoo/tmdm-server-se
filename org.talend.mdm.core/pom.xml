@@ -43,6 +43,7 @@
                     <include>**/**.xsd</include>
                     <include>**/**.dtd</include>
                     <include>**/**.log</include>
+                    <include>**/**.conf</include>
                 </includes>
                 <filtering>false</filtering>
             </testResource>
