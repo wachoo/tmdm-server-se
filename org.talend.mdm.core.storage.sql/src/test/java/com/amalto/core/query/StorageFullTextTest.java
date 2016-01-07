@@ -1100,4 +1100,71 @@ public class StorageFullTextTest extends StorageTestCase {
         }
         assertNull(exception);
     }
+
+    @SuppressWarnings("unused")
+    public void testSearchOnMultiLingualType() throws Exception {
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+        List<DataRecord> allRecords = new LinkedList<DataRecord>();
+        allRecords
+                .add(factory
+                        .read(repository,
+                                person,
+                                "<Person><id>1234</id><firstname>quan</firstname><middlename>kevin</middlename><lastname>cui</lastname><resume>[EN:Hello [World:]][FR:bonjour :le][ZH:ni Hao]</resume><age>22</age><score>100</score><Available></Available><Status>Customer</Status></Person>"));
+
+        storage.begin();
+        storage.update(allRecords);
+        storage.commit();
+
+        UserQueryBuilder qb = from(person).select(person.getField("id")).where(contains(person.getField("resume"), " world "));
+        storage.begin();
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get("id"));
+                assertEquals("1234", result.get("id"));
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).selectId(person).where(contains(person.getField("resume"), " bon "));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get("id"));
+                assertEquals("1234", result.get("id"));
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).selectId(person).where(contains(person.getField("resume"), " le "));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get("id"));
+                assertEquals("1234", result.get("id"));
+            }
+        } finally {
+            results.close();
+        }
+
+        qb = from(person).selectId(person).where(contains(person.getField("resume"), "hao"));
+        storage.begin();
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                assertNotNull(result.get("id"));
+                assertEquals("1234", result.get("id"));
+            }
+        } finally {
+            results.close();
+        }
+    }
 }

@@ -19,16 +19,12 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queries.FilterClause;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.NumericRangeFilter;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TermRangeQuery;
-import org.apache.lucene.util.BytesRef;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.DefaultMetadataVisitor;
@@ -376,7 +372,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
     }
 
     private static String getValue(FullText fullText) {
-        String value = fullText.getValue().toLowerCase();
+        String value = fullText.getValue().toLowerCase().trim();
         int index = 0;
         while (value.charAt(index) == '*') { // Skip '*' characters at beginning.
             index++;

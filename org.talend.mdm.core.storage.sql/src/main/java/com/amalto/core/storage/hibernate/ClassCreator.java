@@ -534,6 +534,9 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                     }
                 }
             }
+            if (Types.MULTI_LINGUAL.equals(metadata.getType().getName())) {
+                return new MultiLingualIndexedHandler();
+            }
             return new BasicSearchIndexHandler();
         } else if (!validType) {
             return new ToStringIndexHandler();
@@ -650,6 +653,18 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
             Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
             fieldBridge.addMemberValue("impl", new ClassMemberValue(NotIndexedBridge.class.getName(), pool)); //$NON-NLS-1$
+            annotations.addAnnotation(fieldAnnotation);
+            annotations.addAnnotation(fieldBridge);
+        }
+    }
+
+    private static class MultiLingualIndexedHandler implements SearchIndexHandler {
+
+        @Override
+        public void handle(AnnotationsAttribute annotations, ConstPool pool) {
+            Annotation fieldAnnotation = new Annotation(Field.class.getName(), pool);
+            Annotation fieldBridge = new Annotation(FieldBridge.class.getName(), pool);
+            fieldBridge.addMemberValue("impl", new ClassMemberValue(MultiLingualIndexedBridge.class.getName(), pool)); //$NON-NLS-1$
             annotations.addAnnotation(fieldAnnotation);
             annotations.addAnnotation(fieldBridge);
         }
