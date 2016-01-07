@@ -150,6 +150,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         set("name", name); //$NON-NLS-1$
     }
 
+    @Override
     public String toString() {
         return _toString(""); //$NON-NLS-1$
     }
@@ -210,8 +211,9 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         }
 
         for (int i = paths.size() - 1; i >= 0; i--) {
-            if (i != paths.size() - 1)
+            if (i != paths.size() - 1) {
                 xp.append("/"); //$NON-NLS-1$
+            }
             xp.append(paths.get(i));
         }
         return xp.toString();
@@ -277,10 +279,12 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
         clonedModel.setCloned(true);
         clonedModel.setTypeName(typeName);
         clonedModel.setMandatory(mandatory);
-        if (this.getRealType() != null)
+        if (this.getRealType() != null) {
             clonedModel.setRealType(this.getRealType());
-        if (withValue)
+        }
+        if (withValue) {
             clonedModel.setObjectValue(getObjectValue());
+        }
         return clonedModel;
     }
 
@@ -294,40 +298,45 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private void sort(ItemNodeModel nodeModel, final EntityModel entityModel, boolean firstLevelOnly) {
 
-        if (entityModel == null || !entityModel.hasMetaDataType())
+        if (entityModel == null || !entityModel.hasMetaDataType()) {
             return;
+        }
 
         List<ModelData> children = nodeModel.getChildren();
         if (children != null && children.size() > 0) {
-            
+
             // sort children node
             Collections.sort(children, new Comparator<ModelData>() {
 
+                @Override
                 public int compare(ModelData o1, ModelData o2) {
-                    if (o1 == null || o2 == null)
+                    if (o1 == null || o2 == null) {
                         return 0;
+                    }
 
                     int index1 = entityModel.getIndexOfMetaDataType(((ItemNodeModel) o1).getTypePath());
                     int index2 = entityModel.getIndexOfMetaDataType(((ItemNodeModel) o2).getTypePath());
                     return index1 - index2;
                 }
             });
-            
-            if(!firstLevelOnly){
+
+            if (!firstLevelOnly) {
                 for (ModelData modelData : children) {
                     ItemNodeModel childNodeModel = (ItemNodeModel) modelData;
                     sort(childNodeModel, entityModel, firstLevelOnly);
                 }
             }
-            
+
         }
     }
 
     public void clearNodeValue() {
         if (this.isLeaf()) {
             Serializable value = getObjectValue();
-            if (value != null)
+            if (value != null) {
                 setObjectValue(null);
+                setChangeValue(true);
+            }
         }
         for (ModelData model : this.getChildren()) {
             ItemNodeModel node = (ItemNodeModel) model;
