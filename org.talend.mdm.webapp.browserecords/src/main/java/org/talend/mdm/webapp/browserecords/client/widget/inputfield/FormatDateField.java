@@ -55,16 +55,19 @@ public class FormatDateField extends DateField {
         return ""; //$NON-NLS-1$
     }
 
+    @Override
     public void setValue(Date value) {
         super.setValue(value);
         setFormatedValue(new FormatValueCallback() {
 
+            @Override
             public void formatValue(String value) {
                 setRawValue(value);
             }
         });
     }
 
+    @Override
     public String getRawValue() {
         String rawValue = super.getRawValue();
         if (rawValue == null || rawValue.trim().length() == 0) {
@@ -77,11 +80,14 @@ public class FormatDateField extends DateField {
             }
             return value == null ? "" : propertyEditor.getStringValue(value); //$NON-NLS-1$
         } catch (Exception e) {
-            super.validateValue(rawValue);
+            if (!super.validateValue(rawValue)) {
+                return rawValue;
+            }
             return value == null ? "" : propertyEditor.getStringValue(value); //$NON-NLS-1$
         }
     }
 
+    @Override
     public void setRawValue(String value) {
         if (formatPattern != null && formatPattern.trim().length() > 0) {
             if (hasFocus) {
@@ -94,6 +100,7 @@ public class FormatDateField extends DateField {
         }
     }
 
+    @Override
     protected void onFocus(ComponentEvent ce) {
         if (formatPattern != null && formatPattern.trim().length() > 0) {
             setRawValue(value == null ? "" : propertyEditor.getStringValue(value)); //$NON-NLS-1$);
@@ -101,10 +108,12 @@ public class FormatDateField extends DateField {
         super.onFocus(ce);
     }
 
+    @Override
     protected void onBlur(ComponentEvent ce) {
         if (formatPattern != null && formatPattern.trim().length() > 0) {
             setFormatedValue(new FormatValueCallback() {
 
+                @Override
                 public void formatValue(String value) {
                     setRawValue(value);
                 }
@@ -117,6 +126,7 @@ public class FormatDateField extends DateField {
             if (value != null) {
                 final FormatModel model = new FormatModel(formatPattern, value, Locale.getLanguage());
                 service.formatValue(model, new SessionAwareAsyncCallback<String>() {
+                    @Override
                     public void onSuccess(String result) {
                         if (callback != null) {
                             callback.formatValue(result);
@@ -131,9 +141,11 @@ public class FormatDateField extends DateField {
         }
     }
     
+    @Override
     public boolean validateValue(String value) {
-        if(!validateFlag)
+        if(!validateFlag) {
             return true;
+        }
         return super.validateValue(value);
     }
     
