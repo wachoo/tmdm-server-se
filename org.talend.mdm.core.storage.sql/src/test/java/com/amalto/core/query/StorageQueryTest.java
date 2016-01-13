@@ -2546,7 +2546,7 @@ public class StorageQueryTest extends StorageTestCase {
 
     public void testMultiLingualSearch() throws Exception {
         UserQueryBuilder qb = from(person).select(person.getField("resume")).where(
-                contains(person.getField("resume"), "*[EN:*splendid*]*"));
+                contains(person.getField("resume"), "splendid"));
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
@@ -2554,18 +2554,10 @@ public class StorageQueryTest extends StorageTestCase {
             results.close();
         }
 
-        qb = from(person).select(person.getField("resume")).where(contains(person.getField("resume"), "*[FR:*magnifique*]*"));
+        qb = from(person).select(person.getField("resume")).where(contains(person.getField("resume"), "magnifique"));
         results = storage.fetch(qb.getSelect());
         try {
             assertEquals(1, results.getCount());
-        } finally {
-            results.close();
-        }
-
-        qb = from(person).select(person.getField("resume")).where(contains(person.getField("resume"), "*[FR:*splendid*]*"));
-        results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(0, results.getCount());
         } finally {
             results.close();
         }
@@ -4616,8 +4608,9 @@ public class StorageQueryTest extends StorageTestCase {
                 results_1.close();
             }
         }
-        if(ex_1 != null)
+        if(ex_1 != null) {
             ex_1.printStackTrace();
+        }
         assertNull(ex_1);
         
         FieldMetadata field_2 = checkPointDetails_2.getField("PointAddressDetails/AddressDetails/TerritoryCode");
@@ -4633,8 +4626,9 @@ public class StorageQueryTest extends StorageTestCase {
                 results_2.close();
             }
         }
-        if(ex_2 != null)
+        if(ex_2 != null) {
             ex_2.printStackTrace();
+        }
         assertNull(ex_2);
     }
 
