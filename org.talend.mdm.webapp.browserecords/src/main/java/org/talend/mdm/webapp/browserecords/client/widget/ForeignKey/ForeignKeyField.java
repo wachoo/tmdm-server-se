@@ -87,10 +87,8 @@ public class ForeignKeyField extends TextField<ForeignKeyBean> {
     protected void onResize(int width, int height) {
         if ("SearchFieldCreator".equals(usageField)) { //$NON-NLS-1$
             suggestBox.setWidth(width - selectButton.getWidth() - 20);
-        } else if (!showSelectButton) {
-            suggestBox.setWidth(width);
         } else {
-            suggestBox.setWidth(width - selectButton.getWidth());
+            suggestBox.setWidth(width);
         }
     }
 
