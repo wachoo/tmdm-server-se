@@ -159,4 +159,20 @@ public class MDMTransactionManagerTestCase {
         Assert.assertEquals(longTransaction, transactionManager.currentTransaction());
     }
 
+    /**
+     * TMDM-9242 Error while running demo job 'LoadProductFamilies' when using transaction and Validate, throw
+     * java.util.NoSuchElementException when transactionManager has no transaction
+     * 
+     */
+    @Test
+    public void testDissociate() throws Exception {
+        Transaction transaction = transactionManager.create(Lifetime.AD_HOC);
+        Assert.assertTrue(transactionManager.hasTransaction());
+
+        transactionManager.dissociate(transaction);
+        Assert.assertFalse(transactionManager.hasTransaction());
+
+        transactionManager.dissociate(transaction);
+    }
+
 }
