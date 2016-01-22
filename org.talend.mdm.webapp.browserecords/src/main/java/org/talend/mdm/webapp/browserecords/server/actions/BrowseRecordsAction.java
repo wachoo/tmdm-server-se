@@ -2103,13 +2103,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 for (String xpath : lookupFieldsForWSItemDoc) {
-                    String firstValue = Util.getFirstTextNode(jobDoc, searchPrefix + xpath);// FIXME:use first node
-                    if (null != firstValue && firstValue.length() != 0) {
-                        NodeList list = Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
-                        if (list != null && list.getLength() > 0) {
-                            for (int i = 0; i < list.getLength(); i++) {
-                                list.item(i).setTextContent(firstValue);
-                            }
+                    String[] values = com.amalto.core.util.Util.getTextNodes(jobDoc, searchPrefix + xpath);
+                    int i = 0;
+                    for (String value : values) {
+                        NodeList list = com.amalto.core.util.Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
+                        if (list != null && list.getLength() > 0 && list.item(i) != null) {
+                            list.item(i).setTextContent(value);
+                            ++i;
                         }
                     }
                 }
