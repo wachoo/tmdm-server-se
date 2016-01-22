@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!--
+  ~ ============================================================================
+  ~
+  ~ Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+  ~
+  ~ This source code is available under agreement available at
+  ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+  ~
+  ~ You should have received a copy of the agreement
+  ~ along with this program; if not, write to Talend SA
+  ~ 9 rue Pages 92150 Suresnes, France
+  ~
+  ~ ============================================================================
+  -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
+<xsd:element name="Agency" type="AgencyType">
+<xsd:annotation>
+
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+<xsd:appinfo source="X_Lookup_Field">Agency/Region</xsd:appinfo>
+<xsd:appinfo source="X_Lookup_Field">Agency/Etablissement/Adresse</xsd:appinfo>
+</xsd:annotation>
+<xsd:unique name="Agency">
+<xsd:selector xpath="."/>
+<xsd:field xpath="AgencyId"/>
+</xsd:unique>
+</xsd:element>
+<xsd:complexType name="AgencyType">
+        <xsd:sequence>
+<xsd:element name="AgencyId" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="Name" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+            <xsd:element maxOccurs="unbounded" minOccurs="0" name="Etablissement" type="Etablissement">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Region" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+        </xsd:sequence>
+</xsd:complexType>
+    <xsd:complexType name="Etablissement">
+        <xsd:sequence>
+<xsd:element maxOccurs="1" minOccurs="1" name="IdEtablissement" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+<xsd:element maxOccurs="1" minOccurs="0" name="Adresse" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Ville" type="xsd:string">
+<xsd:annotation>
+<xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+</xsd:annotation>
+</xsd:element>
+        </xsd:sequence>
+</xsd:complexType>
+</xsd:schema>
