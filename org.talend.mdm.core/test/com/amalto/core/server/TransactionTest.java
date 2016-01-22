@@ -21,6 +21,7 @@ import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 import junit.framework.TestCase;
+import org.junit.Test;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
@@ -181,6 +182,22 @@ public class TransactionTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // Expected.
         }
+    }
+    
+    /**
+     * TMDM-9242 Error while running demo job 'LoadProductFamilies' when using transaction and Validate, throw
+     * java.util.NoSuchElementException when transactionManager has no transaction
+     * 
+     */
+    @Test
+    public void testDissociate() throws Exception {
+        Transaction transaction = manager.create(Transaction.Lifetime.AD_HOC);
+        assertTrue(manager.hasTransaction());
+
+        manager.dissociate(transaction);
+        assertFalse(manager.hasTransaction());
+
+        manager.dissociate(transaction);
     }
 
     class MockStorage implements Storage {

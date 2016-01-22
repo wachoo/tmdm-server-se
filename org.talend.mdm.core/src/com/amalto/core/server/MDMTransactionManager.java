@@ -198,7 +198,7 @@ public class MDMTransactionManager implements TransactionManager {
         }
         synchronized (currentTransactions) {
             Stack<Transaction> stack = getTransactionStack();
-            if(stack.firstElement() == transaction){
+            if(stack.size() > 0 && stack.firstElement() == transaction){
                 stack.pop();
             }
         }
