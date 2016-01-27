@@ -860,12 +860,12 @@ public class BrowseRecordsActionTest extends TestCase {
                 Object para[] = { "Agency", "Browse_items_Agency", ids, "ModelTest", "ModelTest", DataModelHelper.getEleDecl(),
                         wsItem };
                 method.invoke(action, para);
-                String expectedMsg = "<Agency>\r\n<AgencyId>1</AgencyId>\r\n<Name>1</Name>\r\n"
-                        + "<Etablissement>\r\n<IdEtablissement>1</IdEtablissement>\r\n<Adresse>Paris</Adresse>\r\n</Etablissement>\r\n"
-                        + "<Etablissement>\r\n<IdEtablissement>2</IdEtablissement>\r\n<Adresse>Ville1</Adresse>\r\n</Etablissement>\r\n"
-                        + "<Etablissement>\r\n<IdEtablissement>3</IdEtablissement>\r\n<Adresse>3</Adresse>\r\n</Etablissement>\r\n"
-                        + "<Region>Lausanne</Region>\r\n</Agency>\r\n";
-                assertEquals(expectedMsg, wsItem.getContent());
+                String expectedMsg = "<Agency><AgencyId>1</AgencyId><Name>1</Name>"
+                        + "<Etablissement><IdEtablissement>1</IdEtablissement><Adresse>Paris</Adresse></Etablissement>"
+                        + "<Etablissement><IdEtablissement>2</IdEtablissement><Adresse>Ville1</Adresse></Etablissement>"
+                        + "<Etablissement><IdEtablissement>3</IdEtablissement><Adresse>3</Adresse></Etablissement>"
+                        + "<Region>Lausanne</Region></Agency>";
+                assertEquals(expectedMsg, wsItem.getContent().replaceAll("\r", "").replaceAll("\n", ""));
                 break;
             }
         }
