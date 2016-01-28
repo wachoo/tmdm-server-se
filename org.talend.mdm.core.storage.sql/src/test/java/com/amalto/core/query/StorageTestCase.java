@@ -149,13 +149,16 @@ public class StorageTestCase extends TestCase {
     protected static final ComplexTypeMetadata checkPointDetails_2;
 
     public static final String DATABASE = "H2";
+    
+    public static final String DATASOURCE_DEFAULT = DATABASE + "-Default";
+    
+    public static final String DATASOURCE_FULLTEXT = DATABASE + "-Fulltext";
 
     static {
         LOG.info("Setting up MDM server environment...");
         ServerContext.INSTANCE.get(new MockServerLifecycle());
         LOG.info("MDM server environment set.");
 
-        LOG.info("Preparing storage for tests...");
         storage = new SecuredStorage(new HibernateStorage("MDM"), userSecurity);
         repository = new MetadataRepository();
         repository.load(StorageQueryTest.class.getResourceAsStream("metadata.xsd"));
@@ -214,8 +217,16 @@ public class StorageTestCase extends TestCase {
         
         checkPointDetails_1 = repository.getComplexType("CheckPointDetails_1");
         checkPointDetails_2 = repository.getComplexType("CheckPointDetails_2");
-
-        storage.init(getDatasource(DATABASE + "-Default"));
+        
+        systemStorage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), userSecurity);
+        systemRepository = buildSystemRepository();
+        
+        initStorage(DATASOURCE_DEFAULT);
+    }
+    
+    protected static void initStorage(String datasource) {
+        LOG.info("Preparing storage for tests...");
+        storage.init(getDatasource(datasource));
         // Indexed expressions
         List<Expression> indexedExpressions = new LinkedList<Expression>();
         indexedExpressions.add(UserQueryBuilder.from(person).where(isNull(person.getField("firstname"))).getExpression());
@@ -229,14 +240,9 @@ public class StorageTestCase extends TestCase {
         LOG.info("Storage prepared.");
 
         LOG.info("Preparing system storage");
-
-        systemStorage = new SecuredStorage(new HibernateStorage("MDM", StorageType.SYSTEM), userSecurity);
-        systemStorage.init(getDatasource(DATABASE + "-Default"));
-        systemRepository = buildSystemRepository();
+        systemStorage.init(getDatasource(datasource));
         systemStorage.prepare(systemRepository, new HashSet<Expression>(), true, true);
-
         LOG.info("System storage prepared");
-
     }
 
     private static ClassRepository buildSystemRepository() {
