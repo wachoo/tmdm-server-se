@@ -43,7 +43,6 @@ import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 import com.amalto.core.objects.UpdateReportPOJO;
-import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.Alias;
@@ -52,7 +51,6 @@ import com.amalto.core.query.user.Compare;
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Field;
-import com.amalto.core.query.user.FieldFullText;
 import com.amalto.core.query.user.IntegerConstant;
 import com.amalto.core.query.user.IsNull;
 import com.amalto.core.query.user.LongConstant;
@@ -75,9 +73,6 @@ import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.StorageWrapper;
-import com.amalto.core.storage.datasource.DataSource;
-import com.amalto.core.storage.datasource.DataSourceDefinition;
-import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
@@ -133,7 +128,7 @@ public class StorageQueryTest extends StorageTestCase {
     private final String COMPTE_Record1 = "<Compte><Level>Compte SF</Level><Code>1</Code><Label>1</Label></Compte>";
 
     private final String COMPTE_Record2 = "<Compte><Level>Nature Comptable SF</Level><Code>11</Code><Label>11</Label><childOf>[Compte SF][1]</childOf></Compte>";
-
+    
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
@@ -143,11 +138,13 @@ public class StorageQueryTest extends StorageTestCase {
                         .read(repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+
         allRecords
                 .add(factory
                         .read(repository,
                                 country,
                                 "<Country><id>2</id><creationDate>2011-10-10</creationDate><creationTime>2011-10-10T01:01:01</creationTime><name>USA</name><notes><note>Country note</note><comment>repeatable comment 1</comment><comment>Repeatable comment 2</comment></notes></Country>"));
+
         allRecords
                 .add(factory
                         .read(repository,
@@ -242,12 +239,14 @@ public class StorageQueryTest extends StorageTestCase {
                 + "    <Name>Product family #1</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>2</Id>\n"
                 + "    <Name>Product family #2</Name>\n" + "</ProductFamily>"));
+        
         allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>3</Id>\n"
                 + "    <Name>test name3</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>4</Id>\n"
                 + "    <Name>test_name4</Name>\n" + "</ProductFamily>"));
         allRecords.add(factory.read(repository, productFamily, "<ProductFamily>\n" + "    <Id>5</Id>\n"
                 + "    <Name>test name5</Name>\n" + "</ProductFamily>"));
+               
         allRecords.add(factory.read(repository, store, "<Store>\n" + "    <Id>1</Id>\n" + "    <Name>Store #1</Name>\n"
                 + "</Store>"));
         allRecords.add(factory.read(repository, product, "<Product>\n" + "    <Id>1</Id>\n" + "    <Name>Product name</Name>\n"
@@ -3322,21 +3321,6 @@ public class StorageQueryTest extends StorageTestCase {
         assertEquals(0, results.getCount());
     }
 
-    public void testManyFieldUsingAndContainsCondition() throws Exception {
-        UserQueryBuilder qb = from(product).where(contains(product.getField("Features/Sizes/Size"), "ValueDoesNotExist"));
-        StorageResults results = storage.fetch(qb.getSelect());
-        assertEquals(0, results.getCount());
-
-        qb = from(product).where(
-                and(eq(product.getField("Id"), "1"), contains(product.getField("Features/Sizes/Size"), "ValueDoesNotExist")));
-        results = storage.fetch(qb.getSelect());
-        assertEquals(0, results.getCount());
-
-        qb = from(product).where(contains(product.getField("Features/Sizes/Size"), "large"));
-        results = storage.fetch(qb.getSelect());
-        assertEquals(2, results.getCount());
-    }
-
     public void testContainsCaseSensitivity() throws Exception {
         Storage s1 = new HibernateStorage("MDM1", StorageType.MASTER);
         s1.init(ServerContext.INSTANCE.get().getDefinition(StorageTestCase.DATABASE + "-DS1", "MDM"));
@@ -3457,15 +3441,6 @@ public class StorageQueryTest extends StorageTestCase {
         }
     }
 
-    public void testFullText() throws Exception {
-        UserQueryBuilder qb = UserQueryBuilder.from(country).where(fullText("note"));
-        StorageResults results = storage.fetch(qb.getSelect());
-        for (DataRecord result : results) {
-            assertEquals("Country", result.getType().getName());
-            assertEquals(2, result.get("id"));
-        }
-    }
-
     public void testIsEmptyOrNullOnRepeatable() throws Exception {       
         UserQueryBuilder qb = UserQueryBuilder.from(country).where(isEmpty(country.getField("notes/comment")));
         StorageResults results = storage.fetch(qb.getSelect());
@@ -3488,15 +3463,6 @@ public class StorageQueryTest extends StorageTestCase {
         results = storage.fetch(qb.getSelect());
         assertEquals(0, results.getCount());
         results.close();
-    }
-
-    public void testFullTextOnRepeatable() throws Exception {
-        UserQueryBuilder qb = UserQueryBuilder.from(country).where(fullText("repeatable"));
-        StorageResults results = storage.fetch(qb.getSelect());
-        for (DataRecord result : results) {
-            assertEquals("Country", result.getType().getName());
-            assertEquals(2, result.get("id"));
-        }
     }
 
     public void testFullText_OR() throws Exception {
@@ -3592,157 +3558,6 @@ public class StorageQueryTest extends StorageTestCase {
          */
     }
 
-    public void testContainsOptimization() throws Exception {
-        DataSourceDefinition definition = getDatasource(DATABASE + "-Default");
-        DataSource datasource = definition.getMaster();
-        assertTrue(datasource instanceof RDBMSDataSource);
-        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) datasource;
-        TestRDBMSDataSource testDataSource = new TestRDBMSDataSource(rdbmsDataSource);
-        testDataSource.setCaseSensitiveSearch(false);
-        testDataSource.setSupportFullText(true);
-        ConfigurableContainsOptimizer optimizer = new ConfigurableContainsOptimizer(testDataSource);
-        // Default optimization
-        UserQueryBuilder qb = UserQueryBuilder.from(person).where(
-                contains(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
-        Select select = qb.getSelect();
-        assertTrue(select.getCondition() instanceof Compare);
-        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
-        // LIKE optimization
-        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.LIKE);
-        qb = UserQueryBuilder.from(person)
-                .where(contains(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
-        select = qb.getSelect();
-        optimizer.optimize(select);
-        assertTrue(select.getCondition() instanceof Compare);
-        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
-        // DISABLED optimization
-        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.DISABLED);
-        qb = UserQueryBuilder.from(person)
-                .where(contains(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
-        select = qb.getSelect();
-        try {
-            optimizer.optimize(select);
-            fail("Contains use is disabled.");
-        } catch (Exception e) {
-            // Expected
-        }
-        // FULL TEXT optimization
-        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.FULL_TEXT);
-        qb = UserQueryBuilder.from(person)
-                .where(contains(person.getField("knownAddresses/knownAddress/Notes/Note"), "test note"));
-        select = qb.getSelect();
-        optimizer.optimize(select);
-        assertTrue(select.getCondition() instanceof FieldFullText);
-        assertEquals("test note", ((FieldFullText) select.getCondition()).getValue());
-    }
-
-    public void testContainsOptimizationOnReusableTypes() throws Exception {
-        DataSourceDefinition definition = getDatasource(DATABASE + "-Default");
-        DataSource datasource = definition.getMaster();
-        assertTrue(datasource instanceof RDBMSDataSource);
-        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) datasource;
-        TestRDBMSDataSource testDataSource = new TestRDBMSDataSource(rdbmsDataSource);
-        testDataSource.setCaseSensitiveSearch(false);
-        testDataSource.setSupportFullText(true);
-        ConfigurableContainsOptimizer optimizer = new ConfigurableContainsOptimizer(testDataSource);
-        // Default optimization
-        UserQueryBuilder qb = UserQueryBuilder.from(customer).where(contains(customer.getField("address1/Street"), "test note"));
-        Select select = qb.getSelect();
-        assertTrue(select.getCondition() instanceof Compare);
-        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
-        // LIKE optimization
-        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.LIKE);
-        qb = UserQueryBuilder.from(customer).where(contains(customer.getField("address1/Street"), "test note"));
-        select = qb.getSelect();
-        optimizer.optimize(select);
-        assertTrue(select.getCondition() instanceof Compare);
-        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
-        // DISABLED optimization
-        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.DISABLED);
-        qb = UserQueryBuilder.from(customer).where(contains(customer.getField("address1/Street"), "test note"));
-        select = qb.getSelect();
-        try {
-            optimizer.optimize(select);
-            fail("Contains use is disabled.");
-        } catch (Exception e) {
-            // Expected
-        }
-        // FULL TEXT optimization
-        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.FULL_TEXT);
-        qb = UserQueryBuilder.from(customer).where(contains(customer.getField("address1/Street"), "test note"));
-        select = qb.getSelect();
-        optimizer.optimize(select);
-        assertTrue(select.getCondition() instanceof Compare);
-        assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
-    }
-
-    public void testContainsWithReservedCharacters() throws Exception {
-        DataSourceDefinition definition = getDatasource(DATABASE + "-Default");
-        DataSource datasource = definition.getMaster();
-        assertTrue(datasource instanceof RDBMSDataSource);
-        RDBMSDataSource rdbmsDataSource = (RDBMSDataSource) datasource;
-        TestRDBMSDataSource testDataSource = new TestRDBMSDataSource(rdbmsDataSource);
-        testDataSource.setCaseSensitiveSearch(false);
-        testDataSource.setSupportFullText(true);
-        testDataSource.setOptimization(RDBMSDataSource.ContainsOptimization.FULL_TEXT);
-        ConfigurableContainsOptimizer optimizer = new ConfigurableContainsOptimizer(testDataSource);
-        // Only '-' should disable contains optimization
-        UserQueryBuilder qb = UserQueryBuilder.from(person).where(contains(person.getField("id"), "-"));
-        Select copy = qb.getSelect().copy();
-        optimizer.optimize(copy);
-        assertFalse(copy.getCondition() instanceof FieldFullText);
-        StorageResults records = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(0, records.getCount());
-        } finally {
-            records.close();
-        }
-        // Only '/' should disable contains optimization
-        qb = UserQueryBuilder.from(person).where(contains(person.getField("id"), "/"));
-        copy = qb.getSelect().copy();
-        optimizer.optimize(copy);
-        assertFalse(copy.getCondition() instanceof FieldFullText);
-        records = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(0, records.getCount());
-        } finally {
-            records.close();
-        }
-        // Contains optimization should be disabled for next query
-        qb = UserQueryBuilder.from(person).where(contains(person.getField("id"), "1-1"));
-        copy = qb.getSelect().copy();
-        optimizer.optimize(copy);
-        assertFalse(copy.getCondition() instanceof FieldFullText);
-        records = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(0, records.getCount());
-        } finally {
-            records.close();
-        }
-        // Contains optimization should be enabled
-        qb = UserQueryBuilder.from(person).where(contains(person.getField("id"), "_"));
-        copy = qb.getSelect().copy();
-        optimizer.optimize(copy);
-        assertTrue(copy.getCondition() instanceof FieldFullText);
-        records = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(0, records.getCount());
-        } finally {
-            records.close();
-        }
-        // Contains optimization should also be enabled
-        qb = UserQueryBuilder.from(person).where(contains(person.getField("id"), "1_1"));
-        copy = qb.getSelect().copy();
-        optimizer.optimize(copy);
-        assertTrue(copy.getCondition() instanceof FieldFullText);
-        records = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(0, records.getCount());
-        } finally {
-            records.close();
-        }
-    }
-
     public void testContainsWithUnderscoreInSearchWords1() throws Exception {
         UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "test"));
 
@@ -3780,27 +3595,6 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getCount());
-        } finally {
-            results.close();
-        }
-    }
-
-    public void testContainsWithUnderscoreInSearchWords3() throws Exception {
-        UserQueryBuilder qb = from(productFamily).where(contains(productFamily.getField("Name"), "te*t_nam*"));
-
-        Select select = qb.getSelect();
-        assertNotNull(select);
-        Condition condition = select.getCondition();
-        assertNotNull(condition);
-        assertTrue(condition instanceof Compare);
-        Compare compareCondition = (Compare) condition;
-        Expression right = compareCondition.getRight();
-        assertTrue(right instanceof StringConstant);
-        assertEquals("te*t_nam*", ((StringConstant) right).getValue());
-
-        StorageResults results = storage.fetch(qb.getSelect());
-        try {
-            assertEquals(1, results.getCount());
         } finally {
             results.close();
         }
@@ -3922,77 +3716,6 @@ public class StorageQueryTest extends StorageTestCase {
         optimizer.optimize(select);
         assertTrue(select.getCondition() instanceof BinaryLogicOperator);
         assertTrue(((BinaryLogicOperator) select.getCondition()).getLeft() instanceof Range);
-    }
-
-    public void testTypeSplit() throws Exception {
-        // Build expected results
-        UserQueryBuilder qb = UserQueryBuilder.from(person).and(product).where(fullText("Julien"));
-        List<DataRecord> expected = new LinkedList<DataRecord>();
-        int count;
-        int size;
-        storage.begin();
-        try {
-            StorageResults records = storage.fetch(qb.getSelect());
-            count = records.getCount();
-            size = records.getSize();
-            for (DataRecord record : records) {
-                expected.add(record);
-            }
-            storage.commit();
-        } catch (Exception e) {
-            storage.rollback();
-            throw new RuntimeException(e);
-        }
-        // Ensures split behavior is same as no split
-        storage.begin();
-        try {
-            StorageResults split = Split.fetchAndMerge(storage, qb.getSelect());
-            int i = 0;
-            for (DataRecord record : split) {
-                assertEquals(record, expected.get(i++));
-            }
-            assertEquals(count, split.getCount());
-            assertEquals(size, split.getSize());
-            storage.commit();
-        } catch (Exception e) {
-            storage.rollback();
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void testTypeSplitWithPaging() throws Exception {
-        // Build expected results
-        UserQueryBuilder qb = UserQueryBuilder.from(person).and(product).where(fullText("Julien")).start(1).limit(20);
-        List<String> expected = new LinkedList<String>();
-        int count;
-        int size;
-        storage.begin();
-        try {
-            StorageResults records = storage.fetch(qb.getSelect());
-            count = records.getCount();
-            size = records.getSize();
-            for (DataRecord record : records) {
-                expected.add(String.valueOf(record.get("id")));
-            }
-            storage.commit();
-        } catch (Exception e) {
-            storage.rollback();
-            throw new RuntimeException(e);
-        }
-        // Ensures split behavior is same as no split
-        storage.begin();
-        try {
-            StorageResults split = Split.fetchAndMerge(storage, qb.getSelect());
-            for (DataRecord record : split) {
-                assertTrue(expected.remove(String.valueOf(record.get("id"))));
-            }
-            assertEquals(count, split.getCount());
-            assertEquals(size, split.getSize());
-            storage.commit();
-        } catch (Exception e) {
-            storage.rollback();
-            throw new RuntimeException(e);
-        }
     }
 
     public void testPkIncludeDataTimeType() throws Exception {
@@ -4724,43 +4447,4 @@ public class StorageQueryTest extends StorageTestCase {
                 strings.get(1));
     }
 
-    private static class TestRDBMSDataSource extends RDBMSDataSource {
-
-        private ContainsOptimization optimization;
-
-        private boolean supportFullText;
-
-        private boolean isCaseSensitiveSearch;
-
-        public TestRDBMSDataSource(RDBMSDataSource rdbmsDataSource) {
-            super(rdbmsDataSource);
-        }
-
-        @Override
-        public boolean supportFullText() {
-            return supportFullText;
-        }
-
-        private void setSupportFullText(boolean supportFullText) {
-            this.supportFullText = supportFullText;
-        }
-
-        @Override
-        public boolean isCaseSensitiveSearch() {
-            return isCaseSensitiveSearch;
-        }
-
-        public void setCaseSensitiveSearch(boolean caseSensitiveSearch) {
-            isCaseSensitiveSearch = caseSensitiveSearch;
-        }
-
-        @Override
-        public ContainsOptimization getContainsOptimization() {
-            return optimization;
-        }
-
-        public void setOptimization(ContainsOptimization optimization) {
-            this.optimization = optimization;
-        }
-    }
 }
