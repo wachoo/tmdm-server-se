@@ -11,6 +11,7 @@
 package com.amalto.core.storage.datasource;
 
 import com.amalto.core.server.api.DataSourceExtension;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -18,14 +19,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.SystemPropertyUtils;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,6 +48,10 @@ public class DataSourceFactory implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;
     private static DataSourceFactory dataSourceFactory;
+
+    private static boolean initialized = false;
+
+    private static boolean updated = false;
 
     public static DataSourceFactory getInstance() {
         if (applicationContext != null) {
