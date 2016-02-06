@@ -1,0 +1,12 @@
+<Context>
+    <Contacts>
+        <Contact>
+            <StatutContact>bbbb</StatutContact>
+            <SpecialisationContactType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="SpecialisationContactEmail">
+                <NatureEmail>bbbb</NatureEmail>
+                <Email>bbbb@bbbb.com</Email>
+            </SpecialisationContactType>
+        </Contact>
+    </Contacts>
+    <IdContext>aaaa</IdContext>
+</Context>

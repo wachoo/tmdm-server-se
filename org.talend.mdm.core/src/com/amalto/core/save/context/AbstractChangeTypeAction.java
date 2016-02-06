@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2016 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -13,9 +13,12 @@ package com.amalto.core.save.context;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
@@ -69,7 +72,8 @@ abstract class AbstractChangeTypeAction implements FieldAction {
                 previousType.accept(new TypeComparison(newType, pathToClean));
                 impliedActions = new ArrayList<Action>(1 + pathToClean.size());
                 if (!pathToClean.isEmpty()) {
-                    for (String currentPathToDelete : pathToClean) {
+                    List<String> indexedPathToClean = getIndexedPathToClean(document, previousType, path, pathToClean);
+                    for (String currentPathToDelete : indexedPathToClean) {
                         String deletedPath = path + '/' + currentPathToDelete;
                         String oldValue = document.createAccessor(deletedPath).get();
                         impliedActions.add(new FieldUpdateAction(date, source, userName, deletedPath, oldValue, null, field));
@@ -79,6 +83,59 @@ abstract class AbstractChangeTypeAction implements FieldAction {
         } else {
             impliedActions = Collections.emptyList();
         }
+    }
+    
+    private List<String> getIndexedPathToClean(MutableDocument document, ComplexTypeMetadata previousType, String parentPath,
+            Set<String> pathToClean) {
+        Set<String> indexedPathToClean = new TreeSet<String>();
+        Map<String, Set<String>> partPathsMap = new HashMap<String, Set<String>>();
+        for (String path : pathToClean) {
+            boolean isMany = previousType.getField(path).isMany();
+            if (path.split("/").length == 1) { // Currency //$NON-NLS-1$
+                int size = document.createAccessor(parentPath + '/' + path).size();
+                if (size > 0) {// element exists in document
+                    indexedPathToClean.add(path);
+                    Set<String> paths = getPathsWithIndex(document, path, isMany, size);
+                    if (paths.size() > 0) {
+                        partPathsMap.put(path, paths);// Currency[1], Currency[2]
+                    }
+                }
+            } else {// Currency/Code, Currency/DictRecordDetails, Currency/DictRecordDetails/Action
+                String firstPart = path.substring(0, path.lastIndexOf('/')); 
+                String lastPart = path.substring(firstPart.length());
+                Set<String> partPaths = partPathsMap.get(firstPart);
+                if (partPaths != null) {
+                    Set<String> paths = new TreeSet<String>();
+                    for (String partPath : partPaths) {
+                        String indexedPartPath = partPath + lastPart;// Currency[1]/Code, Currency[1]/DictRecordDetails, Currency[1]/DictRecordDetails[1]/Action
+                        int size = document.createAccessor(parentPath + '/' + indexedPartPath).size();
+                        if (size > 0) {// element exists in document
+                            indexedPathToClean.add(indexedPartPath);
+                            paths.addAll(getPathsWithIndex(document, indexedPartPath, isMany, size));
+                        }
+                    }
+                    if (paths.size() > 0) {
+                        partPathsMap.put(path, paths);
+                    }
+                }
+            }
+        }
+        List<String> list = new ArrayList<String>();
+        list.addAll(indexedPathToClean);
+        Collections.reverse(list);
+        return list;
+    }
+    
+    private Set<String> getPathsWithIndex(MutableDocument document, String path, boolean isMany, int size) {
+        Set<String> paths = new TreeSet<String>();
+        if (isMany) {
+            for (int i = size; i > 0; i--) {
+                paths.add(path + '[' + i + ']'); 
+            }
+        } else {
+            paths.add(path);
+        }
+        return paths;
     }
 
     @Override

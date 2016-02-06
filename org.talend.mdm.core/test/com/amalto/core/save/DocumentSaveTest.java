@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2016 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -2952,6 +2952,32 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("[1][1][2014-04-21]", MetadataUtils.toString(result.get("UG_EOR"), result.getType().getField("UG_EOR")));
     }
 
+    /**
+     * TMDM-9250: Error when update a node by tMDMOutput (original data contains empty contained complex type)
+     */
+    public void testUpdateReportWithEmptyContainedComplexType() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("EmptyContainedType.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+        
+        // Test updateReport
+        TestSaverSource source = new TestSaverSource(repository, true, "EmptyContainedType_original.xml", "EmptyContainedType.xsd");
+        source.setUserName("admin");
+        
+        SaverSession session = SaverSession.newSession(source);
+        InputStream recordXml = DocumentSaveTest.class.getResourceAsStream("EmptyContainedType.xml");
+        DocumentSaverContext context = session.getContextFactory().create("MDM", "DStar", "Source", recordXml, false, true, true, false, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("bbbb", evaluate(committedElement, "/Context/Contacts/Contact[1]/StatutContact"));
+        assertEquals("bbbb@bbbb.com", evaluate(committedElement, "/Context/Contacts/Contact[1]/SpecialisationContactType/Email"));
+    }
+    
     private static class MockCommitter implements SaverSession.Committer {
 
         private MutableDocument lastSaved;

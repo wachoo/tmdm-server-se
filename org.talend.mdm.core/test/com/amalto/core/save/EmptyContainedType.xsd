@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:element name="Context"> 
+    <xsd:annotation> 
+      <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+    </xsd:annotation>  
+    <xsd:complexType> 
+      <xsd:all> 
+        <xsd:element maxOccurs="1" minOccurs="1" name="IdContext" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Label_FR">ID contexte</xsd:appinfo>  
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="TypeContexte" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>  
+        <xsd:element maxOccurs="1" minOccurs="1" name="StatutContexte" type="xsd:string"> 
+          <xsd:annotation> 
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element>   
+        <xsd:element maxOccurs="1" minOccurs="0" name="Contacts" type="ContactListe"> 
+          <xsd:annotation>  
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+          </xsd:annotation> 
+        </xsd:element> 
+      </xsd:all> 
+    </xsd:complexType>  
+    <xsd:unique name="Context"> 
+      <xsd:selector xpath="."/>  
+      <xsd:field xpath="IdContext"/> 
+    </xsd:unique> 
+  </xsd:element> 
+  <xsd:complexType name="ContactListe"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="Contact" type="ContactType"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:sequence> 
+  </xsd:complexType> 
+  <xsd:complexType name="ContactType"> 
+    <xsd:sequence> 
+      <xsd:element maxOccurs="1" minOccurs="1" name="StatutContact" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element>  
+      <xsd:element maxOccurs="1" minOccurs="0" name="SpecialisationContactType" type="SpecialisationContactType"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:sequence> 
+  </xsd:complexType>  
+  <xsd:complexType name="SpecialisationContactLocalisation"> 
+    <xsd:complexContent> 
+      <xsd:extension base="SpecialisationContactType"> 
+        <xsd:sequence> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="NatureLocalisation" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+          <xsd:element maxOccurs="1" minOccurs="0" name="AdresseGeocodee" type="AdresseGeocodee"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:sequence> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>
+  <xsd:complexType name="SpecialisationContactEmail"> 
+    <xsd:complexContent> 
+      <xsd:extension base="SpecialisationContactType"> 
+        <xsd:all> 
+          <xsd:element maxOccurs="1" minOccurs="1" name="NatureEmail" type="xsd:string"> 
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element>  
+          <xsd:element maxOccurs="1" minOccurs="0" name="Email" type="xsd:string">
+            <xsd:annotation> 
+              <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+            </xsd:annotation> 
+          </xsd:element> 
+        </xsd:all> 
+      </xsd:extension> 
+    </xsd:complexContent> 
+  </xsd:complexType>
+  <xsd:complexType name="AdresseGeocodee"> 
+    <xsd:all>  
+      <xsd:element maxOccurs="1" minOccurs="1" name="Etat" type="xsd:string"> 
+        <xsd:annotation> 
+          <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo> 
+        </xsd:annotation> 
+      </xsd:element> 
+    </xsd:all> 
+  </xsd:complexType>
+  <xsd:complexType abstract="true" name="SpecialisationContactType"> 
+    <xsd:sequence/> 
+  </xsd:complexType>  
+</xsd:schema>

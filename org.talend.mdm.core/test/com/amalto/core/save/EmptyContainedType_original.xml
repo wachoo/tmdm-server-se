@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!-- ~ Copyright (C) 2006-2012 Talend Inc. - www.talend.com ~ ~ This source 
+	code is available under agreement available at ~ %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt 
+	~ ~ You should have received a copy of the agreement ~ along with this program; 
+	if not, write to Talend SA ~ 9 rue Pages 92150 Suresnes, France -->
+<ii>
+    <c>TMDM9250</c>
+    <dmn>TMDM9250</dmn>
+    <dmr />
+    <sp />
+    <t>1453705560316</t>
+    <taskId>null</taskId>
+    <i>aaaa4</i>
+    <p>
+        <Context>
+            <IdContext>aaaa</IdContext>
+            <TypeContexte>aaaa</TypeContexte>
+            <StatutContexte>aaaa</StatutContexte>
+            <Contacts>
+                <Contact>
+                    <StatutContact>aaaa</StatutContact>
+                    <SpecialisationContactType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="SpecialisationContactLocalisation">
+                        <NatureLocalisation>aaaa</NatureLocalisation>
+                    </SpecialisationContactType>
+                </Contact>
+                <Contact>
+                    <StatutContact>aaaa</StatutContact>
+                    <SpecialisationContactType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="SpecialisationContactEmail">
+                        <NatureEmail>aaaa</NatureEmail>
+                        <Email>aaaa@aaaa.com</Email>
+                    </SpecialisationContactType>
+                </Contact>
+            </Contacts>
+        </Context>
+    </p>
+</ii>
