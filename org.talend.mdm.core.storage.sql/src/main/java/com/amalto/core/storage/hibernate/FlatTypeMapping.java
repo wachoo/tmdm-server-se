@@ -37,6 +37,7 @@ import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import com.amalto.core.util.ValidateException;
 
 class FlatTypeMapping extends TypeMapping {
 
@@ -346,9 +347,18 @@ class FlatTypeMapping extends TypeMapping {
                 }
                 referencedValueId = createCompositeId(storageClassLoader, referencedClass, ids);
             }
-            Object sessionObject = session.load(referencedClass, referencedValueId);
-            if (sessionObject != null) {
-                return sessionObject;
+            // should actually load the object to validate the FK (for Record Validation), check by ThreadLocal won't affect performance or block function
+            if (DataRecord.ValidateRecord.get()) {
+                Object sessionObject = session.get(referencedClass, referencedValueId);
+                if (sessionObject == null) {
+                    throw new ValidateException("Invalid foreign key: [" + referencedClass.getName() + "#" + referencedValueId //$NON-NLS-1$ //$NON-NLS-2$
+                            + "] doesn't exist."); //$NON-NLS-1$
+                }
+            } else {
+                Object sessionObject = session.load(referencedClass, referencedValueId);
+                if (sessionObject != null) {
+                    return sessionObject;
+                }
             }
         } else {
             throw new NotImplementedException("Unexpected state."); //$NON-NLS-1$

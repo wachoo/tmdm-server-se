@@ -391,4 +391,33 @@ public class DataRecord {
             threadLocal.remove();
         }
     }
+    
+    /**
+     * Used to control if only validate a record but not save it.
+     *
+     */
+    public static class ValidateRecord {
+
+        private static ThreadLocal<Boolean> threadLocal = new ThreadLocal<Boolean>() {
+
+            public Boolean initialValue() {
+                return Boolean.FALSE;
+            }
+        };
+
+        private ValidateRecord() {
+        }
+
+        public static void set(boolean value) {
+            threadLocal.set(value);
+        }
+
+        public static boolean get() {
+            return threadLocal.get();
+        }
+
+        public static void remove() {
+            threadLocal.remove();
+        }
+    }
 }

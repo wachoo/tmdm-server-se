@@ -34,6 +34,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
+import com.amalto.core.util.ValidateException;
 
 /**
  * Represents type mapping between data model as specified by the user and data model as used by hibernate storage.
@@ -405,15 +406,32 @@ class ScatteredTypeMapping extends TypeMapping {
                     throw new RuntimeException(e);
                 }
                 Serializable referencedValueId = result;
-
-                Object sessionObject = session.load(referencedClass, referencedValueId);
-                if (sessionObject != null) {
-                    return sessionObject;
+                // should actually load the object to validate the FK (for Record Validation), check by ThreadLocal won't affect performance or block function
+                if (DataRecord.ValidateRecord.get()) {
+                    Object sessionObject = session.get(referencedClass, referencedValueId);
+                    if (sessionObject == null) {
+                        throw new ValidateException("Invalid foreign key: [" + referencedClass.getName() + "#" + referencedValueId //$NON-NLS-1$ //$NON-NLS-2$
+                                + "] doesn't exist."); //$NON-NLS-1$
+                    }
+                } else {
+                    Object sessionObject = session.load(referencedClass, referencedValueId);
+                    if (sessionObject != null) {
+                        return sessionObject;
+                    }
                 }
             } else if (referencedIdValue instanceof Serializable) {
-                Object sessionObject = session.load(referencedClass, (Serializable) referencedIdValue);
-                if (sessionObject != null) {
-                    return sessionObject;
+                // should actually load the object to validate the FK (for Record Validation), check by ThreadLocal won't affect performance or block function
+                if (DataRecord.ValidateRecord.get()) {
+                    Object sessionObject = session.get(referencedClass, (Serializable) referencedIdValue);
+                    if (sessionObject == null) {
+                        throw new ValidateException("Invalid foreign key: [" + referencedClass.getName() + "#" + (Serializable) referencedIdValue //$NON-NLS-1$ //$NON-NLS-2$
+                                + "] doesn't exist."); //$NON-NLS-1$
+                    }
+                } else {
+                    Object sessionObject = session.load(referencedClass, (Serializable) referencedIdValue);
+                    if (sessionObject != null) {
+                        return sessionObject;
+                    }
                 }
             } else {
                 throw new NotImplementedException("Unexpected state.");

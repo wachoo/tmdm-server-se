@@ -35,6 +35,8 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 public class SaverContextFactory {
@@ -298,6 +300,46 @@ public class SaverContextFactory {
         if (autoCommit) {
             context = AutoCommitSaverContext.decorate(context);
         }
+        return context;
+    }
+    
+    /**
+     * Creates a {@link DocumentSaverContext} to validate a unique record in MDM.
+     *
+     * @param dataCluster    Data container name (must exist).
+     * @param dataModelName  Data model name (must exist).
+     * @param documentStream A stream that contains one XML document.
+     * @return A context configured to validate a record in MDM.
+     */
+    public DocumentSaverContext createValidation(String dataCluster, String dataModelName, InputStream documentStream) {
+        Server server = ServerContext.INSTANCE.get();
+        // Parsing
+        MutableDocument userDocument;
+        try {
+            // Don't ignore talend internal attributes when parsing this document
+            DocumentBuilder documentBuilder = new SkipAttributeDocumentBuilder(DOCUMENT_BUILDER, false);
+            InputSource source = new InputSource(documentStream);
+            Document userDomDocument = documentBuilder.parse(source);
+            final MetadataRepositoryAdmin admin = server.getMetadataRepositoryAdmin();
+            String typeName = userDomDocument.getDocumentElement().getNodeName();
+            MetadataRepository repository;
+            if (!admin.exist(dataModelName)) {
+                throw new IllegalArgumentException("Data model '" + dataModelName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
+            } else {
+                repository = admin.get(dataModelName);
+            }
+            ComplexTypeMetadata type = repository.getComplexType(typeName);
+            if (type == null) {
+                throw new IllegalArgumentException("Type '" + typeName + "' does not exist in data model '" + dataModelName + "'."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            }
+            userDocument = new DOMDocument(userDomDocument.getDocumentElement(), type, dataCluster, dataModelName);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to parse document to save.", e); //$NON-NLS-1$
+        }
+        
+        StorageAdmin storageAdmin = server.getStorageAdmin();
+        Storage storage = storageAdmin.get(dataCluster, storageAdmin.getType(dataCluster));
+        DocumentSaverContext context = new RecordValidationContext(storage, dataModelName, UserAction.AUTO, userDocument);
         return context;
     }
 }

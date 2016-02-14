@@ -319,6 +319,9 @@ public class SaverSession {
                 String dataCluster = currentTransaction.getKey();
                 committer.rollback(dataCluster);
             }
+            if (hasMetAutoIncrement) {
+                committer.rollback(XSystemObjects.DC_CONF.getName());
+            }
             itemsToUpdate.clear();
         }
         synchronized (itemsToLogicDelete) {

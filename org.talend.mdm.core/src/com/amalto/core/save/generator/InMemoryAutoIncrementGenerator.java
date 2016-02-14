@@ -4,6 +4,7 @@ import com.amalto.core.objects.ItemPOJO;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.util.Util;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -40,7 +41,9 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
             num = Long.valueOf(n);
         }
         num++;
-        CONFIGURATION.setProperty(key, String.valueOf(num));
+        if (!DataRecord.ValidateRecord.get()) {// don't actually save if for Record Validation
+            CONFIGURATION.setProperty(key, String.valueOf(num));
+        }
         return String.valueOf(num);
     }
 

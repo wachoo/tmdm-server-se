@@ -122,7 +122,11 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
             Integer value = getValue(autoIncrementType, autoIncrementRecord, key);
             // Update the DB record before leaving
             system.update(autoIncrementRecord);
-            transaction.commit();
+            if (!DataRecord.ValidateRecord.get()) { // don't actually save if for Record Validation
+                transaction.commit();
+            } else {
+                transaction.rollback();
+            }
             return String.valueOf(value);
         } catch (Exception e) {
             transaction.rollback();
