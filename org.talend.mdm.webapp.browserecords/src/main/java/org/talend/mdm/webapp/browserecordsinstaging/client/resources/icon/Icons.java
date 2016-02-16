@@ -14,10 +14,9 @@
 package org.talend.mdm.webapp.browserecordsinstaging.client.resources.icon;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
-public interface Icons extends ClientBundle {
+public interface Icons extends org.talend.mdm.webapp.browserecords.client.resources.icon.Icons {
 
     Icons INSTANCE = GWT.create(Icons.class);
 

@@ -14,17 +14,12 @@ package org.talend.mdm.webapp.base.client.rest;
 
 import org.restlet.client.Request;
 import org.restlet.client.Response;
-import org.restlet.client.data.MediaType;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessages;
 import org.talend.mdm.webapp.base.client.i18n.BaseMessagesFactory;
 
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.user.client.Cookies;
-import com.google.gwt.user.client.Window;
 
 public abstract class ResourceSessionAwareCallbackHandler implements ResourceCallbackHandler {
 

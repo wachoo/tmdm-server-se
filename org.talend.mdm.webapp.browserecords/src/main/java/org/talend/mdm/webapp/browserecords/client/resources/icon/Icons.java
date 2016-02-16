@@ -125,4 +125,7 @@ public interface Icons extends ClientBundle {
 
     @Source("leaf.gif")
     ImageResource leaf();
+
+    @Source("validate_record.png")
+    ImageResource validateRecord();
 }

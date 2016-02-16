@@ -429,6 +429,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String fkinfo_display_type_label();
 
+    String error();
+
     String error_column_header(String columnName, String concept);
 
     String entity_no_access();
@@ -542,4 +544,12 @@ public interface BrowseRecordsMessages extends Messages {
     String foreignkey_filter_warning();
 
     String find_view_warning(String entity);
+
+    String validate_record_btn();
+
+    String validate_record_tip();
+
+    String validate_record_passed_msg();
+
+    String validate_record_failed_msg(String msg);
 }

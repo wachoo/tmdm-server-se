@@ -32,6 +32,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.mvc.BrowseRecordsView;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.rest.ExplainRestServiceHandler;
+import org.talend.mdm.webapp.browserecords.client.rest.ValidationRestServiceHandler;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
@@ -92,6 +93,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -136,6 +140,8 @@ public class ItemDetailToolBar extends ToolBar {
     private MenuItem openTabMenuItem;
 
     private MenuItem duplicateMenuItem;
+
+    private MenuItem validateMenuItem;
 
     private MenuItem journalMenuItem;
 
@@ -580,6 +586,29 @@ public class ItemDetailToolBar extends ToolBar {
                         }
                     });
                     subActionsMenu.add(duplicateMenuItem);
+                }
+
+                if (isStaging && validateMenuItem == null) {
+                    validateMenuItem = new MenuItem(MessagesFactory.getMessages().validate_record_btn());
+                    validateMenuItem.setId("validateMenuItem"); //$NON-NLS-1$
+                    validateMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.validateRecord()));
+                    validateMenuItem.setToolTip(MessagesFactory.getMessages().validate_record_tip());
+                    validateMenuItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+
+                        @Override
+                        public void componentSelected(MenuEvent menuEvent) {
+                            ValidationRestServiceHandler.get().validateRecord(
+                                    BrowseRecords.getSession().getAppHeader().getMasterDataCluster(), itemBean.getItemXml(),
+                                    new SessionAwareAsyncCallback<JSONObject>() {
+
+                                        @Override
+                                        public void onSuccess(JSONObject result) {
+                                            showValidateResult(result);
+                                        }
+                                    });
+                        }
+                    });
+                    subActionsMenu.add(validateMenuItem);
                 }
 
                 if (!isStaging && journalMenuItem == null) {
@@ -1663,6 +1692,21 @@ public class ItemDetailToolBar extends ToolBar {
         list.add(itemBean);
         getBrowseRecordsService().checkFKIntegrity(list,
                 new DeleteCallback(DeleteAction.PHYSICAL, buildPostDeleteAction(), getBrowseRecordsService()));
+    }
+
+    private void showValidateResult(JSONObject result) {
+        JSONBoolean isValid = (JSONBoolean) result.get("isValid"); //$NON-NLS-1$
+        if (isValid.booleanValue()) {
+            MessageBox
+                    .info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().validate_record_passed_msg(),
+                            null).getDialog().setWidth(400);
+        } else {
+            JSONString message = (JSONString) result.get("message"); //$NON-NLS-1$
+            MessageBox
+                    .alert(MessagesFactory.getMessages().info_title(),
+                            MessagesFactory.getMessages().validate_record_failed_msg(message.stringValue()), null).getDialog()
+                    .setWidth(400);
+        }
     }
 
     protected BrowseRecordsServiceAsync getBrowseRecordsService() {
