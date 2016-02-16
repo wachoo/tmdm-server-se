@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2016 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -472,7 +472,7 @@ public class MetadataRepositoryTest extends TestCase {
 			assertTrue(e.getMessage().contains("Entity 'Pet' is using an abstract reusable type. (line: 19 / column: 2)"));
 		}
 	}
-    
+
     public void testMetadataAnnotation() {
         Locale en = new Locale("en");
         Locale fr = new Locale("fr");
