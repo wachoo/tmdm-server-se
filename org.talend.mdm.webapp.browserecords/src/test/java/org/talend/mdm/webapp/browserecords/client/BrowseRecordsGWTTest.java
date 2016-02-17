@@ -35,10 +35,6 @@ public class BrowseRecordsGWTTest extends GWTTestCase {
 		$wnd.amalto.browserecords = {};
     }-*/;
 
-    public void testGetSessionNotNull() {
-        assertNotNull(BrowseRecords.getSession());
-    }
-
     @Override
     public String getModuleName() {
         // GWTTestCase Required
