@@ -50,6 +50,10 @@ public interface BrowseRecordsMessages extends Messages {
     String journal_btn();
 
     String journal_tip();
+    
+    String navigator_btn();
+
+    String navigator_tip();
 
     String refresh_tip();
 

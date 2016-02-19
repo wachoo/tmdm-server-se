@@ -187,6 +187,7 @@ public class Utils {
                         imports.add("<script type=\"text/javascript\" src=\"secure/dwr/interface/ItemsBrowserInterface.js\"></script>\n"); //$NON-NLS-1$
                         imports.add("<script type=\"text/javascript\" src=\"secure/js/ImprovedDWRProxy.js\"></script>\n"); //$NON-NLS-1$
                         imports.add("<script type=\"text/javascript\" src=\"secure/js/SearchEntityPanel.js\"></script>\n"); //$NON-NLS-1$
+                        imports.add("<script type=\"text/javascript\" src=\"secure/js/DataNavigatorPanel.js\"></script>\n"); //$NON-NLS-1$
                     }
                     if (!imports.contains(tmp)) {
                         imports.add(tmp);
@@ -216,6 +217,7 @@ public class Utils {
                 + "<script type=\"text/javascript\" src=\"secure/yui-2.4.0/build/yuiloader/yuiloader-beta.js\"></script>\n" //$NON-NLS-1$
                 + "<script type=\"text/javascript\" src=\"secure/ext-2.2/adapter/yui/ext-yui-adapter.js\"></script>\n" //$NON-NLS-1$
                 + "<script type=\"text/javascript\" src=\"secure/ext-2.2/ext-all.js\"></script>\n" //$NON-NLS-1$
+                + "<script type=\"text/javascript\" src=\"secure/d3js-3.5.14/d3.min.js\"></script>\n" //$NON-NLS-1$
                 + "<link rel=\"stylesheet\" type=\"text/css\" href=\"secure/ext-2.2/resources/css/ext-all_compatible.css\" />\n" //$NON-NLS-1$
                 + // EXT-UX
                 "<script type=\"text/javascript\" src=\"secure/ext.ux/editablecolumntree/ColumnNodeUI.js\"></script>\n" //$NON-NLS-1$
