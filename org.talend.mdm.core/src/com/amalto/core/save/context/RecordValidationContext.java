@@ -39,6 +39,8 @@ public class RecordValidationContext implements DocumentSaverContext {
     
     private UserAction userAction;
     
+    private MutableDocument updateReportDocument;
+    
     private MutableDocument userDocument;
     
     private MutableDocument databaseDocument;
@@ -63,11 +65,9 @@ public class RecordValidationContext implements DocumentSaverContext {
         DocumentSaver saver = SaverContextFactory.invokeSaverExtension(new Save());
         switch (storage.getType()) {
             case MASTER:
-                saver = new Validation(saver);
-                // Intentionally: no break here.
+                return new Init(new ID(new GenerateActions(new Security(new UpdateReport(new ApplyActions(new BeforeSaving(new Validation(saver))))))));
             case STAGING:
-                saver = new ApplyActions(saver); // Apply actions is mandatory
-                return new Init(new ID(new GenerateActions(new Security(saver))));
+                return new Init(new ID(new GenerateActions(new Security(new ApplyActions(saver)))));
             default:
                 throw new NotImplementedException("No support for storage type '" + storage.getType() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -149,14 +149,12 @@ public class RecordValidationContext implements DocumentSaverContext {
 
     @Override
     public MutableDocument getUpdateReportDocument() {
-        // TODO Auto-generated method stub
-        return null;
+        return updateReportDocument;
     }
 
     @Override
     public void setUpdateReportDocument(MutableDocument updateReportDocument) {
-        // TODO Auto-generated method stub
-
+        this.updateReportDocument = updateReportDocument;
     }
 
     @Override
@@ -196,7 +194,6 @@ public class RecordValidationContext implements DocumentSaverContext {
     @Override
     public boolean isInvokeBeforeSaving() {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
-
 }

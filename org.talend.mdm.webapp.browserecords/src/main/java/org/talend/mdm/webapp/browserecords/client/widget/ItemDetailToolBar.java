@@ -19,6 +19,8 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.ItemBaseModel;
+import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
+import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
@@ -1702,10 +1704,13 @@ public class ItemDetailToolBar extends ToolBar {
                             null).getDialog().setWidth(400);
         } else {
             JSONString message = (JSONString) result.get("message"); //$NON-NLS-1$
+            String errorMsg = MultilanguageMessageParser.getValueByLanguage(message.stringValue(), UrlUtil.getLanguage());
+            if ("".equals(errorMsg)) {
+                errorMsg = message.stringValue();
+            }
             MessageBox
                     .alert(MessagesFactory.getMessages().info_title(),
-                            MessagesFactory.getMessages().validate_record_failed_msg(message.stringValue()), null).getDialog()
-                    .setWidth(400);
+                            MessagesFactory.getMessages().validate_record_failed_msg(errorMsg), null).getDialog().setWidth(400);
         }
     }
 

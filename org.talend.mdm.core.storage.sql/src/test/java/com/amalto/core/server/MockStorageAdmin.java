@@ -13,6 +13,8 @@ package com.amalto.core.server;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageType;
 
@@ -22,6 +24,7 @@ public class MockStorageAdmin extends StorageAdminImpl {
 
     @Override
     public Storage get(String storageName, StorageType type) {
+        storageName = storageName.replace("#STAGING", StringUtils.EMPTY);
         for (Storage s : storages) {
             if (s.getName().equals(storageName) && s.getType() == type) {
                 return s;
