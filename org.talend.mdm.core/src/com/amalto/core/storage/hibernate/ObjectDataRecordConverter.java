@@ -51,34 +51,36 @@ public class ObjectDataRecordConverter implements DataRecordConverter<Object> {
             // Try to load existing instance (if any).
             Wrapper mainInstance = null;
             Serializable id = null;
-            try {
-                Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
-                if (keyFields.size() == 0) {
-                    throw new IllegalArgumentException("Type '" + dataRecord.getType().getName()
-                            + "' does not define any key field.");
-                } else if (keyFields.size() == 1) {
-                    String keyFieldName = keyFields.iterator().next().getName();
-                    id = (Serializable) dataRecord.get(keyFieldName);
-                    if (id == null) {
-                        throw new IllegalArgumentException("Instance of type '" + dataRecord.getType().getName()
-                                + "' does not have value for '" + keyFieldName + "'.");
+            if(DataRecord.CheckExistence.get() || "AutoIncrement".equals(dataRecord.getType().getName())) {
+                try {
+                    Collection<FieldMetadata> keyFields = dataRecord.getType().getKeyFields();
+                    if (keyFields.size() == 0) {
+                        throw new IllegalArgumentException("Type '" + dataRecord.getType().getName()
+                                + "' does not define any key field.");
+                    } else if (keyFields.size() == 1) {
+                        String keyFieldName = keyFields.iterator().next().getName();
+                        id = (Serializable) dataRecord.get(keyFieldName);
+                        if (id == null) {
+                            throw new IllegalArgumentException("Instance of type '" + dataRecord.getType().getName()
+                                    + "' does not have value for '" + keyFieldName + "'.");
+                        }
+                        mainInstance = (Wrapper) session.get(mainInstanceClass, id);
+                    } else {
+                        List<Object> compositeIdValues = new ArrayList<Object>(keyFields.size());
+                        for (FieldMetadata keyField : keyFields) {
+                            compositeIdValues.add(MetadataUtils.convert(MetadataUtils.toString(dataRecord.get(keyField), keyField),
+                                    mapping.getDatabase(keyField)));
+                        }
+                        id = createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues);
+                        mainInstance = (Wrapper) session.get(mainInstanceClass, id);
                     }
-                    mainInstance = (Wrapper) session.get(mainInstanceClass, id);
-                } else {
-                    List<Object> compositeIdValues = new ArrayList<Object>(keyFields.size());
-                    for (FieldMetadata keyField : keyFields) {
-                        compositeIdValues.add(MetadataUtils.convert(MetadataUtils.toString(dataRecord.get(keyField), keyField),
-                                mapping.getDatabase(keyField)));
+                } catch (ObjectNotFoundException e) {
+                    if (id != null && LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Could not find instance with id '" + id + "' in current session. Consider it as a creation.");
                     }
-                    id = createCompositeId(storageClassLoader, mainInstanceClass, compositeIdValues);
-                    mainInstance = (Wrapper) session.get(mainInstanceClass, id);
+                    // Ignored (means a new instance is required).
                 }
-            } catch (ObjectNotFoundException e) {
-                if (id != null && LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Could not find instance with id '" + id + "' in current session. Consider it as a creation.");
-                }
-                // Ignored (means a new instance is required).
-            }
+            }    
             boolean needNewInstance = mainInstance == null;
             // Instance does not exist, so create it.
             if (needNewInstance) {
