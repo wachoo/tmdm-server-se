@@ -53,12 +53,13 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             throw new IllegalArgumentException("Input can not be null");
         }
 
+        FieldMetadata field = null;
+        String firstWrongElementName = null;
         try {
             XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(new StringReader(input));
             ResettableStringWriter xmlAccumulator = new ResettableStringWriter();
             int skipLevel = Integer.MAX_VALUE;
             int xmlAccumulatorLevel = 0;
-            FieldMetadata field = null;
             Stack<TypeMetadata> currentType = new Stack<TypeMetadata>();
             currentType.push(type);
 
@@ -132,6 +133,9 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                         }
                         if (level < skipLevel) {
                             if (!((ComplexTypeMetadata) typeMetadata).hasField(currentElementName)) {
+                                if (firstWrongElementName == null) {
+                                    firstWrongElementName = currentElementName;
+                                }
                                 skipLevel = level;
                                 continue;
                             }
@@ -207,6 +211,9 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
                                 xmlAccumulator.append("</").append(xmlEvent.asEndElement().getName().getLocalPart()).append('>'); //$NON-NLS-1$
                                 continue;
                             } else if (xmlAccumulatorLevel == level) {
+                                if (field == null && firstWrongElementName != null) {
+                                    throw new IllegalArgumentException("Entity '" + type.getName() + "' does not own field '" + firstWrongElementName + "'."); //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
+                                }
                                 dataRecords.peek().set(field, xmlAccumulator.reset());
                                 xmlAccumulatorLevel = 0;
                             } else if (currentType.peek() instanceof ComplexTypeMetadata && !(field instanceof ReferenceFieldMetadata)) {
@@ -230,6 +237,9 @@ public class XmlStringDataRecordReader implements DataRecordReader<String> {
             }
             return createdDataRecord;
         } catch (Exception e) {
+            if (field == null && firstWrongElementName != null) {
+                throw new IllegalArgumentException("Entity '" + type.getName() + "' does not own field '" + firstWrongElementName + "'."); //$NON-NLS-1$  //$NON-NLS-2$  //$NON-NLS-3$
+            }
             throw new RuntimeException(e);
         }
     }

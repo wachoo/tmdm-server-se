@@ -339,7 +339,7 @@ public class SaverContextFactory {
         
         StorageAdmin storageAdmin = server.getStorageAdmin();
         Storage storage = storageAdmin.get(dataCluster, storageAdmin.getType(dataCluster));
-        DocumentSaverContext context = new RecordValidationContext(storage, dataModelName, UserAction.AUTO, userDocument);
+        DocumentSaverContext context = new RecordValidationContext(storage, dataModelName, UserAction.REPLACE, userDocument);
         return context;
     }
 }

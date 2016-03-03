@@ -538,4 +538,24 @@ public class RecordValidationTest extends TestCase {
             results.close();
         }
     }
+    
+    // Validate record contains wrong xml node(for existing record)
+    public void testXmlNodeValidation() throws Exception {
+        String xmlForNode1 = "<Product><Id>1</Id><Names>Product</Names><Description>Product Description</Description></Product>";
+        String xmlForNode2 = "<Product><Id>1</Id><Name>Product</Name><Description>Product Description</Description><Features><Sizes><Size2>Small</Size2></Sizes></Features></Product>";
+        // MASTER
+        JSONObject resp = validateRecord("Product", false, true, xmlForNode1);
+        assertFalse(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getString("message").contains("Entity 'Product' does not own field 'Names'."));
+        resp = validateRecord("Product", false, true, xmlForNode2);
+        assertFalse(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getString("message").contains("Entity 'Product' does not own field 'Size2'."));
+        // STAGING
+        resp = validateRecord("Product", true, true, xmlForNode1);
+        assertFalse(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getString("message").contains("Entity 'Product' does not own field 'Names'."));
+        resp = validateRecord("Product", true, true, xmlForNode2);
+        assertFalse(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getString("message").contains("Entity 'Product' does not own field 'Size2'."));
+    }
 }
