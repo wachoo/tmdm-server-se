@@ -39,6 +39,8 @@ public class RecordValidationContext implements DocumentSaverContext {
     
     private UserAction userAction;
     
+    private final boolean invokeBeforeSaving;
+    
     private MutableDocument updateReportDocument;
     
     private MutableDocument userDocument;
@@ -47,11 +49,12 @@ public class RecordValidationContext implements DocumentSaverContext {
     
     private String[] ids = new String[0];
 
-    public RecordValidationContext(Storage storage, String dataModelName, UserAction userAction, MutableDocument userDocument) {
+    public RecordValidationContext(Storage storage, String dataModelName, UserAction userAction, boolean invokeBeforeSaving, MutableDocument userDocument) {
         super();
         this.storage = storage;
         this.dataModelName = dataModelName;
         this.userAction = userAction;
+        this.invokeBeforeSaving = invokeBeforeSaving;
         this.userDocument = userDocument;
     }
 
@@ -65,7 +68,11 @@ public class RecordValidationContext implements DocumentSaverContext {
         DocumentSaver saver = SaverContextFactory.invokeSaverExtension(new Save());
         switch (storage.getType()) {
             case MASTER:
-                return new Init(new ID(new GenerateActions(new Security(new UpdateReport(new ApplyActions(new BeforeSaving(new Validation(saver))))))));
+                saver = new Validation(saver);
+                if (invokeBeforeSaving) {
+                    saver = new BeforeSaving(saver);
+                }
+                return new Init(new ID(new GenerateActions(new Security(new UpdateReport(new ApplyActions(saver))))));
             case STAGING:
                 return new Init(new ID(new GenerateActions(new Security(new ApplyActions(saver)))));
             default:

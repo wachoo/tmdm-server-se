@@ -311,7 +311,7 @@ public class SaverContextFactory {
      * @param documentStream A stream that contains one XML document.
      * @return A context configured to validate a record in MDM.
      */
-    public DocumentSaverContext createValidation(String dataCluster, String dataModelName, InputStream documentStream) {
+    public DocumentSaverContext createValidation(String dataCluster, String dataModelName, boolean invokeBeforeSaving, InputStream documentStream) {
         Server server = ServerContext.INSTANCE.get();
         // Parsing
         MutableDocument userDocument;
@@ -339,7 +339,7 @@ public class SaverContextFactory {
         
         StorageAdmin storageAdmin = server.getStorageAdmin();
         Storage storage = storageAdmin.get(dataCluster, storageAdmin.getType(dataCluster));
-        DocumentSaverContext context = new RecordValidationContext(storage, dataModelName, UserAction.REPLACE, userDocument);
+        DocumentSaverContext context = new RecordValidationContext(storage, dataModelName, UserAction.REPLACE, invokeBeforeSaving, userDocument);
         return context;
     }
 }

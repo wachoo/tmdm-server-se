@@ -278,18 +278,18 @@ public class RecordValidationTest extends TestCase {
 
         private final boolean isAdmin;
         
-        private final boolean beforeSavingFail;
+        private final boolean invokeBeforeSaving;
 
         public MockSaverSource(MetadataRepository repository, boolean isAdmin) {
             this.repository = repository;
             this.isAdmin = isAdmin;
-            this.beforeSavingFail = false;
+            this.invokeBeforeSaving = true;
         }
         
-        public MockSaverSource(MetadataRepository repository, boolean isAdmin, boolean beforeSavingFail) {
+        public MockSaverSource(MetadataRepository repository, boolean isAdmin, boolean invokeBeforeSaving) {
             this.repository = repository;
             this.isAdmin = isAdmin;
-            this.beforeSavingFail = beforeSavingFail;
+            this.invokeBeforeSaving = invokeBeforeSaving;
         }
 
         @Override
@@ -334,7 +334,7 @@ public class RecordValidationTest extends TestCase {
         }
 
         public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
-            if (beforeSavingFail) {
+            if (invokeBeforeSaving) {
                 throw new RuntimeException("Before saving validation failed.");
             }
             return null;
@@ -346,16 +346,16 @@ public class RecordValidationTest extends TestCase {
     }
     
     // Simulate the Record Validation API of DataService#validateRecord() to test RecordValidationContext, RecordValidationCommitter, etc.
-    protected static JSONObject validateRecord(String storageName, boolean isStaging, boolean isAdmin, boolean beforeSavingFail, String documentXml) throws Exception {
+    protected static JSONObject validateRecord(String storageName, boolean isStaging, boolean isAdmin, boolean invokeBeforeSaving, String documentXml) throws Exception {
         BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", isAdmin ? new MockAdmin() : new MockUser()));
         String dataCluster = isStaging ? storageName + "#STAGING" : storageName;
         DataRecord.ValidateRecord.set(true);
         boolean isValid = true;
         String message = StringUtils.EMPTY;
 
-        SaverSession session = SaverSession.newSession(new MockSaverSource(productRepository, isAdmin, beforeSavingFail));
+        SaverSession session = SaverSession.newSession(new MockSaverSource(productRepository, isAdmin, invokeBeforeSaving));
         Committer committer = new RecordValidationCommitter();
-        DocumentSaverContext context = session.getContextFactory().createValidation(dataCluster, storageName, new ByteArrayInputStream(documentXml.getBytes("UTF-8")));
+        DocumentSaverContext context = session.getContextFactory().createValidation(dataCluster, storageName, invokeBeforeSaving, new ByteArrayInputStream(documentXml.getBytes("UTF-8")));
         DocumentSaver saver = context.createSaver();
         try {
             session.begin(dataCluster, committer);
@@ -384,7 +384,7 @@ public class RecordValidationTest extends TestCase {
         BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", new MockAdmin()));
         String dataCluster = isStaging ? storageName + "#STAGING" : storageName;
         SaverSession session = SaverSession.newSession(new MockSaverSource(productRepository, true));
-        DocumentSaverContext context = session.getContextFactory().createValidation(dataCluster, storageName, new ByteArrayInputStream(documentXml.getBytes("UTF-8")));
+        DocumentSaverContext context = session.getContextFactory().createValidation(dataCluster, storageName, false, new ByteArrayInputStream(documentXml.getBytes("UTF-8")));
         DocumentSaver saver = context.createSaver();
         try {
             session.begin(dataCluster);
@@ -464,13 +464,15 @@ public class RecordValidationTest extends TestCase {
         assertTrue(resp.getString("message").equals("Invalid foreign key: [org.talend.mdm.storage.hibernate.Store#2] doesn't exist."));
     }
 
-    // MASTER will call beforeSaving, STAGING won't
+    // MASTER can control if call beforeSaving or not, STAGING won't call beforeSaving
     public void testBeforeSavingValidation() throws Exception {
         String xmlBeforeSaving = "<ProductFamily><Name>Test Product Family</Name><ChangeStatus>Approved</ChangeStatus></ProductFamily>";
         // MASTER
         JSONObject resp = validateRecord("Product", false, true, true, xmlBeforeSaving);
-        assertFalse(resp.getBoolean("isValid"));//  FAIL
+        assertFalse(resp.getBoolean("isValid"));//  FAIL, MASTER call beforeSaving
         assertTrue(resp.getString("message").equals("Before saving validation failed."));
+        resp = validateRecord("Product", false, true, false, xmlBeforeSaving);
+        assertTrue(resp.getBoolean("isValid"));//  PASS, MASTER doesn't call beforeSaving
         // STAGING
         resp = validateRecord("Product", true, true, true, xmlBeforeSaving);
         assertTrue(resp.getBoolean("isValid"));//  PASS, STAGING won't call beforeSaving process
