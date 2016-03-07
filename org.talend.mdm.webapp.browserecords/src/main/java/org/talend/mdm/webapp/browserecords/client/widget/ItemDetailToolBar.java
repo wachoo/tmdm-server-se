@@ -633,7 +633,7 @@ public class ItemDetailToolBar extends ToolBar {
                     subActionsMenu.add(journalMenuItem);
                 }
 
-                if (navigatorMenuItem == null) {
+                if (navigatorMenuItem == null && BrowseRecords.getSession().getAppHeader().isEnterprise()) {
                     navigatorMenuItem = new MenuItem(MessagesFactory.getMessages().navigator_btn());
                     navigatorMenuItem.setId("navigatorMenuItem"); //$NON-NLS-1$
                     navigatorMenuItem.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.navigator()));
@@ -644,9 +644,9 @@ public class ItemDetailToolBar extends ToolBar {
                         public void componentSelected(MenuEvent menuEvent) {
                             String ids = itemBean.getIds();
                             String concept = itemBean.getConcept();
-
                             NavigatorPanel panel = new NavigatorPanel(concept, ids);
-                            NavigatorPanel.renderPanel(concept + "_" + ids, panel); //$NON-NLS-1$
+                            NavigatorPanel.renderPanel(GWT.getHostPageBaseURL(), ids, concept, BrowseRecords.getSession()
+                                    .getAppHeader().getMasterDataCluster(), viewBean.getViewPK(), panel);
                         }
 
                     });

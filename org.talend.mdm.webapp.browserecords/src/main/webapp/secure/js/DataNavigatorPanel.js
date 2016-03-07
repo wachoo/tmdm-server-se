@@ -1,84 +1,34 @@
 amalto.namespace("amalto.itemsbrowser");
 
-amalto.itemsbrowser.NavigatorPanel = function() {
-	
-	var nodeList = [ {
-		name : "Product1",
-		id : "Product1",
-		concept : "Product"
-	}, {
-		name : "Product2",
-		id : "Product2",
-		concept : "Product"
-	}, {
-		name : "Product3",
-		id : "Product3",
-		concept : "Product"
-	}, {
-		name : "ProductFamily1",
-		id : "ProductFamily1",
-		concept : "ProductFamily"
-	}, {
-		name : "ProductFamily2",
-		id : "ProductFamily2",
-		concept : "ProductFamily"
-	}, {
-		name : "ProductFamily3",
-		id : "ProductFamily3",
-		concept : "ProductFamily"
-	} ];
-
-	var linkList = [ {
-		source : 0,
-		target : 3,
-		concept : "ProductFamily"
-	}, {
-		source : 0,
-		target : 4,
-		concept : "ProductFamily"
-	}, {
-		source : 0,
-		target : 5,
-		concept : "ProductFamily"
-	}, {
-		source : 4,
-		target : 1,
-		concept : "Product"
-	}, {
-		source : 4,
-		target : 2,
-		concept : "Product"
-	} ];
-
+amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluster, viewPK) {
+	var NAVIGATOR_NODE_ENTITY_TYPE = 1;
+	var NAVIGATOR_NODE_VALUE_TYPE = 2;
+	var nodeList = [];
+	var linkList = [];
 	var width = 800;
 	var height = 800;
 	var zoom = d3.behavior.zoom().scaleExtent([ 1, 100 ]).on("zoom", zoomed);
 	var svg = d3.select("#navigator").append("svg").attr("width", width).attr(
 			"height", height).append("g").call(zoom);
-	var force = d3.layout.force().nodes(nodeList).links(linkList).size(
-			[ width, height ]).linkDistance(150).charge([ -400 ]);
-	var drag = force.drag().on("dragstart", function(d, i) {
-		d.fixed = true;
-	});
+	var links;
+	var nodes;
+	var link;
+	var node;
+	var link_text;
+	var node_text;
+	var drag;
+	var force;
+	init(id, concept, cluster, viewPK);
 
-	var links = force.links();
-	var nodes = force.nodes();
-	var link = svg.selectAll(".link");
-	var node = svg.selectAll(".node");
-	var link_text = svg.selectAll(".linetext");
-	var node_text = svg.selectAll(".nodetext");
-	force.on("tick", tick);
-	paint();
-	
 	function paint() {
 		link = link.data(links);
+		node = node.data(nodes);
 		link.enter().append("line").style("stroke", "#ccc").style(
 				"stroke-width", 1);
 
-		node = node.data(nodes);
 		node.enter().append("circle").attr("r", 20).style("fill",
 				"rgb(174, 199, 232)").each(function(d, i) {
-			d3.select(this).call(drag);
+			d3.select(this).call(force.drag);
 			d3.select(this).on("click", click);
 			d3.select(this).on("dblclick", dblclick);
 			d3.select(this).on("mouseover", mouseover);
@@ -88,17 +38,29 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 		link_text = link_text.data(links);
 		link_text.enter().append("text").style("font-weight", "bold").style(
 				"fill-opacity", "0.0").text(function(d) {
-			return d.concept;
+			return d.navigator_node_concept;
 		});
 		node_text = node_text.data(nodes);
-		node_text.enter().append("text").style("fill", "black").attr("dx", 20)
-				.attr("dy", 8).text(function(d) {
-					return d.name;
-				});
+		node_text
+				.enter()
+				.append("text")
+				.style("fill", "black")
+				.attr("dx", 20)
+				.attr("dy", 8)
+				.text(
+						function(d) {
+							if (NAVIGATOR_NODE_ENTITY_TYPE == d.navigator_node_type) {
+								return d.navigator_node_concept;
+							} else {
+								return d.navigator_node_concept + "-"
+										+ d.navigator_node_ids;
+							}
+						});
 		force.start();
 	}
 
 	function click(d, i) {
+
 		node.style("fill", function(node) {
 			if (d === node) {
 				return "rgb(31, 119, 180)";
@@ -107,24 +69,92 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 			}
 		});
 
-		var newNode = {
-			x : d.x + getRandomInt(-15, 15),
-			y : d.y + getRandomInt(-15, 15),
-			concept : "ProductFamily",
-			id : "4"
-		};
-		nodes.push(newNode);
-		var newLink = {
-			source : d,
-			target : newNode,
-			concept : "ProductFamily",
-			id : "4"
-		};
-		links.push(newLink);
-		atomClicked = d;
-		paint();
+		if (!d.navigator_node_expand) {
+			if (NAVIGATOR_NODE_VALUE_TYPE == d.navigator_node_type) {
+				Ext.Ajax
+						.request({
+							url : restServiceUrl + '/data/'
+									+ cluster + '/relatedTypes/',
+							method : 'GET',
+							params : {
+								type : d.navigator_node_concept,
+								ids : d.navigator_node_ids
+							},
+							success : function(response, options) {
+								var newNodes = eval('(' + response.responseText
+										+ ')');
+								for ( var i = 0; i < newNodes.length; i++) {
+									var node = newNodes[i];
+
+									var newNode = {
+										x : d.x + getRandomInt(-15, 15),
+										y : d.y + getRandomInt(-15, 15),
+										navigator_node_concept : node.navigator_node_concept,
+										navigator_node_ids : node.navigator_node_ids,
+										navigator_node_type : node.navigator_node_type,
+										navigator_node_expand : false
+									};
+									nodes.push(newNode);
+									var newLink = {
+										source : d,
+										target : newNode,
+										navigator_node_concept : node.navigator_node_concept
+									};
+									links.push(newLink);
+								}
+								paint();
+							},
+							failure : function() {
+
+							}
+						});
+			} else {
+				Ext.Ajax
+						.request({
+							url : restServiceUrl + '/data/'
+									+ cluster + '/records/',
+							method : 'GET',
+							params : {
+								type : d.navigator_node_concept,
+								ids : d.navigator_node_ids
+							},
+							success : function(response, options) {
+								var newNodes = eval('(' + response.responseText
+										+ ')');
+								for ( var i = 0; i < newNodes.length; i++) {
+									var node = newNodes[i];
+
+									var newNode = {
+										x : d.x + getRandomInt(-15, 15),
+										y : d.y + getRandomInt(-15, 15),
+										navigator_node_concept : node.navigator_node_concept,
+										navigator_node_ids : node.navigator_node_ids,
+										navigator_node_type : node.navigator_node_type,
+										navigator_node_expand : false
+									};
+									nodes.push(newNode);
+									var newLink = {
+										source : d,
+										target : newNode,
+										navigator_node_concept : node.navigator_node_concept
+									};
+									links.push(newLink);
+								}
+								paint();
+							},
+							failure : function() {
+
+							}
+						});
+			}
+			d.navigator_node_expand = true;
+		}
+		if (NAVIGATOR_NODE_VALUE_TYPE == d.navigator_node_type) {
+			amalto.navigator.Navigator.openRecord(d.navigator_node_ids,
+					d.navigator_node_concept);
+		}
 	}
-	
+
 	var dblclick = function(d, i) {
 		d.fixed = false;
 	}
@@ -132,7 +162,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 	var getRandomInt = function(min, max) {
 		return Math.floor(Math.random() * (max - min + 1) + min);
 	}
-	
+
 	function mouseover(d, i) {
 		link_text.style("fill-opacity", function(link) {
 			if (link.source === d || link.target === d) {
@@ -146,7 +176,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 	function mouseout(d, i) {
 		link_text.style("fill-opacity", "0.0");
 	}
-	
+
 	function tick() {
 		link.attr("x1", function(d) {
 			return d.source.x;
@@ -173,10 +203,44 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 			return d.y
 		});
 	}
-	
+
 	function zoomed() {
 		svg.attr("transform", "translate(" + d3.event.translate + ")scale("
 				+ d3.event.scale + ")");
 	}
 
+	function init(id, concept, cluster, viewPK) {
+		var ids = new Array(id);
+		Ext.Ajax.request({
+			url : restServiceUrl + '/data/'
+					+ cluster + '/records/',
+			method : 'GET',
+			params : {
+				type : concept,
+				ids : ids
+			},
+			success : function(response, options) {
+				nodes = eval('(' + response.responseText + ')');
+				links = [];
+				force = d3.layout.force().nodes(nodes).links(links).size(
+						[ width, height ]).linkDistance(150).charge([ -400 ]);
+				//fixed node position
+//				drag = force.drag().on("dragstart", function(d, i) {
+//					d.fixed = true;
+//				});
+
+				links = force.links();
+				nodes = force.nodes();
+				link = svg.selectAll(".link");
+				node = svg.selectAll(".node");
+				link_text = svg.selectAll(".linetext");
+				node_text = svg.selectAll(".nodetext");
+				force.on("tick", tick);
+				paint();
+			},
+			failure : function() {
+
+			}
+		});
+	}
 }

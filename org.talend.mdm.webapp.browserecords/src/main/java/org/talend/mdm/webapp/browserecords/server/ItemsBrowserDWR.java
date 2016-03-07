@@ -33,7 +33,6 @@ import com.amalto.core.webservice.WSItemPKsByCriteriaResponse;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.bean.ListRange;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
-
 import com.amalto.webapp.core.util.Util;
 
 /**

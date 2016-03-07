@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -41,8 +40,6 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class NavigatorPanel extends ContentPanel {
-
-    Label label = new Label();
 
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
@@ -168,13 +165,20 @@ public class NavigatorPanel extends ContentPanel {
         });
     }
 
-    public static void renderPanel(String itemId, ContentPanel contentPanel) {
+    public static String getBaseUrl() {
+        return GWT.getHostPageBaseURL() + "services/rest"; //$NON-NLS-1$
+    }
+
+    public static void renderPanel(String baseUrl, String ids, String concept, String cluster, String viewPK,
+            ContentPanel contentPanel) {
         if (GWT.isScript()) {
+            String itemId = concept + "_" + ids; //$NON-NLS-1$
             renderGwtPanel(itemId, contentPanel);
         } else {
             renderDebugPanel(contentPanel);
         }
-        paintNavigator();
+        String restServiceUrl = baseUrl + "services/rest"; //$NON-NLS-1$
+        paintNavigator(restServiceUrl, ids, concept, cluster, viewPK);
     }
 
     private static void renderDebugPanel(ContentPanel contentPanel) {
@@ -197,10 +201,15 @@ public class NavigatorPanel extends ContentPanel {
 					.@org.talend.mdm.webapp.browserecords.client.widget.NavigatorPanel::updateDetailPanel(Ljava/lang/String;Ljava/lang/String;)(
 							ids, concept);
 		}
+		
+		$wnd.amalto.navigator.Navigator.getBaseUrl = function() {
+            @org.talend.mdm.webapp.browserecords.client.widget.NavigatorPanel::getBaseUrl()();
+        }
     }-*/;
 
-    public native static void paintNavigator()/*-{
-		$wnd.amalto.itemsbrowser.NavigatorPanel();
+    public native static void paintNavigator(String restServiceUrl, String ids, String concept, String cluster, String viewPK)/*-{
+		$wnd.amalto.itemsbrowser.NavigatorPanel(restServiceUrl, ids, concept,
+				cluster, viewPK);
     }-*/;
 
     public native static void renderGwtPanel(String itemId, ContentPanel contentPanel)/*-{
