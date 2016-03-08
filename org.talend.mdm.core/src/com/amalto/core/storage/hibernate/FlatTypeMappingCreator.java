@@ -23,8 +23,6 @@ import java.util.LinkedList;
 
 class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
 
-    private static final Logger LOGGER = Logger.getLogger(FlatTypeMappingCreator.class);
-
     private final LinkedList<String> prefix = new LinkedList<String>();
 
     private final MetadataRepository internalRepository;
@@ -41,14 +39,6 @@ class FlatTypeMappingCreator extends DefaultMetadataVisitor<TypeMapping> {
         this.mappings = mappings;
         this.internalRepository = repository;
         this.context = new StatelessContext(prefix, dialect);
-    }
-
-    private static boolean isDatabaseMandatory(FieldMetadata field, TypeMetadata declaringType) {
-        boolean isDatabaseMandatory = field.isMandatory() && declaringType.isInstantiable();
-        if (field.isMandatory() && !isDatabaseMandatory) {
-            LOGGER.warn("Field '" + field.getName() + "' is mandatory but constraint cannot be enforced in database schema.");
-        }
-        return isDatabaseMandatory;
     }
 
     @Override

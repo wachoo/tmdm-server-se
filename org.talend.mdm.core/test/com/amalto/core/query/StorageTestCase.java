@@ -135,6 +135,10 @@ public class StorageTestCase extends TestCase {
 
     protected static final ComplexTypeMetadata t_entity;
     
+    protected static final ComplexTypeMetadata channel;
+
+    protected static final ComplexTypeMetadata party;
+    
     protected static TestUserDelegator userSecurity = new TestUserDelegator();
 
     public static final String DATABASE = "H2";
@@ -203,6 +207,9 @@ public class StorageTestCase extends TestCase {
         checkPointDetails_2 = repository.getComplexType("CheckPointDetails_2");
 
         fullTextSearchEntityA = repository.getComplexType("FullTextSearchEntityA");
+        
+        channel = repository.getComplexType("MYLOOKUP_BUSINESS_CHANNEL");
+        party = repository.getComplexType("MYPARTY");
         
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
