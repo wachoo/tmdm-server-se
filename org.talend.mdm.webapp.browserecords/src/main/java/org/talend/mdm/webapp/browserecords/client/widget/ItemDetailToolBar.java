@@ -1215,7 +1215,7 @@ public class ItemDetailToolBar extends ToolBar {
                             .append(URL.encodeQueryString(itemBean.getIds())).append("&concept=") //$NON-NLS-1$
                             .append(itemBean.getConcept()).append("&isStaging=").append(isStaging).append("&language=") //$NON-NLS-1$ //$NON-NLS-2$
                             .append(Locale.getLanguage()).append("&name=") //$NON-NLS-1$
-                            .append(smartViewCombo.getSelection().get(0).get("value")); //$NON-NLS-1$
+                            .append(smartViewCombo.getSelection().get(0).<String>get("value")); //$NON-NLS-1$
                     openWindow(url.toString());
                 }
             }
