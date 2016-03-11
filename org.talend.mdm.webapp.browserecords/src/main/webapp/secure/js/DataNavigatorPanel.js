@@ -1,8 +1,14 @@
 amalto.namespace("amalto.itemsbrowser");
 
-amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluster, viewPK) {
-	var NAVIGATOR_NODE_ENTITY_TYPE = 1;
-	var NAVIGATOR_NODE_VALUE_TYPE = 2;
+amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
+		cluster, viewPK) {
+	var NAVIGATOR_NODE_IN_ENTITY_TYPE = 1;
+	var NAVIGATOR_NODE_OUT_ENTITY_TYPE = 2;
+	var NAVIGATOR_NODE_VALUE_TYPE = 3;
+	var NAVIGATOR_NOD_COLOR_SELECTED = "rgb(52, 56, 34)";
+	var NAVIGATOR_NOD_COLOR_INBOUND = "rgb(52, 56, 34)";
+	var NAVIGATOR_NOD_COLOR_OUTBOUND = "rgb(52, 56, 34)";
+	var NAVIGATOR_NOD_COLOR_DATA = "rgb(52, 56, 34)";
 	var nodeList = [];
 	var linkList = [];
 	var width = 800;
@@ -26,8 +32,15 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 		link.enter().append("line").style("stroke", "#ccc").style(
 				"stroke-width", 1);
 
-		node.enter().append("circle").attr("r", 20).style("fill",
-				"rgb(174, 199, 232)").each(function(d, i) {
+		node.enter().append("circle").attr("r", 20).style("fill",function(d) {
+			if (NAVIGATOR_NODE_IN_ENTITY_TYPE == d.navigator_node_type) {
+				return NAVIGATOR_NOD_COLOR_INBOUND
+			} else if (NAVIGATOR_NODE_OUT_ENTITY_TYPE == d.navigator_node_type) {
+				return NAVIGATOR_NOD_COLOR_OUTBOUND
+			} else {
+				return NAVIGATOR_NOD_COLOR_DATA
+			}
+		}).each(function(d, i) {
 			d3.select(this).call(force.drag);
 			d3.select(this).on("click", click);
 			d3.select(this).on("dblclick", dblclick);
@@ -38,7 +51,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 		link_text = link_text.data(links);
 		link_text.enter().append("text").style("font-weight", "bold").style(
 				"fill-opacity", "0.0").text(function(d) {
-			return d.navigator_node_concept;
+			return d.navigator_line_label;
 		});
 		node_text = node_text.data(nodes);
 		node_text
@@ -49,12 +62,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 				.attr("dy", 8)
 				.text(
 						function(d) {
-							if (NAVIGATOR_NODE_ENTITY_TYPE == d.navigator_node_type) {
-								return d.navigator_node_concept;
-							} else {
-								return d.navigator_node_concept + "-"
-										+ d.navigator_node_ids;
-							}
+							return d.navigator_node_label;
 						});
 		force.start();
 	}
@@ -63,9 +71,15 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 
 		node.style("fill", function(node) {
 			if (d === node) {
-				return "rgb(31, 119, 180)";
+				return NAVIGATOR_NOD_COLOR_SELECTED
 			} else {
-				return "rgb(174, 199, 232)";
+				if (NAVIGATOR_NODE_IN_ENTITY_TYPE == node.navigator_node_type) {
+					return NAVIGATOR_NOD_COLOR_INBOUND
+				} else if (NAVIGATOR_NODE_OUT_ENTITY_TYPE == node.navigator_node_type) {
+					return NAVIGATOR_NOD_COLOR_OUTBOUND
+				} else {
+					return NAVIGATOR_NOD_COLOR_DATA
+				}
 			}
 		});
 
@@ -73,8 +87,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 			if (NAVIGATOR_NODE_VALUE_TYPE == d.navigator_node_type) {
 				Ext.Ajax
 						.request({
-							url : restServiceUrl + '/data/'
-									+ cluster + '/relatedTypes/',
+							url : restServiceUrl + '/data/' + cluster
+									+ '/outBoundTypes/',
 							method : 'GET',
 							params : {
 								type : d.navigator_node_concept,
@@ -92,12 +106,56 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 										navigator_node_concept : node.navigator_node_concept,
 										navigator_node_ids : node.navigator_node_ids,
 										navigator_node_type : node.navigator_node_type,
+										navigator_node_label : node.navigator_node_label,
 										navigator_node_expand : false
 									};
 									nodes.push(newNode);
 									var newLink = {
 										source : d,
 										target : newNode,
+										navigator_node_type : node.navigator_node_type,
+										navigator_line_label : node.navigator_line_label,
+										navigator_node_concept : node.navigator_node_concept
+									};
+									links.push(newLink);
+								}
+								paint();
+							},
+							failure : function() {
+
+							}
+						});
+				Ext.Ajax
+						.request({
+							url : restServiceUrl + '/data/' + cluster
+									+ '/inBoundTypes/',
+							method : 'GET',
+							params : {
+								type : d.navigator_node_concept,
+								ids : d.navigator_node_ids
+							},
+							success : function(response, options) {
+								var newNodes = eval('(' + response.responseText
+										+ ')');
+								for ( var i = 0; i < newNodes.length; i++) {
+									var node = newNodes[i];
+
+									var newNode = {
+										x : d.x + getRandomInt(-15, 15),
+										y : d.y + getRandomInt(-15, 15),
+										navigator_node_concept : node.navigator_node_concept,
+										navigator_node_foreignkey_path : node.navigator_node_foreignkey_path,
+										navigator_node_ids : node.navigator_node_foreignkey_value,
+										navigator_node_type : node.navigator_node_type,
+										navigator_node_label : node.navigator_node_label,
+										navigator_node_expand : false
+									};
+									nodes.push(newNode);
+									var newLink = {
+										source : d,
+										target : newNode,
+										navigator_node_type : node.navigator_node_type,
+										navigator_line_label : node.navigator_line_label,
 										navigator_node_concept : node.navigator_node_concept
 									};
 									links.push(newLink);
@@ -109,43 +167,91 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 							}
 						});
 			} else {
-				Ext.Ajax
-						.request({
-							url : restServiceUrl + '/data/'
-									+ cluster + '/records/',
-							method : 'GET',
-							params : {
-								type : d.navigator_node_concept,
-								ids : d.navigator_node_ids
-							},
-							success : function(response, options) {
-								var newNodes = eval('(' + response.responseText
-										+ ')');
-								for ( var i = 0; i < newNodes.length; i++) {
-									var node = newNodes[i];
+				if (NAVIGATOR_NODE_IN_ENTITY_TYPE == d.navigator_node_type) {
+					Ext.Ajax
+					.request({
+						url : restServiceUrl + '/data/' + cluster
+								+ '/inBoundRecords/',
+						method : 'GET',
+						params : {
+							type : d.navigator_node_concept,
+							foreignKeyPath : d.navigator_node_foreignkey_path,
+							foreignKeyValue : d.navigator_node_ids
+						},
+						success : function(response, options) {
+							var newNodes = eval('(' + response.responseText
+									+ ')');
+							for ( var i = 0; i < newNodes.length; i++) {
+								var node = newNodes[i];
 
-									var newNode = {
-										x : d.x + getRandomInt(-15, 15),
-										y : d.y + getRandomInt(-15, 15),
-										navigator_node_concept : node.navigator_node_concept,
-										navigator_node_ids : node.navigator_node_ids,
-										navigator_node_type : node.navigator_node_type,
-										navigator_node_expand : false
-									};
-									nodes.push(newNode);
-									var newLink = {
-										source : d,
-										target : newNode,
-										navigator_node_concept : node.navigator_node_concept
-									};
-									links.push(newLink);
-								}
-								paint();
-							},
-							failure : function() {
-
+								var newNode = {
+									x : d.x + getRandomInt(-15, 15),
+									y : d.y + getRandomInt(-15, 15),
+									navigator_node_concept : node.navigator_node_concept,
+									navigator_node_ids : node.navigator_node_ids,
+									navigator_node_type : node.navigator_node_type,
+									navigator_node_label : node.navigator_node_label,
+									navigator_node_expand : false
+								};
+								nodes.push(newNode);
+								var newLink = {
+									source : d,
+									target : newNode,
+									navigator_node_type : node.navigator_node_type,
+									navigator_line_label : node.navigator_line_label,
+									navigator_node_concept : node.navigator_node_concept
+								};
+								links.push(newLink);
 							}
-						});
+							paint();
+						},
+						failure : function() {
+
+						}
+					});
+				} else {
+					Ext.Ajax
+					.request({
+						url : restServiceUrl + '/data/' + cluster
+								+ '/records/',
+						method : 'GET',
+						params : {
+							type : d.navigator_node_concept,
+							ids : d.navigator_node_ids
+						},
+						success : function(response, options) {
+							var newNodes = eval('(' + response.responseText
+									+ ')');
+							for ( var i = 0; i < newNodes.length; i++) {
+								var node = newNodes[i];
+
+								var newNode = {
+									x : d.x + getRandomInt(-15, 15),
+									y : d.y + getRandomInt(-15, 15),
+									navigator_node_concept : d.navigator_node_concept,
+									navigator_node_ids : node.navigator_node_ids,
+									navigator_node_type : node.navigator_node_type,
+									navigator_node_label : node.navigator_node_label,
+									navigator_node_expand : false
+								};
+								nodes.push(newNode);
+								var newLink = {
+									source : d,
+									target : newNode,
+									navigator_node_type : node.navigator_node_type,
+									navigator_line_label : node.navigator_line_label,
+									navigator_node_concept : node.navigator_node_concept
+								};
+								links.push(newLink);
+							}
+							paint();
+						},
+						failure : function() {
+
+						}
+					});
+				}
+
 			}
 			d.navigator_node_expand = true;
 		}
@@ -212,8 +318,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 	function init(id, concept, cluster, viewPK) {
 		var ids = new Array(id);
 		Ext.Ajax.request({
-			url : restServiceUrl + '/data/'
-					+ cluster + '/records/',
+			url : restServiceUrl + '/data/' + cluster + '/records/',
 			method : 'GET',
 			params : {
 				type : concept,
@@ -224,10 +329,10 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl,id, concept, cluste
 				links = [];
 				force = d3.layout.force().nodes(nodes).links(links).size(
 						[ width, height ]).linkDistance(150).charge([ -400 ]);
-				//fixed node position
-//				drag = force.drag().on("dragstart", function(d, i) {
-//					d.fixed = true;
-//				});
+				// fixed node position
+				// drag = force.drag().on("dragstart", function(d, i) {
+				// d.fixed = true;
+				// });
 
 				links = force.links();
 				nodes = force.nodes();

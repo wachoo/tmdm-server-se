@@ -191,7 +191,7 @@ public class DataService {
      * @return The {@link StorageType type} for <code>type</code>.
      * @throws IllegalArgumentException If <code>type</code> is not a member of {@link StorageType}.
      */
-    private static StorageType getStorageType(String type) {
+    protected static StorageType getStorageType(String type) {
         // Select right storage type following query param
         StorageType storageType;
         try {
@@ -205,7 +205,7 @@ public class DataService {
     }
 
     // Returns a UserDelegator instance configured using current user's roles.
-    private static SecuredStorage.UserDelegator getDelegator() {
+    protected static SecuredStorage.UserDelegator getDelegator() {
         final HashSet<String> roles;
         try {
             roles = LocalUser.getLocalUser().getRoles();
