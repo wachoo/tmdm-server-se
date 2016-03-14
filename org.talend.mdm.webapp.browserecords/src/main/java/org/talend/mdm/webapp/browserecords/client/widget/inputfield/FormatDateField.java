@@ -69,8 +69,11 @@ public class FormatDateField extends DateField {
 
     @Override
     public String getRawValue() {
-        String rawValue = super.getRawValue();
-        if (rawValue == null || rawValue.trim().length() == 0) {
+        String rawValue = rendered ? getInputEl().getValue() : ""; //$NON-NLS-1$
+        if (!isEditable()) {
+            rawValue = rendered ? getInputEl().dom.getInnerText() : ""; //$NON-NLS-1$
+        }
+        if (rawValue == null || "".equals(rawValue) || rawValue.equals(emptyText)) { //$NON-NLS-1$
             return ""; //$NON-NLS-1$
         }
         try {
@@ -143,9 +146,6 @@ public class FormatDateField extends DateField {
     
     @Override
     public boolean validateValue(String value) {
-        if(!validateFlag) {
-            return true;
-        }
         return super.validateValue(value);
     }
     
