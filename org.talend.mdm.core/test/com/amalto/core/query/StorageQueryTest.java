@@ -4531,8 +4531,9 @@ public class StorageQueryTest extends StorageTestCase {
                 results_1.close();
             }
         }
-        if(ex_1 != null)
+        if(ex_1 != null) {
             ex_1.printStackTrace();
+        }
         assertNull(ex_1);
         
         FieldMetadata field_2 = checkPointDetails_2.getField("PointAddressDetails/AddressDetails/TerritoryCode");
@@ -4548,8 +4549,9 @@ public class StorageQueryTest extends StorageTestCase {
                 results_2.close();
             }
         }
-        if(ex_2 != null)
+        if(ex_2 != null) {
             ex_2.printStackTrace();
+        }
         assertNull(ex_2);
     }
 
@@ -4626,6 +4628,23 @@ public class StorageQueryTest extends StorageTestCase {
 
         public void setOptimization(ContainsOptimization optimization) {
             this.optimization = optimization;
+        }
+    }
+
+    public void testAdvancedSearchWithMultiCondition() throws Exception {
+        UserQueryBuilder qb = from(person).where(
+                and(contains(person.getField("lastname"), "Du*"), contains(person.getField("middlename"), "jo*")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        List<String> ids = new ArrayList<String>();
+        ids.add("1");
+        ids.add("2");
+        try {
+            assertEquals(2, results.getSize());
+            for (DataRecord result : results) {
+                this.assertTrue(ids.contains(result.get(person.getField("id"))));
+            }
+        } finally {
+            results.close();
         }
     }
 }
