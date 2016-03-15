@@ -307,17 +307,32 @@ public class TreeDetailGridFieldCreator {
             public void handleEvent(FieldEvent fe) {
                 // TMDM-3353 only when node is valid, call setObjectValue(); otherwise objectValue is changed to
                 // original value
-                if (node.isValid()) {
+                if (fe.getField().isValid()) {
                     if (fe.getField() instanceof FormatTextField) {
                         if (BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
                             node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
+                            // TMDM-8470 trim pk textfield value
+                            if (node.isKey() && node.getObjectValue() != null) {
+                                node.setObjectValue(node.getObjectValue().toString().trim());
+                            }
                         }
                     } else if (fe.getField() instanceof FormatNumberField) {
                         if (BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
                             node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
                         }
                     } else if (fe.getField() instanceof FormatDateField) {
-                        node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
+                        if (node.getObjectValue() != null
+                                && !node.getObjectValue().equals(((FormatDateField) fe.getField()).getRawValue())) {
+                            node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
+                            node.setChangeValue(true);
+                        }
+                        validate(fe.getField(), node);
+                    }
+                } else {
+                    if (fe.getField() instanceof FormatDateField) {
+                        if ("".equals(((FormatDateField) fe.getField()).getOjbectValue().toString())) { //$NON-NLS-1$
+                            validate(fe.getField(), node);
+                        }
                     }
                 }
             }
