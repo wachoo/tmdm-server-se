@@ -53,14 +53,14 @@ public class ValidationRestServiceHandler {
             throw new IllegalArgumentException();
         }
 
-        client.init(Method.POST, restServiceUrl + '/' + dataCluster + "/validate/record/", null); //$NON-NLS-1$
-        client.setPostEntity(new StringRepresentation(documentXml, MediaType.APPLICATION_XML));
+        client.init(Method.POST, restServiceUrl + '/' + dataCluster + "/validate", null); //$NON-NLS-1$
+        client.setPostEntity(new StringRepresentation("<root>" + documentXml + "</root>", MediaType.APPLICATION_XML));
         client.setCallback(new ResourceSessionAwareCallbackHandler() {
 
             @Override
             public void doProcess(Request request, Response response) throws Exception {
                 JsonRepresentation jsonRepresentation = RestServiceHelper.getJsonRepresentationFromResponse(response);
-                callback.onSuccess(jsonRepresentation.getJsonObject());
+                callback.onSuccess((JSONObject)jsonRepresentation.getJsonArray().get(0));
             }
         });
         client.request(MediaType.APPLICATION_JSON);

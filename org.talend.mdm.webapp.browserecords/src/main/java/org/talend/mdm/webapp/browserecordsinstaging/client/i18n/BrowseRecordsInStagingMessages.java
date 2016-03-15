@@ -19,4 +19,6 @@ public interface BrowseRecordsInStagingMessages extends BrowseRecordsMessages {
     String staging_browse_record_title();
 
     String select_mark_item_record();
+    
+    String status_format();
 }

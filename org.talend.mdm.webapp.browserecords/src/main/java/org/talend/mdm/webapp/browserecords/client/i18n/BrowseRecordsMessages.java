@@ -51,6 +51,10 @@ public interface BrowseRecordsMessages extends Messages {
 
     String journal_tip();
 
+    String navigator_btn();
+
+    String navigator_tip();
+
     String refresh_tip();
 
     String refresh_error();
@@ -552,4 +556,6 @@ public interface BrowseRecordsMessages extends Messages {
     String validate_record_passed_msg();
 
     String validate_record_failed_msg(String msg);
+
+    String navigator_detailPanel_label();
 }

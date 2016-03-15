@@ -39,17 +39,22 @@ public class RecordValidationContext implements DocumentSaverContext {
     
     private UserAction userAction;
     
+    private final boolean invokeBeforeSaving;
+    
+    private MutableDocument updateReportDocument;
+    
     private MutableDocument userDocument;
     
     private MutableDocument databaseDocument;
     
     private String[] ids = new String[0];
 
-    public RecordValidationContext(Storage storage, String dataModelName, UserAction userAction, MutableDocument userDocument) {
+    public RecordValidationContext(Storage storage, String dataModelName, UserAction userAction, boolean invokeBeforeSaving, MutableDocument userDocument) {
         super();
         this.storage = storage;
         this.dataModelName = dataModelName;
         this.userAction = userAction;
+        this.invokeBeforeSaving = invokeBeforeSaving;
         this.userDocument = userDocument;
     }
 
@@ -64,10 +69,12 @@ public class RecordValidationContext implements DocumentSaverContext {
         switch (storage.getType()) {
             case MASTER:
                 saver = new Validation(saver);
-                // Intentionally: no break here.
+                if (invokeBeforeSaving) {
+                    saver = new BeforeSaving(saver);
+                }
+                return new Init(new ID(new GenerateActions(new Security(new UpdateReport(new ApplyActions(saver))))));
             case STAGING:
-                saver = new ApplyActions(saver); // Apply actions is mandatory
-                return new Init(new ID(new GenerateActions(new Security(saver))));
+                return new Init(new ID(new GenerateActions(new Security(new ApplyActions(saver)))));
             default:
                 throw new NotImplementedException("No support for storage type '" + storage.getType() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -149,14 +156,12 @@ public class RecordValidationContext implements DocumentSaverContext {
 
     @Override
     public MutableDocument getUpdateReportDocument() {
-        // TODO Auto-generated method stub
-        return null;
+        return updateReportDocument;
     }
 
     @Override
     public void setUpdateReportDocument(MutableDocument updateReportDocument) {
-        // TODO Auto-generated method stub
-
+        this.updateReportDocument = updateReportDocument;
     }
 
     @Override
@@ -196,7 +201,6 @@ public class RecordValidationContext implements DocumentSaverContext {
     @Override
     public boolean isInvokeBeforeSaving() {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
-
 }

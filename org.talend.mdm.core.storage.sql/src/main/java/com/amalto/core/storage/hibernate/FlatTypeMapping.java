@@ -353,6 +353,8 @@ class FlatTypeMapping extends TypeMapping {
                 if (sessionObject == null) {
                     throw new ValidateException("Invalid foreign key: [" + referencedClass.getName() + "#" + referencedValueId //$NON-NLS-1$ //$NON-NLS-2$
                             + "] doesn't exist."); //$NON-NLS-1$
+                } else {
+                    return sessionObject;
                 }
             } else {
                 Object sessionObject = session.load(referencedClass, referencedValueId);

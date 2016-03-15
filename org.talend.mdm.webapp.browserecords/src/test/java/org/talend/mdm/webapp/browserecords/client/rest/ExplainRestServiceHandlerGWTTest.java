@@ -39,19 +39,19 @@ public class ExplainRestServiceHandlerGWTTest extends GWTTestCase {
         BaseTreeModel root = callback.getModel();
         assertNotNull(root);
         BaseTreeModel treeNode1 = (BaseTreeModel) root.getChild(0);
-        assertEquals("1", treeNode1.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("10aacd8a-5600-4ae8-afa3-2cd3c870ed7d", treeNode1.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
-        assertEquals(1, treeNode1.get(StagingConstant.MATCH_GROUP_SZIE));
-        assertEquals("100.00%", treeNode1.get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
-        assertEquals("group1", treeNode1.get(StagingConstant.MATCH_GROUP_NAME)); //$NON-NLS-1$
+        assertEquals("1", treeNode1.<Object>get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("10aacd8a-5600-4ae8-afa3-2cd3c870ed7d", treeNode1.<Object>get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(1, treeNode1.<Object>get(StagingConstant.MATCH_GROUP_SZIE));
+        assertEquals("100.00%", treeNode1.<Object>get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
+        assertEquals("group1", treeNode1.<Object>get(StagingConstant.MATCH_GROUP_NAME)); //$NON-NLS-1$
         BaseTreeModel treeNode2 = (BaseTreeModel) treeNode1.getChild(0);
-        assertEquals("1", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("Test1", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
-        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
-        assertEquals("100.00%", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
-        assertEquals("1", treeNode2.get(StagingConstant.MATCH_EXACT_SCORE)); //$NON-NLS-1$
-        assertEquals("Name:100.00%,Description:100.00%", treeNode2.get(StagingConstant.MATCH_FIELD_SCORE)); //$NON-NLS-1$
-        assertEquals("Name:1,Description:1", treeNode2.get(StagingConstant.MATCH_EXACT_FIELD_SCORE)); //$NON-NLS-1$
+        assertEquals("1", treeNode2.<Object>get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Test1", treeNode2.<Object>get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.<Object>get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("100.00%", treeNode2.<Object>get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
+        assertEquals("1", treeNode2.<Object>get(StagingConstant.MATCH_EXACT_SCORE)); //$NON-NLS-1$
+        assertEquals("Name:100.00%,Description:100.00%", treeNode2.<Object>get(StagingConstant.MATCH_FIELD_SCORE)); //$NON-NLS-1$
+        assertEquals("Name:1,Description:1", treeNode2.<Object>get(StagingConstant.MATCH_EXACT_FIELD_SCORE)); //$NON-NLS-1$
     }
 
     public void testSimulateMatch() {
@@ -64,19 +64,19 @@ public class ExplainRestServiceHandlerGWTTest extends GWTTestCase {
         BaseTreeModel root = callback.getModel();
         assertNotNull(root);
         BaseTreeModel treeNode1 = (BaseTreeModel) root.getChild(0);
-        assertEquals("1", treeNode1.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("10aacd8a-5600-4ae8-afa3-2cd3c870ed7d", treeNode1.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
-        assertEquals(1, treeNode1.get(StagingConstant.MATCH_GROUP_SZIE));
-        assertEquals("100.00%", treeNode1.get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
-        assertEquals("group1", treeNode1.get(StagingConstant.MATCH_GROUP_NAME)); //$NON-NLS-1$
+        assertEquals("1", treeNode1.<Object>get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("10aacd8a-5600-4ae8-afa3-2cd3c870ed7d", treeNode1.<Object>get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(1, treeNode1.<Object>get(StagingConstant.MATCH_GROUP_SZIE));
+        assertEquals("100.00%", treeNode1.<Object>get(StagingConstant.MATCH_GROUP_CONFIDENCE)); //$NON-NLS-1$
+        assertEquals("group1", treeNode1.<Object>get(StagingConstant.MATCH_GROUP_NAME)); //$NON-NLS-1$
         BaseTreeModel treeNode2 = (BaseTreeModel) treeNode1.getChild(0);
-        assertEquals("1", treeNode2.get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
-        assertEquals("Test1", treeNode2.get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
-        assertEquals(false, treeNode2.get(StagingConstant.MATCH_IS_GROUP));
-        assertEquals("100.00%", treeNode2.get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
-        assertEquals("1", treeNode2.get(StagingConstant.MATCH_EXACT_SCORE)); //$NON-NLS-1$
-        assertEquals("Name:100.00%,Description:100.00%", treeNode2.get(StagingConstant.MATCH_FIELD_SCORE)); //$NON-NLS-1$
-        assertEquals("Name:1,Description:1", treeNode2.get(StagingConstant.MATCH_EXACT_FIELD_SCORE)); //$NON-NLS-1$
+        assertEquals("1", treeNode2.<Object>get("Name")); //$NON-NLS-1$ //$NON-NLS-2$
+        assertEquals("Test1", treeNode2.<Object>get(StagingConstant.MATCH_GROUP_ID)); //$NON-NLS-1$
+        assertEquals(false, treeNode2.<Object>get(StagingConstant.MATCH_IS_GROUP));
+        assertEquals("100.00%", treeNode2.<Object>get(StagingConstant.MATCH_SCORE)); //$NON-NLS-1$
+        assertEquals("1", treeNode2.<Object>get(StagingConstant.MATCH_EXACT_SCORE)); //$NON-NLS-1$
+        assertEquals("Name:100.00%,Description:100.00%", treeNode2.<Object>get(StagingConstant.MATCH_FIELD_SCORE)); //$NON-NLS-1$
+        assertEquals("Name:1,Description:1", treeNode2.<Object>get(StagingConstant.MATCH_EXACT_FIELD_SCORE)); //$NON-NLS-1$
     }
 
     private class MockBaseTreeModelCallback extends SessionAwareAsyncCallback<BaseTreeModel> {

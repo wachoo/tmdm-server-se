@@ -12,15 +12,13 @@
 // ============================================================================
 package com.amalto.core.save;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -36,6 +34,7 @@ import org.talend.utils.json.JSONObject;
 
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
+import com.amalto.core.history.MutableDocument;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.objects.ObjectPOJO;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
@@ -56,13 +55,13 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
+import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.XtentisException;
 
+@SuppressWarnings("nls")
 public class RecordValidationTest extends TestCase {
 
-    private static Logger LOG = Logger.getLogger(RecordValidationTest.class);
+    private static final Logger LOG = Logger.getLogger(RecordValidationTest.class);
 
     protected static final Storage systemStorage;
 
@@ -82,7 +81,7 @@ public class RecordValidationTest extends TestCase {
 
     protected static final ComplexTypeMetadata productFamily;
 
-    public static final String DATASOURCE = "H2-Default";
+    public static final String DATASOURCE = "H2-Fulltext";
 
     static {
         LOG.info("Setting up MDM server environment...");
@@ -102,6 +101,7 @@ public class RecordValidationTest extends TestCase {
         masterStorage = new SecuredStorage(new HibernateStorage("Product", StorageType.MASTER), userSecurity);
         productRepository = new MetadataRepository();
         productRepository.load(RecordValidationTest.class.getResourceAsStream("../storage/Product.xsd"));
+        productRepository.load(RecordValidationTest.class.getResourceAsStream("../save/updateReport.xsd"));
         MockMetadataRepositoryAdmin.INSTANCE.register("Product", productRepository);
         product = productRepository.getComplexType("Product");
         store = productRepository.getComplexType("Store");
@@ -121,24 +121,46 @@ public class RecordValidationTest extends TestCase {
         BeanDelegatorContainer.createInstance();
     }
 
-    // Create test data of Product & Store
-    private void createData() {
-        DataRecordReader<String> factory = new XmlStringDataRecordReader();
-        List<DataRecord> allRecords = new LinkedList<DataRecord>();
-        String xmlStore = "<Store><Id>1</Id><Address>address</Address><Lat>1.0</Lat><Long>1.0</Long></Store>";
+    @Override
+    protected void setUp() throws Exception {
+        String xmlStore = "<Store><Id>1</Id><Address>Address</Address><Lat>1.0</Lat><Long>1.0</Long></Store>";
         String xmlProduct = "<Product><Id>1</Id><Name>Product</Name><Description>Product Description</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores><Store>[1]</Store></Stores></Product>";
-        allRecords.add(factory.read(productRepository, store, xmlStore));
-        allRecords.add(factory.read(productRepository, product, xmlProduct));
+        createData("Product", false, xmlStore);
+        createData("Product", false, xmlProduct);
+        createData("Product", true, xmlStore);
+        createData("Product", true, xmlProduct);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
         try {
             masterStorage.begin();
-            masterStorage.update(allRecords);
+            {
+                UserQueryBuilder qb = from(product);
+                masterStorage.delete(qb.getSelect());
+
+                qb = from(productFamily);
+                masterStorage.delete(qb.getSelect());
+
+                qb = from(store);
+                masterStorage.delete(qb.getSelect());
+            }
             masterStorage.commit();
         } finally {
             masterStorage.end();
         }
         try {
             stagingStorage.begin();
-            stagingStorage.update(allRecords);
+            {
+                UserQueryBuilder qb = from(product);
+                stagingStorage.delete(qb.getSelect());
+
+                qb = from(productFamily);
+                stagingStorage.delete(qb.getSelect());
+
+                qb = from(store);
+                stagingStorage.delete(qb.getSelect());
+            }
             stagingStorage.commit();
         } finally {
             stagingStorage.end();
@@ -158,7 +180,7 @@ public class RecordValidationTest extends TestCase {
             objectsToParse[i++] = (Class) objects[1];
         }
         repository.load(objectsToParse);
-        String[] models = new String[] {"/com/amalto/core/initdb/data/datamodel/CONF"};
+        String[] models = new String[] { "/com/amalto/core/initdb/data/datamodel/CONF" };
         for (String model : models) {
             InputStream builtInStream = RecordValidationTest.class.getResourceAsStream(model);
             if (builtInStream == null) {
@@ -255,10 +277,19 @@ public class RecordValidationTest extends TestCase {
         private final MetadataRepository repository;
 
         private final boolean isAdmin;
+        
+        private final boolean invokeBeforeSaving;
 
         public MockSaverSource(MetadataRepository repository, boolean isAdmin) {
             this.repository = repository;
             this.isAdmin = isAdmin;
+            this.invokeBeforeSaving = true;
+        }
+        
+        public MockSaverSource(MetadataRepository repository, boolean isAdmin, boolean invokeBeforeSaving) {
+            this.repository = repository;
+            this.isAdmin = isAdmin;
+            this.invokeBeforeSaving = invokeBeforeSaving;
         }
 
         @Override
@@ -286,7 +317,11 @@ public class RecordValidationTest extends TestCase {
 
         @Override
         public InputStream getSchema(String dataModelName) {
-            return RecordValidationTest.class.getResourceAsStream("../storage/Product.xsd");
+            if ("UpdateReport".equals(dataModelName)) {
+               return RecordValidationTest.class.getResourceAsStream("../save/updateReport.xsd");
+            } else {
+                return RecordValidationTest.class.getResourceAsStream("../storage/Product.xsd");
+            }
         }
 
         @Override
@@ -294,59 +329,37 @@ public class RecordValidationTest extends TestCase {
             return repository;
         }
 
-        @Override
         public void routeItem(String dataCluster, String typeName, String[] id) {
             // nothing to do
         }
 
-    }
-
-    // Clean test data of Product & Store
-    private void cleanData() {
-        try {
-            masterStorage.begin();
-            {
-                UserQueryBuilder qb = from(product);
-                masterStorage.delete(qb.getSelect());
-
-                qb = from(store);
-                masterStorage.delete(qb.getSelect());
+        public OutputReport invokeBeforeSaving(DocumentSaverContext context, MutableDocument updateReportDocument) {
+            if (invokeBeforeSaving) {
+                throw new RuntimeException("Before saving validation failed.");
             }
-            masterStorage.commit();
-        } finally {
-            masterStorage.end();
-        }
-        try {
-            stagingStorage.begin();
-            {
-                UserQueryBuilder qb = from(product);
-                stagingStorage.delete(qb.getSelect());
-
-                qb = from(store);
-                stagingStorage.delete(qb.getSelect());
-            }
-            stagingStorage.commit();
-        } finally {
-            stagingStorage.end();
+            return null;
         }
     }
 
+    protected static JSONObject validateRecord(String storageName, boolean isStaging, boolean isAdmin, String documentXml) throws Exception {
+        return validateRecord(storageName, isStaging, isAdmin, false, documentXml);
+    }
+    
     // Simulate the Record Validation API of DataService#validateRecord() to test RecordValidationContext, RecordValidationCommitter, etc.
-    private static JSONObject validateRecord(String storageName, boolean isStaging, boolean isAdmin, String documentXml) throws Exception {
-        ILocalUser localUser = isAdmin ? new MockAdmin() : new MockUser();
+    protected static JSONObject validateRecord(String storageName, boolean isStaging, boolean isAdmin, boolean invokeBeforeSaving, String documentXml) throws Exception {
+        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", isAdmin ? new MockAdmin() : new MockUser()));
         String dataCluster = isStaging ? storageName + "#STAGING" : storageName;
         DataRecord.ValidateRecord.set(true);
         boolean isValid = true;
         String message = StringUtils.EMPTY;
 
-        SaverSession session = SaverSession.newSession(new MockSaverSource(productRepository, isAdmin));
+        SaverSession session = SaverSession.newSession(new MockSaverSource(productRepository, isAdmin, invokeBeforeSaving));
         Committer committer = new RecordValidationCommitter();
-        DocumentSaverContext context = session.getContextFactory().createValidation(dataCluster, storageName, new ByteArrayInputStream(documentXml.getBytes("UTF-8")));
+        DocumentSaverContext context = session.getContextFactory().createValidation(dataCluster, storageName, invokeBeforeSaving, new ByteArrayInputStream(documentXml.getBytes("UTF-8")));
         DocumentSaver saver = context.createSaver();
         try {
             session.begin(dataCluster, committer);
             saver.save(session, context);
-            BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", localUser));
             session.end(committer);
         } catch (Exception e) {
             isValid = false;
@@ -358,24 +371,24 @@ public class RecordValidationTest extends TestCase {
 
         JSONObject result = new JSONObject();
         try {
-            result.put("isValid", isValid); //$NON-NLS-1$
-            result.put("message", message); //$NON-NLS-1$
+            result.put("isValid", isValid); 
+            result.put("message", message); 
         } catch (JSONException e) {
-            throw new RuntimeException("Unable to build the record validation result.", e); //$NON-NLS-1$
+            throw new RuntimeException("Unable to build the record validation result.", e); 
         }
         return result;
     }
 
-    // Create test ProductFamily with AutoIncrement ID
-    private static void createFamily(String storageName, boolean isStaging,  String documentXml) throws Exception {
+    // Create test data
+    protected static void createData(String storageName, boolean isStaging, String documentXml) throws Exception {
+        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", new MockAdmin()));
         String dataCluster = isStaging ? storageName + "#STAGING" : storageName;
         SaverSession session = SaverSession.newSession(new MockSaverSource(productRepository, true));
-        DocumentSaverContext context = session.getContextFactory().createValidation(dataCluster, storageName, new ByteArrayInputStream(documentXml.getBytes("UTF-8")));
+        DocumentSaverContext context = session.getContextFactory().createValidation(dataCluster, storageName, false, new ByteArrayInputStream(documentXml.getBytes("UTF-8")));
         DocumentSaver saver = context.createSaver();
         try {
             session.begin(dataCluster);
             saver.save(session, context);
-            BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", new MockAdmin()));
             session.end();
         } catch (Exception e) {
             session.abort();
@@ -400,7 +413,7 @@ public class RecordValidationTest extends TestCase {
         assertFalse(resp.getBoolean("isValid"));// FAIL
         assertTrue(resp.getString("message").contains("[Error] :-1:-1: cvc-type.3.1.3: The value 'NotValid' of element 'ChangeStatus' is not valid."));
         resp = validateRecord("Product", false, true, xmlForSchema2);
-        assertTrue(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getBoolean("isValid"));// PASS
         // STAGING
         resp = validateRecord("Product", true, true, xmlForSchema1);
         assertTrue(resp.getBoolean("isValid"));// PASS, doesn't do schema validation
@@ -410,8 +423,6 @@ public class RecordValidationTest extends TestCase {
 
     // MASTER, CREATE will get Schema error, UPDATE will get convert error, STAGING will both get convert error
     public void testValueTypeValidation() throws Exception {
-        createData();
-
         String xmlForValue1 = "<Product><Id>1</Id><Name>Test Product 1</Name><Description>Test Product Description</Description><Features><Sizes/><Colors/></Features><Price>a2.00</Price></Product>";
         String xmlForValue2 = "<Product><Id>2</Id><Name>Test Product 2</Name><Description>Test Product Description</Description><Features><Sizes/><Colors/></Features><Price>a2.00</Price></Product>";
         String xmlForValue3 = "<Product><Id>3</Id><Name>Test Product 1</Name><Description>Test Product Description</Description><Features><Sizes/><Colors/></Features><Price>3.00</Price></Product>";
@@ -433,16 +444,12 @@ public class RecordValidationTest extends TestCase {
         assertTrue(resp.getString("message").equals("'a2.00' is not a number."));// CREATE will return value error
         resp = validateRecord("Product", true, true, xmlForValue3);
         assertTrue(resp.getBoolean("isValid"));// PASS
-
-        cleanData();
     }
 
     // MASTER & STAGING will both validate the existence of FK
     public void testForeignKeyValidation() throws Exception {
-        createData();
-
-        String xmlForFK1 = "<Product><Id>1</Id><Name>Product</Name><Description>Product Description</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores><Store>[1]</Store></Stores></Product>";
-        String xmlForFK2 = "<Product><Id>2</Id><Name>Product</Name><Description>Product Description</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores><Store>[2]</Store></Stores></Product>";
+        String xmlForFK1 = "<Product><Id>1</Id><Name>Product</Name><Description>Product Description 1</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores><Store>[1]</Store></Stores></Product>";
+        String xmlForFK2 = "<Product><Id>1</Id><Name>Product</Name><Description>Product Description 2</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores><Store>[2]</Store></Stores></Product>";
         // MASTER
         JSONObject resp = validateRecord("Product", false, true, xmlForFK1); // exists FK
         assertTrue(resp.getBoolean("isValid"));// PASS
@@ -455,8 +462,20 @@ public class RecordValidationTest extends TestCase {
         resp = validateRecord("Product", true, true, xmlForFK2); // not exist
         assertFalse(resp.getBoolean("isValid"));// FAIL
         assertTrue(resp.getString("message").equals("Invalid foreign key: [org.talend.mdm.storage.hibernate.Store#2] doesn't exist."));
+    }
 
-        cleanData();
+    // MASTER can control if call beforeSaving or not, STAGING won't call beforeSaving
+    public void testBeforeSavingValidation() throws Exception {
+        String xmlBeforeSaving = "<ProductFamily><Name>Test Product Family</Name><ChangeStatus>Approved</ChangeStatus></ProductFamily>";
+        // MASTER
+        JSONObject resp = validateRecord("Product", false, true, true, xmlBeforeSaving);
+        assertFalse(resp.getBoolean("isValid"));//  FAIL, MASTER call beforeSaving
+        assertTrue(resp.getString("message").equals("Before saving validation failed."));
+        resp = validateRecord("Product", false, true, false, xmlBeforeSaving);
+        assertTrue(resp.getBoolean("isValid"));//  PASS, MASTER doesn't call beforeSaving
+        // STAGING
+        resp = validateRecord("Product", true, true, true, xmlBeforeSaving);
+        assertTrue(resp.getBoolean("isValid"));//  PASS, STAGING won't call beforeSaving process
     }
 
     // MASTER & STAGING will both validate the security
@@ -481,9 +500,9 @@ public class RecordValidationTest extends TestCase {
         FieldMetadata name = productFamily.getField("Name");
         UserQueryBuilder qb = from(productFamily).orderBy(id, OrderBy.Direction.DESC);
         // MASTER
-        createFamily("Product", false, xmlFamily1);
+        createData("Product", false, xmlFamily1);
         validateRecord("Product", false, false, xmlForAutoIncrement);
-        createFamily("Product", false, xmlFamily2);
+        createData("Product", false, xmlFamily2);
         StorageResults results = masterStorage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -497,14 +516,13 @@ public class RecordValidationTest extends TestCase {
                 }
             }
             assertTrue((id2 - id1) == 1);
-            masterStorage.delete(qb.getSelect());
         } finally {
             results.close();
         }
         // STAGING
-        createFamily("Product", true, xmlFamily1);
+        createData("Product", true, xmlFamily1);
         validateRecord("Product", true, false, xmlForAutoIncrement);
-        createFamily("Product", true, xmlFamily2);
+        createData("Product", true, xmlFamily2);
         results = stagingStorage.fetch(qb.getSelect());
         try {
             assertEquals(2, results.getSize());
@@ -518,9 +536,28 @@ public class RecordValidationTest extends TestCase {
                 }
             }
             assertTrue((id2 - id1) == 1);
-            stagingStorage.delete(qb.getSelect());
         } finally {
             results.close();
         }
+    }
+    
+    // Validate record contains wrong xml node(for existing record)
+    public void testXmlNodeValidation() throws Exception {
+        String xmlForNode1 = "<Product><Id>1</Id><Names>Product</Names><Description>Product Description</Description></Product>";
+        String xmlForNode2 = "<Product><Id>1</Id><Name>Product</Name><Description>Product Description</Description><Features><Sizes><Size2>Small</Size2></Sizes></Features></Product>";
+        // MASTER
+        JSONObject resp = validateRecord("Product", false, true, xmlForNode1);
+        assertFalse(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getString("message").contains("Entity 'Product' does not own field 'Names'."));
+        resp = validateRecord("Product", false, true, xmlForNode2);
+        assertFalse(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getString("message").contains("Entity 'Product' does not own field 'Size2'."));
+        // STAGING
+        resp = validateRecord("Product", true, true, xmlForNode1);
+        assertFalse(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getString("message").contains("Entity 'Product' does not own field 'Names'."));
+        resp = validateRecord("Product", true, true, xmlForNode2);
+        assertFalse(resp.getBoolean("isValid"));// FAIL
+        assertTrue(resp.getString("message").contains("Entity 'Product' does not own field 'Size2'."));
     }
 }

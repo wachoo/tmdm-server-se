@@ -187,7 +187,7 @@ public class TreeDetailUtil {
         CommonUtil.setCurrentCachedEntity(item.getConcept() + item.getIds() + panel.isOutMost(), itemPanel);
     }
 
-    private static String[] parseKey(String keyStr) {
+    public static String[] parseKey(String keyStr) {
         String[] ids = keyStr.split("\\."); //$NON-NLS-1$
 
         if (keyStr.endsWith(".")) { //$NON-NLS-1$

@@ -23,6 +23,7 @@ import com.amalto.core.save.context.DefaultSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.save.generator.AutoIncrementGenerator;
+import com.amalto.core.storage.record.DataRecord;
 
 public class SaverSession {
 
@@ -197,7 +198,7 @@ public class SaverSession {
             }
             // If any change was made to data cluster "UpdateReport", route committed update reports.
             List<Document> updateReport = itemsToUpdate.get(XSystemObjects.DC_UPDATE_PREPORT.getName());
-            if (updateReport != null) {
+            if (updateReport != null && !DataRecord.ValidateRecord.get()) {
                 Iterator<Document> iterator = updateReport.iterator();
                 while (iterator.hasNext()) {
                     MutableDocument document = (MutableDocument) iterator.next();
