@@ -644,7 +644,8 @@ public class ItemDetailToolBar extends ToolBar {
                         public void componentSelected(MenuEvent menuEvent) {
                             String ids = itemBean.getIds();
                             String concept = itemBean.getConcept();
-                            NavigatorPanel panel = new NavigatorPanel(concept, ids);
+                            NavigatorPanel panel = new NavigatorPanel();
+                            panel.updateDetailPanel(ids, concept);
                             NavigatorPanel.renderPanel(GWT.getHostPageBaseURL(), ids, concept, BrowseRecords.getSession()
                                     .getAppHeader().getMasterDataCluster(), viewBean.getViewPK(), panel);
                         }

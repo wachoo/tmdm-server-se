@@ -5,10 +5,10 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	var NAVIGATOR_NODE_IN_ENTITY_TYPE = 1;
 	var NAVIGATOR_NODE_OUT_ENTITY_TYPE = 2;
 	var NAVIGATOR_NODE_VALUE_TYPE = 3;
-	var NAVIGATOR_NOD_COLOR_SELECTED = "rgb(52, 56, 34)";
-	var NAVIGATOR_NOD_COLOR_INBOUND = "rgb(52, 56, 34)";
-	var NAVIGATOR_NOD_COLOR_OUTBOUND = "rgb(52, 56, 34)";
-	var NAVIGATOR_NOD_COLOR_DATA = "rgb(52, 56, 34)";
+	var NAVIGATOR_NOD_COLOR_SELECTED = "rgb(255, 2, 42)";
+	var NAVIGATOR_NOD_COLOR_INBOUND = "rgb(24, 2, 255)";
+	var NAVIGATOR_NOD_COLOR_OUTBOUND = "rgb(2, 255, 145)";
+	var NAVIGATOR_NOD_COLOR_DATA = "rgb(231, 253, 6)";
 	var nodeList = [];
 	var linkList = [];
 	var width = 800;
@@ -16,6 +16,13 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	var zoom = d3.behavior.zoom().scaleExtent([ 1, 100 ]).on("zoom", zoomed);
 	var svg = d3.select("#navigator").append("svg").attr("width", width).attr(
 			"height", height).append("g").call(zoom);
+    var rect = svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .style("fill", "none")
+    .style("pointer-events", "all");
+
+    var container = svg.append("g");
 	var links;
 	var nodes;
 	var link;
@@ -29,19 +36,10 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	function paint() {
 		link = link.data(links);
 		node = node.data(nodes);
-		link.enter().append("line").style("stroke", "#ccc").style(
-				"stroke-width", 1);
-
-		node.enter().append("circle").attr("r", 20).style("fill",function(d) {
-			if (NAVIGATOR_NODE_IN_ENTITY_TYPE == d.navigator_node_type) {
-				return NAVIGATOR_NOD_COLOR_INBOUND
-			} else if (NAVIGATOR_NODE_OUT_ENTITY_TYPE == d.navigator_node_type) {
-				return NAVIGATOR_NOD_COLOR_OUTBOUND
-			} else {
-				return NAVIGATOR_NOD_COLOR_DATA
-			}
-		}).each(function(d, i) {
-			d3.select(this).call(force.drag);
+		link.enter().append("line").style(
+				"stroke-width", 1).style("stroke", function(l){return getColor(l)});
+		node.enter().append("circle").attr("r", 20).attr("identifier",function(d) {return getIdentifier(d)}).style("fill",function(d) {return getColor(d)}).each(function(d, i) {
+			d3.select(this).call(drag);
 			d3.select(this).on("click", click);
 			d3.select(this).on("dblclick", dblclick);
 			d3.select(this).on("mouseover", mouseover);
@@ -73,13 +71,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 			if (d === node) {
 				return NAVIGATOR_NOD_COLOR_SELECTED
 			} else {
-				if (NAVIGATOR_NODE_IN_ENTITY_TYPE == node.navigator_node_type) {
-					return NAVIGATOR_NOD_COLOR_INBOUND
-				} else if (NAVIGATOR_NODE_OUT_ENTITY_TYPE == node.navigator_node_type) {
-					return NAVIGATOR_NOD_COLOR_OUTBOUND
-				} else {
-					return NAVIGATOR_NOD_COLOR_DATA
-				}
+				return getColor(node);
 			}
 		});
 
@@ -91,8 +83,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 									+ '/outBoundTypes/',
 							method : 'GET',
 							params : {
-								type : d.navigator_node_concept,
-								ids : d.navigator_node_ids
+								ids : d.navigator_node_ids,
+								type : d.navigator_node_concept
 							},
 							success : function(response, options) {
 								var newNodes = eval('(' + response.responseText
@@ -103,8 +95,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 									var newNode = {
 										x : d.x + getRandomInt(-15, 15),
 										y : d.y + getRandomInt(-15, 15),
-										navigator_node_concept : node.navigator_node_concept,
 										navigator_node_ids : node.navigator_node_ids,
+										navigator_node_concept : node.navigator_node_concept,
 										navigator_node_type : node.navigator_node_type,
 										navigator_node_label : node.navigator_node_label,
 										navigator_node_expand : false
@@ -131,8 +123,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 									+ '/inBoundTypes/',
 							method : 'GET',
 							params : {
-								type : d.navigator_node_concept,
-								ids : d.navigator_node_ids
+								ids : d.navigator_node_ids,
+								type : d.navigator_node_concept
 							},
 							success : function(response, options) {
 								var newNodes = eval('(' + response.responseText
@@ -145,7 +137,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 										y : d.y + getRandomInt(-15, 15),
 										navigator_node_concept : node.navigator_node_concept,
 										navigator_node_foreignkey_path : node.navigator_node_foreignkey_path,
-										navigator_node_ids : node.navigator_node_foreignkey_value,
+										navigator_node_foreignkey_value : node.navigator_node_foreignkey_value,
 										navigator_node_type : node.navigator_node_type,
 										navigator_node_label : node.navigator_node_label,
 										navigator_node_expand : false
@@ -176,7 +168,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 						params : {
 							type : d.navigator_node_concept,
 							foreignKeyPath : d.navigator_node_foreignkey_path,
-							foreignKeyValue : d.navigator_node_ids
+							foreignKeyValue : d.navigator_node_foreignkey_value
 						},
 						success : function(response, options) {
 							var newNodes = eval('(' + response.responseText
@@ -187,8 +179,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 								var newNode = {
 									x : d.x + getRandomInt(-15, 15),
 									y : d.y + getRandomInt(-15, 15),
-									navigator_node_concept : node.navigator_node_concept,
 									navigator_node_ids : node.navigator_node_ids,
+									navigator_node_concept : node.navigator_node_concept,
 									navigator_node_type : node.navigator_node_type,
 									navigator_node_label : node.navigator_node_label,
 									navigator_node_expand : false
@@ -228,8 +220,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 								var newNode = {
 									x : d.x + getRandomInt(-15, 15),
 									y : d.y + getRandomInt(-15, 15),
-									navigator_node_concept : d.navigator_node_concept,
 									navigator_node_ids : node.navigator_node_ids,
+									navigator_node_concept : d.navigator_node_concept,
 									navigator_node_type : node.navigator_node_type,
 									navigator_node_label : node.navigator_node_label,
 									navigator_node_expand : false
@@ -277,10 +269,16 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 				return 0.0;
 			}
 		});
+		d3.select(this).transition()
+        .duration(750)
+        .attr("r", "35");
 	}
 
 	function mouseout(d, i) {
 		link_text.style("fill-opacity", "0.0");
+		 d3.select(this).transition()
+         .duration(750)
+         .attr("r", "20");
 	}
 
 	function tick() {
@@ -329,17 +327,16 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 				links = [];
 				force = d3.layout.force().nodes(nodes).links(links).size(
 						[ width, height ]).linkDistance(150).charge([ -400 ]);
-				// fixed node position
-				// drag = force.drag().on("dragstart", function(d, i) {
-				// d.fixed = true;
-				// });
+				 drag = force.drag().on("dragstart", function(d, i) {
+				 d.fixed = true;
+				 });
 
 				links = force.links();
 				nodes = force.nodes();
-				link = svg.selectAll(".link");
-				node = svg.selectAll(".node");
-				link_text = svg.selectAll(".linetext");
-				node_text = svg.selectAll(".nodetext");
+				link = container.append("g").selectAll(".link");
+				node = container.append("g").selectAll(".node");
+				link_text = container.append("g").selectAll(".linetext");
+				node_text = container.append("g").selectAll(".nodetext");
 				force.on("tick", tick);
 				paint();
 			},
@@ -347,5 +344,21 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 
 			}
 		});
+	}
+	
+	function getColor(o) {
+		if (NAVIGATOR_NODE_IN_ENTITY_TYPE == o.navigator_node_type) {
+			return NAVIGATOR_NOD_COLOR_INBOUND;
+		} else if (NAVIGATOR_NODE_OUT_ENTITY_TYPE == o.navigator_node_type) {
+			return NAVIGATOR_NOD_COLOR_OUTBOUND;
+		} else {
+			return NAVIGATOR_NOD_COLOR_DATA;
+		}
+	}
+	
+	function getIdentifier(o) {
+		var ids = o.navigator_node_ids;
+		var concept = o.navigator_node_concept;
+		return 'navigator_' + o.navigator_node_concept + '_' + o.navigator_node_ids;
 	}
 }

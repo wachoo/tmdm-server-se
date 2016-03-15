@@ -19,6 +19,7 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
+import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.client.model.BreadCrumbModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
@@ -43,10 +44,6 @@ public class NavigatorPanel extends ContentPanel {
 
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 
-    private String concept;
-
-    private String ids;
-
     private ContentPanel navigatorPanel;
 
     private ContentPanel detailPanel;
@@ -59,12 +56,10 @@ public class NavigatorPanel extends ContentPanel {
 
     String operation = ItemDetailToolBar.VIEW_OPERATION;
 
-    public NavigatorPanel(String concept, String ids) {
-        this.concept = concept;
-        this.ids = ids;
-        setId("NavigatorPanel");
+    public NavigatorPanel() {
+        setId("NavigatorPanel"); //$NON-NLS-1$
         initPanel();
-        registerJournalService();
+        registerNavigatorService();
     }
 
     private void initPanel() {
@@ -72,6 +67,9 @@ public class NavigatorPanel extends ContentPanel {
         setLayout(new BorderLayout());
         setStyleAttribute("height", "100%"); //$NON-NLS-1$ //$NON-NLS-2$  
         BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 400);
+        eastData.setMargins(new Margins(0, 5, 0, 0));
+        eastData.setMinSize(0);
+        eastData.setMaxSize(7000);
         eastData.setSplit(true);
         eastData.setFloatable(false);
         eastData.setCollapsible(true);
@@ -81,7 +79,6 @@ public class NavigatorPanel extends ContentPanel {
         centerData.setMargins(new Margins(0));
         initNavigatorPanel();
         add(navigatorPanel, centerData);
-        updateDetailPanel(ids, concept);
     }
 
     private void initNavigatorPanel() {
@@ -98,7 +95,7 @@ public class NavigatorPanel extends ContentPanel {
     private void initDetailPanel() {
         detailPanel = new ContentPanel();
         detailPanel.setLayout(new FitLayout());
-        detailPanel.setHeading("detail");
+        detailPanel.setHeading(MessagesFactory.getMessages().navigator_detailPanel_label());
 
     }
 
@@ -147,7 +144,7 @@ public class NavigatorPanel extends ContentPanel {
                                         TypeModel typeModel = viewBean.getBindingEntityModel().getMetaDataTypes()
                                                 .get(item.getConcept());
 
-                                        String tabItemId = "Navigator" + typeModel.getLabel(Locale.getLanguage())
+                                        String tabItemId = "Navigator" + typeModel.getLabel(Locale.getLanguage()) //$NON-NLS-1$
                                                 + " " + panel.getItemId(); //$NON-NLS-1$
                                         panel.setHeading(tabItemId);
                                         panel.setItemId(tabItemId
@@ -191,7 +188,7 @@ public class NavigatorPanel extends ContentPanel {
         window.show();
     }
 
-    private native void registerJournalService()/*-{
+    private native void registerNavigatorService()/*-{
 		var instance = this;
 		$wnd.amalto = $wnd.amalto || {};
         $wnd.amalto.navigator = $wnd.amalto.navigator || {};
