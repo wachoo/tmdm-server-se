@@ -10,7 +10,8 @@
 
 package com.amalto.core.storage.services;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -104,9 +105,9 @@ import com.wordnik.swagger.annotations.ApiParam;
 public class DataService {
 
     private static final Logger LOGGER = Logger.getLogger(DataService.class);
-
+    
     private static final List<Variant> queryVariants = new ArrayList<>();
-
+    
     static {
         synchronized (queryVariants) {
             if (queryVariants.isEmpty()) {
@@ -199,7 +200,7 @@ public class DataService {
         } catch (IllegalArgumentException e) {
             String message = "Container '" + type + "' does not exist (please specify one of [MASTER, STAGING])."; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(message, e);
-            throw new IllegalArgumentException(message);
+            throw new IllegalArgumentException(message); 
         }
         return storageType;
     }
@@ -211,8 +212,8 @@ public class DataService {
             roles = LocalUser.getLocalUser().getRoles();
         } catch (XtentisException e) {
             String message = "Unable to access user current roles.";
-            LOGGER.error(message, e);
-            throw new RuntimeException(message, e);
+            LOGGER.error(message, e); //$NON-NLS-1$
+            throw new RuntimeException(message, e); //$NON-NLS-1$
         }
         return new SecuredStorage.UserDelegator() {
 
@@ -243,7 +244,7 @@ public class DataService {
                 mediaType = MediaType.APPLICATION_JSON_TYPE;
             } else {
                 mediaType = MediaType.APPLICATION_XML_TYPE;
-            }
+            }        
             // Select correct writer based on requested media type
             if (MediaType.APPLICATION_XML_TYPE.equals(mediaType)) {
                 if (expression.isProjection()) {
@@ -322,13 +323,13 @@ public class DataService {
 
     private static Throwable getRootException(Throwable e) {
         Throwable root = e;
-        while (root != null && root.getCause() != null && root.getCause().getMessage() != null) {
+        while(root != null && root.getCause() != null && root.getCause().getMessage() != null) {
             root = root.getCause();
         }
         return root;
     }
 
-    private Map<String, Object> doValidation(String storageName, String storageType, InputStream content) {
+    private Map<String, Object> doValidation(String storageName, String storageType, boolean invokeBeforeSaving, InputStream content) {
         DataRecord.ValidateRecord.set(true);
         boolean isValid = true;
         String message = StringUtils.EMPTY;
@@ -336,7 +337,7 @@ public class DataService {
         SaverSession session = SaverSession.newSession();
         Committer committer = new RecordValidationCommitter();
         DocumentSaverContext context = session.getContextFactory().createValidation(getStorageName(storageName, storageType),
-                storageName, content);
+                storageName, invokeBeforeSaving, content);
         DocumentSaver saver = context.createSaver();
         try {
             session.begin(storageName, committer);
@@ -361,15 +362,10 @@ public class DataService {
     @GET
     @Path("{containerName}/{type}")
     @ApiOperation("Lists all primary keys for container and type")
-    public Response listIds(@Context
-    Request request, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String storageType, @ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam("Data type")
-    @PathParam("type")
-    String typeName) {
+    public Response listIds(@Context Request request, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam("Data type") @PathParam("type") String typeName) {
         // Get storage for records
         Server server = ServerContext.INSTANCE.get();
         StorageAdmin admin = server.getStorageAdmin();
@@ -385,13 +381,11 @@ public class DataService {
     @POST
     @Path("{containerName}")
     @ApiOperation("Creates a new record in the container. The record will be provided in the request content as XML")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.TEXT_XML })
-    public void createRecord(@ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String storageType, InputStream content) {
+    @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+    public void createRecord(
+            @ApiParam("Container name") @PathParam("containerName") String storageName,
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
+            InputStream content) {
         SaverSession session = SaverSession.newSession();
         DocumentSaverContext context = session.getContextFactory().create(getStorageName(storageName, storageType), storageName,
                 UpdateReportPOJO.SERVICE_SOURCE, content, true, true, true, false, false);
@@ -420,33 +414,31 @@ public class DataService {
     @POST
     @Path("{containerName}/batch")
     @ApiOperation("Creates or updates records in the container in batch mode. Records will be provided in the request content as XML")
-    public void createBatch(@ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String storageType, InputStream content) {
+    public void createBatch(
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
+            InputStream content) {
         List<String> allDocs = new ArrayList<String>();
         XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(content);
         while (tokenizer.hasMoreElements()) {
             allDocs.add(tokenizer.nextElement());
         }
-
+        
         SaverSession session = SaverSession.newSession();
         final TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         boolean createOwnTransaction = true;
-        if (transactionManager.hasTransaction()) {
+        if(transactionManager.hasTransaction()){
             Transaction currentTransaction = transactionManager.currentTransaction();
-            if (currentTransaction.getLifetime() == Lifetime.LONG) {
+            if(currentTransaction.getLifetime() == Lifetime.LONG){
                 createOwnTransaction = false;
             }
         }
         Transaction ownTransaction = null;
-        if (createOwnTransaction) {
+        if(createOwnTransaction){
             ownTransaction = transactionManager.create(Transaction.Lifetime.LONG);
         }
         try {
-            if (ownTransaction != null) {
+            if(ownTransaction != null){
                 ownTransaction.begin();
             }
             session.begin(storageName);
@@ -460,13 +452,13 @@ public class DataService {
                 }
             }
             session.end();
-            if (ownTransaction != null) {
+            if(ownTransaction != null){
                 ownTransaction.commit();
             }
-
+            
         } catch (Exception e) {
             session.abort();
-            if (ownTransaction != null) {
+            if(ownTransaction != null){
                 ownTransaction.rollback();
             }
             LOGGER.warn("Unable to commit batch, trying to create one by one.", e); //$NON-NLS-1$
@@ -481,7 +473,7 @@ public class DataService {
                         LOGGER.error("Unable to create record.", e1); //$NON-NLS-1$
                     }
                 }
-            }
+            }       
             if (errorDocs.size() > 0) {
                 LOGGER.error("Unable to commit the whole batch, " + errorDocs.size() + " records failed.\n"); //$NON-NLS-1$
                 for (String doc : errorDocs) {
@@ -495,14 +487,13 @@ public class DataService {
     @PUT
     @Path("{containerName}")
     @ApiOperation("Updates a record in the container. The record will be provided in the request content as XML")
-    public void updateRecord(@ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String storageType, InputStream content) {
+    public void updateRecord(
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
+            InputStream content) {
         SaverSession session = SaverSession.newSession();
-        DocumentSaverContext context = session.getContextFactory().create(getStorageName(storageName, storageType), storageName,
+        DocumentSaverContext context = session.getContextFactory().create(getStorageName(storageName, storageType), 
+                storageName, 
                 UpdateReportPOJO.SERVICE_SOURCE, content, true, true, true, false, false);
         context.setUserAction(UserAction.UPDATE);
         DocumentSaver saver = context.createSaver();
@@ -521,16 +512,14 @@ public class DataService {
     @PATCH
     @Path("{containerName}")
     @ApiOperation("Partially updates a record in the container. The record will be provided in the request content as XML")
-    public void partialUpdateRecord(@ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String storageType, InputStream content) {
+    public void partialUpdateRecord(
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
+            InputStream content) {
         SaverSession session = SaverSession.newSession();
-        DocumentSaverContext context = session.getContextFactory()
-                .createPartialUpdate(getStorageName(storageName, storageType), storageName, UpdateReportPOJO.SERVICE_SOURCE,
-                        content, true, true, StringUtils.EMPTY, StringUtils.EMPTY, 0, false);
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate(getStorageName(storageName, storageType), 
+                storageName, 
+                UpdateReportPOJO.SERVICE_SOURCE, content, true, true, StringUtils.EMPTY, StringUtils.EMPTY, 0, false);
         DocumentSaver saver = context.createSaver();
         try {
             session.begin(storageName);
@@ -547,17 +536,15 @@ public class DataService {
     @POST
     @Path("{containerName}/validate")
     @ApiOperation("Validate records in the container. The records will be provided in the request content as XML")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.TEXT_XML })
-    public Response validateRecord(@ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String storageType, InputStream content) {
+    @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+    public Response validateRecord(
+            @ApiParam("Container name") @PathParam("containerName") String storageName,
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING") @QueryParam("container") @DefaultValue("MASTER") String storageType,
+            @ApiParam(value="Invoke beforeSaving") @QueryParam("beforeSaving") @DefaultValue("true") boolean invokeBeforeSaving,
+            InputStream content) {
         try {
             if (!"MASTER".equalsIgnoreCase(storageType) && !"STAGING".equalsIgnoreCase(storageType)) { //$NON-NLS-1$ //$NON-NLS-2$
-                throw new IllegalArgumentException(
-                        "Container '" + storageType + "' is not valid (please specify one of [MASTER, STAGING])."); //$NON-NLS-1$ //$NON-NLS-2$
+                throw new IllegalArgumentException("Container '" + storageType + "' is not valid (please specify one of [MASTER, STAGING])."); //$NON-NLS-1$ //$NON-NLS-2$
             }
             List<String> allDocs = new ArrayList<String>();
             XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(content);
@@ -567,14 +554,14 @@ public class DataService {
             JSONArray results = new JSONArray();
             Map<String, Object> result;
             for (String doc : allDocs) {
-                result = doValidation(storageName, storageType, new ByteArrayInputStream(doc.getBytes("UTF-8"))); //$NON-NLS-1$
+                result = doValidation(storageName, storageType, invokeBeforeSaving, new ByteArrayInputStream(doc.getBytes("UTF-8"))); //$NON-NLS-1$
                 results.put(result);
             }
             return Response.ok(results.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
         } catch (Exception e) {
             Throwable root = getRootException(e);
             LOGGER.error(root.getMessage(), e);
-            if (root instanceof IllegalArgumentException || root instanceof XMLStreamException) {
+            if(root instanceof IllegalArgumentException || root instanceof XMLStreamException) {
                 return Response.status(Status.BAD_REQUEST).entity(root.getMessage()).build();
             } else {
                 return Response.status(Status.INTERNAL_SERVER_ERROR).entity(root.getMessage()).build();
@@ -585,21 +572,19 @@ public class DataService {
     @DELETE
     @Path("{containerName}")
     @ApiOperation("Deletes a container")
-    public void deleteContainer(@ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam("If true all data will be deleted")
-    @QueryParam("drop")
-    boolean dropData) {
+    public void deleteContainer(
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam("If true all data will be deleted") @QueryParam("drop") boolean dropData) {
         Server server = ServerContext.INSTANCE.get();
-
-        // closing deleting storage (master, staging, master)
+        
+        //closing deleting storage (master, staging, master)
         StorageAdmin admin = server.getStorageAdmin();
         admin.delete(storageName, dropData);
     }
 
     /**
      * Delete record(s) by query.
-     * 
+     *
      * @param storageName The storage (container) containing the record to delete.
      * @param queryText A query using JSON-based query language.
      */
@@ -607,12 +592,10 @@ public class DataService {
     @Path("{containerName}/delete")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation("Deletes data records by query. Query is provided in the request content as JSON")
-    public void deleteByQuery(@ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String storageType, InputStream queryText) {
+    public void deleteByQuery(
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
+            InputStream queryText) {
         // Get storage for records
         Server server = ServerContext.INSTANCE.get();
         StorageAdmin admin = server.getStorageAdmin();
@@ -626,7 +609,7 @@ public class DataService {
 
     /**
      * Delete a record by id.
-     * 
+     *
      * @param storageName The storage (container) containing the record to delete.
      * @param typeName The type of the record to delete.
      * @param id The id of the record to delete. In case of composite key, expects values to be separated using '.'.
@@ -634,19 +617,12 @@ public class DataService {
     @DELETE
     @Path("{containerName}/{type}/{id}")
     @ApiOperation("Deletes a record by its id.")
-    public void deleteById(@ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String storageType, @ApiParam(value = "Data type")
-    @PathParam("type")
-    String typeName, @ApiParam(value = "Primary key of the record to delete")
-    @PathParam("id")
-    String id, @ApiParam(value = "if true generate update report", allowableValues = "true, false")
-    @QueryParam("updateReport")
-    @DefaultValue("true")
-    boolean updateReport) {
+    public void deleteById(
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
+            @ApiParam(value="Data type") @PathParam("type") String typeName,
+            @ApiParam(value="Primary key of the record to delete") @PathParam("id") String id, 
+            @ApiParam(value="if true generate update report", allowableValues="true, false") @QueryParam("updateReport") @DefaultValue("true") boolean updateReport ) {
         // Get storage for records
         Server server = ServerContext.INSTANCE.get();
         StorageAdmin admin = server.getStorageAdmin();
@@ -658,19 +634,20 @@ public class DataService {
         buildGetById(type, id, qb);
         Select select = qb.getSelect();
         handleDeleteQuery(storage, select);
-        if ("MASTER".equals(storageType) && updateReport) { //$NON-NLS-1$
+        if("MASTER".equals(storageType) && updateReport) { //$NON-NLS-1$
             SaverSession session = SaverSession.newSession();
             try {
                 ILocalUser user = LocalUser.getLocalUser();
                 Map<String, UpdateReportItemPOJO> updateReportItemsMap = new HashMap<String, UpdateReportItemPOJO>();
                 String userName = user.getUsername();
-                UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(typeName, id,
-                        UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, UpdateReportPOJO.SERVICE_SOURCE,
-                        System.currentTimeMillis(), storageName, storageName, userName, updateReportItemsMap);
-                String xmlString = updateReportPOJO.serialize();
+                UpdateReportPOJO updateReportPOJO = new UpdateReportPOJO(typeName, id, UpdateReportPOJO.OPERATION_TYPE_PHYSICAL_DELETE, 
+                        UpdateReportPOJO.SERVICE_SOURCE, System.currentTimeMillis(), storageName, storageName, userName, updateReportItemsMap);
+                String xmlString = updateReportPOJO.serialize();                
                 SaverContextFactory contextFactory = session.getContextFactory();
-                DocumentSaverContext context = contextFactory.create(UpdateReportPOJO.DATA_CLUSTER, UpdateReportPOJO.DATA_MODEL,
-                        true, new ByteArrayInputStream(xmlString.getBytes("UTF-8"))); //$NON-NLS-1$
+                DocumentSaverContext context = contextFactory.create(UpdateReportPOJO.DATA_CLUSTER,
+                        UpdateReportPOJO.DATA_MODEL,
+                        true,
+                        new ByteArrayInputStream(xmlString.getBytes("UTF-8"))); //$NON-NLS-1$
                 DocumentSaver saver = context.createSaver();
                 session.begin(UpdateReportPOJO.DATA_CLUSTER);
                 saver.save(session, context);
@@ -699,13 +676,10 @@ public class DataService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ApiOperation("Get data records by query. Query is provided in the request content as JSON")
-    public Response executeQuery(@Context
-    Request request, @ApiParam("Container name")
-    @PathParam("containerName")
-    String storageName, @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-    @QueryParam("container")
-    @DefaultValue("MASTER")
-    String type, InputStream queryText) {
+    public Response executeQuery(@Context Request request, 
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String type, 
+            InputStream queryText) {
         // Find storage
         final StorageType storageType = getStorageType(type);
         StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
@@ -762,28 +736,13 @@ public class DataService {
     @GET
     @Path("{containerName}/{type}/{id}")
     @ApiOperation("Get a data record by id.")
-    public Response getRecord(
-            @Context
-            Request request,
-            @ApiParam("Container name")
-            @PathParam("containerName")
-            String storageName,
-            @ApiParam(value = "Container type", allowableValues = "MASTER, STAGING, SYSTEM")
-            @QueryParam("container")
-            @DefaultValue("MASTER")
-            String storageType,
-            @ApiParam("Data type")
-            @PathParam("type")
-            String typeName,
-            @ApiParam("Record id")
-            @PathParam("id")
-            String id,
-            @ApiParam("Show record as it was at provided date. Date can be provided as number of milliseconds since EPOCH or a XML formatted date")
-            @QueryParam("datetime")
-            String dateTime,
-            @ApiParam(value = "Controls how datetime is interpreted", allowableValues = "CLOSEST, BEFORE, AFTER")
-            @QueryParam("swing")
-            String swing) {
+    public Response getRecord(@Context Request request, 
+            @ApiParam("Container name") @PathParam("containerName") String storageName, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
+            @ApiParam("Data type") @PathParam("type") String typeName, 
+            @ApiParam("Record id") @PathParam("id") String id, 
+            @ApiParam("Show record as it was at provided date. Date can be provided as number of milliseconds since EPOCH or a XML formatted date") @QueryParam("datetime") String dateTime, 
+            @ApiParam(value="Controls how datetime is interpreted", allowableValues="CLOSEST, BEFORE, AFTER") @QueryParam("swing") String swing) {
         // Get storage for records
         Server server = ServerContext.INSTANCE.get();
         StorageAdmin admin = server.getStorageAdmin();
@@ -804,7 +763,7 @@ public class DataService {
         final SecuredStorage.UserDelegator delegator = getDelegator();
         return handleReadQuery(request, storage, qb.getSelect(), delegator);
     }
-
+    
     /**
      * Get the array of documents uniqueIDs in a container (of specific type)
      * 
@@ -815,11 +774,9 @@ public class DataService {
     @GET
     @Path("{containerName}/documents/uniqueIds")
     @ApiOperation("Get all documents unique ids as array")
-    public Response getAllDocumentsUniqueID(@ApiParam(value = "Container name")
-    @PathParam("containerName")
-    String containerName, @ApiParam(value = "Data type")
-    @QueryParam("type")
-    String typeName) {
+    public Response getAllDocumentsUniqueID(
+            @ApiParam(value = "Container name") @PathParam("containerName") String containerName, 
+            @ApiParam(value = "Data type") @QueryParam("type") String typeName) {
         String clusterName = StringUtils.isBlank(typeName) ? containerName : containerName + '/' + typeName;
         try {
             String[] output = new SQLWrapper().getAllDocumentsUniqueID(clusterName);
@@ -830,7 +787,7 @@ public class DataService {
             throw new RuntimeException(message, e);
         }
     }
-
+    
     /**
      * Gets an XML document from the DB
      * 
@@ -842,14 +799,10 @@ public class DataService {
     @GET
     @Path("{containerName}/documents/{uniqueId}")
     @ApiOperation("Gets an XML document from the DB")
-    public Response getDocumentAsString(@ApiParam(value = "Container name")
-    @PathParam("containerName")
-    String containerName, @ApiParam(value = "Unique ID")
-    @PathParam("uniqueId")
-    String uniqueId, @ApiParam(value = "Encoding")
-    @QueryParam("encoding")
-    @DefaultValue("UTF-8")
-    String encoding) {
+    public Response getDocumentAsString(
+            @ApiParam(value = "Container name") @PathParam("containerName") String containerName, 
+            @ApiParam(value = "Unique ID") @PathParam("uniqueId") String uniqueId,
+            @ApiParam(value = "Encoding") @QueryParam("encoding") @DefaultValue("UTF-8") String encoding) {
         try {
             String output = new SQLWrapper().getDocumentAsString(containerName, uniqueId, encoding);
             return Response.ok(output).type(MediaType.APPLICATION_JSON_TYPE).build();
@@ -859,13 +812,12 @@ public class DataService {
             throw new RuntimeException(message, e);
         }
     }
-
+    
     /**
      * Gets many XML document from the DB
      * 
      * @param containerName The name of the storage (container) to query.
-     * @param uniqueIds The unique IDs of the documents (it may contains "/" like "Product/Product.Product.1", so use
-     * QueryParam not PathParam)
+     * @param uniqueIds The unique IDs of the documents (it may contains "/" like "Product/Product.Product.1", so use QueryParam not PathParam)
      * @param encoding The encoding of the XML instruction (e.g. UTF-16, UTF-8, etc...).
      * @return
      */
@@ -873,14 +825,10 @@ public class DataService {
     @Path("{containerName}/documents")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation("Gets many XML documents from the DB")
-    public Response getDocumentsAsString(@ApiParam(value = "Container name")
-    @PathParam("containerName")
-    String containerName, @ApiParam(value = "Unique IDs")
-    @Multipart(value = "uniqueIds")
-    String[] uniqueIds, @ApiParam(value = "Encoding")
-    @QueryParam("encoding")
-    @DefaultValue("UTF-8")
-    String encoding) {
+    public Response getDocumentsAsString(
+            @ApiParam(value = "Container name") @PathParam("containerName") String containerName, 
+            @ApiParam(value = "Unique IDs") @Multipart(value = "uniqueIds") String[] uniqueIds,
+            @ApiParam(value = "Encoding") @QueryParam("encoding") @DefaultValue("UTF-8") String encoding) {
         try {
             String[] output = new SQLWrapper().getDocumentsAsString(containerName, uniqueIds, encoding);
             return Response.ok(output).type(MediaType.APPLICATION_JSON_TYPE).build();
