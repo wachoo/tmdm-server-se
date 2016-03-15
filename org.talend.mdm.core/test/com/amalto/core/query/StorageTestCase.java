@@ -128,6 +128,8 @@ public class StorageTestCase extends TestCase {
     protected static final ComplexTypeMetadata checkPointDetails_1;
     
     protected static final ComplexTypeMetadata checkPointDetails_2;
+    
+    protected static final ComplexTypeMetadata fullTextSearchEntityA;
 
     protected static final ComplexTypeMetadata e_entity;
 
@@ -200,6 +202,8 @@ public class StorageTestCase extends TestCase {
         checkPointDetails_1 = repository.getComplexType("CheckPointDetails_1");
         checkPointDetails_2 = repository.getComplexType("CheckPointDetails_2");
 
+        fullTextSearchEntityA = repository.getComplexType("FullTextSearchEntityA");
+        
         storage.init(getDatasource(DATABASE + "-Default"));
         // Indexed expressions
         List<Expression> indexedExpressions = new LinkedList<Expression>();

@@ -105,6 +105,13 @@ public class StorageFullTextTest extends StorageTestCase {
                                 repository,
                                 country,
                                 "<Country><id>1</id><creationDate>2010-10-10</creationDate><creationTime>2010-10-10T00:00:01</creationTime><name>France</name></Country>"));
+        allRecords
+                .add(factory
+                        .read("1",
+                                repository,
+                                fullTextSearchEntityA,
+                                "<FullTextSearchEntityA><Id>id1</Id><Name>name1</Name><Address><AddressName>address1</AddressName><City><CityName>city1</CityName></City></Address></FullTextSearchEntityA>"));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -904,5 +911,14 @@ public class StorageFullTextTest extends StorageTestCase {
             results.close();
         }
         assertNull(exception);
+    }
+    
+    public void testFullText() throws Exception {
+        UserQueryBuilder qb = UserQueryBuilder.from(fullTextSearchEntityA).where(fullText("city"));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        for (DataRecord result : results) {
+            assertEquals("id1", result.get("Id"));
+        }
     }
 }
