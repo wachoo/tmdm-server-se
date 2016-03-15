@@ -307,7 +307,7 @@ public class TreeDetailGridFieldCreator {
             public void handleEvent(FieldEvent fe) {
                 // TMDM-3353 only when node is valid, call setObjectValue(); otherwise objectValue is changed to
                 // original value
-                if (node.isValid()) {
+                if (fe.getField().isValid()) {
                     if (fe.getField() instanceof FormatTextField) {
                         if (BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
                             node.setObjectValue(((FormatTextField) fe.getField()).getOjbectValue());
@@ -321,7 +321,18 @@ public class TreeDetailGridFieldCreator {
                             node.setObjectValue(((FormatNumberField) fe.getField()).getOjbectValue());
                         }
                     } else if (fe.getField() instanceof FormatDateField) {
-                        node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
+                        if (node.getObjectValue() != null
+                                && !node.getObjectValue().equals(((FormatDateField) fe.getField()).getRawValue())) {
+                            node.setObjectValue(((FormatDateField) fe.getField()).getOjbectValue());
+                            node.setChangeValue(true);
+                        }
+                        validate(fe.getField(), node);
+                    }
+                } else {
+                    if (fe.getField() instanceof FormatDateField) {
+                        if ("".equals(((FormatDateField) fe.getField()).getOjbectValue().toString())) { //$NON-NLS-1$
+                            validate(fe.getField(), node);
+                        }
                     }
                 }
             }
@@ -357,8 +368,8 @@ public class TreeDetailGridFieldCreator {
             }
 
             private native void _setEl(El elem)/*-{
-                                               this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
-                                               }-*/;
+		this.@com.extjs.gxt.ui.client.widget.Component::el = elem;
+    }-*/;
         };
         errorIcon.setStyleAttribute("display", "block"); //$NON-NLS-1$ //$NON-NLS-2$
         errorIcon.setStyleAttribute("float", "right"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -371,23 +382,23 @@ public class TreeDetailGridFieldCreator {
     }
 
     private static native void _setErrorIcon(Field<?> field, WidgetComponent errorIcon)/*-{
-                                                                                       field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
-                                                                                       }-*/;
+		field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon = errorIcon;
+    }-*/;
 
     private static native WidgetComponent _getErrorIcon(Field<?> field)/*-{
-                                                                       return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
-                                                                       }-*/;
+		return field.@com.extjs.gxt.ui.client.widget.form.Field::errorIcon;
+    }-*/;
 
     public static native String getTemplate() /*-{
-                                              return [
-                                              '<tpl for=".">',
-                                              '<tpl if="text == \'\'">',
-                                              '<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
-                                              '</tpl>',
-                                              '<tpl if="text != \'\'">',
-                                              '<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
-                                              '</tpl>', '</tpl>' ].join("");
-                                              }-*/;
+		return [
+				'<tpl for=".">',
+				'<tpl if="text == \'\'">',
+				'<div role=\"listitem\" class="x-combo-list-item" title=""></br></div>',
+				'</tpl>',
+				'<tpl if="text != \'\'">',
+				'<div role=\"listitem\" class="x-combo-list-item" title="{text}">{text}</div>',
+				'</tpl>', '</tpl>' ].join("");
+    }-*/;
 
     private static void buildFacets(TypeModel typeModel, Widget w) {
         if (typeModel instanceof SimpleTypeModel) {

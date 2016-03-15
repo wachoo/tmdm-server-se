@@ -24,7 +24,7 @@ public class FormatDateField extends DateField {
     private String formatPattern;
 
     private boolean isDateTime = false;
-    
+
     private boolean validateFlag = true;
 
     public FormatDateField() {
@@ -67,7 +67,7 @@ public class FormatDateField extends DateField {
 
     public String getRawValue() {
         String rawValue = super.getRawValue();
-        if (rawValue == null || rawValue.trim().length() == 0) {
+        if (rawValue == null || "".equals(rawValue) || rawValue.equals(emptyText)) { //$NON-NLS-1$
             return ""; //$NON-NLS-1$
         }
         try {
@@ -113,12 +113,13 @@ public class FormatDateField extends DateField {
             });
         }
     }
-    
+
     private void setFormatedValue(final FormatValueCallback callback) {
         if (formatPattern != null && formatPattern.trim().length() > 0) {
             if (value != null) {
                 final FormatModel model = new FormatModel(formatPattern, value, Locale.getLanguage());
                 service.formatValue(model, new SessionAwareAsyncCallback<String>() {
+
                     public void onSuccess(String result) {
                         if (callback != null) {
                             callback.formatValue(result);
@@ -132,13 +133,11 @@ public class FormatDateField extends DateField {
             }
         }
     }
-    
+
     public boolean validateValue(String value) {
-        if(!validateFlag)
-            return true;
         return super.validateValue(value);
     }
-    
+
     public void setValidateFlag(boolean validateFlag) {
         this.validateFlag = validateFlag;
     }
