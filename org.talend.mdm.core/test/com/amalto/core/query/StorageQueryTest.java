@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -41,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
 import com.amalto.core.query.optimization.RangeOptimizer;
@@ -4632,19 +4634,57 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testAdvancedSearchWithMultiCondition() throws Exception {
-        UserQueryBuilder qb = from(person).where(
-                and(contains(person.getField("lastname"), "Du*"), contains(person.getField("middlename"), "jo*")));
-        StorageResults results = storage.fetch(qb.getSelect());
-        List<String> ids = new ArrayList<String>();
-        ids.add("1");
-        ids.add("2");
+        Storage storageTemp = new HibernateStorage("noFullText");
+        MetadataRepository repositoryTemp = new MetadataRepository();
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        DataRecordReader<String> factoryTemp = new XmlStringDataRecordReader();
+        repositoryTemp.load(StorageQueryTest.class.getResourceAsStream("metadata.xsd"));
+        ComplexTypeMetadata personTemp = repositoryTemp.getComplexType("Person");
+
         try {
-            assertEquals(2, results.getSize());
+            storageTemp.init(getDatasource("RDBMS-1-NO-FT"));
+            storageTemp.prepare(repositoryTemp, Collections.<Expression> emptySet(), true, true);
+            records.add(factoryTemp
+                    .read("1",
+                            repositoryTemp,
+                            personTemp,
+                            "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+            records.add(factoryTemp
+                    .read("1",
+                            repositoryTemp,
+                            personTemp,
+                            "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
+            records.add(factoryTemp
+                    .read("1",
+                            repositoryTemp,
+                            personTemp,
+                            "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><age>30</age><Status>Friend</Status></Person>"));
+            records.add(factoryTemp
+                    .read("1",
+                            repositoryTemp,
+                            personTemp,
+                            "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Julien</firstname><age>30</age><Status>Friend</Status></Person>"));
+            storageTemp.begin();
+            storageTemp.update(records);
+            storageTemp.commit();
+        } finally {
+            storageTemp.end();
+        }
+
+        try {
+            UserQueryBuilder qb = from(personTemp).where(
+                    and(contains(personTemp.getField("lastname"), "Du*"), contains(personTemp.getField("middlename"), "Jo*")));
+            storageTemp.begin();
+            StorageResults results = storageTemp.fetch(qb.getSelect());
+            List<String> ids = new ArrayList<String>();
+            ids.add("1");
+            ids.add("2");
+            assertEquals(2, results.getCount());
             for (DataRecord result : results) {
-                this.assertTrue(ids.contains(result.get(person.getField("id"))));
+                this.assertTrue(ids.contains(result.get(personTemp.getField("id"))));
             }
         } finally {
-            results.close();
+            storageTemp.close();
         }
     }
 }
