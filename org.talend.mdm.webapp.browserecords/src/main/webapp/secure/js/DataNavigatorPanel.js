@@ -1,7 +1,39 @@
 amalto.namespace("amalto.itemsbrowser");
 
 amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
-		cluster) {
+		cluster,language) {
+	var SET_WINDOW_TITLE = {
+    		'en' : 'Page size for loading linked records',
+            'fr' : 'L\'entit\u00e9 n\'existe pas.'
+    };
+	var SET_WINDOW_PAGE_LABEL = {
+    		'en' : 'Page Size',
+            'fr' : 'L\'entit\u00e9 n\'existe pas.'
+    };
+	var SET_WINDOW_BUTTON_OK = {
+    		'en' : 'Ok',
+            'fr' : 'L\'entit\u00e9 n\'existe pas.'
+    };
+	var SET_WINDOW_BUTTON_CANCEL = {
+    		'en' : 'Cancel',
+            'fr' : 'L\'entit\u00e9 n\'existe pas.'
+    };
+    var MENU_IN_LABEL = {
+    		'en' : 'In',
+            'fr' : 'L\'entit\u00e9 n\'existe pas.'
+    };
+    var MENU_OUT_LABEL = {
+    		'en' : 'Out',
+            'fr' : 'L\'entit\u00e9 n\'existe pas.'
+    };
+    var MENU_DETAIL_LABEL = {
+    		'en' : 'Detail',
+            'fr' : 'L\'entit\u00e9 n\'existe pas.'
+    };
+    var MENU_SETTINGS_LABEL = {
+    		'en' : 'Settings',
+            'fr' : 'L\'entit\u00e9 n\'existe pas.'
+    };
 	var NAVIGATOR_NODE_IN_ENTITY_TYPE = 1;
 	var NAVIGATOR_NODE_OUT_ENTITY_TYPE = 2;
 	var NAVIGATOR_NODE_VALUE_TYPE = 3;
@@ -16,9 +48,10 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	var selectNode;
 	var image_width = 30;
 	var image_height = 30;
-	var text_dx = -15;
-	var text_dy = 15;
+	var text_dx = -10;
+	var text_dy = 10;
 	var width = 800;
+	
 	var height = 800;
 	var xOffsetIn;
 	var yOffsetIn;
@@ -36,18 +69,23 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 
 	var color = d3.scale.category10();
 	var dataset = [ {
-		label : "out",
+		label : MENU_OUT_LABEL[language],
+		name : 'out',
 		value : 25
 	}, {
-		label : "set",
+		label : MENU_SETTINGS_LABEL[language],
+		name : 'settings',
 		value : 25
 	}, {
-		label : "in",
+		label : MENU_IN_LABEL[language],
+		name : 'in',
 		value : 25
 	}, {
-		label : "info",
+		label : MENU_DETAIL_LABEL[language],
+		name : 'detail',
 		value : 25
 	} ];
+	
 	var pie = d3.layout.pie().value(function(d) {
 		return d.value;
 	});
@@ -121,17 +159,16 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 		var text_x;
 		var text_anchor;
 		if (root.navigator_node_type === NAVIGATOR_NODE_IN_ENTITY_TYPE) {
-			text_dx = -48;
-			text_anchor = "start";
-			elementId = "cluster_type_in_group_" + getIdentifier(selectNode);
-		} else if (root.navigator_node_type === NAVIGATOR_NODE_OUT_ENTITY_TYPE) {
-			text_dx = 48;
+			text_dx = -25;
 			text_anchor = "end";
-			elementId = "cluster_type_out_group_" + getIdentifier(selectNode);
+			elementId = "cluster_type_in_group";
+		} else if (root.navigator_node_type === NAVIGATOR_NODE_OUT_ENTITY_TYPE) {
+			text_dx = 25;
+			text_anchor = "start";
+			elementId = "cluster_type_out_group";
 		}
-		if ((svg.select("#" + elementId)[0])[0] === null) {
-			var typeGroup = container.append("g").attr("id", elementId).style(
-					"display", "inline");
+		if (svg.select("#" + elementId)[0][0]=== null) {
+			var typeGroup = container.append("g").attr("id", elementId)
 			var typeNodes = typeCluster.nodes(root);
 			var typeLinks = typeCluster.links(typeNodes);
 			var xOffset = selectNode.x - root.y;
@@ -184,12 +221,12 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 				}
 			});
 		} else {
-			svg.select("#" + elementId).style("display", "inline");
+			svg.select("#" + elementId).remove();
 		}
 	}
 
 	function menuClick(arc) {
-		if ('info' === arc.data.label) {
+		if ('detail' === arc.data.name) {
 			hiddenTypeCluster();
 			if (NAVIGATOR_NODE_VALUE_TYPE == selectNode.navigator_node_type) {
 				amalto.navigator.Navigator.openRecord(
@@ -197,7 +234,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 						selectNode.navigator_node_concept);
 			}
 		}
-		if ('in' === arc.data.label) {
+		if ('in' === arc.data.name) {
 			if (NAVIGATOR_NODE_VALUE_TYPE == selectNode.navigator_node_type) {
 				Ext.Ajax
 						.request({
@@ -223,7 +260,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 						});
 			}
 		}
-		if ('out' === arc.data.label) {
+		if ('out' === arc.data.name) {
 			if (NAVIGATOR_NODE_VALUE_TYPE == selectNode.navigator_node_type) {
 				Ext.Ajax
 						.request({
@@ -247,64 +284,47 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 						});
 			}
 		}
-		if ('set' === arc.data.label) {
+		if ('settings' === arc.data.name) {
 			hiddenTypeCluster();
 			if (NAVIGATOR_NODE_VALUE_TYPE == selectNode.navigator_node_type) {
-				var settingWindow = new Ext.Window(
-						{
-							id : 'settingWindow',
-							title : 'Inbound setting window',
-							width : 200,
-							height : 100,
-							modal : true,
-							layout : 'form',
-							bodyStyle : "padding:10px",
-							frame : true,
-							items : [ {
-								id : 'settingForm',
-								xtype : 'form',
-								labelWidth : 60,
-								labelAlign : 'right',
-								buttonAlign : 'center',
-								items : [ {
-									xtype : 'textfield',
-									id : 'filterValue',
-									name : 'filterValue',
-									fieldLabel : 'Search',
-									width : 'auto',
-									value : filterValue
-								}, {
-									xtype : 'numberfield',
-									id : 'pageSize',
-									name : 'pageSize',
-									fieldLabel : 'Page Size',
-									width : 'auto',
-									value : pageSize
-								} ],
-								buttons : [
-										{
-											xtype : 'button',
-											text : "ok",
-											handler : function() {
-												pageSize = Ext
-														.getCmp('pageSize').value;
-												filterValue = Ext.getCmp(
-														'filterValue')
-														.getRawValue();
-												Ext.getCmp('settingWindow')
-														.close();
-											}
-										},
-										{
-											xtype : 'button',
-											text : 'cancel',
-											handler : function() {
-												Ext.getCmp('settingWindow')
-														.close();
-											}
-										} ]
-							} ]
-						});
+				var settingWindow = new Ext.Window({
+					id : 'settingWindow',
+					title : SET_WINDOW_TITLE[language],
+					width : 200,
+					height : 100,
+					modal : true,
+					layout : 'form',
+					bodyStyle : "padding:10px",
+					frame : true,
+					items : [ {
+						id : 'settingForm',
+						xtype : 'form',
+						labelWidth : 60,
+						labelAlign : 'right',
+						buttonAlign : 'center',
+						items : [ {
+							xtype : 'numberfield',
+							id : 'pageSize',
+							fieldLabel : SET_WINDOW_PAGE_LABEL[language],
+							width : 'auto',
+							value : pageSize
+						} ],
+						buttons : [ {
+							xtype : 'button',
+							text : SET_WINDOW_BUTTON_OK[language],
+							handler : function() {
+								pageSize = Number(Ext.getCmp('pageSize').value);
+								Ext.getCmp('settingWindow').close();
+							}
+						}, {
+							xtype : 'button',
+							text : SET_WINDOW_BUTTON_CANCEL[language],
+							handler : function() {
+								Ext.getCmp('settingWindow').close();
+							}
+						} ]
+					} ]
+				});
 				Ext.getCmp('settingWindow').show();
 			}
 		}
@@ -313,10 +333,16 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	function click(d, i) {
 		hiddenTypeCluster();
 		if (NAVIGATOR_NODE_IN_ENTITY_TYPE == d.navigator_node_type) {
-			if (d.pageNumber === undefined) {
-				d.pageNumber = 1;
+			if (selectNode.page === undefined) {
+				selectNode.page = new Object();
 			}
-			if ((d.pageNumber == 1 || d.pageNumber <= d.pageCount)) {
+			if (selectNode.page[d.navigator_node_concept] === undefined) {
+				var pageObject = new Object();
+				pageObject.start = 0
+				selectNode.page[d.navigator_node_concept] = pageObject;
+			}
+
+			if ((selectNode.page[d.navigator_node_concept].start == 0 || selectNode.page[d.navigator_node_concept].start < (selectNode.page[d.navigator_node_concept].total + pageSize))) {
 				Ext.Ajax
 						.request({
 							url : restServiceUrl + '/data/' + cluster
@@ -327,22 +353,14 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 								foreignKeyPath : d.navigator_node_foreignkey_path,
 								foreignKeyValue : d.navigator_node_foreignkey_value,
 								filterValue : filterValue,
-								start : (d.pageNumber - 1) * pageSize,
+								start : selectNode.page[d.navigator_node_concept].start,
 								limit : pageSize
 							},
 							success : function(response, options) {
 								var resultObject = eval('('
 										+ response.responseText + ')');
-								if (d.pageNumber == 1) {
-									if ((resultObject.totalCount % pageSize) == 0) {
-										d.pageCount = Math
-												.floor(resultObject.totalCount
-														/ pageSize);
-									} else {
-										d.pageCount = Math
-												.floor(resultObject.totalCount
-														/ pageSize) + 1;
-									}
+								if (selectNode.page[d.navigator_node_concept].start == 0) {
+									selectNode.page[d.navigator_node_concept].total = resultObject.totalCount;
 								}
 								var newNodes = resultObject.result;
 								for ( var i = 0; i < newNodes.length; i++) {
@@ -369,7 +387,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 									links.push(newLink);
 								}
 								paint();
-								d.pageNumber = d.pageNumber + 1;
+								selectNode.page[d.navigator_node_concept].start = selectNode.page[d.navigator_node_concept].start + pageSize;
 							},
 							failure : function() {
 
@@ -377,10 +395,18 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 						});
 			}
 		} else if (NAVIGATOR_NODE_OUT_ENTITY_TYPE == d.navigator_node_type) {
-
+			if (selectNode.page === undefined) {
+				selectNode.page = new Object();
+			}
+			if (selectNode.page[d.navigator_node_concept] === undefined) {
+				var pageObject = new Object();
+				pageObject.pageNumber = 1
+				pageObject.ids = d.navigator_node_ids;
+				selectNode.page[d.navigator_node_concept] = pageObject;
+			}
 			var idArray = [];
-			for (i = 0; (i < pageSize && i < d.navigator_node_ids.length); i++) {
-				idArray[i] = d.navigator_node_ids[i];
+			for (i = 0; (i < pageSize && i < selectNode.page[d.navigator_node_concept].ids.length); i++) {
+				idArray[i] = selectNode.page[d.navigator_node_concept].ids[i];
 			}
 			if (idArray.length > 0) {
 				Ext.Ajax
@@ -416,7 +442,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 										navigator_node_concept : node.navigator_node_concept
 									};
 									links.push(newLink);
-									d.navigator_node_ids.shift();
+									selectNode.page[d.navigator_node_concept].ids.shift();
 								}
 								paint();
 							},
@@ -436,28 +462,28 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	}
 
 	function showMenu(d, i) {
-		if (selectNode !== undefined) {
-			hiddenTypeCluster();
-		}
-
+		hiddenTypeCluster();
 		var elementId = "menu_" + getIdentifier(d);
 		d3.select(this).transition().duration(750).attr("width", 35).attr(
 				"height", 35);
 		var arcs = container.append("g").attr("id", elementId).selectAll("g")
 				.data(piedata).enter().append("g").attr("transform",
 						"translate(" + (d.x) + "," + (d.y) + ")");
-
+		
+		var backgroundPath = arcs.append("path").attr("fill", "#ddd").attr("d", arc);
+		
 		var path = arcs.append("path").attr("fill", function(d, i) {
 			return color(i);
-		}).attr("d", function(d) {
-			return arc(d);
-		});
-		
-		path.transition()
+		}).transition()
 	      .ease("elastic")
 	      .duration(750)
 	      .attrTween("d", arcTween);
 
+//		path.transition()
+//	      .ease("elastic")
+//	      .duration(750)
+//	      .attrTween("d", arcTween);
+		
 		arcs.append("text").attr("transform", function(d) {
 			return "translate(" + arc.centroid(d) + ")";
 		}).attr("text-anchor", "middle").text(function(d) {
@@ -468,15 +494,13 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 		// arcs.on("mouseout", menuMouseout);
 		selectNode = d;
 	}
-
-	function arcTween(b) {
-		var i = d3.interpolate({
-			value : b.previous
-		}, b);
-		return function(t) {
-			return arc(i(t));
-		};
-	}
+	
+	function arcTween(d) {
+		  var i = d3.interpolate({value : 0}, d);
+		  return function(t) {
+		    return arc(i(t));
+		  };
+		}
 
 	function mouseover(d, i) {
 		link_text.style("fill-opacity", function(link) {
@@ -555,6 +579,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 						[ width, height ]).linkDistance(150).charge([ -400 ]);
 				drag = force.drag().on("dragstart", function(d, i) {
 					d.fixed = true;
+					hiddenTypeCluster();
 				});
 
 				links = force.links();
@@ -607,11 +632,10 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	}
 
 	function hiddenTypeCluster() {
-		svg.select("#cluster_type_in_group_" + getIdentifier(selectNode))
-				.style("display", "none");
-		svg.select("#cluster_type_out_group_" + getIdentifier(selectNode))
-				.style("display", "none");
-		var elementId = "#menu_" + getIdentifier(selectNode);
-		svg.select(elementId).remove();
+		if (selectNode !== undefined) {
+			svg.select("#cluster_type_in_group").remove();
+			svg.select("#cluster_type_out_group").remove();
+			svg.select("#menu_" + getIdentifier(selectNode)).remove();
+		}
 	}
 }
