@@ -26,17 +26,23 @@ public class RDBMSDataSource implements DataSource {
     }
 
     public static enum DataSourceDialect {
-        H2(255),
-        ORACLE_10G(4000), // Set to 4000 for 6.0+ versions (older versions will still use 255 for backward compatibility)
-        MYSQL(255),
-        POSTGRES(255),
-        SQL_SERVER(4000),
-        DB2(255);
+        H2(255, 1000, 1000),
+        ORACLE_10G(4000, 38, 37), // Set to 4000 for 6.0+ versions (older versions will still use 255 for backward compatibility)
+        MYSQL(255, 65, 30),
+        POSTGRES(255, 1000, 1000),
+        SQL_SERVER(4000, 38, 38),
+        DB2(255, 38, 38);
 
         private final int textLimit;
 
-        DataSourceDialect(int textLimit) {
+        private final int decimalPrecision;
+
+        private final int decimalScale;
+
+        DataSourceDialect(int textLimit, int decimalPrecision, int decimalScale) {
             this.textLimit = textLimit;
+            this.decimalPrecision = decimalPrecision;
+            this.decimalScale = decimalScale;
         }
 
         /**
@@ -46,6 +52,14 @@ public class RDBMSDataSource implements DataSource {
          */
         public int getTextLimit() {
             return textLimit;
+        }
+
+        public int getDecimalPrecision() {
+            return decimalPrecision;
+        }
+
+        public int getDecimalScale() {
+            return decimalScale;
         }
     }
 

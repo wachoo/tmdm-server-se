@@ -12,11 +12,17 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.shared.FacetModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.OperatorConstants;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
 
+import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
@@ -65,14 +71,28 @@ public class NumberTypeFieldFactory extends TypeFieldFactory {
         if (context.isWithValue()) {
 
             Number toSetValue = null;
-            if(hasValue()){
-                if (DataTypeConstants.FLOAT.getTypeName().equals(baseType))
+            if (hasValue()) {
+                if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)) {
                     toSetValue = Float.parseFloat(getValue().toString());
-                else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)
-                        || DataTypeConstants.DOUBLE.getTypeName().equals(baseType))
+                } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
+                    List<FacetModel> facets = ((SimpleTypeModel) context.getDataType()).getFacets();
+                    int fractionDigits = 0;
+                    if (facets != null) {
+                        for (FacetModel facet : facets) {
+                            if (facet.getName().equals(FacetEnum.FRACTION_DIGITS.getFacetName())) {
+                                fractionDigits = Integer.parseInt(facet.getValue());
+                                break;
+                            }
+                        }
+                    }
+
+                    BigDecimal bigdecimal = new BigDecimal(getValue().toString());
+                    toSetValue = bigdecimal.setScale(fractionDigits);
+                } else if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
                     toSetValue = Double.parseDouble(getValue().toString());
-                else
+                } else {
                     toSetValue = Long.parseLong(getValue().toString());
+                }
             }
 
             numberField.setValue(toSetValue);

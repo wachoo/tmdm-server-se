@@ -674,6 +674,34 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                 } else {
                     elementTypeName = HibernateMetadataUtils.getJavaType(fieldType);
                 }
+            } else if (fieldType.getData(MetadataRepository.DATA_TOTAL_DIGITS) != null
+                    || fieldType.getData(MetadataRepository.DATA_FRACTION_DIGITS) != null) { // TMDM-8022
+
+                Object totalDigits = fieldType.getData(MetadataRepository.DATA_TOTAL_DIGITS);
+                Object fractionDigits = fieldType.getData(MetadataRepository.DATA_FRACTION_DIGITS);
+
+                if (totalDigits != null) {
+                    int totalDigitsInt = Integer.parseInt(totalDigits.toString());
+                    totalDigitsInt = totalDigitsInt > dialect.getDecimalPrecision() ? dialect.getDecimalPrecision()
+                            : totalDigitsInt;
+
+                    String totalDigitsValue = String.valueOf(totalDigitsInt);
+                    Attr length = document.createAttribute("precision"); //$NON-NLS-1$
+                    length.setValue(totalDigitsValue);
+                    propertyElement.getAttributes().setNamedItem(length);
+                }
+
+                if (fractionDigits != null) {
+                    int fractionDigitsInt = Integer.parseInt(fractionDigits.toString());
+                    fractionDigitsInt = fractionDigitsInt >= dialect.getDecimalScale() ? dialect.getDecimalScale()
+                            : fractionDigitsInt;
+
+                    String fractionDigitsValue = String.valueOf(fractionDigitsInt);
+                    Attr length = document.createAttribute("scale"); //$NON-NLS-1$
+                    length.setValue(fractionDigitsValue);
+                    propertyElement.getAttributes().setNamedItem(length);
+                }
+                elementTypeName = HibernateMetadataUtils.getJavaType(fieldType);
             } else {
                 elementTypeName = HibernateMetadataUtils.getJavaType(fieldType);
             }

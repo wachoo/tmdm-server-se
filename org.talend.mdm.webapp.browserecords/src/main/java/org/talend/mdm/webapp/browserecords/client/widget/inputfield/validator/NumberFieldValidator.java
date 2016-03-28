@@ -24,9 +24,23 @@ public class NumberFieldValidator implements Validator {
     public String validate(Field<?> field, String value) {
         String defaultMessage = "";//$NON-NLS-1$ 
         boolean succeed = true;
+
+        String[] digits = value.replace(",", ".").replace("-", "").split("\\.");//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
+
+        if (digits[0].equals("")) //$NON-NLS-1$
+            digits[0] = "0"; //$NON-NLS-1$
+
+        int totalLength;
+        if (digits.length == 2) {
+            totalLength = new Integer(new Integer(digits[0]) == 0 ? 0 : new Integer(digits[0]).toString().length())
+                    + new Integer(digits[1].length());
+        } else {
+            totalLength = value.length();
+        }
+
         String totalDigits = field.getData(FacetEnum.TOTAL_DIGITS.getFacetName());
         if (totalDigits != null && !totalDigits.equals("")) {//$NON-NLS-1$
-            if (value.replace(".", "").length() > Integer.parseInt(totalDigits)) {//$NON-NLS-1$ //$NON-NLS-2$ 
+            if (totalLength > Integer.parseInt(totalDigits)) {
                 succeed = false;
                 defaultMessage += MessagesFactory.getMessages().check_totalDigits() + totalDigits + "\n";//$NON-NLS-1$
             }
@@ -34,7 +48,6 @@ public class NumberFieldValidator implements Validator {
 
         String fractionDigits = field.getData(FacetEnum.FRACTION_DIGITS.getFacetName());
         if (fractionDigits != null && !fractionDigits.equals("")) {//$NON-NLS-1$
-            String[] digits = value.split(".");//$NON-NLS-1$
             if (digits.length == 2 && digits[1].length() > Integer.parseInt(fractionDigits)) {
                 succeed = false;
                 defaultMessage += MessagesFactory.getMessages().check_fractionDigits() + fractionDigits + "\n";//$NON-NLS-1$

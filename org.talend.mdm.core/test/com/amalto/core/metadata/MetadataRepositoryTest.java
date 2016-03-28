@@ -381,6 +381,19 @@ public class MetadataRepositoryTest extends TestCase {
         }
     }
     
+    // TMDM-8022
+    public void test30() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema30.xsd");
+        repository.load(stream);
+        ComplexTypeMetadata entityType = repository.getComplexType("Goods");
+        assertNotNull(entityType);
+        FieldMetadata fieldMetadata = entityType.getField("Price");
+        assertNotNull(fieldMetadata);
+        assertEquals(fieldMetadata.getType().getData(MetadataRepository.DATA_TOTAL_DIGITS), "15");
+        assertEquals(fieldMetadata.getType().getData(MetadataRepository.DATA_FRACTION_DIGITS), "3");
+    }
+    
     public void testLenientSortSimpleTest() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream stream = getClass().getResourceAsStream("product.xsd");

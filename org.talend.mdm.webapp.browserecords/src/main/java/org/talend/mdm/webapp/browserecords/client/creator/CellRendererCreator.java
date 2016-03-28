@@ -13,6 +13,7 @@
 package org.talend.mdm.webapp.browserecords.client.creator;
 
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
+import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
@@ -105,6 +106,36 @@ public class CellRendererCreator {
                 }
             };
             return renderer;
+        } else if (dataType.getType() instanceof DataTypeCustomized) {
+            if (DataTypeConstants.FLOAT.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
+                GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                    @Override
+                    public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                            ListStore<ModelData> store, Grid<ModelData> grid) {
+                        if (((String) model.get(property)) != null && !((String) model.get(property)).equals("")) {
+                            return Format.htmlEncode(Float.valueOf((String) model.get(property).toString()).toString());
+                        } else {
+                            return Format.htmlEncode((String) model.get(property));
+                        }
+                    }
+                };
+                return renderer;
+            } else if (DataTypeConstants.DOUBLE.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
+                GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                    @Override
+                    public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                            ListStore<ModelData> store, Grid<ModelData> grid) {
+                        if (((String) model.get(property)) != null && !((String) model.get(property)).equals("")) {
+                            return Format.htmlEncode(Double.valueOf((String) model.get(property)).toString());
+                        } else {
+                            return Format.htmlEncode((String) model.get(property));
+                        }
+                    }
+                };
+                return renderer;
+            }
         } else if (DataTypeConstants.BOOLEAN.equals(dataType.getType())) {
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
