@@ -169,6 +169,8 @@ public class UserQueryHelper {
                         }
                         if (WhereCondition.CONTAINS.equals(operator)) {
                             condition = add(condition, contains(field, value));
+                        } else if (WhereCondition.CONTAINS_SENTENCE.equals(operator)) {
+                            condition = add(condition, contains(field, value));
                         } else if (WhereCondition.EQUALS.equals(operator)) {
                             condition = add(condition, eq(field, value));
                         } else if (WhereCondition.GREATER_THAN.equals(operator)) {
@@ -299,7 +301,8 @@ public class UserQueryHelper {
         } else if (UserQueryBuilder.ID_FIELD.equals(fieldName)) {
             Collection<FieldMetadata> keyFields = type.getKeyFields();
             if (keyFields.isEmpty()) {
-                throw new IllegalArgumentException("Can not query id on type '" + type.getName() + "' because type has no id field."); //$NON-NLS-1$//$NON-NLS-2$
+                throw new IllegalArgumentException(
+                        "Can not query id on type '" + type.getName() + "' because type has no id field."); //$NON-NLS-1$//$NON-NLS-2$
             }
             List<TypedExpression> expressions = new LinkedList<TypedExpression>();
             for (FieldMetadata keyField : keyFields) {

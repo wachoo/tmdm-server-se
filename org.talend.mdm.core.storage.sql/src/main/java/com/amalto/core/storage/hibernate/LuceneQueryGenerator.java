@@ -21,7 +21,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.analysis.core.KeywordAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.search.BooleanClause;
@@ -365,7 +365,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
     }
 
     private Query parseQuery(String[] fieldsAsArray, String fullTextQuery) {
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(fieldsAsArray, new KeywordAnalyzer());
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(fieldsAsArray, new StandardAnalyzer());
         // Very important! Lucene does an implicit lower case for "expanded terms" (which is something used).
         parser.setLowercaseExpandedTerms(true);
         try {
@@ -389,23 +389,27 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         for (char remove : removes) {
             value = value.replace(remove, ' ');
         }
-        if(value.contains(" ")){ //$NON-NLS-1$
-            return getMultiKeywords(value);
+        if (value != null && value.startsWith("'") && value.endsWith("'")) { //$NON-NLS-1$//$NON-NLS-2$
+            value = "\"" + value.substring(1, value.length() - 1) + "\""; //$NON-NLS-1$ //$NON-NLS-2$
         } else {
-            if (!value.endsWith("*")) { //$NON-NLS-1$
-                value += '*';
+            if (value.contains(" ")) { //$NON-NLS-1$
+                return getMultiKeywords(value);
+            } else {
+                if (!value.endsWith("*")) { //$NON-NLS-1$
+                    value += '*';
+                }
             }
         }
         return value;
     }
-    
+
     @SuppressWarnings("unused")
     private static String getMultiKeywords(String value) {
         List<String> blocks = new ArrayList<String>(Arrays.asList(value.split(" "))); //$NON-NLS-1$
         StringBuffer sb = new StringBuffer();
         for (String block : blocks) {
             if (StringUtils.isNotEmpty(block)) {
-                if(!block.endsWith("*")){ //$NON-NLS-1$
+                if (!block.endsWith("*")) { //$NON-NLS-1$
                     sb.append(block + "* "); //$NON-NLS-1$
                 } else {
                     sb.append(block + " "); //$NON-NLS-1$
