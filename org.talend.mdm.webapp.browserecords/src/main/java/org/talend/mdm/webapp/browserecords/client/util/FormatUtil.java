@@ -1,5 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import com.google.gwt.i18n.client.NumberFormat;
+
 public class FormatUtil {
     
     public static String defaultDatePattern = "yyyy-MM-dd"; //$NON-NLS-1$
@@ -68,5 +70,23 @@ public class FormatUtil {
         }else{
             return pattern;
         }
+    }
+    
+    public static String changeNumberToFormatedValue(String value) {
+        StringBuilder pattern = new StringBuilder("####.");
+        int fractionDigits = 0;
+        if (value.contains(".")) {
+            fractionDigits = value.split("\\.")[1].length();
+        }
+
+        if (fractionDigits == 0) {
+            pattern.append("######");
+        }
+
+        for (int i = 0; i < fractionDigits; i++) {
+            pattern.append("0");
+        }
+        NumberFormat nf = NumberFormat.getFormat(pattern.toString());
+        return nf.format(Double.valueOf(value));
     }
 }

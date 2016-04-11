@@ -55,14 +55,28 @@ public class NumberTypeFieldFactory extends TypeFieldFactory {
 
         //exceptions
         if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)
-           || DataTypeConstants.DOUBLE.getTypeName().equals(baseType)
-                || DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
+           || DataTypeConstants.DOUBLE.getTypeName().equals(baseType) ) {
 
-            numberField.setData("numberType", DataTypeConstants.DECIMAL.getTypeName().equals(baseType) ? "decimal" : "double");//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$ 
             numberField.setPropertyEditorType(Double.class);
             
-        } else {
+        } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
+            numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$ 
+            numberField.setPropertyEditorType(Double.class);
 
+            List<FacetModel> facets = ((SimpleTypeModel) context.getDataType()).getFacets();
+            if (facets != null) {
+                for (FacetModel facet : facets) {
+                    if (facet.getName().equals(FacetEnum.FRACTION_DIGITS.getFacetName())) {
+                        numberField.setData(FacetEnum.FRACTION_DIGITS.getFacetName(), facet.getValue());
+                        continue;
+                    } else if (facet.getName().equals(FacetEnum.TOTAL_DIGITS.getFacetName())) {
+                        numberField.setData(FacetEnum.TOTAL_DIGITS.getFacetName(), facet.getValue());
+                        continue;
+                    }
+                }
+            }
+        } else {
             numberField.setData("numberType", "integer");//$NON-NLS-1$ //$NON-NLS-2$
             numberField.setPropertyEditorType(Integer.class);
 
@@ -75,19 +89,14 @@ public class NumberTypeFieldFactory extends TypeFieldFactory {
                 if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)) {
                     toSetValue = Float.parseFloat(getValue().toString());
                 } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
-                    List<FacetModel> facets = ((SimpleTypeModel) context.getDataType()).getFacets();
-                    int fractionDigits = 0;
-                    if (facets != null) {
-                        for (FacetModel facet : facets) {
-                            if (facet.getName().equals(FacetEnum.FRACTION_DIGITS.getFacetName())) {
-                                fractionDigits = Integer.parseInt(facet.getValue());
-                                break;
-                            }
-                        }
+                    BigDecimal bigdecimal = new BigDecimal(getValue().toString());
+                    String fractionDigitsValue = numberField.getData(FacetEnum.FRACTION_DIGITS.getFacetName()).toString();
+                    if (fractionDigitsValue != null && !fractionDigitsValue.equals("")) {
+                        toSetValue = bigdecimal.setScale(Integer.valueOf(fractionDigitsValue));
+                    } else {
+                        toSetValue = bigdecimal;
                     }
 
-                    BigDecimal bigdecimal = new BigDecimal(getValue().toString());
-                    toSetValue = bigdecimal.setScale(fractionDigits);
                 } else if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
                     toSetValue = Double.parseDouble(getValue().toString());
                 } else {

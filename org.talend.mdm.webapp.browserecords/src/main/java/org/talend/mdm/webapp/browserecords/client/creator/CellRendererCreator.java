@@ -18,6 +18,7 @@ import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
+import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 
@@ -107,28 +108,17 @@ public class CellRendererCreator {
             };
             return renderer;
         } else if (dataType.getType() instanceof DataTypeCustomized) {
-            if (DataTypeConstants.FLOAT.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
+            if (DataTypeConstants.FLOAT.getBaseTypeName().equals(dataType.getType().getBaseTypeName())
+                    || DataTypeConstants.DOUBLE.getBaseTypeName().equals(dataType.getType().getBaseTypeName())
+                    || DataTypeConstants.DECIMAL.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
                 GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
                     @Override
                     public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                             ListStore<ModelData> store, Grid<ModelData> grid) {
                         if (((String) model.get(property)) != null && !((String) model.get(property)).equals("")) {
-                            return Format.htmlEncode(Float.valueOf((String) model.get(property).toString()).toString());
-                        } else {
-                            return Format.htmlEncode((String) model.get(property));
-                        }
-                    }
-                };
-                return renderer;
-            } else if (DataTypeConstants.DOUBLE.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
-                GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
-
-                    @Override
-                    public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
-                            ListStore<ModelData> store, Grid<ModelData> grid) {
-                        if (((String) model.get(property)) != null && !((String) model.get(property)).equals("")) {
-                            return Format.htmlEncode(Double.valueOf((String) model.get(property)).toString());
+                            String value = ((String) model.get(property));
+                            return Format.htmlEncode(FormatUtil.changeNumberToFormatedValue(value));
                         } else {
                             return Format.htmlEncode((String) model.get(property));
                         }

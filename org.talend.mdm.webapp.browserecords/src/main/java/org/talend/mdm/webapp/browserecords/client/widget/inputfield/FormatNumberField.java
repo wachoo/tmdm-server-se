@@ -1,12 +1,15 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
+import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
+import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
@@ -15,6 +18,7 @@ import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
@@ -161,11 +165,13 @@ public class FormatNumberField extends NumberField {
 
     @Override
     public void setRawValue(String value) {
+        String displayValue = FormatUtil.changeNumberToFormatedValue(value);
+
         if (rendered) {
             if (isEditable()) {
-                getInputEl().setValue(value == null ? "" : value); //$NON-NLS-1$
+                getInputEl().setValue(displayValue == null ? "" : displayValue); //$NON-NLS-1$
             } else {
-                getInputEl().dom.setInnerText(value == null ? "" : value); //$NON-NLS-1$
+                getInputEl().dom.setInnerText(displayValue == null ? "" : displayValue); //$NON-NLS-1$
             }
         }
     }
