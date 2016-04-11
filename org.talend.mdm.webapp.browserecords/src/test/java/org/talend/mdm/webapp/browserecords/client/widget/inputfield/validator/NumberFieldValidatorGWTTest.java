@@ -108,6 +108,10 @@ public class NumberFieldValidatorGWTTest extends GWTTestCase{
         assertNotNull(NumberFieldValidator.getInstance().validate(dateField, "00,1230"));
         assertNotNull(NumberFieldValidator.getInstance().validate(dateField, "-,1230"));
         assertNotNull(NumberFieldValidator.getInstance().validate(dateField, ",1230"));
+        assertNotNull(NumberFieldValidator.getInstance().validate(dateField, "999999999999.999"));
+        assertNotNull(NumberFieldValidator.getInstance().validate(dateField, "-999999999999.999"));
+        assertNotNull(NumberFieldValidator.getInstance().validate(dateField, "99999999999999999999.999"));
+        assertNotNull(NumberFieldValidator.getInstance().validate(dateField, "-99999999999999999999.999"));
     }
     
     

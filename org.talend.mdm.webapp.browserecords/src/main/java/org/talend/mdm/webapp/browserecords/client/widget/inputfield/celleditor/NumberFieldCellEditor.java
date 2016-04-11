@@ -1,5 +1,8 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor;
 
+import java.math.BigDecimal;
+
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
 
@@ -22,8 +25,12 @@ public class NumberFieldCellEditor extends CellEditor {
         if (itemBean.getOriginalMap().containsKey(getField().getName())) {
             num = (Number) itemBean.getOriginalMap().get(getField().getName());
         } else {
-            if ("integer".equals(numberType)) { //$NON-NLS-1$
+            if (DataTypeConstants.INTEGER.getTypeName().equals(numberType)) {
                 num = Integer.parseInt((String) value);
+            } else if (DataTypeConstants.FLOAT.getTypeName().equals(numberType)) {
+                num = Float.parseFloat((String) value);
+            } else if (DataTypeConstants.DECIMAL.getTypeName().equals(numberType)) {
+                num = new BigDecimal((String) value);
             } else {
                 num = Double.parseDouble((String) value);
             }
@@ -41,9 +48,15 @@ public class NumberFieldCellEditor extends CellEditor {
             itemBean.getOriginalMap().put(getField().getName(), (Number) value);
 
         String numberType = getField().getData("numberType");//$NON-NLS-1$
-        if ("integer".equals(numberType)){//$NON-NLS-1$
+        if (DataTypeConstants.INTEGER.getTypeName().equals(numberType)) {
             Integer v = (Integer) value;
             return Integer.toString(v.intValue());
+        } else if (DataTypeConstants.FLOAT.getTypeName().equals(numberType)) {
+            Float v = (Float) value;
+            return Float.toString(v);
+        } else if (DataTypeConstants.DECIMAL.getTypeName().equals(numberType)) {
+            BigDecimal v = (BigDecimal) value;
+            return v.toString();
         } else {
             Double v = (Double) value;
             return Double.toString(v);

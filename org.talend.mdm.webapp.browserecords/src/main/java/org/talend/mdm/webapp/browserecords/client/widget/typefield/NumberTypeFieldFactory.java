@@ -53,33 +53,19 @@ public class NumberTypeFieldFactory extends TypeFieldFactory {
 
         numberField.setValidator(NumberFieldValidator.getInstance());
 
-        //exceptions
-        if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)
-           || DataTypeConstants.DOUBLE.getTypeName().equals(baseType) ) {
-
-            numberField.setData("numberType", "double");//$NON-NLS-1$ //$NON-NLS-2$ 
+        // exceptions
+        if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)) {
+            numberField.setData("numberType", DataTypeConstants.FLOAT.getTypeName());//$NON-NLS-1$ 
+            numberField.setPropertyEditorType(Float.class);
+        } else if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
+            numberField.setData("numberType", DataTypeConstants.DOUBLE.getTypeName());//$NON-NLS-1$ 
             numberField.setPropertyEditorType(Double.class);
-            
         } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
-            numberField.setData("numberType", "decimal");//$NON-NLS-1$ //$NON-NLS-2$ 
-            numberField.setPropertyEditorType(Double.class);
-
-            List<FacetModel> facets = ((SimpleTypeModel) context.getDataType()).getFacets();
-            if (facets != null) {
-                for (FacetModel facet : facets) {
-                    if (facet.getName().equals(FacetEnum.FRACTION_DIGITS.getFacetName())) {
-                        numberField.setData(FacetEnum.FRACTION_DIGITS.getFacetName(), facet.getValue());
-                        continue;
-                    } else if (facet.getName().equals(FacetEnum.TOTAL_DIGITS.getFacetName())) {
-                        numberField.setData(FacetEnum.TOTAL_DIGITS.getFacetName(), facet.getValue());
-                        continue;
-                    }
-                }
-            }
+            numberField.setData("numberType", DataTypeConstants.DECIMAL.getTypeName());//$NON-NLS-1$ 
+            numberField.setPropertyEditorType(BigDecimal.class);
         } else {
-            numberField.setData("numberType", "integer");//$NON-NLS-1$ //$NON-NLS-2$
+            numberField.setData("numberType", DataTypeConstants.INTEGER.getTypeName());//$NON-NLS-1$ 
             numberField.setPropertyEditorType(Integer.class);
-
         }
 
         if (context.isWithValue()) {

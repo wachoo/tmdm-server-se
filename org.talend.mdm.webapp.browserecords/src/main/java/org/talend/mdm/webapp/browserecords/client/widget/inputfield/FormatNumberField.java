@@ -9,7 +9,7 @@ import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.propertyeditor.FormatNumberPropertyEditor;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.NumberPropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.DOM;
@@ -40,6 +41,7 @@ public class FormatNumberField extends NumberField {
 
     public FormatNumberField() {
         super();
+        propertyEditor = new FormatNumberPropertyEditor();
         validateFlag = BrowseRecords.getSession().getAppHeader().isAutoValidate();
         setUserProperties(BrowseRecords.getSession().getAppHeader().getUserProperties());
     }

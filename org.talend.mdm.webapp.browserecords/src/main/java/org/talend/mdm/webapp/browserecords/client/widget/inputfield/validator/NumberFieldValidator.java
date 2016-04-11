@@ -1,5 +1,7 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator;
 
+import java.math.BigInteger;
+
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
@@ -32,8 +34,7 @@ public class NumberFieldValidator implements Validator {
 
         int totalLength;
         if (digits.length == 2) {
-            totalLength = new Integer(new Integer(digits[0]) == 0 ? 0 : new Integer(digits[0]).toString().length())
-                    + new Integer(digits[1].length());
+            totalLength = new Integer(new BigInteger(digits[0]).intValue() == 0 ? 0 : digits[0].length()) + digits[1].length();
         } else {
             totalLength = value.length();
         }

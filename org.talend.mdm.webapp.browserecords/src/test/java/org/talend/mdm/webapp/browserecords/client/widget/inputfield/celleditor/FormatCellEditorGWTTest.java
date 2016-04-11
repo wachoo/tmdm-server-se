@@ -12,12 +12,14 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield.celleditor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.DateUtil;
@@ -74,6 +76,39 @@ public class FormatCellEditorGWTTest extends GWTTestCase {
         numStr = (String) cellEditor.postProcessValue(77);
         assertEquals("77", numStr);
         assertEquals(77, selectedItem.getOriginalMap().get(field.getName()));
+        
+        field.setData("numberType", DataTypeConstants.FLOAT.getTypeName());
+        numStr = (String) cellEditor.postProcessValue(77f);
+        assertEquals("77.0", numStr);
+        assertEquals(77.0f, selectedItem.getOriginalMap().get(field.getName()));
+        
+        numStr = (String) cellEditor.postProcessValue(77.23f);
+        assertEquals("77.23", numStr);
+        assertEquals(77.23f, selectedItem.getOriginalMap().get(field.getName()));
+        
+        numStr = (String) cellEditor.postProcessValue(569874584547.365f);
+        assertEquals(Float.valueOf("569874580000").toString(), numStr);
+        assertEquals(569874580000f, selectedItem.getOriginalMap().get(field.getName()));
+        
+        field.setData("numberType", DataTypeConstants.DOUBLE.getTypeName());
+        numStr = (String) cellEditor.postProcessValue(66d);
+        assertEquals("66.0", numStr);
+        assertEquals(66.0d, selectedItem.getOriginalMap().get(field.getName()));
+        
+        numStr = (String) cellEditor.postProcessValue(66.36d);
+        assertEquals("66.36", numStr);
+        assertEquals(66.36d, selectedItem.getOriginalMap().get(field.getName()));
+        
+        
+        field.setData("numberType", DataTypeConstants.DECIMAL.getTypeName());
+        numStr = (String) cellEditor.postProcessValue(new BigDecimal("99999999999999999.999"));
+        assertEquals("99999999999999999.999", numStr);
+        assertEquals("99999999999999999.999", selectedItem.getOriginalMap().get(field.getName()).toString());
+        
+        numStr = (String) cellEditor.postProcessValue(new BigDecimal("66.3600"));
+        assertEquals("66.3600", numStr);
+        assertEquals("66.3600", selectedItem.getOriginalMap().get(field.getName()).toString());
+        
     }
 
     public void testDateFieldCellEditor() {
