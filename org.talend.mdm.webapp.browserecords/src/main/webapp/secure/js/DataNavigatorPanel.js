@@ -48,8 +48,9 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	var selectNode;
 	var image_width = 30;
 	var image_height = 30;
-	var text_dx = -10;
-	var text_dy = 10;
+	var text_dx = 25;
+	var text_dy = -10;
+	var type_text_dy = 3;
 	var width = 800;
 	
 	var height = 800;
@@ -159,11 +160,11 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 		var text_x;
 		var text_anchor;
 		if (root.navigator_node_type === NAVIGATOR_NODE_IN_ENTITY_TYPE) {
-			text_dx = -25;
+			text_x = -text_dx;
 			text_anchor = "end";
 			elementId = "cluster_type_in_group";
 		} else if (root.navigator_node_type === NAVIGATOR_NODE_OUT_ENTITY_TYPE) {
-			text_dx = 25;
+			text_x = text_dx
 			text_anchor = "start";
 			elementId = "cluster_type_out_group";
 		}
@@ -198,7 +199,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 					.append("path").style("fill", "none").style("stroke",
 							"#ccc").style("stroke-width", "1.5px").attr("d",
 							diagonal);
-
+			
 			typeNode.each(function(d, i) {
 				if (d.navigator_node_concept !== 'root') {
 					d3.select(this).append("image").attr("width", image_width)
@@ -212,12 +213,12 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 			});
 
 			typeNode.append("text").attr("dx", function(node) {
-				return text_dx;
-			}).attr("dy", 3).style("text-anchor", function(d) {
+				return text_x;
+			}).attr("dy", type_text_dy).style("text-anchor", function(d) {
 				return text_anchor;
 			}).text(function(d) {
 				if (d.navigator_node_concept !== 'root') {
-					return d.navigator_node_concept;
+					return d.navigator_line_label;
 				}
 			});
 		} else {
@@ -290,8 +291,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 				var settingWindow = new Ext.Window({
 					id : 'settingWindow',
 					title : SET_WINDOW_TITLE[language],
-					width : 200,
-					height : 100,
+					width : 253,
+					height : 131,
 					modal : true,
 					layout : 'form',
 					bodyStyle : "padding:10px",
@@ -381,7 +382,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 										source : selectNode,
 										target : newNode,
 										navigator_node_type : node.navigator_node_type,
-										navigator_line_label : node.navigator_line_label,
+										navigator_line_label : d.navigator_line_label,
 										navigator_node_concept : node.navigator_node_concept
 									};
 									links.push(newLink);
@@ -438,7 +439,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 										source : selectNode,
 										target : newNode,
 										navigator_node_type : node.navigator_node_type,
-										navigator_line_label : node.navigator_line_label,
+										navigator_line_label : d.navigator_line_label,
 										navigator_node_concept : node.navigator_node_concept
 									};
 									links.push(newLink);
@@ -479,11 +480,6 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 	      .duration(750)
 	      .attrTween("d", arcTween);
 
-//		path.transition()
-//	      .ease("elastic")
-//	      .duration(750)
-//	      .attrTween("d", arcTween);
-		
 		arcs.append("text").attr("transform", function(d) {
 			return "translate(" + arc.centroid(d) + ")";
 		}).attr("text-anchor", "middle").text(function(d) {
