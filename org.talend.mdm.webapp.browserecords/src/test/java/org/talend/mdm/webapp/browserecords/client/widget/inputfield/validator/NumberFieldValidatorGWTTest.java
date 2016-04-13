@@ -34,6 +34,27 @@ public class NumberFieldValidatorGWTTest extends GWTTestCase{
 
     public void testValidateDecimalValue() {
         FormatNumberField dateField = new FormatNumberField();
+        
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "12.999"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "99.999"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "12.6987"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "-12.6987"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "-12.999"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "0.123"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "-.999"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "00.123"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "-00.123"));
+        // for the localize
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "12,999"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "99,999"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "12,6987"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "-12,6987"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "-12,999"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "0,123"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "-,999"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "00,123"));
+        assertNull(NumberFieldValidator.getInstance().validate(dateField, "-00,123"));
+        
         dateField.setData(FacetEnum.TOTAL_DIGITS.getFacetName(), "5");
         dateField.setData(FacetEnum.FRACTION_DIGITS.getFacetName(), "3");
 

@@ -21,8 +21,8 @@ import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.OperatorConstants;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.NumberFieldValidator;
-
 import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
+
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
@@ -90,13 +90,7 @@ public class NumberTypeFieldFactory extends TypeFieldFactory {
                     toSetValue = Float.parseFloat(getValue().toString());
                 } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
                     BigDecimal bigdecimal = new BigDecimal(getValue().toString());
-                    String fractionDigitsValue = numberField.getData(FacetEnum.FRACTION_DIGITS.getFacetName()).toString();
-                    if (fractionDigitsValue != null && !fractionDigitsValue.equals("")) {
-                        toSetValue = bigdecimal.setScale(Integer.valueOf(fractionDigitsValue));
-                    } else {
-                        toSetValue = bigdecimal;
-                    }
-
+                    toSetValue = bigdecimal;
                 } else if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
                     toSetValue = Double.parseDouble(getValue().toString());
                 } else {
