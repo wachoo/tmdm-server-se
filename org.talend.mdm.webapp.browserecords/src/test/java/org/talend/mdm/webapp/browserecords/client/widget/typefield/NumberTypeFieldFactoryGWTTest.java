@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.typefield;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,11 +48,8 @@ public class NumberTypeFieldFactoryGWTTest extends GWTTestCase {
         TypeModel typeModel = new SimpleTypeModel("price", DataTypeConstants.DECIMAL);
         TypeFieldCreateContext context = new TypeFieldCreateContext(typeModel);
         context.setWithValue(true);
-        context.setNode(getItemNodeModel("price", "12.9", "decimalValue"));
-        List<FacetModel> facets = new ArrayList<FacetModel>();
-        facets.add(new FacetModel(FacetEnum.TOTAL_DIGITS.getFacetName(), "15"));
-        facets.add(new FacetModel(FacetEnum.FRACTION_DIGITS.getFacetName(), "3"));
-        ((SimpleTypeModel) typeModel).setFacets(facets);
+        context.setNode(getItemNodeModel("price", "12.90", "decimalValue"));
+        
         NumberTypeFieldFactory dateTimeTypeFieldFactory = new NumberTypeFieldFactory(new TypeFieldSource(
                 TypeFieldSource.FORM_INPUT), context);
         Field<?> field = dateTimeTypeFieldFactory.createField();
@@ -59,8 +57,24 @@ public class NumberTypeFieldFactoryGWTTest extends GWTTestCase {
         assertTrue(field instanceof FormatNumberField);
         FormatNumberField dateField = (FormatNumberField) field;
         assertNotNull(dateField.getValue());
-        assertEquals("12.9", dateField.getPropertyEditor().getStringValue(dateField.getValue()));
-        assertTrue(field.getValue() instanceof Double);
+        assertEquals("12.90", dateField.getPropertyEditor().getStringValue(dateField.getValue()));
+        assertTrue(field.getValue() instanceof BigDecimal);
+        assertEquals(true, dateField.isValid());
+        
+        
+        List<FacetModel> facets = new ArrayList<FacetModel>();
+        facets.add(new FacetModel(FacetEnum.TOTAL_DIGITS.getFacetName(), "15"));
+        facets.add(new FacetModel(FacetEnum.FRACTION_DIGITS.getFacetName(), "3"));
+        ((SimpleTypeModel) typeModel).setFacets(facets);
+        dateTimeTypeFieldFactory = new NumberTypeFieldFactory(new TypeFieldSource(
+                TypeFieldSource.FORM_INPUT), context);
+        field = dateTimeTypeFieldFactory.createField();
+        RootPanel.get().add(field);
+        assertTrue(field instanceof FormatNumberField);
+        dateField = (FormatNumberField) field;
+        assertNotNull(dateField.getValue());
+        assertEquals("12.90", dateField.getPropertyEditor().getStringValue(dateField.getValue()));
+        assertTrue(field.getValue() instanceof BigDecimal);
         assertEquals(true, dateField.isValid());
 
         typeModel = new SimpleTypeModel("price", DataTypeConstants.FLOAT);
@@ -75,7 +89,7 @@ public class NumberTypeFieldFactoryGWTTest extends GWTTestCase {
         assertNotNull(dateField.getValue());
         assertEquals("12.9", dateField.getPropertyEditor().getStringValue(dateField.getValue()));
         assertEquals(true, dateField.isValid());
-        assertTrue(field.getValue() instanceof Double);
+        assertTrue(field.getValue() instanceof Float);
 
         typeModel = new SimpleTypeModel("price", DataTypeConstants.DOUBLE);
         context = new TypeFieldCreateContext(typeModel);
