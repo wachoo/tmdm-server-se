@@ -378,6 +378,40 @@ public class CompareTest extends TestCase {
         assertEquals(0, sort.get(ImpactAnalyzer.Impact.LOW).size());
     }
 
+    // TMDM-9463 Impact analysis issues with custom decimal type
+    public void test18() throws Exception {
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema18_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated = new MetadataRepository();
+        updated.load(CompareTest.class.getResourceAsStream("schema18_2.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated);
+        assertEquals(1, diffResults.getActions().size());
+        assertEquals(1, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(0, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(1, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.LOW).size());
+
+        updated = new MetadataRepository();
+        updated.load(CompareTest.class.getResourceAsStream("schema18_3.xsd")); //$NON-NLS-1$
+        diffResults = Compare.compare(original, updated);
+        assertEquals(1, diffResults.getActions().size());
+        assertEquals(1, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(0, diffResults.getAddChanges().size());
+
+        analyzer = new HibernateStorageImpactAnalyzer();
+        sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(1, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
     @SuppressWarnings("rawtypes")
     private ClassRepository buildRepository() {
         ClassRepository repository = new ClassRepository();
