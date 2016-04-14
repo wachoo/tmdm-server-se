@@ -26,19 +26,27 @@ import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.*;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.xmlserver.interfaces.*;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+
+import static com.amalto.core.query.user.UserQueryBuilder.*;
+import com.amalto.xmlserver.interfaces.IWhereItem;
+import com.amalto.xmlserver.interfaces.ItemPKCriteria;
+import com.amalto.xmlserver.interfaces.WhereAnd;
+import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.amalto.xmlserver.interfaces.WhereOr;
+import com.amalto.xmlserver.interfaces.XmlServerException;
+import com.amalto.core.storage.SecuredStorage;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -2703,6 +2711,11 @@ public class StorageQueryTest extends StorageTestCase {
                 writer.append("</result>"); //$NON-NLS-1$
                 writer.flush();
             }
+            
+            @Override
+            public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+                // Not needed for test.
+            }
         };
         Set<String> expectedStrings = new HashSet<String>();
         expectedStrings
@@ -4281,4 +4294,115 @@ public class StorageQueryTest extends StorageTestCase {
             this.optimization = optimization;
         }
     }
+
+    public void testAdvancedSearchWithMultiCondition() throws Exception {
+        Storage storageTemp = new HibernateStorage("noFullText");
+        MetadataRepository repositoryTemp = new MetadataRepository();
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        DataRecordReader<String> factoryTemp = new XmlStringDataRecordReader();
+        repositoryTemp.load(StorageQueryTest.class.getResourceAsStream("metadata.xsd"));
+        ComplexTypeMetadata personTemp = repositoryTemp.getComplexType("Person");
+
+        try {
+            storageTemp.init(getDatasource("RDBMS-1-NO-FT"));
+            storageTemp.prepare(repositoryTemp, Collections.<Expression> emptySet(), true, true);
+            records.add(factoryTemp
+                    .read("1",
+                            repositoryTemp,
+                            personTemp,
+                            "<Person><id>1</id><score>130000.00</score><lastname>Dupond</lastname><resume>[EN:my splendid resume, splendid isn't it][FR:mon magnifique resume, n'est ce pas ?]</resume><middlename>John</middlename><firstname>Julien</firstname><age>10</age><Status>Employee</Status><Available>true</Available></Person>"));
+            records.add(factoryTemp
+                    .read("1",
+                            repositoryTemp,
+                            personTemp,
+                            "<Person><id>2</id><score>170000.00</score><lastname>Dupont</lastname><middlename>John</middlename><firstname>Robert-Julien</firstname><age>20</age><Status>Customer</Status><Available>false</Available></Person>"));
+            records.add(factoryTemp
+                    .read("1",
+                            repositoryTemp,
+                            personTemp,
+                            "<Person><id>3</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Juste</firstname><age>30</age><Status>Friend</Status></Person>"));
+            records.add(factoryTemp
+                    .read("1",
+                            repositoryTemp,
+                            personTemp,
+                            "<Person><id>4</id><score>200000.00</score><lastname>Leblanc</lastname><middlename>John</middlename><firstname>Julien</firstname><age>30</age><Status>Friend</Status></Person>"));
+            storageTemp.begin();
+            storageTemp.update(records);
+            storageTemp.commit();
+        } finally {
+            storageTemp.end();
+        }
+
+        try {
+            UserQueryBuilder qb = from(personTemp).where(
+                    and(contains(personTemp.getField("lastname"), "Du*"), contains(personTemp.getField("middlename"), "Jo*")));
+            storageTemp.begin();
+            StorageResults results = storageTemp.fetch(qb.getSelect());
+            List<String> ids = new ArrayList<String>();
+            ids.add("1");
+            ids.add("2");
+            assertEquals(2, results.getCount());
+            for (DataRecord result : results) {
+                this.assertTrue(ids.contains(result.get(personTemp.getField("id"))));
+            }
+        } finally {
+            storageTemp.close();
+        }
+    }
+    
+    public void testQueryNoAccessField() {
+        UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        writer.setSecurityDelegator(new TestUserDelegator());
+        try {
+            // System_Users have no access to status field.
+            String expectedXml = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn&apos;t it][FR:mon magnifique resume, n&apos;est ce pas ?]</resume>"
+                    + "<age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2&amp;2][true]</address><address>"
+                    + "[1][false]</address></addresses></Person>";
+            String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn&apos;t it][FR:mon magnifique resume, n&apos;est ce pas ?]</resume>"
+                    + "<age>10</age><score>130000</score><Available>true</Available><addresses><address>[2&amp;2][true]</address><address>"
+                    + "[1][false]</address></addresses></Person>";
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                try {
+                    writer.write(result, output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            String actual = new String(output.toByteArray());
+            if (!"Oracle".equalsIgnoreCase(DATABASE)) {
+                assertEquals(expectedXml, actual);
+            } else {
+                assertEquals(expectedXml2, actual);
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    private static class TestUserDelegator implements SecuredStorage.UserDelegator {
+
+        boolean isActive = true;
+
+        public void setActive(boolean active) {
+            isActive = active;
+        }
+
+        @Override
+        public boolean hide(FieldMetadata field) {
+            return isActive && field.getHideUsers().contains("System_Users");
+        }
+
+        @Override
+        public boolean hide(ComplexTypeMetadata type) {
+            return isActive && type.getHideUsers().contains("System_Users");
+        }
+    }
+
 }

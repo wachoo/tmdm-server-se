@@ -43,6 +43,12 @@ public class ItemPKCriteriaResultsWriter implements DataRecordWriter {
     public void write(DataRecord record, Writer writer) throws IOException {
         doWrite(record, writer);
     }
+    
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        // Everyone is at least allowed to see PK, no need to handle this.
+        throw new UnsupportedOperationException();
+    }
 
     private void doWrite(DataRecord record, Writer writer) throws IOException {
         writer.write("<r>"); //$NON-NLS-1$

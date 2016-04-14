@@ -36,6 +36,7 @@ import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -511,6 +512,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 }
                 results = storage.fetch(qb.getSelect());
                 DataRecordWriter writer = new DataRecordXmlWriter(type);
+                writer.setSecurityDelegator(SecuredStorage.getDelegator());
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 for (DataRecord result : results) {
                     try {

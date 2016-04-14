@@ -34,6 +34,8 @@ import com.amalto.core.storage.record.DataRecordWriter;
 public class FullTextResultsWriter implements DataRecordWriter {
 
     private final String keyword;
+    
+    private SecuredStorage.UserDelegator delegator = SecuredStorage.UNSECURED;
 
     public FullTextResultsWriter(String keyword) {
         this.keyword = keyword;
@@ -86,6 +88,14 @@ public class FullTextResultsWriter implements DataRecordWriter {
         writer.flush();
     }
 
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        if(delegator == null) {
+            throw new IllegalArgumentException("Delegator cannot be null.");
+        }
+        this.delegator = delegator;
+    }
+    
     private class SnippetCreator extends DefaultMetadataVisitor<String[]> {
 
         private final DataRecord record;
@@ -126,6 +136,9 @@ public class FullTextResultsWriter implements DataRecordWriter {
 
         @Override
         public String[] visit(SimpleTypeFieldMetadata simpleField) {
+            if (delegator.hide(simpleField)) {
+                return snippetWords;
+            }
             if (!done) {
                 List<String> values;
                 Object valueAsObject = record.get(simpleField);
