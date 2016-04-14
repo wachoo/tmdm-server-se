@@ -205,26 +205,13 @@ public class StorageSaverSource implements SaverSource {
 
     public String nextAutoIncrementId(String dataCluster, String dataModelName, String conceptName) {
         String autoIncrementId = null;
-        String field = null;
-        String concept;
-        if (conceptName.contains(".")) { //$NON-NLS-1$
-            String[] conceptArray = conceptName.split("\\."); //$NON-NLS-1$
-            concept = conceptArray[0];
-            field = conceptArray[1];
-        } else {
-            concept = conceptName;
-        }
-        MetadataRepository metadataRepository = getMetadataRepository(dataModelName);
-        if (metadataRepository != null) {
-            ComplexTypeMetadata complexType = metadataRepository.getComplexType(concept);
-            if (complexType != null) {
-                TypeMetadata superType = MetadataUtils.getSuperConcreteType(complexType);
-                if (superType != null) {
-                    concept = superType.getName();
-                }                
-                String autoIncrementFieldName = field != null ? field : concept;
-                autoIncrementId = AutoIncrementGenerator.get().generateId(dataCluster, concept, autoIncrementFieldName);
-            } 
+        String concept = AutoIncrementGenerator.getConceptForAutoIncrement(dataModelName, conceptName);
+        if(concept != null) {
+            String autoIncrementFieldName = concept;
+            if (conceptName.contains(".")) { //$NON-NLS-1$
+                autoIncrementFieldName = conceptName.split("\\.")[1]; //$NON-NLS-1$
+            }
+            autoIncrementId = AutoIncrementGenerator.get().generateId(dataCluster, concept, autoIncrementFieldName);
         }
         return autoIncrementId;
     }

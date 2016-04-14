@@ -28,7 +28,7 @@ import org.talend.mdm.commmon.metadata.MetadataRepository;
 import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.DefaultCommitter;
-import com.amalto.core.save.context.DefaultSaverSource;
+import com.amalto.core.save.context.StorageSaverSource;
 import com.amalto.core.server.MDMContextAccessor;
 import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
@@ -117,7 +117,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             throw new RuntimeException("Can not get current user information.", e);
         }
         StagingConfiguration stagingConfig = new StagingConfiguration(staging,
-                DefaultSaverSource.getDefault(userName),
+                new StorageSaverSource(userName),
                 new DefaultCommitter(),
                 user,
                 filter);

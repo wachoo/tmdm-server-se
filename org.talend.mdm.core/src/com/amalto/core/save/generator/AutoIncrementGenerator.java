@@ -1,7 +1,15 @@
 package com.amalto.core.save.generator;
 
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
+
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.server.StorageAdminImpl;
+import com.amalto.core.storage.Storage;
 
 @SuppressWarnings("nls")
 public class AutoIncrementGenerator {
@@ -30,6 +38,27 @@ public class AutoIncrementGenerator {
             return storageAutoIncrementGenerator;
         }
         return inMemoryAutoIncrementGenerator;
+    }
+    
+    public static String getConceptForAutoIncrement(String storageName, String conceptName) {
+        String concept = null;
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        Storage storage = storageAdmin.get(storageName, storageAdmin.getType(storageName));
+        if (storage != null) {
+            MetadataRepository metadataRepository = storage.getMetadataRepository();
+            if (metadataRepository != null) {
+                if (conceptName.contains(".")) { //$NON-NLS-1$
+                    concept = conceptName.split("\\.")[0];//$NON-NLS-1$
+                } else {
+                    concept = conceptName;
+                }
+                ComplexTypeMetadata complexType = metadataRepository.getComplexType(concept);
+                if (complexType != null) {
+                    concept = MetadataUtils.getSuperConcreteType(complexType).getName();
+                }
+            }
+        }
+        return concept;
     }
 
 }

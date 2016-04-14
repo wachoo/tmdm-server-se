@@ -32,7 +32,7 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
         if (!wasInitCalled) {
             init();
         }
-        String key = dataClusterName + "." + conceptName + "." + keyElementName;
+        String key = dataClusterName + "." + AutoIncrementGenerator.getConceptForAutoIncrement(dataClusterName, conceptName) + "." + keyElementName;
         long num;
         String n = CONFIGURATION.getProperty(key);
         if (n == null) {
