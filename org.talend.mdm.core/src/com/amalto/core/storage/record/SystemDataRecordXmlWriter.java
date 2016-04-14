@@ -38,6 +38,7 @@ import com.amalto.core.metadata.ClassRepository;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.storage.SecuredStorage;
 
 public class SystemDataRecordXmlWriter implements DataRecordWriter {
 
@@ -84,6 +85,13 @@ public class SystemDataRecordXmlWriter implements DataRecordWriter {
         }
         writer.write("</" + getRootElementName(record) + ">"); //$NON-NLS-1$ //$NON-NLS-2$
         writer.flush();
+    }
+    
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        // System objects don't have hide information on fields, prefer a clear exception iso. promise that can't be
+        // hold.
+        throw new UnsupportedOperationException();
     }
 
     private static boolean isValidAttributeType(TypeMetadata type) {

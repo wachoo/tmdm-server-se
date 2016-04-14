@@ -91,6 +91,7 @@ import com.amalto.xmlserver.interfaces.WhereAnd;
 import com.amalto.xmlserver.interfaces.WhereCondition;
 import com.amalto.xmlserver.interfaces.WhereOr;
 import com.amalto.xmlserver.interfaces.XmlServerException;
+import com.amalto.core.storage.SecuredStorage;
 
 @SuppressWarnings("nls")
 public class StorageQueryTest extends StorageTestCase {
@@ -2857,6 +2858,11 @@ public class StorageQueryTest extends StorageTestCase {
                 writer.append("</result>"); //$NON-NLS-1$
                 writer.flush();
             }
+            
+            @Override
+            public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+                // Not needed for test.
+            }
         };
         Set<String> expectedStrings = new HashSet<String>();
         expectedStrings
@@ -4688,4 +4694,60 @@ public class StorageQueryTest extends StorageTestCase {
             storageTemp.close();
         }
     }
+    
+    public void testQueryNoAccessField() {
+        UserQueryBuilder qb = from(person).where(eq(person.getField("id"), "1"));
+
+        StorageResults results = storage.fetch(qb.getSelect());
+        DataRecordXmlWriter writer = new DataRecordXmlWriter();
+        writer.setSecurityDelegator(new TestUserDelegator());
+        try {
+            // System_Users have no access to status field.
+            String expectedXml = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn&apos;t it][FR:mon magnifique resume, n&apos;est ce pas ?]</resume>"
+                    + "<age>10</age><score>130000.00</score><Available>true</Available><addresses><address>[2&amp;2][true]</address><address>"
+                    + "[1][false]</address></addresses></Person>";
+            String expectedXml2 = "<Person><id>1</id><firstname>Julien</firstname><middlename>John</middlename><lastname>"
+                    + "Dupond</lastname><resume>[EN:my splendid resume, splendid isn&apos;t it][FR:mon magnifique resume, n&apos;est ce pas ?]</resume>"
+                    + "<age>10</age><score>130000</score><Available>true</Available><addresses><address>[2&amp;2][true]</address><address>"
+                    + "[1][false]</address></addresses></Person>";
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (DataRecord result : results) {
+                try {
+                    writer.write(result, output);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            String actual = new String(output.toByteArray());
+            if (!"Oracle".equalsIgnoreCase(DATABASE)) {
+                assertEquals(expectedXml, actual);
+            } else {
+                assertEquals(expectedXml2, actual);
+            }
+        } finally {
+            results.close();
+        }
+    }
+
+    private static class TestUserDelegator implements SecuredStorage.UserDelegator {
+
+        boolean isActive = true;
+
+        public void setActive(boolean active) {
+            isActive = active;
+        }
+
+        @Override
+        public boolean hide(FieldMetadata field) {
+            return isActive && field.getHideUsers().contains("System_Users");
+        }
+
+        @Override
+        public boolean hide(ComplexTypeMetadata type) {
+            return isActive && type.getHideUsers().contains("System_Users");
+        }
+    }
+
 }

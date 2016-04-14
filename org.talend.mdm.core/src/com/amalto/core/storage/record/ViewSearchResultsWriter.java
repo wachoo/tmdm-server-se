@@ -24,10 +24,13 @@ import org.talend.mdm.commmon.metadata.*;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
 import com.amalto.core.query.user.TimeConstant;
+import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.StorageMetadataUtils;
 
 public class ViewSearchResultsWriter implements DataRecordWriter {
 
+    private SecuredStorage.UserDelegator delegator = SecuredStorage.UNSECURED;
+    
     @Override
     public void write(DataRecord record, OutputStream output) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(output, "UTF-8")); //$NON-NLS-1$
@@ -52,10 +55,22 @@ public class ViewSearchResultsWriter implements DataRecordWriter {
         writer.append("</result>"); //$NON-NLS-1$
         writer.flush();
     }
+    
+    @Override
+    public void setSecurityDelegator(SecuredStorage.UserDelegator delegator) {
+        if(delegator == null) {
+            throw new IllegalArgumentException("Delegator cannot be null.");
+        }
+        this.delegator = delegator;
+    }
 
     private void processValue(Writer out, FieldMetadata fieldMetadata, Object value) throws IOException {
         if (value == null) {
             throw new IllegalArgumentException("Not supposed to write null values to XML."); //$NON-NLS-1$
+        }
+        if (delegator.hide(fieldMetadata)) {
+            out.append("");
+            return;
         }
         String stringValue;
         TypeMetadata type = fieldMetadata.getType();
