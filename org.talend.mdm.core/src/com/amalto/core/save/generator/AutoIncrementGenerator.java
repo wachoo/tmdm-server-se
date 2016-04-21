@@ -8,7 +8,6 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.server.StorageAdminImpl;
 import com.amalto.core.storage.Storage;
 
 @SuppressWarnings("nls")
