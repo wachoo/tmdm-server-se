@@ -320,7 +320,7 @@ public class StorageQueryTest extends StorageTestCase {
                 .add(factory
                         .read(repository,
                                 organization,
-                                "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city></post_address><org_address><street>waitan rd</street><city>[SH]</city></org_address></Organization>"));
+                                "<Organization xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><org_id>1</org_id><post_address><street>changan rd</street><city>[BJ]</city><country><name>cn</name><code></code></country></post_address><org_address><street>waitan rd</street><city>[SH]</city><country><name>fr</name><code>33</code></country></org_address></Organization>"));
         allRecords.add(factory.read(repository, repeatableElementsEntity, RepeatableElementsEntity_Record));
         allRecords.add(factory.read(repository, rr, RR_Record1));
         allRecords.add(factory.read(repository, rr, RR_Record2));
@@ -3208,6 +3208,16 @@ public class StorageQueryTest extends StorageTestCase {
                 + "<org_id>1</org_id><city>[SH]</city><street>waitan rd</street><city>[BJ]</city><street>changan rd</street>"
                 + endRoot;
         assertTrue(expectedResult.equals(resultAsString.replaceAll("\\r|\\n|\\t", "")));
+    }
+    
+    public void testEmptyOrNullInMultidepthComplexType() throws Exception {
+        UserQueryBuilder qb = from(organization).selectId(organization)
+                .where(emptyOrNull(organization.getField("post_address/country/code")));
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(1, results.getCount());
+        for (DataRecord result : results) {
+            assertEquals("1", String.valueOf(result.get("org_id")));
+        }
     }
 
     public void testStringFieldConstraint() throws Exception {
