@@ -239,35 +239,56 @@ class StandardQueryHandler extends AbstractQueryHandler {
         generateJoinPath(Collections.singleton(rightAlias), joinType, path);
         return null;
     }
+    
+    private String getReferenceFieldJoinPath(ReferenceFieldMetadata previousRefFieldMetadata, FieldMetadata nextField, String aliasPathKey) {
+        if(previousRefFieldMetadata != null){
+            if(nextField instanceof ReferenceFieldMetadata){
+                ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata)nextField;
+                if(previousRefFieldMetadata.getReferencedType().getName().equals(referenceFieldMetadata.getContainingType().getName())){
+                    return aliasPathKey + "/" + nextField.getName(); //$NON-NLS-1$
+                } else {
+                    if(previousRefFieldMetadata.getReferencedType().getSubTypes().contains(referenceFieldMetadata.getContainingType())){
+                        return aliasPathKey + "/" + nextField.getName(); //$NON-NLS-1$
+                    }
+                }
+            }
+        }
+        return nextField.getName();
+    }
 
     private void generateJoinPath(Set<String> rightTableAliases, JoinType joinType, List<FieldMetadata> path) {
         Iterator<FieldMetadata> pathIterator = path.iterator();
         String previousAlias = mainType.getName();
-        StringBuilder builder = new StringBuilder();
+        ReferenceFieldMetadata previousRefFieldMetadata = null;
+        String aliasPathKey = ""; //$NON-NLS-1$
+        
         while (pathIterator.hasNext()) {
             FieldMetadata nextField = pathIterator.next();
             String newAlias = createNewAlias();
-            builder.append(nextField.getPath());
+            aliasPathKey = getReferenceFieldJoinPath(previousRefFieldMetadata, nextField, aliasPathKey);
+            
             // TODO One interesting improvement here: can add conditions on rightTable when defining join.
             if (pathIterator.hasNext()) {
-                if (!pathToAlias.containsKey(builder.toString())) {
+                if (!pathToAlias.containsKey(aliasPathKey)) {
                     criteria.createAlias(previousAlias + '.' + nextField.getName(), newAlias, joinType);
-                    pathToAlias.put(builder.toString(), newAlias);
+                    pathToAlias.put(aliasPathKey, newAlias);
                     previousAlias = newAlias;
                 } else {
-                    previousAlias = pathToAlias.get(builder.toString());
+                    previousAlias = pathToAlias.get(aliasPathKey);
                 }
-                builder.append('/');
             } else {
-                if (!pathToAlias.containsKey(builder.toString())) {
+                if (!pathToAlias.containsKey(aliasPathKey)) {
                     for (String rightTableAlias : rightTableAliases) {
                         criteria.createAlias(previousAlias + '.' + nextField.getName(), rightTableAlias, joinType);
-                        pathToAlias.put(builder.toString(), rightTableAlias);
+                        pathToAlias.put(aliasPathKey, rightTableAlias);
                     }
                     previousAlias = rightTableAliases.iterator().next();
                 } else {
-                    previousAlias = pathToAlias.get(builder.toString());
+                    previousAlias = pathToAlias.get(aliasPathKey);
                 }
+            }
+            if(nextField instanceof ReferenceFieldMetadata){
+                previousRefFieldMetadata = (ReferenceFieldMetadata)nextField;
             }
         }
     }
@@ -512,18 +533,19 @@ class StandardQueryHandler extends AbstractQueryHandler {
         Set<String> aliases = new HashSet<>(paths.size());
         for (List<FieldMetadata> path : paths) {
             JoinType joinType = JoinType.INNER_JOIN;
-            StringBuilder builder = new StringBuilder();
             Iterator<FieldMetadata> iterator = path.iterator();
+            ReferenceFieldMetadata previousRefFieldMetadata = null;
+            String aliasPathKey = ""; //$NON-NLS-1$
             while (iterator.hasNext()) {
                 FieldMetadata next = iterator.next();
-                builder.append(next.getPath());
                 if (next instanceof ReferenceFieldMetadata) {
-                    String alias = pathToAlias.get(builder.toString());
+                    aliasPathKey = getReferenceFieldJoinPath(previousRefFieldMetadata, next, aliasPathKey);
+                    String alias = pathToAlias.get(aliasPathKey);
                     if (alias == null) {
                         alias = createNewAlias();
                         // Remembers aliases created for the next field in path (to prevent same alias name creation for
                         // field - in case of join, for example -)
-                        pathToAlias.put(builder.toString(), alias);
+                        pathToAlias.put(aliasPathKey, alias);
                         // TMDM-4866: Do a left join in case FK is not mandatory (only if there's one path).
                         // TMDM-7636: As soon as a left join is selected all remaining join should remain left outer.
                         if (next.isMandatory() && paths.size() == 1 && joinType != JoinType.LEFT_OUTER_JOIN) {
@@ -534,9 +556,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         criteria.createAlias(previousAlias + '.' + next.getName(), alias, joinType);
                     }
                     previousAlias = alias;
-                }
-                if (iterator.hasNext()) {
-                    builder.append('/');
+                    previousRefFieldMetadata = (ReferenceFieldMetadata)next;
                 }
             }
             aliases.add(previousAlias);
