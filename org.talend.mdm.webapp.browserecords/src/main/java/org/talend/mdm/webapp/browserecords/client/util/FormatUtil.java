@@ -73,7 +73,7 @@ public class FormatUtil {
     }
     
     public static String changeNumberToFormatedValue(String value) {
-        StringBuilder pattern = new StringBuilder("####.");
+        StringBuilder pattern = new StringBuilder("###0.");
         int fractionDigits = 0;
         if (value.contains(".")) {
             fractionDigits = value.split("\\.")[1].length();

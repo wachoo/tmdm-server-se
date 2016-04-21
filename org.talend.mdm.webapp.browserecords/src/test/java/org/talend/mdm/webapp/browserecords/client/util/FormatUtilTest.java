@@ -30,6 +30,16 @@ public class FormatUtilTest extends GWTTestCase{
         assertEquals(FormatUtil.changeNumberToFormatedValue("-2.09876672766"), "-2.09876672766");
         assertEquals(FormatUtil.changeNumberToFormatedValue("2.000"), "2.000");
         assertEquals(FormatUtil.changeNumberToFormatedValue("-2.000"), "-2.000");
+        assertEquals(FormatUtil.changeNumberToFormatedValue(".000"), "0.000");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("-.000"), "-0.000");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("0.000"), "0.000");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("-0.000"), "-0.000");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("2"), "2");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("-2"), "-2");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("002"), "2");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("-002"), "-2");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("200"), "200");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("-200"), "-200");
     }
 
     @Override
