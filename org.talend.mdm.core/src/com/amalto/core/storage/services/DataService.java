@@ -20,9 +20,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,10 +42,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.Variant;
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
@@ -67,6 +63,7 @@ import com.amalto.core.history.action.ActionFactory;
 import com.amalto.core.load.io.XMLStreamUnwrapper;
 import com.amalto.core.objects.UpdateReportItemPOJO;
 import com.amalto.core.objects.UpdateReportPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -77,7 +74,6 @@ import com.amalto.core.save.SaverSession.Committer;
 import com.amalto.core.save.UserAction;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
-import com.amalto.core.server.Server;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.SQLWrapper;
@@ -85,6 +81,7 @@ import com.amalto.core.storage.SecuredStorage;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.exception.DataServiceException;
 import com.amalto.core.storage.history.HistoryStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordJSONWriter;
@@ -95,7 +92,6 @@ import com.amalto.core.storage.transaction.Transaction.Lifetime;
 import com.amalto.core.storage.transaction.TransactionManager;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.XtentisException;
-import com.amalto.xmlserver.interfaces.XmlServerException;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
@@ -107,7 +103,11 @@ public class DataService {
     private static final Logger LOGGER = Logger.getLogger(DataService.class);
     
     private static final List<Variant> queryVariants = new ArrayList<>();
-    
+
+    protected static final String USER_ACCESS_READ = "READ"; //$NON-NLS-1$
+
+    protected static final String USER_ACCESS_WRITE = "WRITE"; //$NON-NLS-1$
+
     static {
         synchronized (queryVariants) {
             if (queryVariants.isEmpty()) {
@@ -198,7 +198,7 @@ public class DataService {
         try {
             storageType = StorageType.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
-            String message = "Container '" + type + "' does not exist (please specify one of [MASTER, STAGING])."; //$NON-NLS-1$ //$NON-NLS-2$
+            String message = "Container '" + type + "' does not exist (please specify one of [MASTER, STAGING, SYSTEM])."; //$NON-NLS-1$ //$NON-NLS-2$
             LOGGER.error(message, e);
             throw new IllegalArgumentException(message); 
         }
@@ -333,6 +333,135 @@ public class DataService {
         return result;
     }
 
+    /**
+     * Extract "Name" and "Type" from container name
+     *
+     * @param containerName like: "Product#MASTER", "Product#STAGING", "Product"
+     * @return
+     */
+    protected static String[] getStorageNameAndType(String containerName) {
+        String storageName = containerName;
+        String storageType = StorageType.MASTER.name();
+        if (containerName.contains("/")) { //$NON-NLS-1$
+            String tempStr = StringUtils.substringBefore(containerName, "/"); //$NON-NLS-1$
+            if (tempStr.contains("#")) { //$NON-NLS-1$
+                String[] tempArray = tempStr.split("#"); //$NON-NLS-1$
+                if (tempArray.length == 2) {
+                    storageName = tempArray[0];
+                    storageType = tempArray[1];
+                } else {
+                    throw new DataServiceException(Response.Status.BAD_REQUEST, "Invalid container name '" + containerName + "'.");
+                }
+            } else {
+                storageName = tempStr;
+            }
+        }
+        return new String[] { storageName, storageType };
+    }
+    
+    /**
+     * Verify if type is valid for User Storages, only accept "MASTER" "STAGING"
+     * 
+     * @param storageType
+     */
+    protected static void verifyStorageType(String storageType) {
+        if (!StorageType.MASTER.name().equalsIgnoreCase(storageType) && !StorageType.STAGING.name().equalsIgnoreCase(storageType)) {
+            String message = "Container '" + storageType + "' is not valid (please specify one of [MASTER, STAGING])."; //$NON-NLS-1$ //$NON-NLS-2$
+            LOGGER.warn(message);
+            throw new DataServiceException(Response.Status.NOT_FOUND, message);
+        }
+    }
+
+    /**
+     * Verify if container exists
+     * 
+     * @param containerName like: "Product#MASTER", "Product#STAGING", "Product"
+     */
+    protected static void verifyStorageExists(String containerName) {
+        String[] nameAndType = getStorageNameAndType(containerName);
+        verifyStorageExists(nameAndType[0], nameAndType[1]);
+    }
+    
+    /**
+     * Verify if container exists
+     * 
+     * @param storageName like: "Product"
+     * @param storageType like: "MASTER", "STAGING", "SYSTEM"
+     */
+    protected static void verifyStorageExists(String storageName, String storageType) {
+        Storage storage = ServerContext.INSTANCE.get().getStorageAdmin().get(storageName, getStorageType(storageType));
+        if (storage == null) {
+            String message = "Container '" + storageName + "#" + storageType + "' does not exist."; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            LOGGER.warn(message);
+            throw new DataServiceException(Response.Status.NOT_FOUND, message);
+        }
+    }
+
+    /**
+     * Verify if user can "READ" or "WRITE" the storage
+     * 
+     * @param storageName
+     * @param accessType
+     */
+    protected static void verifyUserAccess(String storageName, String accessType) {
+        try {
+            boolean canAccess = false;
+            if (USER_ACCESS_READ.equalsIgnoreCase(accessType)) {
+                canAccess = LocalUser.getLocalUser().userCanRead(DataClusterPOJO.class, storageName);
+            } else if (USER_ACCESS_WRITE.equalsIgnoreCase(accessType)) {
+                canAccess = LocalUser.getLocalUser().userCanWrite(DataClusterPOJO.class, storageName);
+            }
+            if (!canAccess) {
+                String message = "User doesn't have '" + accessType + "' access for container '" + storageName + "'."; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                LOGGER.warn(message);
+                throw new DataServiceException(Response.Status.FORBIDDEN, message);
+            }
+        } catch (XtentisException e) {
+            String message = "Unable to check '" + accessType + "' access for container '" + storageName + "'."; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            LOGGER.warn(message);
+            throw new DataServiceException(Response.Status.INTERNAL_SERVER_ERROR, message);
+        }
+    }
+    
+    /**
+     * Build http response base on exception, using error message from exception
+     * 
+     * @param e
+     * @return
+     */
+    protected Response getErrorResponse(Throwable e) {
+       return getErrorResponse(e, null);
+    }
+    
+    /**
+     * Build http response base on exception
+     * 
+     * @param e
+     * @param message 
+     * @return
+     */
+    protected Response getErrorResponse(Throwable e, String message) {
+        message = message == null ? e.getMessage() : message;
+        LOGGER.error(message, e);
+        if (e instanceof DataServiceException) {
+            return Response.status(((DataServiceException) e).getStatus()).entity(message).build();
+        } else {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
+        }
+    }
+
+    /**
+     * Build RuntimeException base on message and raw exception
+     * 
+     * @param message
+     * @param e
+     */
+    protected void throwException(Throwable e, String message) {
+        message = message == null ? e.getMessage() : message;
+        LOGGER.error(message, e);
+        throw new RuntimeException(message, e);
+    }
+
     @GET
     @Path("{containerName}/{type}")
     @ApiOperation("Lists all primary keys for container and type")
@@ -340,16 +469,22 @@ public class DataService {
             @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
             @ApiParam("Container name") @PathParam("containerName") String storageName, 
             @ApiParam("Data type") @PathParam("type") String typeName) {
-        // Get storage for records
-        Server server = ServerContext.INSTANCE.get();
-        StorageAdmin admin = server.getStorageAdmin();
-        Storage storage = admin.get(storageName, getStorageType(storageType));
-        // Create query to retrieve the record
-        MetadataRepository metadataRepository = storage.getMetadataRepository();
-        ComplexTypeMetadata type = metadataRepository.getComplexType(typeName);
-        UserQueryBuilder qb = from(type).selectId(type);
-        final SecuredStorage.UserDelegator delegator = SecuredStorage.getDelegator();
-        return handleReadQuery(request, storage, qb.getSelect(), delegator);
+        try {
+            // Validate
+            verifyStorageExists(storageName, storageType);
+            verifyUserAccess(storageName, USER_ACCESS_READ);
+            // Get storage for records
+            StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
+            Storage storage = admin.get(storageName, getStorageType(storageType));
+            // Create query to retrieve the record
+            MetadataRepository metadataRepository = storage.getMetadataRepository();
+            ComplexTypeMetadata type = metadataRepository.getComplexType(typeName);
+            UserQueryBuilder qb = from(type).selectId(type);
+            final SecuredStorage.UserDelegator delegator = SecuredStorage.getDelegator();
+            return handleReadQuery(request, storage, qb.getSelect(), delegator);
+        } catch (Exception e) {
+            return getErrorResponse(e);
+        }
     }
 
     @POST
@@ -360,6 +495,10 @@ public class DataService {
             @ApiParam("Container name") @PathParam("containerName") String storageName,
             @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
             InputStream content) {
+        // Validate
+        verifyStorageExists(storageName, storageType);
+        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        // Create record
         SaverSession session = SaverSession.newSession();
         DocumentSaverContext context = session.getContextFactory().create(getStorageName(storageName, storageType), storageName,
                 UpdateReportPOJO.SERVICE_SOURCE, content, true, true, true, false, false);
@@ -371,9 +510,7 @@ public class DataService {
             session.end();
         } catch (Exception e) {
             session.abort();
-            String message = "Unable to create record."; //$NON-NLS-1$
-            LOGGER.error(message, e);
-            throw new RuntimeException(message, e);
+            throwException(e, "Unable to create record."); //$NON-NLS-1$
         }
     }
 
@@ -392,12 +529,15 @@ public class DataService {
             @ApiParam("Container name") @PathParam("containerName") String storageName, 
             @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
             InputStream content) {
+        // Validate
+        verifyStorageExists(storageName, storageType);
+        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        // Create batch
         List<String> allDocs = new ArrayList<String>();
         XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(content);
         while (tokenizer.hasMoreElements()) {
             allDocs.add(tokenizer.nextElement());
         }
-        
         SaverSession session = SaverSession.newSession();
         final TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
         boolean createOwnTransaction = true;
@@ -429,7 +569,6 @@ public class DataService {
             if(ownTransaction != null){
                 ownTransaction.commit();
             }
-            
         } catch (Exception e) {
             session.abort();
             if(ownTransaction != null){
@@ -449,11 +588,10 @@ public class DataService {
                 }
             }       
             if (errorDocs.size() > 0) {
-                LOGGER.error("Unable to commit the whole batch, " + errorDocs.size() + " records failed.\n"); //$NON-NLS-1$
                 for (String doc : errorDocs) {
                     LOGGER.error(doc + "\n"); //$NON-NLS-1$
                 }
-                throw new RuntimeException("Unable to commit the whole batch, " + errorDocs.size() + " records failed."); //$NON-NLS-1$ //$NON-NLS-2$
+                throwException(e, "Unable to commit the whole batch, " + errorDocs.size() + " records failed."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
     }
@@ -465,6 +603,10 @@ public class DataService {
             @ApiParam("Container name") @PathParam("containerName") String storageName, 
             @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
             InputStream content) {
+        // Validate
+        verifyStorageExists(storageName, storageType);
+        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        // Update record
         SaverSession session = SaverSession.newSession();
         DocumentSaverContext context = session.getContextFactory().create(getStorageName(storageName, storageType), 
                 storageName, 
@@ -477,9 +619,7 @@ public class DataService {
             session.end();
         } catch (Exception e) {
             session.abort();
-            String message = "Unable to update record."; //$NON-NLS-1$
-            LOGGER.error(message, e);
-            throw new RuntimeException(message, e);
+            throwException(e, "Unable to update record."); //$NON-NLS-1$
         }
     }
 
@@ -490,6 +630,10 @@ public class DataService {
             @ApiParam("Container name") @PathParam("containerName") String storageName, 
             @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
             InputStream content) {
+        // Validate
+        verifyStorageExists(storageName, storageType);
+        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        // Update record
         SaverSession session = SaverSession.newSession();
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate(getStorageName(storageName, storageType), 
                 storageName, 
@@ -501,9 +645,7 @@ public class DataService {
             session.end();
         } catch (Exception e) {
             session.abort();
-            String message = "Unable to partial update record.";//$NON-NLS-1$
-            LOGGER.error(message, e);
-            throw new RuntimeException(message, e);
+            throwException(e, "Unable to partial update record."); //$NON-NLS-1$
         }
     }
 
@@ -517,9 +659,11 @@ public class DataService {
             @ApiParam(value="Invoke beforeSaving") @QueryParam("beforeSaving") @DefaultValue("true") boolean invokeBeforeSaving,
             InputStream content) {
         try {
-            if (!"MASTER".equalsIgnoreCase(storageType) && !"STAGING".equalsIgnoreCase(storageType)) { //$NON-NLS-1$ //$NON-NLS-2$
-                throw new IllegalArgumentException("Container '" + storageType + "' is not valid (please specify one of [MASTER, STAGING])."); //$NON-NLS-1$ //$NON-NLS-2$
-            }
+            // Validate
+            verifyStorageType(storageType);
+            verifyStorageExists(storageName, storageType);
+            verifyUserAccess(storageName, USER_ACCESS_WRITE);
+            // Validate record
             List<String> allDocs = new ArrayList<String>();
             XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(content);
             while (tokenizer.hasMoreElements()) {
@@ -533,13 +677,7 @@ public class DataService {
             }
             return Response.ok(results.toString()).type(MediaType.APPLICATION_JSON_TYPE).build();
         } catch (Exception e) {
-            Throwable root = getRootException(e);
-            LOGGER.error(root.getMessage(), e);
-            if(root instanceof IllegalArgumentException || root instanceof XMLStreamException) {
-                return Response.status(Status.BAD_REQUEST).entity(root.getMessage()).build();
-            } else {
-                return Response.status(Status.INTERNAL_SERVER_ERROR).entity(root.getMessage()).build();
-            }
+            return getErrorResponse(getRootException(e));
         }
     }
 
@@ -549,10 +687,11 @@ public class DataService {
     public void deleteContainer(
             @ApiParam("Container name") @PathParam("containerName") String storageName, 
             @ApiParam("If true all data will be deleted") @QueryParam("drop") boolean dropData) {
-        Server server = ServerContext.INSTANCE.get();
-        
+        // Validate
+        verifyStorageExists(storageName);
+        verifyUserAccess(storageName, USER_ACCESS_WRITE);
         //closing deleting storage (master, staging, master)
-        StorageAdmin admin = server.getStorageAdmin();
+        StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
         admin.delete(storageName, dropData);
     }
 
@@ -570,9 +709,11 @@ public class DataService {
             @ApiParam("Container name") @PathParam("containerName") String storageName, 
             @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
             InputStream queryText) {
+        // Validate
+        verifyStorageExists(storageName, storageType);
+        verifyUserAccess(storageName, USER_ACCESS_WRITE);
         // Get storage for records
-        Server server = ServerContext.INSTANCE.get();
-        StorageAdmin admin = server.getStorageAdmin();
+        StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = admin.get(storageName, getStorageType(storageType));
         // Create query to retrieve the record
         QueryParser parser = QueryParser.newParser(storage.getMetadataRepository());
@@ -597,9 +738,11 @@ public class DataService {
             @ApiParam(value="Data type") @PathParam("type") String typeName,
             @ApiParam(value="Primary key of the record to delete") @PathParam("id") String id, 
             @ApiParam(value="if true generate update report", allowableValues="true, false") @QueryParam("updateReport") @DefaultValue("true") boolean updateReport ) {
+        // Validate
+        verifyStorageExists(storageName, storageType);
+        verifyUserAccess(storageName, USER_ACCESS_WRITE);
         // Get storage for records
-        Server server = ServerContext.INSTANCE.get();
-        StorageAdmin admin = server.getStorageAdmin();
+        StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = admin.get(storageName, getStorageType(storageType));
         // Create query to retrieve the record
         MetadataRepository metadataRepository = storage.getMetadataRepository();
@@ -608,7 +751,7 @@ public class DataService {
         buildGetById(type, id, qb);
         Select select = qb.getSelect();
         handleDeleteQuery(storage, select);
-        if("MASTER".equals(storageType) && updateReport) { //$NON-NLS-1$
+        if(StorageType.MASTER.name().equalsIgnoreCase(storageType) && updateReport) { //$NON-NLS-1$
             SaverSession session = SaverSession.newSession();
             try {
                 ILocalUser user = LocalUser.getLocalUser();
@@ -628,9 +771,7 @@ public class DataService {
                 session.end();
             } catch (Exception e) {
                 session.abort();
-                String message = "Unable to create update report."; //$NON-NLS-1$
-                LOGGER.error(message, e);
-                throw new RuntimeException(message, e);
+                throwException(e, "Unable to create update report."); //$NON-NLS-1$
             }
         }
     }
@@ -652,42 +793,41 @@ public class DataService {
     @ApiOperation("Get data records by query. Query is provided in the request content as JSON")
     public Response executeQuery(@Context Request request, 
             @ApiParam("Container name") @PathParam("containerName") String storageName, 
-            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String type, 
+            @ApiParam(value="Container type", allowableValues="MASTER, STAGING, SYSTEM") @QueryParam("container") @DefaultValue("MASTER") String storageType, 
             InputStream queryText) {
-        // Find storage
-        final StorageType storageType = getStorageType(type);
-        StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
-        Storage innerStorage = admin.get(storageName, storageType);
-        if (innerStorage == null) {
-            String message = "Container '" + storageName + "' does not exist."; //$NON-NLS-1$ //$NON-NLS-2$
-            LOGGER.error(message);
-            throw new IllegalArgumentException(message);
-        }
-        // Adds history browsing extensions...
-        Storage updateReportStorage = admin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
-        ActionFactory actionFactory = new StorageActionFactory(updateReportStorage);
-        StorageDocumentFactory documentFactory = new StorageDocumentFactory();
-        innerStorage = new HistoryStorage(innerStorage, DocumentHistoryFactory.getInstance().create(actionFactory,
-                documentFactory));
-        // ... then adds security over it
-        final SecuredStorage.UserDelegator delegator = SecuredStorage.getDelegator();
-        final Storage storage = new SecuredStorage(innerStorage, delegator);
-        // Parse query
-        QueryParser parser = QueryParser.newParser(storage.getMetadataRepository());
-        Expression expression = parser.parse(queryText);
-        // Check expression is compatible with storage type
-        Set<Expression> incompatibleExpressions = expression.accept(new IncompatibleExpressions(storageType));
-        if (incompatibleExpressions.isEmpty()) {
-            // No incompatible expressions, proceed to query execution
-            return handleReadQuery(request, storage, (Select) expression, delegator);
-        } else {
-            StringBuilder builder = new StringBuilder();
-            for (Expression incompatibleExpression : incompatibleExpressions) {
-                builder.append(incompatibleExpression.toString()).append(' ');
+        try {
+            // Validate
+            verifyStorageExists(storageName, storageType);
+            verifyUserAccess(storageName, USER_ACCESS_READ);
+            // Find storage
+            final StorageType type = getStorageType(storageType);
+            StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
+            Storage innerStorage = admin.get(storageName, type);
+            // Adds history browsing extensions...
+            Storage updateReportStorage = admin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
+            ActionFactory actionFactory = new StorageActionFactory(updateReportStorage);
+            StorageDocumentFactory documentFactory = new StorageDocumentFactory();
+            innerStorage = new HistoryStorage(innerStorage, DocumentHistoryFactory.getInstance().create(actionFactory, documentFactory));
+            // ... then adds security over it
+            final SecuredStorage.UserDelegator delegator = SecuredStorage.getDelegator();
+            final Storage storage = new SecuredStorage(innerStorage, delegator);
+            // Parse query
+            QueryParser parser = QueryParser.newParser(storage.getMetadataRepository());
+            Expression expression = parser.parse(queryText);
+            // Check expression is compatible with storage type
+            Set<Expression> incompatibleExpressions = expression.accept(new IncompatibleExpressions(type));
+            if (incompatibleExpressions.isEmpty()) {
+                // No incompatible expressions, proceed to query execution
+                return handleReadQuery(request, storage, (Select) expression, delegator);
+            } else {
+                StringBuilder builder = new StringBuilder();
+                for (Expression incompatibleExpression : incompatibleExpressions) {
+                    builder.append(incompatibleExpression.toString()).append(' ');
+                }
+                throw new DataServiceException(Response.Status.BAD_REQUEST, "Unable to execute query due to incompatible expressions (" + builder + ")."); //$NON-NLS-1$ //$NON-NLS-2$
             }
-            String message = "Unable to execute query due to incompatible expressions (" + builder + ")."; //$NON-NLS-1$ //$NON-NLS-2$
-            LOGGER.error(message);
-            throw new RuntimeException(message);
+        } catch (Exception e) {
+            return getErrorResponse(e);
         }
     }
 
@@ -717,31 +857,37 @@ public class DataService {
             @ApiParam("Record id") @PathParam("id") String id, 
             @ApiParam("Show record as it was at provided date. Date can be provided as number of milliseconds since EPOCH or a XML formatted date") @QueryParam("datetime") String dateTime, 
             @ApiParam(value="Controls how datetime is interpreted", allowableValues="CLOSEST, BEFORE, AFTER") @QueryParam("swing") String swing) {
-        // Get storage for records
-        Server server = ServerContext.INSTANCE.get();
-        StorageAdmin admin = server.getStorageAdmin();
-        Storage storage = admin.get(storageName, getStorageType(storageType));
-        // Create query to retrieve the record
-        MetadataRepository metadataRepository = storage.getMetadataRepository();
-        ComplexTypeMetadata type = metadataRepository.getComplexType(typeName);
-        UserQueryBuilder qb = from(type);
-        buildGetById(type, id, qb);
-        // Adds history browsing related information
-        if (dateTime != null) {
-            qb.at(dateTime).swing(swing);
-            Storage updateReportStorage = admin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
-            ActionFactory actionFactory = new StorageActionFactory(updateReportStorage);
-            StorageDocumentFactory documentFactory = new StorageDocumentFactory();
-            storage = new HistoryStorage(storage, DocumentHistoryFactory.getInstance().create(actionFactory, documentFactory));
+        try {
+            // Validate
+            verifyStorageExists(storageName, storageType);
+            verifyUserAccess(storageName, USER_ACCESS_READ);
+            // Get storage for records
+            StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
+            Storage storage = admin.get(storageName, getStorageType(storageType));
+            // Create query to retrieve the record
+            MetadataRepository metadataRepository = storage.getMetadataRepository();
+            ComplexTypeMetadata type = metadataRepository.getComplexType(typeName);
+            UserQueryBuilder qb = from(type);
+            buildGetById(type, id, qb);
+            // Adds history browsing related information
+            if (dateTime != null) {
+                qb.at(dateTime).swing(swing);
+                Storage updateReportStorage = admin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
+                ActionFactory actionFactory = new StorageActionFactory(updateReportStorage);
+                StorageDocumentFactory documentFactory = new StorageDocumentFactory();
+                storage = new HistoryStorage(storage, DocumentHistoryFactory.getInstance().create(actionFactory, documentFactory));
+            }
+            final SecuredStorage.UserDelegator delegator = SecuredStorage.getDelegator();
+            return handleReadQuery(request, storage, qb.getSelect(), delegator);
+        } catch (Exception e) {
+            return getErrorResponse(e);
         }
-        final SecuredStorage.UserDelegator delegator = SecuredStorage.getDelegator();
-        return handleReadQuery(request, storage, qb.getSelect(), delegator);
     }
     
     /**
      * Get the array of documents uniqueIDs in a container (of specific type)
      * 
-     * @param containerName The name of the storage (container) to query.
+     * @param containerName The name of the storage (container) to query. like: Product, Product#STAGING
      * @param typeName The type name to query.(if null, return all types' documents ids, else return this type's)
      * @return
      */
@@ -751,21 +897,23 @@ public class DataService {
     public Response getAllDocumentsUniqueID(
             @ApiParam(value = "Container name") @PathParam("containerName") String containerName, 
             @ApiParam(value = "Data type") @QueryParam("type") String typeName) {
-        String clusterName = StringUtils.isBlank(typeName) ? containerName : containerName + '/' + typeName;
         try {
+            // Validate
+            verifyStorageExists(containerName);
+            verifyUserAccess(getStorageNameAndType(containerName)[0], USER_ACCESS_READ);
+            // Get data
+            String clusterName = StringUtils.isBlank(typeName) ? containerName : containerName + '/' + typeName;
             String[] output = new SQLWrapper().getAllDocumentsUniqueID(clusterName);
             return Response.ok(output).type(MediaType.APPLICATION_JSON_TYPE).build();
-        } catch (XmlServerException e) {
-            String message = "Unable to get documents unique ids."; //$NON-NLS-1$
-            LOGGER.error(message, e);
-            throw new RuntimeException(message, e);
+        } catch (Exception e) {
+            return getErrorResponse(e, "Unable to get documents unique ids"); //$NON-NLS-1$
         }
     }
     
     /**
      * Gets an XML document from the DB
      * 
-     * @param containerName The name of the storage (container) to query.
+     * @param containerName The name of the storage (container) to query. like: Product, Product#STAGING
      * @param uniqueId The unique ID of the document
      * @param encoding The encoding of the XML instruction (e.g. UTF-16, UTF-8, etc...).
      * @return
@@ -778,19 +926,21 @@ public class DataService {
             @ApiParam(value = "Unique ID") @PathParam("uniqueId") String uniqueId,
             @ApiParam(value = "Encoding") @QueryParam("encoding") @DefaultValue("UTF-8") String encoding) {
         try {
+            // Validate
+            verifyStorageExists(containerName);
+            verifyUserAccess(getStorageNameAndType(containerName)[0], USER_ACCESS_READ);
+            // Get data
             String output = new SQLWrapper().getDocumentAsString(containerName, uniqueId, encoding);
             return Response.ok(output).type(MediaType.APPLICATION_JSON_TYPE).build();
-        } catch (XmlServerException e) {
-            String message = "Unable to get document by unique id."; //$NON-NLS-1$
-            LOGGER.error(message, e);
-            throw new RuntimeException(message, e);
+        } catch (Exception e) {
+            return getErrorResponse(e, "Unable to get document by unique id"); //$NON-NLS-1$
         }
     }
     
     /**
      * Gets many XML document from the DB
      * 
-     * @param containerName The name of the storage (container) to query.
+     * @param containerName The name of the storage (container) to query. like: Product, Product#STAGING
      * @param uniqueIds The unique IDs of the documents (it may contains "/" like "Product/Product.Product.1", so use QueryParam not PathParam)
      * @param encoding The encoding of the XML instruction (e.g. UTF-16, UTF-8, etc...).
      * @return
@@ -804,12 +954,14 @@ public class DataService {
             @ApiParam(value = "Unique IDs") @Multipart(value = "uniqueIds") String[] uniqueIds,
             @ApiParam(value = "Encoding") @QueryParam("encoding") @DefaultValue("UTF-8") String encoding) {
         try {
+            // Validate
+            verifyStorageExists(containerName);
+            verifyUserAccess(getStorageNameAndType(containerName)[0], USER_ACCESS_READ);
+            // Get data
             String[] output = new SQLWrapper().getDocumentsAsString(containerName, uniqueIds, encoding);
             return Response.ok(output).type(MediaType.APPLICATION_JSON_TYPE).build();
-        } catch (XmlServerException e) {
-            String message = "Unable to get document by unique ids."; //$NON-NLS-1$
-            LOGGER.error(message, e);
-            throw new RuntimeException(message, e);
+        } catch (Exception e) {
+            return getErrorResponse(e, "Unable to get document by unique ids"); //$NON-NLS-1$
         }
     }
 }
