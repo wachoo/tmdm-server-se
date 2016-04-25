@@ -44,6 +44,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.Variant;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
@@ -445,6 +446,8 @@ public class DataService {
         LOGGER.error(message, e);
         if (e instanceof DataServiceException) {
             return Response.status(((DataServiceException) e).getStatus()).entity(message).build();
+        } else if (e instanceof XMLStreamException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(message).build();
         } else {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(message).build();
         }
