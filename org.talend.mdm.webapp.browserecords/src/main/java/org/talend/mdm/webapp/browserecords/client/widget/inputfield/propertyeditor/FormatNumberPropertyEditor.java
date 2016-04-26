@@ -96,7 +96,22 @@ public class FormatNumberPropertyEditor extends NumberPropertyEditor {
             return number.floatValue();
         } else if (type == BigDecimal.class) {
             return new BigDecimal(number.toString());
+        } else if(type == Double.class){
+            return number.doubleValue() ;
         }
         return number;
+    }
+    
+    public String getStringValue(Number value) {
+        if (format != null) {
+            return format.format(value.doubleValue());
+        }
+
+        if (type == Float.class || type == Double.class) {
+            if (!value.toString().contains(".")) {
+                return value.toString() + ".0";
+            }
+        }
+        return value.toString();
     }
 }

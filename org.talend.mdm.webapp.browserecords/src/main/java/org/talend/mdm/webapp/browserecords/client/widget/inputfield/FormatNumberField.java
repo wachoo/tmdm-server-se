@@ -1,6 +1,5 @@
 package org.talend.mdm.webapp.browserecords.client.widget.inputfield;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
@@ -10,6 +9,7 @@ import org.talend.mdm.webapp.browserecords.client.model.FormatModel;
 import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.propertyeditor.FormatNumberPropertyEditor;
+import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Registry;
@@ -17,9 +17,7 @@ import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.NumberPropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
@@ -70,6 +68,10 @@ public class FormatNumberField extends NumberField {
         this.diplayValue = diplayValue;
     }
 
+    public Number getDecimalValue(String value) {
+        return FormatUtil.getDecimalValue(value, this.getData(FacetEnum.FRACTION_DIGITS.getFacetName()));
+    }
+    
     @Override
     public boolean validateValue(String value) {
         if (value.equals(this.getDiplayValue())) {

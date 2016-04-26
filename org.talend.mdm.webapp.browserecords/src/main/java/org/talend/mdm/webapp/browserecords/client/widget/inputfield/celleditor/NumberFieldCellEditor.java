@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -25,12 +26,12 @@ public class NumberFieldCellEditor extends CellEditor {
         if (itemBean.getOriginalMap().containsKey(getField().getName())) {
             num = (Number) itemBean.getOriginalMap().get(getField().getName());
         } else {
-            if (DataTypeConstants.INTEGER.getTypeName().equals(numberType)) {
+            if (DataTypeConstants.INTEGER.getBaseTypeName().equals(numberType)) {
                 num = Integer.parseInt((String) value);
-            } else if (DataTypeConstants.FLOAT.getTypeName().equals(numberType)) {
+            } else if (DataTypeConstants.FLOAT.getBaseTypeName().equals(numberType)) {
                 num = Float.parseFloat((String) value);
-            } else if (DataTypeConstants.DECIMAL.getTypeName().equals(numberType)) {
-                num = new BigDecimal((String) value);
+            } else if (DataTypeConstants.DECIMAL.getBaseTypeName().equals(numberType)) {
+                num = ((FormatNumberField)getField()).getDecimalValue((String)value) ;
             } else {
                 num = Double.parseDouble((String) value);
             }
@@ -48,14 +49,14 @@ public class NumberFieldCellEditor extends CellEditor {
             itemBean.getOriginalMap().put(getField().getName(), (Number) value);
 
         String numberType = getField().getData("numberType");//$NON-NLS-1$
-        if (DataTypeConstants.INTEGER.getTypeName().equals(numberType)) {
+        if (DataTypeConstants.INTEGER.getBaseTypeName().equals(numberType)) {
             Integer v = (Integer) value;
             return Integer.toString(v.intValue());
-        } else if (DataTypeConstants.FLOAT.getTypeName().equals(numberType)) {
+        } else if (DataTypeConstants.FLOAT.getBaseTypeName().equals(numberType)) {
             Float v = (Float) value;
             return Float.toString(v);
-        } else if (DataTypeConstants.DECIMAL.getTypeName().equals(numberType)) {
-            BigDecimal v = (BigDecimal) value;
+        } else if (DataTypeConstants.DECIMAL.getBaseTypeName().equals(numberType)) {
+            BigDecimal v = new BigDecimal(value.toString()) ;
             return v.toString();
         } else {
             Double v = (Double) value;

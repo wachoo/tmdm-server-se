@@ -12,15 +12,19 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.creator;
 
+import java.util.List;
+
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
-import org.talend.mdm.webapp.base.client.model.DataTypeCustomized;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.MultiLanguageModel;
+import org.talend.mdm.webapp.base.shared.FacetModel;
+import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.util.FormatUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
+import org.talend.mdm.webapp.browserecords.shared.FacetEnum;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -107,26 +111,51 @@ public class CellRendererCreator {
                 }
             };
             return renderer;
-        } else if (dataType.getType() instanceof DataTypeCustomized) {
-            if (DataTypeConstants.FLOAT.getBaseTypeName().equals(dataType.getType().getBaseTypeName())
-                    || DataTypeConstants.DOUBLE.getBaseTypeName().equals(dataType.getType().getBaseTypeName())
-                    || DataTypeConstants.DECIMAL.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
-                GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+        } else if (DataTypeConstants.FLOAT.getBaseTypeName().equals(dataType.getType().getBaseTypeName())
+                || DataTypeConstants.DOUBLE.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
+            GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
-                    @Override
-                    public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
-                            ListStore<ModelData> store, Grid<ModelData> grid) {
-                        if (((String) model.get(property)) != null && !((String) model.get(property)).equals("")) {
-                            String value = ((String) model.get(property));
-                            return Format.htmlEncode(FormatUtil.changeNumberToFormatedValue(value));
-                        } else {
-                            return Format.htmlEncode((String) model.get(property));
-                        }
+                @Override
+                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ModelData> store, Grid<ModelData> grid) {
+                    if (((String) model.get(property)) != null && !((String) model.get(property)).equals("")) {
+                        String value = ((String) model.get(property));
+                        return Format.htmlEncode(FormatUtil.changeNumberToFormatedValue(value));
+                    } else {
+                        return Format.htmlEncode((String) model.get(property));
                     }
-                };
-                return renderer;
+                }
+            };
+            return renderer;
+        }
+        if (DataTypeConstants.DECIMAL.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
+            String fractionDigitsTemp = new String();
+            List<FacetModel> facets = ((SimpleTypeModel) dataType).getFacets();
+            if (facets != null) {
+                for (FacetModel facet : facets) {
+                    if (facet.getName().equals(FacetEnum.FRACTION_DIGITS.getFacetName())) {
+                        fractionDigitsTemp = facet.getValue();
+                        break;
+                    }
+                }
             }
-        } else if (DataTypeConstants.BOOLEAN.equals(dataType.getType())) {
+            final String fractionDigits = fractionDigitsTemp;
+            GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
+
+                @Override
+                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
+                        ListStore<ModelData> store, Grid<ModelData> grid) {
+                    if (((String) model.get(property)) != null && !((String) model.get(property)).equals("")) {
+                        Number numValue = FormatUtil.getDecimalValue((String) model.get(property), fractionDigits);
+                        return Format.htmlEncode(FormatUtil.changeNumberToFormatedValue(numValue.toString()));
+                    } else {
+                        return Format.htmlEncode((String) model.get(property));
+                    }
+                }
+            };
+            return renderer;
+
+        } else if (DataTypeConstants.BOOLEAN.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
                 @Override

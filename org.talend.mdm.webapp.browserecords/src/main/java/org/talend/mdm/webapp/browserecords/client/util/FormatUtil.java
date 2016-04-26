@@ -1,5 +1,8 @@
 package org.talend.mdm.webapp.browserecords.client.util;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import com.google.gwt.i18n.client.NumberFormat;
 
 public class FormatUtil {
@@ -74,9 +77,12 @@ public class FormatUtil {
     
     public static String changeNumberToFormatedValue(String value) {
         StringBuilder pattern = new StringBuilder("###0.");
+        if(value == null){
+            return null ;
+        }
         int fractionDigits = 0;
         if (value.contains(".")) {
-            fractionDigits = value.split("\\.")[1].length();
+            fractionDigits = value.trim().split("\\.")[1].length();
         }
 
         if (fractionDigits == 0) {
@@ -88,5 +94,16 @@ public class FormatUtil {
         }
         NumberFormat nf = NumberFormat.getFormat(pattern.toString());
         return nf.format(Double.valueOf(value));
+    }
+    
+    public static Number getDecimalValue(String value, Object franctionDigits) {
+        if (value == null) {
+            return null;
+        }
+        BigDecimal bigdecimal = new BigDecimal(value);
+        if (franctionDigits != null && !franctionDigits.equals("")) {
+            return bigdecimal.setScale(Integer.parseInt(franctionDigits.toString()), RoundingMode.HALF_UP);
+        }
+        return bigdecimal.setScale(2, RoundingMode.HALF_UP);
     }
 }

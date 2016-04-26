@@ -54,17 +54,30 @@ public class NumberTypeFieldFactory extends TypeFieldFactory {
         numberField.setValidator(NumberFieldValidator.getInstance());
 
         // exceptions
-        if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)) {
-            numberField.setData("numberType", DataTypeConstants.FLOAT.getTypeName());//$NON-NLS-1$ 
+        if (DataTypeConstants.FLOAT.getBaseTypeName().equals(baseType)) {
+            numberField.setData("numberType", DataTypeConstants.FLOAT.getBaseTypeName());//$NON-NLS-1$ 
             numberField.setPropertyEditorType(Float.class);
-        } else if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
-            numberField.setData("numberType", DataTypeConstants.DOUBLE.getTypeName());//$NON-NLS-1$ 
+        } else if (DataTypeConstants.DOUBLE.getBaseTypeName().equals(baseType)) {
+            numberField.setData("numberType", DataTypeConstants.DOUBLE.getBaseTypeName());//$NON-NLS-1$ 
             numberField.setPropertyEditorType(Double.class);
-        } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
-            numberField.setData("numberType", DataTypeConstants.DECIMAL.getTypeName());//$NON-NLS-1$ 
+        } else if (DataTypeConstants.DECIMAL.getBaseTypeName().equals(baseType)) {
+            numberField.setData("numberType", DataTypeConstants.DECIMAL.getBaseTypeName());//$NON-NLS-1$ 
             numberField.setPropertyEditorType(BigDecimal.class);
+
+            List<FacetModel> facets = ((SimpleTypeModel) context.getDataType()).getFacets();
+            if (facets != null) {
+                for (FacetModel facet : facets) {
+                    if (facet.getName().equals(FacetEnum.FRACTION_DIGITS.getFacetName())) {
+                        numberField.setData(FacetEnum.FRACTION_DIGITS.getFacetName(), facet.getValue());
+                        continue;
+                    } else if (facet.getName().equals(FacetEnum.TOTAL_DIGITS.getFacetName())) {
+                        numberField.setData(FacetEnum.TOTAL_DIGITS.getFacetName(), facet.getValue());
+                        continue;
+                    }
+                }
+            }
         } else {
-            numberField.setData("numberType", DataTypeConstants.INTEGER.getTypeName());//$NON-NLS-1$ 
+            numberField.setData("numberType", DataTypeConstants.INTEGER.getBaseTypeName());//$NON-NLS-1$ 
             numberField.setPropertyEditorType(Integer.class);
         }
 
@@ -72,12 +85,11 @@ public class NumberTypeFieldFactory extends TypeFieldFactory {
 
             Number toSetValue = null;
             if (hasValue()) {
-                if (DataTypeConstants.FLOAT.getTypeName().equals(baseType)) {
+                if (DataTypeConstants.FLOAT.getBaseTypeName().equals(baseType)) {
                     toSetValue = Float.parseFloat(getValue().toString());
-                } else if (DataTypeConstants.DECIMAL.getTypeName().equals(baseType)) {
-                    BigDecimal bigdecimal = new BigDecimal(getValue().toString());
-                    toSetValue = bigdecimal;
-                } else if (DataTypeConstants.DOUBLE.getTypeName().equals(baseType)) {
+                } else if (DataTypeConstants.DECIMAL.getBaseTypeName().equals(baseType)) {
+                    toSetValue = numberField.getDecimalValue(getValue().toString()) ;
+                } else if (DataTypeConstants.DOUBLE.getBaseTypeName().equals(baseType)) {
                     toSetValue = Double.parseDouble(getValue().toString());
                 } else {
                     toSetValue = Long.parseLong(getValue().toString());
