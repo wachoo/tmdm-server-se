@@ -500,7 +500,7 @@ public class DataService {
             InputStream content) {
         // Validate
         verifyStorageExists(storageName, storageType);
-        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        verifyUserAccess(storageName, USER_ACCESS_READ);
         // Create record
         SaverSession session = SaverSession.newSession();
         DocumentSaverContext context = session.getContextFactory().create(getStorageName(storageName, storageType), storageName,
@@ -534,7 +534,7 @@ public class DataService {
             InputStream content) {
         // Validate
         verifyStorageExists(storageName, storageType);
-        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        verifyUserAccess(storageName, USER_ACCESS_READ);
         // Create batch
         List<String> allDocs = new ArrayList<String>();
         XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(content);
@@ -608,7 +608,7 @@ public class DataService {
             InputStream content) {
         // Validate
         verifyStorageExists(storageName, storageType);
-        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        verifyUserAccess(storageName, USER_ACCESS_READ);
         // Update record
         SaverSession session = SaverSession.newSession();
         DocumentSaverContext context = session.getContextFactory().create(getStorageName(storageName, storageType), 
@@ -635,7 +635,7 @@ public class DataService {
             InputStream content) {
         // Validate
         verifyStorageExists(storageName, storageType);
-        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        verifyUserAccess(storageName, USER_ACCESS_READ);
         // Update record
         SaverSession session = SaverSession.newSession();
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate(getStorageName(storageName, storageType), 
@@ -665,7 +665,7 @@ public class DataService {
             // Validate
             verifyStorageType(storageType);
             verifyStorageExists(storageName, storageType);
-            verifyUserAccess(storageName, USER_ACCESS_WRITE);
+            verifyUserAccess(storageName, USER_ACCESS_READ);
             // Validate record
             List<String> allDocs = new ArrayList<String>();
             XMLStreamUnwrapper tokenizer = new XMLStreamUnwrapper(content);
@@ -714,7 +714,7 @@ public class DataService {
             InputStream queryText) {
         // Validate
         verifyStorageExists(storageName, storageType);
-        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        verifyUserAccess(storageName, USER_ACCESS_READ);
         // Get storage for records
         StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = admin.get(storageName, getStorageType(storageType));
@@ -743,7 +743,7 @@ public class DataService {
             @ApiParam(value="if true generate update report", allowableValues="true, false") @QueryParam("updateReport") @DefaultValue("true") boolean updateReport ) {
         // Validate
         verifyStorageExists(storageName, storageType);
-        verifyUserAccess(storageName, USER_ACCESS_WRITE);
+        verifyUserAccess(storageName, USER_ACCESS_READ);
         // Get storage for records
         StorageAdmin admin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = admin.get(storageName, getStorageType(storageType));
