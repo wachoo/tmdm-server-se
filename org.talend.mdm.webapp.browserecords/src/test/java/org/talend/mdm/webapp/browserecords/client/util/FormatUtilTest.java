@@ -45,6 +45,10 @@ public class FormatUtilTest extends GWTTestCase{
         assertEquals(FormatUtil.changeNumberToFormatedValue("-002"), "-2");
         assertEquals(FormatUtil.changeNumberToFormatedValue("200"), "200");
         assertEquals(FormatUtil.changeNumberToFormatedValue("-200"), "-200");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("-0.200"), "-0.200");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("0.200"), "0.200");
+        assertEquals(FormatUtil.changeNumberToFormatedValue(".200"), "0.200");
+        assertEquals(FormatUtil.changeNumberToFormatedValue("-.200"), "-0.200");
     }
 
     public void testGetDecimalValue(){
