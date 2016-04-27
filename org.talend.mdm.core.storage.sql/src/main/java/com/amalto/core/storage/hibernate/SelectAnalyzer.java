@@ -19,6 +19,7 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.EmptyIterator;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.inmemory.InMemoryJoinStrategy;
@@ -219,6 +220,9 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
     @Override
     public Visitor<StorageResults> visit(GroupSize groupSize) {
+        if (isCheckingProjection && StorageType.STAGING == storage.getType()) {
+            selectedFields.add(groupSize);
+        }
         return null;
     }
 
@@ -314,21 +318,33 @@ class SelectAnalyzer extends VisitorAdapter<Visitor<StorageResults>> {
 
     @Override
     public VisitorAdapter<StorageResults> visit(StagingStatus stagingStatus) {
+        if (isCheckingProjection && StorageType.STAGING == storage.getType()) {
+            selectedFields.add(stagingStatus);
+        }
         return null;
     }
 
     @Override
     public VisitorAdapter<StorageResults> visit(StagingError stagingError) {
+        if (isCheckingProjection && StorageType.STAGING == storage.getType()) {
+            selectedFields.add(stagingError);
+        }
         return null;
     }
 
     @Override
     public VisitorAdapter<StorageResults> visit(StagingSource stagingSource) {
+        if (isCheckingProjection && StorageType.STAGING == storage.getType()) {
+            selectedFields.add(stagingSource);
+        }
         return null;
     }
 
     @Override
     public Visitor<StorageResults> visit(StagingBlockKey stagingBlockKey) {
+        if (isCheckingProjection && StorageType.STAGING == storage.getType()) {
+            selectedFields.add(stagingBlockKey);
+        }
         return null;
     }
 
