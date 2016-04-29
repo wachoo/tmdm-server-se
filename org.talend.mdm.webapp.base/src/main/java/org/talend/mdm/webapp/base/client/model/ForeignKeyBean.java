@@ -13,7 +13,7 @@
 package org.talend.mdm.webapp.base.client.model;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ForeignKeyBean extends ItemBaseModel {
@@ -52,7 +52,7 @@ public class ForeignKeyBean extends ItemBaseModel {
         this.showInfo = showInfo;
     }
 
-    private Map<String, String> foreignKeyInfo = new HashMap<String, String>();
+    private Map<String, String> foreignKeyInfo = new LinkedHashMap<String, String>();
 
     public Map<String, String> getForeignKeyInfo() {
         return foreignKeyInfo;
