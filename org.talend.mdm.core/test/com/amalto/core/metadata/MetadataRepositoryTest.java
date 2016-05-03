@@ -365,7 +365,6 @@ public class MetadataRepositoryTest extends TestCase {
         stream = getClass().getResourceAsStream("SortType_02.xsd");// BA_Adresse=(1..1)=>BB_Hexavia;BA_Adresse=(1..1)=>A_TypeVoie; BB_Hexavia=(1..1)=>A_TypeVoie; BB_Hexavia=(0..1)=>BB_Hexavia;
         repository.load(stream);
         sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.STRICT);
-        System.out.println("sortTypes=" + sortTypes.toString()) ;
         hasMetHexavia = false;
         hasMetAdresse = false;
         hasTypeVoice= false ;
@@ -380,6 +379,34 @@ public class MetadataRepositoryTest extends TestCase {
             }
             if ("BA_Adresse".equals(sortType.getName())) {
                 assertTrue(hasMetHexavia);
+                hasMetAdresse = true;
+            }
+        }
+        assertTrue(hasMetAdresse);
+        
+
+        repository = new MetadataRepository();
+        stream = getClass().getResourceAsStream("SortType_03.xsd");// BA_Adresse=(0..1)=>BB_Hexavia;BA_Adresse=(0..1)=>A_TypeVoie; BB_Hexavia=(0..1)=>BA_Adresse; BB_Hexavia=(0..1)=>Hexaposte;
+        repository.load(stream);
+        sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+        hasMetHexavia = false;
+        hasMetAdresse = false;
+        hasTypeVoice= false ;
+        boolean hasHexaposte = false ;
+        
+        for (ComplexTypeMetadata sortType : sortTypes) {
+            if("A_TypeVoie".equals(sortType.getName())){
+                hasTypeVoice = true ;
+            }
+            if("Hexaposte".equals(sortType.getName())){
+                hasHexaposte = true ;
+            }
+            if ("BB_Hexavia".equals(sortType.getName())) {
+                assertTrue(hasHexaposte);
+                hasMetHexavia = true;
+            }
+            if ("BA_Adresse".equals(sortType.getName())) {
+                assertTrue(hasTypeVoice);
                 hasMetAdresse = true;
             }
         }
