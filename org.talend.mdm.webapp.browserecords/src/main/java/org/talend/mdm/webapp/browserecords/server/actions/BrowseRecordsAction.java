@@ -14,6 +14,7 @@ package org.talend.mdm.webapp.browserecords.server.actions;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -482,10 +483,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 }
                             } else if (numberTypeNmes.contains(tm.getType().getTypeName())) {
                                 try {
-                                    NumberFormat nf = NumberFormat.getInstance();
-                                    Number num = nf.parse(dataText.trim());
-                                    itemBean.getOriginalMap().put(key, num);
-                                    String formatValue = String.format(value[0], num);
+                                    Object originalValue = getNumberValue(dataText.trim(), tm.getType().getTypeName()) ;
+                                    itemBean.getOriginalMap().put(key, originalValue);
+                                    String formatValue = String.format(value[0], originalValue);
                                     itemBean.getFormateMap().put(key, formatValue);
                                 } catch (Exception e) {
                                     itemBean.getOriginalMap().remove(key);
@@ -939,10 +939,9 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                             }
                         } else if (numberTypeNmes.contains(tm.getType().getTypeName())) {
                             try {
-                                NumberFormat nf = NumberFormat.getInstance();
-                                Number num = nf.parse(dataText.trim());
-                                originalMap.put(key, num);
-                                String formatValue = String.format(value[0], num);
+                                Object originalValue = getNumberValue(dataText.trim(), tm.getType().getTypeName()) ;
+                                originalMap.put(key, originalValue);
+                                String formatValue = String.format(value[0], originalValue);
                                 formateValueMap.put(key, formatValue);
                                 com.amalto.core.util.Util
                                         .getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2476,5 +2475,19 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             newFKInfoList.add(foreignKeyInfo.replace(foregnKeyConcept, entityName));
         }
         typeModel.setForeignKeyInfo(newFKInfoList);
+    }
+    
+    private Object getNumberValue(String value, String typeName) throws Exception{
+        NumberFormat nf = NumberFormat.getInstance();
+        Number num = nf.parse(value);
+        if (typeName.equals(numberTypeNmes.get(0))) {
+            return num.doubleValue() ;
+        } else if (typeName.equals(numberTypeNmes.get(1))) {
+            return num.floatValue() ;
+        } else if (typeName.equals(numberTypeNmes.get(2))) {
+            return new BigDecimal(value);
+        } else {
+            return num ;
+        }
     }
 }

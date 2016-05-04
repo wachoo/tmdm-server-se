@@ -127,8 +127,7 @@ public class CellRendererCreator {
                 }
             };
             return renderer;
-        }
-        if (DataTypeConstants.DECIMAL.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
+        } else if (DataTypeConstants.DECIMAL.getBaseTypeName().equals(dataType.getType().getBaseTypeName())) {
             String fractionDigitsTemp = new String();
             List<FacetModel> facets = ((SimpleTypeModel) dataType).getFacets();
             if (facets != null) {

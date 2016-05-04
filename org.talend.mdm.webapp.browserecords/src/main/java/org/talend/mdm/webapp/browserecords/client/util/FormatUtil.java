@@ -80,6 +80,9 @@ public class FormatUtil {
         if(value == null){
             return null ;
         }
+        if(value.contains(",")){
+            value = value.replace(",", ".") ;
+        }
         int fractionDigits = 0;
         if (value.contains(".")) {
             fractionDigits = value.trim().split("\\.")[1].length();
