@@ -103,6 +103,7 @@ import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.exception.UnsupportedQueryException;
@@ -529,7 +530,11 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         // TMDM-4866: Do a left join in case FK is not mandatory (only if there's one path).
                         // TMDM-7636: As soon as a left join is selected all remaining join should remain left outer.
                         if (next.isMandatory() && path.size() == 1 && joinType != CriteriaSpecification.LEFT_JOIN) {
-                            joinType = CriteriaSpecification.INNER_JOIN;
+                            if(storage != null && storage instanceof HibernateStorage && StorageType.STAGING == storage.getType()){
+                                joinType = CriteriaSpecification.LEFT_JOIN;
+                            } else {
+                                joinType = CriteriaSpecification.INNER_JOIN;
+                            }
                         } else {
                             joinType = CriteriaSpecification.LEFT_JOIN;
                         }
