@@ -797,6 +797,67 @@ public class BrowseRecordsActionTest extends TestCase {
 
     }
 
+    public void testGetExsitedViewName() throws Exception {
+        PowerMockito.mockStatic(org.talend.mdm.webapp.base.server.util.CommonUtil.class);
+        XtentisPort port = PowerMockito.mock(XtentisPort.class);
+        List<WSViewPK> viewPKs = new ArrayList<WSViewPK>();
+        viewPKs.add(new WSViewPK("Browse_items_Product#Store"));
+        viewPKs.add(new WSViewPK("Browse_items_Product#LiveAvailability"));
+        viewPKs.add(new WSViewPK("Browse_items_Product#AndFamily"));
+        WSViewPKArray viewPkArray = new WSViewPKArray(viewPKs.toArray(new WSViewPK[viewPKs.size()]));
+        Mockito.when(org.talend.mdm.webapp.base.server.util.CommonUtil.getPort()).thenReturn(port);
+        Mockito.when(port.getViewPKs(Mockito.any(WSGetViewPKs.class))).thenReturn(viewPkArray);
+        assertEquals("Browse_items_Product#AndFamily", action.getExsitedViewName("Product"));
+
+        viewPKs.add(new WSViewPK("Browse_items_Product"));
+        viewPkArray = new WSViewPKArray(viewPKs.toArray(new WSViewPK[viewPKs.size()]));
+        Mockito.when(port.getViewPKs(Mockito.any(WSGetViewPKs.class))).thenReturn(viewPkArray);
+        assertEquals("Browse_items_Product", action.getExsitedViewName("Product"));
+    }
+
+    public void testExecuteVisibleRule() throws Exception {
+        ViewBean viewBean = getViewBean("Product", "ProductDemo.xsd");
+        String xml = getXml("ProductDemo.xml");
+        List<VisibleRuleResult> results = action.executeVisibleRule(viewBean, xml);
+        assertEquals(4, results.size());
+        for (VisibleRuleResult result : results) {
+            if (result.getXpath().contains("Name")) {
+                assertEquals(true, result.isVisible());
+                break;
+            }
+            if (result.getXpath().contains("Price")) {
+                assertEquals(false, result.isVisible());
+                break;
+            }
+            if (result.getXpath().contains("Description")) {
+                assertEquals(false, result.isVisible());
+                break;
+            }
+            if (result.getXpath().contains("Availability")) {
+                assertEquals(true, result.isVisible());
+                break;
+            }
+        }
+    }
+
+    public void testSetDefaultValueByExpression() throws Exception {
+        EntityModel entityModel = getViewBean("Product", "ProductDemo.xsd").getBindingEntityModel();
+        entityModel = action.setDefaultValueByExpression(entityModel, "Product", "en");
+
+        TypeModel name = entityModel.getTypeModel("Product/Name");
+        assertEquals("\"MDM Product\"", name.getDefaultValueExpression());
+        assertEquals("MDM Product", name.getDefaultValue());
+
+        TypeModel price = entityModel.getTypeModel("Product/Price");
+        assertEquals("fn:round(100.15)", price.getDefaultValueExpression());
+        assertEquals("100", price.getDefaultValue());
+
+        TypeModel color = entityModel.getTypeModel("Product/Features/Colors/Color");
+        assertEquals("\"White\"", color.getDefaultValueExpression());
+        assertEquals("White", color.getDefaultValue());
+
+    }
+
     private String parsingNodeValue(Document docXml, String xpath, String conceptName) throws Exception {
         NodeList nodes = Util.getNodeList(docXml, xpath.replaceFirst(conceptName + "/", "./"));
         if (nodes.getLength() > 0) {
