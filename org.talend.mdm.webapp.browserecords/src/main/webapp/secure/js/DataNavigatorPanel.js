@@ -334,9 +334,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 											var newNodes = eval('('
 													+ response.responseText
 													+ ')');
-											var newNodes = eval('('
-													+ response.responseText
-													+ ')');
+											regenerateDuplicateTypeName(newNodes);
 											var root = {
 												"navigator_node_concept" : "root",
 												"navigator_node_type" : NAVIGATOR_NODE_IN_ENTITY_TYPE,
@@ -368,6 +366,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 											var newNodes = eval('('
 													+ response.responseText
 													+ ')');
+											regenerateDuplicateTypeName(newNodes);
 											var root = {
 												"navigator_node_concept" : "root",
 												"navigator_node_type" : NAVIGATOR_NODE_OUT_ENTITY_TYPE,
@@ -450,12 +449,12 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 							selectNode.nodeChildren = new Array();
 							selectNode.linkChildren = new Array();
 						}
-						if (selectNode.page[d.navigator_node_concept] === undefined) {
+						if (selectNode.page[d.navigator_node_label] === undefined) {
 							var pageObject = new Object();
 							pageObject.start = 0
-							selectNode.page[d.navigator_node_concept] = pageObject;
+							selectNode.page[d.navigator_node_label] = pageObject;
 						}
-						if ((selectNode.page[d.navigator_node_concept].start == 0 || selectNode.page[d.navigator_node_concept].start < (selectNode.page[d.navigator_node_concept].total + pageSize))) {
+						if ((selectNode.page[d.navigator_node_label].start == 0 || selectNode.page[d.navigator_node_label].start < (selectNode.page[d.navigator_node_label].total + pageSize))) {
 							Ext.Ajax
 									.request({
 										url : restServiceUrl + '/data/'
@@ -466,7 +465,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 											foreignKeyPath : d.navigator_node_foreignkey_path,
 											foreignKeyValue : d.navigator_node_foreignkey_value,
 											filterValue : filterValue,
-											start : selectNode.page[d.navigator_node_concept].start,
+											start : selectNode.page[d.navigator_node_label].start,
 											limit : pageSize,
 											language : language
 										},
@@ -475,8 +474,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 											var resultObject = eval('('
 													+ response.responseText
 													+ ')');
-											if (selectNode.page[d.navigator_node_concept].start == 0) {
-												selectNode.page[d.navigator_node_concept].total = resultObject.totalCount;
+											if (selectNode.page[d.navigator_node_label].start == 0) {
+												selectNode.page[d.navigator_node_label].total = resultObject.totalCount;
 											}
 											var newNodes = resultObject.result;
 											for ( var i = 0; i < newNodes.length; i++) {
@@ -510,7 +509,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 												selectNode.linkChildren.push(newLink);
 											}
 											paint();
-											selectNode.page[d.navigator_node_concept].start = selectNode.page[d.navigator_node_concept].start
+											selectNode.page[d.navigator_node_label].start = selectNode.page[d.navigator_node_label].start
 													+ pageSize;
 										},
 										failure : function(response, options) {
@@ -524,15 +523,15 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 							selectNode.nodeChildren = new Array();
 							selectNode.linkChildren = new Array();
 						}
-						if (selectNode.page[d.navigator_node_concept] === undefined) {
+						if (selectNode.page[d.navigator_node_label] === undefined) {
 							var pageObject = new Object();
 							pageObject.pageNumber = 1
 							pageObject.ids = d.navigator_node_ids;
-							selectNode.page[d.navigator_node_concept] = pageObject;
+							selectNode.page[d.navigator_node_label] = pageObject;
 						}
 						var idArray = [];
-						for (i = 0; (i < pageSize && i < selectNode.page[d.navigator_node_concept].ids.length); i++) {
-							idArray[i] = selectNode.page[d.navigator_node_concept].ids[i];
+						for (i = 0; (i < pageSize && i < selectNode.page[d.navigator_node_label].ids.length); i++) {
+							idArray[i] = selectNode.page[d.navigator_node_label].ids[i];
 						}
 						if (idArray.length > 0) {
 							Ext.Ajax
@@ -579,7 +578,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 												};
 												selectNode.linkChildren.push(newLink);
 												links.push(newLink);
-												selectNode.page[d.navigator_node_concept].ids
+												selectNode.page[d.navigator_node_label].ids
 														.shift();
 											}
 											paint();
@@ -964,6 +963,33 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 					arrowMarker_out.append("path").attr("d", arrow_path_out)
 							.style("stroke-width", 1).style("fill", "#ccc");
 				}
+				
+				function regenerateDuplicateTypeName(nodeList) {
+					var nodeLabelList = new Array();
+					var nodeMap = new Object();
+					for (var i=0;i<nodeList.length;i++) {
+						var newNode = nodeList[i];
+						if (nodeMap[newNode.navigator_node_label] != undefined) {
+							nodeMap[newNode.navigator_node_label].push(newNode);
+						} else {
+							nodeMap[newNode.navigator_node_label] = new Array();
+							nodeMap[newNode.navigator_node_label].push(newNode);
+							nodeLabelList.push(newNode.navigator_node_label);
+						}
+					} 
+					
+					for (var i=0;i<nodeLabelList.length;i++) {
+						var nodeLabel = nodeLabelList[i];
+						if (nodeMap[nodeLabel].length > 1) {
+							var duplicateNodeList = nodeMap[nodeLabel];
+							for (var j=0;j<duplicateNodeList.length;j++) {
+								duplicateNodeList[j].navigator_node_label = duplicateNodeList[j].navigator_node_label + "#" + duplicateNodeList[j].navigator_line_label
+							}
+						}
+					}
+			}
 
 			});
+	
+	
 }
