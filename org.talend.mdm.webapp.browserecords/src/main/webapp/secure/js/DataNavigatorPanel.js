@@ -40,7 +40,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 				var filterValue = '';
 				var nodeLabelLength=23;
 
-				var zoom = d3.behavior.zoom().scaleExtent([ -15, 100 ]).on(
+				var zoom = d3.behavior.zoom().scaleExtent([ 1, 100 ]).on(
 						"zoom", zoomed);
 				var svg = d3.select("#navigator").append("svg").attr("width",
 						width).attr("height", height).append("g").call(zoom).on("dblclick.zoom", null);
@@ -110,25 +110,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 							.enter()
 							.append("line")
 							.style("stroke-width", 1)
-							.style("stroke", "#ccc")
-							.attr(
-									"marker-start",
-									function(d, i) {
-										if (d.target.navigator_node_relation == NAVIGATOR_NODE_IN_ENTITY_TYPE) {
-											return "url(#arrow_in)";
-										} else {
-											return "";
-										}
-									})
-							.attr(
-									"marker-end",
-									function(d, i) {
-										if (d.target.navigator_node_relation == NAVIGATOR_NODE_OUT_ENTITY_TYPE) {
-											return "url(#arrow_out)";
-										} else {
-											return "";
-										}
-									});
+							.style("stroke", "#ccc");
 					link.exit().remove();
 					node.enter().append("image").attr("class", function(d) {
 						return "image_" + getIdentifier(d);
