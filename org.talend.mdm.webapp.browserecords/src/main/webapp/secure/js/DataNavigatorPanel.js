@@ -912,24 +912,22 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 					}
 				}
 
-				function handleMultiLanguageLabel(value) {
-					if (value != null) {
-						var j = 0;
-						var resultArray = new Array();
-						var valueArray = value.split('.');
-						for ( var i = 0; i < valueArray.length; i++) {
-							var result = amalto.navigator.Navigator
-									.getMultiLanguageValue(valueArray[i], language);
-							if (!(result == undefined || result == null || result == '')) {
-								resultArray[j] = result;
-								j++;
-							}
+				function handleMultiLanguageLabel(values) {
+					var label = '';
+					for (var i=0;i<values.length;i++) {
+						if (label != '') {
+							label = label + '.';
 						}
-						return resultArray.join('.');
-					} else {
-						return '';
+						var value = values[i];
+						if (value != null) {
+							value = amalto.navigator.Navigator
+							.getMultiLanguageValue(value, language);
+						}
+						if (!(value == undefined || value == null || value == '')) {
+							label = label + value;
+						}
 					}
-
+					return label;
 				}
 				
 				function generateNodeLabel(value) {
