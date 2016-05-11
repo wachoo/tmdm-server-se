@@ -24,7 +24,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 
 				var selectNode;
 				var showNode;
-				var image_diameter = 30;
+				var image_diameter = 16;
 				var image_offset = image_diameter / 2;
 				var image_padding = image_diameter / 4;
 				var type_text_dx = 40;
@@ -40,13 +40,14 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 				var filterValue = '';
 				var nodeLabelLength=20;
 
-				var zoom = d3.behavior.zoom().scaleExtent([ 1, 100 ]).on(
-						"zoom", zoomed);
+//				var zoom = d3.behavior.zoom().scaleExtent([ 1, 100 ]).on(
+//						"zoom", zoomed);
 				var svg = d3.select("#navigator").append("svg").attr("width",
-						width).attr("height", height).append("g").call(zoom).on("dblclick.zoom", null);
-				var rect = svg.append("rect").attr("width", width).attr(
-						"height", height).style("fill", "none").style(
-						"pointer-events", "all");
+						Ext.get("navigator").dom.style.width).attr("height", Ext.get("navigator").dom.style.height);
+				var rect = svg.append("rect")
+						.attr("width",Ext.get("navigator").dom.style.width)
+						.attr("height",Ext.get("navigator").dom.style.height)
+						.style("fill", "none").style("pointer-events", "all");
 				rect.on("click", hiddenTypeCluster);
 				container = svg.append("g");
 
@@ -76,8 +77,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 				pie.endAngle(7.1);
 				var piedata = pie(dataset);
 
-				var outerRadius = 65;
-				var innerRadius = 35;
+				var outerRadius = 48;
+				var innerRadius = 25;
 				var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(
 						outerRadius);
 
@@ -111,25 +112,25 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 							.enter()
 							.append("line")
 							.style("stroke-width", 1)
-							.style("stroke", "#ccc")
-							.attr(
-									"marker-start",
-									function(d, i) {
-										if (d.target.navigator_node_relation == NAVIGATOR_NODE_IN_ENTITY_TYPE) {
-											return "url(#arrow_in)";
-										} else {
-											return "";
-										}
-									})
-							.attr(
-									"marker-end",
-									function(d, i) {
-										if (d.target.navigator_node_relation == NAVIGATOR_NODE_OUT_ENTITY_TYPE) {
-											return "url(#arrow_out)";
-										} else {
-											return "";
-										}
-									});
+							.style("stroke", "#ccc");
+//							.attr(
+//									"marker-start",
+//									function(d, i) {
+//										if (d.target.navigator_node_relation == NAVIGATOR_NODE_IN_ENTITY_TYPE) {
+//											return "url(#arrow_in)";
+//										} else {
+//											return "";
+//										}
+//									})
+//							.attr(
+//									"marker-end",
+//									function(d, i) {
+//										if (d.target.navigator_node_relation == NAVIGATOR_NODE_OUT_ENTITY_TYPE) {
+//											return "url(#arrow_out)";
+//										} else {
+//											return "";
+//										}
+//									});
 					link.exit().remove();
 					node.enter().append("image").attr("class", function(d) {
 						return "image_" + getIdentifier(d);
@@ -156,7 +157,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 					link_text.exit().remove();
 					node_text = node_text.data(nodes);
 					node_text.enter().append("text").style("fill", "black")
-							.attr("dx", image_offset).attr("dy", -10).text(
+							.attr("dx", image_offset).attr("dy", -5).text(
 									function(d) {
 										return d.navigator_node_short_label;
 									});
@@ -164,7 +165,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 					node_concept_text.enter().append("text").style("font-weight",
 					"bold").style("fill-opacity", "0.0").attr("dx", function(d){
 						return -(d.navigator_node_concept.length * 3.5);
-					}).attr("dy", image_offset).text(
+					}).attr("dy", image_diameter).text(
 							function(d) {
 								return d.navigator_node_concept;
 							});
@@ -174,7 +175,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 
 				function paintTypeCluster(root) {
 					hiddenTypeCluster();
-					typeCluster.size([ root.children.length < 5 ? 240 : root.children.length * image_diameter * 1.5, 200  ])
+					typeCluster.size([ root.children.length < 5 ? 240 : root.children.length * image_diameter * 1.5, 150  ])
 					var elementId;
 					var text_x;
 					var text_anchor;
@@ -225,8 +226,8 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 							if (d.navigator_node_concept !== 'root') {
 								d3.select(this).append("image").attr("width",
 										image_diameter).attr("height",
-										image_diameter).attr("x", "-15px")
-										.attr("y", "-15px").attr("identifier",
+										image_diameter).attr("x", "-8px")
+										.attr("y", "-8px").attr("identifier",
 												function(d) {
 													return getIdentifier(d);
 												}).attr("xlink:href",
@@ -261,7 +262,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 
 						typeNode.append("text").attr("dx", function(node) {
 							return text_x;
-						}).attr("dy", 3).style("text-anchor", function(d) {
+						}).attr("dy", 4).style("text-anchor", function(d) {
 							return text_anchor;
 						}).text(function(d) {
 							if (d.navigator_node_concept !== 'root') {
@@ -660,10 +661,11 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 				}
 
 				function showMenu(d, i) {
+					if (d3.event.defaultPrevented) return;
 					hiddenTypeCluster();
 					var elementId = "menu_group";
 					d3.select(this).transition().duration(750)
-							.attr("width", 35).attr("height", 35);
+							.attr("width", 20).attr("height", 20);
 					var arcs = container.append("g").attr("id", elementId)
 							.selectAll("g").data(piedata).enter().append("g")
 							.attr("transform",
@@ -807,10 +809,10 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 					});
 				}
 
-				function zoomed() {
-					svg.attr("transform", "translate(" + d3.event.translate
-							+ ")scale(" + d3.event.scale + ")");
-				}
+//				function zoomed() {
+//					svg.attr("transform", "translate(" + d3.event.translate
+//							+ ")scale(" + d3.event.scale + ")");
+//				}
 
 				function init(id, concept, cluster) {
 					generateArrowMarker();
@@ -834,7 +836,7 @@ amalto.itemsbrowser.NavigatorPanel = function(restServiceUrl, id, concept,
 									force = d3.layout.force().nodes(nodes)
 											.links(links).size(
 													[ width, height ])
-											.linkDistance(150).charge([ -400 ]);
+											.linkDistance(120).charge([ -400 ]);
 									drag = force.drag().on("dragstart",
 											function(d, i) {
 												d.fixed = true;
