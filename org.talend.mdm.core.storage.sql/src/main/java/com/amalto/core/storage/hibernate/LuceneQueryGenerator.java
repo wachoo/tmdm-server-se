@@ -27,6 +27,7 @@ import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -90,13 +91,23 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         right.accept(this);
         if (condition.getPredicate() == Predicate.EQUALS || condition.getPredicate() == Predicate.CONTAINS
                 || condition.getPredicate() == Predicate.STARTS_WITH) {
-            StringTokenizer tokenizer = new StringTokenizer(String.valueOf(currentValue));
+            String searchValue = String.valueOf(currentValue);
             BooleanQuery termQuery = new BooleanQuery();
-            while (tokenizer.hasMoreTokens()) {
-                TermQuery newTermQuery = new TermQuery(new Term(currentFieldName, tokenizer.nextToken().toLowerCase()));
-                termQuery.add(newTermQuery, isBuildingNot ? BooleanClause.Occur.MUST_NOT : BooleanClause.Occur.MUST);
-                if (condition.getPredicate() == Predicate.STARTS_WITH) {
-                    break;
+            if(searchValue != null && searchValue.startsWith("\'") && searchValue.endsWith("\'")){ //$NON-NLS-1$ //$NON-NLS-2$
+                PhraseQuery query = new PhraseQuery();
+                StringTokenizer tokenizer = new StringTokenizer(searchValue.substring(1, searchValue.length()-1));
+                while (tokenizer.hasMoreTokens()) {
+                    query.add(new Term(currentFieldName, tokenizer.nextToken().toLowerCase()));
+                }
+                termQuery.add(query, BooleanClause.Occur.SHOULD);
+            } else {
+                StringTokenizer tokenizer = new StringTokenizer(searchValue);
+                while (tokenizer.hasMoreTokens()) {
+                    TermQuery newTermQuery = new TermQuery(new Term(currentFieldName, tokenizer.nextToken().toLowerCase()));
+                    termQuery.add(newTermQuery, isBuildingNot ? BooleanClause.Occur.MUST_NOT : BooleanClause.Occur.MUST);
+                    if (condition.getPredicate() == Predicate.STARTS_WITH) {
+                        break;
+                    }
                 }
             }
             return termQuery;
@@ -336,7 +347,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         String[] fieldsAsArray = fieldsMap.keySet().toArray(new String[fieldsMap.size()]);
         StringBuilder queryBuffer = new StringBuilder();
         Iterator<Map.Entry<String, Boolean>> fieldsIterator = fieldsMap.entrySet().iterator();
-        String fullTextValue = getValue(fullText);
+        String fullTextValue = getFullTextValue(fullText);
         while (fieldsIterator.hasNext()) {
             Map.Entry<String, Boolean> next = fieldsIterator.next();
             if (next.getValue()) {
@@ -357,9 +368,9 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
     public Query visit(FieldFullText fieldFullText) {
         String fieldName = fieldFullText.getField().getFieldMetadata().getName();
         String[] fieldsAsArray = new String[] { fieldName };
-        String fullTextQuery = fieldName + ':' + getValue(fieldFullText);
+        String fullTextQuery = fieldName + ':' + getFullTextValue(fieldFullText);
         if (fieldFullText.getField().getFieldMetadata().isKey()) {
-            fullTextQuery = fieldName + ToLowerCaseFieldBridge.ID_POSTFIX + ":" + getValue(fieldFullText); //$NON-NLS-1$
+            fullTextQuery = fieldName + ToLowerCaseFieldBridge.ID_POSTFIX + ":" + getFullTextValue(fieldFullText); //$NON-NLS-1$
         }
         return parseQuery(fieldsAsArray, fullTextQuery);
     }
@@ -375,8 +386,11 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         }
     }
 
-    private static String getValue(FullText fullText) {
-        String value = fullText.getValue().toLowerCase().trim();
+    private static String getFullTextValue(FullText fullText) {
+        return getSearchTextValue(fullText.getValue().toLowerCase().trim());
+    }
+    
+    private static String getSearchTextValue(String  value) {
         int index = 0;
         while (value.charAt(index) == '*') { // Skip '*' characters at beginning.
             index++;

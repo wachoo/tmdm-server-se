@@ -1516,6 +1516,17 @@ public class StorageFullTextTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        qb = from(product).where(and(eq(product.getField("Id"), "2"), contains(product.getField("Name"), "'Renault car'"))).where(fullText("car"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertTrue(results.getSize() == 1);
+            for (DataRecord result : results) {
+                assertEquals("A car", result.get("ShortDescription"));
+            }
+        } finally {
+            results.close();
+        }
     }
 
     private static class TestRDBMSDataSource extends RDBMSDataSource {
