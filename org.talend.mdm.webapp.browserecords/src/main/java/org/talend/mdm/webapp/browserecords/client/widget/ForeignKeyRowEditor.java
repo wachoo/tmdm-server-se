@@ -64,7 +64,7 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
                         .getInstance()
                         .getService(staging)
                         .updateItem(
-                                fkTypeModel.getForeignkey().split("/")[0], ids, fkBean.getForeignKeyInfo(), null, null, Locale.getLanguage(), //$NON-NLS-1$
+                                fkTypeModel.getForeignkey().split("/")[0], ids, null, null, null, Locale.getLanguage(), //$NON-NLS-1$
                                 new SessionAwareAsyncCallback<ItemResult>() {
 
                                     @Override
@@ -101,7 +101,7 @@ public class ForeignKeyRowEditor extends RowEditor<ItemNodeModel> {
                                         }
 
                                         if (record != null) {
-                                            record.commit(false);
+                                            ((ItemNodeModel)record.getModel()).setChangeValue(true);
                                         }
 
                                         final MessageBox msgBox = new MessageBox();

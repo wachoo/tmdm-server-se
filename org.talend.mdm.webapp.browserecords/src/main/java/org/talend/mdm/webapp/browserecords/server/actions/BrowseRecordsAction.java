@@ -1841,20 +1841,22 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(xml);
             }
 
-            for (String xpath : changedNodes.keySet()) {
-                String value = changedNodes.get(xpath);
-                if (doc.selectSingleNode(xpath) == null) {
-                    org.talend.mdm.webapp.base.server.util.XmlUtil.completeXMLByXPath(doc, xpath);
-                }
-                org.dom4j.Element element = (org.dom4j.Element) doc.selectSingleNode(xpath);
-                element.setText(value);
+            if(changedNodes != null && changedNodes.size() > 0){
+                for (String xpath : changedNodes.keySet()) {
+                    String value = changedNodes.get(xpath);
+                    if (doc.selectSingleNode(xpath) == null) {
+                        org.talend.mdm.webapp.base.server.util.XmlUtil.completeXMLByXPath(doc, xpath);
+                    }
+                    org.dom4j.Element element = (org.dom4j.Element) doc.selectSingleNode(xpath);
+                    element.setText(value);
 
-                if (entityModel != null && entityModel.getMetaDataTypes() != null) {
-                    TypeModel tm = entityModel.getMetaDataTypes().get(xpath);
-                    if (tm != null
-                            && tm.getForeignkey() != null
-                            && element.attributeValue("type") != null && !element.attributeValue("type").equalsIgnoreCase(tm.getForeignkey().split("/")[0])) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-                        element.setAttributeValue("type", tm.getForeignkey().split("/")[0]); //$NON-NLS-1$//$NON-NLS-2$
+                    if (entityModel != null && entityModel.getMetaDataTypes() != null) {
+                        TypeModel tm = entityModel.getMetaDataTypes().get(xpath);
+                        if (tm != null
+                                && tm.getForeignkey() != null
+                                && element.attributeValue("type") != null && !element.attributeValue("type").equalsIgnoreCase(tm.getForeignkey().split("/")[0])) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                            element.setAttributeValue("type", tm.getForeignkey().split("/")[0]); //$NON-NLS-1$//$NON-NLS-2$
+                        }
                     }
                 }
             }
