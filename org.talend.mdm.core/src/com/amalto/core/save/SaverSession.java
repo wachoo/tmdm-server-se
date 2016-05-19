@@ -19,7 +19,7 @@ import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.Document;
 import com.amalto.core.history.MutableDocument;
-import com.amalto.core.save.context.DefaultSaverSource;
+import com.amalto.core.save.context.StorageSaverSource;
 import com.amalto.core.save.context.SaverContextFactory;
 import com.amalto.core.save.context.SaverSource;
 import com.amalto.core.save.generator.AutoIncrementGenerator;
@@ -63,7 +63,7 @@ public class SaverSession {
      */
     public static synchronized SaverSession newSession() {
         if (defaultSaverSource == null) {
-            defaultSaverSource = DefaultSaverSource.getDefault();
+            defaultSaverSource = new StorageSaverSource();
         }
         return new SaverSession(defaultSaverSource);
     }
@@ -75,7 +75,7 @@ public class SaverSession {
     public static SaverSession newUserSession(String userName) {
         SaverSource saverSource = saverSourcePerUser.get(userName);
         if (saverSource == null) {
-            saverSource = DefaultSaverSource.getDefault(userName);
+            saverSource = new StorageSaverSource(userName);
             saverSourcePerUser.put(userName, saverSource);
         }
         SaverSource dataSource = saverSource;

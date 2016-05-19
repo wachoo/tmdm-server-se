@@ -118,7 +118,7 @@ public class StorageAutoIncrementGenerator implements AutoIdGenerator {
                 autoIncrementRecord.set(autoIncrementType.getField("id"), AUTO_INCREMENT);
             }
             // Update it
-            String key = dataClusterName + "." + conceptName + "." + keyElementName;
+            String key = dataClusterName + "." + AutoIncrementGenerator.getConceptForAutoIncrement(dataClusterName, conceptName) + "." + keyElementName;
             Integer value = getValue(autoIncrementType, autoIncrementRecord, key);
             // Update the DB record before leaving
             system.update(autoIncrementRecord);

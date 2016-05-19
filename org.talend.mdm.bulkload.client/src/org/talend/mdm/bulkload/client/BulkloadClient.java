@@ -39,7 +39,7 @@ public class BulkloadClient {
 
     private BulkloadOptions options = new BulkloadOptions();
 
-    private static final AtomicInteger startedBulkloadCount = new AtomicInteger(0);
+    private final AtomicInteger startedBulkloadCount = new AtomicInteger(0);
 
     public BulkloadClient(String url, String username, String password, String universe, String cluster, String concept, String dataModel) {
         this.url = url;
