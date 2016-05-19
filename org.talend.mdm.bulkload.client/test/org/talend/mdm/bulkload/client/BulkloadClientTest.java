@@ -21,19 +21,19 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.math.RandomUtils;
 
-/**
- *
- */
 public class BulkloadClientTest extends TestCase {
 
     public void testClient() throws Exception {
-        String serverURL = "http://localhost:8080/datamanager/loadServlet";
-
+        String serverURL = "http://localhost:8180/talendmdm/services/bulkload";
         boolean isServerRunning = isServerRunning(serverURL);
         if (isServerRunning) {
-            BulkloadClient client = new BulkloadClient(serverURL, "admin", "talend", null, "Order", "Country", "Order");
+            BulkloadClient client = new BulkloadClient(serverURL, "administrator", "administrator", null, "Product", "Product", "Product");
             client.setOptions(new BulkloadOptions());
-            InputStream bin = BulkloadClientTest.class.getResourceAsStream("test.xml");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= 20; i++) {
+                sb.append("<Product><Id>Product_"+ i +" </Id><Name>a</Name><Description>a</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores/></Product>\n");
+            }
+            InputStream bin = new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
             client.load(bin);
         }
     }
@@ -52,14 +52,13 @@ public class BulkloadClientTest extends TestCase {
     }
 
     public void testPerformance() throws Exception {
-
-        String serverURL = "http://localhost:8080/datamanager/loadServlet";
+        String serverURL = "http://localhost:8180/talendmdm/services/bulkload";
         boolean isServerRunning = isServerRunning(serverURL);
         if (isServerRunning) {
-            BulkloadClient client = new BulkloadClient(serverURL, "admin", "talend", null, "Order", "Country", "Order");
+            BulkloadClient client = new BulkloadClient(serverURL, "administrator", "administrator", null, "Product", "Product", "Product");
             client.setOptions(new BulkloadOptions());
 
-            String xml = "<Country><isoCode>zh1</isoCode><label>china</label><Continent>Asia</Continent></Country>";
+            String xml = "<Product><Id>Product_0</Id><Name>a</Name><Description>a</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores/></Product>";
             int num = 1000;
             int gap_num = 200;
             int gap = num / gap_num;
@@ -67,7 +66,7 @@ public class BulkloadClientTest extends TestCase {
                 StringBuffer sb = new StringBuffer();
                 for (int j = 0; j < gap_num; j++) {
                     int n = gap_num * i + j;
-                    xml = "<Country><isoCode>zh" + n + "</isoCode><label>china</label><Continent>Asia</Continent></Country>\n";
+                    xml = "<Product><Id>Product_"+ n +"</Id><Name>a</Name><Description>a</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores/></Product>\n";
                     sb.append(xml);
                 }
                 InputStreamMerger manager = client.load();
@@ -82,11 +81,11 @@ public class BulkloadClientTest extends TestCase {
     }
 
     public void testInterruptedBulkLoad() throws Exception {
-        String serverURL = "http://localhost:8080/datamanager/loadServlet";
+        String serverURL = "http://localhost:8180/talendmdm/services/bulkload";
         boolean isServerRunning = isServerRunning(serverURL);
         if (isServerRunning) {
             final InterruptedTestResult result = new InterruptedTestResult();
-            BulkloadClient client = new BulkloadClient(serverURL, "admin", "talend", null, "Product", "Product", "Product");
+            BulkloadClient client = new BulkloadClient(serverURL, "administrator", "administrator", null, "Product", "Product", "Product");
             client.setOptions(new BulkloadOptions());
 
             int count = 10;
@@ -118,12 +117,39 @@ public class BulkloadClientTest extends TestCase {
             }
         }
     }
-
-    public void testInterruptedBulkLoadOrder() throws Exception {
-        String serverURL = "http://localhost:8180/service/bulkload";
+    
+    // TMDM-9452
+    public void testBulkLoadWithMultiClients() throws Exception {
+        String serverURL = "http://localhost:8180/talendmdm/services/bulkload";
         boolean isServerRunning = isServerRunning(serverURL);
         if (isServerRunning) {
-            BulkloadClient client = new BulkloadClient(serverURL, "admin", "talend", null, "Product", "Product", "Product");
+            BulkloadClient client1 = new BulkloadClient(serverURL, "administrator", "administrator", null, "Product", "Product", "Product");
+            client1.setOptions(new BulkloadOptions());
+            InputStreamMerger merger1 = client1.load();
+            InputStream data1 = new ByteArrayInputStream(("<Product><Id>P1</Id><Name>P1</Name><Description>P1</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores/></Product>").getBytes("UTF-8"));
+            merger1.push(data1);
+            
+            BulkloadClient client2 = new BulkloadClient(serverURL, "administrator", "administrator", null, "Product", "Product", "Product");
+            client2.setOptions(new BulkloadOptions());
+            InputStreamMerger merger2 = client2.load();
+            InputStream data2 = new ByteArrayInputStream(("<Product><Id>P2</Id><Name>P2</Name><Description>P2</Description><Features><Sizes/><Colors/></Features><Price>2.00</Price><Stores/></Product>").getBytes("UTF-8"));
+            merger2.push(data2);
+            
+            merger1.close();
+            client1.waitForEndOfQueue();
+            merger2.close();
+            client2.waitForEndOfQueue();
+            
+            assertEquals(true, merger1.isAlreadyProcessed());
+            assertEquals(true, merger2.isAlreadyProcessed());
+        }
+    }
+
+    public void testInterruptedBulkLoadOrder() throws Exception {
+        String serverURL = "http://localhost:8180/talendmdm/services/bulkload";
+        boolean isServerRunning = isServerRunning(serverURL);
+        if (isServerRunning) {
+            BulkloadClient client = new BulkloadClient(serverURL, "administrator", "administrator", null, "Product", "Product", "Product");
             client.setOptions(new BulkloadOptions());
             int count = 5;
             for (int i = 0; i < count; i++) {
@@ -175,7 +201,6 @@ public class BulkloadClientTest extends TestCase {
     
     @SuppressWarnings("nls")
     public void testInsertOnly() throws Exception {
-
         String serverURL = "http://localhost:8180/talendmdm/services/bulkload"; //$NON-NLS-1$
         boolean isServerRunning = isServerRunning(serverURL);
         if (isServerRunning) {
