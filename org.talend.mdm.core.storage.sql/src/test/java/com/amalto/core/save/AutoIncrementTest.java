@@ -55,7 +55,7 @@ import com.amalto.core.storage.record.DataRecord;
 @SuppressWarnings("nls")
 public class AutoIncrementTest extends TestCase {
     
-    private static final Logger LOG = Logger.getLogger(RecordValidationTest.class);
+    private static final Logger LOG = Logger.getLogger(AutoIncrementTest.class);
     
     protected static final Storage systemStorage;
     
