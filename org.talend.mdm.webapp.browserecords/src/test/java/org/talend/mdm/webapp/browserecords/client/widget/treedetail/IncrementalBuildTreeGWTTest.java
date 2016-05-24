@@ -230,12 +230,12 @@ public class IncrementalBuildTreeGWTTest extends GWTTestCase {
         
         ItemNodeModel openNode = new ItemNodeModel("open"); //$NON-NLS-1$
         openNode.setTypePath("Test/open"); //$NON-NLS-1$
-        openNode.setVisible(true);
+        openNode.setHide(false);
         testNode.add(openNode);
 
         ItemNodeModel closeNode = new ItemNodeModel("close"); //$NON-NLS-1$
         closeNode.setTypePath("Test/close"); //$NON-NLS-1$
-        closeNode.setVisible(false);
+        closeNode.setHide(true);
         testNode.add(closeNode);
         
         return testNode;

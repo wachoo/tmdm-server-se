@@ -438,16 +438,49 @@ public class TreeDetailGWTTest extends GWTTestCase {
         oem_cNode.setHasVisiblueRule(true);
         oem_cNode.setTypePath("Test/oem/c");
         oemNode.add(oem_cNode);
+        ItemNodeModel documentNode = new ItemNodeModel("doucment");
+        documentNode.setHasVisiblueRule(true);
+        documentNode.setTypePath("Test/doucment");
+        documentNode.setHide(true);
+        testNode.add(documentNode);
+        ItemNodeModel document_typeNode = new ItemNodeModel("doucment_type");
+        document_typeNode.setTypePath("Test/doucment/doucment_type");
+        document_typeNode.setObjectValue("type");
+        documentNode.add(document_typeNode);
+        ItemNodeModel familyNode = new ItemNodeModel("family");
+        familyNode.setHasVisiblueRule(true);
+        familyNode.setTypePath("Test/family");
+        familyNode.setHide(true);
+        testNode.add(familyNode);
+        ItemNodeModel family_typeNode = new ItemNodeModel("family_type");
+        family_typeNode.setTypePath("Test/family/family_type");
+        family_typeNode.setObjectValue("type");
+        familyNode.add(family_typeNode);
+        ItemNodeModel docNode = new ItemNodeModel("doc");
+        docNode.setHasVisiblueRule(true);
+        docNode.setTypePath("Test/doc");
+        testNode.add(docNode);
+        ItemNodeModel doc_typeNode = new ItemNodeModel("dou_type");
+        document_typeNode.setTypePath("Test/dou/dou_type");
+        document_typeNode.setObjectValue("type");
+        docNode.add(doc_typeNode);
+
         // 2. Build Parameter(List<VisibleRuleResult> visibleResults)
         List<VisibleRuleResult> visibleResults = new ArrayList<VisibleRuleResult>();
         VisibleRuleResult oem_VisibleRule = new VisibleRuleResult("Test/oem[1]", true);
         VisibleRuleResult a_VisibleRule = new VisibleRuleResult("Test/oem[1]/a[1]", true);
         VisibleRuleResult b_VisibleRule = new VisibleRuleResult("Test/oem[1]/b[1]", false);
         VisibleRuleResult c_VisibleRule = new VisibleRuleResult("Test/oem[1]/c[1]", false);
+        VisibleRuleResult document_VisibleRule = new VisibleRuleResult("Test/doucment[1]", true);
+        VisibleRuleResult family_VisibleRule = new VisibleRuleResult("Test/family[1]", false);
+        VisibleRuleResult doc_VisibleRule = new VisibleRuleResult("Test/doc[1]", false);
         visibleResults.add(oem_VisibleRule);
         visibleResults.add(a_VisibleRule);
         visibleResults.add(b_VisibleRule);
         visibleResults.add(c_VisibleRule);
+        visibleResults.add(document_VisibleRule) ;
+        visibleResults.add(family_VisibleRule) ;
+        visibleResults.add(doc_VisibleRule) ;
         // 3. Call TreeDetail.recrusiveSetItems(List<VisibleRuleResult>, ItemNodeModel)
         TreeDetail treeDetail = new TreeDetail(ItemsDetailPanel.newInstance());
         treeDetail.recrusiveSetItems(visibleResults, testNode);
@@ -456,8 +489,110 @@ public class TreeDetailGWTTest extends GWTTestCase {
         assertEquals(true, oem_aNode.isVisible());
         assertEquals(false, oem_bNode.isVisible());
         assertEquals(false, oem_cNode.isVisible());
+        assertEquals(false, documentNode.isVisible());
+        assertEquals(false, familyNode.isVisible());
+        assertEquals(false, docNode.isVisible());
     }
 
+    public void testRecrusiveSetItemsAndNode() {
+
+        ItemNodeModel productNode = new ItemNodeModel("Product");
+        productNode.setTypePath("Product");
+        ItemNodeModel pictureNode = new ItemNodeModel("Picture");
+        pictureNode.setTypePath("Product/Picture");
+        pictureNode.setKey(true);
+        productNode.add(pictureNode);
+        ItemNodeModel idNode = new ItemNodeModel("Id");
+        idNode.setTypePath("Product/Id");
+        productNode.add(idNode);
+        ItemNodeModel nameNode = new ItemNodeModel("Name");
+        nameNode.setTypePath("Product/Name");
+        productNode.add(nameNode);
+        ItemNodeModel priceNode = new ItemNodeModel("Price");
+        priceNode.setTypePath("Product/Price");
+        priceNode.setHide(true);
+        productNode.add(priceNode);
+        ItemNodeModel storesNode = new ItemNodeModel("Stores");
+        storesNode.setTypePath("Product/Stores");
+        productNode.add(storesNode);
+        ItemNodeModel storeNode = new ItemNodeModel("Store");
+        storeNode.setTypePath("Product/Stores/Store");
+        storesNode.add(storeNode);
+
+        ViewBean viewBean = new ViewBean();
+        entityModel = new EntityModel();
+        LinkedHashMap<String, TypeModel> metaDataTypes = new LinkedHashMap<String, TypeModel>();
+        ComplexTypeModel productType = new ComplexTypeModel("Product", DataTypeCreator.getDataType("Product", "anyType"));
+        productType.setTypePath("Product");
+        productType.addLabel("en", "product");
+        metaDataTypes.put(productType.getTypePath(), productType);
+        SimpleTypeModel pictureType = new SimpleTypeModel("Picture", DataTypeCreator.getDataType("string", "anyType"));
+        pictureType.setTypePath("Product/Picture");
+        pictureType.addLabel("en", "picture");
+        pictureType.setAutoExpand(false);
+        metaDataTypes.put(pictureType.getTypePath(), pictureType);
+        SimpleTypeModel idType = new SimpleTypeModel("Id", DataTypeCreator.getDataType("string", "anyType"));
+        idType.setTypePath("Product/Id");
+        idType.addLabel("en", "pk");
+        idType.setFacets(new ArrayList<FacetModel>());
+        metaDataTypes.put(idType.getTypePath(), idType);
+        SimpleTypeModel nameType = new SimpleTypeModel("Name", DataTypeCreator.getDataType("string", "anyType"));
+        nameType.setTypePath("Product/Name");
+        nameType.addLabel("en", "name");
+        nameType.setFacets(new ArrayList<FacetModel>());
+        metaDataTypes.put(nameType.getTypePath(), nameType);
+        SimpleTypeModel priceType = new SimpleTypeModel("Price", DataTypeCreator.getDataType("string", "anyType"));
+        priceType.setTypePath("Product/Price");
+        priceType.addLabel("en", "price");
+        priceType.setAutoExpand(true);
+        metaDataTypes.put(priceType.getTypePath(), priceType);
+        SimpleTypeModel storeType = new SimpleTypeModel("Store", DataTypeCreator.getDataType("string", "anyType"));
+        storeType.setTypePath("Product/Stores/Store");
+        storeType.addLabel("en", "store");
+        storeType.setForeignkey("Store/Id");
+        storeType.setNotSeparateFk(false);
+        storeType.setAutoExpand(false);
+        metaDataTypes.put(storeType.getTypePath(), storeType);
+        ComplexTypeModel storesType = new ComplexTypeModel("Stores", DataTypeCreator.getDataType("string", "anyType"));
+        storesType.setTypePath("Product/Stores");
+        storesType.addLabel("en", "stores");
+        storesType.setAutoExpand(false);
+        metaDataTypes.put(storesType.getTypePath(), storesType);
+        productType.addSubType(idType);
+        productType.addSubType(nameType);
+        productType.addSubType(pictureType);
+        productType.addSubType(storesType);
+        storesType.addSubType(storeType);
+
+        entityModel.setMetaDataTypes(metaDataTypes);
+        viewBean.setBindingEntityModel(entityModel);
+        TreeDetail treeDetail = new TreeDetail(ItemsDetailPanel.newInstance());
+        treeDetail.setViewBean(viewBean);
+
+        DynamicTreeItem item = treeDetail.buildGWTTree(productNode, null, false, ItemDetailToolBar.VIEW_OPERATION);
+
+        List<VisibleRuleResult> visibleResults = new ArrayList<VisibleRuleResult>();
+
+        treeDetail.onExecuteVisibleRule(visibleResults);
+
+        for (int i = 0; i < item.getChildCount(); i++) {
+            if (item.getChild(i) instanceof DynamicTreeItem) {
+                DynamicTreeItem sonItem = (DynamicTreeItem) item.getChild(i);
+                if (sonItem.getItemNodeModel().getName().equals("Price")) {
+                    VisibleRuleResult price_VisibleRule = new VisibleRuleResult("Product/Price[1]", false);
+                    treeDetail.recrusiveSetItems(price_VisibleRule, sonItem);
+                    assertFalse(sonItem.isVisible());
+                }
+                if (sonItem.getItemNodeModel().getName().equals("Name")) {
+                    VisibleRuleResult name_VisibleRule = new VisibleRuleResult("Product/Name[1]", true);
+                    treeDetail.recrusiveSetItems(name_VisibleRule, sonItem);
+                    assertTrue(sonItem.isVisible());
+                }
+            }
+        }
+
+    }
+    
     private ViewBean getViewBean() {
         ViewBean viewBean = new ViewBean();
         EntityModel bindingEntityModel = new EntityModel();

@@ -176,15 +176,24 @@ public class CommonUtilGWTTest extends GWTTestCase {
         oem.setLabelMap(new HashMap<String, String>());
         SimpleTypeModel oem_a = new SimpleTypeModel("oem_a", DataTypeConstants.STRING);
         oem_a.setTypePath("oem/oem_a");
+        oem_a.setHide(true) ;
+        oem_a.setVisible(false) ;
+        oem_a.setHasVisibleRule(true) ;
         oem_a.setLabelMap(new HashMap<String, String>());
         oem.addSubType(oem_a);
         SimpleTypeModel oem_b = new SimpleTypeModel("oem_b", DataTypeConstants.INTEGER);
         oem_b.setTypePath("oem/oem_b");
         oem_b.setLabelMap(new HashMap<String, String>());
+        oem_b.setHide(false) ;
+        oem_b.setVisible(true) ;
+        oem_b.setHasVisibleRule(true) ;
         oem.addSubType(oem_b);
         SimpleTypeModel oem_c = new SimpleTypeModel("oem_c", DataTypeConstants.BOOLEAN);
         oem_c.setTypePath("oem/oem_c");
         oem_c.setLabelMap(new HashMap<String, String>());
+        oem_c.setHide(false) ;
+        oem_c.setVisible(true) ;
+        oem_c.setHasVisibleRule(false) ;
         oem.addSubType(oem_c);
         SimpleTypeModel oem_d = new SimpleTypeModel("oem_d", DataTypeConstants.DATE);
         oem_d.setTypePath("oem/oem_d");
@@ -220,7 +229,31 @@ public class CommonUtilGWTTest extends GWTTestCase {
         for (ModelData modelData : oemNodeModel.getChildren()) {
             ItemNodeModel itemNodeModel = (ItemNodeModel) modelData;
             assertTrue(itemNodeModel.getObjectValue() == null);
-        }        
+        }
+        // 4. Test visible, hide, and hasVisibleRule
+        list = CommonUtil.getDefaultTreeModel(oem, "en", false, false, false);
+        assertNotNull(list);
+        oemNodeModel = list.get(0);
+        assertNotNull(oemNodeModel);
+        assertEquals(5, oemNodeModel.getChildCount());
+        for (ModelData modelData : oemNodeModel.getChildren()) {
+            ItemNodeModel itemNodeModel = (ItemNodeModel) modelData;
+            if(itemNodeModel.getName().equals("oem_a")){
+                assertTrue(itemNodeModel.isHide()) ;
+                assertTrue(itemNodeModel.isHasVisiblueRule()) ;
+                assertFalse(itemNodeModel.isVisible()) ;
+            }
+            if(itemNodeModel.getName().equals("oem_b")){
+                assertFalse(itemNodeModel.isHide()) ;
+                assertTrue(itemNodeModel.isHasVisiblueRule()) ;
+                assertTrue(itemNodeModel.isVisible()) ;
+            }
+            if(itemNodeModel.getName().equals("oem_c")){
+                assertFalse(itemNodeModel.isHide()) ;
+                assertFalse(itemNodeModel.isHasVisiblueRule()) ;
+                assertTrue(itemNodeModel.isVisible()) ;
+            }
+        }
     }
 
     public void testConvertList2Xml() {

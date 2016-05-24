@@ -35,6 +35,8 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String realType;
 
+    private boolean hide = false ;
+
     private boolean visible = true;
 
     private boolean valid = false;
@@ -107,6 +109,14 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     public void setRendered(boolean rendered) {
         this.rendered = rendered;
+    }
+
+    public boolean isHide() {
+        return hide;
+    }
+
+    public void setHide(boolean hide) {
+        this.hide = hide;
     }
 
     public boolean isVisible() {
