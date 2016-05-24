@@ -1517,7 +1517,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         TypeModel model = findTypeModelByTypePath(metaDataTypes, typePath, language);
         nodeModel.setTypePath(model.getTypePath());
         nodeModel.setHasVisiblueRule(model.isHasVisibleRule());
-        nodeModel.setVisible(model.isVisible()) ;
+        nodeModel.setHide(model.isHide()) ;
+        nodeModel.setVisible(!model.isHide()) ;
         String realXPath = xpath;
         if (isPolyType) {
             realXPath = realXPath.replaceAll(":\\w+", ""); //$NON-NLS-1$//$NON-NLS-2$

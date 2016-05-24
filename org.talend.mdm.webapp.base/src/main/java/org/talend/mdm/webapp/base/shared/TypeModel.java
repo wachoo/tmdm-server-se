@@ -44,6 +44,8 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     private boolean visible = true;
 
+    private boolean hide = false ;
+
     private int minOccurs;
 
     private int maxOccurs;
@@ -194,6 +196,14 @@ public abstract class TypeModel implements Serializable, IsSerializable {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public boolean isHide() {
+        return hide;
+    }
+    
+    public void setHide(boolean hide) {
+        this.hide = hide;
     }
 
     public int getMinOccurs() {

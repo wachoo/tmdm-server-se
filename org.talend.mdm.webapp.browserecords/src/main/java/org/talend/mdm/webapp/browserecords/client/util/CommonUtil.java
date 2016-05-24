@@ -229,6 +229,9 @@ public class CommonUtil {
             if (isCallByServerSide) {
                 node.setHasVisiblueRule(model.isHasVisibleRule());
             }
+            node.setHasVisiblueRule(model.isHasVisibleRule());
+            node.setHide(model.isHide()) ;
+            node.setVisible(!model.isHide()) ;
             node.setDescription(model.getDescriptionMap().get(language));
             node.setLabel(model.getLabel(language));
         }

@@ -8,6 +8,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel.ItemDetailTabPanelContentHandle;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
+import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 
@@ -19,4 +20,6 @@ public interface ForeignKeyRender {
     public void removeRelationFkPanel(ItemNodeModel parentModel);
     
     public void setRelationFk(ItemNodeModel parentModel, ItemDetailTabPanelContentHandle handle);
+
+    public void recrusiveSetItems(VisibleRuleResult visibleResult) ;
 }
