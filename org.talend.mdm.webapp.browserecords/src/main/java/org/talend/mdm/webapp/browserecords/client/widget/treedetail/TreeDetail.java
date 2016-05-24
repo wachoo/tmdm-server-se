@@ -460,6 +460,7 @@ public class TreeDetail extends ContentPanel {
                 DynamicTreeItem rootItem = (DynamicTreeItem) tree.getItem(0);
                 recrusiveSetItems(visibleResult, rootItem);
             }
+            fkRender.recrusiveSetItems(visibleResult);
         }
     }
 
@@ -616,7 +617,7 @@ public class TreeDetail extends ContentPanel {
             while (iter.hasNext()) {
                 VisibleRuleResult vr = iter.next();
                 if (vr.getXpath().equals(realPath)) {
-                    itemNode.setVisible(vr.isVisible());
+                    itemNode.setVisible(vr.isVisible() && !itemNode.isHide());
                     iter.remove();
                 }
                 if (vr.getXpath().startsWith(realPath)) {
@@ -642,11 +643,11 @@ public class TreeDetail extends ContentPanel {
         }
     }
 
-    private void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
+    protected void recrusiveSetItems(VisibleRuleResult visibleResult, DynamicTreeItem rootItem) {
         if (rootItem.getItemNodeModel() != null) {
             String realPath = CommonUtil.getRealXPath(rootItem.getItemNodeModel());
             if (realPath.equals(visibleResult.getXpath())) {
-                rootItem.setVisible(visibleResult.isVisible());
+                rootItem.setVisible(visibleResult.isVisible() && !rootItem.getItemNodeModel().isHide()); 
                 return;
             }
 

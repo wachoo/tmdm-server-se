@@ -421,7 +421,8 @@ public class DataModelHelper {
                             }
                         } else if ("X_Hide".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
-                                typeModel.setVisible(false);
+                                typeModel.setHide(true) ;
+                                typeModel.setVisible(!typeModel.isHide());
                             }
                         } else if ("X_ForeignKey".equals(appinfoSource)) {//$NON-NLS-1$
                             typeModel.setForeignkey(appinfoSourceValue);
