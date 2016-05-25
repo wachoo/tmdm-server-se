@@ -96,48 +96,125 @@ public class InheritanceTest extends StorageTestCase {
         userSecurity.setActive(false); // Not testing security here
     }
 
-    public void testTypeOrdering() throws Exception {
+    public void testTypeSubSetOrdering() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(InheritanceTest.class.getResourceAsStream("TypeOrdering.xsd"));
         List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository);
-        String[] expectedOrder = { "A", "Store", "Update", "B", "D", "E", "C",
-                "EntityWithQuiteALongNameWithoutIncludingAnyUnderscore", "Group", "ContainedEntityC", "SS", "ContainedEntityB",
-                "E2", "ContainedEntityA", "ff", "E1", "a1", "EntityB", "a2", "EntityA", "Company", "PointToSelfEntity","Customer", "Product",
-                "Employee1", "Country", "Manager1", "Concurrent", "City", "Persons", "Employee", "Manager", "Supplier", "ProductFamily",
-                "Address", "TypeA", "Person" };
-        int i = 0;
-        for (ComplexTypeMetadata sortedType : sortedList) {
-            assertEquals(expectedOrder[i++], sortedType.getName());
+        
+        // test for Strict 
+        // Customer(1,1)==>Address(ComplexType) Address(1-1)==>Country
+        boolean hasCountry = false ;
+        boolean hasAddress = false ;
+        for (ComplexTypeMetadata sortType : sortedList) {
+            if("Country".equals(sortType.getName())){
+                hasCountry = true ;
+            }
+            if ("Address".equals(sortType.getName())) {
+                assertTrue(hasCountry);
+                hasAddress = true;
+            }
         }
-        // sortTypes with no sort type should be STRICT
-        MetadataUtils.sortTypes(repository, MetadataUtils.SortType.STRICT);
-        i = 0;
-        for (ComplexTypeMetadata sortedType : sortedList) {
-            assertEquals(expectedOrder[i++], sortedType.getName());
-        }
-    }
+        assertTrue(hasAddress);
+        
+        // test for LENIENT 
+        sortedList = MetadataUtils.sortTypes(repository,MetadataUtils.SortType.LENIENT);
+        boolean hasA = false;
+        boolean hasB = false;
+        boolean hasC = false;
+        boolean hasD = false;
+        boolean hasE = false;
+        
+        boolean hasPerons = false;
+        boolean hasEmployee = false;
+        boolean hasEmployee1 = false;
+        boolean hasManager = false;
+        boolean hasManager1 = false;
+        boolean hasCompany = false;
+        
+        boolean hasProduct = false;
+        boolean hasProductFamily = false;
+        boolean hasSupplier = false;
+        boolean hasStore = false;
+        hasAddress = false;
+        
+        for (ComplexTypeMetadata sortType : sortedList) {
+            // A(0,1)==>B, A(0,1)==>A, C-->A, D-->B, E-->B
+            if ("A".equals(sortType.getName())) {
+                hasA = true;
+            }
+            if ("B".equals(sortType.getName())) {
+                hasB = true;
+            }
+            if ("C".equals(sortType.getName())) {
+                assertTrue(hasA);
+                hasC = true;
+            }
+            if ("D".equals(sortType.getName())) {
+                assertTrue(hasB);
+                hasD = true;
+            }
+            if ("E".equals(sortType.getName())) {
+                assertTrue(hasB);
+                hasE = true;
+            }
+            
+            // Employee-->Persons, Manager-->Employee, Employee1(0,1) ==> Manager1,
+            if ("Persons".equals(sortType.getName())) {
+                hasPerons = true;
+            }
+            if ("Employee".equals(sortType.getName())) {
+                assertTrue(hasPerons);
+                hasEmployee = true;
+            }
+            if ("Manager".equals(sortType.getName())) {
+                assertTrue(hasEmployee);
+                hasManager = true;
+            }
+            if ("Company".equals(sortType.getName())) {
+                hasCompany = true;
+            }
+            if ("Employee1".equals(sortType.getName())) {
+                assertTrue(hasManager1);
+                hasEmployee1 = true;
+            }
+            if ("Manager1".equals(sortType.getName())) {
+                hasManager1 = true;
+            }
+            
+            // Product(0,1) ==> ProductFamily, Product(0,unbounded) ==> Supplier, Product(0,1) ==> Store,
+            // Supplier(0,1) ==> Address, Address (1,1)=> Country
+            if ("Product".equals(sortType.getName())) {
+                assertTrue(hasProductFamily);
+                assertTrue(hasSupplier);
+                assertTrue(hasStore);
+                hasProduct = true;
+            }
+            if ("ProductFamily".equals(sortType.getName())) {
+                hasProductFamily = true;
+            }
+            if ("Store".equals(sortType.getName())) {
+                hasStore = true;
+            }
+            if ("Supplier".equals(sortType.getName())) {
+                assertTrue(hasAddress);
+                hasSupplier = true;
+            }
 
-    public void testTypeSubSetOrdering() throws Exception {
-        // Test type list sort
-        ComplexTypeMetadata[] types = new ComplexTypeMetadata[] { repository.getComplexType("Address"),
-                repository.getComplexType("Country") };
-        List<ComplexTypeMetadata> sortedList = MetadataUtils.sortTypes(repository, Arrays.asList(types));
-        // New order following XML schema library
-        String[] expectedOrder = { "Country", "Address" };
-        int i = 0;
-        for (ComplexTypeMetadata sortedType : sortedList) {
-            assertEquals(expectedOrder[i++], sortedType.getName());
+            if ("Country".equals(sortType.getName())) {
+                hasCountry = true;
+            }
+            if ("Address".equals(sortType.getName())) {
+                assertTrue(hasCountry);
+                hasAddress = true;
+            }
         }
-        // Test missing reference exception
-        types = new ComplexTypeMetadata[] { repository.getComplexType("Address"), repository.getComplexType("Country"),
-                repository.getComplexType("Product") };
-        sortedList = MetadataUtils.sortTypes(repository, Arrays.asList(types));
-        // New order following XML schema library
-        expectedOrder = new String[] { "Product", "Country", "Address" };
-        i = 0;
-        for (ComplexTypeMetadata sortedType : sortedList) {
-            assertEquals(expectedOrder[i++], sortedType.getName());
-        }
+        assertTrue(hasC);
+        assertTrue(hasD);
+        assertTrue(hasE);
+        assertTrue(hasEmployee1);
+        assertTrue(hasManager);
+        assertTrue(hasCompany);
+        assertTrue(hasProduct);
     }
 
     public void testInheritanceQuery() throws Exception {
