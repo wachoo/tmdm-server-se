@@ -120,11 +120,11 @@ class ManyFieldProjection extends SimpleProjection {
                         .append('.')
                         .append(containerIdColumn).append(") as y").append(position).append('_'); //$NON-NLS-1$
                 break;
-            // SQL Server doesn't support the group_concat function -> returns (value + '...')
+            // SQL Server doesn't support the group_concat function -> use "stuff" function
             case SQL_SERVER:
-                sqlFragment.append("(select ") //$NON-NLS-1$
+                sqlFragment.append("STUFF((select ',' + ") //$NON-NLS-1$
                         .append(collectionTable)
-                        .append(".value + \'...\' FROM ").append(containerTable); //$NON-NLS-1$
+                        .append(".value FROM ").append(containerTable); //$NON-NLS-1$
                 for (FieldMetadata currentKey : containingType.getKeyFields()) {
                     String keyName = resolver.get(currentKey);
                     sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
@@ -141,13 +141,14 @@ class ManyFieldProjection extends SimpleProjection {
                         .append(" = ") //$NON-NLS-1$
                         .append(criteriaQuery.getSQLAlias(subCriteria))
                         .append('.')
-                        .append(containerIdColumn).append(" and pos=0) as y").append(position).append('_'); //$NON-NLS-1$
+                        .append(containerIdColumn)
+                        .append(" FOR XML PATH ('')), 1, 1, '') as y").append(position).append('_'); //$NON-NLS-1$
                 break;
-            // DB2 doesn't support the group_concat function -> returns (value + '...')
+            // DB2 supports listagg() function after DB2 9.7
             case DB2:
-                sqlFragment.append("(select ") //$NON-NLS-1$
+                sqlFragment.append("(select listagg(") //$NON-NLS-1$
                         .append(collectionTable)
-                        .append(".value CONCAT \'...\' FROM ").append(containerTable); //$NON-NLS-1$
+                        .append(".value, ',') WITHIN GROUP (ORDER BY pos) FROM ").append(containerTable); //$NON-NLS-1$
                 for (FieldMetadata currentKey : containingType.getKeyFields()) {
                     String keyName = resolver.get(currentKey);
                     sqlFragment.append(" INNER JOIN ") //$NON-NLS-1$
@@ -164,7 +165,7 @@ class ManyFieldProjection extends SimpleProjection {
                         .append(" = ") //$NON-NLS-1$
                         .append(criteriaQuery.getSQLAlias(subCriteria))
                         .append('.')
-                        .append(containerIdColumn).append(" and pos=0) as y").append(position).append('_'); //$NON-NLS-1$
+                        .append(containerIdColumn).append(") as y").append(position).append('_'); //$NON-NLS-1$
                 break;
             default:
                 throw new NotImplementedException("Support for repeatable element not implemented for dialect '" + dataSource.getDialectName() + "'.");
