@@ -64,4 +64,8 @@ public class SecurityConfig {
             executor.execute(runnable);
         }
     }
+    
+    public static String getInternalUserName(){
+        return PRIVATE_INTERNAL_USER;
+    }
 }
