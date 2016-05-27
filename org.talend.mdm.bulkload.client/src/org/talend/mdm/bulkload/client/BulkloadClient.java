@@ -21,6 +21,8 @@ public class BulkloadClient {
 
     private String transactionId;
 
+    private String sessionId;
+
     private BulkloadOptions options = new BulkloadOptions();
 
     private static final AtomicInteger startedBulkloadCount = new AtomicInteger(0);
@@ -123,6 +125,14 @@ public class BulkloadClient {
         this.transactionId = transactionId;
     }
 
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
     /**
      * load from a huge xml string
      *
@@ -162,6 +172,7 @@ public class BulkloadClient {
                 username,
                 password,
                 transactionId,
+                sessionId,
                 universe);
     }
 
@@ -193,6 +204,7 @@ public class BulkloadClient {
                 username,
                 password,
                 transactionId,
+                sessionId,
                 universe,
                 startedBulkloadCount);
     }
