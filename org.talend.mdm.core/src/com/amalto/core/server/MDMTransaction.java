@@ -56,6 +56,8 @@ class MDMTransaction implements Transaction {
                 StorageTransaction storageTransaction = iterator.next();
                 if (!storageTransaction.hasFailed()) {
                     iterator.remove();
+                } else {
+                    LOGGER.warn("Remaining failed storageTransaction while transactionComplete is called !"); //$NON-NLS-1$
                 }
             }
             if (storageTransactions.isEmpty()) {
@@ -90,10 +92,10 @@ class MDMTransaction implements Transaction {
 
     @Override
     public void begin() {
-        if(LOGGER.isDebugEnabled()){
-            LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Begin.");
-        }
         synchronized (storageTransactions) {
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Begin.");
+            }
             Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
             for (StorageTransaction storageTransaction : values) {
                 if(LOGGER.isDebugEnabled()){
@@ -101,19 +103,19 @@ class MDMTransaction implements Transaction {
                 }
                 storageTransaction.autonomous().begin();
             }
-        }
-        if(LOGGER.isDebugEnabled()){
-            LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Begin done.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Begin done.");
+            }
         }
     }
 
     @Override
     public void commit() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit.");
-        }
-        synchronized (storageTransactions) {
-            try {
+        try {
+            synchronized (storageTransactions) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit.");
+                }
                 Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
                 for (StorageTransaction storageTransaction : values) {
                     storageTransaction.autonomous().commit();
@@ -121,12 +123,12 @@ class MDMTransaction implements Transaction {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit done.");
                 }
-            } catch (Throwable t) {
-                LOGGER.warn("Commit failed for transaction " + getId() + ". Perform automatic rollback.", t);
-                rollback();
-            } finally {
-                transactionComplete();
             }
+        } catch (Throwable t) {
+            LOGGER.warn("Commit failed for transaction " + getId() + ". Perform automatic rollback.", t);
+            rollback();
+        } finally {
+            transactionComplete();
         }
     }
 

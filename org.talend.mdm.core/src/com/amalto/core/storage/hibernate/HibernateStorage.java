@@ -849,22 +849,32 @@ public class HibernateStorage implements Storage {
     @Override
     public void begin() {
         assertPrepared();
-        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-        transactionManager.currentTransaction().include(this).begin();
+        StorageTransaction storageTransaction = this.getCurrentStorageTransaction();
+        storageTransaction.begin();
     }
 
     @Override
     public void commit() {
         assertPrepared();
-        TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-        transactionManager.currentTransaction().include(this).commit();
+        StorageTransaction storageTransaction = this.getCurrentStorageTransaction();
+        storageTransaction.commit();
     }
 
     @Override
     public void rollback() {
         assertPrepared();
+        StorageTransaction storageTransaction = this.getCurrentStorageTransaction();
+        storageTransaction.rollback();
+    }
+    
+    private StorageTransaction getCurrentStorageTransaction() {
         TransactionManager transactionManager = ServerContext.INSTANCE.get().getTransactionManager();
-        transactionManager.currentTransaction().include(this).rollback();
+        com.amalto.core.storage.transaction.Transaction currentTransaction = transactionManager.currentTransaction();
+        StorageTransaction storageTransaction = currentTransaction.include(this);
+        if(!storageTransaction.getCoordinator().equals(currentTransaction)){
+            LOGGER.warn("Current transaction returned by TransactionManager [" + currentTransaction + "] does not match storageTransaction coordinator ["+ storageTransaction.getCoordinator()+ "]. There is something wrong in TransactionManager"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        }
+        return storageTransaction;
     }
 
     @Override
