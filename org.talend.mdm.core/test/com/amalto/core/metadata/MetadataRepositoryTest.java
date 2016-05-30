@@ -594,4 +594,21 @@ public class MetadataRepositoryTest extends TestCase {
         assertEquals("Brand Desc", brandFk.getDescription(en));
         assertEquals("Marque Desc", brandFk.getDescription(fr));
     }
+
+    // TMDM-9547 Journal is frozen
+    public void testSortTypes_01() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("SortType_04.xsd");
+        repository.load(stream);
+        List<ComplexTypeMetadata> sortTypes = MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+        assertEquals("Catalog", sortTypes.get(0).getName());
+    }
+
+    // TMDM-9598 can't deploy datamodel and the 'Journal' page is always 'Loading'
+    public void testSortTypes_02() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("SortType_05.xsd");
+        repository.load(stream);
+        MetadataUtils.sortTypes(repository, MetadataUtils.SortType.LENIENT);
+    }
 }
