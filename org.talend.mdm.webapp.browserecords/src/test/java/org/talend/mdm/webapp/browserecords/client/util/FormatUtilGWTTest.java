@@ -11,7 +11,7 @@ import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.junit.client.GWTTestCase;
 
 
-public class FormatUtilTest extends GWTTestCase{
+public class FormatUtilGWTTest extends GWTTestCase{
 
     @Override
     protected void gwtSetUp() throws Exception {
@@ -26,7 +26,8 @@ public class FormatUtilTest extends GWTTestCase{
 
         numberField.setValidator(NumberFieldValidator.getInstance());
 
-        assertNull(FormatUtil.changeNumberToFormatedValue(null)) ;
+        assertEquals(FormatUtil.changeNumberToFormatedValue(null), "") ;
+        assertEquals(FormatUtil.changeNumberToFormatedValue(""), "");
         assertNotNull(FormatUtil.changeNumberToFormatedValue("2.0"));
         assertEquals(FormatUtil.changeNumberToFormatedValue("2.0"), "2.0");
         assertEquals(FormatUtil.changeNumberToFormatedValue("2.0    "), "2.0");
@@ -77,6 +78,7 @@ public class FormatUtilTest extends GWTTestCase{
 
     public void testGetDecimalValue(){
         assertNull(FormatUtil.getDecimalValue(null, 3)) ;
+        assertNull(FormatUtil.getDecimalValue("", 3)) ;
         assertEquals(new BigDecimal("15.00"), FormatUtil.getDecimalValue("15", null)) ;
         assertEquals(new BigDecimal("15.000") , FormatUtil.getDecimalValue("15", 3)) ;
         assertEquals(new BigDecimal("15.365") , FormatUtil.getDecimalValue("15.3653", 3)) ;

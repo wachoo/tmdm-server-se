@@ -16,13 +16,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -68,14 +71,19 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.util.CoreException;
+import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Messages;
 import com.amalto.core.util.MessagesFactory;
 import com.amalto.core.util.Util;
+import com.amalto.core.util.XtentisException;
 import com.amalto.core.webservice.WSBoolean;
 import com.amalto.core.webservice.WSByteArray;
 import com.amalto.core.webservice.WSDataClusterPK;
 import com.amalto.core.webservice.WSExecuteTransformerV2;
+import com.amalto.core.webservice.WSGetItem;
 import com.amalto.core.webservice.WSGetTransformerV2PKs;
 import com.amalto.core.webservice.WSGetView;
 import com.amalto.core.webservice.WSGetViewPKs;
@@ -94,12 +102,14 @@ import com.amalto.core.webservice.WSViewPKArray;
 import com.amalto.core.webservice.WSViewSearch;
 import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.XtentisPort;
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.util.XmlUtil;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 @PrepareForTest({ Util.class, org.talend.mdm.webapp.base.server.util.CommonUtil.class, XtentisPort.class, WSViewSearch.class,
         BrowseRecordsAction.class, SmartViewProvider.class, SmartViewUtil.class, SmartViewDescriptions.class,
-        com.amalto.webapp.core.util.Util.class })
+        com.amalto.webapp.core.util.Util.class, LocalUser.class, ILocalUser.class, BeanDelegatorContainer.class,
+        BrowseRecordsAction.class, Configuration.class })
 @SuppressWarnings("nls")
 public class BrowseRecordsActionTest extends TestCase {
 
@@ -514,6 +524,64 @@ public class BrowseRecordsActionTest extends TestCase {
         assertEquals("enumEle", fourthNode.getName());
         assertEquals("pending", fourthNode.getObjectValue().toString());
         assertEquals("Contract/enumEle", fourthNode.getTypePath());
+    }
+    
+ // TMDM-9501: Display Format applied onto numeric fields is not correct
+    public void testGetItemForNumberFormate() throws Exception {
+        String language = "en";
+        String concept = "Goods";
+        String ids = "1";
+        ViewBean viewBean = getViewBean(concept, "GoodsWithNumberField.xsd");
+        ItemBean item = new ItemBean(concept, ids, getXml("GoodsWithNumberFieldSample.xml"));
+        if(item.getOriginalMap() == null){
+            item.setOriginalMap( new HashMap<String, Object>()) ;
+        }
+        if(item.getFormateMap() == null){
+            item.setFormateMap(new HashMap<String, String>()) ;
+        }
+            
+        com.amalto.core.delegator.BeanDelegatorContainer beanDelegatorContainer = PowerMockito.spy(com.amalto.core.delegator.BeanDelegatorContainer.createInstance());
+        Whitebox.<BeanDelegatorContainer> invokeMethod(beanDelegatorContainer, "getInstance");
+        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", new MockILocalUser()));
+        //LocalUser localUser = PowerMockito.spy(new LocalUser());
+        Whitebox.<BeanDelegatorContainer> invokeMethod(beanDelegatorContainer, "setDelegatorInstancePool", Collections.<String, Object> singletonMap("LocalUser", new MockILocalUser()));
+        Whitebox.<LocalUser> invokeMethod(beanDelegatorContainer, "getLocalUserDelegator");
+       
+        PowerMockito.when(LocalUser.getLocalUser()).thenReturn(new MockILocalUser()) ;
+        String[] roles = { "Demo_Manager", "System_Admin", "authenticated", "administration" };
+        HashSet<String> rolesSet = new HashSet<String>() ;
+        rolesSet.addAll(Arrays.asList(roles)) ;
+
+        Constructor<Configuration> constructor = Configuration.class.getDeclaredConstructor(String.class, String.class);
+        constructor.setAccessible(true);
+        Configuration config = constructor.newInstance(concept, concept);
+
+        PowerMockito.mockStatic(Configuration.class);
+        Mockito.when(Configuration.getConfiguration()).thenReturn(config);
+        
+        XtentisPort port = PowerMockito.mock(XtentisPort.class);
+        PowerMockito.spy(org.talend.mdm.webapp.base.server.util.CommonUtil.class);
+        PowerMockito.doReturn(port).when(org.talend.mdm.webapp.base.server.util.CommonUtil.class, "getPort");
+        WSItem wsItem = getWsItem(concept, concept, ids, getXml("GoodsWithNumberFieldSample.xml"));
+        Mockito.when(port.getItem(Mockito.any(WSGetItem.class))).thenReturn(wsItem);
+        
+        ItemBean itemBean = action.getItem(item, null, viewBean.getBindingEntityModel(), false, language);
+       
+        Map<String, Object> originalMap = itemBean.getOriginalMap();
+        Map<String, String> formateMap = itemBean.getFormateMap();
+        
+        assertEquals(4, originalMap.size());
+        assertEquals(4, formateMap.size());
+
+        assertEquals("5.5000", formateMap.get("Goods/doubleValue").toString());
+        assertEquals("1.50000000", formateMap.get("Goods/decimalValue").toString());
+        assertEquals("4.5000", formateMap.get("Goods/simpleDecimalValue").toString());
+        assertEquals("2.0000", formateMap.get("Goods/floatValue").toString());
+
+        assertEquals("5.5", originalMap.get("Goods/doubleValue").toString());
+        assertEquals("1.5", originalMap.get("Goods/decimalValue").toString());
+        assertEquals("4.5", originalMap.get("Goods/simpleDecimalValue").toString());
+        assertEquals("2", originalMap.get("Goods/floatValue").toString());
     }
 
     private String[] getMockResultsFromServer() throws IOException {
@@ -1145,5 +1213,45 @@ public class BrowseRecordsActionTest extends TestCase {
             buffer.append(line);
         }
         return buffer.toString();
+    }
+    
+    private WSItem getWsItem(String cluster, String concept, String pk, String content) {
+        WSItem item = new WSItem();
+        item.setConceptName(concept);
+        item.setContent(content);
+        item.setDataModelName(cluster);
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(pk)) {
+            item.setIds(pk.split("\\."));
+        }
+        item.setWsDataClusterPK(new WSDataClusterPK(cluster));
+        return item;
+    }
+    
+    private static class MockILocalUser extends ILocalUser {
+
+        @Override
+        public ILocalUser getILocalUser() throws XtentisException {
+            return this;
+        }
+
+        @Override
+        public HashSet<String> getRoles() {
+            HashSet<String> roleSet = new HashSet<String>();
+            roleSet.add("Demo_Manager");
+            roleSet.add("System_Admin");
+            roleSet.add("authenticated");
+            roleSet.add("administration");
+            return roleSet;
+        }
+
+        @Override
+        public String getUsername() {
+            return "Admin";
+        }
+
+        @Override
+        public boolean isAdmin(Class<?> objectTypeClass) throws XtentisException {
+            return true;
+        }
     }
 }

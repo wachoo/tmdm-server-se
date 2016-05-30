@@ -139,14 +139,25 @@ public class CellRendererCreator {
                 }
             }
             final String fractionDigits = fractionDigitsTemp;
+            final String formats = dataType.getDisplayFomats()== null ? null : dataType.getDisplayFomats().get("format_" + Locale.getLanguage());
             GridCellRenderer<ModelData> renderer = new GridCellRenderer<ModelData>() {
 
                 @Override
                 public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
                         ListStore<ModelData> store, Grid<ModelData> grid) {
                     if (((String) model.get(property)) != null && !((String) model.get(property)).equals("")) {
-                        Number numValue = FormatUtil.getDecimalValue((String) model.get(property), fractionDigits);
-                        return Format.htmlEncode(FormatUtil.changeNumberToFormatedValue(numValue.toString()));
+                        String valueResult = (String)model.get(property);
+                        String value = valueResult.indexOf(".") > 0 ? valueResult: valueResult.replaceAll(valueResult, valueResult +".0") ;
+
+                        if (formats == null) {
+                            Number numValue = FormatUtil.getDecimalValue((String) model.get(property), fractionDigits);
+                            return Format.htmlEncode(FormatUtil.changeNumberToFormatedValue(numValue.toString()));
+                        } else {
+                            int digitsLength = value.trim().split("\\.")[1].length();
+                            Number numValue = FormatUtil.getDecimalValue((String) model.get(property),
+                                    String.valueOf(digitsLength));
+                            return Format.htmlEncode(FormatUtil.changeNumberToFormatedValue(numValue.toString()));
+                        }
                     } else {
                         return Format.htmlEncode((String) model.get(property));
                     }

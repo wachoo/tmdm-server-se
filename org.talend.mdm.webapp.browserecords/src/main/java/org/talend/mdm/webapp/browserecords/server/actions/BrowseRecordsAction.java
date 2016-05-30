@@ -96,6 +96,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.amalto.core.integrity.FKIntegrityCheckResult;
 import com.amalto.core.objects.ItemPOJOPK;
 import com.amalto.core.objects.UpdateReportPOJO;
@@ -180,9 +181,16 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     protected final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
-    private final List<String> dateTypeNames = Arrays.asList("date", "dateTime"); //$NON-NLS-1$//$NON-NLS-2$
+    private final List<String>  dateTypeNames   = Arrays.asList(DataTypeConstants.DATE.getBaseTypeName(),
+                                                        DataTypeConstants.DATETIME.getBaseTypeName());
 
-    private final List<String> numberTypeNmes = Arrays.asList("double", "float", "decimal", "int", "integer", "long", "short"); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ 
+    private final List<String>  numberTypeNames = Arrays.asList(DataTypeConstants.DOUBLE.getBaseTypeName(),
+                                                        DataTypeConstants.FLOAT.getBaseTypeName(),
+                                                        DataTypeConstants.DECIMAL.getBaseTypeName(),
+                                                        DataTypeConstants.INT.getBaseTypeName(),
+                                                        DataTypeConstants.INTEGER.getBaseTypeName(),
+                                                        DataTypeConstants.LONG.getBaseTypeName(),
+                                                        DataTypeConstants.SHORT.getBaseTypeName());
 
     public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
 
@@ -463,7 +471,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                     if (dataText != null) {
                         if (dataText.trim().length() != 0) {
-                            if (dateTypeNames.contains(tm.getType().getTypeName())) {
+                            if (dateTypeNames.contains(tm.getType().getBaseTypeName())) {
                                 if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
                                     sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
                                 } else if (value[1].equalsIgnoreCase("DATETIME")) { //$NON-NLS-1$
@@ -481,11 +489,21 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                     itemBean.getOriginalMap().remove(key);
                                     itemBean.getFormateMap().remove(key);
                                 }
-                            } else if (numberTypeNmes.contains(tm.getType().getTypeName())) {
+                            } else if (numberTypeNames.contains(tm.getType().getBaseTypeName())) {
                                 try {
-                                    Object originalValue = getNumberValue(dataText.trim(), tm.getType().getTypeName()) ;
-                                    itemBean.getOriginalMap().put(key, originalValue);
-                                    String formatValue = String.format(value[0], originalValue);
+                                    NumberFormat nf = NumberFormat.getInstance();
+                                    Number num = nf.parse(dataText.trim());
+                                    String formatValue = "";
+                                    if (tm.getType().getBaseTypeName().equals(DataTypeConstants.DOUBLE.getBaseTypeName())) {
+                                        formatValue = String.format(value[0], num.doubleValue()).trim();
+                                    } else if (tm.getType().getBaseTypeName().equals(DataTypeConstants.FLOAT.getBaseTypeName())) {
+                                        formatValue = String.format(value[0], num.floatValue()).trim();
+                                    } else if (tm.getType().getBaseTypeName().equals(DataTypeConstants.DECIMAL.getBaseTypeName())) {
+                                        formatValue = String.format(value[0], new BigDecimal(dataText.trim())).trim();
+                                    } else {
+                                        formatValue = String.format(value[0], num).trim();
+                                    }
+                                    itemBean.getOriginalMap().put(key, num);
                                     itemBean.getFormateMap().put(key, formatValue);
                                 } catch (Exception e) {
                                     itemBean.getOriginalMap().remove(key);
@@ -916,7 +934,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
                 if (dataText != null) {
                     if (dataText.trim().length() != 0) {
-                        if (dateTypeNames.contains(tm.getType().getTypeName())) {
+                        if (dateTypeNames.contains(tm.getType().getBaseTypeName())) {
                             SimpleDateFormat sdf = null;
                             if (value[1].equalsIgnoreCase("DATE")) { //$NON-NLS-1$
                                 sdf = new SimpleDateFormat(dateFormat, java.util.Locale.ENGLISH);
@@ -937,15 +955,27 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                                 originalMap.remove(key);
                                 formateValueMap.remove(key);
                             }
-                        } else if (numberTypeNmes.contains(tm.getType().getTypeName())) {
+                        } else if (numberTypeNames.contains(tm.getType().getBaseTypeName())) {
                             try {
-                                Object originalValue = getNumberValue(dataText.trim(), tm.getType().getTypeName()) ;
-                                originalMap.put(key, originalValue);
-                                String formatValue = String.format(value[0], originalValue);
+                                NumberFormat nf = NumberFormat.getInstance();
+                                Number num = nf.parse(dataText.trim());
+                                String formatValue = "";
+                                if (tm.getType().getBaseTypeName().equals(DataTypeConstants.DOUBLE.getBaseTypeName())) {
+                                    formatValue = String.format(value[0], num.doubleValue()).trim();
+                                } else if (tm.getType().getBaseTypeName().equals(DataTypeConstants.FLOAT.getBaseTypeName())) {
+                                    formatValue = String.format(value[0], num.floatValue()).trim();
+                                } else if (tm.getType().getBaseTypeName().equals(DataTypeConstants.DECIMAL.getBaseTypeName())) {
+                                    formatValue = String.format(value[0], new BigDecimal(dataText.trim())).trim();
+                                } else {
+                                    formatValue = String.format(value[0], num).trim();
+                                }
+
+                                originalMap.put(key, num);
                                 formateValueMap.put(key, formatValue);
                                 com.amalto.core.util.Util
                                         .getNodeList(doc.getDocumentElement(), key.replaceFirst(concept + "/", "./")).item(0).setTextContent(formatValue); //$NON-NLS-1$ //$NON-NLS-2$
                             } catch (Exception e) {
+                                Log.info("format has error 111");
                                 originalMap.remove(key);
                                 formateValueMap.remove(key);
                             }
@@ -980,12 +1010,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         Set<String> keySet = metaData.keySet();
         for (String key : keySet) {
             TypeModel typeModel = metaData.get(key);
-            if (dateTypeNames.contains(typeModel.getType().getTypeName())
-                    || numberTypeNmes.contains(typeModel.getType().getTypeName())) {
+            if (dateTypeNames.contains(typeModel.getType().getBaseTypeName())
+                    || numberTypeNames.contains(typeModel.getType().getBaseTypeName())) {
                 if (typeModel.getDisplayFomats() != null && typeModel.getDisplayFomats().size() > 0) {
                     if (typeModel.getDisplayFomats().containsKey(languageStr)) {
                         formatMap.put(key, new String[] { typeModel.getDisplayFomats().get(languageStr),
-                                typeModel.getType().getTypeName() });
+                                typeModel.getType().getBaseTypeName() });
                     }
                 }
             }
@@ -2479,17 +2509,4 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         typeModel.setForeignKeyInfo(newFKInfoList);
     }
     
-    private Object getNumberValue(String value, String typeName) throws Exception{
-        NumberFormat nf = NumberFormat.getInstance();
-        Number num = nf.parse(value);
-        if (typeName.equals(numberTypeNmes.get(0))) {
-            return num.doubleValue() ;
-        } else if (typeName.equals(numberTypeNmes.get(1))) {
-            return num.floatValue() ;
-        } else if (typeName.equals(numberTypeNmes.get(2))) {
-            return new BigDecimal(value);
-        } else {
-            return num ;
-        }
-    }
 }

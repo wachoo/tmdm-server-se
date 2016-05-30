@@ -1,0 +1,10 @@
+<Goods>
+  <Id>1</Id>
+  <decimalValue>1.500</decimalValue>
+  <doubleValue>5.5</doubleValue>
+  <floatValue>2.0</floatValue>
+  <simpleDecimalValue>4.50</simpleDecimalValue>
+  <my_boolean>true</my_boolean>
+  <simple_boolean>true</simple_boolean>
+  <remark>1</remark>
+</Goods>

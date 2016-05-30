@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
+    <xsd:simpleType name="PRICE">
+        <xsd:restriction base="xsd:decimal">
+            <xsd:fractionDigits value="3" />
+            <xsd:totalDigits value="16" />
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="MY_BOOLEAN">
+        <xsd:restriction base="xsd:boolean" />
+    </xsd:simpleType>
+    <xsd:element name="Goods">
+        <xsd:annotation>
+            <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element maxOccurs="1" minOccurs="1" name="Id" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Label_EN">Id_en</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_FR">id_fr</xsd:appinfo>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="decimalValue" type="PRICE">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">decimalValue_en</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_FR">decimalValue_fr</xsd:appinfo>
+                        <xsd:appinfo source="X_Display_Format_EN">%-10.8f</xsd:appinfo>
+                        <xsd:appinfo source="X_Display_Format_FR">%-10.8f</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="doubleValue" type="xsd:double">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">doubleValue_en</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_FR">doubleValue_fr</xsd:appinfo>
+                        <xsd:appinfo source="X_Display_Format_EN">%-10.4f</xsd:appinfo>
+                        <xsd:appinfo source="X_Display_Format_FR">%-10.4f</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="floatValue" type="xsd:float">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">floatValue_en</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_FR">floatValue_fr</xsd:appinfo>
+                        <xsd:appinfo source="X_Display_Format_EN">%-10.4f</xsd:appinfo>
+                        <xsd:appinfo source="X_Display_Format_FR">%-10.4f</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="simpleDecimalValue" type="xsd:decimal">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">simpleDecimalValue_en</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_FR">simpleDecimalValue_fr</xsd:appinfo>
+                        <xsd:appinfo source="X_Display_Format_EN">%-10.4f</xsd:appinfo>
+                        <xsd:appinfo source="X_Display_Format_FR">%-10.4f</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="my_boolean" type="MY_BOOLEAN">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">my_boolean_en</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_FR">my_boolean_fr</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="1" name="simple_boolean" type="xsd:boolean">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_EN">simple_boolean_en</xsd:appinfo>
+                        <xsd:appinfo source="X_Label_FR">simple_boolean_fr</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element maxOccurs="1" minOccurs="0" name="remark" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+        <xsd:unique name="Goods">
+            <xsd:selector xpath="." />
+            <xsd:field xpath="Id" />
+        </xsd:unique>
+    </xsd:element>
+</xsd:schema>

@@ -77,8 +77,8 @@ public class FormatUtil {
     
     public static String changeNumberToFormatedValue(String value) {
         StringBuilder pattern = new StringBuilder("###0.");
-        if(value == null){
-            return null ;
+        if(value == null || value.equals("")){
+            return "" ;
         }
         if(value.contains(",")){
             value = value.replace(",", ".") ;
@@ -100,7 +100,7 @@ public class FormatUtil {
     }
     
     public static Number getDecimalValue(String value, Object franctionDigits) {
-        if (value == null) {
+        if (value == null || "".equals(value)) {
             return null;
         }
         BigDecimal bigdecimal = new BigDecimal(value);

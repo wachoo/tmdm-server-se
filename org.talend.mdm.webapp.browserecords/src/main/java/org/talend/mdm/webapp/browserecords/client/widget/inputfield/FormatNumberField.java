@@ -145,20 +145,6 @@ public class FormatNumberField extends NumberField {
                     return false;
                 }
             }
-
-            if (formatPattern != null) {
-                FormatModel model = new FormatModel(formatPattern, d, Locale.getLanguage());
-                service.formatValue(model, new SessionAwareAsyncCallback<String>() {
-
-                    @Override
-                    public void onSuccess(String result) {
-                        setDiplayValue(result);
-                        setRawValue(result);
-                    }
-                });
-
-            }
-
             return true;
         }
     }
@@ -169,8 +155,29 @@ public class FormatNumberField extends NumberField {
 
     @Override
     public void setRawValue(String value) {
-        String displayValue = FormatUtil.changeNumberToFormatedValue(value);
+        if(value == null || "".equals(value)){
+            setFieldValue("") ;
+            return ;
+        }
+        if (formatPattern != null) {
+            Number d = getPropertyEditor().convertStringValue(value);
+            setDiplayValue("");
+            FormatModel model = new FormatModel(formatPattern, d, Locale.getLanguage());
+            service.formatValue(model, new SessionAwareAsyncCallback<String>() {
 
+                @Override
+                public void onSuccess(String result) {
+                    setFieldValue(result) ;
+                }
+            });
+        }else{
+            setFieldValue(value) ;
+        }
+    }
+
+    private void setFieldValue(String result){
+        String displayValue = FormatUtil.changeNumberToFormatedValue(result);
+        setDiplayValue(displayValue);
         if (rendered) {
             if (isEditable()) {
                 getInputEl().setValue(displayValue == null ? "" : displayValue); //$NON-NLS-1$
