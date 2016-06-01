@@ -20,6 +20,7 @@ import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.util.core.Crypt;
 
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
@@ -43,23 +44,29 @@ import com.amalto.core.storage.record.DataRecord;
  */
 public class DefaultLoginModule extends AbstractLoginModule {
 
-    private static final String OPTION_USERS = "users"; //$NON-NLS-1$
+    private static final String OPTION_USERS = "logins"; //$NON-NLS-1$
 
     private static final String OPTION_PASSWORDS = "passwords"; //$NON-NLS-1$
 
     private Map<String, String> passwordByUserMap = new HashMap<String, String>();
 
     @Override
-    protected void doInitialization(Map<String, ?> options) {
+    protected void doInitialization(Map<String, ?> options) throws Exception {
         String[] userArray = getArrayFromOption(options, OPTION_USERS);
         String[] passwordArray = getArrayFromOption(options, OPTION_PASSWORDS);
         for (int i = 0; i < userArray.length; i++) {
-            passwordByUserMap.put(userArray[i], passwordArray[i]);
+            if (passwordArray[i].contains(";encrypt")) { //$NON-NLS-1$
+                passwordArray[i] = passwordArray[i].replaceAll(";encrypt", Crypt.ENCRYPT); //$NON-NLS-1$
+            }
+            passwordByUserMap.put(userArray[i], Crypt.decrypt(passwordArray[i]));
         }
     }
 
     private String[] getArrayFromOption(Map<String, ?> options, String option) {
         String values = (String) options.get(option);
+        if (values.contains(Crypt.ENCRYPT)) {
+            values = values.replaceAll(Crypt.ENCRYPT, ";encrypt"); //$NON-NLS-1$
+        }
         String[] valueArray = StringUtils.splitPreserveAllTokens(values, ',');
         return valueArray;
     }
