@@ -76,6 +76,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     private boolean isDeletingContainedElement = false;
 
     private boolean generateTouchActions = false;
+    
+    private boolean isPartialDelete = false;
 
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
@@ -169,6 +171,10 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     protected Closure getClosure() {
         return closure;
     }
+    
+    protected void setPartialDelete(boolean isPartialDelete) {
+        this.isPartialDelete = isPartialDelete;
+    }
 
     /**
      * Interface to encapsulate action to execute on fields
@@ -211,7 +217,11 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 rightAccessor = newDocument.createAccessor(currentPath);
                 if (!rightAccessor.exist() && !isDeletingContainedElement) {
                     // If new list does not exist, it means element was omitted in new version (legacy behavior).
-                    return;
+                    if (!isPartialDelete) {
+                        return;
+                    } else { // TMDM-9559 'isPartialDelete' only affect for ONE time on the TOP element
+                        isPartialDelete = false;
+                    }
                 }
                 leftAccessor = originalDocument.createAccessor(currentPath);
             } finally {
@@ -226,8 +236,6 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 closure.execute(field);
                 path.pop();
             }
-            path.add(field.getName() + '[' + max + ']');
-            path.pop();
         } else {
             closure.execute(field);
             path.pop();
