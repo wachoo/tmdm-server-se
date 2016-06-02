@@ -10,6 +10,7 @@
 
 package com.amalto.core.save.context;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -76,6 +77,10 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     private boolean isDeletingContainedElement = false;
 
     private boolean generateTouchActions = false;
+    
+    private boolean isPartialDelete = false;
+
+    private List<String> visitedOneToManyPath = new ArrayList<String>();
 
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
@@ -169,6 +174,10 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     protected Closure getClosure() {
         return closure;
     }
+    
+    protected void setPartialDelete(boolean isPartialDelete) {
+        this.isPartialDelete = isPartialDelete;
+    }
 
     /**
      * Interface to encapsulate action to execute on fields
@@ -201,6 +210,16 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
+    /**
+     * Check if need to visit the one-to-many path
+     * 
+     * @param path
+     * @return
+     */
+    private boolean isNeedToVisit(String path) {
+        return path.contains("[") ? false : !visitedOneToManyPath.contains(path);
+    }
+
     protected void handleField(FieldMetadata field, Closure closure) {
         path.add(field.getName());
         if (field.isMany()) {
@@ -211,9 +230,13 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 rightAccessor = newDocument.createAccessor(currentPath);
                 if (!rightAccessor.exist() && !isDeletingContainedElement) {
                     // If new list does not exist, it means element was omitted in new version (legacy behavior).
-                    return;
+                    // TMDM-9559 'isPartialDelete' only affect for ONE time on the TOP element
+                    if (!isPartialDelete || !isNeedToVisit(currentPath)) {
+                        return;
+                    }
                 }
                 leftAccessor = originalDocument.createAccessor(currentPath);
+                visitedOneToManyPath.add(currentPath);
             } finally {
                 path.pop();
             }
@@ -226,8 +249,6 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 closure.execute(field);
                 path.pop();
             }
-            path.add(field.getName() + '[' + max + ']');
-            path.pop();
         } else {
             closure.execute(field);
             path.pop();

@@ -138,6 +138,7 @@ class GenerateActions implements DocumentSaver {
                     context.getPartialUpdateKey()).simulateDelete();
             updateActions = new UpdateActionCreator(databaseDocument, userDocument, date, source, userName,
                     context.generateTouchActions(), metadataRepository);
+            updateActions.setPartialDelete(true);
             actions = type.accept(updateActions);
             break;
         case LOGICAL_DELETE:
