@@ -1,0 +1,14 @@
+<Person>
+	<Id>1</Id>
+	<Kids>
+		<Kid>
+			<Name>k1</Name>
+		</Kid>
+		<Kid>
+			<Name>k2</Name>
+		</Kid>
+		<Kid>
+			<Name>k3</Name>
+		</Kid>
+	</Kids>
+</Person>
