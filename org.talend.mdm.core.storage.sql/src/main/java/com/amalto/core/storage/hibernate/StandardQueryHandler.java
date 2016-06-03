@@ -635,16 +635,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
             {
                 List<TypedExpression> queryFields = select.getSelectedFields();
                 boolean isCountQuery = false;
-                boolean isContainsGroupSize = false;
-                List<FieldMetadata> keyFields = new ArrayList<FieldMetadata>();
+                boolean hasGroupSize = false;
                 for (Expression selectedField : queryFields) {
                     if (selectedField instanceof GroupSize) {
-                        isContainsGroupSize = true;
-                    } else if (selectedField instanceof Field) {
-                        FieldMetadata fieldMetadata = ((Field) selectedField).getFieldMetadata();
-                        if (fieldMetadata.isKey()) {
-                            keyFields.add(fieldMetadata);
-                        }
+                        hasGroupSize = true;
                     }
                     selectedField.accept(this);
                     if (selectedField instanceof Alias) {
@@ -654,10 +648,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         }
                     }
                 }
-                // TMDM-9502, If selected fields including "GroupSize and Key Fields", should GROUP BY "Key Fields" too
+                // TMDM-9502, If selected fields including "GroupSize", should GROUP BY "All Key Fields" too
                 // like: "GROUP BY x_talend_task_id, x_id"
-                if (isContainsGroupSize && keyFields.size() > 0) {
-                    for (FieldMetadata keyField : keyFields) {
+                if (hasGroupSize) {
+                    for (FieldMetadata keyField : mainType.getKeyFields()) {
                         Projection projection = Projections.groupProperty(keyField.getName());
                         projectionList.add(projection);
                     }
