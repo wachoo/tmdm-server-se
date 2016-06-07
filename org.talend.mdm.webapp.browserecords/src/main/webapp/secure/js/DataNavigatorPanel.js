@@ -989,6 +989,8 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 	
 	return {
 		initUI : function(restServiceUrlParameter, idParameter, conceptParameter,clusterParameter, languageParameter) {
+			selectNode = undefined;
+			showNode = undefined;
 			restServiceUrl = restServiceUrlParameter;
 			id = idParameter;
 			concept = conceptParameter;
