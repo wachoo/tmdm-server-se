@@ -61,7 +61,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 
 public class NavigatorPanel extends ContentPanel {
     
-    private String NAVIGATOR_PAGESIZE = "browseRecord_pagesize"; //$NON-NLS-1$
+    private String NAVIGATOR_PAGESIZE = "navigator_pagesize"; //$NON-NLS-1$
     
     private BrowseRecordsServiceAsync service = (BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE);
 

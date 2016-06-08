@@ -979,8 +979,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 	}
 	
 	function sessionExpired(response) {
-		var message = response.responseText;
-		if (message.indexOf("This request requires HTTP authentication") != -1) {
+		if (response.status == 401) {
 			return true;
 		} else {
 			return false;
