@@ -10,6 +10,7 @@
 
 package com.amalto.core.save.context;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,6 +79,8 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
     private boolean generateTouchActions = false;
     
     private boolean isPartialDelete = false;
+
+    private List<String> visitedOneToManyPath = new ArrayList<String>();
 
     public UpdateActionCreator(MutableDocument originalDocument,
                                MutableDocument newDocument,
@@ -207,6 +210,16 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
+    /**
+     * Check if need to visit the one-to-many path
+     * 
+     * @param path
+     * @return
+     */
+    private boolean isNeedToVisit(String path) {
+        return path.contains("[") ? false : !visitedOneToManyPath.contains(path);
+    }
+
     protected void handleField(FieldMetadata field, Closure closure) {
         path.add(field.getName());
         if (field.isMany()) {
@@ -217,13 +230,13 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 rightAccessor = newDocument.createAccessor(currentPath);
                 if (!rightAccessor.exist() && !isDeletingContainedElement) {
                     // If new list does not exist, it means element was omitted in new version (legacy behavior).
-                    if (!isPartialDelete) {
+                    // TMDM-9559 'isPartialDelete' only affect for ONE time on the TOP element
+                    if (!isPartialDelete || !isNeedToVisit(currentPath)) {
                         return;
-                    } else { // TMDM-9559 'isPartialDelete' only affect for ONE time on the TOP element
-                        isPartialDelete = false;
                     }
                 }
                 leftAccessor = originalDocument.createAccessor(currentPath);
+                visitedOneToManyPath.add(currentPath);
             } finally {
                 path.pop();
             }
