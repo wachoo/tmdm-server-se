@@ -341,6 +341,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                         return;
                     }
                     if (rowIndex != -1) {
+                        currentNodeModel = m;
                         re.startEditing(rowIndex, true);
                     }
                 }
@@ -535,6 +536,7 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
                 @Override
                 public void handleEvent(FieldEvent be) {
+                    currentNodeModel = model;
                     ForeignKeyTablePanel.this.setCriteriaFK((ForeignKeyBean) be.getField().getValue());
                 }
             });
