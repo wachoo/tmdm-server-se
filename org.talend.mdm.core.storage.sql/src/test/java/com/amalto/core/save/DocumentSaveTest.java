@@ -652,7 +652,7 @@ public class DocumentSaveTest extends TestCase {
         };
        
         for (Map<String, String> data : testDatas) {
-            TestSaverSource source = new TestSaverSource(repository, true, "PartialDelete_original.xml", "PartialDelete.xsd");
+            TestSaverSource source = new TestSaverSource(repository, true, "PartialDelete_original_1.xml", "PartialDelete.xsd");
             source.setUserName("admin");
 
             SaverSession session = SaverSession.newSession(source);
@@ -691,6 +691,7 @@ public class DocumentSaveTest extends TestCase {
                 add(new HashMap<String, String>() {//foreign key
 
                     {
+                        put("original", "PartialDelete_original_1.xml");
                         put("pivot", "Person/Houses/House");
                         put("key", ".");
                         put("document", "PartialDelete_1.xml");
@@ -701,6 +702,7 @@ public class DocumentSaveTest extends TestCase {
                 add(new HashMap<String, String>() {//complex type
 
                     {
+                        put("original", "PartialDelete_original_1.xml");
                         put("pivot", "Person/Kids/Kid");
                         put("key", "/Name");
                         put("document", "PartialDelete_2.xml");
@@ -711,6 +713,7 @@ public class DocumentSaveTest extends TestCase {
                 add(new HashMap<String, String>() {//simple type
 
                     {
+                        put("original", "PartialDelete_original_1.xml");
                         put("pivot", "Person/Habits/Habit");
                         put("key", "");
                         put("document", "PartialDelete_3.xml");
@@ -721,6 +724,7 @@ public class DocumentSaveTest extends TestCase {
                 add(new HashMap<String, String>() {//simple type
 
                     {
+                        put("original", "PartialDelete_original_1.xml");
                         put("pivot", "Person/Kids/Kid[1]/Habits/Habit");
                         put("key", "");
                         put("document", "PartialDelete_4.xml");
@@ -731,6 +735,7 @@ public class DocumentSaveTest extends TestCase {
                 add(new HashMap<String, String>() {//simple type
 
                     {
+                        put("original", "PartialDelete_original_1.xml");
                         put("pivot", "Person/Kids/Kid[2]/Habits/Habit");
                         put("key", "");
                         put("document", "PartialDelete_4.xml");
@@ -741,6 +746,7 @@ public class DocumentSaveTest extends TestCase {
                 add(new HashMap<String, String>() {//simple type
 
                     {
+                        put("original", "PartialDelete_original_1.xml");
                         put("pivot", "Person/Pets");
                         put("key", "/Pet");
                         put("document", "PartialDelete_5.xml");
@@ -751,9 +757,21 @@ public class DocumentSaveTest extends TestCase {
                 add(new HashMap<String, String>() {//delete all children
 
                     {
+                        put("original", "PartialDelete_original_1.xml");
                         put("pivot", "Person/Kids/Kid");
                         put("key", "/Name");
                         put("document", "PartialDelete_6.xml");
+                        put("asssertPath", "/Person/Kids");
+                        put("asssertValue", "");
+                    }
+                });
+                add(new HashMap<String, String>() {//delete last child
+
+                    {
+                        put("original", "PartialDelete_original_2.xml");
+                        put("pivot", "Person/Kids/Kid");
+                        put("key", "/Name");
+                        put("document", "PartialDelete_7.xml");
                         put("asssertPath", "/Person/Kids");
                         put("asssertValue", "");
                     }
@@ -762,7 +780,7 @@ public class DocumentSaveTest extends TestCase {
         };
 
         for (Map<String, String> data : testDatas) {
-            TestSaverSource source = new TestSaverSource(repository, true, "PartialDelete_original.xml", "PartialDelete.xsd");
+            TestSaverSource source = new TestSaverSource(repository, true, data.get("original"), "PartialDelete.xsd");
             source.setUserName("admin");
 
             SaverSession session = SaverSession.newSession(source);
