@@ -758,14 +758,19 @@ public class HibernateStorage implements Storage {
             // Call back closes session once calling code has consumed all results.
             Set<ResultsCallback> callbacks = Collections.<ResultsCallback> singleton(new ResultsCallback() {
 
+                private boolean hasBeginCallBack = false;
+
                 @Override
                 public void onBeginOfResults() {
                     storageClassLoader.bind(Thread.currentThread());
+                    hasBeginCallBack = true;
                 }
 
                 @Override
                 public void onEndOfResults() {
-                    storageClassLoader.unbind(Thread.currentThread());
+                    if (hasBeginCallBack) {
+                        storageClassLoader.unbind(Thread.currentThread());
+                    }
                 }
             });
             return internalFetch(session, userQuery, callbacks);
