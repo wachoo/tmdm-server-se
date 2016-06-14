@@ -14,7 +14,6 @@ package com.amalto.core.save.context;
 import com.amalto.core.ejb.ItemPOJOPK;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.save.generator.AutoIncrementGenerator;
-import org.talend.mdm.commmon.metadata.MetadataUtils;
 import com.amalto.core.save.DOMDocument;
 import com.amalto.core.schema.validation.SkipAttributeDocumentBuilder;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -30,7 +29,6 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.XmlServer;
 import com.amalto.core.servlet.LoadServlet;
 import com.amalto.core.util.*;
-import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -262,27 +260,13 @@ public class DefaultSaverSource implements SaverSource {
 
     public String nextAutoIncrementId(String universe, String dataCluster, String dataModelName, String conceptName) {
         String autoIncrementId = null;
-        String concept;
-        String field;
-        if (conceptName.contains(".")) { //$NON-NLS-1$
-            String[] conceptArray = conceptName.split("\\."); //$NON-NLS-1$
-            concept = conceptArray[0];
-            field = conceptArray[1];
-        } else {
-            concept = conceptName;
-            field = null;
-        }
-        MetadataRepository metadataRepository = getMetadataRepository(dataModelName);
-        if (metadataRepository != null) {
-            ComplexTypeMetadata complexType = metadataRepository.getComplexType(concept);
-            if (complexType != null) {
-                TypeMetadata superType = MetadataUtils.getSuperConcreteType(complexType);
-                if (superType != null) {
-                    concept = superType.getName();
-                }
-                String autoIncrementFieldName = field != null ? concept + "." + field : concept; //$NON-NLS-1$
-                autoIncrementId = AutoIncrementGenerator.get().generateId(universe, dataCluster, conceptName, autoIncrementFieldName);
-            } 
+        String concept = AutoIncrementGenerator.getConceptForAutoIncrement(dataModelName, conceptName);
+        if(concept != null) {
+            String autoIncrementFieldName = concept;
+            if (conceptName.contains(".")) { //$NON-NLS-1$
+                autoIncrementFieldName = conceptName.split("\\.")[1]; //$NON-NLS-1$
+            }
+            autoIncrementId = AutoIncrementGenerator.get().generateId(universe, dataCluster, concept, autoIncrementFieldName);
         }
         return autoIncrementId;
     }

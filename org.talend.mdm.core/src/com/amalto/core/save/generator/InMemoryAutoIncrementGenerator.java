@@ -36,7 +36,7 @@ class InMemoryAutoIncrementGenerator implements AutoIdGenerator {
         if (universe == null) {
             universe = "[HEAD]"; //$NON-NLS-1$
         }
-        String key = universe + "." + dataClusterName + "." + conceptName + "." + keyElementName; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        String key = universe + "." + dataClusterName + "." + AutoIncrementGenerator.getConceptForAutoIncrement(dataClusterName, conceptName) + "." + keyElementName; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         long num;
         String n = CONFIGURATION.getProperty(key);
         if (n == null) {
