@@ -16,11 +16,15 @@ import com.amalto.core.server.ServerContext;
 import com.amalto.core.storage.transaction.Transaction;
 import com.amalto.core.storage.transaction.TransactionManager;
 
+import org.apache.log4j.Logger;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public class TransactionFilter implements Filter {
+
+    private static final Logger LOGGER = Logger.getLogger(TransactionFilter.class);
 
     public static final String TRANSACTION_ID = "transaction-id"; //$NON-NLS-1$
 
@@ -50,6 +54,7 @@ public class TransactionFilter implements Filter {
         if (transactionId == null) {
             return new ImplicitTransaction();
         } else {
+            LOGGER.debug("Transaction ID from HTTP request: " + transactionId);
             return new ExplicitTransaction(transactionId);
         }
     }

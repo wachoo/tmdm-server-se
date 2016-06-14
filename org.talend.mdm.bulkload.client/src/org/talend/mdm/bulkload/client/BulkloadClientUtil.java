@@ -30,6 +30,9 @@ import org.apache.commons.httpclient.params.HttpClientParams;
  */
 public class BulkloadClientUtil {
 
+    public static final String JVM_STICKY_SESSION = "sticky_session"; //$NON-NLS-1$
+    public static final String DEFAULT_STICKY_SESSION = "JSESSIONID"; //$NON-NLS-1$
+    
     public static void bulkload(String url,
                                 String cluster,
                                 String concept,
@@ -41,6 +44,7 @@ public class BulkloadClientUtil {
                                 String username,
                                 String password,
                                 String transactionId,
+                                String sessionId,
                                 String universe) throws Exception {
         HostConfiguration config = new HostConfiguration();
         URI uri = new URI(url, false, "UTF-8"); //$NON-NLS-1$
@@ -70,6 +74,9 @@ public class BulkloadClientUtil {
             putMethod.setRequestHeader("Content-Type", "text/xml; charset=utf8"); //$NON-NLS-1$ //$NON-NLS-2$
             if (transactionId != null) {
                 putMethod.setRequestHeader("transaction-id", transactionId); //$NON-NLS-1$
+            }
+            if (sessionId != null) {
+                putMethod.setRequestHeader("Cookie", getStickySession() + "=" + sessionId); //$NON-NLS-1$
             }
             putMethod.setQueryString(parameters);
             putMethod.setContentChunked(true);
@@ -103,6 +110,7 @@ public class BulkloadClientUtil {
                                              String username,
                                              String password,
                                              String transactionId,
+                                             String sessionId,
                                              String universe,
                                              AtomicInteger startedBulkloadCount) {
         InputStreamMerger merger = new InputStreamMerger();
@@ -117,6 +125,7 @@ public class BulkloadClientUtil {
                 username,
                 password,
                 transactionId,
+                sessionId,
                 universe,
                 startedBulkloadCount);
         Thread loadThread = new Thread(loadRunnable);
@@ -148,6 +157,8 @@ public class BulkloadClientUtil {
 
         private final String transactionId;
 
+        private final String sessionId;
+
         private final String universe;
 
         private final AtomicInteger startedBulkloadCount;
@@ -163,6 +174,7 @@ public class BulkloadClientUtil {
                                  String userName,
                                  String password,
                                  String transactionId,
+                                 String sessionId,
                                  String universe,
                                  AtomicInteger startedBulkloadCount) {
             this.url = url;
@@ -176,6 +188,7 @@ public class BulkloadClientUtil {
             this.userName = userName;
             this.password = password;
             this.transactionId = transactionId;
+            this.sessionId = sessionId;
             this.universe = universe;
             this.startedBulkloadCount = startedBulkloadCount;
         }
@@ -194,6 +207,7 @@ public class BulkloadClientUtil {
                         userName,
                         password,
                         transactionId,
+                        sessionId,
                         universe);
             } catch (Throwable e) {
                 inputStream.reportFailure(e);
@@ -204,5 +218,13 @@ public class BulkloadClientUtil {
                 }
             }
         }
+    }
+    
+    public static String getStickySession() {
+        String stickySession = System.getProperty(JVM_STICKY_SESSION);
+        if(stickySession == null) {
+            stickySession = DEFAULT_STICKY_SESSION;
+        }
+        return stickySession;
     }
 }

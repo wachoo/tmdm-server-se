@@ -58,6 +58,7 @@ public class TransactionHandler implements Handler {
                                     && SkipAttributeDocumentBuilder.TALEND_NAMESPACE.equals(name.getURI())
                                     && TRANSACTION_ID.equals(name.getLocalName())) {
                                 String transactionID = element.getValue();
+                                LOGGER.debug("Transaction ID from SOAP request: " + transactionID);
                                 return new ExplicitTransaction(transactionID);
                             }
                         }
