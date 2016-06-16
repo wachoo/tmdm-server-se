@@ -643,9 +643,9 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
 
         List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read(repository, repository.getComplexType("Test"), "<Test> <TestId>1</TestId> </Test>"));
+        records.add(factory.read(repository, repository.getComplexType("Test"), "<Test><TestId>1</TestId></Test>"));
         records.add(factory.read(repository, repository.getComplexType("PartyCompany"),
-                "<PartyCompany> <code>1</code> <name>a</name> </PartyCompany>"));
+                "<PartyCompany><code>1</code><name>a</name></PartyCompany>"));
         records.add(factory.read(repository, repository.getComplexType("PartyProduct"), "<PartyProduct><id>1</id><name>a</name>"
                 + "<supplier>[1]</supplier><suppliers><code>[1]</code></suppliers></PartyProduct>"));
         storage.begin();
