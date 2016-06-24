@@ -51,6 +51,7 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.objects.UpdateReportPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
@@ -89,6 +90,15 @@ public class DocumentSaveTest extends TestCase {
 
     private XPath xPath = XPathFactory.newInstance().newXPath();
 
+    private static boolean beanDelegatorContainerFlag = false;
+    
+    private static void createBeanDelegatorContainer(){
+        if(!beanDelegatorContainerFlag){
+            BeanDelegatorContainer.createInstance();
+            beanDelegatorContainerFlag = true;
+        }
+    }
+    
     @Override
     public void setUp() throws Exception {
         LOG.info("Setting up MDM server environment...");
@@ -1714,6 +1724,9 @@ public class DocumentSaveTest extends TestCase {
     }
     
     public void testUpdateAutoIncrementRecord() throws Exception {
+        createBeanDelegatorContainer();
+        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", new MockILocalUser()));
+        Util.getDataClusterCtrlLocal().putDataCluster(new DataClusterPOJO("CONF"));
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
         MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
@@ -3268,8 +3281,11 @@ public class DocumentSaveTest extends TestCase {
         DocumentSaver saver = context.createSaver();
         session.begin("DStar");
         saver.save(session, context);
-        BeanDelegatorContainer.createInstance().setDelegatorInstancePool(
+        createBeanDelegatorContainer();
+        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(
                 Collections.<String, Object> singletonMap("LocalUser", new MockILocalUser()));
+        Util.getDataClusterCtrlLocal().putDataCluster(new DataClusterPOJO("UpdateReport"));
+        Util.getDataClusterCtrlLocal().putDataCluster(new DataClusterPOJO("DStar"));
         session.end(new DefaultCommitter());
         
         UserQueryBuilder qb = from(test1).where(eq(test1.getField("id"), "a"));

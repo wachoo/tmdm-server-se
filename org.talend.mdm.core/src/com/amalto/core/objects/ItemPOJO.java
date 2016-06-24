@@ -37,6 +37,7 @@ import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.objects.marshalling.MarshallingFactory;
+import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -243,6 +244,8 @@ public class ItemPOJO implements Serializable {
      */
     public static ItemPOJO load(ItemPOJOPK itemPOJOPK) throws XtentisException {
         XmlServer server = Util.getXmlServerCtrlLocal();
+        ILocalUser user = LocalUser.getLocalUser();
+        checkAccess(user, itemPOJOPK, true, "read"); //$NON-NLS-1$
         try {
             // retrieve the item
             String id = itemPOJOPK.getUniqueID();
@@ -646,6 +649,9 @@ public class ItemPOJO implements Serializable {
         assert user != null;
         boolean authorizedAccess;
         String username = user.getUsername();
+        if(itemPOJOPK.getDataClusterPOJOPK() != null && !StorageAdmin.SYSTEM_STORAGE.equals(itemPOJOPK.getDataClusterPOJOPK().getUniqueId())){
+            isExistDataCluster(itemPOJOPK.getDataClusterPOJOPK());
+        }
         if(user.isAdmin(ItemPOJO.class)) {
             authorizedAccess = true;
         } else if (MDMConfiguration.getAdminUser().equals(username)) {
@@ -664,6 +670,16 @@ public class ItemPOJO implements Serializable {
             String err = "Unauthorized " + accessLabel + " access by " + "user " + username + " on Item '" + itemPOJOPK.getUniqueID() + "'";
             LOG.error(err);
             throw new XtentisException(err);
+        }
+    }
+    
+    public static void isExistDataCluster(DataClusterPOJOPK dataClusterPOJOPK) throws XtentisException {
+        try {
+            if (Util.getDataClusterCtrlLocal().existsDataCluster(dataClusterPOJOPK) == null) {
+                throw new IllegalArgumentException("Data Cluster '" + dataClusterPOJOPK.getUniqueId() + "' does not exist."); //$NON-NLS-1$//$NON-NLS-2$
+            }
+        } catch (Exception e) {
+            throw new XtentisException("Unable to get the Data Cluster '" + dataClusterPOJOPK.getUniqueId() + "'", e); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 

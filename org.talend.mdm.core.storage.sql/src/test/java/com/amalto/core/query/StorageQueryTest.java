@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -42,7 +43,10 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
+import com.amalto.core.delegator.BeanDelegatorContainer;
+import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.objects.UpdateReportPOJO;
+import com.amalto.core.query.SystemStorageTest.MockUser;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.Alias;
@@ -80,6 +84,7 @@ import com.amalto.core.storage.record.DataRecordXmlWriter;
 import com.amalto.core.storage.record.ViewSearchResultsWriter;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.core.util.XtentisException;
 import com.amalto.xmlserver.interfaces.IWhereItem;
 import com.amalto.xmlserver.interfaces.ItemPKCriteria;
 import com.amalto.xmlserver.interfaces.WhereAnd;
@@ -127,6 +132,15 @@ public class StorageQueryTest extends StorageTestCase {
     private final String COMPTE_Record1 = "<Compte><Level>Compte SF</Level><Code>1</Code><Label>1</Label></Compte>";
 
     private final String COMPTE_Record2 = "<Compte><Level>Nature Comptable SF</Level><Code>11</Code><Label>11</Label><childOf>[Compte SF][1]</childOf></Compte>";
+    
+    private static boolean beanDelegatorContainerFlag = false;
+    
+    private static void createBeanDelegatorContainer(){
+        if(!beanDelegatorContainerFlag){
+            BeanDelegatorContainer.createInstance();
+            beanDelegatorContainerFlag = true;
+        }
+    }
     
     private void populateData() {
         DataRecordReader<String> factory = new XmlStringDataRecordReader();
@@ -629,6 +643,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testSelectByIdIncludingDots() throws Exception {
+        createBeanDelegatorContainer();
+        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", new MockUser())); //$NON-NLS-1$
         Collection<FieldMetadata> keyFields = supplier.getKeyFields();
         assertEquals(1, keyFields.size());
         FieldMetadata keyField = keyFields.iterator().next();
@@ -674,6 +690,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testSelectByIdIncludingDots2() throws Exception {
+        createBeanDelegatorContainer();
+        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", new MockUser())); //$NON-NLS-1$
         Collection<FieldMetadata> keyFields = supplier.getKeyFields();
         assertEquals(1, keyFields.size());
         FieldMetadata keyField = keyFields.iterator().next();
@@ -719,6 +737,8 @@ public class StorageQueryTest extends StorageTestCase {
     }
 
     public void testSelectByIdIncludingDots3() throws Exception {
+        createBeanDelegatorContainer();
+        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(Collections.<String, Object> singletonMap("LocalUser", new MockUser())); //$NON-NLS-1$
         Collection<FieldMetadata> keyFields = supplier.getKeyFields();
         assertEquals(1, keyFields.size());
         FieldMetadata keyField = keyFields.iterator().next();
@@ -4593,6 +4613,21 @@ public class StorageQueryTest extends StorageTestCase {
         @Override
         public boolean hide(ComplexTypeMetadata type) {
             return isActive && type.getHideUsers().contains("System_Users");
+        }
+    }
+    
+    protected static class MockUser extends ILocalUser {
+
+        @Override
+        public ILocalUser getILocalUser() throws XtentisException {
+            return this;
+        }
+
+        @Override
+        public HashSet<String> getRoles() {
+            HashSet<String> roleSet = new HashSet<String>();
+            roleSet.add("Demo_User");
+            return roleSet;
         }
     }
 
