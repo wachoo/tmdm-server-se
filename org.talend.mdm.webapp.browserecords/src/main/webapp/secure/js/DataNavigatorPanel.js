@@ -334,9 +334,11 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 						+ '/inBoundTypes/'
 						+ selectNode.navigator_node_concept
 						+ '/'
-						+ selectNode.navigator_node_ids,
+						+ encodeURIComponent(selectNode.navigator_node_ids),
 					method : 'GET',
 					params : {
+						parentType : selectNode.parentNode != null ? selectNode.parentNode.navigator_node_concept : "",
+						parentIds : selectNode.parentNode != null ? selectNode.parentNode.navigator_node_ids : "",
 						language : language
 					},
 					success : function(response, options) {
@@ -365,9 +367,11 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 									+ '/outBoundTypes/'
 									+ selectNode.navigator_node_concept
 									+ '/'
-									+ selectNode.navigator_node_ids,
+									+ encodeURIComponent(selectNode.navigator_node_ids),
 							method : 'GET',
 							params : {
+								parentType : selectNode.parentNode != null ? selectNode.parentNode.navigator_node_concept : "",
+								parentIds : selectNode.parentNode != null ? selectNode.parentNode.navigator_node_ids : "",
 								language : language
 							},
 							success : function(response, options) {
@@ -417,8 +421,10 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 							params : {
 								foreignKeyConcept : selectNode.navigator_node_concept,
 								foreignKeyPath : d.navigator_node_foreignkey_path,
-								foreignKeyValue : d.navigator_node_foreignkey_value,
+								foreignKeyValue : encodeURIComponent(d.navigator_node_foreignkey_value),
 								filterValue : filterValue,
+								parentType : selectNode.parentNode != null ? selectNode.parentNode.navigator_node_concept : "",
+								parentIds : selectNode.parentNode != null ? selectNode.parentNode.navigator_node_ids : "",
 								start : selectNode.page[d.navigator_node_concept].start,
 								limit : amalto.navigator.Navigator.getPageSize(),
 								language : language
@@ -453,6 +459,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 										navigator_node_display : true
 									};
 									nodes.push(newNode);
+									newNode.parentNode = selectNode;
 									selectNode.nodeChildren.push(newNode);
 									var newLink = {
 										source : selectNode,
@@ -528,6 +535,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 										navigator_node_display : true
 									};
 									selectNode.nodeChildren.push(newNode);
+									newNode.parentNode = selectNode;
 									nodes.push(newNode);
 									var newLink = {
 										source : selectNode,
@@ -1004,7 +1012,11 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 		if (sessionExpired(response)) {
 			amalto.navigator.Navigator.sessionExpired();
 		} else {
-			Ext.MessageBox.alert('Error', response.responseText);
+			if (response.status == 0) {
+				Ext.MessageBox.alert('Error', message.getMsg("server_error"));
+			} else {
+				Ext.MessageBox.alert('Error', response.responseText);
+			}
 		}
 		
 	}
