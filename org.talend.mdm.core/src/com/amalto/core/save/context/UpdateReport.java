@@ -72,7 +72,7 @@ class UpdateReport implements DocumentSaver {
             action.perform(updateReportDocument);
             action.undo(updateReportDocument);
         }
-        if (context.getUpdateReportDocument() == null) {
+        if (!updateReportDocument.isCreated()) {
             updateReportDocument.setOperationType(UpdateReportPOJO.OPERATION_TYPE_UPDATE);
         }
         updateReportDocument.disableRecordFieldChange();

@@ -1661,6 +1661,9 @@ public class DocumentSaveTest extends TestCase {
         assertEquals("", oldValue);
         assertEquals("http://www.newSite.org", newValue);
         
+        path = (String) evaluate(doc.getDocumentElement(), "OperationType");
+        assertEquals("UPDATE", path);
+        
         MockCommitter committer = new MockCommitter();
         session.end(committer);
         assertTrue(committer.hasSaved());
