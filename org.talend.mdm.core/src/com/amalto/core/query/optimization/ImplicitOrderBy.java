@@ -39,8 +39,6 @@ public class ImplicitOrderBy implements Optimizer {
         switch (dataSource.getDialectName()) {
         case H2:        
         case MYSQL:
-            // Nothing to do for those databases
-            return;
         case ORACLE_10G:
         case SQL_SERVER:
         case POSTGRES:
@@ -49,7 +47,7 @@ public class ImplicitOrderBy implements Optimizer {
                 Set<TypedExpression> missingOrderByExpressions = getMissingOrderByExpressions(select);
                 if (!missingOrderByExpressions.isEmpty()) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Adding implicit order by id to keep consistent order trough pages."); //$NON-NLS-1$
+                        LOGGER.debug("Adding implicit order by id to keep consistent order through pages."); //$NON-NLS-1$
                     }
                     // Check if projection allow use of implicit order by.
                     boolean enableAddOrder = true;
