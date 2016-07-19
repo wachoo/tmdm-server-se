@@ -61,6 +61,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -120,6 +121,10 @@ public class ForeignKeyListWindow extends Window {
     private ForeignKeyField sourceField;
 
     private PagingToolBarEx pageToolBar;
+
+    private static final int MARGIN_WIDTH = 20;
+
+    private static final int MARGIN_HEIGHT = 40;
 
     public ForeignKeyListWindow(String foreignKeyPath, List<String> foreignKeyInfo, String dataCluster, EntityModel entityModel,
             ForeignKeyField foreignKeyField) {
@@ -472,7 +477,13 @@ public class ForeignKeyListWindow extends Window {
         });
         addButton(cancelBtn);
         add(panel, new FlowData(5));
+        addListener(Events.Resize, new Listener<WindowEvent>() {
 
+            @Override
+            public void handleEvent(WindowEvent e) {
+                recalculate(e.getHeight(), e.getWidth());
+            }
+        });
     }
 
     protected void closeOrHideWindow() {
@@ -481,6 +492,11 @@ public class ForeignKeyListWindow extends Window {
 
     public ComboBoxField<BaseModel> getTypeComboBox() {
         return this.typeComboBox;
+    }
+
+    private void recalculate(int height, int width) {
+        this.getWidget(0).setHeight(height - MARGIN_HEIGHT + "px"); //$NON-NLS-1$
+        this.getWidget(0).setWidth(width - MARGIN_WIDTH + "px"); //$NON-NLS-1$
     }
 
 }
