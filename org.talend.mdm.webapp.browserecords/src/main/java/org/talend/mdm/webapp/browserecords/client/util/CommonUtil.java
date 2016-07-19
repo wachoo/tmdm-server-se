@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
 import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
@@ -513,9 +514,12 @@ public class CommonUtil {
 
         int index = 2;
 
-        String value = ts[index++];
-        while (index < ts.length) {
-            value = value.concat(" " + ts[index++]); //$NON-NLS-1$
+        String value = "";
+        if (ts.length > index) {
+            value = ts[index++];
+            while (index < ts.length) {
+                value = value.concat(" " + ts[index++]); //$NON-NLS-1$
+            }
         }
         return new CriteriaAndC(new SimpleCriterion(ts[0], ts[1], value), ce);
     }

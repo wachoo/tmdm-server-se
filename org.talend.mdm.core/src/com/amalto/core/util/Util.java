@@ -1007,8 +1007,9 @@ public class Util {
                 }
             }
 
-            whereItem = "*".equals(condition.getRightValueOrPath()) 
-                    || ".*".equals(condition.getRightValueOrPath()) ? null : whereItem; //$NON-NLS-1$
+            if (!condition.getOperator().equals(WhereCondition.EMPTY_NULL)) {
+                whereItem = "*".equals(condition.getRightValueOrPath()) || ".*".equals(condition.getRightValueOrPath()) ? null : whereItem; //$NON-NLS-1$
+            }
         } else {
             throw new XmlServerException("Unknown Where Type : " + whereItem.getClass().getName());
         }
