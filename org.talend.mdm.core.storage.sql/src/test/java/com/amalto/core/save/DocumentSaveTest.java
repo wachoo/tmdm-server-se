@@ -1743,9 +1743,6 @@ public class DocumentSaveTest extends TestCase {
     public void testUpdateAutoIncrementRecordForLongTransactionInCluster() throws Exception {
 
         MDMConfiguration.getConfiguration().setProperty("system.cluster", Boolean.TRUE.toString());
-        BeanDelegatorContainer.getInstance().setDelegatorInstancePool(
-                Collections.<String, Object> singletonMap("LocalUser", new MockILocalUser()));
-        Util.getDataClusterCtrlLocal().putDataCluster(new DataClusterPOJO("CONF"));
         MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
         MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
