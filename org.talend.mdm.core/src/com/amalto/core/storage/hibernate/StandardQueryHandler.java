@@ -581,8 +581,8 @@ class StandardQueryHandler extends AbstractQueryHandler {
             }
             // for SELECT DISTINCT, ORDER BY expressions must appear in select list. Or it will throw exception in H2, postgres...
             for (OrderBy current : select.getOrderBy()) {
-                if ((current.getExpression() instanceof Field && !select.getSelectedFields().contains(current.getExpression()))
-                        || current.getExpression() instanceof Type || current.getExpression() instanceof Alias) {
+                if ((current.getField() instanceof Field && !select.getSelectedFields().contains(current.getField()))
+                        || current.getField() instanceof Type || current.getField() instanceof Alias) {
                     toDistinct = false;
                     break;
                 }
