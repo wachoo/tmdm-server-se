@@ -51,6 +51,7 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.history.DeleteType;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.objects.UpdateReportPOJO;
+import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.SaverContextFactory;
@@ -1742,7 +1743,6 @@ public class DocumentSaveTest extends TestCase {
     public void testUpdateAutoIncrementRecordForLongTransactionInCluster() throws Exception {
 
         MDMConfiguration.getConfiguration().setProperty("system.cluster", Boolean.TRUE.toString());
-        createBeanDelegatorContainer();
         BeanDelegatorContainer.getInstance().setDelegatorInstancePool(
                 Collections.<String, Object> singletonMap("LocalUser", new MockILocalUser()));
         Util.getDataClusterCtrlLocal().putDataCluster(new DataClusterPOJO("CONF"));
