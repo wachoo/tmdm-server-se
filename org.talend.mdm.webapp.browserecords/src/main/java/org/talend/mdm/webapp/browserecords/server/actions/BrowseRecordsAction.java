@@ -181,16 +181,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     protected final Messages MESSAGES = MessagesFactory.getMessages(
             "org.talend.mdm.webapp.browserecords.client.i18n.BrowseRecordsMessages", this.getClass().getClassLoader()); //$NON-NLS-1$
 
-    private final List<String>  dateTypeNames   = Arrays.asList(DataTypeConstants.DATE.getBaseTypeName(),
-                                                        DataTypeConstants.DATETIME.getBaseTypeName());
+    private final List<String> dateTypeNames = Arrays.asList(DataTypeConstants.DATE.getBaseTypeName(),
+            DataTypeConstants.DATETIME.getBaseTypeName());
 
-    private final List<String>  numberTypeNames = Arrays.asList(DataTypeConstants.DOUBLE.getBaseTypeName(),
-                                                        DataTypeConstants.FLOAT.getBaseTypeName(),
-                                                        DataTypeConstants.DECIMAL.getBaseTypeName(),
-                                                        DataTypeConstants.INT.getBaseTypeName(),
-                                                        DataTypeConstants.INTEGER.getBaseTypeName(),
-                                                        DataTypeConstants.LONG.getBaseTypeName(),
-                                                        DataTypeConstants.SHORT.getBaseTypeName());
+    private final List<String> numberTypeNames = Arrays.asList(DataTypeConstants.DOUBLE.getBaseTypeName(),
+            DataTypeConstants.FLOAT.getBaseTypeName(), DataTypeConstants.DECIMAL.getBaseTypeName(),
+            DataTypeConstants.INT.getBaseTypeName(), DataTypeConstants.INTEGER.getBaseTypeName(),
+            DataTypeConstants.LONG.getBaseTypeName(), DataTypeConstants.SHORT.getBaseTypeName());
 
     public static final String ERROR_KEYWORD = "ERROR";//$NON-NLS-1$
 
@@ -1593,8 +1590,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         TypeModel model = findTypeModelByTypePath(metaDataTypes, typePath, language);
         nodeModel.setTypePath(model.getTypePath());
         nodeModel.setHasVisiblueRule(model.isHasVisibleRule());
-        nodeModel.setHide(model.isHide()) ;
-        nodeModel.setVisible(!model.isHide()) ;
+        nodeModel.setHide(model.isHide());
+        nodeModel.setVisible(!model.isHide());
         String realXPath = xpath;
         if (isPolyType) {
             realXPath = realXPath.replaceAll(":\\w+", ""); //$NON-NLS-1$//$NON-NLS-2$
@@ -1841,7 +1838,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 doc = org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(xml);
             }
 
-            if(changedNodes != null && changedNodes.size() > 0){
+            if (changedNodes != null && changedNodes.size() > 0) {
                 for (String xpath : changedNodes.keySet()) {
                     String value = changedNodes.get(xpath);
                     if (doc.selectSingleNode(xpath) == null) {
@@ -2510,5 +2507,5 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         typeModel.setForeignKeyInfo(newFKInfoList);
     }
-    
+
 }
