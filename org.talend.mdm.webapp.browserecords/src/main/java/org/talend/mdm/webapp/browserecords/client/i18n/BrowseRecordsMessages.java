@@ -73,6 +73,10 @@ public interface BrowseRecordsMessages extends Messages {
 
     String export_btn();
     
+    String bulkUpdate_btn();
+    
+    String bulkUpdate_title();
+    
     String page_size_field_label();
 
     String page_size_label();

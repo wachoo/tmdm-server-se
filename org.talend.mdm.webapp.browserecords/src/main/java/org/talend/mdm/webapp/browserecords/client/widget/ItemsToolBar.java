@@ -105,6 +105,8 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -120,6 +122,8 @@ public class ItemsToolBar extends ToolBar {
     protected Button simulateMatchButton;
 
     protected Button uploadButton;
+
+    protected Button bulkUpdateButton;
 
     public final Button searchButton = new Button(MessagesFactory.getMessages().search_btn());
 
@@ -308,6 +312,10 @@ public class ItemsToolBar extends ToolBar {
         }
         addImportAndExportButton();
         add(new FillToolItem());
+        if (((AppHeader) BrowseRecords.getSession().get(UserSession.APP_HEADER)).isEnterprise()) {
+            addBulkUpdateButton();
+            add(new FillToolItem());
+        }
         addEntityCombo();
         updateEntityCombo();
         addSearchPanel();
@@ -513,6 +521,28 @@ public class ItemsToolBar extends ToolBar {
         });
         uploadButton.setMenu(uploadMenu);
         add(uploadButton);
+    }
+
+    protected void addBulkUpdateButton() {
+        bulkUpdateButton = new Button(MessagesFactory.getMessages().bulkUpdate_btn());
+        bulkUpdateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.BulkUpdate()));
+        bulkUpdateButton.setEnabled(false);
+        bulkUpdateButton.setId("BrowseRecords_BulkUpdate"); //$NON-NLS-1$
+        bulkUpdateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                BulkUpdatePanel bulkUpdatePanel = BulkUpdatePanel.getInstance();
+                bulkUpdatePanel.init("", "");
+                if (GWT.isScript()) {
+                    ItemsToolBar.this.openBulkUpdatePanel("", bulkUpdatePanel);
+                } else {
+                    ItemsToolBar.this.openDebugBulkUpdatePanel("", bulkUpdatePanel);
+                }
+            }
+
+        });
+        add(bulkUpdateButton);
     }
 
     protected void addEntityCombo() {
@@ -1258,5 +1288,58 @@ public class ItemsToolBar extends ToolBar {
     public ComboBoxField<ItemBaseModel> getEntityCombo() {
         return entityCombo;
     }
+
+    protected void openDebugBulkUpdatePanel(String ids, BulkUpdatePanel panel) {
+        Window window = new Window();
+        window.setLayout(new FitLayout());
+        window.add(panel);
+        window.setSize(1100, 700);
+        window.setMaximizable(true);
+        window.setModal(false);
+        window.show();
+    }
+
+    protected native void openBulkUpdatePanel(String ids, BulkUpdatePanel bulkUpdatePanel)/*-{
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var browseStagingRecordsPanel = tabPanel.getItem(ids);
+		if (browseStagingRecordsPanel == undefined) {
+			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar::convertBulkUpdatePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/BulkUpdatePanel;)(bulkUpdatePanel);
+			tabPanel.add(panel);
+		}
+		tabPanel.setSelection(ids);
+    }-*/;
+
+    private native static JavaScriptObject convertBulkUpdatePanel(BulkUpdatePanel bulkUpdatePanel)/*-{
+		var panel = {
+			// imitate extjs's render method, really call gxt code.
+			render : function(el) {
+				var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+				rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(bulkUpdatePanel);
+			},
+			// imitate extjs's setSize method, really call gxt code.
+			setSize : function(width, height) {
+				lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::setSize(II)(width, height);
+			},
+			// imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+			getItemId : function() {
+				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::getItemId()();
+			},
+			// imitate El object of extjs
+			getEl : function() {
+				var el = lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::getElement()();
+				return {
+					dom : el
+				};
+			},
+			// imitate extjs's doLayout method, really call gxt code.
+			doLayout : function() {
+				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::doLayout()();
+			},
+			title : function() {
+				return lineagePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::getHeading()();
+			}
+		};
+		return panel;
+    }-*/;
 
 }
