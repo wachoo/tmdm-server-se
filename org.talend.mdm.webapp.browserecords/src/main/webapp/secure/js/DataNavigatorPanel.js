@@ -229,9 +229,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 		paint();
 	}
 	
-	function paintDataNode(data,navigator_node_relation) {
-		var newNodes = eval('(' + data
-				+ ')');
+	function paintDataNode(newNodes,navigator_node_relation) {
 		for ( var i = 0; i < newNodes.length; i++) {
 			var node = newNodes[i];
 			var newNode = {
@@ -529,7 +527,11 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 								}
 								selectNode.page[d.navigator_node_concept].start = selectNode.page[d.navigator_node_concept].start
 								+ amalto.navigator.Navigator.getPageSize();
-								amalto.navigator.Navigator.handleNodeLabel(Ext.encode(resultObject.result),NAVIGATOR_NODE_IN_ENTITY_TYPE);
+								if (d.navigator_node_hasPrimaryKeyInfo) {
+									amalto.navigator.Navigator.handleNodeLabel(Ext.encode(resultObject.result),NAVIGATOR_NODE_IN_ENTITY_TYPE);
+								} else {
+									paintDataNode(resultObject.result,NAVIGATOR_NODE_IN_ENTITY_TYPE);
+								}
 							},
 							failure : function(response, options) {
 								handleFailure(response);
@@ -565,7 +567,11 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 							},
 							success : function(response, options) {
 								selectNode.expanded = true;
-								amalto.navigator.Navigator.handleNodeLabel(response.responseText,NAVIGATOR_NODE_OUT_ENTITY_TYPE);
+								if (d.navigator_node_hasPrimaryKeyInfo) {
+									amalto.navigator.Navigator.handleNodeLabel(response.responseText,NAVIGATOR_NODE_OUT_ENTITY_TYPE);
+								} else {
+									paintDataNode(eval('(' + response.responseText + ')'),NAVIGATOR_NODE_OUT_ENTITY_TYPE);
+								}
 							},
 							failure : function(response, options) {
 								handleFailure(response);
@@ -831,7 +837,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 		if (o.navigator_node_concept !== undefined) {
 			identifier = 'navigator_' + o.navigator_node_concept;
 		}
-		if (o.navigator_node_ids !== undefined) {
+		if (o.navigator_node_type == NAVIGATOR_NODE_VALUE_TYPE && o.navigator_node_ids !== undefined) {
 			identifier = identifier + '_' + o.navigator_node_ids;
 		}
 		return identifier;
@@ -973,7 +979,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 	}
 	
 	return {
-		initUI : function(restServiceUrlParameter, idParameter, conceptParameter,clusterParameter, languageParameter) {
+		initUI : function(restServiceUrlParameter, idParameter, conceptParameter,clusterParameter, hasPrimaryKeyInfo,languageParameter) {
 			selectNode = undefined;
 			showNode = undefined;
 			restServiceUrl = restServiceUrlParameter;
@@ -1048,7 +1054,11 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 						language : language
 					},
 					success : function(response, options) {
-						amalto.navigator.Navigator.handleNodeLabel(response.responseText,0);
+						if (hasPrimaryKeyInfo) {
+							amalto.navigator.Navigator.handleNodeLabel(response.responseText,0);
+						} else {
+							initDataNode(response.responseText);
+						}
 					},
 					failure : function(response, options) {
 						handleFailure(response);
@@ -1069,11 +1079,11 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 		},
 		
 		paintInDataNode : function(data) {
-			paintDataNode(data,NAVIGATOR_NODE_IN_ENTITY_TYPE);
+			paintDataNode(eval('(' + data + ')'),NAVIGATOR_NODE_IN_ENTITY_TYPE);
 		},
 		
 		paintOutDataNode : function(data) {
-			paintDataNode(data,NAVIGATOR_NODE_OUT_ENTITY_TYPE);
+			paintDataNode(eval('(' + data + ')'),NAVIGATOR_NODE_OUT_ENTITY_TYPE);
 		}
 	}
 }();
