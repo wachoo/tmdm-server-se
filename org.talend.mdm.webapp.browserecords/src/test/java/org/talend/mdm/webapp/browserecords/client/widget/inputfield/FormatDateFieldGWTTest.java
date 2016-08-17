@@ -417,8 +417,5 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
         public void getExsitedViewName(String concept, AsyncCallback<String> callback) {
         }
 
-        @Override
-        public void handleNavigatorNodeLabel(String jsonString, String language, AsyncCallback<String> callback) {
-        }
     }
 }
