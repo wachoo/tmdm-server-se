@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -40,6 +41,8 @@ public class ItemTreeHandler implements IsSerializable {
     private EntityModel entityModel;
 
     private ItemNodeModel nodeModel;
+
+    private ItemBean itemBean;
 
     private ItemTreeHandlingStatus status;
 
@@ -62,10 +65,16 @@ public class ItemTreeHandler implements IsSerializable {
         super();
         this.nodeModel = nodeModel;
         this.status = status;
-        if (viewBean != null)
+        if (viewBean != null) {
             this.entityModel = viewBean.getBindingEntityModel();
+        }
 
         initConfig();
+    }
+
+    public ItemTreeHandler(ItemNodeModel nodeModel, ViewBean viewBean, ItemBean itemBean, ItemTreeHandlingStatus status) {
+        this(nodeModel, viewBean, status);
+        this.itemBean = itemBean;
     }
 
     public ItemTreeHandler(ItemNodeModel nodeModel, EntityModel entityModel, ItemTreeHandlingStatus status) {
@@ -120,18 +129,21 @@ public class ItemTreeHandler implements IsSerializable {
 
     public String serializeItem(boolean sort) {
 
-        if (nodeModel == null)
+        if (nodeModel == null) {
             return null;
+        }
 
         // If do not sort, then it should rely on the input order
-        if (sort)
+        if (sort) {
             nodeModel.sort(entityModel);
+        }
 
         Document doc = XMLParser.createDocument();
         Element root = buildXML(doc, nodeModel);
 
-        if (nodeModel.get(XMLNS_TMDM) != null)
+        if (nodeModel.get(XMLNS_TMDM) != null) {
             root.setAttribute(XMLNS_TMDM, XMLNS_TMDM_VALUE);
+        }
         root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
         doc.appendChild(root);
 
@@ -175,10 +187,10 @@ public class ItemTreeHandler implements IsSerializable {
             if (value != null && currentNodeModel.getParent() != null) {
                 String elValue = null;
                 if (value instanceof ForeignKeyBean) {
-                    elValue = ((ForeignKeyBean) value).getId();
+                    elValue = getLookUpFieldValue(itemBean, currentNodeModel.getTypePath(), ((ForeignKeyBean) value).getId());
                     currentNodeModel.setTypeName(((ForeignKeyBean) value).getConceptName());
                 } else {
-                    elValue = value.toString();
+                    elValue = getLookUpFieldValue(itemBean, currentNodeModel.getTypePath(), value.toString());
                 }
                 root.appendChild(doc.createTextNode(elValue));
 
@@ -208,12 +220,13 @@ public class ItemTreeHandler implements IsSerializable {
                                 if (childrenEls == null || childrenEls.size() == 0) {
                                     root.appendChild(el);
                                 } else {
-                                	TypeModel childTypeModel = entityModel.getMetaDataTypes().get(childNode.getTypePath());
-                                	if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName()) ||
-                                	        childTypeModel.getType().getTypeName().equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
-                                		root.appendChild(el);
-                                	} else {
-                                		// for mixture mode
+                                    TypeModel childTypeModel = entityModel.getMetaDataTypes().get(childNode.getTypePath());
+                                    if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())
+                                            || childTypeModel.getType().getTypeName()
+                                                    .equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
+                                        root.appendChild(el);
+                                    } else {
+                                        // for mixture mode
                                         boolean alreadyHasBrother = false;
                                         for (Element myChildEl : childrenEls) {
                                             if (myChildEl.getNodeName().equals(el.getNodeName())) {
@@ -221,15 +234,17 @@ public class ItemTreeHandler implements IsSerializable {
                                                 break;
                                             }
                                         }
-                                        if (!alreadyHasBrother)
+                                        if (!alreadyHasBrother) {
                                             root.appendChild(el);
-                                	}                                   
+                                        }
+                                    }
                                 }
                             } else {
                                 if (childrenEls != null && childrenEls.size() > 0) {
                                     for (Element myChildEl : childrenEls) {
-                                        if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl))
+                                        if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl)) {
                                             root.removeChild(myChildEl);// clean up empty node
+                                        }
                                     }
                                 }
                                 // append non-empty el
@@ -251,8 +266,9 @@ public class ItemTreeHandler implements IsSerializable {
 
     private boolean isRepeatingEl(ItemNodeModel nodeModel) {
         TypeModel typeModel = entityModel.getMetaDataTypes().get(nodeModel.getTypePath());
-        if (typeModel.getMaxOccurs() > 1 || typeModel.getMaxOccurs() == -1)
+        if (typeModel.getMaxOccurs() > 1 || typeModel.getMaxOccurs() == -1) {
             return true;
+        }
         return false;
     }
 
@@ -283,5 +299,15 @@ public class ItemTreeHandler implements IsSerializable {
             }
         }
         return els;
+    }
+
+    protected String getLookUpFieldValue(ItemBean itemBean, String path, String elValue) {
+        if (itemBean != null && itemBean.getOriginalLookupFieldMap() != null
+                && itemBean.getOriginalLookupFieldMap().keySet().contains(path)) {
+            if (elValue.equals(itemBean.get(path))) {
+                return itemBean.getOriginalLookupFieldMap().get(path);
+            }
+        }
+        return elValue;
     }
 }
