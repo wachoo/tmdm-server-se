@@ -183,7 +183,6 @@ public class ItemsListPanel extends ContentPanel {
                     if (result.getTotalLength() == 0) {
                         ItemsMainTabPanel.getInstance().removeAll();
                     }
-
                     currentQueryModel = qm;
                 }
 
@@ -198,11 +197,11 @@ public class ItemsListPanel extends ContentPanel {
     };
 
     private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
-        return stagingAreaConfig.dataContainer;
+		return stagingAreaConfig.dataContainer;
     }-*/;
 
     private native String getCriteria(JavaScriptObject stagingAreaConfig)/*-{
-        return stagingAreaConfig.criteria;
+		return stagingAreaConfig.criteria;
     }-*/;
 
     private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
@@ -522,8 +521,8 @@ public class ItemsListPanel extends ContentPanel {
                 ViewBean viewBean = (ViewBean) BrowseRecords.getSession().get(UserSession.CURRENT_VIEW);
                 String xml = (new ItemTreeHandler(model, viewBean, ItemTreeHandlingStatus.ToSave)).serializeItem();
 
-                service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, xml, entityModel, Locale.getLanguage(),
-                        new SessionAwareAsyncCallback<ItemResult>() {
+                service.updateItem(itemBean.getConcept(), itemBean.getIds(), changedField, xml, entityModel,
+                        Locale.getLanguage(), new SessionAwareAsyncCallback<ItemResult>() {
 
                             @Override
                             protected void doOnFailure(Throwable caught) {
@@ -570,18 +569,19 @@ public class ItemsListPanel extends ContentPanel {
                                     msgBox.setMessage(msg == null || msg.isEmpty() ? MessagesFactory.getMessages()
                                             .output_report_null() : msg);
                                     msgBox.addCallback(new Listener<MessageBoxEvent>() {
+
                                         @Override
                                         public void handleEvent(MessageBoxEvent be) {
                                             refreshOnSaveCompleted(itemBean);
                                         }
                                     });
-                                    msgBox.show();                                   
+                                    msgBox.show();
                                 } else {
                                     msgBox.setTitle(MessagesFactory.getMessages().info_title());
                                     msgBox.setButtons(""); //$NON-NLS-1$
                                     msgBox.setIcon(MessageBox.INFO);
-                                    msgBox.setMessage(msg == null || msg.isEmpty() ? MessagesFactory.getMessages()
-                                            .save_success() : msg);
+                                    msgBox.setMessage(msg == null || msg.isEmpty() ? MessagesFactory.getMessages().save_success()
+                                            : msg);
                                     msgBox.show();
                                     Timer timer = new Timer() {
 
@@ -602,7 +602,7 @@ public class ItemsListPanel extends ContentPanel {
         this.syncSize();
         this.doLayout();
     }
-    
+
     private void refreshOnSaveCompleted(ItemBean itemBean) {
         if (itemBean != null) {
             if (gridUpdateLock) {

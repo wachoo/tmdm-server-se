@@ -43,6 +43,8 @@ public class ItemTreeHandler implements IsSerializable {
 
     private ItemTreeHandlingStatus status;
 
+    private List<String> idsList;
+
     private boolean simpleTypeOnly = true;
 
     @Deprecated
@@ -65,7 +67,6 @@ public class ItemTreeHandler implements IsSerializable {
         if (viewBean != null) {
             this.entityModel = viewBean.getBindingEntityModel();
         }
-
         initConfig();
     }
 
@@ -74,7 +75,17 @@ public class ItemTreeHandler implements IsSerializable {
         this.nodeModel = nodeModel;
         this.entityModel = entityModel;
         this.status = status;
+        initConfig();
+    }
 
+    public ItemTreeHandler(ItemNodeModel nodeModel, ViewBean viewBean, List<String> idsList, ItemTreeHandlingStatus status) {
+        super();
+        this.nodeModel = nodeModel;
+        if (viewBean != null) {
+            this.entityModel = viewBean.getBindingEntityModel();
+        }
+        this.status = status;
+        this.idsList = idsList;
         initConfig();
     }
 
@@ -131,24 +142,35 @@ public class ItemTreeHandler implements IsSerializable {
         }
 
         Document doc = XMLParser.createDocument();
-        Element root = buildXML(doc, nodeModel);
-
-        if (nodeModel.get(XMLNS_TMDM) != null) {
-            root.setAttribute(XMLNS_TMDM, XMLNS_TMDM_VALUE);
+        Element root;
+        if (status.equals(ItemTreeHandlingStatus.BulkUpdate)) {
+            root = doc.createElement("records");
+            root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
+            for (int i = 0; i < idsList.size(); i++) {
+                String ids = idsList.get(i);
+                root.appendChild(buildXML(doc, nodeModel, ids));
+            }
+        } else {
+            root = buildXML(doc, nodeModel, "");
+            if (nodeModel.get(XMLNS_TMDM) != null) {
+                root.setAttribute(XMLNS_TMDM, XMLNS_TMDM_VALUE);
+            }
         }
         root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"); //$NON-NLS-1$//$NON-NLS-2$
         doc.appendChild(root);
-
         return doc.toString();
 
     }
 
-    private Element buildXML(Document doc, ItemNodeModel currentNodeModel) {
+    private Element buildXML(Document doc, ItemNodeModel currentNodeModel, String ids) {
+        if (status.equals(ItemTreeHandlingStatus.BulkUpdate) && currentNodeModel.isKey()) {
+            currentNodeModel.setObjectValue(ids);
+        }
 
         Element root = doc.createElement(currentNodeModel.getName());
         TypeModel currentTypeModel = entityModel.getMetaDataTypes().get(currentNodeModel.getTypePath());
 
-        if (status.equals(ItemTreeHandlingStatus.ToSave)) {
+        if (status.equals(ItemTreeHandlingStatus.ToSave) || status.equals(ItemTreeHandlingStatus.BulkUpdate)) {
             if (currentNodeModel.getParent() != null) {
                 if (!currentNodeModel.isKey()) {
                     if (!currentTypeModel.isVisible()) {
@@ -177,84 +199,88 @@ public class ItemTreeHandler implements IsSerializable {
 
         Serializable value = currentNodeModel.getObjectValue();
 
-        if (currentTypeModel.isSimpleType()) {
-            if (value != null && currentNodeModel.getParent() != null) {
-                String elValue = null;
-                if (value instanceof ForeignKeyBean) {
-                    elValue = ((ForeignKeyBean) value).getId();
-                    currentNodeModel.setTypeName(((ForeignKeyBean) value).getConceptName());
-                } else {
-                    elValue = value.toString();
+        if (!currentTypeModel.isSimpleType() || (currentNodeModel.isMassUpdate() && currentNodeModel.isEdited())) {
+            if (currentTypeModel.isSimpleType()) {
+                if (value != null && currentNodeModel.getParent() != null) {
+                    String elValue = null;
+                    if (value instanceof ForeignKeyBean) {
+                        elValue = ((ForeignKeyBean) value).getId();
+                        currentNodeModel.setTypeName(((ForeignKeyBean) value).getConceptName());
+                    } else {
+                        elValue = value.toString();
+                    }
+                    root.appendChild(doc.createTextNode(elValue));
+
                 }
-                root.appendChild(doc.createTextNode(elValue));
-
             }
-        }
 
-        if (currentNodeModel.getRealType() != null) {
-            root.setAttribute("xsi:type", currentNodeModel.getRealType()); //$NON-NLS-1$
-        }
+            if (currentNodeModel.getRealType() != null) {
+                root.setAttribute("xsi:type", currentNodeModel.getRealType()); //$NON-NLS-1$
+            }
 
-        if (currentNodeModel.getTypeName() != null) {
-            root.setAttribute("tmdm:type", currentNodeModel.getTypeName()); //$NON-NLS-1$
-            nodeModel.set(XMLNS_TMDM, XMLNS_TMDM_VALUE);
-        }
+            if (currentNodeModel.getTypeName() != null) {
+                root.setAttribute("tmdm:type", currentNodeModel.getTypeName()); //$NON-NLS-1$
+                nodeModel.set(XMLNS_TMDM, XMLNS_TMDM_VALUE);
+            }
 
-        List<ModelData> children = currentNodeModel.getChildren();
-        if (children != null && children.size() > 0) {
-            for (ModelData child : children) {
-                ItemNodeModel childNode = (ItemNodeModel) child;
-                Element el = buildXML(doc, childNode);
-                if (el != null) {
-                    if (status.equals(ItemTreeHandlingStatus.ToSave)) {
-                        if (isRepeatingEl(childNode)) {
+            List<ModelData> children = currentNodeModel.getChildren();
+            if (children != null && children.size() > 0) {
+                for (ModelData child : children) {
+                    ItemNodeModel childNode = (ItemNodeModel) child;
+                    Element el = buildXML(doc, childNode, ids);
+                    if (el != null) {
+                        if (status.equals(ItemTreeHandlingStatus.ToSave) || status.equals(ItemTreeHandlingStatus.BulkUpdate)) {
+                            if (isRepeatingEl(childNode)) {
 
-                            List<Element> childrenEls = childrenEl(root);
-                            if (isEmptyValueEl(el)) {
-                                if (childrenEls == null || childrenEls.size() == 0) {
-                                    root.appendChild(el);
-                                } else {
-                                	TypeModel childTypeModel = entityModel.getMetaDataTypes().get(childNode.getTypePath());
-                                	if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName()) ||
-                                	        childTypeModel.getType().getTypeName().equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
-                                		root.appendChild(el);
-                                	} else {
-                                		// for mixture mode
-                                        boolean alreadyHasBrother = false;
-                                        for (Element myChildEl : childrenEls) {
-                                            if (myChildEl.getNodeName().equals(el.getNodeName())) {
-                                                alreadyHasBrother = true;
-                                                break;
+                                List<Element> childrenEls = childrenEl(root);
+                                if (isEmptyValueEl(el)) {
+                                    if (childrenEls == null || childrenEls.size() == 0) {
+                                        root.appendChild(el);
+                                    } else {
+                                        TypeModel childTypeModel = entityModel.getMetaDataTypes().get(childNode.getTypePath());
+                                        if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())
+                                                || childTypeModel.getType().getTypeName()
+                                                        .equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
+                                            root.appendChild(el);
+                                        } else {
+                                            // for mixture mode
+                                            boolean alreadyHasBrother = false;
+                                            for (Element myChildEl : childrenEls) {
+                                                if (myChildEl.getNodeName().equals(el.getNodeName())) {
+                                                    alreadyHasBrother = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (!alreadyHasBrother) {
+                                                root.appendChild(el);
                                             }
                                         }
-                                        if (!alreadyHasBrother) {
-                                            root.appendChild(el);
-                                        }
-                                	}                                   
-                                }
-                            } else {
-                                if (childrenEls != null && childrenEls.size() > 0) {
-                                    for (Element myChildEl : childrenEls) {
-                                        if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl)) {
-                                            root.removeChild(myChildEl);// clean up empty node
+                                    }
+                                } else {
+                                    if (childrenEls != null && childrenEls.size() > 0) {
+                                        for (Element myChildEl : childrenEls) {
+                                            if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl)) {
+                                                root.removeChild(myChildEl);// clean up empty node
+                                            }
                                         }
                                     }
+                                    // append non-empty el
+                                    root.appendChild(el);
                                 }
-                                // append non-empty el
+
+                            } else {
                                 root.appendChild(el);
                             }
-
                         } else {
                             root.appendChild(el);
                         }
-                    } else {
-                        root.appendChild(el);
                     }
                 }
             }
-
+            return root;
+        } else {
+            return null;
         }
-        return root;
     }
 
     private boolean isRepeatingEl(ItemNodeModel nodeModel) {

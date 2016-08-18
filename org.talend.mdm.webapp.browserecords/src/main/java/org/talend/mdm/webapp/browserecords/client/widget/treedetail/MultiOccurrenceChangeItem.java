@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -56,6 +57,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
     private Image removeNodeImg;
 
     private Image warnImg;
+
+    private Image editNodeImg;
 
     private TreeDetail treeDetail;
 
@@ -153,7 +156,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             this.add(removeNodeImg);
             this.setCellVerticalAlignment(removeNodeImg, VerticalPanel.ALIGN_BOTTOM);
             if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
-                cloneNodeImg = new Image("secure/img/genericUI/add-group.png"); //$NON-NLS-1$
+                cloneNodeImg = new Image("secure/img/genericUI/clone.png"); //$NON-NLS-1$
                 cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
                 cloneNodeImg.setTitle(MessagesFactory.getMessages().deepclone_title());
                 cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
@@ -164,6 +167,41 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 this.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
             }
         }
+
+        if (ItemDetailToolBar.MASS_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
+            itemNode.setMassUpdate(true);
+            itemNode.setEdited(true);
+            if (field != null) {
+                if (field instanceof TextField) {
+                    ((TextField) field).setAllowBlank(true);
+                }
+                if (!itemNode.isKey() && !typeModel.isReadOnly()) {
+                    editNodeImg = new Image("secure/img/genericUI/bulkupdate.png"); //$NON-NLS-1$
+                    editNodeImg.getElement().setId("Edit"); //$NON-NLS-1$
+                    editNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
+                    editNodeImg.getElement().getStyle().setMarginLeft(20D, Unit.PX);
+                    editNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
+                    editNodeImg.addClickHandler(new ClickHandler() {
+
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            if (field.isEnabled()) {
+                                field.setEnabled(false);
+                                itemNode.setEdited(false);
+                            } else {
+                                field.setEnabled(true);
+                                itemNode.setEdited(true);
+                            }
+                        }
+                    });
+                    this.add(editNodeImg);
+                    this.setCellVerticalAlignment(editNodeImg, VerticalPanel.ALIGN_BOTTOM);
+                } else {
+                    field.setEnabled(false);
+                }
+            }
+        }
+
         this.add(new Label()); // format placeholder, align icon on line
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
         warnImg = new Image("secure/img/genericUI/validateBadge.gif"); //$NON-NLS-1$

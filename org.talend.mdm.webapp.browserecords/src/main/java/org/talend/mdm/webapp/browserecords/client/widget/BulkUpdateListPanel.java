@@ -11,6 +11,7 @@
 //
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,9 +20,11 @@ import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.exception.ParserException;
+import org.talend.mdm.webapp.base.client.model.Criteria;
 import org.talend.mdm.webapp.base.client.model.DataType;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ItemBasePageLoadResult;
+import org.talend.mdm.webapp.base.client.model.MultipleCriteria;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.model.UserContextModel;
 import org.talend.mdm.webapp.base.client.util.Parser;
@@ -35,7 +38,6 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
-import org.talend.mdm.webapp.browserecords.client.BrowseStagingRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.ServiceFactory;
 import org.talend.mdm.webapp.browserecords.client.creator.CellEditorCreator;
 import org.talend.mdm.webapp.browserecords.client.creator.CellRendererCreator;
@@ -45,11 +47,8 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.OperatorConstants;
 import org.talend.mdm.webapp.browserecords.client.model.QueryModel;
 import org.talend.mdm.webapp.browserecords.client.model.RecordStatus;
-import org.talend.mdm.webapp.browserecords.client.model.RecordStatusWrapper;
 import org.talend.mdm.webapp.browserecords.client.model.RecordsPagingConfig;
-import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
-import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
 import org.talend.mdm.webapp.browserecords.client.widget.filter.BooleanFilter;
@@ -58,8 +57,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.Fiel
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
-import com.amalto.core.server.StorageAdmin;
-import com.amalto.core.storage.task.StagingConstants;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -72,38 +69,30 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.Filter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
-import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Image;
 
 public class BulkUpdateListPanel extends ContentPanel {
 
@@ -150,11 +139,6 @@ public class BulkUpdateListPanel extends ContentPanel {
                     callback.onSuccess(new BasePagingLoadResult<ItemBean>(new ArrayList<ItemBean>(), 0, 0));
                     return;
                 }
-                if (BrowseRecords.getStagingArea() != null) {
-                    JavaScriptObject stagingArea = BrowseRecords.getStagingArea();
-                    qm.setDataClusterPK(getDataContainer(stagingArea));
-                    qm.setCriteria(getCriteria(stagingArea));
-                }
                 Parser.parse(qm.getCriteria());
             } catch (ParserException e) {
                 MessageBox.alert(MessagesFactory.getMessages().error_title(), e.getMessage(), null);
@@ -167,24 +151,11 @@ public class BulkUpdateListPanel extends ContentPanel {
 
                         @Override
                         public void onSuccess(ItemBasePageLoadResult<ItemBean> result) {
-                            List<ItemBean> data = result.getData();
-                            List<ItemBean> sortedData = new ArrayList();
-                            sortedData.add(null);
-                            for (int i = 0; i < data.size(); i++) {
-                                ItemBean itemBean = data.get(i);
-                                Object statusObject = itemBean.get(itemBean.getConcept() + StagingConstant.STAGING_STATUS);
-                                if (StagingConstants.SUCCESS_VALIDATE.equals(statusObject)
-                                        || StagingConstants.SUCCESS_MERGED_RECORD.equals(statusObject)) {
-                                    sortedData.set(0, itemBean);
-                                } else {
-                                    sortedData.add(itemBean);
-                                }
-                            }
                             isPagingAccurate = result.isPagingAccurate();
-                            callback.onSuccess(new BasePagingLoadResult<ItemBean>(sortedData, result.getOffset(), result
+                            callback.onSuccess(new BasePagingLoadResult<ItemBean>(result.getData(), result.getOffset(), result
                                     .getTotalLength()));
                             if (result.getTotalLength() == 0) {
-                                LineagePanel.getInstance().clearDetailPanel();
+                                ItemsMainTabPanel.getInstance().removeAll();
                             }
                             currentQueryModel = qm;
                         }
@@ -208,8 +179,6 @@ public class BulkUpdateListPanel extends ContentPanel {
 
     private BulkUpdateListPanel() {
         this.cluster = BrowseRecords.getSession().getAppHeader().getDatacluster();
-        this.cluster = this.cluster.endsWith(StorageAdmin.STAGING_SUFFIX) ? this.cluster : this.cluster
-                + StorageAdmin.STAGING_SUFFIX;
         this.viewBean = BrowseRecords.getSession().getCurrentView();
         this.entityModel = BrowseRecords.getSession().getCurrentEntityModel();
 
@@ -240,14 +209,6 @@ public class BulkUpdateListPanel extends ContentPanel {
         errorTitles.put(RecordStatus.FAIL_VALIDATE_CONSTRAINTS.getStatusCode(), messages.status_404());
         errorTitles.put(RecordStatus.FAIL_DELETE_CONSTRAINTS.getStatusCode(), messages.status_405());
     }
-
-    private native String getDataContainer(JavaScriptObject stagingAreaConfig)/*-{
-		return stagingAreaConfig.dataContainer;
-    }-*/;
-
-    private native String getCriteria(JavaScriptObject stagingAreaConfig)/*-{
-		return stagingAreaConfig.criteria;
-    }-*/;
 
     private RecordsPagingConfig copyPgLoad(PagingLoadConfig pconfig) {
         RecordsPagingConfig rpConfig = new RecordsPagingConfig();
@@ -286,28 +247,13 @@ public class BulkUpdateListPanel extends ContentPanel {
     }
 
     public void refresh() {
-        selectStagingGridPanel();
-//        browseStagingRecordService.checkTask(cluster, entityModel.getConceptName(), taskId,
-//                new SessionAwareAsyncCallback<Integer>() {
-//
-//                    @Override
-//                    public void onSuccess(Integer result) {
-//                        int gridContainerHeight = LineageListPanel.this.getHeight();
-//                        if (result > 1) {
-//                            openTaskToolBar.setVisible(true);
-//                        } else {
-//                            openTaskToolBar.setVisible(false);
-//                            gridContainerHeight = gridContainerHeight - 1;
-//                        }
-//                        PagingLoadConfig config = new BaseFilterPagingLoadConfig();
-//                        config.setOffset(0);
-//                        int pageSize = pagingBar.getPageSize();
-//                        config.setLimit(pageSize);
-//                        loader.load(config);
-//                        pagingBar.setVisible(true);
-//                        gridContainer.setHeight(gridContainerHeight);
-//                    }
-//                });
+        selectBulkUpdateGridPanel();
+        PagingLoadConfig config = new BaseFilterPagingLoadConfig();
+        config.setOffset(0);
+        int pageSize = pagingBar.getPageSize();
+        config.setLimit(pageSize);
+        loader.load(config);
+        pagingBar.setVisible(true);
     }
 
     private List<ColumnConfig> generateColumnList() {
@@ -343,115 +289,11 @@ public class BulkUpdateListPanel extends ContentPanel {
 
             filters.addFilter(createFilter(xpath, typeModel != null ? typeModel.getType() : DataTypeConstants.STRING));
         }
-
-        String taskIdPath = entityModel.getConceptName() + StagingConstant.STAGING_TASKID;
-        ColumnConfig groupColumn = new ColumnConfig(taskIdPath, MessagesFactory.getMessages().match_group(), 200);
-        columnConfigList.add(groupColumn);
-        filters.addFilter(createFilter(taskIdPath, DataTypeConstants.STRING));
-
-        String statusPath = entityModel.getConceptName() + StagingConstant.STAGING_STATUS;
-        ColumnConfig statusColumn = new ColumnConfig(statusPath, MessagesFactory.getMessages().status(), 200);
-        statusColumn.setRenderer(new GridCellRenderer<ItemBean>() {
-
-            @Override
-            public Object render(ItemBean model, String property, ColumnData config, int rowIndex, int colIndex,
-                    ListStore<ItemBean> statusListStore, Grid<ItemBean> statusGrid) {
-                com.google.gwt.user.client.ui.Grid g = new com.google.gwt.user.client.ui.Grid(1, 2);
-                g.setCellPadding(0);
-                g.setCellSpacing(0);
-                String status = model.get(entityModel.getConceptName() + StagingConstant.STAGING_STATUS);
-
-                if (status == null || status.trim().length() == 0) {
-                    status = "0"; //$NON-NLS-1$
-                }
-                RecordStatusWrapper wrapper = new RecordStatusWrapper(RecordStatus.newStatus(Integer.valueOf(status)));
-
-                String color = wrapper.getColor();
-
-                if (color != null) {
-                    g.getElement().getStyle().setColor(color);
-                }
-                if (wrapper.getIcon() != null) {
-                    g.setWidget(0, 0, new Image(wrapper.getIcon()));
-                }
-                g.setText(0, 1, status);
-                g.setTitle(status
-                        + ": " + (errorTitles.get(Integer.valueOf(status)) == null ? "" : errorTitles.get(Integer.valueOf(status)))); //$NON-NLS-1$ //$NON-NLS-2$
-                return g;
-            }
-        });
-        columnConfigList.add(statusColumn);
-
-        ListStore<ModelData> statusListFilterStore = new ListStore<ModelData>();
-        for (RecordStatus recordStatus : RecordStatus.values()) {
-            if (recordStatus != RecordStatus.UNKNOWN) { // UNKNOWN state exists only in web UI.
-                statusListFilterStore.add(buildFilterItem(statusPath, String.valueOf(recordStatus.getStatusCode())));
-            }
-        }
-        ListFilter statusFilter = new ListFilter(statusPath, statusListFilterStore);
-        statusFilter.setDisplayProperty(statusPath);
-        filters.addFilter(statusFilter);
-
-        String sourcePath = entityModel.getConceptName() + StagingConstant.STAGING_SOURCE;
-        ColumnConfig sourceColumn = new ColumnConfig(sourcePath, MessagesFactory.getMessages().source(), 200);
-        columnConfigList.add(sourceColumn);
-
-        ListStore<ModelData> sourceListFilterStore = new ListStore<ModelData>();
-        sourceListFilterStore.add(buildFilterItem(sourcePath, StagingConstants.STAGING_MDM_SOURCE));
-        ListFilter sourceFilter = new ListFilter(sourcePath, sourceListFilterStore);
-        sourceFilter.setDisplayProperty(sourcePath);
-        filters.addFilter(sourceFilter);
-
-        for (ColumnConfig cc : columnConfigList) {
-            final GridCellRenderer<ModelData> render = cc.getRenderer();
-
-            GridCellRenderer<ModelData> renderProxy = new GridCellRenderer<ModelData>() {
-
-                @Override
-                public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,
-                        ListStore<ModelData> listStore, Grid<ModelData> g) {
-                    Object value = null;
-                    if (render != null) {
-                        value = render.render(model, property, config, rowIndex, colIndex, listStore, g);
-                    } else {
-                        value = model.get(property);
-                    }
-                    if (value instanceof String) {
-                        ItemBean item = (ItemBean) model;
-                        String matchGroup = model.get(item.getConcept() + StagingConstant.STAGING_TASKID);
-                        if (matchGroup != null && matchGroup.length() != 0) {
-                            String status = model.get(item.getConcept() + StagingConstant.STAGING_STATUS);
-                            if ("205".equals(status) || "203".equals(status) || "204".equals(status)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                                return "<b>" + value + "</b>"; //$NON-NLS-1$ //$NON-NLS-2$
-                            }
-                        }
-                    }
-                    return value;
-                }
-            };
-            cc.setRenderer(renderProxy);
-        }
         return columnConfigList;
     }
 
     private ContentPanel generateGrid() {
         gridContainer = new ContentPanel(new FitLayout());
-
-//        Button taskButton = new Button();
-//        taskButton = new Button(MessagesFactory.getMessages().open_task());
-//        taskButton.setId("openTaskButton"); //$NON-NLS-1$
-//        taskButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.openTask()));
-//
-//        taskButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-//
-//            @Override
-//            public void componentSelected(ButtonEvent buttonEvent) {
-//                initDSC(LineageListPanel.this.taskId);
-//            }
-//        });
-        openTaskToolBar = new ToolBar();
-//        openTaskToolBar.add(taskButton);
-        gridContainer.setTopComponent(openTaskToolBar);
 
         ColumnModel cm = new ColumnModel(generateColumnList());
         gridContainer.setBodyBorder(false);
@@ -528,12 +370,43 @@ public class BulkUpdateListPanel extends ContentPanel {
     }
 
     private QueryModel generateQueryModel() {
-        SimpleCriterion criterion = new SimpleCriterion(StagingConstant.STAGING_TASKID, OperatorConstants.EQUALS_OPERATOR, "");
+        String[] keys = entityModel.getKeys();
+        Criteria criteria;
+        if (keys.length == 1) {
+            if (ids.length == 1) {
+                criteria = new SimpleCriterion(keys[0], OperatorConstants.EQUALS_OPERATOR, ids[0]);
+            } else {
+                MultipleCriteria multipleCriteria = new MultipleCriteria();
+                multipleCriteria.setOperator(OperatorConstants.OR_OPERATOR);
+                for (int i = 0; i < ids.length; i++) {
+                    multipleCriteria.getChildren().add(new SimpleCriterion(keys[0], OperatorConstants.EQUALS_OPERATOR, ids[i]));
+                }
+                criteria = multipleCriteria;
+            }
+        } else {
+            criteria = new SimpleCriterion(keys[0], OperatorConstants.EQUALS_OPERATOR, ids[0]);
+            // if (ids.length == 1) {
+            // MultipleCriteria multipleCriteria = new MultipleCriteria();
+            // multipleCriteria.setOperator(OperatorConstants.AND_OPERATOR);
+            // for (int i = 0; i < keys.length; i++) {
+            // multipleCriteria.getChildren()
+            // .add(new SimpleCriterion(keys[0], OperatorConstants.EQUALS_OPERATOR, ids[0][i]));
+            // }
+            // criteria = new SimpleCriterion(keys[0], OperatorConstants.EQUALS_OPERATOR, ids[0]);
+            // } else {
+            // MultipleCriteria multipleCriteria = new MultipleCriteria();
+            // multipleCriteria.setOperator(OperatorConstants.OR_OPERATOR);
+            // for (int i = 0; i < ids.length; i++) {
+            // multipleCriteria.getChildren().add(new SimpleCriterion(keys[0], OperatorConstants.EQUALS_OPERATOR,
+            // ids[i]));
+            // }
+            // }
+        }
         QueryModel queryModel = new QueryModel();
         queryModel.setDataClusterPK(cluster);
         queryModel.setView(viewBean);
         queryModel.setModel(entityModel);
-        queryModel.setCriteria(criterion.toString());
+        queryModel.setCriteria(criteria.toString());
         return queryModel;
     }
 
@@ -574,7 +447,7 @@ public class BulkUpdateListPanel extends ContentPanel {
 
                 @Override
                 public void execute() {
-                    AppEvent event = new AppEvent(BrowseRecordsEvents.ViewLineageItem, item);
+                    AppEvent event = new AppEvent(BrowseRecordsEvents.ViewBulkUpdateItem, item);
                     event.setData(BrowseRecords.ENTITY_MODEL, entityModel);
                     event.setData(BrowseRecords.VIEW_BEAN, viewBean);
                     Dispatcher.forwardEvent(event);
@@ -583,16 +456,11 @@ public class BulkUpdateListPanel extends ContentPanel {
         }
     }
 
-    private native void selectStagingGridPanel()/*-{
+    private native void selectBulkUpdateGridPanel()/*-{
 		var tabPanel = $wnd.amalto.core.getTabPanel();
-		var panel = tabPanel.getItem("Staging Data Viewer");
+		var panel = tabPanel.getItem("Bulk Update");
 		if (panel != undefined) {
 			tabPanel.setSelection(panel.getItemId());
 		}
-    }-*/;
-
-    private native boolean initDSC(String taskId)/*-{
-		$wnd.amalto.datastewardship.Datastewardship.taskItem(taskId);
-		return true;
     }-*/;
 }

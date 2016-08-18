@@ -32,6 +32,10 @@ public class OperatorConstants implements Serializable, IsSerializable {
 
     public static String EQUALS_OPERATOR = "EQUALS"; //$NON-NLS-1$
 
+    public static String AND_OPERATOR = "AND"; //$NON-NLS-1$
+
+    public static String OR_OPERATOR = "OR"; //$NON-NLS-1$
+
     public static Map<String, String> groupOperators = new LinkedHashMap<String, String>();
 
     public static Map<String, String> fullOperators = new LinkedHashMap<String, String>();
@@ -53,8 +57,8 @@ public class OperatorConstants implements Serializable, IsSerializable {
     public static Map<String, String> multiLanguageOperators = new LinkedHashMap<String, String>();
 
     static {
-        groupOperators.put("AND", MessagesFactory.getMessages().criteria_AND()); //$NON-NLS-1$
-        groupOperators.put("OR", MessagesFactory.getMessages().criteria_OR()); //$NON-NLS-1$
+        groupOperators.put(AND_OPERATOR, MessagesFactory.getMessages().criteria_AND()); //$NON-NLS-1$
+        groupOperators.put(OR_OPERATOR, MessagesFactory.getMessages().criteria_OR()); //$NON-NLS-1$
 
         fullOperators.put("CONTAINS", MessagesFactory.getMessages().criteria_CONTAINS()); //$NON-NLS-1$
         fullOperators.put("CONTAINS_SENTENCE", MessagesFactory.getMessages().criteria_CONTAINS_SENTENCE()); //$NON-NLS-1$

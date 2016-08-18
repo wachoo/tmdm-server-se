@@ -647,7 +647,7 @@ public class TreeDetail extends ContentPanel {
         if (rootItem.getItemNodeModel() != null) {
             String realPath = CommonUtil.getRealXPath(rootItem.getItemNodeModel());
             if (realPath.equals(visibleResult.getXpath())) {
-                rootItem.setVisible(visibleResult.isVisible() && !rootItem.getItemNodeModel().isHide()); 
+                rootItem.setVisible(visibleResult.isVisible() && !rootItem.getItemNodeModel().isHide());
                 return;
             }
 

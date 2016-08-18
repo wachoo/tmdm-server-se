@@ -12,23 +12,31 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget;
 
-import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import java.util.List;
+
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsEvents;
 import org.talend.mdm.webapp.browserecords.client.i18n.MessagesFactory;
-import org.talend.mdm.webapp.browserecords.client.rest.ExplainRestServiceHandler;
+import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.data.BaseTreeModel;
-import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.mvc.AppEvent;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 public class BulkUpdatePanel extends ContentPanel {
-	private static BulkUpdatePanel instance;
+
+    private static BulkUpdatePanel instance;
+
+    private BulkUpdateListPanel bulkUpdateListPanel;
 
     private ContentPanel detailPanel;
+
+    private List<String> idsList;
 
     public static BulkUpdatePanel getInstance() {
         if (instance == null) {
@@ -38,71 +46,50 @@ public class BulkUpdatePanel extends ContentPanel {
     }
 
     private BulkUpdatePanel() {
-        setHeading(MessagesFactory.getMessages().staging_data_viewer_title());
+        setHeading(MessagesFactory.getMessages().bulkUpdate_title());
         setHeaderVisible(false);
         setLayout(new BorderLayout());
         setBorders(false);
 
-//        BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 200);
-//        northData.setFloatable(true);
-//        northData.setSplit(true);
-//        add(LineageTabPanel.getInstance(), northData);
-//
-//        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
-//        detailPanel = new ContentPanel();
-//        detailPanel.setFrame(false);
-//        detailPanel.setHeaderVisible(false);
-//        detailPanel.setLayout(new FitLayout());
-//        detailPanel.setBodyBorder(false);
-//        add(detailPanel, centerData);
-        
-//        setLayout(new BorderLayout());
-//        setBorders(false);
+        // BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 470);
+        // westData.setSplit(true);
+        // westData.setMargins(new Margins(0, 5, 0, 0));
+        // westData.setFloatable(true);
+        // westData.setMinSize(0);
+        // westData.setMaxSize(7000);
+        // bulkUpdateListPanel = BulkUpdateListPanel.getInstance();
+        // add(BulkUpdateListPanel.getInstance(), westData);
 
-//        ContentPanel topPanel = new ContentPanel() {
-//
-//            @Override
-//            protected void onResize(int width, int height) {
-//                super.onResize(width, height);
-//                ItemsToolBar.getInstance().setWidth(width);
-//                ItemsToolBar.getInstance().getAdvancedPanel().setWidth(width);
-//                this.layout(true);
-//            }
-//        };
-
-//        topPanel.setHeaderVisible(false);
-
-//        topPanel.add(ItemsToolBar.getInstance());
-//        topPanel.add(ItemsToolBar.getInstance().getAdvancedPanel());
-//        northData = new BorderLayoutData(LayoutRegion.NORTH);
-//        northData.setSize(34);
-//        add(topPanel, northData);
-
-        BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 470);
-        westData.setSplit(true);
-        westData.setMargins(new Margins(0, 5, 0, 0));
-        westData.setFloatable(true);
-        westData.setMinSize(0);
-        westData.setMaxSize(7000);
-        add(BulkUpdateListPanel.getInstance(), westData);
-
-        add(new ContentPanel(), new BorderLayoutData(LayoutRegion.CENTER));
-
+        BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+        detailPanel = new ContentPanel();
+        detailPanel.setFrame(false);
+        detailPanel.setHeaderVisible(false);
+        detailPanel.setLayout(new FitLayout());
+        detailPanel.setBodyBorder(false);
+        add(detailPanel, centerData);
     }
 
-    public void init(String concept, String taskId) {
-        final LineageTabPanel lineageTabPanel = LineageTabPanel.getInstance();
-        lineageTabPanel.init();
-        lineageTabPanel.getLineageListPanel().initPanel(taskId);
-        lineageTabPanel.getLineageListPanel().layout();
-        ExplainRestServiceHandler.get().explainGroupResult(BrowseRecords.getSession().getAppHeader().getMasterDataCluster(),
-                concept, taskId, new SessionAwareAsyncCallback<BaseTreeModel>() {
+    // public void init(String concept, String taskId) {
+    // final LineageTabPanel lineageTabPanel = LineageTabPanel.getInstance();
+    // lineageTabPanel.init();
+    // lineageTabPanel.getLineageListPanel().initPanel(taskId);
+    // lineageTabPanel.getLineageListPanel().layout();
+    // ExplainRestServiceHandler.get().explainGroupResult(BrowseRecords.getSession().getAppHeader().getMasterDataCluster(),
+    // concept, taskId, new SessionAwareAsyncCallback<BaseTreeModel>() {
+    //
+    // @Override
+    // public void onSuccess(BaseTreeModel rootNode) {
+    // lineageTabPanel.getExplainTablePanel().buildTree(rootNode);
+    // }
+    // });
+    // }
 
-                    @Override
-                    public void onSuccess(BaseTreeModel rootNode) {
-                        lineageTabPanel.getExplainTablePanel().buildTree(rootNode);
-                    }
-                });
+    public void initDetailPanel(EntityModel entityModel, ViewBean viewBean, List<String> idsList) {
+        this.idsList = idsList;
+        AppEvent event = new AppEvent(BrowseRecordsEvents.ViewBulkUpdateItem);
+        event.setData(BrowseRecords.ENTITY_MODEL, entityModel);
+        event.setData(BrowseRecords.VIEW_BEAN, viewBean);
+        Dispatcher.forwardEvent(event);
     }
 
     public void updateDetailPanel(ItemsDetailPanel itemsDetailPanel) {
@@ -115,4 +102,19 @@ public class BulkUpdatePanel extends ContentPanel {
         detailPanel.removeAll();
     }
 
+    public BulkUpdateListPanel getBulkUpdateListPanel() {
+        return bulkUpdateListPanel;
+    }
+
+    public List<String> getIdsList() {
+        return idsList;
+    }
+
+    public native void closeBulkUpdatePanel()/*-{
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = tabPanel.getItem("bulkUpdatePanel");
+		if (panel != undefined) {
+			tabPanel.remove(panel);
+		}
+    }-*/;
 }
