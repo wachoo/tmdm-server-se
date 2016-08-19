@@ -41,17 +41,15 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.params.AuthPolicy;
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
-import org.fusesource.hawtbuf.ByteArrayInputStream;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -1774,19 +1772,20 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public String bulkUpdateItem(String baseUrl, String concept, String xml, String language) throws ServiceException {
         try {
             String url = baseUrl + "services/rest/data/" + getCurrentDataCluster() + "/" + concept + "/bulk";
-            HttpClient httpClient = new DefaultHttpClient();
-            httpClient.getParams().setParameter(
-                    AuthPolicy.BASIC,
+            DefaultHttpClient httpClient = new DefaultHttpClient();
+            httpClient.getCredentialsProvider().setCredentials(
+                    AuthScope.ANY,
                     new UsernamePasswordCredentials(LocalUser.getLocalUser().getUsername(), LocalUser.getLocalUser()
                             .getPassword()));
             HttpPatch httpPatch = new HttpPatch(url);
-            HttpEntity entity = new InputStreamEntity(new ByteArrayInputStream(xml.getBytes()), xml.length());
+            httpPatch.setHeader("Content-Type", "text/xml; charset=utf8"); //$NON-NLS-1$ //$NON-NLS-2$
+            HttpEntity entity = new StringEntity(xml);
             httpPatch.setEntity(entity);
             HttpResponse response = httpClient.execute(httpPatch);
-            return String.valueOf(response.getStatusLine());
+            return String.valueOf(response.getStatusLine().getStatusCode());
         } catch (Exception e) {
             // TODO: handle exception
-            return e.getLocalizedMessage();
+            return e.getCause().getLocalizedMessage();
         }
 
     }
