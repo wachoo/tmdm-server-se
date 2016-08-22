@@ -543,9 +543,9 @@ public class ItemsToolBar extends ToolBar {
                         bulkUpdatePanel.initDetailPanel(BrowseRecords.getSession().getCurrentEntityModel(), BrowseRecords
                                 .getSession().getCurrentView(), idsList);
                         if (GWT.isScript()) {
-                            ItemsToolBar.this.openBulkUpdatePanel("bulkUpdatePanel", bulkUpdatePanel);
+                            ItemsToolBar.this.openBulkUpdatePanel(bulkUpdatePanel);
                         } else {
-                            ItemsToolBar.this.openDebugBulkUpdatePanel("bulkUpdatePanel", bulkUpdatePanel);
+                            ItemsToolBar.this.openDebugBulkUpdatePanel(bulkUpdatePanel);
                         }
                     } else {
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
@@ -1301,7 +1301,7 @@ public class ItemsToolBar extends ToolBar {
         return entityCombo;
     }
 
-    protected void openDebugBulkUpdatePanel(String ids, BulkUpdatePanel panel) {
+    protected void openDebugBulkUpdatePanel(BulkUpdatePanel panel) {
         Window window = new Window();
         window.setLayout(new FitLayout());
         window.add(panel);
@@ -1311,14 +1311,14 @@ public class ItemsToolBar extends ToolBar {
         window.show();
     }
 
-    protected native void openBulkUpdatePanel(String ids, BulkUpdatePanel bulkUpdatePanel)/*-{
+    protected native void openBulkUpdatePanel(BulkUpdatePanel bulkUpdatePanel)/*-{
 		var tabPanel = $wnd.amalto.core.getTabPanel();
-		var panel = tabPanel.getItem(ids);
+		var panel = tabPanel.getItem(id);
 		if (panel == undefined) {
 			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar::convertBulkUpdatePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/BulkUpdatePanel;)(bulkUpdatePanel);
 			tabPanel.add(panel);
 		}
-		tabPanel.setSelection(ids);
+		tabPanel.setSelection(id);
     }-*/;
 
     private native static JavaScriptObject convertBulkUpdatePanel(BulkUpdatePanel bulkUpdatePanel)/*-{

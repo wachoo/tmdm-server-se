@@ -30,6 +30,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 public class BulkUpdatePanel extends ContentPanel {
 
+    private String panelId = "BulkUpdatePanel";
+
     private static BulkUpdatePanel instance;
 
     private BulkUpdateListPanel bulkUpdateListPanel;
@@ -46,6 +48,7 @@ public class BulkUpdatePanel extends ContentPanel {
     }
 
     private BulkUpdatePanel() {
+        setId(panelId);
         setHeading(MessagesFactory.getMessages().bulkUpdate_title());
         setHeaderVisible(false);
         setLayout(new BorderLayout());
@@ -112,7 +115,9 @@ public class BulkUpdatePanel extends ContentPanel {
 
     public native void closeBulkUpdatePanel()/*-{
 		var tabPanel = $wnd.amalto.core.getTabPanel();
-		var panel = tabPanel.getItem("bulkUpdatePanel");
+		var panel = tabPanel.getItem(panelId);
+		$wnd.alert(tabPanel);
+		$wnd.alert(panel);
 		if (panel != undefined) {
 			tabPanel.remove(panel);
 		}

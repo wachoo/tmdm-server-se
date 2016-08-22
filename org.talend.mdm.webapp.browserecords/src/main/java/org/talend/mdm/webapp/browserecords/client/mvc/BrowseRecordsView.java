@@ -528,8 +528,5 @@ public class BrowseRecordsView extends View {
         bulkUpdateDetailPanel.addTabItem(itemBean.getLabel(), itemPanel, ItemsDetailPanel.SINGLETON, itemBean.getConcept());
         bulkUpdateDetailPanel.initBreadCrumb(new BreadCrumb(breads, bulkUpdateDetailPanel));
         BulkUpdatePanel.getInstance().updateDetailPanel(bulkUpdateDetailPanel);
-        // CommonUtil.setCurrentCachedEntity(
-        // BULKUPDATE_ITEMVIEW + itemBean.getConcept() + itemBean.getIds() + bulkUpdateDetailPanel.isOutMost(),
-        // itemPanel);
     }
 }
