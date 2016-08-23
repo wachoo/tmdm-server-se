@@ -2143,7 +2143,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 }
 
                 if (lookupFieldsForWSItemDoc.size() > 0) {
-                    itemBean.setOriginalLookupFieldMap(new HashMap<String, String>());
+                    itemBean.setOriginalLookupFieldDisplayValueMap(new HashMap<String, List<String>>());
+                    itemBean.setOriginalLookupFieldValueMap(new HashMap<String, List<String>>());
                 }
                 for (String xpath : lookupFieldsForWSItemDoc) {
                     String[] values = com.amalto.core.util.Util.getTextNodes(jobDoc, searchPrefix + xpath);
@@ -2151,7 +2152,12 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     for (String value : values) {
                         NodeList list = com.amalto.core.util.Util.getNodeList(wsItemDoc, "/" + xpath); //$NON-NLS-1$
                         if (list != null && list.getLength() > 0 && list.item(i) != null) {
-                            itemBean.getOriginalLookupFieldMap().put(xpath, list.item(i).getTextContent());
+                            if (!itemBean.getOriginalLookupFieldDisplayValueMap().containsKey(xpath)) {
+                                itemBean.getOriginalLookupFieldDisplayValueMap().put(xpath, new ArrayList());
+                                itemBean.getOriginalLookupFieldValueMap().put(xpath, new ArrayList());
+                            }
+                            itemBean.getOriginalLookupFieldDisplayValueMap().get(xpath).add(value);
+                            itemBean.getOriginalLookupFieldValueMap().get(xpath).add(list.item(i).getTextContent());
                             list.item(i).setTextContent(value);
                             ++i;
                         }
