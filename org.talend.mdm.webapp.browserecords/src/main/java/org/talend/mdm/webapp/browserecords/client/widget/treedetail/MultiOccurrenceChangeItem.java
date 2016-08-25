@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -38,6 +37,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class MultiOccurrenceChangeItem extends HorizontalPanel {
+
+    private String disabledStyle = "x-item-disabled";
 
     public interface AddRemoveHandler {
 
@@ -130,6 +131,42 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                     }
                 });
             }
+            if (ItemDetailToolBar.MASS_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
+                if (!itemNode.isKey() && !typeModel.isReadOnly()) {
+                    editNodeImg = new Image("secure/img/genericUI/bulkupdate.png"); //$NON-NLS-1$
+                    editNodeImg.getElement().setId("Edit"); //$NON-NLS-1$
+                    editNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
+                    editNodeImg.getElement().getStyle().setMarginLeft(20D, Unit.PX);
+                    editNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
+                    editNodeImg.addClickHandler(new ClickHandler() {
+
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            if (field.isReadOnly()) {
+                                field.setReadOnly(false);
+                                field.removeStyleName(disabledStyle);
+                                field.focus();
+                                itemNode.setEdited(true);
+                            } else {
+                                field.clear();
+                                field.setReadOnly(true);
+                                field.addStyleName(disabledStyle);
+                                itemNode.setEdited(false);
+                            }
+                        }
+                    });
+                    this.add(editNodeImg);
+                    this.setCellVerticalAlignment(editNodeImg, VerticalPanel.ALIGN_BOTTOM);
+                }
+                if (itemNode.isKey()) {
+                    itemNode.setEdited(true);
+                } else {
+                    itemNode.setEdited(false);
+                }
+                field.setReadOnly(true);
+                field.addStyleName(disabledStyle);
+                itemNode.setMassUpdate(true);
+            }
             this.add(field);
         }
 
@@ -168,38 +205,9 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             }
         }
 
-        if (ItemDetailToolBar.MASS_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
-            itemNode.setMassUpdate(true);
-            itemNode.setEdited(true);
-            if (field != null) {
-                if (field instanceof TextField) {
-                    ((TextField) field).setAllowBlank(true);
-                }
-                if (!itemNode.isKey() && !typeModel.isReadOnly()) {
-                    editNodeImg = new Image("secure/img/genericUI/bulkupdate.png"); //$NON-NLS-1$
-                    editNodeImg.getElement().setId("Edit"); //$NON-NLS-1$
-                    editNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
-                    editNodeImg.getElement().getStyle().setMarginLeft(20D, Unit.PX);
-                    editNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
-                    editNodeImg.addClickHandler(new ClickHandler() {
-
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            if (field.isEnabled()) {
-                                field.setEnabled(false);
-                                itemNode.setEdited(false);
-                            } else {
-                                field.setEnabled(true);
-                                itemNode.setEdited(true);
-                            }
-                        }
-                    });
-                    this.add(editNodeImg);
-                    this.setCellVerticalAlignment(editNodeImg, VerticalPanel.ALIGN_BOTTOM);
-                } else {
-                    field.setEnabled(false);
-                }
-            }
+        if (editNodeImg != null) {
+            this.add(editNodeImg);
+            this.setCellVerticalAlignment(editNodeImg, VerticalPanel.ALIGN_BOTTOM);
         }
 
         this.add(new Label()); // format placeholder, align icon on line
