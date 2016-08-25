@@ -478,9 +478,9 @@ public class TreeDetailGWTTest extends GWTTestCase {
         visibleResults.add(a_VisibleRule);
         visibleResults.add(b_VisibleRule);
         visibleResults.add(c_VisibleRule);
-        visibleResults.add(document_VisibleRule) ;
-        visibleResults.add(family_VisibleRule) ;
-        visibleResults.add(doc_VisibleRule) ;
+        visibleResults.add(document_VisibleRule);
+        visibleResults.add(family_VisibleRule);
+        visibleResults.add(doc_VisibleRule);
         // 3. Call TreeDetail.recrusiveSetItems(List<VisibleRuleResult>, ItemNodeModel)
         TreeDetail treeDetail = new TreeDetail(ItemsDetailPanel.newInstance());
         treeDetail.recrusiveSetItems(visibleResults, testNode);
@@ -592,7 +592,7 @@ public class TreeDetailGWTTest extends GWTTestCase {
         }
 
     }
-    
+
     private ViewBean getViewBean() {
         ViewBean viewBean = new ViewBean();
         EntityModel bindingEntityModel = new EntityModel();
@@ -1295,11 +1295,12 @@ public class TreeDetailGWTTest extends GWTTestCase {
         public void getExsitedViewName(String concept, AsyncCallback<String> callback) {
         }
 
-
         @Override
         public void handleNavigatorNodeLabel(String jsonString, String language, AsyncCallback<String> callback) {
-            // TODO Auto-generated method stub
-            
+        }
+
+        @Override
+        public void bulkUpdateItem(String baseUrl, String concept, String xml, String language, AsyncCallback<String> callback) {
         }
     }
 }

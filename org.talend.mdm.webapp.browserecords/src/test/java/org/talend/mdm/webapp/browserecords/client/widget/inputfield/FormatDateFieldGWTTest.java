@@ -50,7 +50,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 @SuppressWarnings("nls")
-public class FormatDateFieldGWTTest extends GWTTestCase{
+public class FormatDateFieldGWTTest extends GWTTestCase {
 
     @Override
     protected void gwtSetUp() throws Exception {
@@ -61,40 +61,40 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
         Registry.register(BrowseRecords.USER_SESSION, session);
         Registry.register(BrowseRecords.BROWSERECORDS_SERVICE, mockService);
     }
-    
+
     public void testCompareDateAndString() {
-        
+
         // 1. Date (value = "2012-05-08", date = 2012-05-08)
         String value = "2012-05-08";
         FormatDateField dateField = new FormatDateField();
         dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.datePattern));
         Date date = DateUtil.convertStringToDate(value.toString());
         assertEquals(false, compareDateAndString(dateField.getPropertyEditor(), date, value));
-        
+
         // 2. Date (value = "2012-05-09", date = 2012-05-08)
         value = "2012-05-09";
         assertEquals(true, compareDateAndString(dateField.getPropertyEditor(), date, value));
-        
+
         // 3. DateTime (value = "2012-05-08T00:00:00", date = 2012-05-08T00:00:00)
         value = "2012-05-08T00:00:00";
         dateField.setPropertyEditor(new DateTimePropertyEditor(DateUtil.formatDateTimePattern));
-        date = DateUtil.convertStringToDate(DateUtil.dateTimePattern,value.toString());
+        date = DateUtil.convertStringToDate(DateUtil.dateTimePattern, value.toString());
         dateField.setValue(date);
         assertEquals(false, compareDateAndString(dateField.getPropertyEditor(), date, value));
-        
+
         // 4. DateTime (value = "2012-05-09T00:00:00", date = 2012-05-08T00:00:00)
         value = "2012-05-09T00:00:00";
         assertEquals(true, compareDateAndString(dateField.getPropertyEditor(), date, value));
-        
+
         // 5. value = date = null;
         assertEquals(false, compareDateAndString(dateField.getPropertyEditor(), null, null));
-        
+
         // 6. value = null, date != null
         assertEquals(true, compareDateAndString(dateField.getPropertyEditor(), date, null));
-        
+
         // 7. value != null, date = null
         assertEquals(true, compareDateAndString(dateField.getPropertyEditor(), null, value));
-        
+
     }
 
     public void testValidateValue() {
@@ -141,7 +141,7 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
     }
 
     private boolean compareDateAndString(DateTimePropertyEditor propertyEditor, Date date, String objectValue) {
-    if (date == null && objectValue == null)
+        if (date == null && objectValue == null)
             return false;
         if (date != null && objectValue == null)
             return true;
@@ -154,11 +154,11 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
         else
             return true;
     }
-    
+
     public String getModuleName() {
         return "org.talend.mdm.webapp.browserecords.TestBrowseRecords";
     }
-    
+
     class MockBrowseRecordsServiceAsync implements BrowseRecordsServiceAsync {
 
         @Override
@@ -320,9 +320,9 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
 
         @Override
         public void formatValue(FormatModel model, AsyncCallback<String> callback) {
-            if(model.getFormat().equals(DateUtil.formatDateTimePattern)){
+            if (model.getFormat().equals(DateUtil.formatDateTimePattern)) {
                 callback.onSuccess("2012-05-09T00:00:00");
-            } else if(model.getFormat().equals(DateUtil.datePattern)){
+            } else if (model.getFormat().equals(DateUtil.datePattern)) {
                 callback.onSuccess("2012-05-09");
             }
         }
@@ -399,8 +399,6 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
 
         @Override
         public void getItemBeanById(String concept, String ids, String language, AsyncCallback<ItemBean> callback) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
@@ -419,6 +417,10 @@ public class FormatDateFieldGWTTest extends GWTTestCase{
 
         @Override
         public void handleNavigatorNodeLabel(String jsonString, String language, AsyncCallback<String> callback) {
+        }
+
+        @Override
+        public void bulkUpdateItem(String baseUrl, String concept, String xml, String language, AsyncCallback<String> callback) {
         }
     }
 }
