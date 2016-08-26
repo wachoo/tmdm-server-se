@@ -104,7 +104,6 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -542,11 +541,7 @@ public class ItemsToolBar extends ToolBar {
                         BulkUpdatePanel bulkUpdatePanel = BulkUpdatePanel.getInstance();
                         bulkUpdatePanel.initDetailPanel(BrowseRecords.getSession().getCurrentEntityModel(), BrowseRecords
                                 .getSession().getCurrentView(), idsList);
-                        if (GWT.isScript()) {
-                            ItemsToolBar.this.openBulkUpdatePanel(bulkUpdatePanel);
-                        } else {
-                            ItemsToolBar.this.openDebugBulkUpdatePanel(bulkUpdatePanel);
-                        }
+                        bulkUpdatePanel.renderPanel();
                     } else {
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
                                 .mass_update_choose_warning_message(), null);
@@ -1311,7 +1306,7 @@ public class ItemsToolBar extends ToolBar {
         window.show();
     }
 
-    protected native void openBulkUpdatePanel(BulkUpdatePanel bulkUpdatePanel)/*-{
+    protected native void openBulkUpdatePanel(String id, BulkUpdatePanel bulkUpdatePanel)/*-{
 		var tabPanel = $wnd.amalto.core.getTabPanel();
 		var panel = tabPanel.getItem(id);
 		if (panel == undefined) {

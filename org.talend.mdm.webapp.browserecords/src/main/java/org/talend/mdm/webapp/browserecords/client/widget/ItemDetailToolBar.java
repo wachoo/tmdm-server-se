@@ -1186,7 +1186,7 @@ public class ItemDetailToolBar extends ToolBar {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    BulkUpdatePanel.getInstance().closeBulkUpdatePanel();
+                    BulkUpdatePanel.getInstance().closePanel();
                 }
             });
         }

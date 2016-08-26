@@ -324,7 +324,7 @@ public class BrowseRecordsController extends Controller {
 
                                 @Override
                                 public void handleEvent(MessageBoxEvent be) {
-                                    BulkUpdatePanel.getInstance().closeBulkUpdatePanel();
+                                    BulkUpdatePanel.getInstance().closePanel();
                                 }
 
                             });
