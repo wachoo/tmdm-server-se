@@ -104,11 +104,8 @@ public class BulkUpdatePanel extends ContentPanel {
 
     private native void renderGwtPanel(String id, BulkUpdatePanel bulkUpdatePanel)/*-{
 		var tabPanel = $wnd.amalto.core.getTabPanel();
-		var panel = tabPanel.getItem(id);
-		if (panel == undefined) {
-			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar::convertBulkUpdatePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/BulkUpdatePanel;)(bulkUpdatePanel);
-			tabPanel.add(panel);
-		}
+		var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar::convertBulkUpdatePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/BulkUpdatePanel;)(bulkUpdatePanel);
+		tabPanel.add(panel);
 		tabPanel.setSelection(id);
     }-*/;
 

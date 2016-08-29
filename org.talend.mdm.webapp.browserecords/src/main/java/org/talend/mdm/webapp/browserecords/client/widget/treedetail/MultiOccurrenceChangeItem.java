@@ -146,11 +146,13 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                                 field.setReadOnly(false);
                                 field.removeStyleName(disabledStyle);
                                 field.focus();
+                                updateMultiOccurrenceButtonStatus(true);
                                 itemNode.setEdited(true);
                             } else {
                                 field.clear();
                                 field.setReadOnly(true);
                                 field.addStyleName(disabledStyle);
+                                updateMultiOccurrenceButtonStatus(false);
                                 itemNode.setEdited(false);
                             }
                         }
@@ -187,9 +189,10 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             if (!typeModel.isReadOnly()) {
                 removeNodeImg.addClickHandler(handler);
             }
-
-            this.add(addNodeImg);
+            addNodeImg.setVisible(editNodeImg == null);
+            this.add(addNodeImg);	
             this.setCellVerticalAlignment(addNodeImg, VerticalPanel.ALIGN_BOTTOM);
+            removeNodeImg.setVisible(editNodeImg == null);
             this.add(removeNodeImg);
             this.setCellVerticalAlignment(removeNodeImg, VerticalPanel.ALIGN_BOTTOM);
             if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
@@ -200,6 +203,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 if (!typeModel.isReadOnly()) {
                     cloneNodeImg.addClickHandler(handler);
                 }
+                cloneNodeImg.setVisible(editNodeImg == null);
                 this.add(cloneNodeImg);
                 this.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
             }
@@ -302,5 +306,17 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         app.setData("viewBean", viewBean); //$NON-NLS-1$
         app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
         Dispatcher.forwardEvent(app);
+    }
+    
+    private void updateMultiOccurrenceButtonStatus(boolean visible) {
+    	if (addNodeImg != null) {
+    		addNodeImg.setVisible(visible);
+    	}
+    	if (cloneNodeImg != null) {
+    		cloneNodeImg.setVisible(visible);
+    	}
+    	if (removeNodeImg != null) {
+    		removeNodeImg.setVisible(visible);
+    	}
     }
 }
