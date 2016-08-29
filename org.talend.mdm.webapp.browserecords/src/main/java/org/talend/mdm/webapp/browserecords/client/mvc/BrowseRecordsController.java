@@ -318,7 +318,7 @@ public class BrowseRecordsController extends Controller {
             public void onSuccess(String result) {
                 progressBar.close();
                 final MessageBox msgBox = new MessageBox();
-                if ("200".equals(result)) {
+                if (result.isEmpty()) {
                     msgBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().bulkUpdate_success(),
                             new Listener<MessageBoxEvent>() {
 
@@ -326,7 +326,6 @@ public class BrowseRecordsController extends Controller {
                                 public void handleEvent(MessageBoxEvent be) {
                                     BulkUpdatePanel.getInstance().closePanel();
                                 }
-
                             });
                 } else {
                     msgBox.info(MessagesFactory.getMessages().error_title(), result, new Listener<MessageBoxEvent>() {
@@ -335,7 +334,6 @@ public class BrowseRecordsController extends Controller {
                         public void handleEvent(MessageBoxEvent be) {
                             msgBox.close();
                         }
-
                     });
                 }
                 msgBox.show();
