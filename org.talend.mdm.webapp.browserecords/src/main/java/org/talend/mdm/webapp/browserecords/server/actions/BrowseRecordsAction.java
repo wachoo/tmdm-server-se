@@ -12,6 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -1782,12 +1786,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             HttpEntity entity = new StringEntity(xml);
             httpPatch.setEntity(entity);
             HttpResponse response = httpClient.execute(httpPatch);
-            return String.valueOf(response.getStatusLine().getStatusCode());
+            return readRestErroMessage(response);
         } catch (Exception e) {
-            // TODO: handle exception
             return e.getCause().getLocalizedMessage();
         }
-
     }
 
     @Override
@@ -1905,7 +1907,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             }
-
             return saveItem(concept, ids, doc.asXML(), false, language);
         } catch (WebBaseException e) {
             throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
@@ -2558,5 +2559,33 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         typeModel.setForeignKeyInfo(newFKInfoList);
     }
-
+    
+    private static String readRestErroMessage(HttpResponse response) {
+    	final String httpCode = "200";
+    	if (httpCode.equals(response.getStatusLine().getStatusCode())) {
+    		return "";
+    	} else {
+      		BufferedReader br = null;
+    		StringBuilder sb = new StringBuilder();
+    		try {
+    			InputStream errorInputStream = response.getEntity().getContent();
+        		String line;
+    			br = new BufferedReader(new InputStreamReader(errorInputStream));
+    			while ((line = br.readLine()) != null) {
+    				sb.append(line);
+    			}
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		} finally {
+    			if (br != null) {
+    				try {
+    					br.close();
+    				} catch (IOException e) {
+    					e.printStackTrace();
+    				}
+    			}
+    		}
+    		return sb.toString();
+    	}
+	}
 }

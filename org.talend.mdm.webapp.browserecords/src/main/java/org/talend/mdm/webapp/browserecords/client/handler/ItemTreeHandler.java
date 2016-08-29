@@ -199,7 +199,7 @@ public class ItemTreeHandler implements IsSerializable {
 
         Serializable value = currentNodeModel.getObjectValue();
 
-        if (!currentTypeModel.isSimpleType() || (currentNodeModel.isMassUpdate() && currentNodeModel.isEdited())) {
+        if (!currentNodeModel.isMassUpdate() || (currentNodeModel.isMassUpdate() && currentNodeModel.isEdited())) {
             if (currentTypeModel.isSimpleType()) {
                 if (value != null && currentNodeModel.getParent() != null) {
                     String elValue = null;
