@@ -20,6 +20,7 @@ import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -40,6 +41,8 @@ public class ItemTreeHandler implements IsSerializable {
     private EntityModel entityModel;
 
     private ItemNodeModel nodeModel;
+
+    private ItemBean itemBean;
 
     private ItemTreeHandlingStatus status;
 
@@ -67,6 +70,11 @@ public class ItemTreeHandler implements IsSerializable {
         }
 
         initConfig();
+    }
+
+    public ItemTreeHandler(ItemNodeModel nodeModel, ViewBean viewBean, ItemBean itemBean, ItemTreeHandlingStatus status) {
+        this(nodeModel, viewBean, status);
+        this.itemBean = itemBean;
     }
 
     public ItemTreeHandler(ItemNodeModel nodeModel, EntityModel entityModel, ItemTreeHandlingStatus status) {
@@ -181,10 +189,10 @@ public class ItemTreeHandler implements IsSerializable {
             if (value != null && currentNodeModel.getParent() != null) {
                 String elValue = null;
                 if (value instanceof ForeignKeyBean) {
-                    elValue = ((ForeignKeyBean) value).getId();
+                    elValue = getLookUpFieldValue(itemBean, currentNodeModel.getTypePath(), ((ForeignKeyBean) value).getId());
                     currentNodeModel.setTypeName(((ForeignKeyBean) value).getConceptName());
                 } else {
-                    elValue = value.toString();
+                    elValue = getLookUpFieldValue(itemBean, currentNodeModel.getTypePath(), value.toString());
                 }
                 root.appendChild(doc.createTextNode(elValue));
 
@@ -214,12 +222,13 @@ public class ItemTreeHandler implements IsSerializable {
                                 if (childrenEls == null || childrenEls.size() == 0) {
                                     root.appendChild(el);
                                 } else {
-                                	TypeModel childTypeModel = entityModel.getMetaDataTypes().get(childNode.getTypePath());
-                                	if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName()) ||
-                                	        childTypeModel.getType().getTypeName().equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
-                                		root.appendChild(el);
-                                	} else {
-                                		// for mixture mode
+                                    TypeModel childTypeModel = entityModel.getMetaDataTypes().get(childNode.getTypePath());
+                                    if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())
+                                            || childTypeModel.getType().getTypeName()
+                                                    .equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
+                                        root.appendChild(el);
+                                    } else {
+                                        // for mixture mode
                                         boolean alreadyHasBrother = false;
                                         for (Element myChildEl : childrenEls) {
                                             if (myChildEl.getNodeName().equals(el.getNodeName())) {
@@ -230,7 +239,7 @@ public class ItemTreeHandler implements IsSerializable {
                                         if (!alreadyHasBrother) {
                                             root.appendChild(el);
                                         }
-                                	}                                   
+                                    }
                                 }
                             } else {
                                 if (childrenEls != null && childrenEls.size() > 0) {
@@ -292,5 +301,23 @@ public class ItemTreeHandler implements IsSerializable {
             }
         }
         return els;
+    }
+
+    protected String getLookUpFieldValue(ItemBean itemBean, String path, String elValue) {
+        if (itemBean != null && itemBean.getOriginalLookupFieldDisplayValueMap() != null
+                && itemBean.getOriginalLookupFieldDisplayValueMap().containsKey(path)) {
+            List<String> displayValueList = itemBean.getOriginalLookupFieldDisplayValueMap().get(path);
+            List<String> valueList = itemBean.getOriginalLookupFieldValueMap().get(path);
+            if (displayValueList.size() > 0) {
+                String displayValue = displayValueList.get(0);
+                displayValueList.remove(0);
+                String value = valueList.get(0);
+                valueList.remove(0);
+                if (elValue.equals(displayValue)) {
+                    return value;
+                }
+            }
+        }
+        return elValue;
     }
 }
