@@ -502,6 +502,7 @@ public class StorageAdaptTest extends TestCase {
 
         String input1 = "<MyStr><Id>id-1</Id><MyStr>str-1</MyStr></MyStr>";
         String input2 = "<MyStr><Id>id-2</Id><MyStr>str-1-1-1-1-1-1-1-1-1-1-1</MyStr></MyStr>";
+        String input3 = "<MyStr><Id>id-3</Id><MyStr>str123456789123456789123456789123</MyStr></MyStr>";
         createRecord(storage, factory, repository1, typeNames, new String[] { input1 });
 
         storage.begin();
@@ -578,8 +579,48 @@ public class StorageAdaptTest extends TestCase {
         storage.end();
 
         MetadataRepository repository3 = new MetadataRepository();
-        repository3.load(StorageAdaptTest.class.getResourceAsStream("schema9_3.xsd"));
+        repository3.load(StorageAdaptTest.class.getResourceAsStream("schema10_1.xsd"));
         storage.adapt(repository3, true);
+        try {
+            assertDatabaseChange(dataSource, tables, columns, new boolean[] { true });
+        } catch (SQLException e) {
+            assertNull(e);
+        }
+
+        try {
+            assertColumnLengthChange(dataSource, "MyStr", "X_MYSTR", 35);
+        } catch (SQLException e) {
+            assertNull(e);
+        }
+
+        createRecord(storage, factory, repository3, typeNames, new String[] { input3 });
+
+        storage.begin();
+        MyStr = repository3.getComplexType("MyStr");//$NON-NLS-1$
+        qb = from(MyStr);
+        results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(3, results.getCount());
+            for (DataRecord result : results) {
+                if (result.get("Id").equals("id-1")) {
+                    assertEquals("str-1", result.get("MyStr"));
+                }
+                if (result.get("Id").equals("id-2")) {
+                    assertEquals("str-1-1-1-1-1-1-1-1-1-1-1", result.get("MyStr"));
+                }
+                if (result.get("Id").equals("id-3")) {
+                    assertEquals("str123456789123456789123456789123", result.get("MyStr"));
+                }
+
+            }
+        } finally {
+            results.close();
+        }
+        storage.end();
+
+        MetadataRepository repository4 = new MetadataRepository();
+        repository4.load(StorageAdaptTest.class.getResourceAsStream("schema9_3.xsd"));
+        storage.adapt(repository4, true);
         try {
             assertDatabaseChange(dataSource, tables, columns, new boolean[] { true });
         } catch (SQLException e) {
@@ -593,10 +634,32 @@ public class StorageAdaptTest extends TestCase {
         }
 
         storage.begin();
-        MyStr = repository2.getComplexType("MyStr");//$NON-NLS-1$
+        MyStr = repository4.getComplexType("MyStr");//$NON-NLS-1$
         qb = from(MyStr);
         results = storage.fetch(qb.getSelect());
         assertEquals(0, results.getCount());
+    }
+
+    public void test10_UseSuperTypeMaxLengthForInherit() {
+        DataSourceDefinition dataSource = ServerContext.INSTANCE.get().getDefinition("H2-DS3", STORAGE_NAME);
+        Storage storage = new HibernateStorage("MyStr", StorageType.MASTER);
+        storage.init(dataSource);
+        String[] tables = { "MyStr" };
+        String[] columns = { "X_ID", "X_MYSTR", "X_TALEND_TIMESTAMP", "X_TALEND_TASK_ID" };
+        MetadataRepository repository1 = new MetadataRepository();
+        repository1.load(StorageAdaptTest.class.getResourceAsStream("schema10_1.xsd"));
+        storage.prepare(repository1, true);
+        try {
+            assertDatabaseChange(dataSource, tables, columns, new boolean[] { true });
+        } catch (SQLException e) {
+            assertNull(e);
+        }
+
+        try {
+            assertColumnLengthChange(dataSource, "MyStr", "X_MYSTR", 35);
+        } catch (SQLException e) {
+            assertNull(e);
+        }
     }
 
     private void assertColumnLengthChange(DataSourceDefinition dataSource, String tables, String columns, int expectedLength)
