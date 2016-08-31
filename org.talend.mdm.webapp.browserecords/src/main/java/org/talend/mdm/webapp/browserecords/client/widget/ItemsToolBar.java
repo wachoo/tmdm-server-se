@@ -51,7 +51,6 @@ import org.talend.mdm.webapp.browserecords.client.widget.integrity.ListRefresh;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.LogicalDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.NoOpPostDeleteAction;
 import org.talend.mdm.webapp.browserecords.client.widget.integrity.PostDeleteAction;
-import org.talend.mdm.webapp.browserecords.server.bizhelpers.ViewHelper;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -105,6 +104,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -120,6 +120,8 @@ public class ItemsToolBar extends ToolBar {
     protected Button simulateMatchButton;
 
     protected Button uploadButton;
+
+    protected Button bulkUpdateButton;
 
     public final Button searchButton = new Button(MessagesFactory.getMessages().search_btn());
 
@@ -191,6 +193,7 @@ public class ItemsToolBar extends ToolBar {
         this.setBorders(false);
         this.setId("ItemsToolBar"); //$NON-NLS-1$
         this.setLayout(new ToolBarLayoutEx());
+
         initToolBar();
     }
 
@@ -287,7 +290,7 @@ public class ItemsToolBar extends ToolBar {
                 }
             }
         }
-
+        bulkUpdateButton.setEnabled(true);
         updateUserCriteriasList();
         this.layout(true);
     }
@@ -305,6 +308,9 @@ public class ItemsToolBar extends ToolBar {
             addSimulateMatchButton();
         }
         addImportAndExportButton();
+        if (((AppHeader) BrowseRecords.getSession().get(UserSession.APP_HEADER)).isEnterprise()) {
+            addBulkUpdateButton();
+        }
         add(new FillToolItem());
         addEntityCombo();
         updateEntityCombo();
@@ -513,6 +519,37 @@ public class ItemsToolBar extends ToolBar {
         add(uploadButton);
     }
 
+    protected void addBulkUpdateButton() {
+        bulkUpdateButton = new Button(MessagesFactory.getMessages().bulkUpdate_btn());
+        bulkUpdateButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.BulkUpdate()));
+        bulkUpdateButton.setEnabled(false);
+        bulkUpdateButton.setId("BrowseRecords_BulkUpdate"); //$NON-NLS-1$
+        bulkUpdateButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                ItemsListPanel list = ItemsListPanel.getInstance();
+                if (list.getGrid() != null) {
+                    List<String> idsList = new ArrayList<String>();
+                    List<ItemBean> selectedItems = list.getGrid().getSelectionModel().getSelectedItems();
+                    if (selectedItems.size() > 0) {
+                        for (int i = 0; i < selectedItems.size(); i++) {
+                            idsList.add(selectedItems.get(i).getIds());
+                        }
+                        BulkUpdatePanel bulkUpdatePanel = BulkUpdatePanel.getInstance();
+                        bulkUpdatePanel.initDetailPanel(BrowseRecords.getSession().getCurrentEntityModel(), BrowseRecords
+                                .getSession().getCurrentView(), idsList);
+                        bulkUpdatePanel.renderPanel();
+                    } else {
+                        MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
+                                .mass_update_choose_warning_message(), null);
+                    }
+                }
+            }
+        });
+        add(bulkUpdateButton);
+    }
+
     protected void addEntityCombo() {
         // add entity combo
         RpcProxy<List<ItemBaseModel>> entityproxy = new RpcProxy<List<ItemBaseModel>>() {
@@ -578,7 +615,7 @@ public class ItemsToolBar extends ToolBar {
 
                     if (!GenerateContainer.getDefaultViewPk().equals("")) { //$NON-NLS-1$
                         boolean isExist = false;
-                        String pk = ViewHelper.DEFAULT_VIEW_PREFIX + "_" + GenerateContainer.getDefaultViewPk(); //$NON-NLS-1$   
+                        String pk = "Browse_items_" + GenerateContainer.getDefaultViewPk(); //$NON-NLS-1$   
                         for (ItemBaseModel bm : result) {
                             if (bm.get("value").equals(pk)) { //$NON-NLS-1$                               
                                 entityCombo.setValue(bm);
@@ -1256,5 +1293,58 @@ public class ItemsToolBar extends ToolBar {
     public ComboBoxField<ItemBaseModel> getEntityCombo() {
         return entityCombo;
     }
+
+    protected void openDebugBulkUpdatePanel(BulkUpdatePanel panel) {
+        Window window = new Window();
+        window.setLayout(new FitLayout());
+        window.add(panel);
+        window.setSize(1100, 700);
+        window.setMaximizable(true);
+        window.setModal(false);
+        window.show();
+    }
+
+    protected native void openBulkUpdatePanel(String id, BulkUpdatePanel bulkUpdatePanel)/*-{
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = tabPanel.getItem(id);
+		if (panel == undefined) {
+			var panel = @org.talend.mdm.webapp.browserecords.client.widget.ItemsToolBar::convertBulkUpdatePanel(Lorg/talend/mdm/webapp/browserecords/client/widget/BulkUpdatePanel;)(bulkUpdatePanel);
+			tabPanel.add(panel);
+		}
+		tabPanel.setSelection(id);
+    }-*/;
+
+    private native static JavaScriptObject convertBulkUpdatePanel(BulkUpdatePanel bulkUpdatePanel)/*-{
+		var panel = {
+			// imitate extjs's render method, really call gxt code.
+			render : function(el) {
+				var rootPanel = @com.google.gwt.user.client.ui.RootPanel::get(Ljava/lang/String;)(el.id);
+				rootPanel.@com.google.gwt.user.client.ui.RootPanel::add(Lcom/google/gwt/user/client/ui/Widget;)(bulkUpdatePanel);
+			},
+			// imitate extjs's setSize method, really call gxt code.
+			setSize : function(width, height) {
+				bulkUpdatePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::setSize(II)(width, height);
+			},
+			// imitate extjs's getItemId, really return itemId of ContentPanel of GXT.
+			getItemId : function() {
+				return bulkUpdatePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::getItemId()();
+			},
+			// imitate El object of extjs
+			getEl : function() {
+				var el = bulkUpdatePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::getElement()();
+				return {
+					dom : el
+				};
+			},
+			// imitate extjs's doLayout method, really call gxt code.
+			doLayout : function() {
+				return bulkUpdatePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::doLayout()();
+			},
+			title : function() {
+				return bulkUpdatePanel.@org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel::getHeading()();
+			}
+		};
+		return panel;
+    }-*/;
 
 }

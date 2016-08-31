@@ -38,6 +38,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class MultiOccurrenceChangeItem extends HorizontalPanel {
 
+    private String disabledStyle = "x-item-disabled";
+
     public interface AddRemoveHandler {
 
         void addedNode(DynamicTreeItem selectedItem, String optId);
@@ -57,11 +59,15 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
 
     private Image warnImg;
 
+    private Image editNodeImg;
+
     private TreeDetail treeDetail;
 
     private Field<?> field;
 
     private ViewBean viewBean;
+
+    private boolean editable = false;
 
     public void setAddRemoveHandler(AddRemoveHandler addRemoveHandler) {
         this.addRemoveHandler = addRemoveHandler;
@@ -96,6 +102,9 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         label.setHTML(html);
         this.add(label);
+        if (ItemDetailToolBar.MASS_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
+            itemNode.setMassUpdate(true);
+        }
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 
@@ -127,7 +136,51 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                     }
                 });
             }
+            if (ItemDetailToolBar.MASS_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
+                if (!itemNode.isKey() && !typeModel.isReadOnly()) {
+                    editNodeImg = new Image("secure/img/genericUI/bulkupdate.png"); //$NON-NLS-1$
+                    editNodeImg.getElement().setId("Edit"); //$NON-NLS-1$
+                    editNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
+                    editNodeImg.getElement().getStyle().setMarginLeft(20D, Unit.PX);
+                    editNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
+                    editNodeImg.addClickHandler(new ClickHandler() {
+
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            if (editable) {
+                                field.clear();
+                                field.setReadOnly(true);
+                                field.addStyleName(disabledStyle);
+                                updateMultiOccurrenceButtonStatus(false);
+                                itemNode.setValid(true);
+                                itemNode.setEdited(false);
+                            } else {
+                                field.setReadOnly(false);
+                                field.removeStyleName(disabledStyle);
+                                field.focus();
+                                updateMultiOccurrenceButtonStatus(true);
+                                itemNode.setEdited(true);
+                            }
+                            editable = !editable;
+                        }
+                    });
+                    this.add(editNodeImg);
+                    this.setCellVerticalAlignment(editNodeImg, VerticalPanel.ALIGN_BOTTOM);
+                }
+                if (itemNode.isKey()) {
+                    itemNode.setEdited(true);
+                } else {
+                    itemNode.setEdited(false);
+                }
+                field.setReadOnly(true);
+                field.addStyleName(disabledStyle);
+                itemNode.setMassUpdate(true);
+            } else {
+                editable = true;
+            }
             this.add(field);
+        } else {
+            itemNode.setEdited(true);
         }
 
         if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
@@ -147,13 +200,12 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             if (!typeModel.isReadOnly()) {
                 removeNodeImg.addClickHandler(handler);
             }
-
             this.add(addNodeImg);
             this.setCellVerticalAlignment(addNodeImg, VerticalPanel.ALIGN_BOTTOM);
             this.add(removeNodeImg);
             this.setCellVerticalAlignment(removeNodeImg, VerticalPanel.ALIGN_BOTTOM);
             if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
-                cloneNodeImg = new Image("secure/img/genericUI/add-group.png"); //$NON-NLS-1$
+                cloneNodeImg = new Image("secure/img/genericUI/clone.png"); //$NON-NLS-1$
                 cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
                 cloneNodeImg.setTitle(MessagesFactory.getMessages().deepclone_title());
                 cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
@@ -164,6 +216,13 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 this.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
             }
         }
+
+        if (editNodeImg != null) {
+            updateMultiOccurrenceButtonStatus(editable);
+            this.add(editNodeImg);
+            this.setCellVerticalAlignment(editNodeImg, VerticalPanel.ALIGN_BOTTOM);
+        }
+
         this.add(new Label()); // format placeholder, align icon on line
         this.setCellWidth(label, "200px"); //$NON-NLS-1$
         warnImg = new Image("secure/img/genericUI/validateBadge.gif"); //$NON-NLS-1$
@@ -182,7 +241,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
     }
 
     public void switchRemoveOpt(boolean isRemoveNode, boolean isFk) {
-        if (removeNodeImg != null) {
+        if (removeNodeImg != null && editable) {
             removeNodeImg.setVisible(true);
             if (isRemoveNode) {
                 removeNodeImg.setUrl("secure/img/genericUI/delete.png"); //$NON-NLS-1$
@@ -200,10 +259,10 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
     }
 
     public void setAddIconVisible(boolean visible) {
-        if (addNodeImg != null) {
+        if (addNodeImg != null && editable) {
             addNodeImg.setVisible(visible);
         }
-        if (cloneNodeImg != null) {
+        if (cloneNodeImg != null && editable) {
             cloneNodeImg.setVisible(visible);
         }
     }
@@ -256,5 +315,17 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         app.setData("viewBean", viewBean); //$NON-NLS-1$
         app.setData(BrowseRecordsView.ITEMS_DETAIL_PANEL, itemsDetailPanel);
         Dispatcher.forwardEvent(app);
+    }
+
+    private void updateMultiOccurrenceButtonStatus(boolean visible) {
+        if (addNodeImg != null) {
+            addNodeImg.setVisible(visible);
+        }
+        if (cloneNodeImg != null) {
+            cloneNodeImg.setVisible(visible);
+        }
+        if (removeNodeImg != null) {
+            removeNodeImg.setVisible(visible);
+        }
     }
 }

@@ -33,6 +33,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.BulkUpdatePanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsListPanel;
@@ -46,9 +47,12 @@ import org.talend.mdm.webapp.browserecords.shared.VisibleRuleResult;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Registry;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.core.client.GWT;
 
 /**
  * DOC Administrator class global comment. Detailled comment
@@ -72,6 +76,8 @@ public class BrowseRecordsController extends Controller {
         registerEventTypes(BrowseRecordsEvents.ExecuteVisibleRule);
         registerEventTypes(BrowseRecordsEvents.ViewLineageItem);
         registerEventTypes(BrowseRecordsEvents.DefaultView);
+        registerEventTypes(BrowseRecordsEvents.ViewBulkUpdateItem);
+        registerEventTypes(BrowseRecordsEvents.BulkUpdateItem);
     }
 
     @Override
@@ -119,6 +125,12 @@ public class BrowseRecordsController extends Controller {
             break;
         case BrowseRecordsEvents.DefaultViewCode:
             forwardToView(view, event);
+            break;
+        case BrowseRecordsEvents.ViewBulkUpdateItemCode:
+            forwardToView(view, event);
+            break;
+        case BrowseRecordsEvents.BulkUpdateItemCode:
+            onBulkUpdateItem(event);
             break;
         default:
             break;
@@ -276,6 +288,62 @@ public class BrowseRecordsController extends Controller {
                                 });
                     }
                 });
+    }
+
+    private void onBulkUpdateItem(AppEvent event) {
+        // TODO the following code need to be refactor, it is the demo code
+        final ItemNodeModel model = event.getData();
+        final ViewBean viewBean = event.getData("viewBean"); //$NON-NLS-1$
+        final String concept = event.getData("concept");
+        final MessageBox progressBar = MessageBox.wait(MessagesFactory.getMessages().save_progress_bar_title(), MessagesFactory
+                .getMessages().save_progress_bar_message(), MessagesFactory.getMessages().please_wait());
+        final BrowseRecordsServiceAsync browseRecordsService = ServiceFactory.getInstance().getMasterService();
+        browseRecordsService.bulkUpdateItem(GWT.getHostPageBaseURL(), concept, (new ItemTreeHandler(model, viewBean,
+                BulkUpdatePanel.getInstance().getIdsList(), ItemTreeHandlingStatus.BulkUpdate)).serializeItem(), Locale
+                .getLanguage(), new SessionAwareAsyncCallback<String>() {
+
+            @Override
+            protected void doOnFailure(Throwable caught) {
+                progressBar.close();
+                String err = caught.getMessage();
+                if (err != null) {
+                    MessageBox.alert(MessagesFactory.getMessages().error_title(), XmlUtil.transformXmlToString(err), null)
+                            .setIcon(MessageBox.ERROR);
+                } else {
+                    super.doOnFailure(caught);
+                }
+            }
+
+            @Override
+            public void onSuccess(String result) {
+                progressBar.close();
+                final MessageBox msgBox = new MessageBox();
+                if (result.isEmpty()) {
+                    msgBox.info(MessagesFactory.getMessages().info_title(), MessagesFactory.getMessages().bulkUpdate_success(),
+                            new Listener<MessageBoxEvent>() {
+
+                                @Override
+                                public void handleEvent(MessageBoxEvent be) {
+                                    BulkUpdatePanel.getInstance().closePanel();
+                                }
+                            });
+                } else {
+                    msgBox.info(
+                            MessagesFactory.getMessages().error_title(),
+                            "".equals(MultilanguageMessageParser.pickOutISOMessage(result)) ? MessagesFactory.getMessages()
+                                    .output_report_null() : MultilanguageMessageParser.pickOutISOMessage(result),
+                            new Listener<MessageBoxEvent>() {
+
+                                @Override
+                                public void handleEvent(MessageBoxEvent be) {
+                                    msgBox.close();
+                                }
+                            }).setIcon(MessageBox.ERROR);
+                }
+                msgBox.show();
+                setTimeout(msgBox, 1000);
+            }
+        });
     }
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{

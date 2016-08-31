@@ -35,12 +35,12 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     private String realType;
 
-    private boolean hide = false ;
+    private boolean hide = false;
 
     private boolean visible = true;
 
     private boolean valid = false;
-    
+
     private boolean blankValid = false;
 
     private boolean rendered = false;
@@ -52,6 +52,10 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     private boolean mandatory;
 
     private String typeName;
+
+    private boolean isMassUpdate = false;
+
+    private boolean isEdited = false;
 
     public String getTypeName() {
         return typeName;
@@ -104,7 +108,7 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
     public void setValid(boolean valid) {
         this.valid = valid;
     }
-    
+
     public boolean isBlankValid() {
         return this.blankValid;
     }
@@ -292,6 +296,22 @@ public class ItemNodeModel extends BaseTreeModel implements IsSerializable {
 
     public void setCloned(boolean isCloned) {
         this.isCloned = isCloned;
+    }
+
+    public boolean isMassUpdate() {
+        return isMassUpdate;
+    }
+
+    public void setMassUpdate(boolean isMassUpdate) {
+        this.isMassUpdate = isMassUpdate;
+    }
+
+    public boolean isEdited() {
+        return isEdited;
+    }
+
+    public void setEdited(boolean isEdited) {
+        this.isEdited = isEdited;
     }
 
     public ItemNodeModel clone(boolean withValue) {

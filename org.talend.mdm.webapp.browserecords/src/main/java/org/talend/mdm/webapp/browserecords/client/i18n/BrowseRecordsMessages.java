@@ -72,7 +72,19 @@ public interface BrowseRecordsMessages extends Messages {
     String import_btn();
 
     String export_btn();
-    
+
+    String bulkUpdate_btn();
+
+    String bulkUpdate_title();
+
+    String bulkUpdate_confirm();
+
+    String bulkUpdate_success();
+
+    String bulkUpdate_progress_bar_title();
+
+    String bulkUpdate_progress_bar_message();
+
     String page_size_field_label();
 
     String page_size_label();
@@ -181,7 +193,7 @@ public interface BrowseRecordsMessages extends Messages {
 
     String criteria_BOOLEQUALSFALSE();
 
-    String criteria_EMPTY_NULL () ;
+    String criteria_EMPTY_NULL();
 
     String bookmark_heading();
 
@@ -299,6 +311,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String compare_choose_one_warning_message();
 
+    String mass_update_choose_warning_message();
+
     String delete_tip();
 
     String upload_title();
@@ -316,7 +330,7 @@ public interface BrowseRecordsMessages extends Messages {
     String label_field_delimiter();
 
     String label_field_partial_update();
-    
+
     String label_field_header_first();
 
     String label_field_encoding();
@@ -566,6 +580,6 @@ public interface BrowseRecordsMessages extends Messages {
     String navigator_panel_label();
 
     String navigator_detailPanel_label();
-    
+
     String setting_window_title();
 }

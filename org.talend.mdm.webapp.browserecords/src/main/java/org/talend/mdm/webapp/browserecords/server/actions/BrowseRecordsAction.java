@@ -12,6 +12,10 @@
 // ============================================================================
 package org.talend.mdm.webapp.browserecords.server.actions;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -39,6 +43,13 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Namespace;
@@ -1763,6 +1774,26 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
+    public String bulkUpdateItem(String baseUrl, String concept, String xml, String language) throws ServiceException {
+        try {
+            String url = baseUrl + "services/rest/data/" + getCurrentDataCluster() + "/" + concept + "/bulk";
+            DefaultHttpClient httpClient = new DefaultHttpClient();
+            httpClient.getCredentialsProvider().setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(LocalUser.getLocalUser().getUsername(), LocalUser.getLocalUser()
+                            .getPassword()));
+            HttpPatch httpPatch = new HttpPatch(url);
+            httpPatch.setHeader("Content-Type", "text/xml; charset=utf8"); //$NON-NLS-1$ //$NON-NLS-2$
+            HttpEntity entity = new StringEntity(xml);
+            httpPatch.setEntity(entity);
+            HttpResponse response = httpClient.execute(httpPatch);
+            return readRestErroMessage(response);
+        } catch (Exception e) {
+            return e.getCause().getLocalizedMessage();
+        }
+    }
+
+    @Override
     public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
         Locale locale = new Locale(language);
 
@@ -1877,7 +1908,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             }
-
             return saveItem(concept, ids, doc.asXML(), false, language);
         } catch (WebBaseException e) {
             throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
@@ -2540,5 +2570,33 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         }
         typeModel.setForeignKeyInfo(newFKInfoList);
     }
-
+    
+    private static String readRestErroMessage(HttpResponse response) {
+    	final String httpCode = "200";
+    	if (httpCode.equals(response.getStatusLine().getStatusCode())) {
+    		return "";
+    	} else {
+      		BufferedReader br = null;
+    		StringBuilder sb = new StringBuilder();
+    		try {
+    			InputStream errorInputStream = response.getEntity().getContent();
+        		String line;
+    			br = new BufferedReader(new InputStreamReader(errorInputStream));
+    			while ((line = br.readLine()) != null) {
+    				sb.append(line);
+    			}
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		} finally {
+    			if (br != null) {
+    				try {
+    					br.close();
+    				} catch (IOException e) {
+    					e.printStackTrace();
+    				}
+    			}
+    		}
+    		return sb.toString();
+    	}
+	}
 }
