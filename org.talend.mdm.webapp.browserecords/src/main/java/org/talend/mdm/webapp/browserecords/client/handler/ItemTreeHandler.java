@@ -227,52 +227,55 @@ public class ItemTreeHandler implements IsSerializable {
             if (children != null && children.size() > 0) {
                 for (ModelData child : children) {
                     ItemNodeModel childNode = (ItemNodeModel) child;
-                    Element el = buildXML(doc, childNode, ids);
-                    if (el != null) {
-                        if (status.equals(ItemTreeHandlingStatus.ToSave) || status.equals(ItemTreeHandlingStatus.BulkUpdate)) {
-                            if (isRepeatingEl(childNode)) {
-
-                                List<Element> childrenEls = childrenEl(root);
-                                if (isEmptyValueEl(el)) {
-                                    if (childrenEls == null || childrenEls.size() == 0) {
-                                        root.appendChild(el);
-                                    } else {
-                                        TypeModel childTypeModel = entityModel.getMetaDataTypes().get(childNode.getTypePath());
-                                        if (childTypeModel.getType().getTypeName().equals(DataTypeConstants.UUID.getTypeName())
-                                                || childTypeModel.getType().getTypeName()
-                                                        .equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
+                    if (currentNodeModel.isMassUpdate() == childNode.isMassUpdate()) {
+                        Element el = buildXML(doc, childNode, ids);
+                        if (el != null) {
+                            if (status.equals(ItemTreeHandlingStatus.ToSave) || status.equals(ItemTreeHandlingStatus.BulkUpdate)) {
+                                if (isRepeatingEl(childNode)) {
+                                    List<Element> childrenEls = childrenEl(root);
+                                    if (isEmptyValueEl(el)) {
+                                        if (childrenEls == null || childrenEls.size() == 0) {
                                             root.appendChild(el);
                                         } else {
-                                            // for mixture mode
-                                            boolean alreadyHasBrother = false;
-                                            for (Element myChildEl : childrenEls) {
-                                                if (myChildEl.getNodeName().equals(el.getNodeName())) {
-                                                    alreadyHasBrother = true;
-                                                    break;
+                                            TypeModel childTypeModel = entityModel.getMetaDataTypes()
+                                                    .get(childNode.getTypePath());
+                                            if (childTypeModel.getType().getTypeName()
+                                                    .equals(DataTypeConstants.UUID.getTypeName())
+                                                    || childTypeModel.getType().getTypeName()
+                                                            .equals(DataTypeConstants.AUTO_INCREMENT.getTypeName())) {
+                                                root.appendChild(el);
+                                            } else {
+                                                // for mixture mode
+                                                boolean alreadyHasBrother = false;
+                                                for (Element myChildEl : childrenEls) {
+                                                    if (myChildEl.getNodeName().equals(el.getNodeName())) {
+                                                        alreadyHasBrother = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!alreadyHasBrother) {
+                                                    root.appendChild(el);
                                                 }
                                             }
-                                            if (!alreadyHasBrother) {
-                                                root.appendChild(el);
+                                        }
+                                    } else {
+                                        if (childrenEls != null && childrenEls.size() > 0) {
+                                            for (Element myChildEl : childrenEls) {
+                                                if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl)) {
+                                                    root.removeChild(myChildEl);// clean up empty node
+                                                }
                                             }
                                         }
+                                        // append non-empty el
+                                        root.appendChild(el);
                                     }
+
                                 } else {
-                                    if (childrenEls != null && childrenEls.size() > 0) {
-                                        for (Element myChildEl : childrenEls) {
-                                            if (myChildEl.getNodeName().equals(el.getNodeName()) && isEmptyValueEl(myChildEl)) {
-                                                root.removeChild(myChildEl);// clean up empty node
-                                            }
-                                        }
-                                    }
-                                    // append non-empty el
                                     root.appendChild(el);
                                 }
-
                             } else {
                                 root.appendChild(el);
                             }
-                        } else {
-                            root.appendChild(el);
                         }
                     }
                 }

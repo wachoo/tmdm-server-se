@@ -328,13 +328,17 @@ public class BrowseRecordsController extends Controller {
                                 }
                             });
                 } else {
-                    msgBox.info(MessagesFactory.getMessages().error_title(), result, new Listener<MessageBoxEvent>() {
+                    msgBox.info(
+                            MessagesFactory.getMessages().error_title(),
+                            "".equals(MultilanguageMessageParser.pickOutISOMessage(result)) ? MessagesFactory.getMessages()
+                                    .output_report_null() : MultilanguageMessageParser.pickOutISOMessage(result),
+                            new Listener<MessageBoxEvent>() {
 
-                        @Override
-                        public void handleEvent(MessageBoxEvent be) {
-                            msgBox.close();
-                        }
-                    });
+                                @Override
+                                public void handleEvent(MessageBoxEvent be) {
+                                    msgBox.close();
+                                }
+                            }).setIcon(MessageBox.ERROR);
                 }
                 msgBox.show();
                 setTimeout(msgBox, 1000);

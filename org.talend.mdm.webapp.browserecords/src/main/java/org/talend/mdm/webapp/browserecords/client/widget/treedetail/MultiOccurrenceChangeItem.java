@@ -102,6 +102,9 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         label.setHTML(html);
         this.add(label);
+        if (ItemDetailToolBar.MASS_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
+            itemNode.setMassUpdate(true);
+        }
         if (typeModel.isSimpleType()
                 || (!typeModel.isSimpleType() && ((ComplexTypeModel) typeModel).getReusableComplexTypes().size() > 0)) {
 
@@ -149,6 +152,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                                 field.setReadOnly(true);
                                 field.addStyleName(disabledStyle);
                                 updateMultiOccurrenceButtonStatus(false);
+                                itemNode.setValid(true);
                                 itemNode.setEdited(false);
                             } else {
                                 field.setReadOnly(false);
@@ -175,6 +179,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 editable = true;
             }
             this.add(field);
+        } else {
+            itemNode.setEdited(true);
         }
 
         if (typeModel.getMaxOccurs() < 0 || typeModel.getMaxOccurs() > 1) {
