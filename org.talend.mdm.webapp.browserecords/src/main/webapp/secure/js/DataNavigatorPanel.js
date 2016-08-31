@@ -494,12 +494,12 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 				selectNode.nodeChildren = new Array();
 				selectNode.linkChildren = new Array();
 			}
-			if (selectNode.page[d.navigator_node_concept] === undefined) {
+			if (selectNode.page[d.navigator_node_foreignkey_path] === undefined) {
 				var pageObject = new Object();
 				pageObject.start = 0
-				selectNode.page[d.navigator_node_concept] = pageObject;
+				selectNode.page[d.navigator_node_foreignkey_path] = pageObject;
 			}
-			if ((selectNode.page[d.navigator_node_concept].start == 0 || selectNode.page[d.navigator_node_concept].start < (selectNode.page[d.navigator_node_concept].total + amalto.navigator.Navigator.getPageSize()))) {
+			if ((selectNode.page[d.navigator_node_foreignkey_path].start == 0 || selectNode.page[d.navigator_node_foreignkey_path].start < (selectNode.page[d.navigator_node_foreignkey_path].total + amalto.navigator.Navigator.getPageSize()))) {
 				Ext.Ajax
 						.request({
 							url : restServiceUrl + '/data/'
@@ -513,7 +513,7 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 								filterValue : filterValue,
 								parentType : selectNode.parentNode != null ? selectNode.parentNode.navigator_node_concept : "",
 								parentIds : selectNode.parentNode != null ? selectNode.parentNode.navigator_node_ids : "",
-								start : selectNode.page[d.navigator_node_concept].start,
+								start : selectNode.page[d.navigator_node_foreignkey_path].start,
 								limit : amalto.navigator.Navigator.getPageSize(),
 								language : language
 							},
@@ -522,10 +522,10 @@ amalto.itemsbrowser.NavigatorPanel = function() {
 										+ response.responseText
 										+ ')');
 								selectNode.expanded = true;
-								if (selectNode.page[d.navigator_node_concept].start == 0) {
-									selectNode.page[d.navigator_node_concept].total = resultObject.totalCount;
+								if (selectNode.page[d.navigator_node_foreignkey_path].start == 0) {
+									selectNode.page[d.navigator_node_foreignkey_path].total = resultObject.totalCount;
 								}
-								selectNode.page[d.navigator_node_concept].start = selectNode.page[d.navigator_node_concept].start
+								selectNode.page[d.navigator_node_foreignkey_path].start = selectNode.page[d.navigator_node_foreignkey_path].start
 								+ amalto.navigator.Navigator.getPageSize();
 								if (d.navigator_node_hasPrimaryKeyInfo) {
 									amalto.navigator.Navigator.handleNodeLabel(Ext.encode(resultObject.result),NAVIGATOR_NODE_IN_ENTITY_TYPE);
