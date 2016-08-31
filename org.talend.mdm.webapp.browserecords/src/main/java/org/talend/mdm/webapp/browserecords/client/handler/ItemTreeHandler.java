@@ -274,7 +274,11 @@ public class ItemTreeHandler implements IsSerializable {
                                                 }
                                             }
                                         }
+                                        // append non-empty el
+                                        root.appendChild(el);
                                     }
+                                } else {
+                                    root.appendChild(el);
                                 }
                             } else {
                                 root.appendChild(el);
