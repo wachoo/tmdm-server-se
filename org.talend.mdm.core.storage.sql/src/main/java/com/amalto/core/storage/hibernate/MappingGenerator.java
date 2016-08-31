@@ -29,6 +29,7 @@ import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.metadata.Types;
+import org.talend.mdm.commmon.util.core.CommonUtil;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -645,8 +646,11 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         Attr elementType = document.createAttribute("type"); //$NON-NLS-1$
         TypeMetadata fieldType = field.getType();
         String elementTypeName;
+        
         boolean isMultiLingualOrBase64Binary = Types.MULTI_LINGUAL.equalsIgnoreCase(fieldType.getName())
                 || Types.BASE64_BINARY.equalsIgnoreCase(fieldType.getName());
+        Object maxLength = CommonUtil.getSuperTypeMaxLength(fieldType, fieldType);
+
         if (isMultiLingualOrBase64Binary) {
             elementTypeName = TypeMapping.SQL_TYPE_TEXT;
         } else {
@@ -658,20 +662,15 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
                     length.setValue("1048576"); //$NON-NLS-1$ 1MB CLOB limit for DB2
                     propertyElement.getAttributes().setNamedItem(length);
                 }
-            } else if (fieldType.getData(MetadataRepository.DATA_MAX_LENGTH) != null) {
-                Object maxLength = fieldType.getData(MetadataRepository.DATA_MAX_LENGTH);
-                if (maxLength != null) {
-                    String maxLengthValue = String.valueOf(maxLength);
-                    int maxLengthInt = Integer.parseInt(maxLengthValue);
-                    if (maxLengthInt > dialect.getTextLimit()) {
-                        elementTypeName = TypeMapping.SQL_TYPE_TEXT;
-                    } else {
-                        Attr length = document.createAttribute("length"); //$NON-NLS-1$
-                        length.setValue(maxLengthValue);
-                        propertyElement.getAttributes().setNamedItem(length);
-                        elementTypeName = HibernateMetadataUtils.getJavaType(fieldType);
-                    }
+            } else if (maxLength != null) {
+                String maxLengthValue = String.valueOf(maxLength);
+                int maxLengthInt = Integer.parseInt(maxLengthValue);
+                if (maxLengthInt > dialect.getTextLimit()) {
+                    elementTypeName = TypeMapping.SQL_TYPE_TEXT;
                 } else {
+                    Attr length = document.createAttribute("length"); //$NON-NLS-1$
+                    length.setValue(maxLengthValue);
+                    propertyElement.getAttributes().setNamedItem(length);
                     elementTypeName = HibernateMetadataUtils.getJavaType(fieldType);
                 }
             } else if (fieldType.getData(MetadataRepository.DATA_TOTAL_DIGITS) != null
