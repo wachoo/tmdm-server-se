@@ -787,16 +787,31 @@ public class BrowseRecordsActionTest extends TestCase {
     }
 
     public void testGetErrorMessageFromWebCoreException() throws Exception {
-        RuntimeException runtimeException = new RuntimeException("throw a runtimeException");
-        CoreException coreException = new CoreException("delete_failure_constraint_violation", runtimeException);
+        RuntimeException runtimeException = new RuntimeException("RuntimeException");
+        CoreException coreException = new CoreException("default_remote_error_message", runtimeException);
         Method[] methods = BrowseRecordsAction.class.getDeclaredMethods();
         for (Method method : methods) {
             if ("getErrorMessageFromWebCoreException".equals(method.getName())) {
                 method.setAccessible(true);
-                Object para[] = { coreException, "TestModel", "1", new Locale("en") };
-                Object result = method.invoke(action, para);
-                String expectedMsg = MESSAGES.getMessage(new Locale("en"), "delete_failure_constraint_violation", "TestModel.1");
-                assertEquals(expectedMsg, result);
+                Object para1[] = { coreException, "TestModel", "1", new Locale("en") };
+                Object result1 = method.invoke(action, para1);
+                String expectedMsg = "An error occurred.TestModel.1,RuntimeException";
+                assertEquals(expectedMsg, result1);
+                
+                Object para2[] = { coreException, "", "1", new Locale("en") };
+                Object result2 = method.invoke(action, para2);
+                expectedMsg = "An error occurred.RuntimeException";
+                assertEquals(expectedMsg, result2);
+                
+                Object para3[] = { coreException, "TestModel", "", new Locale("en") };
+                Object result3 = method.invoke(action, para3);
+                expectedMsg = "An error occurred.RuntimeException";
+                assertEquals(expectedMsg, result3);
+                
+                Object para4[] = { coreException, "", "", new Locale("en") };
+                Object result4 = method.invoke(action, para4);
+                expectedMsg = "An error occurred.RuntimeException";
+                assertEquals(expectedMsg, result4);
                 break;
             }
         }
@@ -988,19 +1003,21 @@ public class BrowseRecordsActionTest extends TestCase {
         WSTransformerContextPipeline line = new WSTransformerContextPipeline(entries);
         WSTransformerContext context = new WSTransformerContext(null, line, null);
         Mockito.when(port.executeTransformerV2(Mockito.any(WSExecuteTransformerV2.class))).thenReturn(context);
+        ItemBean itemBean = new ItemBean();
+        itemBean.setItemXml(content);
 
         for (Method method : methods) {
             if ("extractUsingTransformerThroughView".equals(method.getName())) {
                 method.setAccessible(true);
                 Object para[] = { "Agency", "Browse_items_Agency", ids, "ModelTest", "ModelTest", DataModelHelper.getEleDecl(),
-                        wsItem };
+                		itemBean };
                 method.invoke(action, para);
                 String expectedMsg = "<Agency><AgencyId>1</AgencyId><Name>1</Name>"
                         + "<Etablissement><IdEtablissement>1</IdEtablissement><Adresse>Paris</Adresse></Etablissement>"
                         + "<Etablissement><IdEtablissement>2</IdEtablissement><Adresse>Ville1</Adresse></Etablissement>"
                         + "<Etablissement><IdEtablissement>3</IdEtablissement><Adresse>3</Adresse></Etablissement>"
                         + "<Region>Lausanne</Region></Agency>";
-                assertEquals(expectedMsg, wsItem.getContent().replaceAll("\r", "").replaceAll("\n", ""));
+                assertEquals(expectedMsg, itemBean.getItemXml().replaceAll("\r", "").replaceAll("\n", ""));
                 break;
             }
         }
