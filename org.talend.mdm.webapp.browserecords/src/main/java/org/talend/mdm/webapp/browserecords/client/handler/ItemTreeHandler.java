@@ -41,9 +41,9 @@ public class ItemTreeHandler implements IsSerializable {
     private EntityModel entityModel;
 
     private ItemNodeModel nodeModel;
-    
+
     private ItemBean itemBean;
-    
+
     private ItemTreeHandlingStatus status;
 
     private List<String> idsList;
@@ -72,9 +72,9 @@ public class ItemTreeHandler implements IsSerializable {
         }
         initConfig();
     }
-    
-    public ItemTreeHandler(ItemNodeModel nodeModel, ViewBean viewBean,ItemBean itemBean, ItemTreeHandlingStatus status) {
-        this(nodeModel,viewBean,status);
+
+    public ItemTreeHandler(ItemNodeModel nodeModel, ViewBean viewBean, ItemBean itemBean, ItemTreeHandlingStatus status) {
+        this(nodeModel, viewBean, status);
         this.itemBean = itemBean;
     }
 
@@ -274,12 +274,7 @@ public class ItemTreeHandler implements IsSerializable {
                                                 }
                                             }
                                         }
-                                        // append non-empty el
-                                        root.appendChild(el);
                                     }
-
-                                } else {
-                                    root.appendChild(el);
                                 }
                             } else {
                                 root.appendChild(el);
@@ -330,13 +325,22 @@ public class ItemTreeHandler implements IsSerializable {
         }
         return els;
     }
-    
-    protected String getLookUpFieldValue(ItemBean itemBean,String path, String elValue) {
-    	if (itemBean != null && itemBean.getOriginalLookupFieldMap() != null && itemBean.getOriginalLookupFieldMap().keySet().contains(path)) {
-        	if (elValue.equals(itemBean.get(path))) {
-        		return itemBean.getOriginalLookupFieldMap().get(path);
-        	}
+
+    protected String getLookUpFieldValue(ItemBean itemBean, String path, String elValue) {
+        if (itemBean != null && itemBean.getOriginalLookupFieldDisplayValueMap() != null
+                && itemBean.getOriginalLookupFieldDisplayValueMap().containsKey(path)) {
+            List<String> displayValueList = itemBean.getOriginalLookupFieldDisplayValueMap().get(path);
+            List<String> valueList = itemBean.getOriginalLookupFieldValueMap().get(path);
+            if (displayValueList.size() > 0) {
+                String displayValue = displayValueList.get(0);
+                displayValueList.remove(0);
+                String value = valueList.get(0);
+                valueList.remove(0);
+                if (elValue.equals(displayValue)) {
+                    return value;
+                }
+            }
         }
-    	return elValue;
+        return elValue;
     }
 }

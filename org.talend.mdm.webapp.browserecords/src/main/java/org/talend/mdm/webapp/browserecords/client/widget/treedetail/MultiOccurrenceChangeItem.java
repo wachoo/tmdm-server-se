@@ -83,6 +83,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         String dynamicLabel = typeModel.getLabel(Locale.getLanguage());
         HTML label = new HTML();
         String html = itemNode.getLabel();
+
         if (LabelUtil.isDynamicLabel(dynamicLabel)) {
             if (itemNode.getDynamicLabel() != null && !"".equals(itemNode.getDynamicLabel())) { //$NON-NLS-1$
                 html = itemNode.getDynamicLabel();
@@ -148,9 +149,6 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                         public void onClick(ClickEvent event) {
                             if (editable) {
                                 field.clear();
-                                if (addRemoveHandler != null) {
-                                    addRemoveHandler.clearNodeValue(treeDetail.getSelectedItem());
-                                }
                                 field.setReadOnly(true);
                                 field.addStyleName(disabledStyle);
                                 updateMultiOccurrenceButtonStatus(false);

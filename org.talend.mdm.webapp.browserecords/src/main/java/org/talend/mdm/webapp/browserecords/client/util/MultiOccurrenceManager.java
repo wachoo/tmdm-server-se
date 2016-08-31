@@ -340,8 +340,6 @@ public class MultiOccurrenceManager {
                 model.setObjectValue(typeModel.getDefaultValue());
             }
             DynamicTreeItem treeItem = treeDetail.buildGWTTree(model, null, true, null);
-            treeItem.getItemNodeModel().setMassUpdate(selectedItem.getItemNodeModel().isMassUpdate());
-            treeItem.getItemNodeModel().setEdited(selectedItem.getItemNodeModel().isEdited());
             ViewUtil.copyStyleToTreeItem(selectedItem, treeItem);
 
             DynamicTreeItem parentItem = (DynamicTreeItem) selectedItem.getParentItem();
@@ -426,25 +424,6 @@ public class MultiOccurrenceManager {
             }
             for (int i = 0; i < selectedItem.getChildCount(); i++) {
                 handleClearNodeValue((DynamicTreeItem) selectedItem.getChild(i));
-            }
-        }
-    }
-    
-    public void handleClearNode(final DynamicTreeItem selectedItem) {
-        ItemNodeModel nodeModel = selectedItem.getItemNodeModel();
-        String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
-        List<DynamicTreeItem> brothersGroup = getBrothersGroup(xpath);
-        if (brothersGroup != null) {
-            for (int i = 0; i < brothersGroup.size(); i++) {
-                DynamicTreeItem dynamicTreeItem = brothersGroup.get(i);
-                brothersGroup.remove(i);
-            }
-        }
-
-        for (int i = 0; i < item.getChildCount(); i++) {
-            if (item.getChild(i) instanceof DynamicTreeItem) {
-                DynamicTreeItem childItem = (DynamicTreeItem) item.getChild(i);
-                removeMultiOccurrenceNode(childItem);
             }
         }
     }
