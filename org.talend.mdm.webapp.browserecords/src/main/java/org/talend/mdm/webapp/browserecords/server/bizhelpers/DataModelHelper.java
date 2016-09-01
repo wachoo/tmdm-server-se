@@ -93,11 +93,12 @@ public class DataModelHelper {
 
     /**
      * DOC HSHU Comment method "parseSchema".
+     * This method shared eleDecl and made the thread unsafe, so it should be synchronized.
      * 
      * @param model
      * @param concept
      */
-    public static void parseSchema(String model, String concept, XSElementDecl elDecl, String[] ids, EntityModel entityModel,
+    public static synchronized void parseSchema(String model, String concept, XSElementDecl elDecl, String[] ids, EntityModel entityModel,
             List<String> roles) {
 
         entityModel.setConceptName(concept);
