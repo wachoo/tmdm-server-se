@@ -15,6 +15,7 @@ import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.client.widget.ItemsDetailPanel;
+import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ForeignKeySelector;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetail.DynamicTreeItem;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
@@ -47,6 +48,8 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         void removedNode(DynamicTreeItem selectedItem);
 
         void clearNodeValue(DynamicTreeItem selectedItem);
+
+        void removeAllNode(DynamicTreeItem item);
     }
 
     private AddRemoveHandler addRemoveHandler;
@@ -102,7 +105,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         label.setHTML(html);
         this.add(label);
-        if (ItemDetailToolBar.MASS_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
+        if (ItemDetailToolBar.BULK_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
             itemNode.setMassUpdate(true);
         }
         if (typeModel.isSimpleType()
@@ -136,32 +139,36 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                     }
                 });
             }
-            if (ItemDetailToolBar.MASS_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
-                if (!itemNode.isKey() && !typeModel.isReadOnly()) {
+            if (itemNode.isMassUpdate()) {
+                convertBulkUpdateField(field);
+                if (!itemNode.isKey() && !typeModel.isReadOnly()
+                        && (typeModel.getForeignkey() == null || typeModel.getForeignKeyFilter() == null)) {
                     editNodeImg = new Image("secure/img/genericUI/bulkupdate.png"); //$NON-NLS-1$
                     editNodeImg.getElement().setId("Edit"); //$NON-NLS-1$
-                    editNodeImg.setTitle(MessagesFactory.getMessages().clone_title());
+                    editNodeImg.setTitle(MessagesFactory.getMessages().bulkUpdate_title());
                     editNodeImg.getElement().getStyle().setMarginLeft(20D, Unit.PX);
                     editNodeImg.getElement().getStyle().setMarginTop(5D, Unit.PX);
                     editNodeImg.addClickHandler(new ClickHandler() {
 
                         @Override
                         public void onClick(ClickEvent event) {
+                            editable = !editable;
                             if (editable) {
-                                field.clear();
-                                field.setReadOnly(true);
-                                field.addStyleName(disabledStyle);
-                                updateMultiOccurrenceButtonStatus(false);
-                                itemNode.setValid(true);
-                                itemNode.setEdited(false);
-                            } else {
                                 field.setReadOnly(false);
                                 field.removeStyleName(disabledStyle);
                                 field.focus();
                                 updateMultiOccurrenceButtonStatus(true);
+                                treeDetail.getMultiManager().handleOptIcons();
                                 itemNode.setEdited(true);
+                            } else {
+                                field.clear();
+                                field.setReadOnly(true);
+                                field.addStyleName(disabledStyle);
+                                addRemoveHandler.removeAllNode(treeDetail.getSelectedItem());
+                                updateMultiOccurrenceButtonStatus(false);
+                                itemNode.setValid(true);
+                                itemNode.setEdited(false);
                             }
-                            editable = !editable;
                         }
                     });
                     this.add(editNodeImg);
@@ -172,11 +179,10 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 } else {
                     itemNode.setEdited(false);
                 }
-                field.setReadOnly(true);
-                field.addStyleName(disabledStyle);
-                itemNode.setMassUpdate(true);
-            } else {
-                editable = true;
+                if (ItemDetailToolBar.BULK_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
+                    field.setReadOnly(true);
+                    field.addStyleName(disabledStyle);
+                }
             }
             this.add(field);
         } else {
@@ -205,7 +211,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
             this.add(removeNodeImg);
             this.setCellVerticalAlignment(removeNodeImg, VerticalPanel.ALIGN_BOTTOM);
             if (!typeModel.isSimpleType() && itemNode.getParent() != null) {
-                cloneNodeImg = new Image("secure/img/genericUI/clone.png"); //$NON-NLS-1$
+                cloneNodeImg = new Image("secure/img/genericUI/add-group.png"); //$NON-NLS-1$
                 cloneNodeImg.getElement().setId("Clone"); //$NON-NLS-1$
                 cloneNodeImg.setTitle(MessagesFactory.getMessages().deepclone_title());
                 cloneNodeImg.getElement().getStyle().setMarginLeft(5.0, Unit.PX);
@@ -216,9 +222,12 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 this.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
             }
         }
-
+        if (ItemDetailToolBar.BULK_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
+            updateMultiOccurrenceButtonStatus(false);
+        } else {
+            editable = true;
+        }
         if (editNodeImg != null) {
-            updateMultiOccurrenceButtonStatus(editable);
             this.add(editNodeImg);
             this.setCellVerticalAlignment(editNodeImg, VerticalPanel.ALIGN_BOTTOM);
         }
@@ -326,6 +335,28 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         }
         if (removeNodeImg != null) {
             removeNodeImg.setVisible(visible);
+        }
+    }
+
+    public void setEditNodeButtonVisible(boolean visible) {
+        if (editNodeImg != null) {
+            editNodeImg.setVisible(visible);
+        }
+    }
+
+    public boolean isEditNodeButtonVisible() {
+        if (editNodeImg != null) {
+            return editNodeImg.isVisible();
+        } else {
+            return false;
+        }
+    }
+
+    private void convertBulkUpdateField(Field field) {
+        if (field instanceof ForeignKeySelector) {
+            ((ForeignKeySelector) field).setShowAddButton(false);
+            ((ForeignKeySelector) field).setShowCleanButton(false);
+            ((ForeignKeySelector) field).setShowRelationButton(false);
         }
     }
 }

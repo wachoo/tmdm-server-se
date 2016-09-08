@@ -125,7 +125,16 @@ public class MultiOccurrenceManager {
         String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
         List<DynamicTreeItem> brothersGroup = getBrothersGroup(xpath);
         if (brothersGroup != null) {
+            MultiOccurrenceChangeItem multiOccurrenceChangeItem = (MultiOccurrenceChangeItem) item.getWidget();
             brothersGroup.remove(item);
+            if (multiOccurrenceChangeItem.isEditNodeButtonVisible()) {
+                if (brothersGroup.get(0) != null) {
+                    MultiOccurrenceChangeItem firstMultiOccurrenceChangeItem = (MultiOccurrenceChangeItem) brothersGroup.get(0)
+                            .getWidget();
+                    firstMultiOccurrenceChangeItem.setEditNodeButtonVisible(true);
+                }
+            }
+
             if (brothersGroup.size() == 0) {
                 brothersGroups.remove(brothersGroup);
             }
@@ -159,6 +168,11 @@ public class MultiOccurrenceManager {
                 @Override
                 public void clearNodeValue(DynamicTreeItem selectedItem) {
                     handleClearNodeValue(selectedItem);
+                }
+
+                @Override
+                public void removeAllNode(DynamicTreeItem item) {
+                    handleRemoveAllNode(item);
                 }
             });
         }
@@ -339,7 +353,10 @@ public class MultiOccurrenceManager {
             if (typeModel.getDefaultValue() != null) {
                 model.setObjectValue(typeModel.getDefaultValue());
             }
+            model.setMassUpdate(selectedModel.isMassUpdate());
             DynamicTreeItem treeItem = treeDetail.buildGWTTree(model, null, true, null);
+            model.setEdited(selectedModel.isEdited());
+            ((MultiOccurrenceChangeItem) treeItem.getWidget()).setEditNodeButtonVisible(false);
             ViewUtil.copyStyleToTreeItem(selectedItem, treeItem);
 
             DynamicTreeItem parentItem = (DynamicTreeItem) selectedItem.getParentItem();
@@ -424,6 +441,47 @@ public class MultiOccurrenceManager {
             }
             for (int i = 0; i < selectedItem.getChildCount(); i++) {
                 handleClearNodeValue((DynamicTreeItem) selectedItem.getChild(i));
+            }
+        }
+    }
+
+    public void handleRemoveAllNode(DynamicTreeItem item) {
+        TreeItemEx parentItem = item.getParentItem();
+        ItemNodeModel nodeModel = item.getItemNodeModel();
+        String xpath = CommonUtil.getRealXpathWithoutLastIndex(nodeModel);
+        List<DynamicTreeItem> brothersGroup = getBrothersGroup(xpath);
+        List<DynamicTreeItem> items = new ArrayList<DynamicTreeItem>();
+        if (brothersGroup != null) {
+            for (int i = 1; i < brothersGroup.size(); i++) {
+                items.add(brothersGroup.get(i));
+            }
+            for (int i = 0; i < items.size(); i++) {
+                removeNodeFromParent((DynamicTreeItem) parentItem, items.get(i));
+            }
+            handleClearNodeValue(item);
+        }
+    }
+
+    public void removeNodeFromParent(DynamicTreeItem parentItem, DynamicTreeItem selectedItem) {
+        TreeDetailGridFieldCreator.deleteField(selectedItem.getItemNodeModel(), treeDetail.getFieldMap());
+        removeMultiOccurrenceNode(selectedItem);
+        selectedItem.getItemNodeModel().setObjectValue(null);
+        warningItems(selectedItem.getItemNodeModel());
+        String selectedXpath = CommonUtil.getRealXPath(selectedItem.getItemNodeModel());
+        parentItem.removeItem(selectedItem);
+        parentItem.getItemNodeModel().remove(selectedItem.getItemNodeModel());
+        parentItem.getItemNodeModel().setChangeValue(true);
+        Set<ItemNodeModel> fkContainers = ForeignKeyUtil.getAllForeignKeyModelParent(treeDetail.getViewBean(),
+                selectedItem.getItemNodeModel());
+        for (ItemNodeModel fkContainer : fkContainers) {
+            treeDetail.getFkRender().removeRelationFkPanel(fkContainer);
+        }
+        handleOptIcon(selectedXpath);
+        if (parentItem.getItemNodeModel().getChildCount() > 0) {
+            ItemNodeModel child = (ItemNodeModel) parentItem.getItemNodeModel().getChild(0);
+            Field<?> field = treeDetail.getFieldMap().get(child.getId().toString());
+            if (field != null) {
+                TreeDetailGridFieldCreator.updateMandatory(field, child, treeDetail.getFieldMap());
             }
         }
     }

@@ -23,6 +23,7 @@ import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.UserSession;
+import org.talend.mdm.webapp.browserecords.client.widget.ItemDetailToolBar;
 import org.talend.mdm.webapp.browserecords.shared.AppHeader;
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
@@ -101,6 +102,51 @@ public class MultiOccurrenceChangeItemGWTTest extends GWTTestCase {
         multiOccurrenceChangeItem.clearValue();
         assertEquals(null, itemNodeModel.getObjectValue());
         assertEquals(true, itemNodeModel.isChangeValue());
+    }
+
+    public void testMassUpdateMultiOccurrenceItem() {
+        ItemNodeModel itemNodeModel = new ItemNodeModel();
+        itemNodeModel.setTypePath("T/sub"); //$NON-NLS-1$
+        itemNodeModel.setLabel("sub"); //$NON-NLS-1$
+        itemNodeModel.setObjectValue("TestNodeValue"); //$NON-NLS-1$
+        ViewBean viewBean = new ViewBean();
+        EntityModel entityModel = new EntityModel();
+        LinkedHashMap<String, TypeModel> metaDataTypes = new LinkedHashMap<String, TypeModel>();
+        TypeModel typeModel = new SimpleTypeModel("sub", DataTypeConstants.STRING); //$NON-NLS-1$
+        Map<String, String> labelMap = new HashMap<String, String>();
+        typeModel.setLabelMap(labelMap);
+        typeModel.setMinOccurs(-1);
+        typeModel.setMaxOccurs(-1);
+        typeModel.getType();
+        metaDataTypes.put("T/sub", typeModel); //$NON-NLS-1$
+        entityModel.setMetaDataTypes(metaDataTypes);
+        viewBean.setBindingEntityModel(entityModel);
+        Map<String, Field<?>> fieldMap = new HashMap<String, Field<?>>();
+        MultiOccurrenceChangeItem multiOccurrenceChangeItem = new MultiOccurrenceChangeItem(itemNodeModel, viewBean, fieldMap,
+                ItemDetailToolBar.BULK_UPDATE_OPERATION, null);
+        String result = multiOccurrenceChangeItem.getWidget(4).toString();
+        assertTrue(result.contains("src=\"secure/img/genericUI/bulkupdate.png\""));
+        assertTrue(result.contains("id=\"Edit\""));
+        assertTrue(result.contains("title=\"Bulk Update\""));
+        assertEquals(true, itemNodeModel.isMassUpdate());
+        assertEquals(false, itemNodeModel.isEdited());
+
+        itemNodeModel.setKey(true);
+        multiOccurrenceChangeItem = new MultiOccurrenceChangeItem(itemNodeModel, viewBean, fieldMap,
+                ItemDetailToolBar.BULK_UPDATE_OPERATION, null);
+        result = multiOccurrenceChangeItem.getWidget(4).toString();
+        assertFalse(result.contains("src=\"secure/img/genericUI/bulkupdate.png\""));
+        assertEquals(true, itemNodeModel.isMassUpdate());
+        assertEquals(true, itemNodeModel.isEdited());
+
+        itemNodeModel.setKey(false);
+        typeModel.setReadOnly(true);
+        multiOccurrenceChangeItem = new MultiOccurrenceChangeItem(itemNodeModel, viewBean, fieldMap,
+                ItemDetailToolBar.BULK_UPDATE_OPERATION, null);
+        result = multiOccurrenceChangeItem.getWidget(4).toString();
+        assertFalse(result.contains("src=\"secure/img/genericUI/bulkupdate.png\""));
+        assertEquals(true, itemNodeModel.isMassUpdate());
+        assertEquals(false, itemNodeModel.isEdited());
     }
 
     @Override
