@@ -85,6 +85,8 @@ public interface BrowseRecordsMessages extends Messages {
 
     String bulkUpdate_progress_bar_message();
 
+    String bulkUpdate_foreignkey_warning();
+
     String page_size_field_label();
 
     String page_size_label();
@@ -406,6 +408,8 @@ public interface BrowseRecordsMessages extends Messages {
     String add_btn();
 
     String remove_btn();
+
+    String edit_btn();
 
     String abstract_type();
 

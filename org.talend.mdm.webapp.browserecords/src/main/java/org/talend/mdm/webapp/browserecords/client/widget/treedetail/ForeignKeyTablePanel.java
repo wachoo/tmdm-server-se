@@ -104,6 +104,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
     Button createFkButton = new Button(MessagesFactory.getMessages().create_btn(), AbstractImagePrototype.create(Icons.INSTANCE
             .Create()));
 
+    Button editFkButton = new Button(MessagesFactory.getMessages().edit_btn(), AbstractImagePrototype.create(Icons.INSTANCE
+            .BulkUpdate()));
+
     TypeModel fkTypeModel;
 
     List<ItemNodeModel> fkModels;
@@ -136,7 +139,11 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     private ForeignKeySelector foreignKeySelector;
 
-    public ForeignKeyTablePanel(String panelName, boolean staging) {
+    private boolean isBulkUpdate = false;
+
+    private boolean enable = false;
+
+    public ForeignKeyTablePanel(String panelName, boolean staging, boolean isBulkUpdate) {
         super();
         this.setHeaderVisible(false);
         this.setLayout(new FitLayout());
@@ -144,8 +151,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         this.setBodyBorder(false);
         this.panelName = panelName;
         this.staging = staging;
+        this.isBulkUpdate = isBulkUpdate;
         initBaseComponent();
-        // fkWindow.setStaging(staging);
     }
 
     public ForeignKeyTablePanel(final EntityModel entityModel, ItemNodeModel parent, final List<ItemNodeModel> fkModels,
@@ -161,12 +168,24 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
     private void initBaseComponent() {
         // topComponent
-        toolBar.add(addFkButton);
-        toolBar.add(new SeparatorToolItem());
-        toolBar.add(removeFkButton);
-        toolBar.add(new SeparatorToolItem());
-        toolBar.add(createFkButton);
-        toolBar.add(new SeparatorToolItem());
+
+        if (isBulkUpdate) {
+            addFkButton.setEnabled(false);
+            toolBar.add(addFkButton);
+            toolBar.add(new SeparatorToolItem());
+            removeFkButton.setEnabled(false);
+            toolBar.add(removeFkButton);
+            toolBar.add(new SeparatorToolItem());
+            toolBar.add(editFkButton);
+            toolBar.add(new SeparatorToolItem());
+        } else {
+            toolBar.add(addFkButton);
+            toolBar.add(new SeparatorToolItem());
+            toolBar.add(removeFkButton);
+            toolBar.add(new SeparatorToolItem());
+            toolBar.add(createFkButton);
+            toolBar.add(new SeparatorToolItem());
+        }
         this.setTopComponent(toolBar);
         // bottomComponent
         bottomPanel.setWidth("100%"); //$NON-NLS-1$
@@ -195,6 +214,19 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
 
         addListener();
 
+        if (isBulkUpdate) {
+            for (int i = 0; i < fkModels.size(); i++) {
+                fkModels.get(i).setMassUpdate(isBulkUpdate);
+            }
+        }
+        if (fkTypeModel.getForeignKeyFilter() != null) {
+            editFkButton.setEnabled(false);
+            MessageBox.alert(MessagesFactory.getMessages().warning_title(),
+                    MessagesFactory.getMessages().bulkUpdate_foreignkey_warning(), null).setIcon(MessageBox.WARNING);
+        }
+        if (fkTypeModel.isReadOnly()) {
+            editFkButton.setEnabled(false);
+        }
         proxy = new PagingModelMemoryProxy(this.fkModels);
         loader = new BasePagingLoader<PagingLoadResult<ModelData>>(proxy);
         store = new ListStore<ItemNodeModel>(loader);
@@ -360,6 +392,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
         loader.setRemoteSort(true);
 
         updateMandatory();
+        if (isBulkUpdate) {
+            grid.setEnabled(false);
+        }
     }
 
     private boolean isReadonly(final EntityModel model) {
@@ -473,6 +508,42 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             addFkButton.setEnabled(false);
             removeFkButton.setEnabled(false);
         }
+
+        editFkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(ButtonEvent ce) {
+                enable = !enable;
+                if (enable) {
+                    addFkButton.setEnabled(true);
+                    removeFkButton.setEnabled(true);
+                    grid.setEnabled(true);
+                    for (int i = 0; i < fkModels.size(); i++) {
+                        fkModels.get(i).setEdited(enable);
+                    }
+                } else {
+                    addFkButton.setEnabled(false);
+                    removeFkButton.setEnabled(false);
+                    foreignKeySelector.setEnabled(false);
+                    grid.setEnabled(false);
+
+                    if (fkModels.size() > 1) {
+                        for (int i = fkModels.size() - 1; i >= 1; i--) {
+                            delFk(fkModels.get(i));
+                        }
+                    }
+                    ItemNodeModel itemNodeModel = grid.getStore().getAt(0);
+                    if (itemNodeModel != null) {
+                        itemNodeModel.setObjectValue(null);
+                        itemNodeModel.setChangeValue(false);
+                        itemNodeModel.setEdited(enable);
+                    }
+                    updateMandatory();
+                    grid.getView().layout();
+                    pagingBar.refresh();
+                }
+            }
+        });
     }
 
     private boolean addFk() {
@@ -493,6 +564,8 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
                 index = lastFkIndex;
             }
             ItemNodeModel newFkModel = lastRowModel.clone(false);
+            newFkModel.setMassUpdate(isBulkUpdate);
+            newFkModel.setEdited(enable);
             parent.insert(newFkModel, index + 1);
             newFkModel.setParent(parent);
             fkModels.add(newFkModel);
@@ -559,7 +632,9 @@ public class ForeignKeyTablePanel extends ContentPanel implements ReturnCriteria
             optGrid.setCellPadding(0);
             optGrid.setCellSpacing(0);
             optGrid.setWidget(0, 0, foreignKeySelector);
-            optGrid.setWidget(0, 1, linkFKBtn);
+            if (!isBulkUpdate) {
+                optGrid.setWidget(0, 1, linkFKBtn);
+            }
             return optGrid;
         }
     };
