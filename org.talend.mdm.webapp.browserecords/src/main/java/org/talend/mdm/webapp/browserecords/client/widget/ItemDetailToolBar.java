@@ -56,6 +56,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.treedetail.TreeDetailUt
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.core.El;
@@ -1137,6 +1138,7 @@ public class ItemDetailToolBar extends ToolBar {
             saveAndCloseButton.setId("saveAndCloseButtonOfMassUpdate"); //$NON-NLS-1$
             saveAndCloseButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.save_and_close()));
             saveAndCloseButton.setToolTip(MessagesFactory.getMessages().save_close_tip());
+            saveAndCloseButton.setWidth("105px");
             saveAndCloseButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
@@ -1196,12 +1198,13 @@ public class ItemDetailToolBar extends ToolBar {
             cancelButton.setId("cancelButtonOfMassUpdate"); //$NON-NLS-1$
             cancelButton.setIcon(AbstractImagePrototype.create(Icons.INSTANCE.Delete()));
             cancelButton.setToolTip(MessagesFactory.getMessages().save_close_tip());
-
+            cancelButton.setWidth("61px");
             cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                 @Override
                 public void componentSelected(ButtonEvent ce) {
-                    BulkUpdatePanel.getInstance().closePanel();
+                    BulkUpdatePanel bulkUpdatePanel = Registry.get(BrowseRecords.BULK_UPDATE_PANEL);
+                    bulkUpdatePanel.closePanel();
                 }
             });
         }

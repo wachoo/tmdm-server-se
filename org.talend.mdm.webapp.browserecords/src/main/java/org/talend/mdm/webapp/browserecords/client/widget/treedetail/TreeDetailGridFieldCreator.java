@@ -42,6 +42,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.ComboBoxFiel
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatDateField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatNumberField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.FormatTextField;
+import org.talend.mdm.webapp.browserecords.client.widget.inputfield.PictureField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.SimpleComboBoxField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.UrlField;
 import org.talend.mdm.webapp.browserecords.client.widget.inputfield.validator.TextFieldValidator;
@@ -176,6 +177,7 @@ public class TreeDetailGridFieldCreator {
             TypeFieldCreateContext context = new TypeFieldCreateContext(dataType);
             context.setLanguage(language);
             context.setMandatory(node.isMandatory());
+            context.setBulkUpdate(node.isMassUpdate());
             TypeFieldCreator typeFieldCreator = new TypeFieldCreator(new TypeFieldSource(TypeFieldSource.FORM_INPUT), context);
             Map<String, TypeFieldStyle> sytles = new HashMap<String, TypeFieldStyle>();
             sytles.put(TypeFieldStyle.ATTRI_WIDTH, new TypeFieldStyle(TypeFieldStyle.ATTRI_WIDTH,
@@ -223,9 +225,7 @@ public class TreeDetailGridFieldCreator {
 
         }
         fieldMap.put(node.getId().toString(), field);
-        if (!ItemDetailToolBar.BULK_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
-            updateMandatory(field, node, fieldMap);
-        }
+        updateMandatory(field, node, fieldMap);
         addFieldListener(dataType, field, node, fieldMap);
         return field;
     }
@@ -445,8 +445,8 @@ public class TreeDetailGridFieldCreator {
     }
 
     public static void updateMandatory(Field<?> field, ItemNodeModel node, Map<String, Field<?>> fieldMap) {
-
         boolean flag = false;
+        boolean noBulkUpdateFlag = node.isMassUpdate() && !node.isEdited();
         ItemNodeModel parent = (ItemNodeModel) node.getParent();
         if (parent != null && parent.getParent() != null && !parent.isMandatory()) {
             List<ModelData> childs = parent.getChildren();
@@ -459,18 +459,20 @@ public class TreeDetailGridFieldCreator {
             }
 
             autoFillValue4MandatoryBooleanField(flag, childs, fieldMap);
-
             for (int i = 0; i < childs.size(); i++) {
                 ItemNodeModel mandatoryNode = (ItemNodeModel) childs.get(i);
                 Field<?> updateField = fieldMap.get(mandatoryNode.getId().toString());
                 if (updateField != null && mandatoryNode.isMandatory()) {
-                    setMandatory(updateField, flag ? mandatoryNode.isMandatory() : !mandatoryNode.isMandatory());
+                    boolean noBulkUpdateChildFlag = mandatoryNode.isMassUpdate() && !mandatoryNode.isEdited();
+                    boolean isFieldMandatory = flag ? mandatoryNode.isMandatory() : !mandatoryNode.isMandatory();
+                    mandatoryNode.setFieldMandatory(isFieldMandatory);
+                    setMandatory(updateField, noBulkUpdateChildFlag ? false : isFieldMandatory);
                     mandatoryNode.setValid(updateField.validate());
                 }
             }
-
         } else {
-            setMandatory(field, node.isMandatory());
+            node.setFieldMandatory(node.isMandatory());
+            setMandatory(field, noBulkUpdateFlag ? false : node.isMandatory());
         }
     }
 
@@ -514,7 +516,7 @@ public class TreeDetailGridFieldCreator {
     }
 
     @SuppressWarnings("rawtypes")
-    private static void setMandatory(Field<?> field, boolean mandatory) {
+    public static void setMandatory(Field<?> field, boolean mandatory) {
         if (!BrowseRecords.getSession().getAppHeader().isAutoValidate()) {
             return;
         }
@@ -524,6 +526,9 @@ public class TreeDetailGridFieldCreator {
             ((BooleanField) field).setAllowBlank(!mandatory);
         } else if (field instanceof DateField) {
             ((DateField) field).setAllowBlank(!mandatory);
+        } else if (field instanceof PictureField) {
+            ((PictureField) field).setMandatory(mandatory);
+            ((PictureField) field).setAllowBlank(!mandatory);
         } else if (field instanceof TextField) {
             ((TextField) field).setAllowBlank(!mandatory);
         } else if (field instanceof UrlField) {
@@ -531,7 +536,7 @@ public class TreeDetailGridFieldCreator {
         }
     }
 
-    private static void validate(Field<?> field, ItemNodeModel node) {
+    public static void validate(Field<?> field, ItemNodeModel node) {
         boolean isEmpty = field.getRawValue().isEmpty();
         if (field instanceof NumberField) {
             node.setBlankValid(((NumberField) field).getAllowBlank() || !isEmpty);
