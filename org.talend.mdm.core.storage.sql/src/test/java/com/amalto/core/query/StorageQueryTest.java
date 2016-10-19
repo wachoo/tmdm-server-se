@@ -46,7 +46,6 @@ import org.talend.mdm.commmon.metadata.FieldMetadata;
 import com.amalto.core.delegator.BeanDelegatorContainer;
 import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.objects.UpdateReportPOJO;
-import com.amalto.core.query.SystemStorageTest.MockUser;
 import com.amalto.core.query.optimization.RangeOptimizer;
 import com.amalto.core.query.optimization.UpdateReportOptimizer;
 import com.amalto.core.query.user.Alias;
@@ -385,28 +384,59 @@ public class StorageQueryTest extends StorageTestCase {
         try {
             storage.begin();
             {
-                UserQueryBuilder qb = from(person);
+                UserQueryBuilder qb = from(address);
                 storage.delete(qb.getSelect());
-
-                qb = from(address);
-                storage.delete(qb.getSelect());
-
                 qb = from(country);
                 storage.delete(qb.getSelect());
-
-                qb = from(e2);
+                qb = from(person);
                 storage.delete(qb.getSelect());
-
+                qb = from(b);
+                storage.delete(qb.getSelect());
+                qb = from(d);
+                storage.delete(qb.getSelect());
+                qb = from(a);
+                storage.delete(qb.getSelect());
+                qb = from(supplier);
+                storage.delete(qb.getSelect());
+                qb = from(productFamily);
+                storage.delete(qb.getSelect());
+                qb = from(store);
+                storage.delete(qb.getSelect());
+                qb = from(product);
+                storage.delete(qb.getSelect());
                 qb = from(e1);
                 storage.delete(qb.getSelect());
-
-                qb = from(employee1);
+                qb = from(e2);
                 storage.delete(qb.getSelect());
-
                 qb = from(manager1);
                 storage.delete(qb.getSelect());
-
-                qb = from(product);
+                qb = from(entityA);
+                storage.delete(qb.getSelect());
+                qb = from(ContainedEntityB);
+                storage.delete(qb.getSelect());
+                qb = from(city);
+                storage.delete(qb.getSelect());
+                qb = from(organization);
+                storage.delete(qb.getSelect());
+                qb = from(repeatableElementsEntity);
+                storage.delete(qb.getSelect());
+                qb = from(rr);
+                storage.delete(qb.getSelect());
+                qb = from(compte);
+                storage.delete(qb.getSelect());
+                qb = from(contexte);
+                storage.delete(qb.getSelect());
+                qb = from(personne);
+                storage.delete(qb.getSelect());
+                qb = from(cpo_service);
+                storage.delete(qb.getSelect());
+                qb = from(location);
+                storage.delete(qb.getSelect());
+                qb = from(organisation);
+                storage.delete(qb.getSelect());
+                qb = from(e_entity);
+                storage.delete(qb.getSelect());
+                qb = from(t_entity);
                 storage.delete(qb.getSelect());
             }
             storage.commit();
