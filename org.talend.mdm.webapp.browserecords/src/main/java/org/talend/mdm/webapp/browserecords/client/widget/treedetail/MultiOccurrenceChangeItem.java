@@ -87,6 +87,7 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
         String dynamicLabel = typeModel.getLabel(Locale.getLanguage());
         HTML label = new HTML();
         String html = itemNode.getLabel();
+        editable = itemNode.isEdited();
 
         if (LabelUtil.isDynamicLabel(dynamicLabel)) {
             if (itemNode.getDynamicLabel() != null && !"".equals(itemNode.getDynamicLabel())) { //$NON-NLS-1$
@@ -188,11 +189,16 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 if (itemNode.isKey()) {
                     itemNode.setEdited(true);
                 } else {
-                    itemNode.setEdited(false);
+                    itemNode.setEdited(editable);
                 }
                 if (ItemDetailToolBar.BULK_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
-                    field.setReadOnly(true);
-                    field.addStyleName(disabledStyle);
+                    if (editable) {
+                        field.setReadOnly(false);
+                        field.removeStyleName(disabledStyle);
+                    } else {
+                        field.setReadOnly(true);
+                        field.addStyleName(disabledStyle);
+                    }
                 }
             }
             this.add(field);
@@ -231,6 +237,9 @@ public class MultiOccurrenceChangeItem extends HorizontalPanel {
                 }
                 this.add(cloneNodeImg);
                 this.setCellVerticalAlignment(cloneNodeImg, VerticalPanel.ALIGN_BOTTOM);
+            }
+            if (!editable && editNodeImg != null) {
+            	updateMultiOccurrenceButtonStatus(false);
             }
         }
         if (!ItemDetailToolBar.BULK_UPDATE_OPERATION.equalsIgnoreCase(operation)) {
