@@ -26,21 +26,20 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.talend.mdm.commmon.util.datamodel.management.BusinessConcept;
 import org.talend.mdm.commmon.util.datamodel.management.ReusableType;
 
-import com.amalto.core.webservice.WSDataClusterPK;
-import com.amalto.core.webservice.WSGetItemPKsByCriteria;
-import com.amalto.core.webservice.WSGetItemPKsByFullCriteria;
-import com.amalto.core.webservice.WSItemPKsByCriteriaResponse;
-import com.amalto.core.webservice.WSItemPKsByCriteriaResponseResults;
 import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.json.JSONObject;
 import com.amalto.webapp.core.util.Util;
+import com.amalto.webapp.util.webservices.WSDataClusterPK;
+import com.amalto.webapp.util.webservices.WSGetItemPKsByCriteria;
+import com.amalto.webapp.util.webservices.WSGetItemPKsByFullCriteria;
+import com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponse;
+import com.amalto.webapp.util.webservices.WSItemPKsByCriteriaResponseResults;
 
 public class ExportingServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         org.apache.log4j.Logger.getLogger(this.getClass()).info("SERVLET exporting for excel "); //$NON-NLS-1$
 
@@ -56,9 +55,8 @@ public class ExportingServlet extends HttpServlet {
 
         String cluster = request.getParameter("cluster"); //$NON-NLS-1$
         String parametersValues = request.getParameter("params"); //$NON-NLS-1$
-        if (parametersValues == null) {
+        if (parametersValues == null)
             parametersValues = ""; //$NON-NLS-1$
-        }
 
         org.apache.log4j.Logger.getLogger(this.getClass()).debug("params =" + parametersValues); //$NON-NLS-1$
 
@@ -74,15 +72,13 @@ public class ExportingServlet extends HttpServlet {
                 if (indexMatch > 0) {
                     String tmpParam = tmpSplit.substring(0, indexMatch);
                     paramVector.add(tmpParam);
-                } else {
+                } else
                     paramVector.add(""); //$NON-NLS-1$
-                }
 
-                if (indexMatch + 3 >= tmpSplit.length()) {
+                if (indexMatch + 3 >= tmpSplit.length())
                     tmpSplit = ""; //$NON-NLS-1$
-                } else {
+                else
                     tmpSplit = tmpSplit.substring(indexMatch + 3);
-                }
             }
         }
 
@@ -143,7 +139,7 @@ public class ExportingServlet extends HttpServlet {
                     xpathes.add(path.substring(1));
                 }
             }
-
+            
             List<String> types = SchemaWebAgent.getInstance().getBindingType(businessConcept.getE());
             for (String type : types) {
                 List<ReusableType> subTypes = SchemaWebAgent.getInstance().getMySubtypes(type);
@@ -156,8 +152,8 @@ public class ExportingServlet extends HttpServlet {
                         }
                     }
                 }
-            }
-
+            }        
+     
             Map<String, String> inheritanceForeignKeyMap = businessConcept.getInheritanceForeignKeyMap();
             if (inheritanceForeignKeyMap.size() > 0) {
                 Set<String> keySet = inheritanceForeignKeyMap.keySet();
@@ -168,9 +164,10 @@ public class ExportingServlet extends HttpServlet {
                         xpathes.add(path.substring(1));
                     }
                 }
-            }
+            } 
 
             StringBuilder keysb = new StringBuilder();
+            keysb.append(keys);
             keysb.append("$"); //$NON-NLS-1$
             keysb.append(joinSet(xpathes, ",")); //$NON-NLS-1$
             keysb.append("$"); //$NON-NLS-1$
@@ -178,7 +175,7 @@ public class ExportingServlet extends HttpServlet {
 
             WSItemPKsByCriteriaResponse results = Util.getPort().getItemPKsByFullCriteria(
                     new WSGetItemPKsByFullCriteria(new WSGetItemPKsByCriteria(wsDataClusterPK, entity, contentWords, keysb
-                            .toString(), keys, fromDate, toDate, 0, Integer.MAX_VALUE), false));
+                            .toString(), fromDate, toDate, 0, Integer.MAX_VALUE), false));
 
             // create a cell style
             HSSFCellStyle cs = wb.createCellStyle();
@@ -233,9 +230,8 @@ public class ExportingServlet extends HttpServlet {
     }
 
     private String joinSet(Set<String> set, String decollator) {
-        if (set == null) {
-            return ""; //$NON-NLS-1$
-        }
+        if (set == null)
+            return "";  //$NON-NLS-1$
         StringBuffer sb = new StringBuffer();
         boolean isFirst = true;
         for (String str : set) {
@@ -249,7 +245,6 @@ public class ExportingServlet extends HttpServlet {
         return sb.toString();
     }
 
-    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
