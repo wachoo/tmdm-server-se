@@ -322,6 +322,8 @@ public class BrowseRecordsController extends Controller {
                                 @Override
                                 public void handleEvent(MessageBoxEvent be) {
                                     bulkUpdatePanel.closePanel();
+                                    ItemsListPanel.getInstance().refreshGrid();
+                                    selectBrowseRecordsTab();
                                 }
                             });
                 } else {
@@ -342,6 +344,14 @@ public class BrowseRecordsController extends Controller {
             }
         });
     }
+
+    private native void selectBrowseRecordsTab()/*-{
+		var tabPanel = $wnd.amalto.core.getTabPanel();
+		var panel = tabPanel.getItem("Browse Records");
+		if (panel != undefined) {
+			tabPanel.setSelection(panel.getItemId());
+		}
+    }-*/;
 
     private native void setTimeout(MessageBox msgBox, int millisecond)/*-{
 		$wnd.setTimeout(function() {
