@@ -31,9 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.FileUtil;
@@ -68,13 +66,10 @@ public class UploadData extends HttpServlet {
 
     private boolean cusExceptionFlag = false;
     
-    private int defaultMaxImportCount;
 
     @Override
     public void init() throws ServletException {
         super.init();
-        defaultMaxImportCount = Integer.parseInt(
-                MDMConfiguration.getConfiguration().getProperty("max.import.browserecord", MDMConfiguration.MAX_IMPORT_COUNT));
     }
 
     @Override
@@ -178,9 +173,6 @@ public class UploadData extends HttpServlet {
 
             List<WSPutItemWithReport> wsPutItemWithReportList = service.readUploadFile(file);
 
-            if (wsPutItemWithReportList.size() > defaultMaxImportCount) {
-                wsPutItemWithReportList = wsPutItemWithReportList.subList(0, defaultMaxImportCount);
-            }
             putDocument(
                     new WSPutItemWithReportArray(wsPutItemWithReportList.toArray(new WSPutItemWithReport[wsPutItemWithReportList
                             .size()])), concept);

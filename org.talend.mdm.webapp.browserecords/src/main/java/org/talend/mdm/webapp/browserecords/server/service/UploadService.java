@@ -37,6 +37,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
+import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
 import org.talend.mdm.webapp.base.shared.EntityModel;
@@ -74,6 +75,8 @@ public class UploadService {
 
     private final String File_CSV_SEPARATOR_SEMICOLON = "semicolon"; //$NON-NLS-1$
 
+    private static int defaultMaxImportCount;
+
     private String fileType = null;
 
     private boolean isPartialUpdate = false;
@@ -105,6 +108,11 @@ public class UploadService {
     private QName xsiTypeQName = null;
 
     private Map<String, List<Element>> multiNodeMap;
+
+    static{
+        defaultMaxImportCount = Integer.parseInt(
+                MDMConfiguration.getConfiguration().getProperty("max.import.browserecord", MDMConfiguration.MAX_IMPORT_COUNT));
+    }
 
     public UploadService(EntityModel entityModel, String fileType, boolean isPartialUpdate, boolean headersOnFirstLine,
             Map<String, Boolean> headerVisibleMap, List<String> inheritanceNodePathList, String multipleValueSeparator,
@@ -167,6 +175,9 @@ public class UploadService {
         while (rowIterator.hasNext()) {
             dataLine = false;
             rowNumber++;
+            if ((rowNumber - 1) > defaultMaxImportCount) {
+                break;
+            }
             Row row = rowIterator.next();
             if (rowNumber == 1) {
                 importHeader = readHeader(row, null);
@@ -197,6 +208,7 @@ public class UploadService {
                     }
                     if (keyContainsEmpty) {
                         if (isEmptyRecordInExcel(row, importHeader)) {
+                            rowNumber--;
                             continue;
                         }
                         throw new UploadException(
@@ -206,6 +218,10 @@ public class UploadService {
                     }
                     document = getItemForPartialUpdate(entityModel, keys, rowNumber);
                 } else {
+                    if (isEmptyRecordInExcel(row, importHeader)) {
+                        rowNumber--;
+                        continue;
+                    }
                     document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(
                             typeModel, null, null, language));
                 }
@@ -244,7 +260,12 @@ public class UploadService {
         csvReader = new CSVReader(new InputStreamReader(fileInputStream, encoding), separator, textDelimiter);
         List<String[]> records = csvReader.readAll();
         boolean dataLine;
+        int rowNumber = 0;
         for (int i = 0; i < records.size(); i++) {
+            rowNumber++;
+            if ((rowNumber - 1) > defaultMaxImportCount) {
+                break;
+            }
             String[] record = records.get(i);
             dataLine = false;
             if (i == 0) {
@@ -274,6 +295,7 @@ public class UploadService {
                     }
                     if (keyContainsEmpty) {
                         if (isEmptyRecordInCSV(record, importHeader)) {
+                            rowNumber--;
                             continue;
                         }
                         throw new UploadException(
@@ -283,6 +305,10 @@ public class UploadService {
                     }
                     document = getItemForPartialUpdate(entityModel, keys, i + 1);
                 } else {
+                    if (isEmptyRecordInCSV(record, importHeader)) {
+                        rowNumber--;
+                        continue;
+                    }
                     document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getSubXML(
                             typeModel, null, null, language));
                 }
@@ -600,7 +626,7 @@ public class UploadService {
         }
     }
     
-    private Document getItemForPartialUpdate(EntityModel model, String[] keys, int rowNumber) throws RemoteException, XtentisWebappException, Exception {
+    protected Document getItemForPartialUpdate(EntityModel model, String[] keys, int rowNumber) throws RemoteException, XtentisWebappException, Exception {
         try {
             WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(new WSDataClusterPK(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataModel()), model.getConceptName(), keys)));
             return org.talend.mdm.webapp.base.server.util.XmlUtil.parseText(wsItem.getContent());
