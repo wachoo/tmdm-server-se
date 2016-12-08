@@ -68,6 +68,7 @@ import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.exception.UnsupportedFullTextQueryException;
 
 class LuceneQueryGenerator extends VisitorAdapter<Query> {
 
@@ -350,7 +351,7 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         }
 
         String fullTextQuery = queryBuffer.toString();
-        return parseQuery(fieldsAsArray, fullTextQuery);
+        return parseQuery(fieldsAsArray, fullTextQuery, fullText.getValue());
     }
 
     @Override
@@ -361,16 +362,19 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         if (fieldFullText.getField().getFieldMetadata().isKey()) {
             fullTextQuery = fieldName + ToLowerCaseFieldBridge.ID_POSTFIX + ":" + getValue(fieldFullText); //$NON-NLS-1$
         }
-        return parseQuery(fieldsAsArray, fullTextQuery);
+        return parseQuery(fieldsAsArray, fullTextQuery, fieldFullText.getValue());
     }
 
-    private Query parseQuery(String[] fieldsAsArray, String fullTextQuery) {
+    private Query parseQuery(String[] fieldsAsArray, String fullTextQuery, String keywords) {
         MultiFieldQueryParser parser = new MultiFieldQueryParser(fieldsAsArray, new KeywordAnalyzer());
         // Very important! Lucene does an implicit lower case for "expanded terms" (which is something used).
         parser.setLowercaseExpandedTerms(true);
         try {
             return parser.parse(fullTextQuery);
         } catch (Exception e) {
+            if (org.apache.lucene.queryparser.classic.ParseException.class.isInstance(e)) {
+                throw new UnsupportedFullTextQueryException("'" + keywords + "' is unsupported keywords", e); //$NON-NLS-1$ //$NON-NLS-2$
+            }
             throw new RuntimeException("Invalid generated Lucene query", e); //$NON-NLS-1$
         }
     }
@@ -384,13 +388,21 @@ class LuceneQueryGenerator extends VisitorAdapter<Query> {
         if (index > 0) {
             value = value.substring(index);
         }
-        char[] removes = new char[] { '[', ']', '+', '!', '(', ')', '^', '\"', '~', ':', '\\' }; // Removes reserved
+        char[] removes = new char[] { '[', ']', '+', '!', '(', ')', '^', '\"', '~', ':', '\\', '-'}; // Removes reserved
                                                                                                  // characters
         for (char remove : removes) {
             value = value.replace(remove, ' ');
         }
-        if (!value.endsWith("*")) { //$NON-NLS-1$
-            value += '*';
+        if (value != null && value.length() > 1 && value.startsWith("'") && value.endsWith("'")) { //$NON-NLS-1$//$NON-NLS-2$
+            value = "\"" + value.substring(1, value.length() - 1) + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+        } else {
+            if (value.contains(" ")) { //$NON-NLS-1$
+                return getMultiKeywords(value);
+            } else {
+                if (!value.endsWith("*")) { //$NON-NLS-1$
+                    value += '*';
+                }
+            }
         }
         return value;
     }
