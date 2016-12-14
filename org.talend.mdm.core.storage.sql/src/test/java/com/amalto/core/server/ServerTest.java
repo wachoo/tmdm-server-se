@@ -15,7 +15,6 @@ package com.amalto.core.server;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import com.amalto.core.server.api.DataCluster;
@@ -23,11 +22,15 @@ import com.amalto.core.storage.StorageType;
 
 import junit.framework.TestCase;
 
+import net.sf.ehcache.CacheManager;
+
+import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -41,6 +44,7 @@ import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
+import com.amalto.core.util.MDMEhCacheUtil;
 import com.amalto.core.util.XtentisException;
 
 @SuppressWarnings("nls")
@@ -54,6 +58,10 @@ public class ServerTest extends TestCase {
     @Override
     public void setUp() throws Exception {
         ServerContext.INSTANCE.get(new MockServerLifecycle());
+        ApplicationContext context=new ClassPathXmlApplicationContext("classpath:com/amalto/core/server/mdm-context.xml");
+        EhCacheCacheManager mdmEhcache = MDMContextAccessor.getApplicationContext().getBean(MDMEhCacheUtil.MDM_CACHE_MANAGER,EhCacheCacheManager.class);
+        // CacheManager use the single instance, need reset the CacheManger
+        mdmEhcache.setCacheManager(CacheManager.newInstance(ServerTest.class.getResourceAsStream("mdm-ehcache.xml")));
     }
 
     public void testStorageInitialization() throws Exception {

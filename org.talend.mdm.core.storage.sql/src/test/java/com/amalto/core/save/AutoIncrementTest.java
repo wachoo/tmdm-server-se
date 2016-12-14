@@ -22,9 +22,14 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -42,6 +47,7 @@ import com.amalto.core.save.RecordValidationTest.MockUserDelegator;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.generator.AutoIncrementGenerator;
 import com.amalto.core.save.generator.StorageAutoIncrementGenerator;
+import com.amalto.core.server.MDMContextAccessor;
 import com.amalto.core.server.MockMetadataRepositoryAdmin;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.MockStorageAdmin;
@@ -52,6 +58,7 @@ import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.util.MDMEhCacheUtil;
 import com.amalto.core.util.Util;
 
 @SuppressWarnings("nls")
@@ -108,8 +115,13 @@ public class AutoIncrementTest extends TestCase {
         LOG.info("Master storage prepared");
         
         BeanDelegatorContainer.createInstance();
+
+        ApplicationContext context=new ClassPathXmlApplicationContext("classpath:com/amalto/core/server/mdm-context.xml");
+        EhCacheCacheManager mdmEhcache = MDMContextAccessor.getApplicationContext().getBean(MDMEhCacheUtil.MDM_CACHE_MANAGER,EhCacheCacheManager.class);
+        // CacheManager use the single instance, need reset the CacheManger
+        mdmEhcache.setCacheManager(CacheManager.newInstance(AutoIncrementTest.class.getResourceAsStream("../server/mdm-ehcache.xml")));
     }
-    
+
     @SuppressWarnings("rawtypes")
     private static ClassRepository buildSystemRepository() {
         ClassRepository repository = new ClassRepository();

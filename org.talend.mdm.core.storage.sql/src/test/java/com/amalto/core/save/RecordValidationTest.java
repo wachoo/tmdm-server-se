@@ -23,9 +23,14 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -45,6 +50,7 @@ import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.SaverSession.Committer;
 import com.amalto.core.save.context.DocumentSaver;
 import com.amalto.core.save.context.StorageSaverSource;
+import com.amalto.core.server.MDMContextAccessor;
 import com.amalto.core.server.MockMetadataRepositoryAdmin;
 import com.amalto.core.server.MockServerLifecycle;
 import com.amalto.core.server.MockStorageAdmin;
@@ -56,6 +62,7 @@ import com.amalto.core.storage.StorageType;
 import com.amalto.core.storage.datasource.DataSourceDefinition;
 import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.util.MDMEhCacheUtil;
 import com.amalto.core.util.OutputReport;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.XtentisException;
@@ -121,6 +128,11 @@ public class RecordValidationTest extends TestCase {
         LOG.info("Staging storage prepared");
 
         BeanDelegatorContainer.createInstance();
+
+        ApplicationContext context=new ClassPathXmlApplicationContext("classpath:com/amalto/core/server/mdm-context.xml");
+        EhCacheCacheManager mdmEhcache = MDMContextAccessor.getApplicationContext().getBean(MDMEhCacheUtil.MDM_CACHE_MANAGER,EhCacheCacheManager.class);
+        // CacheManager use the single instance, need reset the CacheManger
+        mdmEhcache.setCacheManager(CacheManager.newInstance(RecordValidationTest.class.getResourceAsStream("../server/mdm-ehcache.xml")));
     }
 
     @Override
