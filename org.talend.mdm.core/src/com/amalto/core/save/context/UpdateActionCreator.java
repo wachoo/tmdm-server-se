@@ -36,12 +36,10 @@ import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.metadata.Types;
 import org.talend.mdm.commmon.util.core.EUUIDCustomType;
-import org.w3c.dom.Node;
 
 import com.amalto.core.history.Action;
 import com.amalto.core.history.MutableDocument;
 import com.amalto.core.history.accessor.Accessor;
-import com.amalto.core.history.accessor.DOMAccessor;
 import com.amalto.core.history.action.FieldInsertAction;
 import com.amalto.core.history.action.FieldUpdateAction;
 import com.amalto.core.storage.StorageMetadataUtils;
@@ -290,6 +288,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void compare(FieldMetadata comparedField) {
         if (comparedField.isKey()) {
             // Can't update a key: don't even try to compare the field (but update lastMatchPath in case next compared
@@ -360,7 +359,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
             } else { // new accessor exist
                 String newValue = newAccessor.get();
-                if (newAccessor.get() != null && !(comparedField instanceof ContainedTypeFieldMetadata)) {
+                if (newValue != null && !(comparedField instanceof ContainedTypeFieldMetadata)) {
                     if (comparedField.isMany() && preserveCollectionOldValues) {
                         // Append at the end of the collection
                         if (!originalFieldToLastIndex.containsKey(comparedField)) {
@@ -398,7 +397,7 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                                 newValue = UUID.randomUUID().toString();
                             }
                         }
-                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newAccessor.get(), comparedField));
+                        actions.add(new FieldUpdateAction(date, source, userName, path, oldValue, newValue.isEmpty() ? null : newValue, comparedField));
                     } else if (oldValue != null && oldValue.equals(newValue)) {
                         generateNoOp(path);
                     }
