@@ -371,10 +371,12 @@ public class JournalComparisonPanel extends ContentPanel {
     }
 
     public void selectTreeNodeByPath(String path) {
-        JournalTreeModel model = modelMap.get(path);
-        if (path.endsWith("[1]") && model == null) { //$NON-NLS-1$
-            model = modelMap.get(path.replace("[1]", "")); //$NON-NLS-1$ //$NON-NLS-2$
+        if (path.contains("[") && path.contains("]")) { //$NON-NLS-1$ //$NON-NLS-2$
+            path = path.replaceAll("\\[\\d+\\]", ""); //$NON-NLS-1$ //$NON-NLS-2$
         }
+
+        JournalTreeModel model = modelMap.get(path);
+
         tree.getSelectionModel().select(false, model);
         tree.scrollIntoView(model);
     }
