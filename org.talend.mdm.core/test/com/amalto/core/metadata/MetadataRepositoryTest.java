@@ -564,6 +564,18 @@ public class MetadataRepositoryTest extends TestCase {
 		}
 	}
 
+    // TMDM-3612R
+    public void testCircleTypeModel() {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("TMDM_3612.xsd");
+        repository.load(stream);
+
+        ComplexTypeMetadata aa = repository.getComplexType("aa");
+        ComplexTypeMetadata bb = repository.getComplexType("bb");
+        assertNotNull(aa);
+        assertNotNull(bb);
+    }
+
     public void testMetadataAnnotation() {
         Locale en = new Locale("en");
         Locale fr = new Locale("fr");

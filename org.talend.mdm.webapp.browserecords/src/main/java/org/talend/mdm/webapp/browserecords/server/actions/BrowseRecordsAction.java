@@ -73,6 +73,7 @@ import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.base.shared.TypePath;
 import org.talend.mdm.webapp.browserecords.client.BrowseRecordsService;
 import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeLayoutModel;
 import org.talend.mdm.webapp.browserecords.client.model.ForeignKeyDrawer;
@@ -207,6 +208,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     public static final String INFO_KEYWORD = "INFO";//$NON-NLS-1$
 
     public static final String FAIL_KEYWORD = "FAIL";//$NON-NLS-1$
+
+    boolean isModelUpdated = false;
 
     @Override
     public List<ItemResult> deleteItemBeans(List<ItemBean> items, boolean override, String language) throws ServiceException {
@@ -1501,11 +1504,15 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             Map<String, TypeModel> metaDataTypes = entity.getMetaDataTypes();
             Map<String, Integer> multiNodeIndex = new HashMap<String, Integer>();
             StringBuffer foreignKeyDeleteMessage = new StringBuffer();
+            isModelUpdated = false;
             ItemNodeModel itemModel = builderNode(multiNodeIndex, root, entity,
                     "", "", true, foreignKeyDeleteMessage, false, isStaging, language); //$NON-NLS-1$ //$NON-NLS-2$
             DynamicLabelUtil.getDynamicLabel(XmlUtil.parseDocument(doc), "", itemModel, metaDataTypes, language); //$NON-NLS-1$
             itemModel.set("time", item.get("time")); //$NON-NLS-1$ //$NON-NLS-2$
             itemModel.set("foreignKeyDeleteMessage", foreignKeyDeleteMessage.toString()); //$NON-NLS-1$
+            if (isModelUpdated) {
+                itemModel.setMetaDataTypes((LinkedHashMap<String, TypeModel>) metaDataTypes);
+            }
             return itemModel;
         } catch (ServiceException e) {
             LOG.error(e.getMessage(), e);
@@ -1700,6 +1707,38 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             } else {
                 if (!model.isAbstract()) {
                     childModels = ((ComplexTypeModel) model).getSubTypes();
+                    if (childModels.size() == 0 && children.item(0) != null) {
+                        TypeModel parentModel = model.getParentTypeModel();
+                        while (parentModel != null) {
+                            if (model.getType().getTypeName().equals(parentModel.getType().getTypeName())) {
+                                List<TypeModel> types = ((ComplexTypeModel) parentModel).getSubTypes();
+                                String parentPath = model.getTypePath();
+
+                                for (TypeModel typeModel : types) {
+                                    String path = parentPath + "/" + typeModel.getName(); //$NON-NLS-1$
+                                    TypeModel childModel = null;
+                                    if (typeModel.isSimpleType()) {
+                                        childModel = new SimpleTypeModel(typeModel.getName(), typeModel.getType());
+                                    } else {
+                                        childModel = new ComplexTypeModel(typeModel.getName(), typeModel.getType());
+                                    }
+                                    childModel.setAbstract(typeModel.isAbstract());
+                                    childModel.setXpath(path);
+                                    childModel.setTypePath(path);
+                                    childModel.setTypePathObject(new TypePath(path, new HashMap<String, List<String>>()));
+                                    childModel.setNillable(typeModel.isNillable());
+                                    childModel.setMinOccurs(typeModel.getMinOccurs());
+                                    childModel.setMaxOccurs(typeModel.getMaxOccurs());
+                                    childModel.setParentTypeModel(model);
+                                    childModels.add(childModel);
+                                    metaDataTypes.put(path, childModel);
+                                }
+                                isModelUpdated = true;
+                                break;
+                            }
+                            parentModel = parentModel.getParentTypeModel();
+                        }
+                    }
                 } else {
                     childModels = org.talend.mdm.webapp.browserecords.shared.ReusableType.getDefaultReusableTypeChildren(
                             (ComplexTypeModel) model, nodeModel);

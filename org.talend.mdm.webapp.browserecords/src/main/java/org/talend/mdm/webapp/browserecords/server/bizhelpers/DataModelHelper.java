@@ -185,29 +185,43 @@ public class DataModelHelper {
                 parentTypeModel.addSubType(typeModel);
             }
 
-            if (typeModel instanceof ComplexTypeModel) {
-                parentTypeModel = (ComplexTypeModel) typeModel;
-            }
-
             // add to entityModel
             if (typeModel != null) {
                 entityModel.getMetaDataTypes().put(currentXPath, typeModel);
             }
 
-            // recursion travel
-            if (e.getType().isComplexType()) {
-                XSModelGroup group = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup();
-                if (group != null) {
-                    XSParticle[] subParticles = group.getChildren();
-                    if (subParticles != null) {
-                        for (XSParticle xsParticle : subParticles) {
-                            travelParticle(xsParticle, currentXPath, entityModel, parentTypeModel, roles);
+            if (!isCircle(e, parentTypeModel)) {
+                if (typeModel instanceof ComplexTypeModel) {
+                    parentTypeModel = (ComplexTypeModel) typeModel;
+                }
+
+                // recursion travel
+                if (e.getType().isComplexType()) {
+                    XSModelGroup group = e.getType().asComplexType().getContentType().asParticle().getTerm().asModelGroup();
+                    if (group != null) {
+                        XSParticle[] subParticles = group.getChildren();
+                        if (subParticles != null) {
+                            for (XSParticle xsParticle : subParticles) {
+                                travelParticle(xsParticle, currentXPath, entityModel, parentTypeModel, roles);
+                            }
                         }
                     }
                 }
             }
 
         }
+    }
+
+    private static boolean isCircle(XSElementDecl e, ComplexTypeModel parentTypeModel) {
+        TypeModel typeModel = parentTypeModel;
+        while (typeModel != null) {
+            if (e.getType() != null && e.getType().getName() != null
+                    && e.getType().getName().equals(typeModel.getType().getTypeName())) {
+                return true;
+            }
+            typeModel = typeModel.getParentTypeModel();
+        }
+        return false;
     }
 
     private static TypeModel parseElement(String currentXPath, XSElementDecl e, TypeModel typeModel, EntityModel entityModel,

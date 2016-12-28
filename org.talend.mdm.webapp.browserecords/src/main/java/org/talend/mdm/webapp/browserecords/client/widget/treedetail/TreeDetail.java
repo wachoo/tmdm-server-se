@@ -33,6 +33,7 @@ import org.talend.mdm.webapp.browserecords.client.model.ColumnTreeModel;
 import org.talend.mdm.webapp.browserecords.client.model.ItemBean;
 import org.talend.mdm.webapp.browserecords.client.model.ItemNodeModel;
 import org.talend.mdm.webapp.browserecords.client.util.CommonUtil;
+import org.talend.mdm.webapp.browserecords.client.util.LabelUtil;
 import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.MultiOccurrenceManager;
 import org.talend.mdm.webapp.browserecords.client.util.ViewUtil;
@@ -212,6 +213,10 @@ public class TreeDetail extends ContentPanel {
 
                         @Override
                         public void onSuccess(final ItemNodeModel node) {
+                            if (node.getMetaDataTypes() != null) {
+                                viewBean.getBindingEntityModel().setMetaDataTypes(node.getMetaDataTypes());
+                                TreeDetail.this.viewBean.getBindingEntityModel().setMetaDataTypes(node.getMetaDataTypes());
+                            }
 
                             itemService.executeVisibleRule(viewBean, (new ItemTreeHandler(node, TreeDetail.this.viewBean,
                                     ItemTreeHandlingStatus.InUse)).serializeItem(),
@@ -339,6 +344,50 @@ public class TreeDetail extends ContentPanel {
                         }
                     });
                 }
+            }
+        } else if (typeModel instanceof ComplexTypeModel && typeModel.getParentTypeModel() != null) {
+            TypeModel parentModel = typeModel.getParentTypeModel();
+            while (parentModel != null) {
+                if (typeModel.getType().getTypeName().equals(parentModel.getType().getTypeName())) {
+                    item.addItem(new GhostTreeItem());
+                    final DynamicTreeItem parentItem = item;
+                    final TypeModel finalTypeModel = parentModel;
+                    item.setAutoExpandHandler(new AutoExpandHandler() {
+
+                        @Override
+                        public void autoExpand() {
+                            ItemNodeModel model = null;
+
+                            List<ItemNodeModel> modelList = CommonUtil.getDefaultTreeModel(finalTypeModel,
+                                    Locale.getLanguage(), false, false, false);
+                            if (modelList.size() > 0) {
+                                model = modelList.get(0);
+                            }
+
+                            int i = 0;
+                            ItemNodeModel parentModel = (ItemNodeModel) parentItem.getItemNodeModel();
+                            while (model.getChildCount() > 0) {
+                                ItemNodeModel child = (ItemNodeModel) model.getChild(0);
+                                child.setDynamicLabel(LabelUtil.getNormalLabel(child.getLabel()));
+                                child.setMandatory(parentItem.getItemNodeModel().isMandatory());
+                                parentModel.insert(child, i);
+                                // if it has default value
+                                if (finalTypeModel.getDefaultValue() != null) {
+                                    child.setObjectValue(finalTypeModel.getDefaultValue());
+                                }
+                                DynamicTreeItem treeItem = buildGWTTree(child, null, true, null);
+                                ViewUtil.copyStyleToTreeItem(parentItem, treeItem);
+
+                                parentItem.insertItem(treeItem, i);
+                                adjustFieldWidget(treeItem);
+                                i++;
+                            }
+                            parentModel.setChangeValue(true);
+                        }
+                    });
+                    break;
+                }
+                parentModel = parentModel.getParentTypeModel();
             }
         }
         item.setUserObject(itemNode);

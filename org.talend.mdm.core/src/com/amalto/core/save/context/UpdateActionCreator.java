@@ -478,7 +478,9 @@ public class UpdateActionCreator extends DefaultMetadataVisitor<List<Action>> {
                 }
             }
             Action before = actions.isEmpty() ? null : actions.getLast();
-            type.accept(UpdateActionCreator.this);
+            if (rightAccessor.exist() || leftAccessor.exist()) {
+                type.accept(UpdateActionCreator.this);
+            }
 
             compare(field);
             // Way to detect if there is a change in elements below: check if last action in list changed.
