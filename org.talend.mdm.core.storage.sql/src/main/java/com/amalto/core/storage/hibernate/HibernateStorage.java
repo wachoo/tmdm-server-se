@@ -63,7 +63,9 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.Mappings;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.mapping.Any;
@@ -115,7 +117,7 @@ import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.metadata.Types;
 import org.talend.mdm.commmon.metadata.compare.Change;
 import org.talend.mdm.commmon.metadata.compare.Compare;
-import org.talend.mdm.commmon.metadata.compare.HibernateStorageImpactAnalyzer;
+import org.talend.mdm.commmon.metadata.compare.Compare.DiffResults;
 import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -1004,7 +1006,7 @@ public class HibernateStorage implements Storage {
         switch (storageType) {
         case MASTER:
         case STAGING:
-            return new HibernateStorageImpactAnalyzer();
+            return new HibernateStorageDataAnaylzer(this);
         case SYSTEM:
             return new ImpactAnalyzer() {
 
@@ -1034,7 +1036,7 @@ public class HibernateStorage implements Storage {
 
     public Set<ComplexTypeMetadata> findTypesToDelete(boolean force, Compare.DiffResults diffResults) {
         ImpactAnalyzer analyzer = getImpactAnalyzer();
-        Map<ImpactAnalyzer.Impact, List<Change>> impacts = analyzer.analyzeImpacts(diffResults);
+        Map<ImpactAnalyzer.Impact, List<Change>> impacts = getImpactsResult(diffResults);
         Set<ComplexTypeMetadata> typesToDrop = new HashSet<ComplexTypeMetadata>();
         for (Map.Entry<ImpactAnalyzer.Impact, List<Change>> impactCategory : impacts.entrySet()) {
             ImpactAnalyzer.Impact category = impactCategory.getKey();
@@ -1252,6 +1254,25 @@ public class HibernateStorage implements Storage {
         }
         // Reinitialize Hibernate
         LOGGER.info("Completing database schema update..."); //$NON-NLS-1$
+
+        // for the liquibase
+        if (!force) {
+            try {
+                SessionFactoryImplementor sessionFactoryImplementor = (SessionFactoryImplementor) this.getCurrentSession()
+                        .getSessionFactory();
+
+                Dialect dialect = sessionFactoryImplementor.getDialect();
+                Connection connection = sessionFactoryImplementor.getConnectionProvider().getConnection();
+
+                LiquibaseSchemaAdapter liquibaseChange = new LiquibaseSchemaAdapter(tableResolver, getImpactsResult(diffResults),
+                        diffResults, dialect, (RDBMSDataSource) this.getDataSource());
+                liquibaseChange.adapt(connection);
+
+            } catch (Exception e) {
+                LOGGER.error("execute liquibase update failure", e);
+            }
+        }
+
         try {
             close(false);
             internalInit();
@@ -1260,6 +1281,11 @@ public class HibernateStorage implements Storage {
         } catch (Exception e) {
             throw new RuntimeException("Unable to complete database schema update.", e); //$NON-NLS-1$
         }
+    }
+
+    private Map<ImpactAnalyzer.Impact, List<Change>> getImpactsResult(DiffResults diffResults){
+        ImpactAnalyzer analyzer = getImpactAnalyzer();
+        return analyzer.analyzeImpacts(diffResults);
     }
 
     @Override
