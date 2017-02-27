@@ -796,7 +796,12 @@ public class ItemDetailToolBar extends ToolBar {
 
                                             @Override
                                             public void componentSelected(MenuEvent menuEvent) {
-                                                initDSC(itemBean.getTaskId());
+                                                if (BrowseRecords.getSession().getAppHeader().isTdsEnabled()) {
+                                                    String baseUrl = BrowseRecords.getSession().getAppHeader().getTdsBaseUrl();
+                                                    openWindow(baseUrl + org.talend.mdm.webapp.browserecords.shared.Constants.TDS_ACCESSTASK + itemBean.getTaskId());
+                                                } else {
+                                                    initDSC(itemBean.getTaskId());
+                                                }
                                             }
                                         });
                                         int explainMenuItemIndex = subActionsMenu.indexOf(explainMenuItem);
@@ -1189,7 +1194,7 @@ public class ItemDetailToolBar extends ToolBar {
                         }
                     } else {
                         MessageBox.alert(MessagesFactory.getMessages().warning_title(), MessagesFactory.getMessages()
-                                    .bulkUpdate_no_edit_info(), null);
+                                .bulkUpdate_no_edit_info(), null);
                     }
                 }
             });

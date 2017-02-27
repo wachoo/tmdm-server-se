@@ -457,8 +457,6 @@ public class ItemsToolBarGWTTest extends GWTTestCase {
 
         @Override
         public void getItemBeanById(String concept, String ids, String language, AsyncCallback<ItemBean> callback) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
@@ -477,8 +475,6 @@ public class ItemsToolBarGWTTest extends GWTTestCase {
 
         @Override
         public void handleNavigatorNodeLabel(String jsonString, String language, AsyncCallback<String> callback) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
