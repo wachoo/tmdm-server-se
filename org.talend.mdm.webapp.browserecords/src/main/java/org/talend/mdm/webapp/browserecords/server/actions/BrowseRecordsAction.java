@@ -118,6 +118,8 @@ import com.amalto.core.objects.customform.CustomFormPOJO;
 import com.amalto.core.objects.customform.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.server.StorageAdmin;
+import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.task.StagingConstants;
 import com.amalto.core.util.CoreException;
 import com.amalto.core.util.EntityNotFoundException;
@@ -149,6 +151,7 @@ import com.amalto.core.webservice.WSItem;
 import com.amalto.core.webservice.WSItemPK;
 import com.amalto.core.webservice.WSPutItem;
 import com.amalto.core.webservice.WSPutItemWithReport;
+import com.amalto.core.webservice.WSRunQuery;
 import com.amalto.core.webservice.WSString;
 import com.amalto.core.webservice.WSStringArray;
 import com.amalto.core.webservice.WSStringPredicate;
@@ -1860,9 +1863,10 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         try {
             // TODO (1) if update, check the item is modified by others?
             // TODO (2) if create, check if the item has not been created by someone else?
-            WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(new WSDataClusterPK(
-                    getCurrentDataCluster()), xml, new WSDataModelPK(getCurrentDataModel()), !isCreate),
-                    UpdateReportPOJO.GENERIC_UI_SOURCE, true);
+            WSDataClusterPK wsDataClusterPK = new WSDataClusterPK(getCurrentDataCluster());
+            WSDataModelPK wsDataModelPK = new WSDataModelPK(getCurrentDataModel());
+            WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(wsDataClusterPK, xml, wsDataModelPK,
+                    !isCreate), UpdateReportPOJO.GENERIC_UI_SOURCE, true);
             int status = ItemResult.SUCCESS;
             WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
             String message = wsPutItemWithReport.getSource(); // putItemWithReport is expected to put
@@ -1882,11 +1886,23 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                 String[] pk = wsi.getIds();
                 if (pk == null || pk.length == 0) {
                     WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(
-                            new WSGetBusinessConceptKey(new WSDataModelPK(getCurrentDataModel()), concept));
+                            new WSGetBusinessConceptKey(wsDataModelPK, concept));
                     pk = CommonUtil.extractIdWithDots(key.getFields(), ids);
                 }
-                WSItem wsItem = CommonUtil.getPort().getItem(
-                        new WSGetItem(new WSItemPK(new WSDataClusterPK(getCurrentDataCluster()), concept, pk)));
+                WSItem wsItem = CommonUtil.getPort().getItem(new WSGetItem(new WSItemPK(wsDataClusterPK, concept, pk)));
+
+                // TMDM-10499 Do staging propagating if update master record
+                boolean isUpdateMaster = !isCreate && !wsDataClusterPK.getPk().endsWith(StorageAdmin.STAGING_SUFFIX);
+                boolean hasValidTaskId = StringUtils.isNotEmpty(wsItem.getTaskId()) && !"null".equals(wsItem.getTaskId()); //$NON-NLS-1$
+                if (isUpdateMaster && hasValidTaskId) {
+                    if (CommonUtil.getPort().supportStaging(wsDataClusterPK).is_true()) {
+                        WSDataClusterPK wsDataClusterPK_staging = new WSDataClusterPK(getCurrentDataCluster(true));
+                        if (isValidGoldenStatus(wsDataClusterPK_staging, wsItem.getConceptName(), wsItem.getTaskId())) {
+                            CommonUtil.getPort().putItem(new WSPutItem(wsDataClusterPK_staging, xml, wsDataModelPK, true));
+                        }
+                    }
+                }
+
                 return new ItemResult(status, message, Util.joinStrings(pk, "."), wsItem.getInsertionTime()); //$NON-NLS-1$
             }
         } catch (ServiceException e) {
@@ -2653,4 +2669,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     		return sb.toString();
     	}
 	}
+
+    private boolean isValidGoldenStatus(WSDataClusterPK wsDataClusterPK, String conceptName, String taskId) {
+        StringBuilder query = new StringBuilder().append("select count(*) from ").append(conceptName).append(" where ") //$NON-NLS-1$ //$NON-NLS-2$
+                .append(Storage.METADATA_TASK_ID).append("='").append(taskId).append("' and ") //$NON-NLS-1$ //$NON-NLS-2$
+                .append(Storage.METADATA_STAGING_STATUS).append("=").append(StagingConstants.SUCCESS_VALIDATE); //$NON-NLS-1$
+        WSRunQuery wsRunQuery = new WSRunQuery(wsDataClusterPK, query.toString(), null);
+        try {
+            String countResult = CommonUtil.getPort().runQuery(wsRunQuery).getStrings()[0];
+            return countResult.equals("<result><col0>1</col0></result>"); //$NON-NLS-1$
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
+    }
 }
