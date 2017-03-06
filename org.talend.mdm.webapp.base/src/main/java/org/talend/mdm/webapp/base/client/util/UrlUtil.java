@@ -25,6 +25,15 @@ public class UrlUtil {
         String lang = getLanguage();
         return lang.toUpperCase();
     }
+    
+    public static void openSingleWindow(String url,String name) {
+        openWindow(url,name);
+    }
+    
+    private static native void openWindow(String url,String name)/*-{
+        var newWindow = window.open(url,name);
+        newWindow.focus();
+    }-*/;
 
     private static native String getCurrentLanguage() /*-{
         return $wnd.language;
