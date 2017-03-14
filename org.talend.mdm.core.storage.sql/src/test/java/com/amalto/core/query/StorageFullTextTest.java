@@ -243,7 +243,17 @@ public class StorageFullTextTest extends StorageTestCase {
                     .read(repository,
                             fullTextSearchEntityA,
                             "<FullTextSearchEntityA><Id>id1</Id><Name>name1</Name><Address><AddressName>address1</AddressName><City><CityName>city1</CityName></City></Address></FullTextSearchEntityA>"));
-        
+        allRecords.add(factory.read(repository, employee, "<Employee><name>employee 1</name><age>11</age><jobTitle>jobTitle 11</jobTitle></Employee>"));
+        allRecords.add(factory.read(repository, employee, "<Employee><name>employee 2</name><age>22</age><jobTitle>jobTitle 22</jobTitle></Employee>"));
+        allRecords.add(factory.read(repository, employee, "<Employee><name>employee 3</name><age>33</age><jobTitle>jobTitle 33</jobTitle></Employee>"));
+        allRecords.add(factory.read(repository, persons, "<Persons><name>person 1</name><age>11</age></Persons>"));
+        allRecords.add(factory.read(repository, persons, "<Persons><name>person 2</name><age>22</age></Persons>"));
+        allRecords.add(factory.read(repository, persons, "<Persons><name>person 3</name><age>33</age></Persons>"));
+        allRecords.add(factory.read(repository, manager, "<Manager><name>manager 1</name><age>11</age><jobTitle>jobTitle 11</jobTitle><dept>dept 1</dept></Manager>"));
+        allRecords.add(factory.read(repository, manager, "<Manager><name>manager 2</name><age>22</age><jobTitle>jobTitle 22</jobTitle><dept>dept 2</dept></Manager>"));
+        allRecords.add(factory.read(repository, manager, "<Manager><name>manager 3</name><age>33</age><jobTitle>jobTitle 33</jobTitle><dept>dept 3</dept></Manager>"));
+        allRecords.add(factory.read(repository, nn, "<NN><Id>pp</Id><name>tyu</name><sub><name>yu67</name><title>67</title></sub></NN>"));
+
         try {
             storage.begin();
             storage.update(allRecords);
@@ -274,6 +284,12 @@ public class StorageFullTextTest extends StorageTestCase {
             //storage.delete(qb.getSelect());
             
             qb = from(person);
+            storage.delete(qb.getSelect());
+
+            qb = from(address);
+            storage.delete(qb.getSelect());
+
+            qb = from(nn);
             storage.delete(qb.getSelect());
         }
         storage.commit();
@@ -1427,6 +1443,81 @@ public class StorageFullTextTest extends StorageTestCase {
         assertTrue(((Compare) select.getCondition()).getPredicate() == Predicate.CONTAINS);
     }
     
+    public void testFullTextSearchOnComplexType() throws Exception {
+        UserQueryBuilder qb = from(persons).where(fullText("1"));
+        qb.limit(5);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            int recordCount = 0;
+            assertEquals(3, results.getCount());
+            for (DataRecord result : results) {
+                if (result != null) {
+                    if ("person 1".equals(result.get("name")) || "employee 1".equals(result.get("name")) || "manager 1".equals(result.get("name"))) {
+                        recordCount++;
+                    }
+                }
+            }
+            assertEquals(3, recordCount);
+        } finally {
+            results.close();
+        }
+        
+        qb = from(employee).where(fullText("1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            int recordCount = 0;
+            assertEquals(2, results.getCount());
+            for (DataRecord result : results) {
+                if (result != null) {
+                    if ("employee 1".equals(result.get("name")) || "manager 1".equals(result.get("name"))) {
+                        recordCount++;
+                    }
+                }
+            }
+            assertEquals(2, recordCount);
+        } finally {
+            results.close();
+        }
+        
+        qb = from(manager).where(fullText("1"));
+        results = storage.fetch(qb.getSelect());
+        try {
+            int recordCount = 0;
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                if (result != null) {
+                    if ("manager 1".equals(result.get("name"))) {
+                        recordCount++;
+                    }
+                }
+            }
+            assertEquals(1, recordCount);
+        } finally {
+            results.close();
+        }
+    }
+
+    public void testComplexTypeContains() throws Exception {
+        Condition condition = or(
+                contains(nn.getField("Id"), "pp"),
+                or(contains(nn.getField("name"), "pp"),
+                        or(contains(nn.getField("sub/title"), "pp"), contains(nn.getField("sub/name"), "pp"))));
+        UserQueryBuilder qb = from(nn).where(condition);
+        qb.limit(5);
+        StorageResults results = storage.fetch(qb.getSelect());
+        try {
+            assertEquals(1, results.getCount());
+            for (DataRecord result : results) {
+                if (result != null) {
+                    if ("tyu".equals(result.get("name"))) {
+                    }
+                }
+            }
+        } finally {
+            results.close();
+        }
+    }
+
     private static class TestRDBMSDataSource extends RDBMSDataSource {
 
         private ContainsOptimization optimization;

@@ -412,7 +412,18 @@ public class EntityFinder {
             for (Object item : list) {
                 Wrapper element = EntityFinder.findEntity((Wrapper) item, storage, session);
                 if (element != null) {
-                    newSet.add(element);
+                    if (entityClassName.size() > 0) {
+                        String elementName = element.getClass().getName();
+                        if (this.entityClassName.contains(elementName)) {
+                            newSet.add(element);
+                        } else if (elementName.contains("_$$")) {
+                            if (this.entityClassName.contains(elementName.subSequence(0, elementName.indexOf("_$$")))) {
+                                newSet.add(element);
+                            }
+                        }
+                    } else {
+                        newSet.add(element);
+                    }
                 }
             }
             return new ArrayList<Wrapper>(newSet);
