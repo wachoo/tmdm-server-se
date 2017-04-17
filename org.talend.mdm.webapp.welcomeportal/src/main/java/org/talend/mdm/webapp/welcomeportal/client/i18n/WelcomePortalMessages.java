@@ -90,6 +90,8 @@ public interface WelcomePortalMessages extends Messages {
 
     String waiting_dsctask(int newTasks, int pendingTasks);
     
+    String waiting_task(int newTasks);
+
     String waiting_dsctask_suffix();
 
     String tasks_desc();
@@ -131,4 +133,8 @@ public interface WelcomePortalMessages extends Messages {
     String chart_config_ok();
 
     String chart_config_cancel();
+
+    String login_tds_fail();
+
+    String retrieve_campaign_fail();
 }

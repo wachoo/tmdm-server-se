@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.shared.AppHeader;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -62,4 +63,7 @@ public interface WelcomePortalService extends RemoteService {
 
     public void savePortalConfigAutoAndSetting(String portletName, List<String> coinfig) throws ServiceException;
 
+    public AppHeader getAppHeader() throws ServiceException;
+
+    public String getCurrentDataModel() throws ServiceException;
 }
