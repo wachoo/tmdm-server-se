@@ -420,4 +420,33 @@ public class DataRecord {
             threadLocal.remove();
         }
     }
+
+    /**
+     * Used to control what fields selected.
+     *
+     */
+    public static class SelectedFields {
+
+        private static ThreadLocal<List<FieldMetadata>> threadLocal = new ThreadLocal<List<FieldMetadata>>() {
+
+            public List<FieldMetadata> initialValue() {
+                return null;
+            }
+        };
+
+        private SelectedFields() {
+        }
+
+        public static void set(List<FieldMetadata> value) {
+            threadLocal.set(value);
+        }
+
+        public static List<FieldMetadata> get() {
+            return threadLocal.get();
+        }
+
+        public static void remove() {
+            threadLocal.remove();
+        }
+    }
 }

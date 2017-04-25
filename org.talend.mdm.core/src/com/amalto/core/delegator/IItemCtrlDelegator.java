@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.objects.ItemPOJO;
@@ -32,6 +33,7 @@ import com.amalto.core.objects.role.RolePOJO;
 import com.amalto.core.objects.role.RolePOJOPK;
 import com.amalto.core.objects.view.ViewPOJO;
 import com.amalto.core.objects.view.ViewPOJOPK;
+import com.amalto.core.query.user.Field;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
@@ -151,6 +153,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                         + "'."); //$NON-NLS-1$
             }
             UserQueryBuilder qb = UserQueryBuilder.from(type);
+            List<FieldMetadata> selectedFields = new ArrayList<>();
             // Select fields
             ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
             for (String viewableBusinessElement : viewableBusinessElements.getList()) {
@@ -165,6 +168,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 for (TypedExpression field : fields) {
                     if (isNeedToAddExplicitly(isStaging, field)) {
                         qb.select(field);
+                        selectedFields.add(((Field) field).getFieldMetadata());
                     }
                 }
             }
@@ -196,6 +200,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 }
             }
             // Get records
+            DataRecord.SelectedFields.set(selectedFields);
             ArrayList<String> resultsAsString = new ArrayList<String>();
             try {
                 storage.begin();
@@ -217,6 +222,8 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
             } catch (Exception e) {
                 storage.rollback();
                 throw new XmlServerException(e);
+            } finally {
+                DataRecord.SelectedFields.remove();
             }
             return resultsAsString;
         } catch (XtentisException e) {

@@ -226,7 +226,9 @@ class ScatteredTypeMapping extends TypeMapping {
     @Override
     public DataRecord setValues(Wrapper from, DataRecord to) {
         StorageClassLoader contextClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
-        for (FieldMetadata userField : to.getType().getFields()) {
+        List<FieldMetadata> selectedFields = DataRecord.SelectedFields.get();
+        Collection<FieldMetadata> allUserFields = selectedFields == null ? to.getType().getFields() : selectedFields;
+        for (FieldMetadata userField : allUserFields) {
             FieldMetadata databaseField = getDatabase(userField);
             Object value = readValue(from, databaseField, userField);
             if (userField != null) {
