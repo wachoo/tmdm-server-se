@@ -153,7 +153,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                         + "'."); //$NON-NLS-1$
             }
             UserQueryBuilder qb = UserQueryBuilder.from(type);
-            List<FieldMetadata> selectedFields = new ArrayList<>();
+            List<FieldMetadata> selectedUserFields = new ArrayList<>();
             // Select fields
             ArrayListHolder<String> viewableBusinessElements = view.getViewableBusinessElements();
             for (String viewableBusinessElement : viewableBusinessElements.getList()) {
@@ -168,7 +168,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 for (TypedExpression field : fields) {
                     if (isNeedToAddExplicitly(isStaging, field)) {
                         qb.select(field);
-                        selectedFields.add(((Field) field).getFieldMetadata());
+                        selectedUserFields.add(((Field) field).getFieldMetadata());
                     }
                 }
             }
@@ -200,7 +200,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 }
             }
             // Get records
-            DataRecord.SelectedFields.set(selectedFields);
+            DataRecord.SelectedUserFields.set(selectedUserFields);
             ArrayList<String> resultsAsString = new ArrayList<String>();
             try {
                 storage.begin();
@@ -223,7 +223,7 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 storage.rollback();
                 throw new XmlServerException(e);
             } finally {
-                DataRecord.SelectedFields.remove();
+                DataRecord.SelectedUserFields.remove();
             }
             return resultsAsString;
         } catch (XtentisException e) {

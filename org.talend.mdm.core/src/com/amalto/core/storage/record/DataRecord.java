@@ -425,7 +425,7 @@ public class DataRecord {
      * Used to control what fields selected.
      *
      */
-    public static class SelectedFields {
+    public static class SelectedUserFields {
 
         private static ThreadLocal<List<FieldMetadata>> threadLocal = new ThreadLocal<List<FieldMetadata>>() {
 
@@ -434,7 +434,7 @@ public class DataRecord {
             }
         };
 
-        private SelectedFields() {
+        private SelectedUserFields() {
         }
 
         public static void set(List<FieldMetadata> value) {

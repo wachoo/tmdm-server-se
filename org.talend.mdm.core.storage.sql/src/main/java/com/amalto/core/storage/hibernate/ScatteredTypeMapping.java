@@ -56,6 +56,7 @@ class ScatteredTypeMapping extends TypeMapping {
         _setValues(session, from, to);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     Object _setValues(Session session, DataRecord from, Wrapper to) {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         for (FieldMetadata field : from.getType().getFields()) {
@@ -223,12 +224,13 @@ class ScatteredTypeMapping extends TypeMapping {
         return to;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DataRecord setValues(Wrapper from, DataRecord to) {
         StorageClassLoader contextClassLoader = (StorageClassLoader) Thread.currentThread().getContextClassLoader();
-        List<FieldMetadata> selectedFields = DataRecord.SelectedFields.get();
-        Collection<FieldMetadata> allUserFields = selectedFields == null ? to.getType().getFields() : selectedFields;
-        for (FieldMetadata userField : allUserFields) {
+        List<FieldMetadata> selectedUserFields = DataRecord.SelectedUserFields.get();
+        Collection<FieldMetadata> userFields = selectedUserFields == null ? to.getType().getFields() : selectedUserFields;
+        for (FieldMetadata userField : userFields) {
             FieldMetadata databaseField = getDatabase(userField);
             Object value = readValue(from, databaseField, userField);
             if (userField != null) {
@@ -373,6 +375,7 @@ class ScatteredTypeMapping extends TypeMapping {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private Object getReferencedObject(ClassLoader storageClassLoader, Session session, ComplexTypeMetadata referencedType,
             Object referencedIdValue) {
         Class<?> referencedClass;
