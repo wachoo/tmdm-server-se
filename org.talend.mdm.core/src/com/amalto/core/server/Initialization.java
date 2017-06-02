@@ -35,6 +35,7 @@ import com.amalto.core.objects.configurationinfo.assemble.AssembleDirector;
 import com.amalto.core.objects.configurationinfo.assemble.AssembleProc;
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.save.generator.AutoIncrementGenerator;
 import com.amalto.core.server.security.SecurityConfig;
 import com.amalto.core.storage.DispatchWrapper;
 import com.amalto.core.storage.Storage;
@@ -114,8 +115,17 @@ public class Initialization implements ApplicationListener<ContextRefreshedEvent
                 assembleProc.run();
             }
         });
-
         LOGGER.info("Initialization and migration done."); //$NON-NLS-1$
+        // Initialize autoincrement id generator
+        LOGGER.info("Initializing autoincrement id generator..."); //$NON-NLS-1$
+        SecurityConfig.invokeSynchronousPrivateInternal(new Runnable() {
+
+            @Override
+            public void run() {
+                AutoIncrementGenerator.get();
+            }
+        });
+        LOGGER.info("Autoincrement id generator initialized."); //$NON-NLS-1$
         // Find configured containers
         MetadataRepository repository = systemStorage.getMetadataRepository();
         String className = StringUtils.substringAfterLast(DataClusterPOJO.class.getName(), "."); //$NON-NLS-1$
