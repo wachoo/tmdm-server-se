@@ -36,10 +36,6 @@ class PostgresStorageInitializer implements StorageInitializer {
             RDBMSDataSource dataSource = getDataSource(storage);
             Driver driver = (Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
             String connectionURL = dataSource.getConnectionURL();
-            // Needs an extra '/' at the end of URL if not present (cause connection issues).
-            if (!connectionURL.endsWith("/")) { //$NON-NLS-1$
-                connectionURL += '/';
-            }
             Connection connection = driver.connect(connectionURL + "?user=" + dataSource.getUserName() + "&password=" + dataSource.getPassword(), new Properties());//$NON-NLS-1$ //$NON-NLS-2$
             connection.close();
             return true;
@@ -54,14 +50,19 @@ class PostgresStorageInitializer implements StorageInitializer {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
             Driver driver = (Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
-            Connection connection = driver.connect(dataSource.getInitConnectionURL() + "?user=" + dataSource.getInitUserName() + "&password=" + dataSource.getInitPassword(), new Properties());  //$NON-NLS-1$ //$NON-NLS-2$
+            String initConnectionURL = dataSource.getInitConnectionURL();
+            // Needs an extra '/' at the end of URL if not present (cause connection issues).
+            if (!initConnectionURL.endsWith("/")) { //$NON-NLS-1$
+                initConnectionURL += '/';
+            }
+            Connection connection = driver.connect(initConnectionURL + "?user=" + dataSource.getInitUserName() + "&password=" + dataSource.getInitPassword(), new Properties());  //$NON-NLS-1$ //$NON-NLS-2$
             try {
                 Statement statement = connection.createStatement();
                 try {
                     statement.execute("CREATE DATABASE " + dataSource.getDatabaseName() + ";"); //$NON-NLS-1$ //$NON-NLS-2$
                 } catch (SQLException e) {
                     // Assumes database is already created.
-                    LOGGER.debug("Exception occurred during CREATE DATABASE statement.", e);
+                    LOGGER.warn("Exception occurred during CREATE DATABASE statement.", e);
                 } finally {
                     statement.close();
                 }

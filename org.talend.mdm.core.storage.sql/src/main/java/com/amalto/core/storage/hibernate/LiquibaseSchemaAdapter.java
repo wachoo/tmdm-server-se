@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,6 +95,7 @@ public class LiquibaseSchemaAdapter  {
 
         try {
             DatabaseConnection liquibaseConnection = new liquibase.database.jvm.JdbcConnection(connection);
+            liquibaseConnection.setAutoCommit(true);
 
             liquibase.database.Database database = liquibase.database.DatabaseFactory.getInstance()
                     .findCorrectDatabaseImplementation(liquibaseConnection);
@@ -101,7 +103,13 @@ public class LiquibaseSchemaAdapter  {
             String filePath = getChangeLogFilePath(changeType);
 
             Liquibase liquibase = new Liquibase(filePath, new FileSystemResourceAccessor(), database);
-            liquibase.update("Liquibase update"); //$NON-NLS-1$
+            if(LOGGER.isDebugEnabled()) {
+                Writer output = new java.io.StringWriter();
+                liquibase.update("Liquibase update", output);
+                LOGGER.debug("DDL executed by liquibase: " + output.toString());
+            } else {
+                liquibase.update("Liquibase update");
+            }
         } catch (Exception e1) {
             LOGGER.error("execute liquibase update failure", e1); //$NON-NLS-1$
             throw e1;
@@ -133,7 +141,7 @@ public class LiquibaseSchemaAdapter  {
 
                 String defaultValueRule = ((FieldMetadata) current).getData(MetadataRepository.DEFAULT_VALUE_RULE);
                 defaultValueRule = HibernateStorageUtils.convertedDefaultValue(dataSource.getDialectName(), defaultValueRule, StringUtils.EMPTY);
-                String tableName = tableResolver.get(current.getContainingType().getEntity()).toLowerCase();
+                String tableName = tableResolver.get(current.getContainingType().getEntity());
                 String columnDataType = getColumnTypeName(current);
                 String columnName = tableResolver.get(current);
                 if (current instanceof ContainedTypeFieldMetadata) {
@@ -142,6 +150,11 @@ public class LiquibaseSchemaAdapter  {
 
                 if (dataSource.getDialectName() == DataSourceDialect.ORACLE_10G) {
                     columnName = columnName.toUpperCase();
+                }
+
+
+                if (dataSource.getDialectName() == DataSourceDialect.POSTGRES) {
+                    tableName = tableName.toLowerCase();
                 }
 
                 if (current.isMandatory() && !previous.isMandatory() && !isModifyMinOccursForRepeatable(previous, current)) {
