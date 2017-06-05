@@ -11,16 +11,14 @@
 
 package com.amalto.core.storage;
 
-import com.amalto.core.query.user.metadata.StagingBlockKey;
-import com.amalto.core.query.user.metadata.StagingError;
-import com.amalto.core.query.user.metadata.StagingSource;
-import com.amalto.core.query.user.metadata.StagingStatus;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import com.amalto.core.query.user.*;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+
+import com.amalto.core.query.user.*;
+import com.amalto.core.query.user.metadata.*;
 
 // TODO Instead of removing, it is possible to return arbitrary string value ("???", "###"...).
 class SecurityQueryCleaner extends VisitorAdapter<Expression> {
@@ -228,5 +226,10 @@ class SecurityQueryCleaner extends VisitorAdapter<Expression> {
     @Override
     public Expression visit(StagingBlockKey stagingBlockKey) {
         return stagingBlockKey;
+    }
+
+    @Override
+    public Expression visit(StagingHasTask stagingHasTask) {
+        return stagingHasTask;
     }
 }
