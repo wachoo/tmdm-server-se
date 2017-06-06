@@ -20,13 +20,14 @@ import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.query.user.Visitor;
 import com.amalto.core.storage.Storage;
 
+@SuppressWarnings("nls")
 public class StagingHasTask implements MetadataField {
 
     public static final StagingHasTask INSTANCE = new StagingHasTask();
 
     public static final String STAGING_HAS_TASK_ALIAS = "staging_hastask"; //$NON-NLS-1$
 
-    private static final String[] STAGING_HAS_TASK_FIELD = new String[] { "$staging_hastask$", "metadata:staging_hastask", "staging_hastask" }; //$NON-NLS-1$ //$NON-NLS-2
+    private static final String[] STAGING_HAS_TASK_FIELD = new String[] { "$staging_hastask$", "metadata:staging_hastask", "staging_hastask" };
 
     private final PropertyReader propertyReader = new PropertyReader(Storage.METADATA_STAGING_HAS_TASK);
 
@@ -52,7 +53,7 @@ public class StagingHasTask implements MetadataField {
 
     @Override
     public String getFieldName() {
-        return STAGING_HAS_TASK_FIELD[0];
+        return STAGING_HAS_TASK_FIELD[1];
     }
 
     @Override
