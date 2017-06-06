@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.regex.Pattern;
@@ -790,7 +790,7 @@ public class XConverter {
                         WSRoleSpecificationInstance wsInstance = wsSpecification.getInstance()[j];
                         RoleInstance instance = new RoleInstance();
                         instance.setWriteable(wsInstance.isWritable());
-                        instance.setParameters(new HashSet());
+                        instance.setParameters(new LinkedHashSet());
                         if (wsInstance.getParameter() != null) {
                             instance.getParameters().addAll(Arrays.asList(wsInstance.getParameter()));
                         }
