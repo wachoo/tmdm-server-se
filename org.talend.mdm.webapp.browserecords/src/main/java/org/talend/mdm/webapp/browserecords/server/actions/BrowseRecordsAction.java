@@ -2653,33 +2653,33 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
     
     private static String readRestErroMessage(HttpResponse response) {
-    	final String httpCode = "200";
-    	if (httpCode.equals(response.getStatusLine().getStatusCode())) {
-    		return "";
-    	} else {
-      		BufferedReader br = null;
-    		StringBuilder sb = new StringBuilder();
-    		try {
-    			InputStream errorInputStream = response.getEntity().getContent();
-        		String line;
-    			br = new BufferedReader(new InputStreamReader(errorInputStream));
-    			while ((line = br.readLine()) != null) {
-    				sb.append(line);
-    			}
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		} finally {
-    			if (br != null) {
-    				try {
-    					br.close();
-    				} catch (IOException e) {
-    					e.printStackTrace();
-    				}
-    			}
-    		}
-    		return sb.toString();
-    	}
-	}
+        final String httpCode = "200";
+        if (httpCode.equals(response.getStatusLine().getStatusCode())) {
+            return "";
+        } else {
+            BufferedReader br = null;
+            StringBuilder sb = new StringBuilder();
+            try {
+                InputStream errorInputStream = response.getEntity().getContent();
+                String line;
+                br = new BufferedReader(new InputStreamReader(errorInputStream));
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (br != null) {
+                    try {
+                        br.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return sb.toString();
+        }
+    }
 
     private boolean isValidGoldenStatus(WSDataClusterPK wsDataClusterPK, String conceptName, String taskId) {
         StringBuilder query = new StringBuilder().append("select count(*) from ").append(conceptName).append(" where ") //$NON-NLS-1$ //$NON-NLS-2$
