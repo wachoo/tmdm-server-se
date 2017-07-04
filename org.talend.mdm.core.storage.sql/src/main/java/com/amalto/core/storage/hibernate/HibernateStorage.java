@@ -877,6 +877,7 @@ public class HibernateStorage implements Storage {
                     // Periodically flush objects to avoid using too much memory.
                     session.flush();
                 }
+                EntityCountUtil.clearCounts(storageName, storageType, currentDataRecord.getType().getName());
             }
         } catch (ConstraintViolationException e) {
             throw new com.amalto.core.storage.exception.ConstraintViolationException(e);
@@ -1641,6 +1642,7 @@ public class HibernateStorage implements Storage {
             Wrapper object = (Wrapper) session.get(clazz, idValue, LockOptions.READ);
             if (object != null) {
                 session.delete(object);
+                EntityCountUtil.clearCounts(storageName, storageType, currentType.getName());
             } else {
                 LOGGER.warn("Instance of type '" + currentType.getName() + "' and ID '" + idValue.toString() //$NON-NLS-1$ //$NON-NLS-2$
                         + "' has already been deleted within same transaction."); //$NON-NLS-1$

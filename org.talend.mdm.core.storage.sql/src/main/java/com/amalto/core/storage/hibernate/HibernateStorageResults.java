@@ -56,45 +56,52 @@ class HibernateStorageResults implements StorageResults {
     @Override
     public int getCount() {
         StorageResults countResult = null;
-        try {
-            Select countSelect = select.copy();
-            List<TypedExpression> selectedFields = countSelect.getSelectedFields();
-            selectedFields.clear();
-            for (TypedExpression typedExpression : select.getSelectedFields()) {
-                if (typedExpression instanceof Field) {
-                    Field field = (Field) typedExpression;
-                    if (field.getFieldMetadata() instanceof SimpleTypeFieldMetadata) {
-                        SimpleTypeFieldMetadata fileFieldMetadata = (SimpleTypeFieldMetadata) field.getFieldMetadata();
-                        FieldMetadata container = fileFieldMetadata.getContainingType().getContainer();
-                        if (container != null && container.isMany()) {
-                            selectedFields.add(typedExpression);
+        Select countSelect = select.copy();
+        EntityCountKey entityCountKey = new EntityCountKey(storage, countSelect);
+        Integer count = EntityCountUtil.getCount(entityCountKey);
+        if (count == null) {
+            try {
+                List<TypedExpression> selectedFields = countSelect.getSelectedFields();
+                selectedFields.clear();
+                for (TypedExpression typedExpression : select.getSelectedFields()) {
+                    if (typedExpression instanceof Field) {
+                        Field field = (Field) typedExpression;
+                        if (field.getFieldMetadata() instanceof SimpleTypeFieldMetadata) {
+                            SimpleTypeFieldMetadata fileFieldMetadata = (SimpleTypeFieldMetadata) field.getFieldMetadata();
+                            FieldMetadata container = fileFieldMetadata.getContainingType().getContainer();
+                            if (container != null && container.isMany()) {
+                                selectedFields.add(typedExpression);
+                            }
                         }
                     }
                 }
-            }
-            Paging paging = countSelect.getPaging();
-            selectedFields.add(UserQueryBuilder.count());
-            paging.setLimit(1);
-            paging.setStart(0);
-            countSelect.getOrderBy().clear();
-            countResult = storage.fetch(countSelect); // Expects an active transaction here
-            Iterator<DataRecord> resultIterator = countResult.iterator();
-            if (!resultIterator.hasNext()) {
-                return 0;
-            }
-            DataRecord count = resultIterator.next();
-            if (count.get("count") == null) { //$NON-NLS-1$
-                throw new RuntimeException("Count returned no result");
-            }
-            String countAsString = String.valueOf(count.get("count")); //$NON-NLS-1$
-            return Integer.parseInt(countAsString);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (countResult != null) {
-                countResult.close();
+                Paging paging = countSelect.getPaging();
+                selectedFields.add(UserQueryBuilder.count());
+                paging.setLimit(1);
+                paging.setStart(0);
+                countSelect.getOrderBy().clear();
+                countResult = storage.fetch(countSelect); // Expects an active transaction here
+                Iterator<DataRecord> resultIterator = countResult.iterator();
+                if (!resultIterator.hasNext()) {
+                    return 0;
+                }
+                DataRecord countRecord = resultIterator.next();
+                if (countRecord.get("count") == null) { //$NON-NLS-1$
+                    throw new RuntimeException("Count returned no result"); //$NON-NLS-1$
+                }
+                String countAsString = String.valueOf(countRecord.get("count")); //$NON-NLS-1$
+                count = Integer.parseInt(countAsString);
+                EntityCountUtil.putCount(entityCountKey, count);
+                return count;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (countResult != null) {
+                    countResult.close();
+                }
             }
         }
+        return count;
     }
 
     @Override
@@ -110,4 +117,5 @@ class HibernateStorageResults implements StorageResults {
             throw new RuntimeException(e);
         }
     }
+
 }
