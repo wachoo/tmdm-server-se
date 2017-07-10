@@ -57,7 +57,6 @@ class HibernateStorageResults implements StorageResults {
 
     @Override
     public int getCount() {
-        StorageResults countResult = null;
         Select countSelect = select.copy();
         // Try to get from cache first
         CountKey countKey = new CountKey(storage, countSelect);
@@ -90,10 +89,6 @@ class HibernateStorageResults implements StorageResults {
                 return count;
             } catch (Exception e) {
                 throw new RuntimeException(e);
-            } finally {
-                if (countResult != null) {
-                    countResult.close();
-                }
             }
         }
         return count;
