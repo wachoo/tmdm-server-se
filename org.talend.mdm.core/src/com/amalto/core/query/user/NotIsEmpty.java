@@ -50,6 +50,6 @@ public class NotIsEmpty implements Condition {
 
     @Override
     public int hashCode() {
-        return field != null ? field.hashCode() : 0;
+        return field != null ? -21 * field.hashCode() : 0;
     }
 }

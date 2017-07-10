@@ -23,6 +23,8 @@ import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.storage.CloseableIterator;
+import com.amalto.core.storage.Counter.CountKey;
+import com.amalto.core.storage.EntityCountUtil;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
@@ -57,8 +59,9 @@ class HibernateStorageResults implements StorageResults {
     public int getCount() {
         StorageResults countResult = null;
         Select countSelect = select.copy();
-        EntityCountKey entityCountKey = new EntityCountKey(storage, countSelect);
-        Integer count = EntityCountUtil.getCount(entityCountKey);
+        // Try to get from cache first
+        CountKey countKey = new CountKey(storage, countSelect);
+        Integer count = EntityCountUtil.getCount(countKey);
         if (count == null) {
             try {
                 List<TypedExpression> selectedFields = countSelect.getSelectedFields();
@@ -75,23 +78,15 @@ class HibernateStorageResults implements StorageResults {
                         }
                     }
                 }
-                Paging paging = countSelect.getPaging();
                 selectedFields.add(UserQueryBuilder.count());
+                Paging paging = countSelect.getPaging();
                 paging.setLimit(1);
                 paging.setStart(0);
                 countSelect.getOrderBy().clear();
-                countResult = storage.fetch(countSelect); // Expects an active transaction here
-                Iterator<DataRecord> resultIterator = countResult.iterator();
-                if (!resultIterator.hasNext()) {
-                    return 0;
-                }
-                DataRecord countRecord = resultIterator.next();
-                if (countRecord.get("count") == null) { //$NON-NLS-1$
-                    throw new RuntimeException("Count returned no result"); //$NON-NLS-1$
-                }
-                String countAsString = String.valueOf(countRecord.get("count")); //$NON-NLS-1$
-                count = Integer.parseInt(countAsString);
-                EntityCountUtil.putCount(entityCountKey, count);
+                DataRecord countRecord = storage.fetch(countSelect).iterator().next();
+                count = Integer.valueOf(countRecord.get("count").toString()); //$NON-NLS-1$
+                // Add count data to cache
+                EntityCountUtil.putCount(countKey, count);
                 return count;
             } catch (Exception e) {
                 throw new RuntimeException(e);

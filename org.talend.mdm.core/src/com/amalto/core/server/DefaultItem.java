@@ -9,7 +9,7 @@
  */
 package com.amalto.core.server;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,13 +47,18 @@ import com.amalto.core.objects.transformers.util.TransformerContext;
 import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.objects.view.ViewPOJO;
 import com.amalto.core.objects.view.ViewPOJOPK;
+import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.OrderBy;
+import com.amalto.core.query.user.Paging;
+import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.core.server.api.Item;
 import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.storage.Counter.CountKey;
 import com.amalto.core.storage.DispatchWrapper;
+import com.amalto.core.storage.EntityCountUtil;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.SystemStorageWrapper;
@@ -92,7 +97,7 @@ public class DefaultItem implements Item {
         String dataModelName = dataModel == null ? null : dataModel.getName();
         return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().putItem(item, schema, dataModelName);
     }
-    
+
     /**
      * Updates a item taskId. Is equivalent to {@link #putItem(ItemPOJO, DataModelPOJO)}.
      *
@@ -162,7 +167,7 @@ public class DefaultItem implements Item {
         } catch (Exception e) {
             if (LOGGER.isDebugEnabled()) {
                 String info = "Could not check whether this item exists:  " + pk.toString() + ": " + e.getClass().getName() + ": "
-                    + e.getLocalizedMessage();
+                        + e.getLocalizedMessage();
                 LOGGER.debug(info, e);
             }
             return null;
@@ -172,9 +177,9 @@ public class DefaultItem implements Item {
     /**
      * Remove an item - returns null if no item was deleted
      *
-     * @param pk       PK of the item to be deleted.
+     * @param pk PK of the item to be deleted.
      * @param override Override FK integrity when deleting instance. Please note that this parameter is only taken into
-     *                 account if the data model allows override.
+     * account if the data model allows override.
      * @return The PK of the deleted item.
      * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
      */
@@ -186,12 +191,13 @@ public class DefaultItem implements Item {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Deleting " + dataClusterName + "." + Util.joinStrings(ids, "."));
         }
-        BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
-                .allowDelete(dataClusterName, conceptName, ComplexTypeMetadata.DeleteType.PHYSICAL);
+        BeanDelegatorContainer.getInstance().getItemCtrlDelegator().allowDelete(dataClusterName, conceptName,
+                ComplexTypeMetadata.DeleteType.PHYSICAL);
         if (!pk.getDataClusterPOJOPK().getUniqueId().endsWith(StorageAdmin.STAGING_SUFFIX)) {
             boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
             if (!allowDelete) {
-                throw new RuntimeException("Cannot delete instance '" + pk.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
+                throw new RuntimeException("Cannot delete instance '" + pk.getUniqueID() + "' (concept name: " + conceptName
+                        + ") due to FK integrity constraints.");
             }
         }
         try {
@@ -220,10 +226,10 @@ public class DefaultItem implements Item {
      */
     // TODO override is not taken into account here?
     @Override
-    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellThreshold, boolean override)
-            throws XtentisException {
-        BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
-                .allowDelete(dataClusterPOJOPK.getUniqueId(), conceptName, ComplexTypeMetadata.DeleteType.PHYSICAL);
+    public int deleteItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem search, int spellThreshold,
+            boolean override) throws XtentisException {
+        BeanDelegatorContainer.getInstance().getItemCtrlDelegator().allowDelete(dataClusterPOJOPK.getUniqueId(), conceptName,
+                ComplexTypeMetadata.DeleteType.PHYSICAL);
         // build the patterns to cluster map - only one cluster at this stage
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
@@ -241,7 +247,8 @@ public class DefaultItem implements Item {
      * Drop an item - returns null if no item was dropped. This is logical delete (i.e. send to trash)
      *
      * @param itemPOJOPK PK of item to be sent to trash.
-     * @param partPath Use this parameter too only drop a part of the document (a XPath evaluated from the document's root).
+     * @param partPath Use this parameter too only drop a part of the document (a XPath evaluated from the document's
+     * root).
      * @param override Override FK integrity when deleting instance. Please note that this parameter is only taken into
      * account if the data model allows override.
      * @return A PK to the item in the MDM trash.
@@ -256,11 +263,12 @@ public class DefaultItem implements Item {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Dropping " + dataClusterName + "." + Util.joinStrings(ids, "."));
         }
-        BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
-                .allowDelete(dataClusterName, conceptName, ComplexTypeMetadata.DeleteType.LOGICAL);
+        BeanDelegatorContainer.getInstance().getItemCtrlDelegator().allowDelete(dataClusterName, conceptName,
+                ComplexTypeMetadata.DeleteType.LOGICAL);
         boolean allowDelete = FKIntegrityChecker.getInstance().allowDelete(dataClusterName, conceptName, ids, override);
         if (!allowDelete) {
-            throw new RuntimeException("Cannot delete instance '" + itemPOJOPK.getUniqueID() + "' (concept name: " + conceptName + ") due to FK integrity constraints.");
+            throw new RuntimeException("Cannot delete instance '" + itemPOJOPK.getUniqueID() + "' (concept name: " + conceptName
+                    + ") due to FK integrity constraints.");
         }
         try {
             return ItemPOJO.drop(itemPOJOPK, partPath);
@@ -310,8 +318,8 @@ public class DefaultItem implements Item {
     @Override
     public ArrayList<String> viewSearch(DataClusterPOJOPK dataClusterPOJOPK, ViewPOJOPK viewPOJOPK, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit) throws XtentisException {
-        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator()
-                .viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, orderBy, direction, start, limit);
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem,
+                orderBy, direction, start, limit);
 
     }
 
@@ -335,7 +343,8 @@ public class DefaultItem implements Item {
     public ArrayList<String> xPathsSearch(DataClusterPOJOPK dataClusterPOJOPK, String forceMainPivot,
             ArrayList<String> viewablePaths, IWhereItem whereItem, int spellThreshold, int start, int limit, boolean returnCount)
             throws XtentisException {
-        return xPathsSearch(dataClusterPOJOPK, forceMainPivot, viewablePaths, whereItem, spellThreshold, null, null, start, limit, returnCount);
+        return xPathsSearch(dataClusterPOJOPK, forceMainPivot, viewablePaths, whereItem, spellThreshold, null, null, start, limit,
+                returnCount);
     }
 
     /**
@@ -371,14 +380,14 @@ public class DefaultItem implements Item {
             ILocalUser user = LocalUser.getLocalUser();
             boolean authorized = false;
             String dataModelName = dataClusterPOJOPK.getUniqueId();
-            if (MDMConfiguration.getAdminUser().equals(user.getUsername())) { 
+            if (MDMConfiguration.getAdminUser().equals(user.getUsername())) {
                 authorized = true;
             } else if (user.userCanRead(DataClusterPOJO.class, dataModelName)) {
                 authorized = true;
             }
             if (!authorized) {
-                throw new XtentisException("Unauthorized read access on data cluster '" + dataModelName + "' by user '"
-                        + user.getUsername() + "'");
+                throw new XtentisException(
+                        "Unauthorized read access on data cluster '" + dataModelName + "' by user '" + user.getUsername() + "'");
             }
             Server server = ServerContext.INSTANCE.get();
             String typeName = StringUtils.substringBefore(viewablePaths.get(0), "/"); //$NON-NLS-1$
@@ -412,7 +421,8 @@ public class DefaultItem implements Item {
                 if (!viewableFieldName.isEmpty()) {
                     qb.select(repository.getComplexType(viewableTypeName), viewableFieldName);
                 } else {
-                    qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and not 'typeName/field'
+                    qb.selectId(repository.getComplexType(viewableTypeName)); // Select id if xPath is 'typeName' and
+                                                                              // not 'typeName/field'
                 }
             }
             ArrayList<String> resultsAsString = new ArrayList<String>();
@@ -482,14 +492,20 @@ public class DefaultItem implements Item {
                 for (ComplexTypeMetadata type : types) {
                     if (!type.getKeyFields().isEmpty()) { // Don't try to count types that don't have any PK.
                         UserQueryBuilder qb = from(type).select(UserQueryBuilder.count());
-                        qb.where(UserQueryHelper.buildCondition(qb, whereItem, repository));
-                        StorageResults results = storage.fetch(qb.getSelect());
-                        try {
-                            for (DataRecord result : results) {
-                                count += (Long)result.get("count");
-                            }
-                        } finally {
-                            results.close();
+                        Condition condition = UserQueryHelper.buildCondition(qb, whereItem, repository);
+                        Select countSelect = qb.where(condition).getSelect();
+                        Paging paging = countSelect.getPaging();
+                        paging.setLimit(1);
+                        paging.setStart(0);
+                        // Try to get from cache first
+                        CountKey countKey = new CountKey(storage.getName(), storage.getType(), type.getName(), condition);
+                        Integer typeCount = EntityCountUtil.getCount(countKey);
+                        if (typeCount == null) {
+                            DataRecord countRecord = storage.fetch(qb.getSelect()).iterator().next();
+                            typeCount = Integer.valueOf(countRecord.get("count").toString()); //$NON-NLS-1$
+                            count += typeCount;
+                            // Add count data to cache
+                            EntityCountUtil.putCount(countKey, typeCount);
                         }
                     }
                 }
@@ -513,11 +529,11 @@ public class DefaultItem implements Item {
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param viewPOJOPK The View
-     * @param searchValue The value searched. If empty, null or equals to "*", this method is equivalent to a view search
-     * with no filter.
-     * @param matchWholeSentence If <code>false</code>, the searchValue is separated into keywords using " " (white space) as
-     * separator. Match will be done with a OR condition on each field. If <code>true</code>, the keyword is considered
-     * as a whole sentence and matching is done on the whole sentence (not each word).
+     * @param searchValue The value searched. If empty, null or equals to "*", this method is equivalent to a view
+     * search with no filter.
+     * @param matchWholeSentence If <code>false</code>, the searchValue is separated into keywords using " " (white
+     * space) as separator. Match will be done with a OR condition on each field. If <code>true</code>, the keyword is
+     * considered as a whole sentence and matching is done on the whole sentence (not each word).
      * @param spellThreshold The condition spell checking threshold. A negative value de-activates spell
      * @param orderBy An optional full path of the item used to order results.
      * @param direction One of {@link com.amalto.xmlserver.interfaces.IXmlServerSLWrapper#ORDER_ASCENDING} or
@@ -533,7 +549,8 @@ public class DefaultItem implements Item {
             throws XtentisException {
         try {
             // check if there actually is a search value
-            if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ // $NON-NLS-2$
+            if ((searchValue == null) || "".equals(searchValue) || "*".equals(searchValue)) { // $NON-NLS-1$ //
+                                                                                              // $NON-NLS-2$
                 return viewSearch(dataClusterPOJOPK, viewPOJOPK, null, spellThreshold, orderBy, direction, start, limit);
             } else {
                 ViewPOJO view = Util.getViewCtrlLocal().getView(viewPOJOPK);
@@ -564,7 +581,8 @@ public class DefaultItem implements Item {
                     for (String fieldName : searchableFields) {
                         WhereOr nestedOr = new WhereOr();
                         for (String keyword : keywords) {
-                            WhereCondition nestedCondition = new WhereCondition(fieldName, WhereCondition.CONTAINS, keyword.trim(), WhereCondition.PRE_OR, false);
+                            WhereCondition nestedCondition = new WhereCondition(fieldName, WhereCondition.CONTAINS,
+                                    keyword.trim(), WhereCondition.PRE_OR, false);
                             nestedOr.add(nestedCondition);
                         }
                         whereOr.add(nestedOr);
@@ -599,9 +617,8 @@ public class DefaultItem implements Item {
      * @throws com.amalto.core.util.XtentisException In case of error in MDM code.
      */
     @Override
-    public ArrayList<String> getFullPathValues(DataClusterPOJOPK dataClusterPOJOPK,
-            String businessElementPath, IWhereItem whereItem, int spellThreshold, String orderBy, String direction)
-            throws XtentisException {
+    public ArrayList<String> getFullPathValues(DataClusterPOJOPK dataClusterPOJOPK, String businessElementPath,
+            IWhereItem whereItem, int spellThreshold, String orderBy, String direction) throws XtentisException {
 
         ArrayList<String> res = new ArrayList<String>();
         try {
@@ -614,8 +631,8 @@ public class DefaultItem implements Item {
             }
 
             ArrayList<String> col = xPathsSearch(dataClusterPOJOPK, null,
-                    new ArrayList<String>(Arrays.asList(businessElementPath)), whereItem, spellThreshold,
-                    orderBy, direction, 0, -1, false);
+                    new ArrayList<String>(Arrays.asList(businessElementPath)), whereItem, spellThreshold, orderBy, direction, 0,
+                    -1, false);
 
             Pattern p = Pattern.compile("<.*>(.*?)</.*>", Pattern.DOTALL);
             for (String li : col) {
@@ -639,10 +656,12 @@ public class DefaultItem implements Item {
 
     /**
      * Extract results through a view and transform them using a transformer<br/>
-     * This call is asynchronous and results will be pushed via the passed {@link com.amalto.core.objects.transformers.util.TransformerCallBack}
+     * This call is asynchronous and results will be pushed via the passed
+     * {@link com.amalto.core.objects.transformers.util.TransformerCallBack}
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
-     * @param context The {@link com.amalto.core.objects.transformers.util.TransformerContext} contains the initial context and the transformer name
+     * @param context The {@link com.amalto.core.objects.transformers.util.TransformerContext} contains the initial
+     * context and the transformer name
      * @param globalCallBack The callback function called by the transformer when it completes a step
      * @param viewPOJOPK A filtering view
      * @param whereItem The condition
@@ -665,19 +684,14 @@ public class DefaultItem implements Item {
             context.put("com.amalto.core.ejb.itemctrl.globalCallBack", globalCallBack); //$NON-NLS-1$
             context.put("com.amalto.core.ejb.itemctrl.count", 0); //$NON-NLS-1$
             // perform search
-            ArrayList<String> rows = viewSearch(dataClusterPOJOPK,
-                    viewPOJOPK,
-                    whereItem,
-                    spellThreshold,
-                    orderBy,
-                    direction,
-                    start,
-                    limit);
+            ArrayList<String> rows = viewSearch(dataClusterPOJOPK, viewPOJOPK, whereItem, spellThreshold, orderBy, direction,
+                    start, limit);
             // transform
             for (String raw : rows) {
                 Util.getTransformerV2CtrlLocal().execute(context,
                         new TypedContent(raw.getBytes("utf-8"), "text/xml; charset=\"utf-8\""), //$NON-NLS-1$ //$NON-NLS-2$
                         new TransformerCallBack() {
+
                             @Override
                             public void contentIsReady(TransformerContext context) throws XtentisException {
                                 // add numbered content to the pipeline
@@ -712,7 +726,8 @@ public class DefaultItem implements Item {
 
     /**
      * Extract results through a view and transform them using a transformer<br/>
-     * This call is asynchronous and results will be pushed via the passed {@link com.amalto.core.objects.transformers.util.TransformerCallBack}
+     * This call is asynchronous and results will be pushed via the passed
+     * {@link com.amalto.core.objects.transformers.util.TransformerCallBack}
      *
      * @param dataClusterPOJOPK The Data Cluster where to run the query
      * @param transformerPOJOPK The transformer to use
@@ -738,6 +753,7 @@ public class DefaultItem implements Item {
             context.put("com.amalto.core.itemctrl2.content", content); //$NON-NLS-1$
             context.put("com.amalto.core.itemctrl2.ready", false); //$NON-NLS-1$
             TransformerCallBack globalCallBack = new TransformerCallBack() {
+
                 @Override
                 public void contentIsReady(TransformerContext context) throws XtentisException {
                 }
@@ -747,16 +763,8 @@ public class DefaultItem implements Item {
                     context.put("com.amalto.core.itemctrl2.ready", true); //$NON-NLS-1$
                 }
             };
-            extractUsingTransformerThroughView(dataClusterPOJOPK,
-                    context,
-                    globalCallBack,
-                    viewPOJOPK,
-                    whereItem,
-                    spellThreshold,
-                    orderBy,
-                    direction,
-                    start,
-                    limit);
+            extractUsingTransformerThroughView(dataClusterPOJOPK, context, globalCallBack, viewPOJOPK, whereItem, spellThreshold,
+                    orderBy, direction, start, limit);
             while (!(Boolean) context.get("com.amalto.core.itemctrl2.ready")) {
                 try {
                     Thread.sleep(50);
@@ -787,8 +795,7 @@ public class DefaultItem implements Item {
             throws XtentisException {
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
-            return server.runQuery(
-                    (dataClusterPOJOPK == null ? null : dataClusterPOJOPK.getUniqueId()), query, parameters);
+            return server.runQuery((dataClusterPOJOPK == null ? null : dataClusterPOJOPK.getUniqueId()), query, parameters);
         } catch (Exception e) {
             String err = "Unable to perform a direct query: " + ": " + e.getClass().getName() + ": " + e.getLocalizedMessage();
             LOGGER.error(err, e);
@@ -824,8 +831,8 @@ public class DefaultItem implements Item {
                 authorized = true;
             }
             if (!authorized) {
-                throw new RemoteException("Unauthorized read access on data cluster " + dataModelName
-                        + " by user " + user.getUsername());
+                throw new RemoteException(
+                        "Unauthorized read access on data cluster " + dataModelName + " by user " + user.getUsername());
             }
             // This should be moved to ItemCtrl
             MetadataRepository repository = storage.getMetadataRepository();
@@ -850,7 +857,7 @@ public class DefaultItem implements Item {
     public long countItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, String injectedXpath)
             throws XtentisException {
         try {
-            IWhereItem whereItem = new WhereAnd(Arrays.<IWhereItem>asList(new CustomWhereCondition(injectedXpath)));
+            IWhereItem whereItem = new WhereAnd(Arrays.<IWhereItem> asList(new CustomWhereCondition(injectedXpath)));
             return count(dataClusterPOJOPK, conceptName, whereItem, 0);
         } catch (Exception e) {
             String err = "Unable to count the elements! "; //$NON-NLS-1$
@@ -861,22 +868,22 @@ public class DefaultItem implements Item {
 
     /**
      * @param dataClusterPOJOPK A data cluster name
-     * @param viewablePaths     Viewable paths in the result
-     * @param customXPath       A custom XPath-based condition to be added as-is to the XQuery (no validation)
-     * @param whereItem         A addition where condition
-     * @param start             A start position for paging results
-     * @param limit             Size of results page.
-     * @param orderBy           A optional order by
-     * @param direction         Direction for the order by.
-     * @param returnCount       If true, returns total match count as first result.
-     * @return The equivalent of a {@link #xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)} using a
-     *         custom XPath as additional condition.
+     * @param viewablePaths Viewable paths in the result
+     * @param customXPath A custom XPath-based condition to be added as-is to the XQuery (no validation)
+     * @param whereItem A addition where condition
+     * @param start A start position for paging results
+     * @param limit Size of results page.
+     * @param orderBy A optional order by
+     * @param direction Direction for the order by.
+     * @param returnCount If true, returns total match count as first result.
+     * @return The equivalent of a
+     * {@link #xPathsSearch(com.amalto.core.objects.datacluster.DataClusterPOJOPK, String, java.util.ArrayList, com.amalto.xmlserver.interfaces.IWhereItem, int, String, String, int, int, boolean)}
+     * using a custom XPath as additional condition.
      * @throws com.amalto.core.util.XtentisException In case of MDM server error.
      */
     @Override
     public ArrayList<String> getItemsByCustomFKFilters(DataClusterPOJOPK dataClusterPOJOPK, ArrayList<String> viewablePaths,
-                                                       String customXPath, IWhereItem whereItem, int start, int limit,
-                                                       String orderBy, String direction, boolean returnCount)
+            String customXPath, IWhereItem whereItem, int start, int limit, String orderBy, String direction, boolean returnCount)
             throws XtentisException {
         IWhereItem customWhereCondition = new CustomWhereCondition(customXPath);
         IWhereItem xPathSearchCondition;
@@ -885,7 +892,8 @@ public class DefaultItem implements Item {
         } else {
             xPathSearchCondition = customWhereCondition;
         }
-        return xPathsSearch(dataClusterPOJOPK, null, viewablePaths, xPathSearchCondition, 0, orderBy, direction, start, limit, returnCount);
+        return xPathsSearch(dataClusterPOJOPK, null, viewablePaths, xPathSearchCondition, 0, orderBy, direction, start, limit,
+                returnCount);
     }
 
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
@@ -914,7 +922,8 @@ public class DefaultItem implements Item {
     @Override
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
             int spellThreshold, int start, int limit, boolean totalCountOnFirstRow) throws XtentisException {
-        return getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, null, null, start, limit, totalCountOnFirstRow);
+        return getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, null, null, start, limit,
+                totalCountOnFirstRow);
     }
 
     /**
@@ -937,7 +946,8 @@ public class DefaultItem implements Item {
     public ArrayList<String> getItems(DataClusterPOJOPK dataClusterPOJOPK, String conceptName, IWhereItem whereItem,
             int spellThreshold, String orderBy, String direction, int start, int limit, boolean totalCountOnFirstRow)
             throws XtentisException {
-    	return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().getItems(dataClusterPOJOPK, conceptName, whereItem, spellThreshold, orderBy, direction, start, limit, totalCountOnFirstRow);
+        return BeanDelegatorContainer.getInstance().getItemCtrlDelegator().getItems(dataClusterPOJOPK, conceptName, whereItem,
+                spellThreshold, orderBy, direction, start, limit, totalCountOnFirstRow);
     }
 
     @Override

@@ -31,6 +31,7 @@ import org.hibernate.internal.SessionImpl;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.load.io.ResettableStringWriter;
+import com.amalto.core.storage.EntityCountUtil;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.exception.ConstraintViolationException;
 import com.amalto.core.storage.record.DataRecord;
@@ -182,6 +183,7 @@ class HibernateStorageTransaction extends StorageTransaction {
                 }
             }
             super.commit();
+            EntityCountUtil.clearCounts();
             storage.getClassLoader().reset(Thread.currentThread());
         }
         finally {

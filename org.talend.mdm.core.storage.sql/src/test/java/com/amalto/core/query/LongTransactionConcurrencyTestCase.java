@@ -26,14 +26,9 @@ import com.amalto.core.storage.transaction.TransactionManager;
  *
  */
 public class LongTransactionConcurrencyTestCase extends LongTransactionAbstractTestCase {
-    
+
     /**
-     * begin
-     *    + insert 
-     *    + insert
-     *    + insert
-     *    + ...
-     * commit
+     * begin + insert + insert + insert + ... commit
      * 
      * in a pool of threads
      */
@@ -44,26 +39,27 @@ public class LongTransactionConcurrencyTestCase extends LongTransactionAbstractT
         int nbTasksPerTransaction = nbTasks / nbTransactions;
         String[] transactionIds = new String[nbTransactions];
         TransactionManager tm = ServerContext.INSTANCE.get().getTransactionManager();
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             Transaction longTransaction = tm.create(Lifetime.LONG);
             longTransaction.begin();
             transactionIds[i] = longTransaction.getId();
         }
         Future<?>[] tasks = new Future<?>[nbTasks];
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(nbThreads, nbThreads, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(nbThreads, nbThreads, 0, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
         int taskId = 0;
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             String transactionId = transactionIds[i];
-            for(int j=0; j<nbTasksPerTransaction; j++){
-                int id = ((i+1) * 1000) + j;
+            for (int j = 0; j < nbTasksPerTransaction; j++) {
+                int id = ((i + 1) * 1000) + j;
                 tasks[taskId++] = threadPool.submit(new UpdateRunnable(transactionId, id));
-                
+
             }
         }
-        for(int i=0; i<nbTasks; i++){
+        for (int i = 0; i < nbTasks; i++) {
             tasks[i].get();
         }
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             String transactionId = transactionIds[i];
             Transaction transaction = tm.get(transactionId);
             transaction.commit();
@@ -71,14 +67,12 @@ public class LongTransactionConcurrencyTestCase extends LongTransactionAbstractT
         threadPool.shutdown();
         Assert.assertEquals(nbTasks, countCountries());
     }
-    
+
     /**
-     *  + begin insert insert insert ... commit
-     *  + begin insert insert insert ... commit
-     *  + begin insert insert insert ... commit
-     *  + begin insert insert insert ... commit
-     *  
-     *  in a pool of threads
+     * + begin insert insert insert ... commit + begin insert insert insert ... commit + begin insert insert insert ...
+     * commit + begin insert insert insert ... commit
+     * 
+     * in a pool of threads
      */
     public void testSeveralLongTransactionsInSeveralThreadsWithCommit() throws Exception {
         int nbThreads = 5;
@@ -87,39 +81,39 @@ public class LongTransactionConcurrencyTestCase extends LongTransactionAbstractT
         int nbTasksPerTransaction = nbTasks / nbTransactions;
         String[] transactionIds = new String[nbTransactions];
         TransactionManager tm = ServerContext.INSTANCE.get().getTransactionManager();
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             Transaction longTransaction = tm.create(Lifetime.LONG);
             longTransaction.begin();
             transactionIds[i] = longTransaction.getId();
         }
         Thread[] threads = new Thread[nbTransactions];
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(nbThreads, nbThreads, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-        for(int i=0; i<nbTransactions; i++){
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(nbThreads, nbThreads, 0, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        for (int i = 0; i < nbTransactions; i++) {
             String transactionId = transactionIds[i];
             LongTaskRunnable longTask = new LongTaskRunnable(threadPool);
-            for(int j=0; j<nbTasksPerTransaction; j++){
-                int id = ((i+1) * 1000) + j;
+            for (int j = 0; j < nbTasksPerTransaction; j++) {
+                int id = ((i + 1) * 1000) + j;
                 longTask.addTask(new UpdateRunnable(transactionId, id));
             }
             longTask.addTask(new CommitRunnable(transactionId));
             threads[i] = new Thread(longTask);
             threads[i].start();
-            
+
         }
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             threads[i].join();
         }
         threadPool.shutdown();
         Assert.assertEquals(nbTasks, countCountries());
     }
-    
+
     /**
-     *  + begin insert storage1 fetch storage2 insert storage1 ... commit
-     *  + begin insert storage1 fetch storage2 insert storage1 ... commit
-     *  + begin insert storage1 fetch storage2 insert storage1 ... commit
-     *  + begin insert storage1 fetch storage2 insert storage1 ... commit
-     *  
-     *  in a pool of threads
+     * + begin insert storage1 fetch storage2 insert storage1 ... commit + begin insert storage1 fetch storage2 insert
+     * storage1 ... commit + begin insert storage1 fetch storage2 insert storage1 ... commit + begin insert storage1
+     * fetch storage2 insert storage1 ... commit
+     * 
+     * in a pool of threads
      */
     public void testSeveralLongTransactionsInSeveralThreadsWithSeveralStorages() throws Exception {
         int nbThreads = 50;
@@ -128,40 +122,40 @@ public class LongTransactionConcurrencyTestCase extends LongTransactionAbstractT
         int nbTasksPerTransaction = nbTasks / nbTransactions;
         String[] transactionIds = new String[nbTransactions];
         TransactionManager tm = ServerContext.INSTANCE.get().getTransactionManager();
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             Transaction longTransaction = tm.create(Lifetime.LONG);
             longTransaction.begin();
             transactionIds[i] = longTransaction.getId();
         }
         Thread[] threads = new Thread[nbTransactions];
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(nbThreads, nbThreads, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-        for(int i=0; i<nbTransactions; i++){
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(nbThreads, nbThreads, 0, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        for (int i = 0; i < nbTransactions; i++) {
             String transactionId = transactionIds[i];
             LongTaskRunnable longTask = new LongTaskRunnable(threadPool);
-            for(int j=0; j<nbTasksPerTransaction; j++){
-                int id = ((i+1) * 1000) + j;
+            for (int j = 0; j < nbTasksPerTransaction; j++) {
+                int id = ((i + 1) * 1000) + j;
                 longTask.addTask(new UpdateRunnableWithFetchOnSystemStorage(transactionId, id));
             }
             longTask.addTask(new CommitRunnable(transactionId));
             threads[i] = new Thread(longTask);
             threads[i].start();
-            
+
         }
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             threads[i].join();
         }
         threadPool.shutdown();
         Assert.assertEquals(0, tm.list().size());
         Assert.assertEquals(nbTasks, countCountries());
     }
-    
+
     /**
-     *  + begin insert storage1 insert storage2 insert storage1 ... commit
-     *  + begin insert storage1 insert storage2 insert storage1 ... commit
-     *  + begin insert storage1 insert storage2 insert storage1 ... commit
-     *  + begin insert storage1 insert storage2 insert storage1 ... commit
-     *  
-     *  in a pool of threads
+     * + begin insert storage1 insert storage2 insert storage1 ... commit + begin insert storage1 insert storage2 insert
+     * storage1 ... commit + begin insert storage1 insert storage2 insert storage1 ... commit + begin insert storage1
+     * insert storage2 insert storage1 ... commit
+     * 
+     * in a pool of threads
      */
     public void testSeveralLongTransactionsInSeveralThreadsWithSeveralStoragesWrite() throws Exception {
         int nbThreads = 50;
@@ -170,26 +164,27 @@ public class LongTransactionConcurrencyTestCase extends LongTransactionAbstractT
         int nbTasksPerTransaction = nbTasks / nbTransactions;
         String[] transactionIds = new String[nbTransactions];
         TransactionManager tm = ServerContext.INSTANCE.get().getTransactionManager();
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             Transaction longTransaction = tm.create(Lifetime.LONG);
             longTransaction.begin();
             transactionIds[i] = longTransaction.getId();
         }
         Thread[] threads = new Thread[nbTransactions];
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(nbThreads, nbThreads, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-        for(int i=0; i<nbTransactions; i++){
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(nbThreads, nbThreads, 0, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        for (int i = 0; i < nbTransactions; i++) {
             String transactionId = transactionIds[i];
             LongTaskRunnable longTask = new LongTaskRunnable(threadPool);
-            for(int j=0; j<nbTasksPerTransaction; j++){
-                int id = ((i+1) * 1000) + j;
+            for (int j = 0; j < nbTasksPerTransaction; j++) {
+                int id = ((i + 1) * 1000) + j;
                 longTask.addTask(new UpdateRunnableWithInsertOnSystemStorage(transactionId, id));
             }
             longTask.addTask(new CommitRunnable(transactionId));
             threads[i] = new Thread(longTask);
             threads[i].start();
-            
+
         }
-        for(int i=0; i<nbTransactions; i++){
+        for (int i = 0; i < nbTransactions; i++) {
             threads[i].join();
         }
         threadPool.shutdown();

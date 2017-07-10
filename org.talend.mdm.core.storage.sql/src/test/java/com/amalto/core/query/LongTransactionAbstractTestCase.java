@@ -22,6 +22,7 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.EntityCountUtil;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.metadata.DataRecordMetadataImpl;
@@ -38,7 +39,7 @@ public class LongTransactionAbstractTestCase extends StorageTestCase {
     
     @Override
     public void setUp() throws Exception {
-        // override to avoid storage.begin in superclass setup
+        EntityCountUtil.clearAll();
     }
     
     @Override

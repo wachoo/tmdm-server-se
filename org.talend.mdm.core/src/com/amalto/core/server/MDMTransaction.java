@@ -19,6 +19,7 @@ import java.util.Map;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 
+import com.amalto.core.storage.EntityCountUtil;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.transaction.StorageTransaction;
 import com.amalto.core.storage.transaction.Transaction;
@@ -120,6 +121,7 @@ class MDMTransaction implements Transaction {
                 Collection<StorageTransaction> values = new ArrayList<StorageTransaction>(storageTransactions.values());
                 for (StorageTransaction storageTransaction : values) {
                     storageTransaction.autonomous().commit();
+                    EntityCountUtil.clearCounts(storageTransaction.getStorage());
                 }
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("[" + this + "] Transaction #" + this.hashCode() + " -> Commit done.");
