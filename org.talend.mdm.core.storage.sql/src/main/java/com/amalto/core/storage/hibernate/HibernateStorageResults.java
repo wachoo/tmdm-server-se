@@ -17,6 +17,7 @@ import java.util.List;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
+import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.Field;
 import com.amalto.core.query.user.Paging;
 import com.amalto.core.query.user.Select;
@@ -83,10 +84,13 @@ class HibernateStorageResults implements StorageResults {
                 paging.setStart(0);
                 countSelect.getOrderBy().clear();
                 DataRecord countRecord = storage.fetch(countSelect).iterator().next();
-                count = Integer.valueOf(countRecord.get("count").toString()); //$NON-NLS-1$
-                // Add count data to cache
-                EntityCountUtil.putCount(countKey, count);
-                return count;
+                if (countRecord != null) {
+                    count = ((Long) countRecord.get(Count.ALIAS)).intValue();
+                    // Add count data to cache
+                    EntityCountUtil.putCount(countKey, count);
+                } else { // Invalid condition doesn't need to cache count (see FalseCondition)
+                    count = 0;
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

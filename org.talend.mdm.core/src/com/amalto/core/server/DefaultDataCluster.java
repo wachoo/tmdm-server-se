@@ -25,6 +25,7 @@ import com.amalto.core.objects.datacluster.DataClusterPOJO;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.server.api.DataCluster;
 import com.amalto.core.server.api.XmlServer;
+import com.amalto.core.storage.EntityCountUtil;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.MDMEhCacheUtil;
 import com.amalto.core.util.Util;
@@ -202,6 +203,8 @@ public class DefaultDataCluster implements DataCluster {
         ObjectPOJOPK objectPOJOPK = ObjectPOJO.remove(DataClusterPOJO.class, pk);
 
         MDMEhCacheUtil.clearCache(DATA_CLUSTER_CACHE_NAME);
+
+        EntityCountUtil.clearAll(pk.getUniqueId());
 
         return new DataClusterPOJOPK(objectPOJOPK);
     }

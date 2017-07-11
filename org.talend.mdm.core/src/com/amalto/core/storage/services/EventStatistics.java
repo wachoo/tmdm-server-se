@@ -22,6 +22,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.UserQueryBuilder;
 
 import org.apache.log4j.Logger;
@@ -154,7 +155,7 @@ public class EventStatistics {
                         try {
                             EventEntry eventEntry = new EventEntry();
                             eventEntry.eventName = key;
-                            eventEntry.count = (Long) results.iterator().next().get("count"); //$NON-NLS-1
+                            eventEntry.count = (Long) results.iterator().next().get(Count.ALIAS);
                             entries.add(eventEntry);
                         } finally {
                             results.close();

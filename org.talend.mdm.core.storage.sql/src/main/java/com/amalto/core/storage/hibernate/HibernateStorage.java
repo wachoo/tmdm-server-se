@@ -1270,6 +1270,17 @@ public class HibernateStorage implements Storage {
         }
     }
 
+    private void cleanImpactCountCache(List<ComplexTypeMetadata> sortedTypesToDrop) {
+        if (EntityCountUtil.isNeedToCache(getName(), getType())) {
+            for (ComplexTypeMetadata type : sortedTypesToDrop) {
+                if (type.isInstantiable()) {
+                    CountKey countKey = new CountKey(storageName, storageType, type.getName());
+                    EntityCountUtil.clearCounts(countKey);
+                }
+            }
+        }
+    }
+
     @Override
     public void adapt(MetadataRepository newRepository, boolean force) {
         if (newRepository == null) {
@@ -1285,6 +1296,8 @@ public class HibernateStorage implements Storage {
             cleanUpdateReports(sortedTypesToDrop);
             // Clean impacted tables
             cleanImpactedTables(sortedTypesToDrop);
+            // Clean impacted count cache
+            cleanImpactCountCache(sortedTypesToDrop);
         }
         // Reinitialize Hibernate
         LOGGER.info("Completing database schema update..."); //$NON-NLS-1$

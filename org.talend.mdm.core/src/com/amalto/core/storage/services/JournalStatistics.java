@@ -33,6 +33,7 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
+import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Field;
 import com.amalto.core.query.user.OrderBy;
@@ -67,7 +68,7 @@ public class JournalStatistics {
                 TimeSlicer.Slice slice = slices.next();
                 StorageResults results = storage.fetch(slice.getExpression()); // Expects a live transaction here.
                 try {
-                    Long count = (Long) results.iterator().next().get("count"); //$NON-NLS-1$
+                    Long count = (Long) results.iterator().next().get(Count.ALIAS);
                     if (count > 0) {
                         writer.object();
                         {
@@ -180,7 +181,7 @@ public class JournalStatistics {
                                 // Write update stats
                                 writer.object().key("updates"); //$NON-NLS-1$
                                 {
-                                    UserQueryBuilder updateQuery = from(updateType).select(alias(count(), "count")) //$NON-NLS-1$
+                                    UserQueryBuilder updateQuery = from(updateType).select(alias(count(), Count.ALIAS))
                                             .where(and(eq(updateType.getField("Concept"), type.getName()), //$NON-NLS-1$
                                                     eq(updateType.getField("OperationType"), "UPDATE") //$NON-NLS-1$ //$NON-NLS-2$
                                             )).limit(1).cache();

@@ -814,28 +814,14 @@ public class InheritanceTest extends StorageTestCase {
     public void testInheritanceCountClassLoader() throws Exception {
         UserQueryBuilder qb = UserQueryBuilder.from(employee);
         StorageResults results = storage.fetch(qb.getSelect());
-        try {
-            for (DataRecord result : results) {
-            }
-        } finally {
-            results.close();
-        }
-
-        ClassLoader StorageClassLoader1 = (ClassLoader) Thread.currentThread().getContextClassLoader();
-
-        qb = UserQueryBuilder.from(employee);
-        results = storage.fetch(qb.getSelect());
         results.getCount();
-
-        ClassLoader StorageClassLoader2 = (ClassLoader) Thread.currentThread().getContextClassLoader();
+        ClassLoader StorageClassLoader1 = (ClassLoader) Thread.currentThread().getContextClassLoader();
 
         qb = UserQueryBuilder.from(persons);
         results = storage.fetch(qb.getSelect());
         results.getCount();
-
-        ClassLoader StorageClassLoader3 = (ClassLoader) Thread.currentThread().getContextClassLoader();
+        ClassLoader StorageClassLoader2 = (ClassLoader) Thread.currentThread().getContextClassLoader();
 
         assertEquals(StorageClassLoader1, StorageClassLoader2);
-        assertEquals(StorageClassLoader1, StorageClassLoader3);
     }
 }

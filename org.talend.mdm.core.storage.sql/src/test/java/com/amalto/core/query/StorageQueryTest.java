@@ -50,6 +50,7 @@ import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.BinaryLogicOperator;
 import com.amalto.core.query.user.Compare;
 import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Field;
 import com.amalto.core.query.user.IntegerConstant;
@@ -3990,8 +3991,8 @@ public class StorageQueryTest extends StorageTestCase {
         StorageResults results = storage.fetch(qb.getSelect());
         try {
             for (DataRecord result : results) {
-                assertNotNull(result.get("count"));
-                assertEquals(4l, result.get("count"));
+                assertNotNull(result.get(Count.ALIAS));
+                assertEquals(4l, result.get(Count.ALIAS));
             }
         } finally {
             results.close();

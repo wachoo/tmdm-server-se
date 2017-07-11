@@ -51,4 +51,13 @@ public class InMemoryCounter implements Counter {
         toClear.stream().forEach(key -> COUNT_CACHE.remove(key));
     }
 
+    @Override
+    public void clearAll(String storageName) {
+        String masterPrefix = storageName + '#' + StorageType.MASTER;
+        String stagingPrefix = storageName + '#' + StorageType.STAGING;
+        List<String> toClear = COUNT_CACHE.keySet().stream()
+                .filter(key -> key.startsWith(masterPrefix) || key.startsWith(stagingPrefix)).collect(Collectors.toList());
+        toClear.stream().forEach(key -> COUNT_CACHE.remove(key));
+    }
+
 }

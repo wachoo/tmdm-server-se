@@ -37,6 +37,7 @@ import org.codehaus.jettison.json.JSONWriter;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
+import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
@@ -65,7 +66,7 @@ public class DataStatistics {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER);
         if (dataStorage == null) {
-            throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
+            throw new IllegalArgumentException("Container '" + containerName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         // Build statistics
         SortedSet<TypeEntry> entries = new TreeSet<TypeEntry>(new Comparator<TypeEntry>() {
@@ -90,11 +91,11 @@ public class DataStatistics {
             dataStorage.begin();
             for (ComplexTypeMetadata type : repository.getUserComplexTypes()) {
                 TypeEntry entry = new TypeEntry();
-                Expression count = from(type).select(alias(count(), "count")).limit(1).cache().getExpression(); //$NON-NLS-1$
+                Expression count = from(type).select(alias(count(), Count.ALIAS)).limit(1).cache().getExpression();
                 StorageResults typeCount = dataStorage.fetch(count);
                 long countValue = 0;
                 for (DataRecord record : typeCount) {
-                    countValue = (Long) record.get("count"); //$NON-NLS-1$
+                    countValue = (Long) record.get(Count.ALIAS);
                 }
                 // Starts stats for type
                 String name;
@@ -113,18 +114,18 @@ public class DataStatistics {
             try {
                 dataStorage.rollback();
             } catch (Exception rollbackException) {
-                LOGGER.debug("Unable to rollback transaction.", e);
+                LOGGER.debug("Unable to rollback transaction.", e); //$NON-NLS-1$
             }
             if (dataStorage.isClosed()) {
                 // TMDM-7749: Ignore errors when storage is closed.
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Exception occurred due to closed storage.", e);
+                    LOGGER.debug("Exception occurred due to closed storage.", e); //$NON-NLS-1$
                 }
             } else {
                 // TMDM-7970: Ignore all storage related errors.
                 LOGGER.warn("Unable to compute statistics.");
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Unable to compute statistics due to storage exception.", e);
+                    LOGGER.debug("Unable to compute statistics due to storage exception.", e); //$NON-NLS-1$
                 }
             }
             return Response.status(Response.Status.NO_CONTENT).build();
@@ -164,9 +165,9 @@ public class DataStatistics {
             return Response.ok().type(MediaType.APPLICATION_JSON_TYPE).entity(stringWriter.toString())
                     .header("Access-Control-Allow-Origin", "*").build(); //$NON-NLS-1$ //$NON-NLS-2$
         } catch (JSONException e) {
-            LOGGER.warn("Unable to send statistics.");
+            LOGGER.warn("Unable to send statistics."); //$NON-NLS-1$
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Unable to send statistics due to storage exception.", e);
+                LOGGER.debug("Unable to send statistics due to storage exception.", e); //$NON-NLS-1$
             }
             return Response.status(Response.Status.NO_CONTENT).build();
         }

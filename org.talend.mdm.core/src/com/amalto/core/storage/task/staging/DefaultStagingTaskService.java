@@ -26,6 +26,7 @@ import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import com.amalto.core.metadata.ClassRepository;
+import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.DefaultCommitter;
 import com.amalto.core.save.context.StorageSaverSource;
@@ -64,7 +65,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             dataContainer = Util.getUserDataCluster();
             dataModel = Util.getUserDataModel();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to access current session information", e);
+            throw new RuntimeException("Failed to access current session information", e); //$NON-NLS-1$
         }
         if(StringUtils.isEmpty(dataContainer) || StringUtils.isEmpty(dataModel)){
             return null;
@@ -98,7 +99,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             dataContainer = Util.getUserDataCluster();
             dataModel = Util.getUserDataModel();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to access current session information", e);
+            throw new RuntimeException("Failed to access current session information", e); //$NON-NLS-1$
         }
         return startValidation(dataContainer, dataModel, DefaultFilter.INSTANCE);
     }
@@ -114,7 +115,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
         try {
             userName = LocalUser.getLocalUser().getUsername();
         } catch (XtentisException e) {
-            throw new RuntimeException("Can not get current user information.", e);
+            throw new RuntimeException("Can not get current user information.", e); //$NON-NLS-1$
         }
         StagingConfiguration stagingConfig = new StagingConfiguration(staging,
                 new StorageSaverSource(userName),
@@ -157,7 +158,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
                 if (currentType.isInstantiable() && !StagingStorage.EXECUTION_LOG_TYPE.equals(currentType.getName())) {
                     UserQueryBuilder qb = from(currentType)
-                            .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                            .select(alias(UserQueryBuilder.count(), Count.ALIAS));
                     if (hasMatchMergeConfiguration(currentType.getName())) {
                         // Don't include generated golden records in global statistics.
                         qb.where(
@@ -173,7 +174,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                     StorageResults results = storage.fetch(qb.getSelect()); // Expects an active transaction here
                     try {
                         for (DataRecord result : results) {
-                            totalCount += (Long) result.get("count"); //$NON-NLS-1$
+                            totalCount += (Long) result.get(Count.ALIAS);
                         }
                     } finally {
                         results.close();
@@ -195,7 +196,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
                 if (currentType.isInstantiable() && !StagingStorage.EXECUTION_LOG_TYPE.equals(currentType.getName())) {
                     UserQueryBuilder qb = from(currentType)
-                            .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                            .select(alias(UserQueryBuilder.count(), Count.ALIAS)); //$NON-NLS-1$
                     if (StagingConstants.NEW.equals(status)) {
                         qb.where(or(eq(status(), status), isNull(status())));
                     } else {
@@ -204,7 +205,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                     StorageResults results = storage.fetch(qb.getSelect());
                     try {
                         for (DataRecord result : results) {
-                            totalCount += (Long) result.get("count"); //$NON-NLS-1$
+                            totalCount += (Long) result.get(Count.ALIAS); //$NON-NLS-1$
                         }
                     } finally {
                         results.close();
@@ -226,7 +227,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             for (ComplexTypeMetadata currentType : repository.getUserComplexTypes()) {
                 if (currentType.isInstantiable() && !StagingStorage.EXECUTION_LOG_TYPE.equals(currentType.getName())) {
                     UserQueryBuilder qb = from(currentType)
-                            .select(alias(UserQueryBuilder.count(), "count")); //$NON-NLS-1$
+                            .select(alias(UserQueryBuilder.count(), Count.ALIAS));
                     if (valid) {
                         qb.where(eq(status(), StagingConstants.SUCCESS_VALIDATE));
                     } else {
@@ -236,7 +237,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
                     StorageResults results = storage.fetch(qb.getSelect());
                     try {
                         for (DataRecord result : results) {
-                            totalCount += (Long) result.get("count"); //$NON-NLS-1$
+                            totalCount += (Long) result.get(Count.ALIAS);
                         }
                     } finally {
                         results.close();
@@ -271,7 +272,7 @@ public class DefaultStagingTaskService implements StagingTaskServiceDelegate {
             StorageResults results = systemStorage.fetch(qb.getSelect());
             return results.getSize() != 0;
         } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception during configuration read.", e);
+            throw new RuntimeException("Unexpected exception during configuration read.", e); //$NON-NLS-1$
         } finally {
             systemStorage.commit();
         }

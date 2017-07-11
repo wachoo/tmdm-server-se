@@ -48,6 +48,7 @@ import com.amalto.core.objects.transformers.util.TypedContent;
 import com.amalto.core.objects.view.ViewPOJO;
 import com.amalto.core.objects.view.ViewPOJOPK;
 import com.amalto.core.query.user.Condition;
+import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.OrderBy;
 import com.amalto.core.query.user.Paging;
 import com.amalto.core.query.user.Select;
@@ -502,10 +503,12 @@ public class DefaultItem implements Item {
                         Integer typeCount = EntityCountUtil.getCount(countKey);
                         if (typeCount == null) {
                             DataRecord countRecord = storage.fetch(qb.getSelect()).iterator().next();
-                            typeCount = Integer.valueOf(countRecord.get("count").toString()); //$NON-NLS-1$
-                            count += typeCount;
-                            // Add count data to cache
-                            EntityCountUtil.putCount(countKey, typeCount);
+                            if (countRecord != null) {
+                                typeCount = ((Long) countRecord.get(Count.ALIAS)).intValue();
+                                count += typeCount;
+                                // Add count data to cache
+                                EntityCountUtil.putCount(countKey, typeCount);
+                            }
                         }
                     }
                 }

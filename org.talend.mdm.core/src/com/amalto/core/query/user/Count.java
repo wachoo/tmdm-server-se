@@ -16,6 +16,8 @@ import org.talend.mdm.commmon.metadata.Types;
  */
 public class Count implements TypedExpression {
 
+    public static final String ALIAS = "count"; //$NON-NLS-1$
+
     private final TypedExpression expression;
 
     public Count() {

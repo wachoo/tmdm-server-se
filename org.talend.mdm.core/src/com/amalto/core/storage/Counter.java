@@ -21,31 +21,38 @@ public interface Counter {
     /**
      * Get entity's count data from cache
      * 
-     * @param key
+     * @param countKey
      * @param value
      */
-    Integer get(CountKey key);
+    Integer get(CountKey countKey);
 
     /**
      * Put entity's count data to cache
      * 
-     * @param key
+     * @param countKey
      * @param value
      */
-    void put(CountKey key, Integer value);
+    void put(CountKey countKey, Integer value);
 
     /**
      * Clear entity's count data from cache
      * 
-     * @param key
+     * @param countKey
      */
-    void clear(CountKey key);
+    void clear(CountKey countKey);
 
     /**
      * Clear all count data from cache
      * 
      */
     void clearAll();
+
+    /**
+     * Clear all count data from cache for the storage
+     * 
+     * @param storageName
+     */
+    void clearAll(String storageName);
 
     public static class CountKey {
 

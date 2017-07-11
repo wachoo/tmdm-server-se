@@ -113,13 +113,31 @@ public class EntityCountUtil {
     }
 
     /**
+     * Clear entity's count data from cache (adapt data model's schema)
+     * 
+     * @param countKey
+     */
+    public static void clearCounts(CountKey countKey) {
+        COUNTER.clear(countKey);
+    }
+
+    /**
      * Clear all entity count data from cache
      */
     public static void clearAll() {
         COUNTER.clearAll();
     }
 
-    private static boolean isNeedToCache(String storageName, StorageType storageType) {
+    /**
+     * Clear all entity count data from cache for the storage (drop cluster)
+     * 
+     * @param storageName
+     */
+    public static void clearAll(String storageName) {
+        COUNTER.clearAll(storageName);
+    }
+
+    public static boolean isNeedToCache(String storageName, StorageType storageType) {
         return !storageType.equals(StorageType.SYSTEM) && !storageName.equals(UpdateReportPOJO.DATA_CLUSTER);
     }
 

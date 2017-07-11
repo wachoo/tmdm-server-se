@@ -152,7 +152,7 @@ public class UserQueryBuilder {
 
     public static Compare eq(FieldMetadata left, String... values) {
         if (values == null) {
-            throw new IllegalArgumentException("Values can not be null.");
+            throw new IllegalArgumentException("Values can not be null."); //$NON-NLS-1$
         }
         Field leftExpression = new Field(left);
         TypedExpression[] constants = new TypedExpression[values.length];
@@ -199,7 +199,7 @@ public class UserQueryBuilder {
 
     public static Condition eq(Field field, String constant) {
         if (field == null) {
-            throw new IllegalArgumentException("Field cannot be null");
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
         }
         if (constant == null) {
             return isNull(field);
@@ -218,10 +218,10 @@ public class UserQueryBuilder {
 
     public static Condition isa(FieldMetadata field, ComplexTypeMetadata type) {
         if (type == null) {
-            throw new IllegalArgumentException("Type argument cannot be null.");
+            throw new IllegalArgumentException("Type argument cannot be null."); //$NON-NLS-1$
         }
         if (field instanceof ReferenceFieldMetadata) {
-            throw new IllegalArgumentException("Cannot perform type check on a foreign key.");
+            throw new IllegalArgumentException("Cannot perform type check on a foreign key."); //$NON-NLS-1$
         }
         // Get the matching type from the field definition (field uses a contained version of the type).
         ComplexTypeMetadata fieldType = type;
@@ -247,18 +247,18 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder isa(ComplexTypeMetadata type) {
         if (expression == null || expressionAsSelect().getTypes().isEmpty()) {
-            throw new IllegalStateException("No type is currently selected.");
+            throw new IllegalStateException("No type is currently selected."); //$NON-NLS-1$
         }
         ComplexTypeMetadata mainType = getSelect().getTypes().get(0);
         if (!type.isAssignableFrom(mainType)) {
-            throw new IllegalArgumentException("Type '" + type.getName() + "' is not assignable from '" + mainType.getName() + "'.");
+            throw new IllegalArgumentException("Type '" + type.getName() + "' is not assignable from '" + mainType.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else if (!mainType.equals(type) || !mainType.getSubTypes().isEmpty()) {
             where(new Isa(new ComplexTypeExpression(mainType), type));
             return this;
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Ignore 'is a' statement of type '" + type.getName() + "' since it is not part of an " +
-                        "inheritance tree OR a expression like 'type1 isa type1' was detected.");
+                LOGGER.debug("Ignore 'is a' statement of type '" + type.getName() + "' since it is not part of an " + //$NON-NLS-1$ //$NON-NLS-2$
+                        "inheritance tree OR a expression like 'type1 isa type1' was detected."); //$NON-NLS-1$
             }
             return this;
         }
@@ -307,7 +307,7 @@ public class UserQueryBuilder {
         } else if (Types.FLOAT.equals(fieldTypeName)) {
             return new FloatConstant(constant);
         } else {
-            throw new IllegalArgumentException("Cannot create expression constant for expression type '" + expression.getTypeName() + "' (is expression allowed to contain values?)");
+            throw new IllegalArgumentException("Cannot create expression constant for expression type '" + expression.getTypeName() + "' (is expression allowed to contain values?)"); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
@@ -430,7 +430,7 @@ public class UserQueryBuilder {
     }
 
     public static TypedExpression count() {
-        return new Alias(new Count(), "count"); //$NON-NLS-1$
+        return new Alias(new Count(), Count.ALIAS);
     }
 
     public static TypedExpression count(FieldMetadata field) {
@@ -447,7 +447,7 @@ public class UserQueryBuilder {
 
     public static UserQueryBuilder from(ComplexTypeMetadata type) {
         if (type == null) {
-            throw new IllegalArgumentException("Type argument cannot be null");
+            throw new IllegalArgumentException("Type argument cannot be null"); //$NON-NLS-1$
         }
         Select select = new Select();
         select.addType(type);
@@ -486,7 +486,7 @@ public class UserQueryBuilder {
                 Date date = DateTimeConstant.DATE_FORMAT.parse(dateTime); // Or maybe a XML date?
                 dateTimeAsLong = date.getTime();
             } catch (ParseException e1) {
-                throw new IllegalArgumentException("Date '" + dateTime + "' is neither a long nor a date time that can be parsed.", e1);
+                throw new IllegalArgumentException("Date '" + dateTime + "' is neither a long nor a date time that can be parsed.", e1); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         // Select the history navigation information
@@ -498,7 +498,7 @@ public class UserQueryBuilder {
         // Before calling swing, at() should be called to give a fixed point in record history.
         At history = expressionAsSelect().getHistory();
         if (history == null) {
-            throw new IllegalStateException("Can swing in record history: no date pivot was specified.");
+            throw new IllegalStateException("Can swing in record history: no date pivot was specified."); //$NON-NLS-1$
         }
         // Set the 'swing' (i.e. where user wants to move in history).
         At.Swing swingValue;
@@ -510,7 +510,7 @@ public class UserQueryBuilder {
                 for (At.Swing allowedValue : At.Swing.values()) {
                     builder.append(allowedValue.name()).append(' ');
                 }
-                throw new RuntimeException("Value '" + swing + "' is not valid. Only ( " + builder + ") are.");
+                throw new RuntimeException("Value '" + swing + "' is not valid. Only ( " + builder + ") are."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
         } else {
             swingValue = At.Swing.CLOSEST; // Default behavior
@@ -521,7 +521,7 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder select(FieldMetadata... fields) {
         if (fields == null) {
-            throw new IllegalArgumentException("Fields cannot be null");
+            throw new IllegalArgumentException("Fields cannot be null"); //$NON-NLS-1$
         }
         for (FieldMetadata field : fields) {
             select(field);
@@ -531,7 +531,7 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder select(FieldMetadata field) {
         if (field == null) {
-            throw new IllegalArgumentException("Field cannot be null");
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
         }
         TypedExpression typedExpression;
         if (field instanceof ContainedTypeFieldMetadata) {
@@ -560,7 +560,7 @@ public class UserQueryBuilder {
                     select(alias(keyField, ID_ALIAS));
                 }
             } else {
-                throw new IllegalArgumentException("Field '" + fieldName + "' is not supported.");
+                throw new IllegalArgumentException("Field '" + fieldName + "' is not supported."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         return this;
@@ -588,7 +588,7 @@ public class UserQueryBuilder {
             } else if (predicate == Predicate.AND) {
                 expressionAsSelect().setCondition(and(expressionAsSelect().getCondition(), condition));
             } else {
-                throw new NotImplementedException("Not implemented: support of " + predicate);
+                throw new NotImplementedException("Not implemented: support of " + predicate); //$NON-NLS-1$
             }
         }
 
@@ -622,7 +622,7 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder orderBy(FieldMetadata field, OrderBy.Direction direction) {
         if (field == null) {
-            throw new IllegalArgumentException("Field cannot be null");
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
         }
         if (field instanceof ReferenceFieldMetadata) {
             // Order by a FK field is equivalent to a join on FK + a order by clause on referenced field.
@@ -636,7 +636,7 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder orderBy(TypedExpression expression, OrderBy.Direction direction) {
         if (expression == null) {
-            throw new IllegalArgumentException("Field cannot be null");
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
         }
         if (expression instanceof Field) {
             orderBy(((Field) expression).getFieldMetadata(), direction);
@@ -648,7 +648,7 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder join(TypedExpression leftField, FieldMetadata rightField) {
         if (!(leftField instanceof Field)) {
-            throw new IllegalArgumentException("Can not perform join on a non-user field (was " + leftField.getClass().getName() + ")");
+            throw new IllegalArgumentException("Can not perform join on a non-user field (was " + leftField.getClass().getName() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return join(((Field) leftField).getFieldMetadata(), rightField);
     }
@@ -668,15 +668,15 @@ public class UserQueryBuilder {
      */
     public UserQueryBuilder join(FieldMetadata leftField, FieldMetadata rightField) {
         if (leftField == null) {
-            throw new IllegalArgumentException("Left field cannot be null");
+            throw new IllegalArgumentException("Left field cannot be null"); //$NON-NLS-1$
         }
         if (rightField == null) {
-            throw new IllegalArgumentException("Right field cannot be null");
+            throw new IllegalArgumentException("Right field cannot be null"); //$NON-NLS-1$
         }
         if (leftField instanceof ReferenceFieldMetadata) {
             FieldMetadata leftReferencedField = ((ReferenceFieldMetadata) leftField).getReferencedField();
             if (!leftReferencedField.equals(rightField)) {
-                throw new IllegalArgumentException("Left field '" + leftReferencedField.getName() + "' is a FK, but right field isn't the one left is referring to.");
+                throw new IllegalArgumentException("Left field '" + leftReferencedField.getName() + "' is a FK, but right field isn't the one left is referring to."); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         Field leftUserField = new Field(leftField);
@@ -702,17 +702,17 @@ public class UserQueryBuilder {
      */
     public UserQueryBuilder join(FieldMetadata field) {
         if (field == null) {
-            throw new IllegalArgumentException("Field cannot be null");
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
         }
         if (!(field instanceof ReferenceFieldMetadata)) {
-            throw new IllegalArgumentException("Field must be a reference field.");
+            throw new IllegalArgumentException("Field must be a reference field."); //$NON-NLS-1$
         }
         return join(field, ((ReferenceFieldMetadata) field).getReferencedField());
     }
 
     public UserQueryBuilder start(int start) {
         if (start < 0) {
-            throw new IllegalArgumentException("Start index must be positive");
+            throw new IllegalArgumentException("Start index must be positive"); //$NON-NLS-1$
         }
         expressionAsSelect().getPaging().setStart(start);
         return this;
@@ -728,14 +728,14 @@ public class UserQueryBuilder {
 
     public Select getSelect() {
         if (expression == null) {
-            throw new IllegalStateException("No type has been selected");
+            throw new IllegalStateException("No type has been selected"); //$NON-NLS-1$
         }
         return expressionAsSelect();
     }
 
     public Expression getExpression() {
         if (expression == null) {
-            throw new IllegalStateException("No type has been selected");
+            throw new IllegalStateException("No type has been selected"); //$NON-NLS-1$
         }
         return expression;
     }
@@ -747,25 +747,25 @@ public class UserQueryBuilder {
 
     private static void assertConditionsArguments(Condition left, Condition right) {
         if (left == null) {
-            throw new IllegalArgumentException("Left condition cannot be null");
+            throw new IllegalArgumentException("Left condition cannot be null"); //$NON-NLS-1$
         }
         if (right == null) {
-            throw new IllegalArgumentException("Right condition cannot be null");
+            throw new IllegalArgumentException("Right condition cannot be null"); //$NON-NLS-1$
         }
     }
 
     private static void assertValueConditionArguments(Object field, String constant) {
         if (field == null) {
-            throw new IllegalArgumentException("Field cannot be null");
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
         }
         if (constant == null) {
-            throw new IllegalArgumentException("Constant cannot be null");
+            throw new IllegalArgumentException("Constant cannot be null"); //$NON-NLS-1$
         }
     }
 
     private static void assertNullField(Object field) {
         if (field == null) {
-            throw new IllegalArgumentException("Field cannot be null");
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
         }
     }
 
@@ -786,7 +786,7 @@ public class UserQueryBuilder {
                 // TMDM-5022: Automatic alias if a field with same name was already selected.
                 selectedFields.add(alias(expression, ((Field) expression).getFieldMetadata().getName()));
             } else {
-                throw new UnsupportedOperationException("Can't select twice a non-field expression.");
+                throw new UnsupportedOperationException("Can't select twice a non-field expression."); //$NON-NLS-1$
             }
         }
         return this;
@@ -803,7 +803,7 @@ public class UserQueryBuilder {
     public UserQueryBuilder selectId(ComplexTypeMetadata typeMetadata) {
         Collection<FieldMetadata> keyFields = typeMetadata.getKeyFields();
         if (keyFields.isEmpty()) {
-            LOGGER.warn("Cannot select key field(s) for '" + typeMetadata + "' (no key defined in type).");
+            LOGGER.warn("Cannot select key field(s) for '" + typeMetadata + "' (no key defined in type)."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         for (FieldMetadata keyField : keyFields) {
             select(keyField);
@@ -813,7 +813,7 @@ public class UserQueryBuilder {
 
     public UserQueryBuilder select(List<FieldMetadata> viewableFields) {
         if (viewableFields == null) {
-            throw new IllegalArgumentException("Viewable fields cannot be null");
+            throw new IllegalArgumentException("Viewable fields cannot be null"); //$NON-NLS-1$
         }
 
         for (FieldMetadata viewableField : viewableFields) {
@@ -841,7 +841,7 @@ public class UserQueryBuilder {
             return new Compare(field, Predicate.CONTAINS, constant);
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Change CONTAINS to EQUALS for '" + field + "' (type: " + field.getTypeName() + ").");
+                LOGGER.debug("Change CONTAINS to EQUALS for '" + field + "' (type: " + field.getTypeName() + ")."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
             return new Compare(field, Predicate.EQUALS, constant);
         }
@@ -849,7 +849,7 @@ public class UserQueryBuilder {
 
     public static TypedExpression type(FieldMetadata field) {
         if (!(field.getType() instanceof ComplexTypeMetadata)) {
-            throw new IllegalArgumentException("Expected a complex type for field '" + field.getName() + "'.");
+            throw new IllegalArgumentException("Expected a complex type for field '" + field.getName() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
         }
         ComplexTypeMetadata fieldType = (ComplexTypeMetadata) field.getType();
         if (fieldType.getSubTypes().isEmpty()) {
