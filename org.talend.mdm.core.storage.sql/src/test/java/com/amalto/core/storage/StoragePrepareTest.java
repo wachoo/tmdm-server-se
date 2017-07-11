@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -44,11 +42,18 @@ import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 
+import junit.framework.TestCase;
+
 public class StoragePrepareTest extends TestCase {
     
     protected static MockUserDelegator userSecurity = new MockUserDelegator();
     protected static final String STORAGE_NAME = "Test";
     
+    @Override
+    public void setUp() throws Exception {
+        EntityCountUtil.clearAll();
+    }
+
     public StoragePrepareTest() {
         ServerContext.INSTANCE.get(new MockServerLifecycle());
     }
