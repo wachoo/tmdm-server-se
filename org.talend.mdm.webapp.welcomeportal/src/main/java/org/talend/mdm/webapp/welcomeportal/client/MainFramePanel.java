@@ -216,8 +216,7 @@ public class MainFramePanel extends Portal {
                     PortletConstants.ROUTING_EVENT_CHART_NAME, PortletConstants.JOURNAL_CHART_NAME,
                     PortletConstants.MATCHING_CHART_NAME);
         } else {
-            return Arrays.asList(PortletConstants.START_NAME, PortletConstants.PROCESS_NAME, PortletConstants.ALERT_NAME,
-                    PortletConstants.TASKS_NAME);
+            return Arrays.asList(PortletConstants.START_NAME, PortletConstants.PROCESS_NAME);
         }
     }
 
@@ -687,23 +686,9 @@ public class MainFramePanel extends Portal {
     }
 
     private void initAlertPortlet() {
-
-        service.isHiddenLicense(new SessionAwareAsyncCallback<Boolean>() {
-
-            @Override
-            public void onSuccess(Boolean hideMe) {
-                if (!hideMe) {
-                    BasePortlet portlet = new AlertPortlet(MainFramePanel.this);
-                    portlets.add(portlet);
-                    MainFramePanel.this.add(portlet);
-                } else {
-                    int index = default_index_ordering.indexOf(PortletConstants.ALERT_NAME);
-                    initializePortlet(default_index_ordering.get(index + 1));
-                }
-            }
-
-        });
-
+        BasePortlet portlet = new AlertPortlet(MainFramePanel.this);
+        portlets.add(portlet);
+        MainFramePanel.this.add(portlet);
     }
 
     private void initTaskPortlet() {
