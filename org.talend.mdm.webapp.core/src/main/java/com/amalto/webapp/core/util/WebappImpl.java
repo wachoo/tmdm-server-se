@@ -66,11 +66,6 @@ public class WebappImpl implements Webapp {
     }
 
     @Override
-    public String getLicenseWarning(String language) throws Exception {
-        return serverAccess.getLicenseWarning(language);
-    }
-
-    @Override
     public Map<Boolean, Integer> getWelcomePortletConfig() {
         Map<Boolean, Integer> refreshConfig = new HashMap<Boolean, Integer>(1);
         refreshConfig.put(onStart, interval);
