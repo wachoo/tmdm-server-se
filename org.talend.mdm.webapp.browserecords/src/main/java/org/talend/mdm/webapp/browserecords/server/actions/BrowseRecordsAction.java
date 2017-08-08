@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ import org.talend.mdm.webapp.base.client.util.MultilanguageMessageParser;
 import org.talend.mdm.webapp.base.server.ForeignKeyHelper;
 import org.talend.mdm.webapp.base.server.exception.WebBaseException;
 import org.talend.mdm.webapp.base.server.util.CommonUtil;
+import org.talend.mdm.webapp.base.server.util.DateUtil;
 import org.talend.mdm.webapp.base.shared.AppHeader;
 import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
 import org.talend.mdm.webapp.base.shared.Constants;
@@ -872,6 +874,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
 
             String value = org.talend.mdm.webapp.base.server.util.XmlUtil.toXml(((org.dom4j.Document) returnValue
                     .get(org.talend.mdm.webapp.browserecords.server.util.CommonUtil.RESULT)));
+
 
             ItemBean itemBean = new ItemBean(concept, CommonUtil.joinStrings(idsArray, "."), value);//$NON-NLS-1$
             itemBean.setOriginalMap((Map<String, Object>) returnValue
@@ -2272,12 +2275,17 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @Override
     public String formatValue(FormatModel model) throws ServiceException {
         Locale locale = new Locale(model.getLanguage());
+        String dateValue = model.getObject().toString();
+        if (model.isDate() || model.isDateTime()) {
+            Date dataObject = DateUtil.convertStringToDate(model.isDateTime() ? DateUtil.DATE_TIME_FORMAT : DateUtil.DATE_FORMAT, dateValue);
+            model.setObject(dataObject);
+        }
+
         try {
-            return String.format(new Locale(model.getLanguage()), model.getFormat(), model.getObject());
+            return String.format(locale, model.getFormat(), model.getObject());
         } catch (IllegalArgumentException ex) {
             LOG.error(ex.getMessage(), ex);
-            throw new ServiceException(MESSAGES.getMessage(locale,
-                    "format_exception_failure", model.getFormat(), model.getObject().toString())); //$NON-NLS-1$
+            throw new ServiceException(MESSAGES.getMessage(locale, "format_exception_failure", model.getFormat(), dateValue)); //$NON-NLS-1$
         }
     }
 

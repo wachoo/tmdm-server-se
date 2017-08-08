@@ -163,10 +163,13 @@ public class FormatDateField extends DateField {
 
     private void setFormatedValue(final FormatValueCallback callback) {
         if (formatPattern != null && formatPattern.trim().length() > 0) {
+            String rawValue = this.getRawValue();
             try {
-                Date d = propertyEditor.convertStringValue(this.getRawValue());
+                Date d = propertyEditor.convertStringValue(rawValue);
                 if (d != null) {
-                    final FormatModel model = new FormatModel(formatPattern, d, Locale.getLanguage());
+                    final FormatModel model = new FormatModel(formatPattern, rawValue, Locale.getLanguage());
+                    model.setDateTime(this.isDateTime());
+                    model.setDate(!this.isDateTime());
                     service.formatValue(model, new SessionAwareAsyncCallback<String>() {
 
                         @Override
@@ -183,7 +186,7 @@ public class FormatDateField extends DateField {
                 }
             } catch (Exception e) {
                 if (callback != null) {
-                    callback.formatValue(this.getRawValue()); //$NON-NLS-1$
+                    callback.formatValue(rawValue);
                 }
             }
         }
