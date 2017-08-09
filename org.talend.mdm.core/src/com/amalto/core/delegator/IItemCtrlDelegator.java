@@ -196,11 +196,15 @@ public abstract class IItemCtrlDelegator implements IBeanDelegator, IItemCtrlDel
                 queryDirection = view.getIsAsc() ? OrderBy.Direction.ASC : OrderBy.Direction.DESC;
             }
             if (StringUtils.isNotEmpty(orderByFieldPath)) {
-                ComplexTypeMetadata orderByType = repository.getComplexType(StringUtils.substringBefore(orderByFieldPath, "/")); //$NON-NLS-1$
-                String orderByFieldName = StringUtils.substringAfter(orderByFieldPath, "/"); //$NON-NLS-1$
-                List<TypedExpression> fields = UserQueryHelper.getFields(orderByType, orderByFieldName);
-                for (TypedExpression field : fields) {
-                    qb.orderBy(field, queryDirection);
+                if (OrderBy.NONE.equals(orderByFieldPath)) {
+                    OrderBy.OrderByNone.set(true);
+                } else {
+                    ComplexTypeMetadata orderByType = repository.getComplexType(StringUtils.substringBefore(orderByFieldPath, "/")); //$NON-NLS-1$
+                    String orderByFieldName = StringUtils.substringAfter(orderByFieldPath, "/"); //$NON-NLS-1$
+                    List<TypedExpression> fields = UserQueryHelper.getFields(orderByType, orderByFieldName);
+                    for (TypedExpression field : fields) {
+                        qb.orderBy(field, queryDirection);
+                    }
                 }
             }
 
