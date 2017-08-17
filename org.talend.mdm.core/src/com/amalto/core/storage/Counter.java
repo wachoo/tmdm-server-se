@@ -11,10 +11,14 @@
 package com.amalto.core.storage;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
+import com.amalto.core.storage.Counter.CountKey;
 
 public interface Counter {
 
@@ -142,6 +146,42 @@ public interface Counter {
         public static void remove() {
             threadLocal.remove();
         }
+    }
+
+    public static abstract class AbstractCounter {
+
+        protected Integer get(Map<String, Integer> cache, CountKey countKey) {
+            return cache.get(countKey.toString());
+        }
+
+        protected void put(Map<String, Integer> cache, CountKey countKey, Integer value) {
+            synchronized (cache) {
+                cache.put(countKey.toString(), value);
+            }
+        }
+
+        protected void clear(Map<String, Integer> cache, CountKey countKey) {
+            String entityKey = countKey.getEntityKey();
+            synchronized (cache) {
+                List<String> toClear = cache.keySet().stream().filter(key -> key.startsWith(entityKey))
+                        .collect(Collectors.toList());
+                toClear.stream().forEach(key -> cache.remove(key));
+            }
+        }
+
+        protected void clearAll(Map<String, Integer> cache) {
+            List<String> toClear = cache.keySet().stream().collect(Collectors.toList());
+            toClear.stream().forEach(key -> cache.remove(key));
+        }
+
+        protected void clearAll(Map<String, Integer> cache, String storageName) {
+            String masterPrefix = storageName + '#' + StorageType.MASTER;
+            String stagingPrefix = storageName + '#' + StorageType.STAGING;
+            List<String> toClear = cache.keySet().stream()
+                    .filter(key -> key.startsWith(masterPrefix) || key.startsWith(stagingPrefix)).collect(Collectors.toList());
+            toClear.stream().forEach(key -> cache.remove(key));
+        }
+
     }
 
 }

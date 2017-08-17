@@ -11,11 +11,11 @@
 package com.amalto.core.storage;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class InMemoryCounter implements Counter {
+import com.amalto.core.storage.Counter.AbstractCounter;
+
+public class InMemoryCounter extends AbstractCounter implements Counter {
 
     private final Map<String, Integer> COUNT_CACHE;
 
@@ -25,39 +25,27 @@ public class InMemoryCounter implements Counter {
 
     @Override
     public Integer get(CountKey countKey) {
-        return COUNT_CACHE.get(countKey.toString());
+        return get(COUNT_CACHE, countKey);
     }
 
     @Override
     public void put(CountKey countKey, Integer value) {
-        synchronized (COUNT_CACHE) {
-            COUNT_CACHE.put(countKey.toString(), value);
-        }
+        put(COUNT_CACHE, countKey, value);
     }
 
     @Override
     public void clear(CountKey countKey) {
-        String entityKey = countKey.getEntityKey();
-        synchronized (COUNT_CACHE) {
-            List<String> toClear = COUNT_CACHE.keySet().stream().filter(key -> key.startsWith(entityKey))
-                    .collect(Collectors.toList());
-            toClear.stream().forEach(key -> COUNT_CACHE.remove(key));
-        }
+        clear(COUNT_CACHE, countKey);
     }
 
     @Override
     public void clearAll() {
-        List<String> toClear = COUNT_CACHE.keySet().stream().collect(Collectors.toList());
-        toClear.stream().forEach(key -> COUNT_CACHE.remove(key));
+        clearAll(COUNT_CACHE);
     }
 
     @Override
     public void clearAll(String storageName) {
-        String masterPrefix = storageName + '#' + StorageType.MASTER;
-        String stagingPrefix = storageName + '#' + StorageType.STAGING;
-        List<String> toClear = COUNT_CACHE.keySet().stream()
-                .filter(key -> key.startsWith(masterPrefix) || key.startsWith(stagingPrefix)).collect(Collectors.toList());
-        toClear.stream().forEach(key -> COUNT_CACHE.remove(key));
+        clearAll(COUNT_CACHE, storageName);
     }
 
 }
