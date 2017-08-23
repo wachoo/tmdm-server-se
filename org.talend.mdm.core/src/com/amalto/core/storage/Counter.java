@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.Select;
-import com.amalto.core.storage.Counter.CountKey;
 
 public interface Counter {
 
@@ -150,31 +149,28 @@ public interface Counter {
 
     public static abstract class AbstractCounter {
 
-        protected Integer get(Map<String, Integer> cache, CountKey countKey) {
+        protected Map<String, Integer> cache;
+
+        protected Integer get(CountKey countKey) {
             return cache.get(countKey.toString());
         }
 
-        protected void put(Map<String, Integer> cache, CountKey countKey, Integer value) {
-            synchronized (cache) {
-                cache.put(countKey.toString(), value);
-            }
+        protected synchronized void put(CountKey countKey, Integer value) {
+            cache.put(countKey.toString(), value);
         }
 
-        protected void clear(Map<String, Integer> cache, CountKey countKey) {
+        protected synchronized void clear(CountKey countKey) {
             String entityKey = countKey.getEntityKey();
-            synchronized (cache) {
-                List<String> toClear = cache.keySet().stream().filter(key -> key.startsWith(entityKey))
-                        .collect(Collectors.toList());
-                toClear.stream().forEach(key -> cache.remove(key));
-            }
+            List<String> toClear = cache.keySet().stream().filter(key -> key.startsWith(entityKey)).collect(Collectors.toList());
+            toClear.stream().forEach(key -> cache.remove(key));
         }
 
-        protected void clearAll(Map<String, Integer> cache) {
+        protected synchronized void clearAll() {
             List<String> toClear = cache.keySet().stream().collect(Collectors.toList());
             toClear.stream().forEach(key -> cache.remove(key));
         }
 
-        protected void clearAll(Map<String, Integer> cache, String storageName) {
+        protected synchronized void clearAll(String storageName) {
             String masterPrefix = storageName + '#' + StorageType.MASTER;
             String stagingPrefix = storageName + '#' + StorageType.STAGING;
             List<String> toClear = cache.keySet().stream()

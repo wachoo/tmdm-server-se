@@ -11,41 +11,38 @@
 package com.amalto.core.storage;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import com.amalto.core.storage.Counter.AbstractCounter;
 
 public class InMemoryCounter extends AbstractCounter implements Counter {
 
-    private final Map<String, Integer> COUNT_CACHE;
-
     public InMemoryCounter() {
-        COUNT_CACHE = new HashMap<>();
+        cache = new HashMap<>();
     }
 
     @Override
     public Integer get(CountKey countKey) {
-        return get(COUNT_CACHE, countKey);
+        return super.get(countKey);
     }
 
     @Override
     public void put(CountKey countKey, Integer value) {
-        put(COUNT_CACHE, countKey, value);
+        super.put(countKey, value);
     }
 
     @Override
     public void clear(CountKey countKey) {
-        clear(COUNT_CACHE, countKey);
+        super.clear(countKey);
     }
 
     @Override
     public void clearAll() {
-        clearAll(COUNT_CACHE);
+        super.clearAll();
     }
 
     @Override
     public void clearAll(String storageName) {
-        clearAll(COUNT_CACHE, storageName);
+        super.clearAll(storageName);
     }
 
 }
