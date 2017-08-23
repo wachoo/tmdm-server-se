@@ -39,6 +39,7 @@ public class LongTransactionAbstractTestCase extends StorageTestCase {
     
     @Override
     public void setUp() throws Exception {
+        // override to avoid storage.begin in superclass setup
         EntityCountUtil.clearAll();
     }
     
