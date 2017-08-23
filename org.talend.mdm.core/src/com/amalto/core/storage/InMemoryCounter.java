@@ -20,29 +20,4 @@ public class InMemoryCounter extends AbstractCounter implements Counter {
         cache = new HashMap<>();
     }
 
-    @Override
-    public Integer get(CountKey countKey) {
-        return super.get(countKey);
-    }
-
-    @Override
-    public void put(CountKey countKey, Integer value) {
-        super.put(countKey, value);
-    }
-
-    @Override
-    public void clear(CountKey countKey) {
-        super.clear(countKey);
-    }
-
-    @Override
-    public void clearAll() {
-        super.clearAll();
-    }
-
-    @Override
-    public void clearAll(String storageName) {
-        super.clearAll(storageName);
-    }
-
 }

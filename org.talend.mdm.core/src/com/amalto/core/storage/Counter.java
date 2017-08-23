@@ -147,30 +147,30 @@ public interface Counter {
         }
     }
 
-    public static abstract class AbstractCounter {
+    public static abstract class AbstractCounter implements Counter {
 
         protected Map<String, Integer> cache;
 
-        protected Integer get(CountKey countKey) {
+        public Integer get(CountKey countKey) {
             return cache.get(countKey.toString());
         }
 
-        protected synchronized void put(CountKey countKey, Integer value) {
+        public synchronized void put(CountKey countKey, Integer value) {
             cache.put(countKey.toString(), value);
         }
 
-        protected synchronized void clear(CountKey countKey) {
+        public synchronized void clear(CountKey countKey) {
             String entityKey = countKey.getEntityKey();
             List<String> toClear = cache.keySet().stream().filter(key -> key.startsWith(entityKey)).collect(Collectors.toList());
             toClear.stream().forEach(key -> cache.remove(key));
         }
 
-        protected synchronized void clearAll() {
+        public synchronized void clearAll() {
             List<String> toClear = cache.keySet().stream().collect(Collectors.toList());
             toClear.stream().forEach(key -> cache.remove(key));
         }
 
-        protected synchronized void clearAll(String storageName) {
+        public synchronized void clearAll(String storageName) {
             String masterPrefix = storageName + '#' + StorageType.MASTER;
             String stagingPrefix = storageName + '#' + StorageType.STAGING;
             List<String> toClear = cache.keySet().stream()
