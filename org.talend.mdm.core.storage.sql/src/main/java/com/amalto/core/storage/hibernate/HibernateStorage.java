@@ -142,7 +142,6 @@ import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Counter.CountKey;
-import com.amalto.core.storage.Counter.CountKeyList;
 import com.amalto.core.storage.EntityCountUtil;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageMetadataUtils;
