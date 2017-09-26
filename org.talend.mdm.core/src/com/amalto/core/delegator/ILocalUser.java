@@ -20,7 +20,6 @@ import java.util.HashSet;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import com.amalto.core.delegator.LocalUserDetails;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
 import com.amalto.core.objects.ItemPOJO;
@@ -59,7 +58,7 @@ public abstract class ILocalUser implements IBeanDelegator {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage systemStorage = storageAdmin.get(StorageAdmin.SYSTEM_STORAGE, StorageType.SYSTEM);
         ComplexTypeMetadata userType = systemStorage.getMetadataRepository().getComplexType("User");
-        UserQueryBuilder qb = from(userType).where(eq(userType.getField("username"), getIdentity()));
+        UserQueryBuilder qb = from(userType).where(eq(userType.getField("username"), getUsername()));
         DataRecordWriter writer = new DataRecordXmlWriter(userType);
         StringWriter userXml = new StringWriter();
         try {
@@ -79,6 +78,9 @@ public abstract class ILocalUser implements IBeanDelegator {
     public String getIdentity() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
+        if (principal instanceof LocalUserDetails) {
+            return ((LocalUserDetails) principal).getId();
+        }
         return (String) principal;
     }
     
@@ -136,6 +138,10 @@ public abstract class ILocalUser implements IBeanDelegator {
         return true;
     }
 
+    public boolean userCanWrite() {
+        return true;
+    }
+
     public boolean userCanWrite(Class<?> objectTypeClass, String instanceId) throws XtentisException {
         return true;
     }
@@ -146,6 +152,11 @@ public abstract class ILocalUser implements IBeanDelegator {
 
     public boolean userItemCanWrite(ItemPOJO item, String datacluster, String concept) throws XtentisException {
         return true;
+    }
+
+    public User parseWithoutSystemRoles() throws Exception {
+        User user = User.parse(getUserXML());
+        return user;
     }
 
 }
