@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -106,7 +107,7 @@ public class UploadService {
 
     private QName xsiTypeQName = null;
 
-    private Map<String, List<Element>> multiNodeMap;
+    protected Map<String, List<Element>> multiNodeMap;
 
     static{
         defaultMaxImportCount = Integer.parseInt(
@@ -674,25 +675,63 @@ public class UploadService {
         return fieldValue;
     }
 
-    protected String transferFieldValue(String xpath, String value,String separator) {
-        if (value != null && !"".equals(value)) {
-            TypeModel headerTypeModel = entityModel.getTypeModel(xpath.endsWith("/") ? xpath.substring(0, xpath.lastIndexOf("/"))
-                    : xpath);
+    protected String transferFieldValue(String xpath, String value, String separator) {
+        if (StringUtils.isNotEmpty(value)) {
+            TypeModel headerTypeModel = entityModel
+                    .getTypeModel(xpath.endsWith("/") ? xpath.substring(0, xpath.lastIndexOf("/")) : xpath);
+            // Handle foreign key field
             if (headerTypeModel.getForeignkey() != null) {
-                if (separator != null && separator.length() > 0 && value.contains(separator)) {
-                    int index = value.indexOf(separator);
-                    if (index > 0) {
-                        value = value.substring(0, index);
+                if (StringUtils.isNotEmpty(separator) && value.contains(separator)) {
+                    if (headerTypeModel.isMultiOccurrence()) {
+                        String[] values = StringUtils.split(value, separator);
+                        StringBuilder valueStringBuilder = new StringBuilder();
+                        for (int i = 0; i < values.length; i++) {
+                            if (headerTypeModel.getForeignKeyInfo() != null && headerTypeModel.getForeignKeyInfo().size() > 0) {
+                                // When type model are multiple occurrence and have foreign key info,we only get value
+                                // between bracket.For instance we get 1 and 2 from [1]|FkInfo1|[2]|FKInfo2
+                                if (matchForeignKeyPattern(values[i])) {
+                                    valueStringBuilder.append(values[i]);
+                                    valueStringBuilder.append(separator);
+                                }
+                            } else {
+                                // When type model are multiple occurrence and don't have foreign key info,we just add
+                                // bracket.
+                                valueStringBuilder.append(formatForeignKey(values[i]));
+                                valueStringBuilder.append(separator);
+                            }
+                        }
+                        String valueString = valueStringBuilder.toString();
+                        value = valueString.subSequence(0, valueString.length() - 1).toString();
+                    } else {
+                        if (headerTypeModel.getForeignKeyInfo() != null && headerTypeModel.getForeignKeyInfo().size() > 0) {
+                            // When type model are not multiple occurrence and have foreign key info,the format like
+                            // FK|FKInfo.We only need FK.
+                            int index = value.indexOf(separator);
+                            if (index > 0) {
+                                value = value.substring(0, index);
+                            }
+                        }
                     }
                 }
-                Pattern p = Pattern.compile("^\\[.+\\]$"); //$NON-NLS-1$
-                Matcher m = p.matcher(value);
-                if (!m.matches()) {
-                    value = "[" + value + "]";
-                }
+                value = formatForeignKey(value);
             }
         }
         return value;
+    }
+
+    private String formatForeignKey(String value) {
+        // Add bracket for foreign key when foreign key don't have bracket.
+        if (!matchForeignKeyPattern(value)) {
+            return "[" + value + "]";
+        } else {
+            return value;
+        }
+    }
+    
+    private boolean matchForeignKeyPattern(String value) {
+        Pattern p = Pattern.compile("^\\[.+\\]$|^\\[.+\\]\\[.+\\]$"); //$NON-NLS-1$
+        Matcher m = p.matcher(value);
+        return m.matches();
     }
 
     private void setFieldValue(Element currentElement, String value) throws Exception {
