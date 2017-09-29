@@ -411,7 +411,8 @@ public class UploadServiceTest extends TestCase {
             if (rowNumber == 1) {
                 continue;
             } else if (rowNumber == 2) {
-                // case 3 Test foreign key value with info and bracket like [1]|Hats
+                // case 3 Test foreign key value with info and bracket
+                // [FK1]|FKInfo
                 document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
                         .getSubXML(entityModel.getTypeModel("TestFKWithInfo"), null, null, "en"));
                 Element currentElement = document.getRootElement();
@@ -422,7 +423,80 @@ public class UploadServiceTest extends TestCase {
                         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK></TestFKWithInfo>", //$NON-NLS-1$
                         document.asXML());
             } else if (rowNumber == 3) {
-                // case 4 Test foreign key value with info without bracket like 1|Hats
+                // case 3 Test foreign key value with info and bracket
+                // [FK1]-FKInfo
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)), row,
+                        null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK></TestFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 4) {
+                // case 3 Test foreign key value with info and bracket
+                // [FK1]|FKInfo|FKInfo
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)), row,
+                        null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK></TestFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 5) {
+                // case 3 Test foreign key value with info and bracket
+                // [FK1]-FKInfo-FKInfo
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)), row,
+                        null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK></TestFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 6) {
+                // case 4 Test foreign key value with info without bracket
+                // FK1|FKInfo
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)), row,
+                        null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK></TestFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 7) {
+                // case 4 Test foreign key value with info without bracket
+                // FK1-FKInfo
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)), row,
+                        null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK></TestFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 8) {
+                // case 4 Test foreign key value with info without bracket
+                // FK1|FKInfo|FKInfo
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)), row,
+                        null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK></TestFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 9) {
+                // case 4 Test foreign key value with info without bracket
+                // FK1-FKInfo-FKInfo
                 document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
                         .getSubXML(entityModel.getTypeModel("TestFKWithInfo"), null, null, "en"));
                 Element currentElement = document.getRootElement();
@@ -491,7 +565,44 @@ public class UploadServiceTest extends TestCase {
             if (rowNumber == 1) {
                 continue;
             } else if (rowNumber == 2) {
-                // case 7 Test multiple foreign key value with info with bracket like [FK1]|FKInfo1|[FK2]|FKInfo2
+                // case 7 Test multiple foreign key value with info with bracket
+                // [FK1]|FKInfo1|[FK2]|FKInfo2
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestMultipleFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestMultipleFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)),
+                        row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestMultipleFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK><FK>[FK2]</FK></TestMultipleFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 3) {
+                // case 7 Test multiple foreign key value with info with bracket
+                // [FK1]|FKInfo1|FKInfo2|[FK2]|FKInfo1|FKInfo2
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestMultipleFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestMultipleFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)),
+                        row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestMultipleFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK><FK>[FK2]</FK></TestMultipleFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 4) {
+                // case 7 Test multiple foreign key value with info with bracket
+                // [FK1]-FKInfo1|[FK2]-FKInfo2
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestMultipleFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestMultipleFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)),
+                        row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestMultipleFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1]</FK><FK>[FK2]</FK></TestMultipleFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 5) {
+                // case 7 Test multiple foreign key value with info with bracket
+                // [FK1]-FKInfo1-FKInfo2|[FK2]-FKInfo1-FKInfo2
                 document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
                         .getSubXML(entityModel.getTypeModel("TestMultipleFKWithInfo"), null, null, "en"));
                 Element currentElement = document.getRootElement();
@@ -549,7 +660,44 @@ public class UploadServiceTest extends TestCase {
             if (rowNumber == 1) {
                 continue;
             } else if (rowNumber == 2) {
-                // case 9 Test composite foreign key value with info with bracket like [FK1][FK2]|FKInfo1
+                // case 9 Test composite foreign key value with info with bracket
+                // 1 [FK1][FK2]|FKInfo1
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestCompositeFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestCompositeFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)),
+                        row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestCompositeFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1][FK2]</FK></TestCompositeFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 3) {
+                // case 9 Test composite foreign key value with info with bracket
+                // 2 [FK1][FK2]|FKInfo1|FKInfo2
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestCompositeFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestCompositeFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)),
+                        row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestCompositeFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1][FK2]</FK></TestCompositeFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 4) {
+                // case 9 Test composite foreign key value with info with bracket
+                // 3 [FK1][FK2]-FKInfo1
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestCompositeFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestCompositeFKWithInfo/FK", service.getExcelFieldValue(row.getCell(2)),
+                        row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestCompositeFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK1][FK2]</FK></TestCompositeFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 5) {
+                // case 9 Test composite foreign key value with info with bracket
+                // 4 [FK1][FK2]-FKInfo1-FKInfo2
                 document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
                         .getSubXML(entityModel.getTypeModel("TestCompositeFKWithInfo"), null, null, "en"));
                 Element currentElement = document.getRootElement();
@@ -608,7 +756,43 @@ public class UploadServiceTest extends TestCase {
                 continue;
             } else if (rowNumber == 2) {
                 // case 11 Test multiple composite foreign key value with info without bracket like
-                // FK11FK12|FKInfo1|FK11FK2122|FKInfo2
+                // [FK11][FK12]|FKInfo1|[FK21][FK22]|FKInfo2
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestMultipleCompositeFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestMultipleCompositeFKWithInfo/FK",
+                        service.getExcelFieldValue(row.getCell(2)), row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestMultipleCompositeFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK11][FK12]</FK><FK>[FK21][FK22]</FK></TestMultipleCompositeFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 3) {
+                // case 11 Test multiple composite foreign key value with info without bracket like
+                // [FK11][FK12]|FKInfo1|FKInfo2|[FK21][FK22]|FKInfo1|FKInfo2
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestMultipleCompositeFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestMultipleCompositeFKWithInfo/FK",
+                        service.getExcelFieldValue(row.getCell(2)), row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestMultipleCompositeFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK11][FK12]</FK><FK>[FK21][FK22]</FK></TestMultipleCompositeFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 4) {
+                // case 11 Test multiple composite foreign key value with info without bracket like
+                // [FK11][FK12]-FKInfo1|[FK21][FK22]-FKInfo2
+                document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
+                        .getSubXML(entityModel.getTypeModel("TestMultipleCompositeFKWithInfo"), null, null, "en"));
+                Element currentElement = document.getRootElement();
+                service.resetMultiNodeMap();
+                service.fillFieldValue(currentElement, "TestMultipleCompositeFKWithInfo/FK",
+                        service.getExcelFieldValue(row.getCell(2)), row, null);
+                assertEquals(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TestMultipleCompositeFKWithInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Id/><Name/><FK>[FK11][FK12]</FK><FK>[FK21][FK22]</FK></TestMultipleCompositeFKWithInfo>", //$NON-NLS-1$
+                        document.asXML());
+            } else if (rowNumber == 5) {
+                // case 11 Test multiple composite foreign key value with info without bracket like
+                // [FK11][FK12]-FKInfo1-FKInfo2|[FK21][FK22]-FKInfo1-FKInfo2
                 document = XmlUtil.parseDocument(org.talend.mdm.webapp.browserecords.server.util.CommonUtil
                         .getSubXML(entityModel.getTypeModel("TestMultipleCompositeFKWithInfo"), null, null, "en"));
                 Element currentElement = document.getRootElement();
@@ -652,7 +836,6 @@ public class UploadServiceTest extends TestCase {
                 String seperator, String encoding, char textDelimiter, String language) {
             super(entityModel, fileType, isPartialUpdate, headersOnFirstLine, headerVisibleMap, inheritanceNodePathList, multipleValueSeparator,
                     seperator, encoding, textDelimiter, language);
-            this.multiNodeMap = new HashMap<String, List<Element>>();
         }
 
         @Override

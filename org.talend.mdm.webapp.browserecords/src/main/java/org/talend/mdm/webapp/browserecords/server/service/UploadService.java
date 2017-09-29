@@ -20,8 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -108,6 +106,8 @@ public class UploadService {
     private QName xsiTypeQName = null;
 
     protected Map<String, List<Element>> multiNodeMap;
+
+    final private String SEPRATOR_FOR_FK_AND_INFO = "-";
 
     static{
         defaultMaxImportCount = Integer.parseInt(
@@ -688,15 +688,18 @@ public class UploadService {
                         for (int i = 0; i < values.length; i++) {
                             if (headerTypeModel.getForeignKeyInfo() != null && headerTypeModel.getForeignKeyInfo().size() > 0) {
                                 // When type model are multiple occurrence and have foreign key info,we only get value
-                                // between bracket.For instance we get 1 and 2 from [1]|FkInfo1|[2]|FKInfo2
-                                if (matchForeignKeyPattern(values[i])) {
-                                    valueStringBuilder.append(values[i]);
+                                // between bracket.For instance we get 1 and 2 from [1]|FkInfo1|[2]|FKInfo2 or
+                                // [1]-FkInfo1|[2]-FKInfo2
+                                String fkValue = extractForeignKey(values[i], SEPRATOR_FOR_FK_AND_INFO);
+                                if (fkValue.startsWith("[") && fkValue.endsWith("]")) {
+                                    valueStringBuilder.append(fkValue);
                                     valueStringBuilder.append(separator);
                                 }
                             } else {
                                 // When type model are multiple occurrence and don't have foreign key info,we just add
                                 // bracket.
-                                valueStringBuilder.append(formatForeignKey(values[i]));
+                                valueStringBuilder
+                                        .append(org.talend.mdm.webapp.base.shared.util.CommonUtil.wrapFkValue(values[i]));
                                 valueStringBuilder.append(separator);
                             }
                         }
@@ -706,32 +709,25 @@ public class UploadService {
                         if (headerTypeModel.getForeignKeyInfo() != null && headerTypeModel.getForeignKeyInfo().size() > 0) {
                             // When type model are not multiple occurrence and have foreign key info,the format like
                             // FK|FKInfo.We only need FK.
-                            int index = value.indexOf(separator);
-                            if (index > 0) {
-                                value = value.substring(0, index);
-                            }
+                            value = extractForeignKey(value, separator);
                         }
                     }
+                } else {
+                    value = extractForeignKey(value, SEPRATOR_FOR_FK_AND_INFO);
                 }
-                value = formatForeignKey(value);
+                value = org.talend.mdm.webapp.base.shared.util.CommonUtil.wrapFkValue(value);
             }
         }
         return value;
     }
 
-    private String formatForeignKey(String value) {
-        // Add bracket for foreign key when foreign key don't have bracket.
-        if (!matchForeignKeyPattern(value)) {
-            return "[" + value + "]";
+    private String extractForeignKey(String value, String separator) {
+        int index = value.indexOf(separator);
+        if (index > 0) {
+            return value.substring(0, index);
         } else {
             return value;
         }
-    }
-    
-    private boolean matchForeignKeyPattern(String value) {
-        Pattern p = Pattern.compile("^\\[.+\\]$|^\\[.+\\]\\[.+\\]$"); //$NON-NLS-1$
-        Matcher m = p.matcher(value);
-        return m.matches();
     }
 
     private void setFieldValue(Element currentElement, String value) throws Exception {
