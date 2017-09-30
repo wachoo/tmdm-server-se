@@ -35,6 +35,8 @@ public interface BaseMessages extends Messages {
 
     String unknown_error();
 
+    String server_unavailable_error();
+
     String session_timeout_error();
 
     String open_mls_title();

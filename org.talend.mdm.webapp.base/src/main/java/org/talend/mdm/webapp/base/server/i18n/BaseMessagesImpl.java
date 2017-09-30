@@ -73,6 +73,11 @@ public final class BaseMessagesImpl implements BaseMessages {
     }
 
     @Override
+    public String server_unavailable_error() {
+        return MESSAGES.getMessage("server_unavailable_error");
+    }
+
+    @Override
     public String unknown_error() {
         return MESSAGES.getMessage("unknown_error");
     }
