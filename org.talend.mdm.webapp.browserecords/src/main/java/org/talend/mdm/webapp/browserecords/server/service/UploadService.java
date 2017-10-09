@@ -20,10 +20,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -106,7 +105,9 @@ public class UploadService {
 
     private QName xsiTypeQName = null;
 
-    private Map<String, List<Element>> multiNodeMap;
+    protected Map<String, List<Element>> multiNodeMap;
+
+    final private String SEPRATOR_FOR_FK_AND_INFO = "-";
 
     static{
         defaultMaxImportCount = Integer.parseInt(
@@ -674,25 +675,59 @@ public class UploadService {
         return fieldValue;
     }
 
-    protected String transferFieldValue(String xpath, String value,String separator) {
-        if (value != null && !"".equals(value)) {
-            TypeModel headerTypeModel = entityModel.getTypeModel(xpath.endsWith("/") ? xpath.substring(0, xpath.lastIndexOf("/"))
-                    : xpath);
+    protected String transferFieldValue(String xpath, String value, String separator) {
+        if (StringUtils.isNotEmpty(value)) {
+            TypeModel headerTypeModel = entityModel
+                    .getTypeModel(xpath.endsWith("/") ? xpath.substring(0, xpath.lastIndexOf("/")) : xpath);
+            // Handle foreign key field
             if (headerTypeModel.getForeignkey() != null) {
-                if (separator != null && separator.length() > 0 && value.contains(separator)) {
-                    int index = value.indexOf(separator);
-                    if (index > 0) {
-                        value = value.substring(0, index);
+                if (StringUtils.isNotEmpty(separator) && value.contains(separator)) {
+                    if (headerTypeModel.isMultiOccurrence()) {
+                        String[] values = StringUtils.split(value, separator);
+                        StringBuilder valueStringBuilder = new StringBuilder();
+                        for (int i = 0; i < values.length; i++) {
+                            if (headerTypeModel.getForeignKeyInfo() != null && headerTypeModel.getForeignKeyInfo().size() > 0) {
+                                // When type model are multiple occurrence and have foreign key info,we only get value
+                                // between bracket.For instance we get 1 and 2 from [1]|FkInfo1|[2]|FKInfo2 or
+                                // [1]-FkInfo1|[2]-FKInfo2
+                                String fkValue = extractForeignKey(values[i], SEPRATOR_FOR_FK_AND_INFO);
+                                if (fkValue.startsWith("[") && fkValue.endsWith("]")) {
+                                    valueStringBuilder.append(fkValue);
+                                    valueStringBuilder.append(separator);
+                                }
+                            } else {
+                                // When type model are multiple occurrence and don't have foreign key info,we just add
+                                // bracket.
+                                valueStringBuilder
+                                        .append(org.talend.mdm.webapp.base.shared.util.CommonUtil.wrapFkValue(values[i]));
+                                valueStringBuilder.append(separator);
+                            }
+                        }
+                        String valueString = valueStringBuilder.toString();
+                        value = valueString.subSequence(0, valueString.length() - 1).toString();
+                    } else {
+                        if (headerTypeModel.getForeignKeyInfo() != null && headerTypeModel.getForeignKeyInfo().size() > 0) {
+                            // When type model are not multiple occurrence and have foreign key info,the format like
+                            // FK|FKInfo.We only need FK.
+                            value = extractForeignKey(value, separator);
+                        }
                     }
+                } else {
+                    value = extractForeignKey(value, SEPRATOR_FOR_FK_AND_INFO);
                 }
-                Pattern p = Pattern.compile("^\\[.+\\]$"); //$NON-NLS-1$
-                Matcher m = p.matcher(value);
-                if (!m.matches()) {
-                    value = "[" + value + "]";
-                }
+                value = org.talend.mdm.webapp.base.shared.util.CommonUtil.wrapFkValue(value);
             }
         }
         return value;
+    }
+
+    private String extractForeignKey(String value, String separator) {
+        int index = value.indexOf(separator);
+        if (index > 0) {
+            return value.substring(0, index);
+        } else {
+            return value;
+        }
     }
 
     private void setFieldValue(Element currentElement, String value) throws Exception {
