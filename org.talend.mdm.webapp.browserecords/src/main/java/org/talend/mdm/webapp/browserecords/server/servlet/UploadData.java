@@ -79,6 +79,7 @@ public class UploadData extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
         response.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
+        response.setContentType("text/plain");
         if (!FileUploadBase.isMultipartContent(request)) {
             throw new ServletException(MESSAGES.getMessage("error_upload")); //$NON-NLS-1$
         }
