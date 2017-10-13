@@ -384,6 +384,19 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
                 });
             }
         });
+
+        // TMDM-7196 We can not get value from file field in safari.But we can get value after we choose file and click
+        // file field.
+        if (isSafari()) {
+            submit.addListener(Events.OnMouseOver, new Listener<BaseEvent>() {
+
+                @Override
+                public void handleEvent(BaseEvent be) {
+                    file.focus();
+                }
+            });
+        }
+
         this.addButton(submit);
         this.setButtonAlign(HorizontalAlignment.CENTER);
 
@@ -429,4 +442,10 @@ public class UploadFileFormPanel extends FormPanel implements Listener<FormEvent
         msg = msg.replace("</pre>", ""); //$NON-NLS-1$ //$NON-NLS-2$
         return msg;
     }
+
+    private native boolean isSafari()/*-{
+        var userAgent = navigator.userAgent;
+        return userAgent.indexOf("Safari") > -1
+                && userAgent.indexOf("Chrome") == -1;
+    }-*/;
 }
