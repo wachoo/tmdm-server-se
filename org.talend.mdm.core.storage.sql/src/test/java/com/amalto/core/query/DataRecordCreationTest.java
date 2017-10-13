@@ -10,9 +10,13 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.*;
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,13 +28,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import com.amalto.core.load.io.ResettableStringWriter;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.*;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.*;
-import com.amalto.core.util.Util;
-import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -41,8 +38,25 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.ItemPKCriteriaResultsWriter;
+import com.amalto.core.storage.StagingStorage;
+import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.StorageMetadataUtils;
+import com.amalto.core.storage.StorageResults;
+import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.DataRecordReader;
+import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.XmlDOMDataRecordReader;
+import com.amalto.core.storage.record.XmlSAXDataRecordReader;
+import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import com.amalto.core.util.Util;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class DataRecordCreationTest extends StorageTestCase {
@@ -90,6 +104,46 @@ public class DataRecordCreationTest extends StorageTestCase {
         qb.limit(1);
         StorageResults results = storage.fetch(qb.getSelect());
         assertEquals(1, results.getCount());
+        DataRecord result = results.iterator().next();
+    }
+
+    public void testMultipleForeignKey() {
+        MetadataRepository repository = new MetadataRepository();
+        repository.load(DataRecordCreationTest.class.getResourceAsStream("MultipleForeignKey.xsd")); //$NON-NLS-1$
+
+        Storage storage = new HibernateStorage("H2-DS1", StorageType.MASTER); //$NON-NLS-1$
+        storage.init(ServerContext.INSTANCE.get().getDefinition("H2-DS1", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
+        storage.prepare(repository, true);
+        DataRecordReader<String> factory = new XmlStringDataRecordReader();
+
+        List<DataRecord> records = new LinkedList<DataRecord>();
+        records.add(factory.read(repository, repository.getComplexType("FK1"), "<FK1><Id>FK1</Id><Name>FKInfo1</Name></FK1>")); //$NON-NLS-1$//$NON-NLS-2$
+        records.add(factory.read(repository, repository.getComplexType("FK1"), "<FK1><Id>FK2</Id><Name>FKInfo2</Name></FK1>")); //$NON-NLS-1$//$NON-NLS-2$
+        records.add(factory.read(repository, repository.getComplexType("FK1"), "<FK1><Id>FK3</Id><Name>FKInfo3</Name></FK1>")); //$NON-NLS-1$//$NON-NLS-2$
+        records.add(factory.read(repository, repository.getComplexType("TestMultipleFK1"), //$NON-NLS-1$
+                "<TestMultipleFK1><Id>MultipleFK1</Id><Name>MultipleFK1</Name><FK>[FK1]</FK><FK>[FK2]</FK><FK>[FK3]</FK></TestMultipleFK1>")); // $NON-NLS-2$
+        records.add(factory.read(repository, repository.getComplexType("TestMultipleFK2"), //$NON-NLS-1$
+                "<TestMultipleFK2><Id>MultipleFK2</Id><Name>MultipleFK2</Name><FK1>[FK1]</FK1><FK1>[FK2]</FK1><FK1>[FK3]</FK1><FK2>[FK1]</FK2><FK2>[FK2]</FK2><FK2>[FK3]</FK2><Names>Names1</Names><Names>Names2</Names></TestMultipleFK2>")); // $NON-NLS-2$
+        storage.begin();
+        storage.update(records);
+        storage.commit();
+
+        // Query saved data
+        storage.begin();
+        ComplexTypeMetadata complexTypeMetadata = repository.getComplexType("TestMultipleFK1"); //$NON-NLS-1$
+        UserQueryBuilder qb = from(complexTypeMetadata).select(complexTypeMetadata.getField("Id")) //$NON-NLS-1$
+                .select(complexTypeMetadata.getField("Name")).select(complexTypeMetadata.getField("FK")); //$NON-NLS-1$
+        qb.start(0);
+        qb.limit(1);
+        StorageResults results = storage.fetch(qb.getSelect());
+        assertEquals(3, results.getCount());
+        complexTypeMetadata = repository.getComplexType("TestMultipleFK2"); //$NON-NLS-1$
+        qb = from(complexTypeMetadata).select(complexTypeMetadata.getField("Id")).select(complexTypeMetadata.getField("Name")) //$NON-NLS-1$
+                .select(complexTypeMetadata.getField("FK1")).select(complexTypeMetadata.getField("FK2")); //$NON-NLS-1$
+        qb.start(0);
+        qb.limit(1);
+        results = storage.fetch(qb.getSelect());
+        assertEquals(9, results.getCount());
         DataRecord result = results.iterator().next();
     }
 

@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.talend.mdm.commmon.metadata.FieldMetadata;
+import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
 import com.amalto.core.query.user.Field;
@@ -69,6 +70,10 @@ class HibernateStorageResults implements StorageResults {
                         if (container != null && container.isMany()) {
                             selectedFields.add(typedExpression);
                         }
+                    } else if (field.getFieldMetadata() instanceof ReferenceFieldMetadata && field.getFieldMetadata().isMany()) {
+                        // TMDM-11494 When entity has multiple foreign key,in order to get correct record count,we need
+                        // to add foreign key field to count select.
+                        selectedFields.add(typedExpression);
                     }
                 }
             }
