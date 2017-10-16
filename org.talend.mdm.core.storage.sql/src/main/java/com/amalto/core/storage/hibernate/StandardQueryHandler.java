@@ -213,10 +213,10 @@ class StandardQueryHandler extends AbstractQueryHandler {
         FieldMetadata rightField = join.getRightField().getFieldMetadata();
         FieldMetadata leftField = join.getLeftField().getFieldMetadata();
         // Choose the right join alias
-        String rightAlias = rightField.getContainingType().getName();
+        String aliasName = leftField.getName() + "_" + rightField.getContainingType().getName(); //$NON-NLS-1$
         if (rightField.getEntityTypeName().equals(leftField.getEntityTypeName())) {
             // TMDM-7170: use a new alias for recursive relations
-            rightAlias = createNewAlias();
+            aliasName = createNewAlias();
         }
         // Choose the right join type
         JoinType joinType;
@@ -252,7 +252,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     + mainType.getName() + "' to this field."); //$NON-NLS-1$
         }
         // Generate all necessary joins to go from main type to join right table.
-        generateJoinPath(Collections.singleton(rightAlias), joinType, path);
+        generateJoinPath(Collections.singleton(aliasName), joinType, path);
         return null;
     }
     

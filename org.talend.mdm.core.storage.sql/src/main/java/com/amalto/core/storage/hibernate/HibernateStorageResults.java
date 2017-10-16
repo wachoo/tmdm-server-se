@@ -19,6 +19,8 @@ import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 
 import com.amalto.core.query.user.Field;
+import com.amalto.core.query.user.Join;
+import com.amalto.core.query.user.JoinType;
 import com.amalto.core.query.user.Paging;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.TypedExpression;
@@ -64,16 +66,29 @@ class HibernateStorageResults implements StorageResults {
             for (TypedExpression typedExpression : select.getSelectedFields()) {
                 if (typedExpression instanceof Field) {
                     Field field = (Field) typedExpression;
-                    if (field.getFieldMetadata() instanceof SimpleTypeFieldMetadata) {
+                    FieldMetadata fieldMetadata = field.getFieldMetadata();
+                    if (fieldMetadata instanceof SimpleTypeFieldMetadata) {
                         SimpleTypeFieldMetadata fileFieldMetadata = (SimpleTypeFieldMetadata) field.getFieldMetadata();
                         FieldMetadata container = fileFieldMetadata.getContainingType().getContainer();
                         if (container != null && container.isMany()) {
                             selectedFields.add(typedExpression);
                         }
-                    } else if (field.getFieldMetadata() instanceof ReferenceFieldMetadata && field.getFieldMetadata().isMany()) {
+                    } else if (fieldMetadata instanceof ReferenceFieldMetadata && fieldMetadata.isMany()) {
                         // TMDM-11494 When entity has multiple foreign key,in order to get correct record count,we need
-                        // to add foreign key field to count select.
-                        selectedFields.add(typedExpression);
+                        // to add join to count select.
+                        ReferenceFieldMetadata referenceFieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
+                        boolean isExistedJoin = false;
+                        List<Join> joins = countSelect.getJoins();
+                        for (Join join : joins) {
+                            if (field.equals(join.getLeftField()) && referenceFieldMetadata.getReferencedField()
+                                    .equals(join.getRightField().getFieldMetadata())) {
+                                isExistedJoin = true;
+                            }
+                        }
+                        if (!isExistedJoin) {
+                            countSelect.addJoin(new Join(field, new Field(referenceFieldMetadata.getReferencedField()),
+                                    fieldMetadata.isMandatory() ? JoinType.INNER : JoinType.LEFT_OUTER));
+                        }
                     }
                 }
             }
