@@ -670,7 +670,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
         // searchables
         vb.setSearchables(ViewHelper.getSearchables(wsView, model, language, entityModel));
         // bind layout model
-        vb.setColumnLayoutModel(getColumnTreeLayout(concept, wsView.getCustomForm()));
+        vb.setColumnLayoutModel(getColumnTreeLayout(concept, wsView.getCustomForm(), vb));
         return vb;
     }
 
@@ -1811,10 +1811,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ColumnTreeLayoutModel getColumnTreeLayout(String concept, String customFormName) throws ServiceException {
+    public ColumnTreeLayoutModel getColumnTreeLayout(String concept, String customFormName, ViewBean vBean)
+            throws ServiceException {
         try {
             CustomFormPOJOPK pk = new CustomFormPOJOPK(getCurrentDataModel(), concept, customFormName);
             CustomFormPOJO customForm = com.amalto.core.util.Util.getCustomFormCtrlLocal().getUserCustomForm(pk);
+
+            if (StringUtils.isNotBlank(customFormName) && (customForm == null || !customFormName.equals(customForm.getName()))) {
+                vBean.setMissingLinkedLayout(customFormName);
+                LOG.error("Couldn't find custom layout '" + customFormName + "' associated to view '" + vBean.getViewPK()//$NON-NLS-1$//$NON-NLS-2$
+                        + "'");//$NON-NLS-1$
+            }
+
             if (customForm == null) {
                 return null;
             }
@@ -1945,7 +1953,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     LocalUser.getLocalUser().getUsername(), null);
 
             String updateReport = updateReportPOJO.serialize();
-            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")),//$NON-NLS-1$
+            WSTypedContent wsTypedContent = new WSTypedContent(null, new WSByteArray(updateReport.getBytes("UTF-8")), //$NON-NLS-1$
                     "text/xml; charset=utf-8");//$NON-NLS-1$
             WSExecuteTransformerV2 wsExecuteTransformerV2 = new WSExecuteTransformerV2(wsTransformerContext, wsTypedContent);
 

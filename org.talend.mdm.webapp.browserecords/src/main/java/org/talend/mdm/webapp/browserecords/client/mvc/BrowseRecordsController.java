@@ -445,6 +445,11 @@ public class BrowseRecordsController extends Controller {
 
             @Override
             public void onSuccess(ViewBean viewbean) {
+                String missingLinedLayout = viewbean.getMissingLinkedLayout();
+                if (missingLinedLayout != null) {
+                    String message = MessagesFactory.getMessages().missing_linkedLayout(missingLinedLayout, viewbean.getViewPK());
+                    MessageBox.alert(MessagesFactory.getMessages().warning_title(), message, null);
+                }
 
                 // Init CURRENT_VIEW
                 BrowseRecords.getSession().put(UserSession.CURRENT_VIEW, viewbean);

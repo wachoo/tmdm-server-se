@@ -40,6 +40,8 @@ public class ViewBean implements Serializable, IsSerializable {
     
     private ColumnTreeLayoutModel columnLayoutModel;
 
+    private String missingLinekdLayout;
+
     public ColumnTreeLayoutModel getColumnLayoutModel() {
         return columnLayoutModel;
     }
@@ -108,5 +110,13 @@ public class ViewBean implements Serializable, IsSerializable {
         this.bindingEntityModel = bindingEntityModel;
     }
     
+
+    public String getMissingLinkedLayout() {
+        return this.missingLinekdLayout;
+    }
+
+    public void setMissingLinkedLayout(String missingLinedLayout) {
+        this.missingLinekdLayout = missingLinedLayout;
+    }
 
 }

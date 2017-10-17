@@ -501,7 +501,8 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getColumnTreeLayout(String concept, String customFormName, AsyncCallback<ColumnTreeLayoutModel> callback) {
+        public void getColumnTreeLayout(String concept, String viewPk, ViewBean vBean,
+                AsyncCallback<ColumnTreeLayoutModel> callback) {
         }
 
         @Override
