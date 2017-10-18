@@ -10,13 +10,9 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.from;
+import static com.amalto.core.query.user.UserQueryBuilder.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +24,13 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import com.amalto.core.load.io.ResettableStringWriter;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.*;
+import com.amalto.core.storage.hibernate.HibernateStorage;
+import com.amalto.core.storage.record.*;
+import com.amalto.core.util.Util;
+import com.amalto.xmlserver.interfaces.XmlServerException;
 import org.apache.commons.io.IOUtils;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -38,25 +41,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.amalto.core.server.ServerContext;
-import com.amalto.core.storage.ItemPKCriteriaResultsWriter;
-import com.amalto.core.storage.StagingStorage;
-import com.amalto.core.storage.Storage;
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.StorageResults;
-import com.amalto.core.storage.StorageType;
-import com.amalto.core.storage.hibernate.HibernateStorage;
-import com.amalto.core.storage.record.DataRecord;
-import com.amalto.core.storage.record.DataRecordReader;
-import com.amalto.core.storage.record.DataRecordWriter;
-import com.amalto.core.storage.record.XmlDOMDataRecordReader;
-import com.amalto.core.storage.record.XmlSAXDataRecordReader;
-import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
-import com.amalto.core.util.Util;
-import com.amalto.xmlserver.interfaces.XmlServerException;
 
 @SuppressWarnings("nls")
 public class DataRecordCreationTest extends StorageTestCase {
@@ -106,6 +92,7 @@ public class DataRecordCreationTest extends StorageTestCase {
         assertEquals(1, results.getCount());
         DataRecord result = results.iterator().next();
     }
+
 
     public void __testDateTypeInForeignKey() throws Exception {
         MetadataRepository repository = new MetadataRepository();
