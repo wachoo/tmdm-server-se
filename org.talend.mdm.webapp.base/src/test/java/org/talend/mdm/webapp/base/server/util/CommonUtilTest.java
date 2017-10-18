@@ -12,8 +12,6 @@ package org.talend.mdm.webapp.base.server.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.powermock.api.mockito.PowerMockito;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -29,6 +27,8 @@ import com.amalto.core.webservice.WSWhereCondition;
 import com.amalto.core.webservice.WSWhereItem;
 import com.amalto.core.webservice.WSWhereOperator;
 import com.amalto.core.webservice.WSWhereOr;
+
+import junit.framework.TestCase;
 
 @SuppressWarnings("nls")
 public class CommonUtilTest extends TestCase {
@@ -583,6 +583,11 @@ public class CommonUtilTest extends TestCase {
 
         @Override
         public String save_more_btn() {
+            return "";
+        }
+
+        @Override
+        public String server_unavailable_error() {
             return "";
         }
     }

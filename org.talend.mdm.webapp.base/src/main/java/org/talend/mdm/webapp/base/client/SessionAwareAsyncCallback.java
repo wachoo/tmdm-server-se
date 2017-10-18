@@ -17,6 +17,11 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -29,40 +34,46 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
         if (Log.isErrorEnabled()) {
             Log.error(caught.toString());
         }
-        if (sessionExpired(caught)) {
-            MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(), BaseMessagesFactory.getMessages()
-                    .session_timeout_error(), new Listener<MessageBoxEvent>() {
 
-                public void handleEvent(MessageBoxEvent be) {
-                    Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
-                    Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
-                    Window.Location.replace(GWT.getHostPageBaseURL());
-                }
-            });
+        if (sessionExpired(caught)) {
+            handleSessionExpired();
         } else {
             doOnFailure(caught);
         }
     }
 
     protected void doOnFailure(Throwable caught) {
-        String errorMsg = caught.getLocalizedMessage();
-        if (errorMsg == null || "".equals(errorMsg)) { //$NON-NLS-1$
-            if (Log.isDebugEnabled()) {
-                errorMsg = caught.toString(); // for debugging purpose
-            } else {
-                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
-            }
-        } else if (caught instanceof StatusCodeException) {
-            // see TMDM-4411 if call async method,StatusCodeException will be thrown when mdmserver down
-            if (Log.isDebugEnabled()) {
-                errorMsg = caught.toString(); // for debugging purpose
-            } else {
-                errorMsg = BaseMessagesFactory.getMessages().unknown_error();
-            }
-        }
+        if (caught instanceof StatusCodeException) {
+            RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, GWT.getHostPageBaseURL());
+            builder.setHeader("Accept", "text/plain");
+            try {
+                builder.sendRequest("", new RequestCallback() {
 
-        errorMsg = Format.htmlEncode(errorMsg);
-        MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), errorMsg, null);
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                        if (response.getText().contains("<title>Talend MDM</title>")) {
+                            // TMDM-11334 After use IAM,we can not receive a InvocationException exception to determine
+                            // session expired.
+                            handleSessionExpired();
+                        } else {
+                            // see TMDM-4411 if call async method,StatusCodeException will be thrown when mdmserver down
+                            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(),
+                                    BaseMessagesFactory.getMessages().server_unavailable_error(), null);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        handleException(exception);
+                    }
+
+                });
+            } catch (RequestException exception) {
+                handleException(exception);
+            }
+        } else {
+            handleException(caught);
+        }
     }
 
     private boolean sessionExpired(Throwable caught) {
@@ -75,5 +86,29 @@ public abstract class SessionAwareAsyncCallback<T> implements AsyncCallback<T> {
             return msg == null ? false : (msg.contains("<meta name=\"description\" content=\"Talend MDM login page\"/>") || msg.contains("<title>Talend - Login</title>")); //$NON-NLS-1$
         } else
             return false;
+    }
+
+    private void handleSessionExpired() {
+        MessageBox.alert(BaseMessagesFactory.getMessages().warning_title(),
+                BaseMessagesFactory.getMessages().session_timeout_error(), new Listener<MessageBoxEvent>() {
+
+                    public void handleEvent(MessageBoxEvent be) {
+                        Cookies.removeCookie("JSESSIONID"); //$NON-NLS-1$
+                        Cookies.removeCookie("JSESSIONIDSSO"); //$NON-NLS-1$
+                        Window.Location.replace(GWT.getHostPageBaseURL());
+
+                    }
+                });
+    }
+
+    private void handleException(Throwable caught) {
+        if (Log.isDebugEnabled()) {
+            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), caught.toString(), null);// for debugging
+        } else {
+            String message = caught.getLocalizedMessage();
+            String errorMessage = (message != null && !message.isEmpty()) ? message
+                    : BaseMessagesFactory.getMessages().unknown_error();
+            MessageBox.alert(BaseMessagesFactory.getMessages().error_title(), Format.htmlEncode(errorMessage), null);
+        }
     }
 }
