@@ -107,55 +107,6 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecord result = results.iterator().next();
     }
 
-    public void testMultipleForeignKey() {
-        MetadataRepository repository = new MetadataRepository();
-        repository.load(DataRecordCreationTest.class.getResourceAsStream("MultipleForeignKey.xsd")); //$NON-NLS-1$
-
-        Storage storage = new HibernateStorage("H2-DS1", StorageType.MASTER); //$NON-NLS-1$
-        storage.init(ServerContext.INSTANCE.get().getDefinition("H2-DS1", "MDM")); //$NON-NLS-1$//$NON-NLS-2$
-        storage.prepare(repository, true);
-        DataRecordReader<String> factory = new XmlStringDataRecordReader();
-
-        List<DataRecord> records = new LinkedList<DataRecord>();
-        records.add(factory.read(repository, repository.getComplexType("FK1"), "<FK1><Id>FK1</Id><Name>FKInfo1</Name></FK1>")); //$NON-NLS-1$//$NON-NLS-2$
-        records.add(factory.read(repository, repository.getComplexType("FK1"), "<FK1><Id>FK2</Id><Name>FKInfo2</Name></FK1>")); //$NON-NLS-1$//$NON-NLS-2$
-        records.add(factory.read(repository, repository.getComplexType("FK1"), "<FK1><Id>FK3</Id><Name>FKInfo3</Name></FK1>")); //$NON-NLS-1$//$NON-NLS-2$
-        records.add(factory.read(repository, repository.getComplexType("TestMultipleFK1"), //$NON-NLS-1$
-                "<TestMultipleFK1><Id>MultipleFK1</Id><Name>MultipleFK1</Name><FK>[FK1]</FK><FK>[FK2]</FK><FK>[FK3]</FK></TestMultipleFK1>")); // $NON-NLS-2$
-        records.add(factory.read(repository, repository.getComplexType("TestMultipleFK2"), //$NON-NLS-1$
-                "<TestMultipleFK2><Id>MultipleFK2</Id><Name>MultipleFK2</Name><FK1>[FK1]</FK1><FK1>[FK2]</FK1><FK1>[FK3]</FK1><FK2>[FK1]</FK2><FK2>[FK2]</FK2><FK2>[FK3]</FK2><Names>Names1</Names><Names>Names2</Names></TestMultipleFK2>")); // $NON-NLS-2$
-        records.add(factory.read(repository, repository.getComplexType("TestMultipleFK3"), //$NON-NLS-1$
-                "<TestMultipleFK3><Id>MultipleFK3</Id><Name>MultipleFK3</Name><FK1>[FK1]</FK1><FK1>[FK2]</FK1><FK1>[FK3]</FK1><FK2>[FK1]</FK2><FK2>[FK2]</FK2><FK2>[FK3]</FK2><Names>Names1</Names><Names>Names2</Names></TestMultipleFK3>")); // $NON-NLS-2$
-        storage.begin();
-        storage.update(records);
-        storage.commit();
-
-        // Query saved data
-        storage.begin();
-        ComplexTypeMetadata complexTypeMetadata = repository.getComplexType("TestMultipleFK1"); //$NON-NLS-1$
-        UserQueryBuilder qb = from(complexTypeMetadata).select(complexTypeMetadata.getField("Id")) //$NON-NLS-1$
-                .select(complexTypeMetadata.getField("Name")).select(complexTypeMetadata.getField("FK")); //$NON-NLS-1$//$NON-NLS-2$
-        qb.start(0);
-        qb.limit(1);
-        StorageResults results = storage.fetch(qb.getSelect());
-        assertEquals(3, results.getCount());
-        complexTypeMetadata = repository.getComplexType("TestMultipleFK2"); //$NON-NLS-1$
-        qb = from(complexTypeMetadata).select(complexTypeMetadata.getField("Id")).select(complexTypeMetadata.getField("Name")) //$NON-NLS-1$//$NON-NLS-2$
-                .select(complexTypeMetadata.getField("FK1")).select(complexTypeMetadata.getField("FK2")); //$NON-NLS-1$//$NON-NLS-2$
-        qb.start(0);
-        qb.limit(1);
-        results = storage.fetch(qb.getSelect());
-        assertEquals(9, results.getCount());
-        complexTypeMetadata = repository.getComplexType("TestMultipleFK3"); //$NON-NLS-1$
-        from(complexTypeMetadata).select(complexTypeMetadata.getField("Id")).select(complexTypeMetadata.getField("Name")) //$NON-NLS-1$//$NON-NLS-2$
-                .select(complexTypeMetadata.getField("FK1")).select(complexTypeMetadata.getField("FK2")); //$NON-NLS-1$//$NON-NLS-2$
-        qb.start(0);
-        qb.limit(1);
-        results = storage.fetch(qb.getSelect());
-        assertEquals(9, results.getCount());
-    }
-
-
     public void __testDateTypeInForeignKey() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         repository.load(DataRecordCreationTest.class.getResourceAsStream("metadata16_1.xsd"));
