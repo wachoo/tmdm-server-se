@@ -335,7 +335,7 @@ public class ItemsToolBarGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void getColumnTreeLayout(String concept, String viewPk, ViewBean vBean,
+        public void getColumnTreeLayout(String concept, String customFormName, ViewBean vBean,
                 AsyncCallback<ColumnTreeLayoutModel> callback) {
         }
 

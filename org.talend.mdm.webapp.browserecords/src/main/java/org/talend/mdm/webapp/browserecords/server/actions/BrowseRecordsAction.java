@@ -1818,7 +1818,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             CustomFormPOJO customForm = com.amalto.core.util.Util.getCustomFormCtrlLocal().getUserCustomForm(pk);
 
             if (StringUtils.isNotBlank(customFormName) && (customForm == null || !customFormName.equals(customForm.getName()))) {
-                vBean.setMissingLinkedLayout(customFormName);
+                vBean.setMissingCustomForm(customFormName);
                 LOG.error("Couldn't find custom layout '" + customFormName + "' associated to view '" + vBean.getViewPK()//$NON-NLS-1$//$NON-NLS-2$
                         + "'");//$NON-NLS-1$
             }

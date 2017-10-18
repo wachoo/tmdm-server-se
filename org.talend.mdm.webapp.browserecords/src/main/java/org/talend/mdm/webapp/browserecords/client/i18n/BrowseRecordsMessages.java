@@ -148,7 +148,7 @@ public interface BrowseRecordsMessages extends Messages {
 
     String match_group();
 
-    String missing_linkedLayout(String layout, String view);
+    String missing_customForm(String customForm, String view);
 
     String advsearch_filter();
 
