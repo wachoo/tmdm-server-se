@@ -119,7 +119,7 @@ public interface BrowseRecordsService extends RemoteService {
 
     List<ItemResult> updateItems(List<UpdateItemModel> updateItems, String language) throws ServiceException;
 
-    ColumnTreeLayoutModel getColumnTreeLayout(String concept, String customFormName) throws ServiceException;
+    ColumnTreeLayoutModel getColumnTreeLayout(String concept, String customFormName, ViewBean vBean) throws ServiceException;
 
     ForeignKeyModel getForeignKeyModel(String concept, String ids, boolean isStaging, String language) throws ServiceException;
 

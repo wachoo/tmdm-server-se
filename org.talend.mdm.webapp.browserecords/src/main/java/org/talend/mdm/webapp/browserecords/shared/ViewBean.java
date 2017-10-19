@@ -40,6 +40,8 @@ public class ViewBean implements Serializable, IsSerializable {
     
     private ColumnTreeLayoutModel columnLayoutModel;
 
+    private String missingCustomForm;
+
     public ColumnTreeLayoutModel getColumnLayoutModel() {
         return columnLayoutModel;
     }
@@ -109,4 +111,11 @@ public class ViewBean implements Serializable, IsSerializable {
     }
     
 
+    public String getMissingCustomForm() {
+        return this.missingCustomForm;
+    }
+
+    public void setMissingCustomForm(String missingCustomForm) {
+        this.missingCustomForm = missingCustomForm;
+    }
 }
