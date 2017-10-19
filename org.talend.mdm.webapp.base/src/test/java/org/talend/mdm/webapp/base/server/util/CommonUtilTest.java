@@ -540,7 +540,17 @@ public class CommonUtilTest extends TestCase {
         public String server_error_notification() {
             return "";
         }
+        
+        @Override
+        public String server_error_unauthorized() {
+            return "";
+        }
 
+        @Override
+        public String server_error_forbidden_resource() {
+            return "";
+        }
+        
         @Override
         public String service_rest_error() {
             return "";

@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.http.HttpStatus;
 import org.restlet.client.Request;
 import org.restlet.client.Response;
 import org.restlet.client.Uniform;
@@ -72,8 +73,14 @@ public class ClientResourceWrapper {
                 int statusCode = response.getStatus().getCode();
                 // Why is there status "1223" in here check:
                 // http://stackoverflow.com/questions/10046972/msie-returns-status-code-of-1223-for-ajax-request
-                if (statusCode >= 200 && statusCode <= 299 || statusCode == 1223) {
+                if (statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_MULTIPLE_CHOICES || statusCode == 1223) {
                     callbackHandler.process(request, response);
+                } else if (statusCode == HttpStatus.SC_UNAUTHORIZED) {
+                    MessageBox.alert(BaseMessagesFactory.getMessages().server_error(), BaseMessagesFactory.getMessages()
+                            .server_error_unauthorized(), null);
+                } else if (statusCode == HttpStatus.SC_FORBIDDEN) {
+                    MessageBox.alert(BaseMessagesFactory.getMessages().server_error(), BaseMessagesFactory.getMessages()
+                            .server_error_forbidden_resource(), null);
                 } else {
                     MessageBox.alert(BaseMessagesFactory.getMessages().server_error(), BaseMessagesFactory.getMessages()
                             .server_error_notification(), null);
